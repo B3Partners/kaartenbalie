@@ -1,0 +1,51 @@
+/* 
+    Document   : main
+    Created on : 5 september 2006, 14:13
+    Author     : Roy
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+global tag styles
+*/
+body {
+	padding: 0; 
+	margin: 0; 
+	font-size: 8pt; 
+	background: white; 
+	color: #000000; 
+	font-family: arial, sans-serif;
+}
+div{   
+    border: #000000 1px solid;
+}
+h1{
+    color: #1C6CA7;
+}
+/*Styles for main divs in siteTemplate.jsp*/
+div#bodycontent{
+    float: left;
+}
+div#top{
+    float: left;
+    width: 997px;
+    clear: right;
+}
+div#menu{
+    float: left;
+    width: 195px;
+    clear: left;
+}
+div#content{
+    float: left;
+    width: 800px;
+    
+}
+div#footer{
+    float: left;
+    width: 997px;
+    clear: both;
+}
+/*--------------*/
+

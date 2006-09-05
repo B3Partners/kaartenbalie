@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : tiles-algemeen-defs.xml
+    Created on : 5 september 2006, 13:46
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<tiles-definitions>
+    <definition name="base.algemeen" extends="base">
+        <put name="top" value="/algemeen/main/hIndex.jsp"/>
+        <put name="menu" value="/algemeen/main/mIndex.jsp"/>
+        <put name="footer" value="/algemeen/main/fIndex.jsp"/>
+    </definition>
+    <definition name="base.algemeen.index" extends="base.algemeen">
+        <put name="content" value="/algemeen/main/cIndex.jsp"/>
+    </definition>
+    <definition name="base.algemeen.norights" extends="base.algemeen">
+        <put name="content" value="/algemeen/main/cNoRights.jsp"/>
+    </definition>  
+</tiles-definitions>
