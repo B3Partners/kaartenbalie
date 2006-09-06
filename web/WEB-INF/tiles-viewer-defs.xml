@@ -9,4 +9,12 @@
 -->
 
 <tiles-definitions>
+    <definition name="base.viewer" extends="base">
+        <put name="top" value="/viewer/main/hIndex.jsp"/>
+        <put name="menu" value="/algemeen/main/mIndex.jsp"/>
+        <put name="footer" value="/algemeen/main/fIndex.jsp"/>
+    </definition>
+    <definition name="base.viewer.index" extends="base.viewer">
+        <put name="content" value="/viewer/main/cIndex.jsp"/>
+    </definition>
 </tiles-definitions>

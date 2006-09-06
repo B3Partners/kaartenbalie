@@ -20,4 +20,7 @@
     <definition name="base.algemeen.norights" extends="base.algemeen">
         <put name="content" value="/algemeen/main/cNoRights.jsp"/>
     </definition>  
+    <definition name="base.algemeen.login" extends="base.algemeen">
+        <put name="content" value="/algemeen/main/cLogin.jsp"/>
+    </definition>  
 </tiles-definitions>

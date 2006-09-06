@@ -14,6 +14,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
        <div class="item">Wachtwoord:</div>
        <div class="value"><input type="password" name="j_password"></div>
        <div class="buttonbox">
-           <input type="button" name="login" value="login" >
+           <input type="submit" name="login" value="login" >
        </div>
    </form> 

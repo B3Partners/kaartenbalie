@@ -15,11 +15,11 @@
     </global-exceptions>
 
     <global-forwards>
-        <forward name="welcome"  path="/Welcome.do"/>
+        
     </global-forwards>
 
     <action-mappings>
-        <action path="/Welcome" forward="/welcomeStruts.jsp"/>
+        <action path="/index" forward="base.viewer.index"/>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
@@ -34,7 +34,7 @@
     <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
         <set-property
         property="pathnames"
-        value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+        value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-viewer.xml"/>
     </plug-in>
   
 </struts-config>

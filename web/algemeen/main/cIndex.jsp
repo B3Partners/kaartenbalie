@@ -1,5 +1,5 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
+<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 
-
-<h1> index </h1>
+Welkom bij de kaartenbalie
