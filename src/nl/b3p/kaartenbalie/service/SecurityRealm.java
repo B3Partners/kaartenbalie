@@ -78,7 +78,8 @@ public class SecurityRealm extends SimpleSecurityRealmBase {
         
         ArrayList roleList = new ArrayList();
         roleList.add("gebruiker");
-        roleList.add("beheerder");
+        if (username.equalsIgnoreCase("beheerder"))
+            roleList.add("beheerder");
         
         userroles.put(username, roleList);
             

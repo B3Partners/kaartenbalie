@@ -58,4 +58,9 @@
             index.do
         </welcome-file>
     </welcome-file-list>
+    <!-- SecurityFilter works with custom error pages  -->
+    <error-page>
+        <error-code>403</error-code>
+        <location>/norights.do</location>
+    </error-page>
 </web-app>

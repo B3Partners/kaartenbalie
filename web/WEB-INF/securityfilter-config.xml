@@ -58,7 +58,7 @@
         <auth-method>FORM</auth-method>
         <form-login-config>
             <form-login-page>/login.do</form-login-page>
-            <form-error-page>/norights.do</form-error-page>
+            <form-error-page>/invalidlogin.do</form-error-page>
             <form-default-page>/index.do</form-default-page>
         </form-login-config>
     </login-config>
