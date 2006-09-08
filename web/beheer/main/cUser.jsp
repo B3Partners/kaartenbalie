@@ -18,6 +18,15 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
    "http://www.w3.org/TR/html4/loose.dtd">
 
 <c:forEach var="nUser" varStatus="status" items="${userlist}">
-   <c:out value="${nUser.lastName}, ${nUser.firstName}"/> <br>
+   <a href="user.do?id=${nUser.id}"><c:out value="${nUser.lastName}, ${nUser.firstName}"/></a><br>
 </c:forEach>
+
+<html:form action="/user">
+    Lastname:   <html:text property="lastname"/><br>
+    Firstname: <html:text property="firstname"/><br>
+    Email: <html:text property="email"/><br>
+    Username: <html:text property="username"/><br>
+    Password: <html:text property="password"/><br>
+</html:form>
+    
     

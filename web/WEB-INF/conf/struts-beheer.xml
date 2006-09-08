@@ -12,7 +12,12 @@
             <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
-            
+            <!-- user form fields-->
+            <form-property name="firstname" type="java.lang.String"/>
+            <form-property name="lastname" type="java.lang.String"/>
+            <form-property name="email" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="password" type="java.lang.String"/>
         </form-bean>
     </form-beans>
     

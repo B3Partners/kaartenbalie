@@ -31,6 +31,14 @@ public class UserAction extends KaartenbalieCrudAction{
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     
+    public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        User user= getUser(dynaForm,request,false);
+        if (user!=null){
+            populateUserForm(user,dynaForm,request);
+        }
+        return super.unspecified(mapping, dynaForm, request, response);
+    }
+    
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         if (!isTokenValid(request)) {
@@ -99,6 +107,14 @@ public class UserAction extends KaartenbalieCrudAction{
         }else{
             user.setRoles(new HashSet());
         }
+    }
+
+    private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("firstname",user.getFirstName());
+        dynaForm.set("lastname",user.getLastName());
+        dynaForm.set("email",user.getEmail());
+        dynaForm.set("username",user.getUsername());
+        dynaForm.set("password",user.getPassword());
     }
 
 
