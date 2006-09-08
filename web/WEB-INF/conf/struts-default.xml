@@ -19,6 +19,7 @@
     </global-forwards>
 
     <action-mappings>
+        <action path="/user" type="nl.b3p.kaartenbalie.struts.UserAction"/>
         <action path="/index" forward="base.algemeen.index"/>
         <action path="/norights" forward="base.algemeen.norights"/>
         <action path="/invalidlogin" forward="base.algemeen.invalidlogin"/>

@@ -10,10 +10,13 @@
 <tiles-definitions>
     <definition name="base.beheer" extends="base">
         <put name="top" value="/beheer/main/hIndex.jsp"/>
-        <put name="menu" value="/algemeen/main/mIndex.jsp"/>
+        <put name="menu" value="/beheer/main/mIndex.jsp"/>
         <put name="footer" value="/algemeen/main/fIndex.jsp"/>
     </definition>
     <definition name="base.beheer.index" extends="base.beheer">
         <put name="content" value="/beheer/main/cIndex.jsp"/>
+    </definition>
+    <definition name="base.beheer.user" extends="base.beheer">
+        <put name="content" value="/beheer/main/cUser.jsp"/>
     </definition>
 </tiles-definitions>

@@ -7,7 +7,13 @@
 
 <struts-config>
     <form-beans>
-    
+        <form-bean name="userForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            
+        </form-bean>
     </form-beans>
     
     <global-exceptions>
@@ -20,6 +26,10 @@
 
     <action-mappings>
         <action path="/index" forward="base.beheer.index"/>
+        <action path="/user" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.user"/>
+            <forward name="failure" path="base.beheer.index"/>
+        </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
