@@ -25,7 +25,8 @@ import org.securityfilter.realm.SecurityRealmInterface;
  * @author Chris
  */
 public class SecurityRealm implements SecurityRealmInterface {
-
+    private final Log log = LogFactory.getLog(this.getClass());
+    
     public Principal authenticate(String username, String password) {
         Session sess = MyDatabase.getSessionFactory().getCurrentSession();
         Transaction tx = sess.beginTransaction();
@@ -40,7 +41,6 @@ public class SecurityRealm implements SecurityRealmInterface {
             if(user != null) {
                 Hibernate.initialize(user.getRoles());
             }
-            System.out.println("return user!!!!");
             return user;
         } finally {
             tx.commit();
@@ -51,10 +51,10 @@ public class SecurityRealm implements SecurityRealmInterface {
             return false;
         }
         User user = (User)principal;
-        System.out.println("is user in role: "+role+": "+user.getRoles().contains(role));
+        log.info("Check user principal has role");
         return user.getRoles().contains(role);
     }
-    private final Log log = LogFactory.getLog(this.getClass());
+   
         
         
 
