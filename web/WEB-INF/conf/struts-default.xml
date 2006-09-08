@@ -15,9 +15,11 @@
     </global-exceptions>
 
     <global-forwards>
+        <forward name="success"  path="/index.do"/>
     </global-forwards>
 
     <action-mappings>
+        <action path="/createusers" type="nl.b3p.kaartenbalie.test.CreateUsersAction"/>
         <action path="/index" forward="base.algemeen.index"/>
         <action path="/norights" forward="base.algemeen.norights"/>
         <action path="/invalidlogin" forward="base.algemeen.invalidlogin"/>
