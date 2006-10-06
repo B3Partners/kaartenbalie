@@ -1,7 +1,10 @@
 /*
- * UserAction.java
+ * ServerAction.java
  *
- * Created on 8 september 2006, 9:08
+ * Created on 2 oktober 2006, 13:58
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -11,7 +14,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.User;
+import nl.b3p.kaartenbalie.core.Server;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -20,70 +23,70 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
+
 /**
  *
- * @author Roy
- * @version
+ * @author Nando De Goeij
  */
-
-public class UserAction extends KaartenbalieCrudAction {
+public class ServerAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        User user = this.getUser(dynaForm,request,false, id);
+        Server server = this.getServer(dynaForm, request, false, id);
         
-        if (null != user) {
-            this.populateUserForm(user, dynaForm, request);
+        if (null != server) {
+            this.populateServerForm(server, dynaForm, request);
         }
         return super.unspecified(mapping, dynaForm, request, response);
     }
     
     /*
-     * Returns the user with a specified id.
+     * Returns the server with a specified id.
      */
-    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+    private Server getServer(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
-        User user = null;
+        Server server = null;
         
         if(null == id && createNew) {
-            user = new User();
+            server = new Server();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Long(id));
+            server = (Server)session.load(Server.class, new Long(id));
         }
-        return user;
+        return server;
     }
     
     /*
-     * If a user with a specified id is chosen this method will fill the JSP form with the dat of this user.
+     * If a server with a specified id is chosen this method will fill the JSP form with the dat of this server.
      */
-    private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("firstname", user.getFirstName());
-        dynaForm.set("lastname", user.getLastName());
-        dynaForm.set("email", user.getEmail());
-        dynaForm.set("username", user.getUsername());
-        dynaForm.set("password", user.getPassword());
-        dynaForm.set("selectedRole", user.getRole());
+    private void populateServerForm(Server server, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("serverName", server.getServerName());
+        dynaForm.set("serverUrl", server.getServerUrl());
+        dynaForm.set("serverUpdatedDate", server.getServerUpdatedDate());
+        dynaForm.set("serverReviewed", server.getServerReviewed());
     }
     
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
-        List userList = getHibernateSession().createQuery("from User").list();
-        request.setAttribute("userlist", userList);        
+        List serverlist = getHibernateSession().createQuery("from Server").list();
+        request.setAttribute("serverlist", serverlist);        
     }
     
-    private void populateUserObject(DynaValidatorForm dynaForm, User user) {
-        user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
-        user.setLastName(FormUtils.nullIfEmpty(dynaForm.getString("lastname")));
-        user.setEmail(FormUtils.nullIfEmpty(dynaForm.getString("email")));
-        user.setUsername(FormUtils.nullIfEmpty(dynaForm.getString("username")));
-        user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
-        user.setRole(dynaForm.getString("selectedRole"));
+    private void populateServerObject(DynaValidatorForm dynaForm, Server server) {
+        server.setServerCapa("1");
+        server.setServerServ("1");
+        server.setServerName(FormUtils.nullIfEmpty(dynaForm.getString("serverName")));
+//        server.setCapa(FormUtils.nullIfEmpty(dynaForm.getString("capa")));
+//        server.setServ(FormUtils.nullIfEmpty(dynaForm.getString("serv")));
+        server.setServerUrl(dynaForm.getString("serverUrl"));
+//        server.setServerUpdatedDate(FormUtils.nullIfEmpty(dynaForm.getString("serverUpdatedDate")));
+//        server.setServerReviewed(FormUtils.nullIfEmpty(dynaForm.getString("serverReviewed")));
+        server.setServerUpdatedDate("11-10-09");
+        server.setServerReviewed("No"); 
     }
-    
     
     //This method has not been implemented yet into the system.
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -104,34 +107,34 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        User user = getUser(dynaForm,request,true, id);
-        if (user==null) {
+        Server server = getServer(dynaForm,request,true, id);
+        
+        if (null == server) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        populateUserObject(dynaForm,user);
+        populateServerObject(dynaForm, server);
         //store in db
-        sess.saveOrUpdate(user);
+        sess.saveOrUpdate(server);
         sess.flush();
         
         dynaForm.set("id", "");
-        dynaForm.set("firstname", "");
-        dynaForm.set("lastname", "");
-        dynaForm.set("email", "");
-        dynaForm.set("username", "");
-        dynaForm.set("password", "");
-        dynaForm.set("selectedRole", user.getRole());
+        dynaForm.set("serverName", "");
+        dynaForm.set("serverUrl", "");
+        dynaForm.set("serverUpdatedDate", "");
+        dynaForm.set("serverReviewed", "");
         
         return super.save(mapping,dynaForm,request,response);
     }
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
-        String [] userSelected = dynaForm.getStrings("userSelected");
-        int size = userSelected.length;
+        String [] serverSelected = dynaForm.getStrings("serverSelected");
+        int size = serverSelected.length;
         
         for(int i = 0; i < size; i++) {
             //if invalid
@@ -152,18 +155,18 @@ public class UserAction extends KaartenbalieCrudAction {
                 return getAlternateForward(mapping, request);
             }
             
-            Integer id = Integer.parseInt(userSelected[i]);
-            User user = getUser(dynaForm,request,true, id);
+            Integer id = Integer.parseInt(serverSelected[i]);
+            Server server = getServer(dynaForm,request,true, id);
             
-            if (null == user) {
+            if (null == server) {
                 prepareMethod(dynaForm, request, LIST, EDIT);
                 addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
                 return getAlternateForward(mapping, request);
             }
 
-            populateUserObject(dynaForm,user);
+            populateServerObject(dynaForm, server);
             //store in db
-            sess.delete(user);
+            sess.delete(server);
             sess.flush();
         }
         return super.delete(mapping, dynaForm, request, response);

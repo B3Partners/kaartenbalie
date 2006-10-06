@@ -21,7 +21,7 @@ public class User implements Principal{
     private String email;
     private String username;
     private String password;
-    private Set roles;
+    private String role;
     private long id;
 
     
@@ -73,16 +73,16 @@ public class User implements Principal{
         return id;
     }
 
-    public void setId(long id) {
+    private void setId(long id) {
         this.id = id;
     }
 
-    public Set getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoles(Set roles) {
-        this.roles = roles;
+    public void setRole(String role) {
+        this.role = role;
     }
 /* impl principal*/
     public String getName() {

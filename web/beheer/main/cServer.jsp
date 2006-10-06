@@ -58,83 +58,67 @@ window.onload = function() { stripedTable(); }
 </SCRIPT>
 
 
-
-
-
-
-
 <table>
     <tr>
-    <td valign="top"><b>Gebruikers tabel:</b>
-    <html:form action="/user">
+    <td valign="top"><b>Server tabel:</b>
+    <html:form action="/server">
     <DIV class=tableContainer id=tableContainer>
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
             <TR>
             <TH>Select</TH>
-            <TH>Voornaam</TH>
-            <TH>Achternaam</TH>
-            <TH>Gebruikersnaam</TH>
-            <TH>Email adres</TH>
+            <TH>Naam</TH>
+            <TH>Versie</TH>
+            <TH>URL</TH>
+            <TH>Laatste update</TH>
             </TR>
             </THEAD>
             <TBODY class=scrollContent>            
-            <c:forEach var="nUser" varStatus="status" items="${userlist}">
+            <c:forEach var="nServer" varStatus="status" items="${serverlist}">
                 <TR>
-                    <TD><html:multibox value="${nUser.id}" property="userSelected" /></TD>
-                    <TD><c:out value="${nUser.firstName}"/></TD>
-                    <TD><c:out value="${nUser.lastName}"/></TD>
-                    <TD><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></TD>
-                    <TD><c:out value="${nUser.email}"/></TD>
+                    <TD><html:multibox value="${nServer.id}" property="serverSelected" /></TD>
+                    <TD><a href="server.do?id=${nServer.id}"><c:out value="${nServer.serverName}"/></a></TD>
+                    <TD><c:out value="${nServer.serverUrl}"/></a></TD>
+                    <TD><c:out value="${nServer.serverUpdatedDate}"/></TD>
+                    <TD><c:out value="${nServer.serverReviewed}"/></TD>                    
                 </TR>
             </c:forEach>
             </TBODY>
         </TABLE>
     </DIV>
-    <html:submit value="Add/Change User" property="delete"/>
+    <html:submit value="Delete selected server(s)" property="delete"/>
     </html:form>
     </td>
     <td width="33%" align="right">
+    <html:form action="/server">
     <table>
-        <html:form action="/user">
-        <tr>
-        <td><B>ID:</B></td>
+       <tr>
+        <td><B>Server ID:</B></td>
         <td><html:text property="id" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>Voornaam:</B></td>
-        <td><html:text property="firstname"/></td>
+        <td><B>Naam server:</B></td>
+        <td><html:text property="serverName" /></td>
         </tr>
         <tr>
-        <td><B>Achternaam:</B></td>
-        <td><html:text property="lastname"/></td>
+        <td><B>URL Server:</B></td>
+        <td><html:text property="serverUrl" /></td>
         </tr>
         <tr>
-        <td><B>Email:</B></td>
-        <td><html:text property="email"/></td>
-        </tr>
-        <tr>
-        <td><B>Gebruikersnaam:</B></td>
-        <td><html:text property="username"/></td>
-        </tr>
-        <tr>
-        <td><B>Wachtwoord:</B></td>
-        <td><html:text property="password"/></td>
-        </tr>
-        <tr>
-        <td><B>Roles:</B></td>
+        <td><B>Server type:</B></td>
         <td>
-        <html:select property="selectedRole">
-            <html:option value="beheerder">beheerder</html:option>
-            <html:option value="gebruiker">gebruiker</html:option>
-        </html:select>     
+        <select>
+            <option>WMS</option>
+            <option>WFS</option>
+            <option>GML</option>
+        </select>
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center><html:submit value="Add/Change User" property="save"/></center></td>
+        <td colspan="0"><center><html:submit value="Add/Change Server" property="save"/></center></td>
         </tr>
-        </html:form>
     </table>
+    </html:form>
     </td>
     </tr>
     <tr>

@@ -4,8 +4,9 @@
 <ul id="nav">
     <li><a href="<html:rewrite page='/index.do' module='' />">Home</a></li>
     <li><a href="<html:rewrite page='/beheer/index.do' module='' />">Beheer home</a></li>
-    <li><a href="<html:rewrite page='/beheer/user.do' module='' />">Gebruikers</a></li> 
-    </li>    
+    <li><a href="<html:rewrite page='/beheer/server.do' module='' />">Beheer servers</a></li>
+    <li><a href="<html:rewrite page='/beheer/organization.do' module='' />">Beheer organisaties</a></li>
+    <li><a href="<html:rewrite page='/beheer/user.do' module='' />">Beheer gebruikers</a></li>
 </ul>
 
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.Server" table="Server">
+    	<id name="id" type="long" column="ServerID" >
+            <generator class="assigned"/>
+        </id>
+        <property name="serverServ">
+            <column name="ServiceID" />
+        </property>
+        <property name="serverCapa">
+            <column name="CapabilityID"/>
+        </property>
+        <property name="serverName">
+            <column name="Name"/>
+        </property>
+        <property name="serverUrl">
+            <column name="URL"/>
+        </property>
+        <property name="serverUpdatedDate">
+            <column name="UpdatedDate"/>
+        </property>
+        <property name="serverReviewed">
+            <column name="Reviewed"/>
+        </property>
+    </class>
+</hibernate-mapping>

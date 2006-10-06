@@ -58,83 +58,115 @@ window.onload = function() { stripedTable(); }
 </SCRIPT>
 
 
-
-
-
-
-
 <table>
     <tr>
-    <td valign="top"><b>Gebruikers tabel:</b>
-    <html:form action="/user">
+    <td valign="top"><b>Groepstabel:</b>
+    <html:form action="/organization">
     <DIV class=tableContainer id=tableContainer>
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
             <TR>
             <TH>Select</TH>
-            <TH>Voornaam</TH>
-            <TH>Achternaam</TH>
-            <TH>Gebruikersnaam</TH>
-            <TH>Email adres</TH>
+            <TH>Groepsnaam</TH>
             </TR>
             </THEAD>
             <TBODY class=scrollContent>            
-            <c:forEach var="nUser" varStatus="status" items="${userlist}">
+            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                 <TR>
-                    <TD><html:multibox value="${nUser.id}" property="userSelected" /></TD>
-                    <TD><c:out value="${nUser.firstName}"/></TD>
-                    <TD><c:out value="${nUser.lastName}"/></TD>
-                    <TD><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></TD>
-                    <TD><c:out value="${nUser.email}"/></TD>
+                    <TD><html:multibox value="${nOrganization.id}" property="organizationSelected" /></TD>
+                    <TD><a href="organization.do?id=${nOrganization.id}"><c:out value="${nOrganization.name}"/></a></TD>
                 </TR>
             </c:forEach>
             </TBODY>
         </TABLE>
     </DIV>
-    <html:submit value="Add/Change User" property="delete"/>
+    <html:submit value="Delete organization(s)" property="delete"/>
     </html:form>
     </td>
-    <td width="33%" align="right">
+    <td width="33%" align="right" rowspan="0">
+    <html:form action="/organization">
     <table>
-        <html:form action="/user">
         <tr>
-        <td><B>ID:</B></td>
+        <td><B>Vestiging ID:</B></td>
         <td><html:text property="id" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>Voornaam:</B></td>
-        <td><html:text property="firstname"/></td>
+        <td><B>Naam organisatie:</B></td>
+        <td><html:text property="name"/></td>
         </tr>
         <tr>
-        <td><B>Achternaam:</B></td>
-        <td><html:text property="lastname"/></td>
+        <td><B>Straat:</B></td>
+        <td><html:text property="organizationStreet"/></td>
         </tr>
         <tr>
-        <td><B>Email:</B></td>
-        <td><html:text property="email"/></td>
+        <td><B>Nummer:</B></td>
+        <td><html:text property="organizationNumber"/></td>
         </tr>
         <tr>
-        <td><B>Gebruikersnaam:</B></td>
-        <td><html:text property="username"/></td>
+        <td><B>Toevoeging:</B></td>
+        <td><html:text property="organizationAddition"/></td>
         </tr>
         <tr>
-        <td><B>Wachtwoord:</B></td>
-        <td><html:text property="password"/></td>
+        <td><B>Provincie:</B></td>
+        <td><html:text property="organizationProvince"/></td>
         </tr>
         <tr>
-        <td><B>Roles:</B></td>
+        <td><B>Postbus:</B></td>
+        <td><html:text property="organizationPostbox"/></td>
+        </tr>
+        <tr>
+        <td><B>Factuuradres:</B></td>
+        <td><html:text property="organizationBillingAddress"/></td>
+        </tr>
+        <tr>
+        <td><B>Bezoekadres:</B></td>
+        <td><html:text property="organizationVisitorsAddress"/></td>
+        </tr>
+        <tr>
+        <td><B>Telefoon nr.:</B></td>
+        <td><html:text property="organizationTelephone"/></td>
+        </tr>
+        <tr>
+        <td><B>Fax nr.:</B></td>
+        <td><html:text property="organizationFax"/></td>
+        </tr>     
+        <tr>
+        <td valign="top"><b>Layer rechten:</B></td>
         <td>
-        <html:select property="selectedRole">
-            <html:option value="beheerder">beheerder</html:option>
-            <html:option value="gebruiker">gebruiker</html:option>
-        </html:select>     
+        <DIV class=smallTableContainer id=smallTableContainer>            
+            <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
+                <THEAD class=fixedHeader>
+                <TR>
+                <TH><B>Beschikbare servers</B></TH>
+                </TR>
+                </THEAD>
+                <TBODY class=scrollContent>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                <TR><TD>Tree structure komt hier</TD></TR>
+                </TBODY>
+            </TABLE>
+        </DIV>
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center><html:submit value="Add/Change User" property="save"/></center></td>
+        <td colspan="0"><center><html:submit value="Add/Change Organization" property="save"/></center></td>
         </tr>
-        </html:form>
     </table>
+    </html:form>
     </td>
     </tr>
     <tr>

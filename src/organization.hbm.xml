@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.Organization" table="Organization">
+        <id name="id" type="long" column="OrganizationID" >
+            <generator class="assigned"/>
+        </id>
+        <property name="name">
+            <column name="Name" />
+        </property>
+        <property name="organizationStreet">
+            <column name="Street" />
+        </property>
+        <property name="organizationNumber">
+            <column name="Number" />
+        </property>
+        <property name="organizationAddition">
+            <column name="Addition" />
+        </property>
+        <property name="organizationProvince">
+            <column name="Province" />
+        </property>
+        <property name="organizationPostbox">
+            <column name="Postbox" />
+        </property>
+        <property name="organizationBillingAddress">
+            <column name="BillingAddress" />
+        </property>
+        <property name="organizationVisitorsAddress">
+            <column name="VisitorsAddress" />
+        </property>
+        <property name="organizationTelephone">
+            <column name="Telephone" />
+        </property>
+        <property name="organizationFax">
+            <column name="Fax" />
+        </property>
+    </class>
+</hibernate-mapping>

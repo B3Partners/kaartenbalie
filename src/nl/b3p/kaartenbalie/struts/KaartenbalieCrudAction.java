@@ -30,15 +30,16 @@ public class KaartenbalieCrudAction extends CrudAction{
     protected Session getHibernateSession() {
         return MyDatabase.currentSession();
     }
-    public ActionForward execute(ActionMapping mapping, ActionForm form,
-        HttpServletRequest request, HttpServletResponse response)
+    
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         
         Session sess = getHibernateSession();
         Transaction tx = sess.beginTransaction();
-
+        
         ActionForward forward = null;
         String msg = null;
+        
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
@@ -48,9 +49,11 @@ public class KaartenbalieCrudAction extends CrudAction{
             log.error("Exception occured, rollback", e);
             /*melding etc. naar formulier/site*/
         }
+        
         // Start tweede sessie om tenminste nog de lijsten op te halen
         sess = getHibernateSession();
         tx = sess.beginTransaction();
+        
         try {
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
             tx.commit();

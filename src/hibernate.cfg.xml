@@ -28,6 +28,8 @@
         <property name="jdbc.batch_size">20</property>
         <!-- Mapping files -->
         <mapping resource="kaartenbalie.hbm.xml"/>
+        <mapping resource="server.hbm.xml"/>
+        <mapping resource="organization.hbm.xml"/>
 </session-factory>
 </hibernate-configuration>
 

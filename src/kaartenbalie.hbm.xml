@@ -31,9 +31,14 @@
         <property name="password">
             <column name="PASSWORD"/>
         </property>
+        <property name="role">
+            <column name="ROLE"/>
+        </property>
+        <!--
         <set name="roles">
             <key column="user_id" not-null="true"/>
             <element column="role" type="string" not-null="true"/>
         </set>
+        -->
     </class>
 </hibernate-mapping>

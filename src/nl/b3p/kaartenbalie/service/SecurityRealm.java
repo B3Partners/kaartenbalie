@@ -39,7 +39,7 @@ public class SecurityRealm implements SecurityRealmInterface {
                 .setParameter("password", password)
                 .uniqueResult();
             if(user != null) {
-                Hibernate.initialize(user.getRoles());
+                Hibernate.initialize(user.getRole());
             }
             return user;
         } finally {
@@ -52,7 +52,7 @@ public class SecurityRealm implements SecurityRealmInterface {
         }
         User user = (User)principal;
         log.info("Check user principal has role");
-        return user.getRoles().contains(role);
+        return user.getRole().equalsIgnoreCase(role);
     }
    
         
