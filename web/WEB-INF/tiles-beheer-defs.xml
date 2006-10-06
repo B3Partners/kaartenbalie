@@ -19,4 +19,10 @@
     <definition name="base.beheer.user" extends="base.beheer">
         <put name="content" value="/beheer/main/cUser.jsp"/>
     </definition>
+    <definition name="base.beheer.server" extends="base.beheer">
+        <put name="content" value="/beheer/main/cServer.jsp"/>
+    </definition>
+    <definition name="base.beheer.organization" extends="base.beheer">
+        <put name="content" value="/beheer/main/cOrganization.jsp"/>
+    </definition>
 </tiles-definitions>

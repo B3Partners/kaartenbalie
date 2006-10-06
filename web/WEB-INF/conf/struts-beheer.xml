@@ -17,7 +17,41 @@
             <form-property name="lastname" type="java.lang.String"/>
             <form-property name="email" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
+            <form-property name="selectedRole" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
+            <form-property name="userSelected" type="java.lang.String[]"/>
+        </form-bean>
+        
+        <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="serverName" type="java.lang.String"/>
+            <form-property name="serverUrl" type="java.lang.String"/>
+            <form-property name="serverUpdatedDate" type="java.lang.String"/>
+            <form-property name="serverReviewed" type="java.lang.String"/>
+            <form-property name="serverSelected" type="java.lang.String[]"/>
+        </form-bean>        
+        
+        <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="organizationStreet" type="java.lang.String"/>
+            <form-property name="organizationNumber" type="java.lang.String"/>
+            <form-property name="organizationAddition" type="java.lang.String"/>
+            <form-property name="organizationProvince" type="java.lang.String"/>
+            <form-property name="organizationPostbox" type="java.lang.String"/>
+            <form-property name="organizationBillingAddress" type="java.lang.String"/>
+            <form-property name="organizationVisitorsAddress" type="java.lang.String"/>
+            <form-property name="organizationTelephone" type="java.lang.String"/>
+            <form-property name="organizationFax" type="java.lang.String"/>
+            <form-property name="organizationSelected" type="java.lang.String[]"/>            
         </form-bean>
     </form-beans>
     
@@ -31,8 +65,17 @@
 
     <action-mappings>
         <action path="/index" forward="base.beheer.index"/>
+        
         <action path="/user" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.user"/>
+            <forward name="failure" path="base.beheer.index"/>
+        </action>
+        <action path="/server" name="serverForm" type="nl.b3p.kaartenbalie.struts.ServerAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.server"/>
+            <forward name="failure" path="base.beheer.index"/>
+        </action>
+        <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.index"/>
         </action>
     </action-mappings>
