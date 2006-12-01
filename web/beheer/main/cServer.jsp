@@ -74,13 +74,13 @@ window.onload = function() { stripedTable(); }
             </TR>
             </THEAD>
             <TBODY class=scrollContent>            
-            <c:forEach var="nServer" varStatus="status" items="${serverlist}">
+            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                 <TR>
-                    <TD><html:multibox value="${nServer.id}" property="serverSelected" /></TD>
-                    <TD><a href="server.do?id=${nServer.id}"><c:out value="${nServer.serverName}"/></a></TD>
-                    <TD><c:out value="${nServer.serverUrl}"/></a></TD>
-                    <TD><c:out value="${nServer.serverUpdatedDate}"/></TD>
-                    <TD><c:out value="${nServer.serverReviewed}"/></TD>                    
+                    <TD><html:multibox value="${nServiceProvider.id}" property="serviceProviderSelected" /></TD>
+                    <TD><a href="server.do?id=${nServiceProvider.id}"><c:out value="${nServiceProvider.givenName}"/></a></TD>
+                    <TD><c:out value="${nServiceProvider.url}"/></a></TD>
+                    <TD><c:out value="${nServiceProvider.updatedDate}"/></TD>
+                    <TD><c:out value="${nServiceProvider.reviewed}"/></TD>                    
                 </TR>
             </c:forEach>
             </TBODY>
@@ -98,15 +98,20 @@ window.onload = function() { stripedTable(); }
         </tr>
         <tr>
         <td><B>Naam server:</B></td>
-        <td><html:text property="serverName" /></td>
+        <td><html:text property="serviceProviderGivenName" /></td>
         </tr>
         <tr>
         <td><B>URL Server:</B></td>
-        <td><html:text property="serverUrl" /></td>
+        <td><html:text property="serviceProviderUrl" /></td>
         </tr>
         <tr>
-        <td><B>Server type:</B></td>
-        <td>
+        <td><B>URL Server:</B></td>
+        <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
+        </tr>
+        <tr>
+        <td><B>URL Server:</B></td>
+        <td><html:text property="serviceProviderReviewed" /></td>
+        </tr>        
         <select>
             <option>WMS</option>
             <option>WFS</option>
@@ -115,7 +120,10 @@ window.onload = function() { stripedTable(); }
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center><html:submit value="Add/Change Server" property="save"/></center></td>
+        <td colspan="0"><center>
+            <html:reset  value="Delete values" />
+            <html:submit value="Add/Change Server" property="save"/>            
+        </center></td>
         </tr>
     </table>
     </html:form>

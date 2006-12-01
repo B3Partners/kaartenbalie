@@ -10,11 +10,20 @@
 
 <tiles-definitions>
     <definition name="base.viewer" extends="base">
-        <put name="top" value="/viewer/main/hIndex.jsp"/>
-        <put name="menu" value="/algemeen/main/mIndex.jsp"/>
+        <put name="top" value="/algemeen/main/hIndex.jsp"/>
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
         <put name="footer" value="/algemeen/main/fIndex.jsp"/>
     </definition>
     <definition name="base.viewer.index" extends="base.viewer">
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
         <put name="content" value="/viewer/main/cIndex.jsp"/>
+    </definition>
+    <definition name="base.viewer.mapviewer" extends="base.viewer">
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
+        <put name="content" value="/viewer/main/cMapviewer.jsp"/>
+    </definition>
+    <definition name="base.viewer.createurl" extends="base.viewer">
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
+        <put name="content" value="/viewer/main/cCreateURL.jsp"/>
     </definition>
 </tiles-definitions>

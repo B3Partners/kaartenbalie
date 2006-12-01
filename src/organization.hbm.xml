@@ -12,39 +12,64 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.Organization" table="Organization">
-        <id name="id" type="long" column="OrganizationID" >
-            <generator class="assigned"/>
+    <class name="nl.b3p.kaartenbalie.core.server.Organization" table="Organization">
+        <id name="id" type="int" column="ORGANIZATIONID" >
+            <generator class="native"/>
         </id>
+        
+        <set name="user" lazy="true">
+            <key column="USERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
+        </set>
+        
+        <!--
+        <list name="organizationLayer">
+            <key column="ORGANIZATIONID"/>
+            <element column="LAYERID" type="string" not-null="true"/>
+            <many-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
+        </list>
+        -->
+        
+        <!--
+        Voorbeeld: mag weer weg zodra bovenstaande in orde
+        <set name="serviceProviderKeywordList" cascade="all" lazy="true">
+            <key column="SERVICEPROVIDERID"/>
+            <element column="KEYWORD" type="string" not-null="true"/>
+        </set>
+        -->
+        
         <property name="name">
-            <column name="Name" />
+            <column name="NAME" />
         </property>
-        <property name="organizationStreet">
-            <column name="Street" />
+        <property name="street">
+            <column name="STREET" />
         </property>
-        <property name="organizationNumber">
-            <column name="Number" />
+        <property name="number">
+            <column name="NUMBER" />
         </property>
-        <property name="organizationAddition">
-            <column name="Addition" />
+        <property name="addition">
+            <column name="ADDITION" />
         </property>
-        <property name="organizationProvince">
-            <column name="Province" />
+        <property name="province">
+            <column name="PROVINCE" />
         </property>
-        <property name="organizationPostbox">
-            <column name="Postbox" />
+        <property name="country">
+            <column name="COUNTRY" />
         </property>
-        <property name="organizationBillingAddress">
-            <column name="BillingAddress" />
+        <property name="postbox">
+            <column name="POSTBOX" />
         </property>
-        <property name="organizationVisitorsAddress">
-            <column name="VisitorsAddress" />
+        <property name="billingAddress">
+            <column name="BILLINGADDRESS" />
         </property>
-        <property name="organizationTelephone">
-            <column name="Telephone" />
+        <property name="visitorsAddress">
+            <column name="VISITORSADDRESS" />
         </property>
-        <property name="organizationFax">
-            <column name="Fax" />
+        <property name="telephone">
+            <column name="TELEPHONE" />
+        </property>
+        <property name="fax">
+            <column name="FAX" />
         </property>
     </class>
 </hibernate-mapping>

@@ -1,7 +1,7 @@
 /* 
-    Document   : main
-    Created on : 5 september 2006, 14:13
-    Author     : Roy
+    Document   : main.css
+    Created on : 28 november 2006, 17:03
+    Author     : Nando de Goeij
     Description:
         Purpose of the stylesheet follows.
 */
@@ -9,70 +9,165 @@
 /* 
 global tag styles
 */
-body {
-	padding: 0; 
-	margin: 0; 
-	font-size: 8pt; 
-	background: white; 
-	color: #000000; 
-	font-family: arial, sans-serif;
+#html {
+        height: 100%;
+        margin-bottom: 1px;
 }
-div{   
-    
+
+body
+{
+        margin: 0;
+        padding: 0;
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 14px;
+        color: #000;
+        background-color: #ddd;
 }
-h1{
-    color: #1C6CA7;
+
+H1
+{
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 28px;
 }
-a, a:visited, a:active {
-	color: #7890a8; 
-	text-decoration: underline;
+
+H2
+{
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 24px;
 }
-a:hover {
-	color: #ff9900; 
-	text-decoration: underline;
+
+H3
+{
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 20px;
 }
-/*Styles for main divs in siteTemplate.jsp*/
-div#bodycontent{
-    float: left;
+
+H4
+{
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 18px;
 }
-div#top{
-border: #000000 1px solid;
-    float: left;
-    width: 997px;
-    height: 40px;
-    clear: right;
+
+H5
+{
+        font-family: Georgia, "Times New Roman", Times, Serif;
+        font-size: 16px;
 }
-div#menu{
-border: #000000 1px solid;
-    float: left;
-    width: 100px;
-    height: 400px;
-    clear: left;
+
+#bodycontent {
+        position: static;
+        float: none;
+        width: 1000px;
+        margin-left: auto; 
+        margin-right: auto;
+        background-color: #FFF;
 }
-div#content{
-    float: left;
-    width: 895px;
-    padding: 10px;
-    
+
+
+
+#container
+{
+        margin: 0;
+        background-color: #FFF;
+        background-image:  url(../images/siteImages/background.jpg);
+        background-repeat: repeat-y;
 }
-div#footer{
-border: #000000 1px solid;
-    float: left;
-    width: 997px;
-    clear: both;
+
+#banner
+{
+        background-color: #8A8A8A;
+
+        border-bottom: 1px solid #333;
 }
-/*--------------*/
-/* for the menu*/
-ul#nav  
-{  
-list-style: none;
-padding: 0;
-margin: 0;
+
+#banner h1
+{
+        margin: 0;
+        padding: .5em;
 }
-ul#nav li {
-  padding: 15px;
-  color: #000000;
+
+#nav
+{
+
+        float: left;
+        width: 175px;
+        background-color: #CCCCFF;
+        padding-top: 1em;
 }
+
+#nav p { margin-top: 0; }
+
+#content
+{
+        padding-top: 1em;
+        margin: 0 2em 0 200px;
+}
+
+#content h2 { margin-top: 0; }
+
+#footer
+{
+        position: static;
+        clear: both;
+        background-color: #8A8A8A;
+        height: 30px;
+        text-align: right;
+        border-top: 1px solid #333;
+
+}
+
+#footertext {
+        float: right;
+        color: #ffffff;
+        font-size: 10px;
+        padding-top: 6px;
+        padding-right: 8px;
+}
+
+#nav-menu ul {
+        margin-left: 20px;
+        list-style: none;
+        padding: 0;        
+}
+
+#nav-menu li {
+        margin: 0.20em 0;
+}
+
+#nav-menu li a {
+        background-image: url("../images/siteImages/css-button.gif");
+        margin: 10px;
+        height: 2em;
+        line-height: 2em;
+        float: left;
+        width: 11em;
+        display: block;
+        border: 0.1em solid #dcdce9;
+        color: #0d2474;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 80%;
+        text-decoration: none;        
+        text-align: center;        
+}
+
+/* Hide from IE5-Mac \*/
+#nav-menu li a {
+        float: none;
+}
+/* End hide */
+
+#nav-menu {
+        width:30em;
+}
+
+
+
+
+
+
+
+
+
 
 
 /* Below are the styles for creating a scrollable table */
@@ -82,73 +177,73 @@ body {
 	background: #fff;
 	padding-bottom: 0px;
 	margin: 10px;
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Georgia, "Times New Roman", Times, Serif;
 	font-size: 12px;
 	color: #000;
 	padding-top: 0px;
 }
 
 table {
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	font-weight: bold;
-	color: #66ff33;
+	color: #bacd30;
 }
 
 td {
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	font-weight: normal;
 	color: #203b54;
 }
 
 a {
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 10px;
 	color: #203b54;
 }
 
 h1 {
 	margin: 0px 0px 5px;
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 18px;
 }
 
 h2 {
 	margin: 0px 0px 5px;
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 16px;
 }
 
 h3 {
 	margin: 0px 0px 5px;
-	font: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 18px;
 	color: #008000;
 }
 
 div.tableContainer {
 	clear: both;
-	border-left: 1px solid #963; 
-	border-right: 1px solid #963;
-	border-top: 1px solid #963;
-	border-bottom: 1px solid #963;
+	border-left: 1px solid #000066; 
+	border-right: 1px solid #000066;
+	border-top: 1px solid #000066;
+	border-bottom: 1px solid #000066;
 	overflow: auto;
-	width: 517px;
+	width: 417px;
 	height: 230px;
 }
 
 div.tableContainer table {
 	float: left;
-	width: 500px;
+	width: 400px;
 }
 
 div.smallTableContainer {
 	clear: both;
-	border-left: 1px solid #963; 
-	border-right: 1px solid #963;
-	border-top: 1px solid #963;
-	border-bottom: 1px solid #963;
+	border-left: 1px solid #000066; 
+	border-right: 1px solid #000066;
+	border-top: 1px solid #000066;
+	border-bottom: 1px solid #000066;
 	overflow: auto;
 	width: 267px;
 	height: 285px;
@@ -172,7 +267,8 @@ thead.fixedHeader th {
 	border-left: 1px solid #eb8;
 	border-right: 1px solid  #b74;
 	font-weight: bold;
-	background: #6e6d4a;
+        font-style: inherit;
+	background: #8a8a8a;
 	text-align: left;
 }
 
@@ -205,7 +301,7 @@ tbody.scrollContent tr.alternateRow td {
 	padding-right: 3px;
 	border-top: 1px solid #ddd;
 	padding-left: 4px;
-	background: #ccffee;
+	background: #ccccff;
 	padding-bottom: 3px;
 	padding-top: 2px;
 	border-left-style: none;

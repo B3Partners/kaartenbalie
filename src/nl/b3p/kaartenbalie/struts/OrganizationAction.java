@@ -9,12 +9,15 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.Organization;
+import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.kaartenbalie.core.server.Organization;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -53,7 +56,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            organization = (Organization)session.load(Organization.class, new Long(id));
+            organization = (Organization)session.load(Organization.class, new Integer(id));
         }
         return organization;
     }
@@ -63,40 +66,68 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("name", organization.getName());
-        dynaForm.set("organizationStreet", organization.getOrganizationStreet());
-        dynaForm.set("organizationNumber", organization.getOrganizationNumber());
-        dynaForm.set("organizationAddition", organization.getOrganizationAddition());
-        dynaForm.set("organizationProvince", organization.getOrganizationProvince());
-        dynaForm.set("organizationPostbox", organization.getOrganizationPostbox());
-        dynaForm.set("organizationBillingAddress", organization.getOrganizationBillingAddress());
-        dynaForm.set("organizationVisitorsAddress", organization.getOrganizationVisitorsAddress());
-        dynaForm.set("organizationTelephone", organization.getOrganizationTelephone());
-        dynaForm.set("organizationFax", organization.getOrganizationFax()); 
+        dynaForm.set("organizationStreet", organization.getStreet());
+        dynaForm.set("organizationNumber", organization.getNumber());
+        dynaForm.set("organizationAddition", organization.getAddition());
+        dynaForm.set("organizationProvince", organization.getProvince());
+        dynaForm.set("organizationCountry", organization.getCountry());
+        dynaForm.set("organizationPostbox", organization.getPostbox());
+        dynaForm.set("organizationBillingAddress", organization.getBillingAddress());
+        dynaForm.set("organizationVisitorsAddress", organization.getVisitorsAddress());
+        dynaForm.set("organizationTelephone", organization.getTelephone());
+        dynaForm.set("organizationFax", organization.getFax()); 
     }
     
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
         List organizationlist = getHibernateSession().createQuery("from Organization").list();
-        request.setAttribute("organizationlist", organizationlist);        
+        request.setAttribute("organizationlist", organizationlist);
+        
+        List layerlist = getHibernateSession().createQuery(
+                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
+        HttpSession session = request.getSession();
+        session.setAttribute("layerlist", layerlist);
+        //request.setAttribute();
     }
     
-    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization) {
+    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
-        organization.setOrganizationStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
-        organization.setOrganizationNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
-        organization.setOrganizationAddition(FormUtils.nullIfEmpty(dynaForm.getString("organizationAddition")));
-        organization.setOrganizationProvince(FormUtils.nullIfEmpty(dynaForm.getString("organizationProvince")));
-        organization.setOrganizationPostbox(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostbox")));
-        organization.setOrganizationBillingAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationBillingAddress")));
-        organization.setOrganizationVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationVisitorsAddress")));
-        organization.setOrganizationTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-        organization.setOrganizationFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
+        organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
+        organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
+        organization.setAddition(FormUtils.nullIfEmpty(dynaForm.getString("organizationAddition")));
+        organization.setProvince(FormUtils.nullIfEmpty(dynaForm.getString("organizationProvince")));
+        organization.setCountry(FormUtils.nullIfEmpty(dynaForm.getString("organizationCountry")));
+        organization.setPostbox(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostbox")));
+        organization.setBillingAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationBillingAddress")));
+        organization.setVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationVisitorsAddress")));
+        organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
+        organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
+        
+        System.out.println(layerList.size());
+        
+        
+        int size = layerSelected.length;
+        ArrayList layers = new ArrayList();
+        for(int i = 0; i < size; i++) {
+            int select = Integer.parseInt(layerSelected[i]);
+            layers.add(layerList.get(select));
+            Layer lay = (Layer)layers.get(i);
+            System.out.println(lay.getName());
+        }
+        
+        organization.setOrganizationLayer(layers);
+        
     }
     
     //This method has not been implemented yet into the system.
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
+        String [] layerSelected = dynaForm.getStrings("layerSelected");
+        HttpSession session = request.getSession();
+        //sess.setAttribute("layerlist", layerlist);
+        List layerList = (List)session.getAttribute("layerlist");        
+        
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -121,7 +152,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        populateOrganizationObject(dynaForm, organization);
+        populateOrganizationObject(dynaForm, organization, layerList, layerSelected);
         //store in db
         sess.saveOrUpdate(organization);
         sess.flush();
@@ -132,6 +163,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationNumber", "");
         dynaForm.set("organizationAddition", "");
         dynaForm.set("organizationProvince", "");
+        dynaForm.set("organizationCountry", "");
         dynaForm.set("organizationPostbox", "");
         dynaForm.set("organizationBillingAddress", "");
         dynaForm.set("organizationVisitorsAddress", "");
@@ -143,8 +175,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
+        
+        
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;
+        
+        String [] layerSelected = dynaForm.getStrings("layerSelected");
+        List layerList = (List)request.getAttribute("layerlist"); 
         
         for(int i = 0; i < size; i++) {
             //if invalid
@@ -174,7 +211,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 return getAlternateForward(mapping, request);
             }
 
-            populateOrganizationObject(dynaForm, organization);
+            populateOrganizationObject(dynaForm, organization, layerList, layerSelected);
             //store in db
             sess.delete(organization);
             sess.flush();

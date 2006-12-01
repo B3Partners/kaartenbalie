@@ -9,7 +9,7 @@
 -->
 <tiles-definitions>
     <definition name="base.beheer" extends="base">
-        <put name="top" value="/beheer/main/hIndex.jsp"/>
+        <put name="top" value="/algemeen/main/hIndex.jsp"/>
         <put name="menu" value="/beheer/main/mIndex.jsp"/>
         <put name="footer" value="/algemeen/main/fIndex.jsp"/>
     </definition>
@@ -24,5 +24,8 @@
     </definition>
     <definition name="base.beheer.organization" extends="base.beheer">
         <put name="content" value="/beheer/main/cOrganization.jsp"/>
+    </definition>
+    <definition name="base.beheer.test" extends="base.beheer">
+        <put name="content" value="/beheer/main/cTest.jsp"/>
     </definition>
 </tiles-definitions>

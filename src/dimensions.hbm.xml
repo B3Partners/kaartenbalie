@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.Dimensions" table="Dimensions">
+    	<id name="id" type="int" column="DIMENSIONSID" >
+            <generator class="native"/>
+        </id>
+        
+        <many-to-one name="layer" column="LAYERID" not-null="true"/>
+        
+        <property name="dimensionsName">
+            <column name="DIMENSIONSNAME"/>
+        </property>
+        <property name="dimensionsUnit">
+            <column name="DIMENSIONSUNIT"/>
+        </property>
+        <property name="dimensionsUnitSymbol">
+            <column name="DIMENSIONSUNITSYMBOL"/>
+        </property>
+        <property name="extentName">
+            <column name="EXTENTNAME"/>
+        </property>
+        <property name="extentDefaults">
+            <column name="EXTENTDEFAULTS"/>
+        </property>
+        <property name="extentNearestValue">
+            <column name="EXTENTNEARESTVALUE"/>
+        </property>
+        <property name="extentMultipleValues">
+            <column name="EXTENTMULTIPLEVALUES"/>
+        </property>
+        <property name="extentCurrent">
+            <column name="EXTENTCURRENT"/>
+        </property>
+    </class>
+</hibernate-mapping>

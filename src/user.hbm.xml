@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.User" table="User">
+    	<id name="id" type="int" column="USERID" >
+            <generator class="native"/>
+        </id>
+        
+        <many-to-one name="organization" column="ORGANIZATIONID" not-null="true" insert="false" update="false"/>
+        
+        <property name="firstName">
+            <column name="FIRSTNAME"/>
+        </property>
+        <property name="lastName">
+            <column name="LASTNAME"/>
+        </property>
+        <property name="emailAddress">
+            <column name="EMAILADDRESS"/>
+        </property>
+        <property name="username">
+            <column name="USERNAME"/>
+        </property>
+        <property name="password">
+            <column name="PASSWORD"/>
+        </property>
+        <property name="role">
+            <column name="ROLE"/>
+        </property>
+        <property name="personalURL">
+            <column name="PERSONALURL"/>
+        </property>
+        <property name="timeout">
+            <column name="TIMEOUT"/>
+        </property>        
+    </class>
+</hibernate-mapping>

@@ -1,5 +1,5 @@
 <%@page contentType="text/html"%>
 <%@page pageEncoding="UTF-8"%>
 
-
-<h1>footer index</h1>
+Copyright &copy; 2006 B3Partners &nbsp;|&nbsp;
+<A href="mailto:info@b3partners.nl">info@b3partners.nl</A>

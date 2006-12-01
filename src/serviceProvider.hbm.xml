@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.ServiceProvider" table="ServiceProvider">
+        <id name="id" type="int" column="SERVICEPROVIDERID">
+            <generator class="native"/>
+        </id>
+        
+        <one-to-one name="contactInformation"
+                    class="nl.b3p.kaartenbalie.core.server.ContactInformation"
+                    cascade="all"                    
+        />
+        
+        <!--
+        use cascade="save-update,persist" somewhere??          
+        -->
+        
+        <set name="layers" inverse="true" cascade="all" lazy="true">
+            <key column="SERVICEPROVIDERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
+        </set>
+        
+        <set name="serviceProviderKeywordList" cascade="all" lazy="true">
+            <key column="SERVICEPROVIDERID"/>
+            <element column="KEYWORD" type="string" not-null="true"/>
+        </set>
+     
+        <set name="domainResource" inverse="true" cascade="all" lazy="true">
+            <key column="SERVICEPROVIDERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.ServiceDomainResource"/>
+        </set>
+        
+        <set name="exceptions" cascade="all" lazy="true">
+            <key column="SERVICEPROVIDERID"/>
+            <element column="FORMAT" type="string" not-null="true"/>
+        </set>
+        
+        <property name="name">
+            <column name="NAME" />
+        </property>
+        <property name="title">
+            <column name="TITLE"/>
+        </property>
+        <property name="abstracts">
+            <column name="ABSTRACTS"/>
+        </property>
+        <property name="fees">
+            <column name="FEES"/>
+        </property>
+        <property name="accessConstraints">
+            <column name="ACCESSCONSTRAINTS"/>
+        </property>
+        <property name="givenName">
+            <column name="GIVENNAME"/>
+        </property>
+        <property name="url">
+            <column name="URL"/>
+        </property>
+        <property name="updatedDate">
+            <column name="UPDATEDDATE"/>
+        </property>
+        <property name="reviewed">
+            <column name="REVIEWED"/>
+        </property>
+    </class>
+</hibernate-mapping>

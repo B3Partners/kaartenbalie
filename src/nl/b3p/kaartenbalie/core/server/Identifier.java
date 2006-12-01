@@ -15,18 +15,72 @@ package nl.b3p.kaartenbalie.core.server;
  */
 public class Identifier {
     
-    private String authority;
-    
-    /** Creates a new instance of Identifier */
-    public Identifier() {
+    private Integer id;
+    private String authorityName;
+    private String value;
+    private String authorityURL;
+    private Layer layer;
+
+    public Integer getId() {
+        return id;
     }
 
-    public String getAuthority() {
-        return authority;
+    private void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setAuthority(String authority) {
-        this.authority = authority;
+    public String getAuthorityName() {
+        return authorityName;
+    }
+
+    public void setAuthorityName(String authorityName) {
+        this.authorityName = authorityName;
+    }
+
+    public String getAuthorityURL() {
+        return authorityURL;
+    }
+
+    public void setAuthorityURL(String authorityURL) {
+        this.authorityURL = authorityURL;
+    }
+
+    public Layer getLayer() {
+        return layer;
+    }
+
+    public void setLayer(Layer layer) {
+        this.layer = layer;
     }
     
+    public Object clone() {
+        Identifier cloneIdent           = new Identifier();
+        if (null != this.id) {
+            cloneIdent.id               = new Integer(this.id);
+        }
+        if (null != this.authorityName) {
+            cloneIdent.authorityName    = new String(this.authorityName);
+        }
+        if (null != this.value) {
+            cloneIdent.value            = new String(this.value);
+        }
+        if (null != this.authorityURL) {
+            cloneIdent.authorityURL     = new String(this.authorityURL);
+        }
+        return cloneIdent;
+    }
+    
+    public String toString(String tabulator) {
+    	StringBuilder result = new StringBuilder();
+    	final String newLine = System.getProperty("line.separator");
+    	
+        result.append(tabulator + "<AuthorityURL authority=\"" + this.getAuthorityName() + ">\n");
+        result.append(tabulator + "\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + 
+        	this.getAuthorityURL() + "\" />\n");
+        result.append(tabulator + "</AuthorityURL>\n");
+        
+        result.append(tabulator + "<Identifier authority=\"" + this.getAuthorityName() + ">" + this.getAuthorityName() + "</Identifier>\n");
+        
+        return result.toString();
+    }
 }

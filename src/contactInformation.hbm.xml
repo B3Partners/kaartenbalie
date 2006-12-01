@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.ContactInformation" table="ContactInformation">
+        <id name="id" type="int" column="SERVICEPROVIDERID">
+            <generator class="foreign">
+                <param name="property">serviceProvider</param>
+            </generator>
+        </id>
+        
+        <one-to-one name="serviceProvider" constrained="true" class="nl.b3p.kaartenbalie.core.server.ServiceProvider" />
+        
+        <property name="contactPerson">
+            <column name="CONTACTPERSON"/>
+        </property>
+        <property name="contactPosition">
+            <column name="CONTACTPOSITION"/>
+        </property>
+        <property name="address">
+            <column name="ADDRESS"/>
+        </property>
+        <property name="addressType">
+            <column name="ADDRESSTYPE"/>
+        </property>
+        <property name="postcode">
+            <column name="POSTCODE"/>
+        </property>
+        <property name="city">
+            <column name="CITY"/>
+        </property>
+        <property name="stateOrProvince">
+            <column name="STATEORPROVINCE"/>
+        </property>
+        <property name="country">
+            <column name="COUNTRY"/>
+        </property>
+        <property name="voiceTelephone">
+            <column name="VOICETELEPHONE"/>
+        </property>
+        <property name="fascimileTelephone">
+            <column name="FASCIMILETELEPHONE"/>
+        </property>
+        <property name="emailAddress">
+            <column name="EMAILADDRESS"/>
+        </property>
+    </class>
+</hibernate-mapping>

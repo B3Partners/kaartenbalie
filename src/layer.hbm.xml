@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.Layer" table="Layer">
+    	<id name="id" type="int" column="LAYERID" >
+            <generator class="native"/>
+        </id>
+        
+        
+        <many-to-one name="parent" column="PARENTID" class="nl.b3p.kaartenbalie.core.server.Layer" />
+        
+
+        <set name="layers" inverse="true" cascade="all"> 
+            <key column="PARENTID" /> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"></one-to-many> 
+        </set>
+        
+        <!--
+        <set name="layers" cascade="all">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
+        </set>
+        
+        <many-to-one name="Layer" column="LAYERID" not-null="true" inverse="true" insert="false" update="false"/>
+        
+        <set name="layers" inverse="true" cascade="all" lazy="false">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
+        </set>
+        
+        <many-to-one name="Layer" column="LAYERID" not-null="true" insert="false" update="false"/>
+        -->
+        
+        
+        <set name="dimensions" inverse="true" cascade="all">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Dimensions"/>
+        </set>
+        
+        <set name="layerKeywordList" cascade="all">
+            <key column="LAYERID"/>
+            <element column="KEYWORD" type="string" not-null="true"/>
+        </set>
+                
+        <set name="styles" inverse="true" cascade="all">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Style"/>
+        </set>
+        
+        <set name="domainResource" inverse="true" cascade="all">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.LayerDomainResource"/>
+        </set>
+        
+        <set name="identifiers" inverse="true" cascade="all" >
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Identifier"/>
+        </set>
+        
+        
+        
+        <set name="srs" inverse="true" cascade="all" >
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.SRS"/>
+        </set>
+        
+        <one-to-one name="latLonBoundingBox"
+                    class="nl.b3p.kaartenbalie.core.server.LatLonBoundingBox"
+                    cascade="all"    
+                    fetch="join"
+                    lazy="false"
+        />
+        
+        <one-to-one name="attribution"
+                    class="nl.b3p.kaartenbalie.core.server.Attribution"
+                    cascade="all"                    
+                    fetch="join"
+                    lazy="false"
+        />
+        
+        
+        <!--
+        <set name="organizationLayer">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.OrganizationLayer"/>
+        </set>
+        -->
+        
+        <many-to-one name="serviceProvider" column="SERVICEPROVIDERID" not-null="true"/><!--   /-->
+                
+        <property name="name">
+            <column name="NAME"/>
+        </property>
+        <property name="title">
+            <column name="TITLE"/>
+        </property>
+        <property name="abstracts">
+            <column name="ABSTRACTS"/>
+        </property>
+        <property name="queryable">
+            <column name="QUERYABLE"/>
+        </property>
+        <property name="cascaded">
+            <column name="CASCADED"/>
+        </property>
+        <property name="opaque">
+            <column name="OPAQUE"/>
+        </property>
+        <property name="nosubsets">
+            <column name="NOSUBSETS"/>
+        </property>
+        <property name="fixedWidth">
+            <column name="FIXEDWIDTH"/>
+        </property>
+        <property name="fixedHeight">
+            <column name="FIXEDHEIGHT"/>
+        </property>
+        <property name="scaleHintMin">
+            <column name="SCALEHINTMIN"/>
+        </property>
+        <property name="scaleHintMax">
+            <column name="SCALEHINTMAX"/>
+        </property>
+    </class>
+</hibernate-mapping>

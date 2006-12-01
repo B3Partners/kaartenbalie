@@ -111,6 +111,10 @@ window.onload = function() { stripedTable(); }
         <td><html:text property="organizationProvince"/></td>
         </tr>
         <tr>
+        <td><B>Land:</B></td>
+        <td><html:text property="organizationCountry"/></td>
+        </tr>
+        <tr>
         <td><B>Postbus:</B></td>
         <td><html:text property="organizationPostbox"/></td>
         </tr>
@@ -141,29 +145,22 @@ window.onload = function() { stripedTable(); }
                 </TR>
                 </THEAD>
                 <TBODY class=scrollContent>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
-                <TR><TD>Tree structure komt hier</TD></TR>
+                <c:forEach var="nLayer" varStatus="status" items="${layerlist}">
+                    <TR>
+                        <TD><html:multibox value="${nLayer.id}" property="layerSelected" />
+                        <c:out value="${nLayer.name}"/></TD>
+                    </TR>
+                </c:forEach>
                 </TBODY>
             </TABLE>
         </DIV>
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center><html:submit value="Add/Change Organization" property="save"/></center></td>
+        <td colspan="0"><center>
+            <html:reset  value="Delete values" />
+            <html:submit value="Add/Change Organization" property="save"/>
+        </center></td>
         </tr>
     </table>
     </html:form>

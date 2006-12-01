@@ -85,7 +85,7 @@ window.onload = function() { stripedTable(); }
                     <TD><c:out value="${nUser.firstName}"/></TD>
                     <TD><c:out value="${nUser.lastName}"/></TD>
                     <TD><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></TD>
-                    <TD><c:out value="${nUser.email}"/></TD>
+                    <TD><c:out value="${nUser.emailAddress}"/></TD>
                 </TR>
             </c:forEach>
             </TBODY>
@@ -111,7 +111,7 @@ window.onload = function() { stripedTable(); }
         </tr>
         <tr>
         <td><B>Email:</B></td>
-        <td><html:text property="email"/></td>
+        <td><html:text property="emailAddress"/></td>
         </tr>
         <tr>
         <td><B>Gebruikersnaam:</B></td>
@@ -120,6 +120,16 @@ window.onload = function() { stripedTable(); }
         <tr>
         <td><B>Wachtwoord:</B></td>
         <td><html:text property="password"/></td>
+        </tr>
+        <tr>
+        <td><B>Organisatie:</B></td>
+        <td>
+        <html:select property="selectedOrganization">
+            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
+            </c:forEach>
+        </html:select>     
+        </td>
         </tr>
         <tr>
         <td><B>Roles:</B></td>
@@ -131,7 +141,10 @@ window.onload = function() { stripedTable(); }
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center><html:submit value="Add/Change User" property="save"/></center></td>
+        <td colspan="0"><center>
+            <html:reset  value="Delete values" />
+            <html:submit value="Add/Change User" property="save"/>
+        </center></td>
         </tr>
         </html:form>
     </table>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.Style" table="Style">
+    	<id name="id" type="int" column="STYLEID" >
+            <generator class="native"/>
+        </id>
+        
+        <many-to-one name="layer" column="LAYERID" not-null="true"/>
+        
+        <set name="domainResource" inverse="true" cascade="all" lazy="true">
+            <key column="STYLEID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.StyleDomainResource"/>
+        </set>
+        
+        <property name="name">
+            <column name="NAME"/>
+        </property>
+        <property name="title">
+            <column name="TITLE"/>
+        </property>
+        <property name="abstracts">
+            <column name="ABSTRACTS"/>
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.SRS" table="SRS">
+    	<id name="id" type="int" column="SRSID" >
+            <generator class="native"/>
+        </id>
+        
+        <many-to-one name="layer" column="LAYERID" not-null="true"/>
+        
+        <property name="srs">
+            <column name="SRS"/>
+        </property>
+        <property name="minx">
+            <column name="MINX"/>
+        </property>
+        <property name="maxx">
+            <column name="MAXX"/>
+        </property>
+        <property name="miny">
+            <column name="MINY"/>
+        </property>
+        <property name="maxy">
+            <column name="MAXY"/>
+        </property>
+        <property name="resx">
+            <column name="RESX"/>
+        </property>
+        <property name="resy">
+            <column name="RESY"/>
+        </property>
+    </class>
+</hibernate-mapping>

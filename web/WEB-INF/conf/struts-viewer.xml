@@ -7,7 +7,34 @@
 
 <struts-config>
     <form-beans>
-    
+        <form-bean name="mapviewerForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="sortedDatasets" type="java.util.List"/>
+            <form-property name="minx" type="java.lang.String" initial="20000"/>   
+            <form-property name="miny" type="java.lang.String" initial="280000"/>
+            <form-property name="maxx" type="java.lang.String" initial="280000"/>
+            <form-property name="maxy" type="java.lang.String" initial="625000"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+        </form-bean>
+        <!--6.49499583151191,50.9099968504161,6.50249583134428,50.9174968502484-->
+        <!--5.25804640016269,3.13362127696184,1.99137980016269,10.333045323-->
+        
+        <form-bean name="createPersonalURLForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="username" type="java.lang.String"/>   
+            <form-property name="password" type="java.lang.String"/>
+            <form-property name="personalURL" type="java.lang.String"/>
+            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="timeout" type="java.lang.String"/>
+        </form-bean>        
     </form-beans>
     
     <global-exceptions>
@@ -20,6 +47,14 @@
 
     <action-mappings>
         <action path="/index" forward="base.viewer.index"/>
+        <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
+            <forward name="success" path="base.viewer.mapviewer"/>
+            <forward name="failure" path="base.viewer.index"/>
+        </action>
+        <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
+            <forward name="success" path="base.viewer.createurl"/>
+            <forward name="failure" path="base.viewer.index"/>
+        </action>        
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

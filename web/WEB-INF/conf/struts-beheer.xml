@@ -15,9 +15,10 @@
             <!-- user form fields-->
             <form-property name="firstname" type="java.lang.String"/>
             <form-property name="lastname" type="java.lang.String"/>
-            <form-property name="email" type="java.lang.String"/>
+            <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
             <form-property name="selectedRole" type="java.lang.String"/>
+            <form-property name="selectedOrganization" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
             <form-property name="userSelected" type="java.lang.String[]"/>
         </form-bean>
@@ -28,12 +29,12 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="serverName" type="java.lang.String"/>
-            <form-property name="serverUrl" type="java.lang.String"/>
-            <form-property name="serverUpdatedDate" type="java.lang.String"/>
-            <form-property name="serverReviewed" type="java.lang.String"/>
-            <form-property name="serverSelected" type="java.lang.String[]"/>
-        </form-bean>        
+            <form-property name="serviceProviderGivenName" type="java.lang.String"/>
+            <form-property name="serviceProviderUrl" type="java.lang.String"/>
+            <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
+            <form-property name="serviceProviderReviewed" type="java.lang.String"/>
+            <form-property name="serviceProviderSelected" type="java.lang.String[]"/>
+        </form-bean>
         
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -46,12 +47,38 @@
             <form-property name="organizationNumber" type="java.lang.String"/>
             <form-property name="organizationAddition" type="java.lang.String"/>
             <form-property name="organizationProvince" type="java.lang.String"/>
+            <form-property name="organizationCountry" type="java.lang.String"/>
             <form-property name="organizationPostbox" type="java.lang.String"/>
             <form-property name="organizationBillingAddress" type="java.lang.String"/>
             <form-property name="organizationVisitorsAddress" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
             <form-property name="organizationFax" type="java.lang.String"/>
-            <form-property name="organizationSelected" type="java.lang.String[]"/>            
+            <form-property name="organizationSelected" type="java.lang.String[]"/>
+            <form-property name="layerSelected" type="java.lang.String[]"/>
+        </form-bean>
+        
+        <form-bean name="testForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="contactPerson" type="java.lang.String"/>
+            <form-property name="contactPosition" type="java.lang.String"/>
+            <form-property name="address" type="java.lang.String"/>
+            <form-property name="addressType" type="java.lang.String"/>
+            <form-property name="postcode" type="java.lang.String"/>
+            <form-property name="city" type="java.lang.String"/>
+            <form-property name="stateOrProvince" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="voiceTelephone" type="java.lang.String"/>
+            <form-property name="fascimileTelephone" type="java.lang.String"/>
+            <form-property name="emailAddress" type="java.lang.String"/>
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="title" type="java.lang.String"/>
+            <form-property name="abstracts" type="java.lang.String"/>
+            <form-property name="fees" type="java.lang.String"/>
+            <form-property name="accessConstraints" type="java.lang.String"/>            
         </form-bean>
     </form-beans>
     
@@ -76,6 +103,10 @@
         </action>
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
+            <forward name="failure" path="base.beheer.index"/>
+        </action>
+        <action path="/test" name="testForm" type="nl.b3p.kaartenbalie.struts.TestServiceProviderAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.test"/>
             <forward name="failure" path="base.beheer.index"/>
         </action>
     </action-mappings>

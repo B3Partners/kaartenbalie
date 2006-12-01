@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : kaartenbalie.hbm.xml.xml
+    Created on : 7 september 2006, 11:01
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.Attribution" table="Attribution">
+    	<id name="id" type="int" column="LAYERID">
+            <generator class="foreign">
+                <param name="property">layer</param>
+            </generator>
+        </id>
+        
+        <one-to-one name="layer" constrained="true" class="nl.b3p.kaartenbalie.core.server.Layer" />
+        
+        <property name="title">
+            <column name="TITLE"/>
+        </property>
+        <property name="attributionURL">
+            <column name="ATTRIBUTIONURL"/>
+        </property>        
+        <property name="logoURL">
+            <column name="LOGOURL"/>
+        </property>
+        <property name="logoWidth">
+            <column name="LOGOWIDTH"/>
+        </property>
+        <property name="logoHeight">
+            <column name="LOGOHEIGHT"/>
+        </property>
+    </class>
+</hibernate-mapping>

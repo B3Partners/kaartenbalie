@@ -11,7 +11,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.User;
+import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.User;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -51,9 +52,19 @@ public class UserAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Long(id));
+            user = (User)session.load(User.class, new Integer(id));
         }
         return user;
+    }
+    
+    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) {
+        Session session = getHibernateSession();
+        Organization org = null;
+        
+        if (null != id) {
+            org = (Organization)session.load(Organization.class, new Integer(id));
+        }
+        return org;
     }
     
     /*
@@ -62,9 +73,10 @@ public class UserAction extends KaartenbalieCrudAction {
     private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("lastname", user.getLastName());
-        dynaForm.set("email", user.getEmail());
+        dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
+        dynaForm.set("selectedOrganization", user.getOrganization().getName());
         dynaForm.set("selectedRole", user.getRole());
     }
     
@@ -72,15 +84,19 @@ public class UserAction extends KaartenbalieCrudAction {
         super.createLists(form, request);
         
         List userList = getHibernateSession().createQuery("from User").list();
-        request.setAttribute("userlist", userList);        
-    }
+        request.setAttribute("userlist", userList); 
+        
+        List organizationlist = getHibernateSession().createQuery("from Organization").list();
+        request.setAttribute("organizationlist", organizationlist); 
+    }   
     
-    private void populateUserObject(DynaValidatorForm dynaForm, User user) {
+    private void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setLastName(FormUtils.nullIfEmpty(dynaForm.getString("lastname")));
-        user.setEmail(FormUtils.nullIfEmpty(dynaForm.getString("email")));
+        user.setEmailAddress(FormUtils.nullIfEmpty(dynaForm.getString("emailAddress")));
         user.setUsername(FormUtils.nullIfEmpty(dynaForm.getString("username")));
         user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
+        user.setOrganization(this.getOrganization(dynaForm, request, FormUtils.StringToInteger(dynaForm.getString("selectedOrganization"))));
         user.setRole(dynaForm.getString("selectedRole"));
     }
     
@@ -112,7 +128,7 @@ public class UserAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        populateUserObject(dynaForm,user);
+        populateUserObject(dynaForm, user, request);
         //store in db
         sess.saveOrUpdate(user);
         sess.flush();
@@ -120,7 +136,7 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("id", "");
         dynaForm.set("firstname", "");
         dynaForm.set("lastname", "");
-        dynaForm.set("email", "");
+        dynaForm.set("emailAddress", "");
         dynaForm.set("username", "");
         dynaForm.set("password", "");
         dynaForm.set("selectedRole", user.getRole());
@@ -161,7 +177,7 @@ public class UserAction extends KaartenbalieCrudAction {
                 return getAlternateForward(mapping, request);
             }
 
-            populateUserObject(dynaForm,user);
+            populateUserObject(dynaForm, user, request);
             //store in db
             sess.delete(user);
             sess.flush();

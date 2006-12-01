@@ -46,6 +46,8 @@
             <role-name>beheerder</role-name>
             <role-name>gebruiker</role-name>
         </auth-constraint>
+        
+        
         <!--
         <user-data-constraint>
         <description>SSL not required</description>
@@ -53,6 +55,8 @@
         </user-data-constraint>
         -->
     </security-constraint>
+    
+    
   
     <login-config>
         <auth-method>BASIC</auth-method>
@@ -63,6 +67,6 @@
         </form-login-config>
     </login-config>
 
-    <realm className="nl.b3p.lignl.viewer.services.SecurityRealm"/>
+    <realm className="nl.b3p.kaartenbalie.service.SecurityRealm"/>
 
 </securityfilter-config>

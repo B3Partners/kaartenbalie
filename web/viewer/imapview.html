@@ -1,0 +1,218 @@
+<html>
+	<head>
+		<SCRIPT TYPE="text/javascript" LANGUAGE="JavaScript1.2" src="box2.js"></SCRIPT>
+                <SCRIPT TYPE="text/javascript" LANGUAGE="JavaScript1.2" src="line.js"></SCRIPT>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript1.2" src="wz_jsgraphics.js"></script>
+		<SCRIPT TYPE="text/javascript" LANGUAGE="JavaScript1.2" src="envelope.js"></SCRIPT>
+		<SCRIPT TYPE="text/javascript" LANGUAGE="JavaScript1.2" src="event.js"></SCRIPT>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript1.2">
+		var box = null;
+		var line = null;
+		var isNav = false;
+		var initX = 0;
+		var initY = 0;
+                var evnt = 0; 
+		
+		function registerIMap() {
+			if ( parent.controller == null ) {
+				parent.controller = new parent.Controller();
+				parent.controller.init();
+			}
+			parent.controller.initDragBox = initDragBox;
+			parent.controller.clearDragBox = clearDragBox;
+			parent.controller.removeDragBox = removeDragBox;
+
+			parent.controller.initDistanceLine = initDistanceLine;
+			parent.controller.clearDistanceLine = clearDistanceLine;
+			parent.controller.removeDistanceLine = removeDistanceLine;
+		}
+        
+                function detectBrowser() {
+			isNav = (navigator.appName.indexOf("Netscape")>=0);	
+		}
+		
+		function initIMapView() {        
+			parent.controller.initMapView( document );	
+			detectBrowser();
+			if ( isNav ) {
+				onmousemove = initMouseMove;
+			} else {
+				window.document.onmousemove = initMouseMove;
+			}
+		}
+		
+		function initDragBox(layWidth, layHeight, hspc, vspc, zoomBoxColor) {
+			if ( box == null ) {
+				box = new DragBox (layWidth, layHeight, hspc, vspc, zoomBoxColor);
+				box.init();
+				box.setListener( parent.controller );
+			}
+			initEventHandling();
+		}
+		
+		function removeDragBox() {
+			if ( box != null ) {
+				box.kill();
+				box = null;
+			}
+		}
+		
+		function clearDragBox() {
+			if ( box != null ) {
+				box.clear();
+			}
+		}		
+
+		function initDistanceLine(layWidth, layHeight, hspc, vspc, zoomBoxColor) {
+			if ( line == null ) {
+				line = new DistanceLine (layWidth, layHeight, hspc, vspc, zoomBoxColor);
+				line.init();
+				line.setListener( parent.controller );
+			}
+			//initEventHandling();
+		}
+		
+		function removeDistanceLine() {
+			if ( line != null ) {
+				line.kill();
+				line = null;
+			}
+		}
+		
+		function clearDistanceLine() {
+			if ( line != null ) {
+				line.clear();
+			}
+		}		
+		
+		function initEventHandling() {
+			detectBrowser();
+			if ( isNav ) {
+				onmousedown = initMouseDown;
+				onmouseup = initMouseUp;
+			} else {				
+                                var layer = window.document.all[0];
+				document.onmousedown = initMouseDown;
+				layer.onmouseup = initMouseUp;
+			}
+		}
+		
+		function initMouseDown(e) {
+                    if ( !isNav ) {
+                        // microsoft IE special!!!
+                        var layer = window.document.all[0];
+                        layer.setCapture();                
+                    }
+                    if ( parent.controller.mode == 'zoomin' ) {
+			evnt = 0;
+                        var xy = getEventCoordinates(e);
+                        box.mapTool( xy[0], xy[1]);                
+                    } else if ( parent.controller.mode == 'zoomout' ) {
+                        evnt = 1;
+                    } else if ( parent.controller.mode == 'move' ) {
+			evnt = 2;
+                        var xy = getEventCoordinates(e);
+                        initX = xy[0];
+                        initY = xy[1];                
+                    } else if ( parent.controller.mode == 'distance' ) {
+			evnt = 5;
+                        var xy = getEventCoordinates(e);
+                        line.mapTool( xy[0], xy[1]);                
+                    } else if ( parent.controller.mode == 'recenter' ) {
+                        evnt = 3;
+                    } else if ( parent.controller.mode == 'featureinfo' ) {
+                        evnt = 4;
+                    } else if ( parent.controller.mode == 'draginfo'){
+                        evnt = 6;
+                        var xy= getEventCoordinates(e);
+                        box.mapTool(xy[0], xy[1]);
+                        //alert("**"+xy[0]+" "+ xy[1]);
+                        
+                    } else {
+                    
+                        evnt = -1;
+                    }
+		}
+		
+		function initMouseUp(e) {
+                    if ( evnt == 0 || evnt == 6) {
+                        box.chkMouseUp( );                
+                    } if ( evnt == 2 ) {
+                        var xy = getEventCoordinates(e);
+                        var d = new Array( (xy[0] - initX),(xy[1] - initY) );
+                        var event = 
+                            new Event( this, "MOVE", d );
+                        parent.controller.actionPerformed( event );
+                    } if ( evnt == 5 ) {
+                        line.chkMouseUp( );                
+                    } else if ( evnt == 1 || evnt == 3  || evnt == 4) {
+                        var xy = getEventCoordinates(e); 
+                        var event = 
+                            new Event( this, "BOX", new Envelope(xy[0], xy[1], xy[0]+1, xy[1]+1) );
+                        parent.controller.actionPerformed( event );
+                    }
+                    if ( !isNav ) {
+                        // microsoft IE special!!!
+                        var layer = window.document.all[0];
+                        layer.releaseCapture();
+                        document.onmousedown = initMouseDown;
+                    }            
+                    evnt = -1;
+		}
+		
+		function initMouseMove(e) {
+                    var xy = getEventCoordinates(e);
+                    if ( box != null ) {
+                        if ( evnt == 0 || evnt == 6 ) {
+                            box.getMouse( xy[0], xy[1] );
+                        } else if ( evnt == 2 ) {
+                            var hl = parent.controller.vMapView.htmlLayer;
+                            for (var i = 0; i < hl.length; i++) {
+                                var l = document.getElementById( hl[i].getId() );
+                                if ( l != null ) {
+                                    l.style.top = xy[1] - initY;
+                                    l.style.left = xy[0] - initX;
+                                }
+                            }                
+    			}
+                    }
+                    if ( line != null ) {
+                        if ( evnt == 5 ) {
+                            line.getMouse( xy[0], xy[1] );
+    			}
+                    }
+                    parent.controller.setMapScreenCoords( xy[0], xy[1] );
+		}
+        
+                function getEventCoordinates(e) {
+                    var x  = 0;
+                    var y  = 0;
+                    if (this.isNav) {
+			x = e.layerX;
+			y = e.layerY;
+                    } else {
+			if ( evnt == 2 ) {
+                            x = window.event.screenX;
+                            y = window.event.screenY;
+			} else {
+                            x = window.event.offsetX;
+                            y = window.event.offsetY;
+			}
+                    }
+                    return new Array( x, y);
+                }
+		</script>
+                
+ 
+                
+	 <link href="./styles/kaart.css" rel="stylesheet" type="text/css">
+	<META HTTP-EQUIV="imagetoolbar" CONTENT="no">	
+	</head>
+	<body class="clear" onload="registerIMap(); initIMapView();" onunload="GUnload()">
+		<table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0" >
+			<tr>
+                            <td id="MAP"></td>
+			</tr>		
+		</table>
+	</body>
+<html>
