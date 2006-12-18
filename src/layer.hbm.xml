@@ -27,6 +27,22 @@
         </set>
         
         <!--
+        <set name="organizationLayer">
+            <key column="LAYERID"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.OrganizationLayer"/>
+        </set>
+        -->
+        
+        <!--
+        <class name="nl.b3p.kaartenbalie.core.server.Layer">
+            <id name="id" column="LAYERID">
+                <generator class="native"/>
+            </id>
+        </class>
+        -->
+        
+        
+        <!--
         <set name="layers" cascade="all">
             <key column="LAYERID"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
@@ -90,12 +106,7 @@
         />
         
         
-        <!--
-        <set name="organizationLayer">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.OrganizationLayer"/>
-        </set>
-        -->
+        
         
         <many-to-one name="serviceProvider" column="SERVICEPROVIDERID" not-null="true"/><!--   /-->
                 

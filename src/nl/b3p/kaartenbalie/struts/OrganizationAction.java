@@ -11,7 +11,9 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -56,7 +58,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            organization = (Organization)session.load(Organization.class, new Integer(id));
+            try {
+                organization = (Organization)session.createQuery(
+                        "from Organization o where " +
+                        "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
+            } catch(Exception e){}
+            //organization = (Organization)session.load(Organization.class, new Integer(id));
         }
         return organization;
     }
@@ -104,23 +111,23 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
         
-        System.out.println(layerList.size());
-        
-        
         int size = layerSelected.length;
-        ArrayList layers = new ArrayList();
+        Set layers = new HashSet();
         for(int i = 0; i < size; i++) {
             int select = Integer.parseInt(layerSelected[i]);
-            layers.add(layerList.get(select));
-            Layer lay = (Layer)layers.get(i);
-            System.out.println(lay.getName());
+            Iterator it = layerList.iterator();
+            while (it.hasNext()) {
+                Layer layer = (Layer)it.next();
+                if (layer.getId() == select) {
+                    layers.add(layer);///layerList.get(select));
+                    break;
+                }
+                    
+            }
         }
-        
         organization.setOrganizationLayer(layers);
-        
     }
     
-    //This method has not been implemented yet into the system.
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         String [] layerSelected = dynaForm.getStrings("layerSelected");
@@ -145,7 +152,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        Organization organization = getOrganization(dynaForm,request,true, id);
+        Organization organization = getOrganization(dynaForm, request, true, id);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
@@ -174,14 +181,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        
-        
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;
         
         String [] layerSelected = dynaForm.getStrings("layerSelected");
-        List layerList = (List)request.getAttribute("layerlist"); 
+        HttpSession session = request.getSession();
+        List layerList = (List)session.getAttribute("layerlist"); 
         
         for(int i = 0; i < size; i++) {
             //if invalid
@@ -203,7 +208,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             }
             
             Integer id = Integer.parseInt(organizationSelected[i]);
-            Organization organization = getOrganization(dynaForm,request,true, id);
+            Organization organization = getOrganization(dynaForm, request, false, id);
             
             if (null == organization) {
                 prepareMethod(dynaForm, request, LIST, EDIT);

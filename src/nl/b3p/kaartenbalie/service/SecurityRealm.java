@@ -53,10 +53,5 @@ public class SecurityRealm implements SecurityRealmInterface {
         User user = (User)principal;
         log.info("Check user principal has role");
         return user.getRole().equalsIgnoreCase(role);
-    }
-   
-        
-        
-
-    
+    }   
 }

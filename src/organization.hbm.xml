@@ -16,26 +16,27 @@
         <id name="id" type="int" column="ORGANIZATIONID" >
             <generator class="native"/>
         </id>
+        <set name="organizationLayer" table="OrganizationLayer">
+            <key column="ORGANIZATIONID"/>
+            <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer"/>
+        </set>
+        
         
         <set name="user" lazy="true">
-            <key column="USERID"/>
+            <key column="USERID" update="false"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
         </set>
         
         <!--
-        <list name="organizationLayer">
-            <key column="ORGANIZATIONID"/>
-            <element column="LAYERID" type="string" not-null="true"/>
-            <many-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
-        </list>
-        -->
-        
-        <!--
-        Voorbeeld: mag weer weg zodra bovenstaande in orde
-        <set name="serviceProviderKeywordList" cascade="all" lazy="true">
-            <key column="SERVICEPROVIDERID"/>
-            <element column="KEYWORD" type="string" not-null="true"/>
-        </set>
+        <class name="nl.b3p.kaartenbalie.core.server.Organization">
+            <id name="id" column="ORGANIZATIONID">
+                <generator class="native"/>
+            </id>
+            <set name="organizationLayer" table="OrganizationLayer">
+                <key column="ORGANIZATIONID"/>
+                <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer"/>
+            </set>
+        </class>
         -->
         
         <property name="name">

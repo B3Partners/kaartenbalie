@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +34,7 @@ public class Organization {
     private String fax;
     private Set user;
     private Set billing;
-    private ArrayList organizationLayer;
+    private Set organizationLayer;
 
     public Integer getId() {
         return id;
@@ -123,17 +124,17 @@ public class Organization {
         this.billing = billing;
     }
 
-    public ArrayList getOrganizationLayer() {
+    public Set getOrganizationLayer() {
         return organizationLayer;
     }
 
-    public void setOrganizationLayer(ArrayList organizationLayer) {
+    public void setOrganizationLayer(Set organizationLayer) {
         this.organizationLayer = organizationLayer;
     }
     
     public void addOrganizationLayer(Layer layer) {
         if (null == organizationLayer) {
-            organizationLayer = new ArrayList();
+            organizationLayer = new HashSet();
         }
         organizationLayer.add(layer);
     }
