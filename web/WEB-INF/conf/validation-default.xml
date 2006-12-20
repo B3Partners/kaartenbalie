@@ -5,6 +5,60 @@
           "http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
 
 <form-validation>
-
-
+    <global>
+        <constant>
+            <constant-name>numberMask</constant-name>
+            <constant-value>^[-\+]?[0-9]*[,\.]?[0-9]*$</constant-value>
+        </constant>
+    </global>
+    
+    <formset>
+        <form name="userForm">
+            <field property="firstname" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.firstname"/>
+            </field>
+            <field property="lastname" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.lastname"/>
+            </field>
+            <field property="emailAddress" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.emailAddress"/>
+            </field>
+            <field property="username" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.username"/>
+            </field>
+            <field property="password" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.password"/>
+            </field>
+        </form>
+        
+        <form name="serverForm">
+            <field property="serviceProviderGivenName" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.serviceProviderGivenName"/>
+            </field>
+            <field property="serviceProviderUrl" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.serviceProviderUrl"/>
+            </field>
+        </form>
+        
+        <form name="organizationForm">
+            <field property="name" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.name"/>
+            </field>
+            <field property="organizationStreet" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.organizationStreet"/>
+            </field>
+            <field property="organizationNumber" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.organizationNumber"/>
+            </field>
+            <field property="organizationProvince" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.organizationProvince"/>
+            </field>
+            <field property="organizationCountry" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.organizationCountry"/>
+            </field>
+            <field property="organizationTelephone" depends="required, maxlength"> <!-- required -->
+                <arg0 key="beheer.organizationTelephone"/>
+            </field>            
+        </form>
+    </formset>
 </form-validation>

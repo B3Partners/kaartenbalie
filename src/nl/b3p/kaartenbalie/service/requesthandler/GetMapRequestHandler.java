@@ -44,41 +44,59 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     public GetMapRequestHandler() {}
     
     // <editor-fold defaultstate="collapsed" desc="getRequest() method">
-    public byte[] getRequest(Map params) throws IOException, Exception {
-        if (!getVersion().equalsIgnoreCase("1.1.1")) {
+    public byte[] getRequest(Map parameters) throws IOException, Exception {
+        version     = (String)parameters.get("version");
+        layers      = (String)parameters.get("layers");
+        styles      = (String)parameters.get("styles");
+        srs         = (String)parameters.get("srs");
+        bbox        = (String)parameters.get("bbox");
+        width       = (String)parameters.get("width");
+        height      = (String)parameters.get("height");
+        format      = (String)parameters.get("format");
+        transparent = (String)parameters.get("transparent");
+        bgColor     = (String)parameters.get("bgColor");
+        exceptions  = (String)parameters.get("exceptions");
+        time        = (String)parameters.get("time");
+        elevation   = (String)parameters.get("elevation");
+        
+        if (version == null) {
             super.log.error("GetMapRequestHandler: Unsupported WMS VERSION: " + getVersion());
             throw new Exception("Not (yet) supported WMS VERSION: " + getVersion());
         }
-        if(null == layers) {
+        if(layers == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS LAYERS");
             throw new Exception("Parameter required, WMS LAYERS");
-        }
+        }        
         /*
-        if(null == styles) {
+        if(styles == null) {
                 log.error("GetMapRequestHandler: Parameter required, wms STYLES");
             throw new Exception("Parameter required, wms STYLES");
         }
          */
-        if(null == srs) {
+        if(srs == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS SRS");
             throw new Exception("Parameter required, WMS SRS");
         }
-        if(null == bbox) {
+        if(bbox == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS BBOX");
             throw new Exception("Parameter required, WMS BBOX");
         }
-        if(null == width) {
+        if(width == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS WIDTH");
             throw new Exception("Parameter required, WMS WIDTH");
         }
-        if(null == height) {
+        if(height == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS HEIGHT");
             throw new Exception("Parameter required, WMS HEIGHT");
         }
-        if(null == format) {
+        if(format == null) {
             log.error("GetMapRequestHandler: Parameter required, WMS FORMAT");
             throw new Exception("Parameter required, WMS FORMAT");
         }
+        
+        this.organization = (Organization) parameters.get("organization");
+        this.url = (String) parameters.get("peronalURL"); 
+        
         
         String layer[]= layers.split(",");
         List tempSP = super.getServiceProviders(false);

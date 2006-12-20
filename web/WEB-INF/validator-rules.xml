@@ -45,9 +45,7 @@
 -->
 
 <form-validation>
-
    <global>
-
       <validator name="required"
             classname="org.apache.struts.validator.FieldChecks"
                method="validateRequired"
@@ -308,5 +306,4 @@
            jsFunction="org.apache.commons.validator.javascript.validateUtilities"/>
 
    </global>
-
 </form-validation>

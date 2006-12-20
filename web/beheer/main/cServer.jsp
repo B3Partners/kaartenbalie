@@ -56,20 +56,20 @@ function stripedTable() {
 window.onload = function() { stripedTable(); }
 -->
 </SCRIPT>
-
+<html:javascript formName="serverForm" staticJavascript="false"/>
+<html:form action="/server" onsubmit="return validateServerForm(this)">
 
 <table>
     <tr>
     <td valign="top"><b>Server tabel:</b>
-    <html:form action="/server">
     <DIV class=tableContainer id=tableContainer>
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
             <TR>
             <TH>Select</TH>
             <TH>Naam</TH>
-            <TH>Versie</TH>
             <TH>URL</TH>
+            <TH>Datum aanmaak</TH>
             <TH>Laatste update</TH>
             </TR>
             </THEAD>
@@ -87,10 +87,8 @@ window.onload = function() { stripedTable(); }
         </TABLE>
     </DIV>
     <html:submit value="Delete selected server(s)" property="delete"/>
-    </html:form>
     </td>
     <td width="33%" align="right">
-    <html:form action="/server">
     <table>
        <tr>
         <td><B>Server ID:</B></td>
@@ -126,7 +124,6 @@ window.onload = function() { stripedTable(); }
         </center></td>
         </tr>
     </table>
-    </html:form>
     </td>
     </tr>
     <tr>
@@ -176,3 +173,4 @@ window.onload = function() { stripedTable(); }
     <td>comments</td>
     </tr>
 </table>
+</html:form>

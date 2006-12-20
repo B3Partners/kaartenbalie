@@ -113,7 +113,7 @@
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
 
-    <message-resources parameter="com/myapp/struts/ApplicationResource"/>    
+    <message-resources parameter="KaartenbalieResources"/>
     
     <!-- ========================= Tiles plugin ===============================-->
     <plug-in className="org.apache.struts.tiles.TilesPlugin" >
@@ -123,9 +123,8 @@
     
     <!-- ========================= Validator plugin ================================= -->
     <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
-        <set-property
-        property="pathnames"
-        value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-beheer.xml"/>
+        <set-property property="pathnames" value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-beheer.xml"/>
+        <set-property property="stopOnFirstError" value="false"/>
     </plug-in>
   
 </struts-config>

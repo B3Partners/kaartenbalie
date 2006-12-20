@@ -663,6 +663,7 @@ window.onload = function() { stripedTable(); }
                             id="ZOOMIN_KNOP"
                             onMouseOver="document.images['zoomin'].src = image2.src" 
                             onMouseOut ="document.images['zoomin'].src = image1.src"
+                            onclick="clickButton('zoomin')"
                             href="#"><img src="images/controls/zoom.gif" name="zoomin" title="zoom in door muisklik of slepen" width="29" height="29">
                         </a>
                         <a 

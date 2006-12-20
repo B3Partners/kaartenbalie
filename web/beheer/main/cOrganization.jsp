@@ -57,11 +57,12 @@ window.onload = function() { stripedTable(); }
 -->
 </SCRIPT>
 
-
+<html:javascript formName="organizationForm" staticJavascript="false"/>
+<html:form action="/organization" onsubmit="return validateOrganizationForm(this)">
+    
 <table>
     <tr>
     <td valign="top"><b>Groepstabel:</b>
-    <html:form action="/organization">
     <DIV class=tableContainer id=tableContainer>
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
@@ -81,10 +82,8 @@ window.onload = function() { stripedTable(); }
         </TABLE>
     </DIV>
     <html:submit value="Delete organization(s)" property="delete"/>
-    </html:form>
     </td>
     <td width="33%" align="right" rowspan="0">
-    <html:form action="/organization">
     <table>
         <tr>
         <td><B>Vestiging ID:</B></td>
@@ -159,11 +158,12 @@ window.onload = function() { stripedTable(); }
         <tr>
         <td colspan="0"><center>
             <html:reset  value="Delete values" />
-            <html:submit value="Add/Change Organization" property="save"/>
+            <html:submit property="save">
+            <fmt:message key="button.ok"/>
+            </html:submit>
         </center></td>
         </tr>
     </table>
-    </html:form>
     </td>
     </tr>
     <tr>
@@ -213,3 +213,4 @@ window.onload = function() { stripedTable(); }
     <td>comments</td>
     </tr>
 </table>
+</html:form>

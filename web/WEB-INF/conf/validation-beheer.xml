@@ -1,9 +1,64 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <!DOCTYPE form-validation PUBLIC
-          "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
-          "http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
+"-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+"http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
 
 <form-validation>
-
+    <global>
+        <constant>
+            <constant-name>numberMask</constant-name>
+            <constant-value>^[-\+]?[0-9]*[,\.]?[0-9]*$</constant-value>
+        </constant>
+    </global>
+    
+    <formset>
+        <form name="userForm">
+            <field property="firstname" depends="required"> <!-- required -->
+                <arg0 key="beheer.firstname"/>
+            </field>
+            <field property="lastname" depends="required"> <!-- required -->
+                <arg0 key="beheer.lastname"/>
+            </field>
+            <field property="emailAddress" depends="required"> <!-- required -->
+                <arg0 key="beheer.emailAddress"/>
+            </field>
+            <field property="username" depends="required"> <!-- required -->
+                <arg0 key="beheer.username"/>
+            </field>
+            <field property="password" depends="required"> <!-- required -->
+                <arg0 key="beheer.password"/>
+            </field>
+        </form>
+        
+        <form name="serverForm">
+            <field property="serviceProviderGivenName" depends="required"> <!-- required -->
+                <arg0 key="beheer.serviceProviderGivenName"/>
+            </field>
+            <field property="serviceProviderUrl" depends="required"> <!-- required -->
+                <arg0 key="beheer.serviceProviderUrl"/>
+            </field>
+        </form>
+        
+        <form name="organizationForm">
+            <field property="name" depends="required"> <!-- required -->
+                <arg0 key="beheer.name"/>
+            </field>
+            <field property="organizationStreet" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationStreet"/>
+            </field>
+            <field property="organizationNumber" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationNumber"/>
+            </field>
+            <field property="organizationProvince" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationProvince"/>
+            </field>
+            <field property="organizationCountry" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationCountry"/>
+            </field>
+            <field property="organizationTelephone" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationTelephone"/>
+            </field>            
+        </form>
+    </formset>
 </form-validation>

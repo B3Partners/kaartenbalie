@@ -56,8 +56,8 @@ function stripedTable() {
 window.onload = function() { stripedTable(); }
 -->
 </SCRIPT>
-
-
+<html:javascript formName="userForm" staticJavascript="false"/>
+<html:form action="/user" onsubmit="return validateUserForm(this)">
 
 
 
@@ -66,7 +66,6 @@ window.onload = function() { stripedTable(); }
 <table>
     <tr>
     <td valign="top"><b>Gebruikers tabel:</b>
-    <html:form action="/user">
     <DIV class=tableContainer id=tableContainer>
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
@@ -92,11 +91,9 @@ window.onload = function() { stripedTable(); }
         </TABLE>
     </DIV>
     <html:submit value="Add/Change User" property="delete"/>
-    </html:form>
     </td>
     <td width="33%" align="right">
     <table>
-        <html:form action="/user">
         <tr>
         <td><B>ID:</B></td>
         <td><html:text property="id" readonly="true" /></td>
@@ -146,7 +143,6 @@ window.onload = function() { stripedTable(); }
             <html:submit value="Add/Change User" property="save"/>
         </center></td>
         </tr>
-        </html:form>
     </table>
     </td>
     </tr>
@@ -197,3 +193,4 @@ window.onload = function() { stripedTable(); }
     <td>comments</td>
     </tr>
 </table>
+</html:form>

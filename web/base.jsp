@@ -21,8 +21,9 @@ version $Id: base.jsp 3519 2006-05-10 15:48:02Z Frank $
 <html:html>
     <head>
         <title>Kaartenbalie</title>
-        
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
+        <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>">
+        </script>
     </head>
     <body>
         <tiles:insert page="${template}" flush="true">
