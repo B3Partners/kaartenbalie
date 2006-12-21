@@ -13,8 +13,8 @@ import java.util.Map;
  */
 
 
-interface RequestHandler {
-    public byte[] getRequest(Map params) throws IOException, Exception;
+public interface RequestHandler {
+    public byte[] getRequest(Map parameters) throws IOException, Exception;
     
     public String getVersion();
     public void setVersion(String version);

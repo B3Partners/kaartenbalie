@@ -551,44 +551,44 @@ if (window.addEventListener) {
 
 
 image1     = new Image(42, 42);
-image1.src = "images/controls/zoom.gif";
+image1.src = "images/controls/zoomin_inactive.gif";
 image2     = new Image(42, 42);
-image2.src = "images/controls/zoom2.gif";
+image2.src = "images/controls/zoomin_active.gif";
 
 image3     = new Image(42, 42);
-image3.src = "images/controls/zoom.gif";
+image3.src = "images/controls/zoomout_inactive.gif";
 image4     = new Image(42, 42);
-image4.src = "images/controls/zoom2.gif";
+image4.src = "images/controls/zoomout_active.gif";
 
 image5     = new Image(42, 42);
-image5.src = "images/controls/zoom.gif";
+image5.src = "images/controls/centermap_inactive.gif";
 image6     = new Image(42, 42);
-image6.src = "images/controls/zoom2.gif";
+image6.src = "images/controls/centermap_active.gif";
 
 image7     = new Image(42, 42);
-image7.src = "images/controls/zoom.gif";
+image7.src = "images/controls/move_inactive.gif";
 image8     = new Image(42, 42);
-image8.src = "images/controls/zoom2.gif";
+image8.src = "images/controls/move_active.gif";
 
 image9     = new Image(42, 42);
-image9.src = "images/controls/zoom.gif";
+image9.src = "images/controls/distance_inactive.gif";
 image10     = new Image(42, 42);
-image10.src = "images/controls/zoom2.gif";
+image10.src = "images/controls/distance_active.gif";
 
 image11     = new Image(42, 42);
-image11.src = "images/controls/zoom.gif";
+image11.src = "images/controls/info_inactive.gif";
 image12     = new Image(42, 42);
-image12.src = "images/controls/zoom2.gif";
+image12.src = "images/controls/info_active.gif";
 
 image13     = new Image(42, 42);
-image13.src = "images/controls/zoom.gif";
+image13.src = "images/controls/refresh_inactive.gif";
 image14     = new Image(42, 42);
-image14.src = "images/controls/zoom2.gif";
+image14.src = "images/controls/refresh_active.gif";
 
 image15     = new Image(42, 42);
-image15.src = "images/controls/zoom.gif";
+image15.src = "images/controls/print_inactive.gif";
 image16     = new Image(42, 42);
-image16.src = "images/controls/zoom2.gif";
+image16.src = "images/controls/print_active.gif";
 
 
 
@@ -664,49 +664,55 @@ window.onload = function() { stripedTable(); }
                             onMouseOver="document.images['zoomin'].src = image2.src" 
                             onMouseOut ="document.images['zoomin'].src = image1.src"
                             onclick="clickButton('zoomin')"
-                            href="#"><img src="images/controls/zoom.gif" name="zoomin" title="zoom in door muisklik of slepen" width="29" height="29">
+                            href="#"><img src="images/controls/zoomin_inactive.gif" name="zoomin" title="zoom in door muisklik of slepen" width="29" height="29">
                         </a>
                         <a 
                             id="ZOOMOUT_KNOP"
                             onMouseOver="document.images['zoomout'].src = image4.src" 
                             onMouseOut ="document.images['zoomout'].src = image3.src"
-                            href="#"><img src="images/controls/zoom.gif" name="zoomout" title="zoom uit door muisklik" width="29" height="29">
+                            onclick="clickButton('zoomout')"
+                            href="#"><img src="images/controls/zoomout_inactive.gif" name="zoomout" title="zoom uit door muisklik" width="29" height="29">
                         </a>
                         <a 
                             id="RECENTER_KNOP"
                             onMouseOver="document.images['recenter'].src = image6.src" 
                             onMouseOut ="document.images['recenter'].src = image5.src"
-                            href="#"><img src="images/controls/zoom.gif" name="recenter" title="centreer kaart op muisklik" width="29" height="29">
+                            onclick="clickButton('recenter')"
+                            href="#"><img src="images/controls/centermap_inactive.gif" name="recenter" title="centreer kaart op muisklik" width="29" height="29">
                         </a>
                         <a 
                             id="MOVE_KNOP"
                             onMouseOver="document.images['move'].src = image8.src" 
                             onMouseOut ="document.images['move'].src = image7.src"
-                            href="#"><img src="images/controls/zoom.gif" name="move" title="versleep kaart met muis" width="29" height="29">
+                            onclick="clickButton('move')"
+                            href="#"><img src="images/controls/move_inactive.gif" name="move" title="versleep kaart met muis" width="29" height="29">
                         </a>
                         <a 
                             id="DISTANCE_KNOP"
                             onMouseOver="document.images['distance'].src = image10.src" 
                             onMouseOut ="document.images['distance'].src = image9.src"
-                            href="#"><img src="images/controls/zoom.gif" name="distance" title="bepaal afstand in kaart" width="29" height="29">
+                            onclick="clickButton('distance')"
+                            href="#"><img src="images/controls/distance_inactive.gif" name="distance" title="bepaal afstand in kaart" width="29" height="29">
                         </a>
                         <a 
                             id="FEATUREINFO_KNOP"
                             onMouseOver="document.images['info'].src = image12.src" 
                             onMouseOut ="document.images['info'].src = image11.src"
-                            href="#"><img src="images/controls/zoom.gif" name="info" title="haal info op bij object" width="29" height="29">
+                            onclick="clickButton('info')"
+                            href="#"><img src="images/controls/info_inactive.gif" name="info" title="haal info op bij object" width="29" height="29">
                         </a>
                         <a 
                             onMouseOver="document.images['refresh'].src = image14.src" 
                             onMouseOut ="document.images['refresh'].src = image13.src"
                             onclick="clickButton('refresh')"
-                            href="#"><img src="images/controls/zoom.gif" name="refresh" title="ververs de kaart" width="29" height="29">
+                            href="#"><img src="images/controls/refresh_inactive.gif" name="refresh" title="ververs de kaart" width="29" height="29">
                         </a>
                         <a 
                             id="PRINT_KNOP"
                             onMouseOver="document.images['print'].src = image16.src" 
                             onMouseOut ="document.images['print'].src = image15.src"
-                            href="#"><img src="images/controls/zoom.gif" name="print" title="print de kaart" width="29" height="29">
+                            onclick="clickButton('print')"
+                            href="#"><img src="images/controls/print_inactive.gif" name="print" title="print de kaart" width="29" height="29">
                         </a>
                         <div class="scalebar">
                             <img id="SCALEBAR" src="images/scalebar.gif" height="6" width="200">

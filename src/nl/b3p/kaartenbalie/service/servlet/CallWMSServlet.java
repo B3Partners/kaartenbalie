@@ -177,17 +177,43 @@ public class CallWMSServlet extends HttpServlet {
     
     // <editor-fold defaultstate="collapsed" desc="parseRequestAndData method. Click on the + sign on the left to edit the code.">
     public byte[] parseRequestAndData(HttpServletRequest request) throws Exception {
+        Map parameters      = null;//request.getParameterMap();
         String givenRequest = request.getParameter("REQUEST");
-        String service = request.getParameter("SERVICE");
-        Map parameters = null;
-        WMSRequestHandler wmsRequestHandler = null;
-        if(null !=givenRequest && !(givenRequest == "")) {
+        String service      = request.getParameter("SERVICE");
+        
+        
+        /*
+         * onderstaande manier zou een kopie moeten maken van de request.getParameterMap();
+         * hiervan moet een kopie gemaakt worden omdat deze Map immutable is en er daardoor dus
+         * geen objecten aan toegevoegd kunnen worden.
+         * Na de kopie zou het wel mogelijk moeten zijn om er objecten aan toe te voegen, maar dan
+         * speelt het probleem dat er een class cast exception gegenereerd wordt bij de klasse waar
+         * dit object naar doorgestuurd wordt.
+         *
+        Map parameters      = new HashMap();//null;//request.getParameterMap();
+        String givenRequest = request.getParameter("REQUEST");
+        String service      = request.getParameter("SERVICE");
+        
+        Map rmap = request.getParameterMap();
+        Set keyset = rmap.keySet();
+        
+        java.util.Iterator it = keyset.iterator();
+        while (it.hasNext()) {
+            String name = (String)it.next();
+            Object obj  = rmap.get(name);
+            parameters.put(name, obj) ;
+        }
+        */
+        
+        
+        RequestHandler requestHandler = null;
+        if(null != givenRequest && !(givenRequest == "")) {
             if(givenRequest.equalsIgnoreCase("GetCapabilities")) {
                 parameters = new HashMap();
                 parameters.put("version", request.getParameter("VERSION"));
                 parameters.put("service", request.getParameter("SERVICE"));
                 parameters.put("organization", this.organization);
-                wmsRequestHandler = new GetCapabilitiesRequestHandler();
+                requestHandler = new GetCapabilitiesRequestHandler();
             } else if (givenRequest.equalsIgnoreCase("GetMap")) {
                 parameters = new HashMap();
                 parameters.put("version", request.getParameter("VERSION"));
@@ -199,22 +225,48 @@ public class CallWMSServlet extends HttpServlet {
                 parameters.put("height", request.getParameter("HEIGHT"));
                 parameters.put("format", request.getParameter("FORMAT"));
                 parameters.put("organization", this.organization);
-                parameters.put("peronalURL", this.personalURL);             
-                wmsRequestHandler = new GetMapRequestHandler();
+                parameters.put("peronalURL", this.personalURL);
+                requestHandler = new GetMapRequestHandler();
             } else if (givenRequest.equalsIgnoreCase("GetFeatureInfo")) {
                 parameters = new HashMap();
                 String mapRequestCopy = "";
                 parameters.put("mapRequestCopy", mapRequestCopy);
                 parameters.put("query_layers", request.getParameter("QUERY_LAYERS"));
                 parameters.put("x", request.getParameter("x"));
-                parameters.put("y", request.getParameter("y"));            
-                wmsRequestHandler = new GetFeatureInfoRequestHandler();
+                parameters.put("y", request.getParameter("y"));
+                mapRequestCopy  = (String)parameters.get("mapRequestCopy");
+                requestHandler = new GetFeatureInfoRequestHandler();
+            } else if (givenRequest.equalsIgnoreCase("GetLegendGraphic")) {
+                parameters = new HashMap();
+                parameters.put("version", request.getParameter("VERSION"));
+                parameters.put("styles", request.getParameter("STYLE"));
+                parameters.put("layers", request.getParameter("LAYER"));
+                parameters.put("featuretype", request.getParameter("FEATURETYPE"));
+                parameters.put("rule", request.getParameter("RULE"));
+                parameters.put("scale", request.getParameter("SCALE"));
+                parameters.put("sld", request.getParameter("SLD"));
+                parameters.put("sld_body", request.getParameter("SLD_BODY"));
+                parameters.put("format", request.getParameter("FORMAT"));
+                parameters.put("width", request.getParameter("WIDTH"));
+                parameters.put("height", request.getParameter("HEIGHT"));
+                parameters.put("organization", this.organization);
+                parameters.put("peronalURL", this.personalURL);
+                requestHandler = new GetLegendGraphicRequestHandler();
+            } else if (givenRequest.equalsIgnoreCase("GetStyles")) {
+                log.error("Unsupported request: " + givenRequest);
+                return null;
+            } else if (givenRequest.equalsIgnoreCase("PutStyles")) {
+                log.error("Unsupported request: " + givenRequest);
+                return null;
+            } else if (givenRequest.equalsIgnoreCase("DescribeLayer")) {
+                log.error("Unsupported request: " + givenRequest);
+                return null;
             } else {
                 log.error("Unsupported request: " + givenRequest);
                 return null;
             }
         }
-        return wmsRequestHandler.getRequest(parameters);
+        return requestHandler.getRequest(parameters);
     }
     // </editor-fold>
             

@@ -32,6 +32,12 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     
     // <editor-fold defaultstate="collapsed" desc="getRequest() method">
     public byte[] getRequest(Map parameters) throws IOException, Exception {
+        /*
+        parameters.put("version", request.getParameter("VERSION"));
+        parameters.put("service", request.getParameter("SERVICE"));
+        parameters.put("organization", this.organization);
+        */
+        
         if (!((String)parameters.get("version")).equalsIgnoreCase("1.1.1")) {
             log.error("GetCapabilitiesRequestHandler: Unsupported WMS VERSION: " + getVersion());
             throw new Exception("Not (yet) supported WMS VERSION: " + getVersion());

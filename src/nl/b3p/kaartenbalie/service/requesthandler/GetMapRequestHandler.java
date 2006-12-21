@@ -45,6 +45,19 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     
     // <editor-fold defaultstate="collapsed" desc="getRequest() method">
     public byte[] getRequest(Map parameters) throws IOException, Exception {
+        /*
+        parameters.put("version", request.getParameter("VERSION"));
+        parameters.put("layers", request.getParameter("LAYERS"));
+        parameters.put("styles", request.getParameter("STYLES"));
+        parameters.put("srs", request.getParameter("SRS"));
+        parameters.put("bbox", request.getParameter("BBOX"));
+        parameters.put("width", request.getParameter("WIDTH"));
+        parameters.put("height", request.getParameter("HEIGHT"));
+        parameters.put("format", request.getParameter("FORMAT"));
+        parameters.put("organization", this.organization);
+        parameters.put("peronalURL", this.personalURL);
+        */
+        
         version     = (String)parameters.get("version");
         layers      = (String)parameters.get("layers");
         styles      = (String)parameters.get("styles");

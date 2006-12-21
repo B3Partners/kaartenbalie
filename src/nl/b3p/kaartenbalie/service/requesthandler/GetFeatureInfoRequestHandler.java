@@ -35,24 +35,30 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     
     // <editor-fold defaultstate="collapsed" desc="GetFeatureInfoRequestHandler Constructors">
     public GetFeatureInfoRequestHandler() {}
-    
-    public GetFeatureInfoRequestHandler(String mapRequestCopy, String layers, String infoFormat, String featureCount, 
-            String x, String y, String exceptionFormat) {
-        this.setMapRequestCopy(mapRequestCopy);
-        this.setInfoFormat(infoFormat);
-        this.setFeatureCount(featureCount);
-        this.setX(x);
-        this.setY(y);
-        this.setExceptionFormat(exceptionFormat);
-    }
-    
-    public GetFeatureInfoRequestHandler(String mapRequestCopy, String layers, String x, String y) {
-        this(mapRequestCopy, layers, "", "", x, y, "");
-    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="getRequest() method">
-    public byte[] getRequest(Map params) throws IOException, Exception {
+    public byte[] getRequest(Map parameters) throws IOException, Exception {
+        /*
+        parameters = new HashMap();
+        String mapRequestCopy = "";
+        parameters.put("mapRequestCopy", mapRequestCopy);
+        parameters.put("query_layers", request.getParameter("QUERY_LAYERS"));
+        parameters.put("x", request.getParameter("x"));
+        parameters.put("y", request.getParameter("y"));
+        mapRequestCopy  = (String)parameters.get("mapRequestCopy");
+        */
+        
+        mapRequestCopy  = (String)parameters.get("mapRequestCopy");
+        layers          = (String)parameters.get("layers");
+        infoFormat      = (String)parameters.get("infoFormat");
+        featureCount    = (String)parameters.get("featureCount");
+        x               = (String)parameters.get("x");
+        y               = (String)parameters.get("y");
+        exceptionFormat = (String)parameters.get("exceptionFormat");
+        
+        
+        
         if (!getVersion().equalsIgnoreCase("1.1.1")) {
             log.error("GetFeatureInfoRequestHandler: Unsupported WMS VERSION: " + getVersion());
             throw new Exception("Not (yet) supported WMS VERSION: " + getVersion());
