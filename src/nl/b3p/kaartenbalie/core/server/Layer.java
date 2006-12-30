@@ -9,16 +9,33 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.lang.reflect.Method;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  *
  * @author Nando De Goeij
  */
 public class Layer {
+    
+    private static final Log log = LogFactory.getLog(Layer.class);
     
     private Integer id;
     private String name = "";
@@ -44,115 +61,115 @@ public class Layer {
     private Set organizationLayers;
     private Set srs;
     private Set layers;
-
+    
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
+    
     public String getTitle() {
         return title;
     }
-
+    
     public void setTitle(String title) {
         this.title = title;
     }
-
+    
     public String getAbstracts() {
         return abstracts;
     }
-
+    
     public void setAbstracts(String abstracts) {
         this.abstracts = abstracts;
     }
-
+    
     public String getQueryable() {
         return queryable;
     }
-
+    
     public void setQueryable(String queryable) {
         this.queryable = queryable;
     }
-
+    
     public String getCascaded() {
         return cascaded;
     }
-
+    
     public void setCascaded(String cascaded) {
         this.cascaded = cascaded;
     }
-
+    
     public String getOpaque() {
         return opaque;
     }
-
+    
     public void setOpaque(String opaque) {
         this.opaque = opaque;
     }
-
+    
     public String getNosubsets() {
         return nosubsets;
     }
-
+    
     public void setNosubsets(String nosubsets) {
         this.nosubsets = nosubsets;
     }
-
+    
     public String getFixedWidth() {
         return fixedWidth;
     }
-
+    
     public void setFixedWidth(String fixedWidth) {
         this.fixedWidth = fixedWidth;
     }
-
+    
     public String getFixedHeight() {
         return fixedHeight;
     }
-
+    
     public void setFixedHeight(String fixedHeight) {
         this.fixedHeight = fixedHeight;
     }
-
+    
     public String getScaleHintMin() {
         return scaleHintMin;
     }
-
+    
     public void setScaleHintMin(String scaleHintMin) {
         this.scaleHintMin = scaleHintMin;
     }
-
+    
     public String getScaleHintMax() {
         return scaleHintMax;
     }
-
+    
     public void setScaleHintMax(String scaleHintMax) {
         this.scaleHintMax = scaleHintMax;
     }
-
+    
     public Layer getParent() {
         return parent;
     }
-
+    
     public void setParent(Layer parent) {
         this.parent = parent;
     }
-
+    
     public ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
-
+    
     public void setServiceProvider(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         if(null != layers) {
@@ -162,11 +179,11 @@ public class Layer {
             }
         }
     }
-
+    
     public Set getDimensions() {
         return dimensions;
     }
-
+    
     public void setDimensions(Set dimensions) {
         this.dimensions = dimensions;
     }
@@ -178,11 +195,11 @@ public class Layer {
         dimensions.add(dimension);
         dimension.setLayer(this);
     }
-
+    
     public Set getLayerKeywordList() {
         return layerKeywordList;
     }
-
+    
     public void setLayerKeywordList(Set layerKeywordList) {
         this.layerKeywordList = layerKeywordList;
     }
@@ -193,11 +210,11 @@ public class Layer {
         }
         layerKeywordList.add(keyword);
     }
-
+    
     public Set getStyles() {
         return styles;
     }
-
+    
     public void setStyles(Set styles) {
         this.styles = styles;
     }
@@ -207,13 +224,13 @@ public class Layer {
             styles = new HashSet();
         }
         styles.add(style);
-        style.setLayer(this);        
+        style.setLayer(this);
     }
-
+    
     public Set getDomainResource() {
         return domainResource;
     }
-
+    
     public void setDomainResource(Set domainResource) {
         this.domainResource = domainResource;
     }
@@ -223,13 +240,13 @@ public class Layer {
             domainResource = new HashSet();
         }
         domainResource.add(dr);
-        dr.setLayer(this);        
+        dr.setLayer(this);
     }
-
+    
     public Set getIdentifiers() {
         return identifiers;
     }
-
+    
     public void setIdentifiers(Set identifiers) {
         this.identifiers = identifiers;
     }
@@ -239,21 +256,21 @@ public class Layer {
             identifiers = new HashSet();
         }
         identifiers.add(identifier);
-        identifier.setLayer(this);       
+        identifier.setLayer(this);
     }
-
+    
     public Set getOrganizationLayers() {
         return organizationLayers;
     }
-
+    
     public void setOrganizationLayers(Set organizationLayers) {
         this.organizationLayers = organizationLayers;
     }
-
+    
     public Set getSrs() {
         return srs;
     }
-
+    
     public void setSrs(Set srs) {
         this.srs = srs;
     }
@@ -265,11 +282,11 @@ public class Layer {
         srs.add(s);
         s.setLayer(this);
     }
-
+    
     public Set getLayers() {
         return layers;
     }
-
+    
     public void setLayers(Set layers) {
         this.layers = layers;
     }
@@ -282,23 +299,23 @@ public class Layer {
         layer.setParent(this);
         //layer.setServiceProvider(serviceProvider);
         //layer.setStyles(styles);
-    }    
-
+    }
+    
     public LatLonBoundingBox getLatLonBoundingBox() {
         return latLonBoundingBox;
     }
-
+    
     public void setLatLonBoundingBox(LatLonBoundingBox latLonBoundingBox) {
         this.latLonBoundingBox = latLonBoundingBox;
         if(null != latLonBoundingBox) {
             latLonBoundingBox.setLayer(this);
         }
     }
-
+    
     public Attribution getAttribution() {
         return attribution;
     }
-
+    
     public void setAttribution(Attribution attribution) {
         this.attribution = attribution;
         if(null != attribution) {
@@ -308,36 +325,36 @@ public class Layer {
     
     public void shallowClone(Layer l) {
         this.id = l.id;
-        this.title = l.title;        
+        this.title = l.title;
     }
     
     protected void overwriteURL(String newUrl) {
-    	Iterator it;
-    	//Layers:
-    	if(null != this.getLayers() && this.getLayers().size() != 0) {  
-	    	it = this.getLayers().iterator();
-	    	while (it.hasNext()) {
-	    		Layer l = (Layer)it.next();
-	    		l.overwriteURL(newUrl);
-	    	}
-    	}
-    	
-    	//LayerDomainResource:
-    	if(null != domainResource) {
-    		it = domainResource.iterator();
-	    	while (it.hasNext()) {
-				LayerDomainResource ldr = (LayerDomainResource)it.next();
-	            ldr.overwriteURL(newUrl);
-	    	}
-    	}
-    	
-    	//Styles:
-    	if(null != this.getStyles() && this.getStyles().size() != 0) {       
-	        it = styles.iterator();
-	    	while (it.hasNext()) {
-	    		Style style = (Style)it.next();
-	    		style.overwriteURL(newUrl);
-	    	}
+        Iterator it;
+        //Layers:
+        if(null != this.getLayers() && this.getLayers().size() != 0) {
+            it = this.getLayers().iterator();
+            while (it.hasNext()) {
+                Layer l = (Layer)it.next();
+                l.overwriteURL(newUrl);
+            }
+        }
+        
+        //LayerDomainResource:
+        if(null != domainResource) {
+            it = domainResource.iterator();
+            while (it.hasNext()) {
+                LayerDomainResource ldr = (LayerDomainResource)it.next();
+                ldr.overwriteURL(newUrl);
+            }
+        }
+        
+        //Styles:
+        if(null != this.getStyles() && this.getStyles().size() != 0) {
+            it = styles.iterator();
+            while (it.hasNext()) {
+                Style style = (Style)it.next();
+                style.overwriteURL(newUrl);
+            }
         }
     }
     
@@ -445,121 +462,169 @@ public class Layer {
                 layer.setParent(cloneLayer);
                 cloneLayer.layers.add(layer);
             }
-        }    
+        }
         return cloneLayer;
     }
     
-    public String toString(String tabulator) {
-    	Iterator it;
-    	
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
+    public Element toElement(Document doc) {
         
+        Element rootElement = doc.createElement("Layer");
         
-        result.append(tabulator + "<Layer ");
         if(null != this.getQueryable()) {
-        	result.append("queryable=\"" + this.getQueryable() + "\" ");
+            rootElement.setAttribute("queryable", this.getQueryable());
         }
         if(null != this.getCascaded()) {
-        	result.append("cascaded=\"" + this.getCascaded() + "\" ");
+            rootElement.setAttribute("cascaded", this.getCascaded());
         }
         if(null != this.getOpaque()) {
-        	result.append("opaque=\"" + this.getOpaque() + "\" ");
+            rootElement.setAttribute("opaque", this.getOpaque());
         }
         if(null != this.getNosubsets()) {
-        	result.append("noSubsets=\"" + this.getNosubsets() + "\" ");
+            rootElement.setAttribute("noSubsets", this.getNosubsets());
         }
         if(null != this.getFixedWidth()) {
-        	result.append("fixedWidth=\"" + this.getFixedWidth() + "\" ");
+            rootElement.setAttribute("fixedWidth", this.getFixedWidth());
         }
         if(null != this.getFixedHeight()) {
-        	result.append("fixedHeight=\"" + this.getFixedHeight() + "\" ");
-        }        
-        result.append(">\n");
+            rootElement.setAttribute("fixedHeight", this.getFixedHeight());
+        }
         
         if(null != this.getName()) {
-            result.append(tabulator + "\t<Name>" + this.getId() + "_" + this.getName() + "</Name>\n");
+            Element element = doc.createElement("Name");
+            Text text = doc.createTextNode(this.getId() + "_" + this.getName());
+            element.appendChild(text);
+            rootElement.appendChild(element);
         }
-        result.append(tabulator + "\t<Title>" + this.getId() + "_" + this.getTitle() + "</Title>\n");
+        
+        if(null != this.getTitle()) {
+            Element element = doc.createElement("Title");
+            Text text = doc.createTextNode(this.getId() + "_" + this.getTitle());
+            element.appendChild(text);
+            rootElement.appendChild(element);
+        }
+        
         if(null != this.getAbstracts()) {
-            result.append(tabulator + "\t<Abstract>" + this.getAbstracts() + "</Abstract>\n");
+            Element element = doc.createElement("Abstract");
+            Text text = doc.createTextNode(this.getAbstracts());
+            element.appendChild(text);
+            rootElement.appendChild(element);
         }
         
         if(null != this.getLayerKeywordList() && this.getLayerKeywordList().size() != 0) {
-            result.append(tabulator + "\t<KeywordList>\n");
-            it = this.getLayerKeywordList().iterator();
+            Element element = doc.createElement("KeywordList");
+            rootElement.appendChild(element);
+            Iterator it = this.getLayerKeywordList().iterator();
             while (it.hasNext()) {
-                    String keyword = (String)it.next();
-                result.append(tabulator + "\t\t<Keyword>" + keyword + "</Keyword>\n");
+                String keyword = (String)it.next();
+                Element subElement = doc.createElement("Keyword");
+                Text text = doc.createTextNode(keyword);
+                subElement.appendChild(text);
+                element.appendChild(subElement);
             }
-            result.append(tabulator + "\t</KeywordList>\n");
         }
         
         if(null != this.getSrs() && this.getSrs().size() != 0) {
-	        it = srs.iterator();
-	    	while (it.hasNext()) {
-	            SRS s = (SRS)it.next();
-	            result.append(s.toString(tabulator + "\t"));
-	    	}
+            Iterator it = srs.iterator();
+            while (it.hasNext()) {
+                SRS s = (SRS)it.next();
+                rootElement.appendChild(s.toElement(doc));
+            }
         }
         
         if(null != this.getLatLonBoundingBox()) {
-        	result.append(this.getLatLonBoundingBox().toString(tabulator + "\t"));
+            rootElement.appendChild(this.getLatLonBoundingBox().toElement(doc));
         }
         
         if(null != this.getScaleHintMin() && null != this.getScaleHintMax()) {
-	        result.append(tabulator + "\t<ScaleHint min=\"" + this.getScaleHintMin() + 
-	                      "\" max=\"" + this.getScaleHintMax() + 
-	                      "\"></ScaleHint>\n");
+            Element element = doc.createElement("ScaleHint");
+            rootElement.appendChild(element);
+            
+            rootElement.setAttribute("min", this.getScaleHintMin());
+            rootElement.setAttribute("max", this.getScaleHintMax());
         }
         
         if(null != this.getDimensions() && this.getDimensions().size() != 0) {
-	        it = this.getDimensions().iterator();
-	    	while (it.hasNext()) {
-	            Dimensions dim = (Dimensions)it.next();
-	            result.append(dim.toString(tabulator + "\t"));
-	    	}
+            Iterator it = this.getDimensions().iterator();
+            while (it.hasNext()) {
+                Dimensions dim = (Dimensions)it.next();
+                rootElement.appendChild(dim.toElement(doc));
+            }
         }
         
-        if(null != this.getStyles() && this.getStyles().size() != 0) {        
-	        it = styles.iterator();
-	    	while (it.hasNext()) {
-	    		Style style = (Style)it.next();
-	    		result.append(style.toString(tabulator + "\t"));
-	    	}
+        if(null != this.getStyles() && this.getStyles().size() != 0) {
+            Iterator it = styles.iterator();
+            while (it.hasNext()) {
+                Style style = (Style)it.next();
+                rootElement.appendChild(style.toElement(doc));
+            }
         }
-    	
-    	if(null != this.getDomainResource() && this.getDomainResource().size() != 0) {  
-	    	it = domainResource.iterator();
-	    	while (it.hasNext()) {
-	    		LayerDomainResource ldr = (LayerDomainResource)it.next();
-	    		result.append(ldr.toString(tabulator + "\t"));
-	    	}
-    	}
-    	
-    	if(null != this.getIdentifiers() && this.getIdentifiers().size() != 0) {  
-	    	it = identifiers.iterator();
-	    	while (it.hasNext()) {
-	    		Identifier i = (Identifier)it.next();
-	    		result.append(i.toString(tabulator + "\t"));
-	    	}
-    	}
-    	
-    	if(null != this.getAttribution()) {  
-    		result.append(attribution.toString(tabulator + "\t"));
-    	}
-    	
-    	
-    	if(null != this.getLayers() && this.getLayers().size() != 0) {  
-	    	it = this.getLayers().iterator();
-	    	while (it.hasNext()) {
-	    		Layer l = (Layer)it.next();
-	    		result.append(l.toString(tabulator + "\t"));
-	    	}
-    	}
-    	
-    	result.append(tabulator + "</Layer>\n");
-    	return result.toString();
+        
+        if(null != this.getDomainResource() && this.getDomainResource().size() != 0) {
+            Iterator it = domainResource.iterator();
+            while (it.hasNext()) {
+                LayerDomainResource ldr = (LayerDomainResource)it.next();
+                rootElement.appendChild(ldr.toElement(doc));
+            }
+        }
+        
+        if(null != this.getIdentifiers() && this.getIdentifiers().size() != 0) {
+            Iterator it = identifiers.iterator();
+            while (it.hasNext()) {
+                Identifier i = (Identifier)it.next();
+                rootElement.appendChild(i.toElement(doc));
+            }
+        }
+        
+        if(null != this.getAttribution()) {
+            rootElement.appendChild(this.getAttribution().toElement(doc));
+        }
+        
+        if(null != this.getLayers() && this.getLayers().size() != 0) {
+            Iterator it = this.getLayers().iterator();
+            while (it.hasNext()) {
+                Layer l = (Layer)it.next();
+                rootElement.appendChild(l.toElement(doc));
+            }
+        }
+        
+        return rootElement;
+    }
+    
+    
+    public static void main(String [] args) {
+        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = null;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException ex) {
+            ex.printStackTrace();
+        }
+        Document doc = db.newDocument();
+        
+        Layer l = new Layer();
+        l.setQueryable("ja");
+        
+        Element elem = l.toElement(doc);
+        doc.appendChild(elem);
+        
+        
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = null;
+        try {
+            transformer = tf.newTransformer();
+        } catch (TransformerConfigurationException ex) {
+            ex.printStackTrace();
+        }
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            transformer.transform(new DOMSource(doc), new StreamResult(output));
+        } catch (TransformerException ex) {
+            ex.printStackTrace();
+        }
+        
+        System.out.print(output.toString());
+        
     }
     
 }

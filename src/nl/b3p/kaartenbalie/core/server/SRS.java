@@ -11,6 +11,11 @@ package nl.b3p.kaartenbalie.core.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -31,77 +36,77 @@ public class SRS {
 //    public static final List srsen = new ArrayList();
     
     public SRS() {
- //       srsen.add(this);
+        //       srsen.add(this);
     }
-
+    
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getSrs() {
         return srs;
     }
-
+    
     public void setSrs(String srs) {
         this.srs = srs;
     }
-
+    
     public String getMinx() {
         return minx;
     }
-
+    
     public void setMinx(String minx) {
         this.minx = minx;
     }
-
+    
     public String getMiny() {
         return miny;
     }
-
+    
     public void setMiny(String miny) {
         this.miny = miny;
     }
-
+    
     public String getMaxx() {
         return maxx;
     }
-
+    
     public void setMaxx(String maxx) {
         this.maxx = maxx;
     }
-
+    
     public String getMaxy() {
         return maxy;
     }
-
+    
     public void setMaxy(String maxy) {
         this.maxy = maxy;
     }
-
+    
     public String getResx() {
         return resx;
     }
-
+    
     public void setResx(String resx) {
         this.resx = resx;
     }
-
+    
     public String getResy() {
         return resy;
     }
-
+    
     public void setResy(String resy) {
         this.resy = resy;
     }
-
+    
     public Layer getLayer() {
         return layer;
     }
-
+    
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
@@ -132,26 +137,31 @@ public class SRS {
         return cloneSrs;
     }
     
-    public String toString(String tabulator) {
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
-        if(null == this.getMinx()  && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()
-        	/*&& !(Integer.parseInt(this.getMinx()) < 0) && !(Integer.parseInt(this.getMiny()) < 0)
-            && !(Integer.parseInt(this.getMiny()) < 0) && !(Integer.parseInt(this.getMaxx()) < 0)*/) {
-        	//result.append("<SRS=\"" + this.getSrs() + "\" />\n");
-        	result.append(tabulator + "<SRS>" + this.getSrs() + "</SRS>\n");
-        } else {	        	
-	        result.append(tabulator + "<BoundingBox SRS=\"" + this.getSrs() + "\" " +
-	                      "minx=\"" + this.getMinx() + "\" " +
-	                      "miny=\"" + this.getMiny() + "\" " +
-	                      "maxx=\"" + this.getMaxx() + "\" " +
-	                      "maxy=\"" + this.getMaxy() + "\" ");
-	        if (null != this.getResx() && null != this.getResy()) {
-	        	result.append("resx=\"" + this.getResx() + "\" " +
-		                      "resy=\"" + this.getResy() + "\" ");
-	        }
-	        result.append("/>\n");
+    public Element toElement(Document doc) {
+        
+        Element rootElement = null;
+        
+        if(null == this.getMinx()  && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
+            rootElement = doc.createElement("SRS");
+            Text text = doc.createTextNode(this.getSrs());
+            rootElement.appendChild(text);
+            return rootElement;
         }
-    	return result.toString();
+        
+        rootElement = doc.createElement("BoundingBox");
+        
+        rootElement.setAttribute("SRS", this.getSrs());
+        rootElement.setAttribute("minx", this.getMinx());
+        rootElement.setAttribute("miny", this.getMiny());
+        rootElement.setAttribute("maxx", this.getMaxx());
+        rootElement.setAttribute("maxy", this.getMaxy());
+        
+        if (null != this.getResx() && null != this.getResy()) {
+            rootElement.setAttribute("resx", this.getResx());
+            rootElement.setAttribute("resy", this.getResy());
+        }
+        
+        return rootElement;
     }
+    
 }

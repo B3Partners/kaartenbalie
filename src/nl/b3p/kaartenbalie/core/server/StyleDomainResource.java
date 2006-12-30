@@ -12,6 +12,9 @@ package nl.b3p.kaartenbalie.core.server;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -130,23 +133,25 @@ public class StyleDomainResource {
 	    }
     }
     
-    public String toString(String tabulator) {
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
-        
-        result.append(tabulator + "<" + this.getDomain() + ">\n");
+    Element toElement(Document doc) {
+        Element rootElement = doc.createElement(this.getDomain());
         if (null != this.getFormats() && this.getFormats().size() != 0) {
-	        Iterator it = formats.iterator();
-	    	while (it.hasNext()) {
-	    		result.append(tabulator + "\t<Format>" + (String)it.next() + "</Format>\n");
-	    	}
+            Iterator it = formats.iterator();
+            while (it.hasNext()) {
+                Element element = doc.createElement("Format");
+                Text text = doc.createTextNode((String)it.next());
+                element.appendChild(text);
+                rootElement.appendChild(element);
+            }
         }
         if (null != this.getUrl()) {
-        result.append(tabulator + "\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + 
-        	this.getUrl() + "\" />\n");
+            Element element = doc.createElement("OnlineResource");
+            rootElement.appendChild(element);
+            
+            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getUrl());
         }
-        result.append(tabulator + "</" + this.getDomain() + ">\n");
-            	
-    	return result.toString();   	
+        
+        return rootElement;
     }
 }

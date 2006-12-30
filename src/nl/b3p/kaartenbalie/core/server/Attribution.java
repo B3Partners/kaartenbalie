@@ -1,5 +1,9 @@
 package nl.b3p.kaartenbalie.core.server;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+
 public class Attribution {
     
     private Integer id;
@@ -10,51 +14,51 @@ public class Attribution {
     private String logoWidth;
     private String logoHeight;
     private Layer layer;
-
+    
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getTitle() {
         return title;
     }
-
+    
     public void setTitle(String title) {
         this.title = title;
     }
-
+    
     public String getAttributionURL() {
         return attributionURL;
     }
-
+    
     public void setAttributionURL(String attributionURL) {
         this.attributionURL = attributionURL;
     }
-
+    
     public String getLogoURL() {
         return logoURL;
     }
-
+    
     public void setLogoURL(String logoURL) {
         this.logoURL = logoURL;
     }
-
+    
     public String getLogoWidth() {
         return logoWidth;
     }
-
+    
     public void setLogoWidth(String logoWidth) {
         this.logoWidth = logoWidth;
     }
-
+    
     public String getLogoHeight() {
         return logoHeight;
     }
-
+    
     public void setLogoHeight(String logoHeight) {
         this.logoHeight = logoHeight;
     }
@@ -62,15 +66,15 @@ public class Attribution {
     public String getLogoFormat() {
         return logoFormat;
     }
-
+    
     public void setLogoFormat(String logoFormat) {
         this.logoFormat = logoFormat;
     }
-
+    
     public Layer getLayer() {
         return layer;
     }
-
+    
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
@@ -101,21 +105,34 @@ public class Attribution {
         return cloneAtt;
     }
     
-    public String toString(String tabulator) {
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
+    public Element toElement(Document doc) {
+        Element rootElement = doc.createElement("Attribution");
         
-        result.append(tabulator + "<Attribution>\n");
-        result.append(tabulator + "\t<Title>" + this.getTitle() + "</Title>\n");
-        result.append(tabulator + "\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + 
-        	this.getAttributionURL() + "\" />\n");
-        result.append(tabulator + "\t<LogoURL width=\"" + this.getLogoWidth() + "\" height=\"" + this.getLogoHeight() + "\">\n");
-        result.append(tabulator + "\t<Format>" + this.getLogoFormat() + "</Format>\n");
-        result.append(tabulator + "\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + 
-        	this.getLogoURL() + "\" />\n");
-        result.append(tabulator + "\t</LogoURL>\n");
-        result.append(tabulator + "</Attribution>\n");
+        Element element = doc.createElement("Title");
+        Text text = doc.createTextNode(this.getTitle());
+        element.appendChild(text);
+        rootElement.appendChild(element);
         
-    	return result.toString();
+        element = doc.createElement("OnlineResource");
+        element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+        element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getAttributionURL());
+        rootElement.appendChild(element);
+        
+        element = doc.createElement("LogoURL");
+        element.setAttribute("width", this.getLogoWidth());
+        element.setAttribute("height", this.getLogoHeight());
+        rootElement.appendChild(element);
+        
+        Element subElement = doc.createElement("Format");
+        text = doc.createTextNode(this.getLogoFormat());
+        subElement.appendChild(text);
+        element.appendChild(subElement);
+        
+        subElement = doc.createElement("OnlineResource");
+        subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+        subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getLogoURL());
+        element.appendChild(subElement);
+        
+        return rootElement;
     }
 }

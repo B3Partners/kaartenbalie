@@ -12,6 +12,9 @@ package nl.b3p.kaartenbalie.core.server;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -182,38 +185,47 @@ public class ServiceDomainResource {
 	    
     }*/
         
-    public String toString(String tabulator) {
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
+    Element toElement(Document doc) {
+        Element rootElement = doc.createElement(this.getDomain());
+        if (null != this.getFormats() && this.getFormats().size() != 0) {
+            Iterator it = formats.iterator();
+            while (it.hasNext()) {
+                Element element = doc.createElement("Format");
+                Text text = doc.createTextNode((String)it.next());
+                element.appendChild(text);
+                rootElement.appendChild(element);
+            }
+        }
         
-    	result.append(tabulator + "<" + this.getDomain() + ">\n");
-    	
-    	if (null != this.getFormats() && this.getFormats().size() != 0) {
-	        Iterator it = formats.iterator();
-	    	while (it.hasNext()) {
-	    		result.append(tabulator + "\t<Format>" + (String)it.next() + "</Format>\n");
-	    	}
-    	}
-    	if (null != this.getGetUrl()) {
-	        result.append(tabulator + "\t<DCPType>\n");
-	        result.append(tabulator + "\t\t<HTTP>\n");
-	        result.append(tabulator + "\t\t\t<Get>\n");
-	        result.append(tabulator + "\t\t\t\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + this.getGetUrl() + "\" />\n");
-	        result.append(tabulator + "\t\t\t</Get>\n");
-	        result.append(tabulator + "\t\t</HTTP>\n");
-	        result.append(tabulator + "\t</DCPType>\n");
-    	}
-    	if (null != this.getPostUrl()) {
-	        result.append(tabulator + "\t<DCPType>\n");
-	        result.append(tabulator + "\t\t<HTTP>\n");
-	        result.append(tabulator + "\t\t\t<Get>\n");
-	        result.append(tabulator + "\t\t\t\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + this.getPostUrl() + "\" />\n");
-	        result.append(tabulator + "\t\t\t</Get>\n");
-	        result.append(tabulator + "\t\t</HTTP>\n");
-	        result.append(tabulator + "\t</DCPType>\n");
-    	}
-        result.append(tabulator + "</" + this.getDomain() + ">\n");
-    	
-    	return result.toString();    	
+        Element element = null;
+        if (null != this.getGetUrl()) {
+            Element subElement = doc.createElement("OnlineResource");
+            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getGetUrl());
+            element = doc.createElement("Get");
+            element.appendChild(subElement);
+            
+        }
+        if (null != this.getPostUrl()) {
+            Element subElement = doc.createElement("OnlineResource");
+            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getPostUrl());
+            element = doc.createElement("Post");
+            element.appendChild(subElement);
+            
+        }
+        if (element!=null) {
+            Element subElement = element;
+            element = doc.createElement("HTTP");
+            element.appendChild(subElement);
+            
+            subElement = element;
+            element = doc.createElement("DCPType");
+            element.appendChild(subElement);
+            rootElement.appendChild(element);
+        }
+        
+        return rootElement;
     }
+    
 }

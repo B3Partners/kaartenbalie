@@ -1,15 +1,14 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import nl.b3p.kaartenbalie.core.server.User;
 
 /**
  * @(#)GetFeatureInfoRequestHandler.java
@@ -21,178 +20,80 @@ import org.apache.commons.logging.LogFactory;
 
 
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
-    //Since this class is used for the GetFeatureInfo request we don't need to give this parameter anymore to the class itself
-    private static final String request = "GetFeatureInfo";
     
-    //private member variables
-    private String mapRequestCopy;
-    private String layers;
-    private String infoFormat;
-    private String featureCount;
-    private String x;
-    private String y;
-    private String exceptionFormat;
-    
-    // <editor-fold defaultstate="collapsed" desc="GetFeatureInfoRequestHandler Constructors">
     public GetFeatureInfoRequestHandler() {}
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="getRequest() method">
     public byte[] getRequest(Map parameters) throws IOException, Exception {
-        /*
-        parameters = new HashMap();
-        String mapRequestCopy = "";
-        parameters.put("mapRequestCopy", mapRequestCopy);
-        parameters.put("query_layers", request.getParameter("QUERY_LAYERS"));
-        parameters.put("x", request.getParameter("x"));
-        parameters.put("y", request.getParameter("y"));
-        mapRequestCopy  = (String)parameters.get("mapRequestCopy");
-        */
         
-        mapRequestCopy  = (String)parameters.get("mapRequestCopy");
-        layers          = (String)parameters.get("layers");
-        infoFormat      = (String)parameters.get("infoFormat");
-        featureCount    = (String)parameters.get("featureCount");
-        x               = (String)parameters.get("x");
-        y               = (String)parameters.get("y");
-        exceptionFormat = (String)parameters.get("exceptionFormat");
+        user = (User) parameters.get(KB_USER);
+        url = (String) parameters.get(KB_PERSONAL_URL);
         
+        List tempSP = getServiceProviders(false);
+        if (tempSP==null)
+            return null;
         
+        ArrayList urls = new ArrayList();
         
-        if (!getVersion().equalsIgnoreCase("1.1.1")) {
-            log.error("GetFeatureInfoRequestHandler: Unsupported WMS VERSION: " + getVersion());
-            throw new Exception("Not (yet) supported WMS VERSION: " + getVersion());
-        }
-        if(!getService().equalsIgnoreCase("WMS")) {
-            log.error("GetFeatureInfoRequestHandler: Unsupported FeatureInfo SERVICE: " + getService());
-            throw new Exception("Not supported FeatureInfo SERVICE: " + getService());
-        }
-        
-        if(null == layers) {
-            throw new Exception("Parameter required, wms LAYERS");
-        }
-        if(null == x) {
-            throw new Exception("Parameter required, wms x");
-        }
-        if(null == y) {
-            throw new Exception("Parameter required, wms y");
-        }
-        
-        
-        String layer[]= layers.split(",");
-        List tempSP = super.getServiceProviders(false);
-        StringBuffer [] url = new StringBuffer[tempSP.size()];
-        if(null != tempSP) {
-            int counter = 0;
-            Iterator it = tempSP.iterator();
-            while (it.hasNext()) {
-                ServiceProvider s = (ServiceProvider)it.next();
-                
-                //Lets first check if this ServiceProvider can provide us the asked layers
-                //otherwise it is not necessary at all to look further and ask for a lot of resources
-                Set tempLayers = s.getLayers();
-                StringBuffer requestedLayers = new StringBuffer();
-                if(null != tempLayers) {
-                    for (int i = 0; i < layer.length; i++) {
-                        String foundLayer = super.findLayer(tempLayers, layer[i], s);
-                        if(null != foundLayer) {
-                            requestedLayers.append(foundLayer);
-                            requestedLayers.append(",");
-                        }
-                    }
-                    
-                    //Check if the layers were found and if so, change the string into the wellformated size
-                    if(null != requestedLayers) {
-                        requestedLayers.deleteCharAt(requestedLayers.lastIndexOf(","));
-                        
-                        //Since some or all layers were found, we need to build up a string to become an url
-                        //Find the beginning of the url which thise layers belong to
-                        Set domain = s.getDomainResource();
-                        Iterator domainIter = domain.iterator();
-                        while (domainIter.hasNext()) {
-                            ServiceDomainResource sdr = (ServiceDomainResource)domainIter.next();
-                            if(sdr.getDomain().equalsIgnoreCase(request)) {
-                                if(null != sdr.getPostUrl()) {
-                                    url[counter] = new StringBuffer(sdr.getPostUrl());
-                                } else {
-                                    url[counter] = new StringBuffer(sdr.getGetUrl());
-                                }
-                            }
-                        }
-                        url[counter].append("VERSION=" + getVersion() + "&REQUEST=" + request + "&QUERY_LAYERS=" + requestedLayers);
-                        
-                        
-                        if(null != infoFormat) {
-                            url[counter].append("&INFO_FORMAT=" + infoFormat);
-                        }
-                        if (null != featureCount) {
-                            url[counter].append("&FEATURECOUNT=" + featureCount);
-                        }
-                        url[counter].append("&X=" + x + "&Y=" + y);
-                        counter++;
-                    }
-                }
+        Iterator it = tempSP.iterator();
+        while (it.hasNext()) {
+            ServiceProvider s = (ServiceProvider)it.next();
+            StringBuffer spUrl = null;
+            
+            //Lets first check if this ServiceProvider can provide us the asked layers
+            //otherwise it is not necessary at all to look further and ask for a lot of resources
+            String[] layer = (String[])parameters.get(WMS_PARAM_LAYERS);
+            String spls = calcFormattedLayers(s, layer);
+            if (spls==null)
+                continue;
+            
+            //Since some or all layers were found, we need to build up a string to become an url
+            //Find the beginning of the url which thise layers belong to
+            spUrl = calcRequestUrl(s, WMS_REQUEST_GetFeatureInfo);
+            if (spUrl==null)
+                continue;
+            
+            // toevoegen van andere parameters
+            spUrl.append(WMS_VERSION);
+            spUrl.append("=");
+            spUrl.append((String)parameters.get(WMS_VERSION));
+            spUrl.append("&");
+            spUrl.append(WMS_REQUEST);
+            spUrl.append("=");
+            spUrl.append(WMS_REQUEST_GetFeatureInfo);
+            spUrl.append("&");
+            spUrl.append(WMS_PARAM_QUERY_LAYERS);
+            spUrl.append("=");
+            spUrl.append(spls);
+            
+            String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
+            if(null != infoFormat) {
+                spUrl.append("&");
+                spUrl.append(WMS_PARAM_INFO_FORMAT);
+                spUrl.append("=");
+                spUrl.append(infoFormat);
             }
+            
+            String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+            if (null != featureCount) {
+                spUrl.append("&");
+                spUrl.append(WMS_PARAM_FEATURECOUNT);
+                spUrl.append("=");
+                spUrl.append(featureCount);
+            }
+            
+            spUrl.append("&");
+            spUrl.append(WMS_PARAM_X);
+            spUrl.append("=");
+            spUrl.append((String)parameters.get(WMS_PARAM_X));
+            spUrl.append("&");
+            spUrl.append(WMS_PARAM_Y);
+            spUrl.append("=");
+            spUrl.append((String)parameters.get(WMS_PARAM_Y));
         }
-        return super.getOnlineData(url);
-    }
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Get and Set methods">
-    public String getMapRequestCopy() {
-        return mapRequestCopy;
-    }
-
-    public void setMapRequestCopy(String mapRequestCopy) {
-        this.mapRequestCopy = mapRequestCopy;
+        
+        StringBuffer [] url = null;
+        return getOnlineData((StringBuffer[])urls.toArray(url));
     }
     
-    public String getLayers() {
-        return layers;
-    }
     
-    public void setLayers(String layers) {
-        this.layers = layers;
-    }
-    
-    public String getInfoFormat() {
-        return infoFormat;
-    }
-    
-    public void setInfoFormat(String infoFormat) {
-        this.infoFormat = infoFormat;
-    }
-    
-    public String getFeatureCount() {
-        return featureCount;
-    }
-    
-    public void setFeatureCount(String featureCount) {
-        this.featureCount = featureCount;
-    }
-    
-    public String getX() {
-        return x;
-    }
-    
-    public void setX(String x) {
-        this.x = x;
-    }
-    
-    public String getY() {
-        return y;
-    }
-    
-    public void setY(String y) {
-        this.y = y;
-    }
-    
-    public String getExceptionFormat() {
-        return exceptionFormat;
-    }
-
-    public void setExceptionFormat(String exceptionFormat) {
-        this.exceptionFormat = exceptionFormat;
-    }
-    // </editor-fold>
 }

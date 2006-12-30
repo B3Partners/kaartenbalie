@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -26,43 +30,43 @@ public class Style {
     private String abstracts;
     private Layer layer;
     private Set domainResource;
-
+    
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
+    
     public String getTitle() {
         return title;
     }
-
+    
     public void setTitle(String title) {
         this.title = title;
     }
-
+    
     public String getAbstracts() {
         return abstracts;
     }
-
+    
     public void setAbstracts(String abstracts) {
         this.abstracts = abstracts;
     }
-
+    
     public Set getDomainResource() {
         return domainResource;
     }
-
+    
     public void setDomainResource(Set domainResource) {
         this.domainResource = domainResource;
     }
@@ -74,24 +78,24 @@ public class Style {
         domainResource.add(dr);
         dr.setStyle(this);
     }
-
+    
     public Layer getLayer() {
         return layer;
     }
-
+    
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
     
     protected void overwriteURL(String newUrl) {
-    	Iterator it;
-    	//StyleDomainResource:
-    	if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
-	        it = this.getDomainResource().iterator();
-	    	while (it.hasNext()) {
-	            StyleDomainResource sdr = (StyleDomainResource)it.next();
-	            sdr.overwriteURL(newUrl);
-	    	}
+        Iterator it;
+        //StyleDomainResource:
+        if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
+            it = this.getDomainResource().iterator();
+            while (it.hasNext()) {
+                StyleDomainResource sdr = (StyleDomainResource)it.next();
+                sdr.overwriteURL(newUrl);
+            }
         }
     }
     
@@ -121,28 +125,27 @@ public class Style {
         return cloneStyle;
     }
     
-    public String toString(String tabulator) {
-        Iterator it;
-        
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
-    	        
-        result.append(tabulator + "<Style>\n");
+    public Element toElement(Document doc) {
+        Element rootElement = doc.createElement("Style");
         if(null != this.getName()) {
-        	result.append(tabulator + "\t<Name>" + this.getName() + "</Name>\n");
+            Element element = doc.createElement("Name");
+            Text text = doc.createTextNode(this.getName());
+            element.appendChild(text);
+            rootElement.appendChild(element);
         }
         if(null != this.getTitle()) {
-        	result.append(tabulator + "\t<Title>" + this.getTitle() + "</Title>\n");
+            Element element = doc.createElement("Title");
+            Text text = doc.createTextNode(this.getTitle());
+            element.appendChild(text);
+            rootElement.appendChild(element);
         }
         if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
-	        it = this.getDomainResource().iterator();
-	    	while (it.hasNext()) {
-	            StyleDomainResource sdr = (StyleDomainResource)it.next();
-	            result.append(sdr.toString(tabulator + "\t"));
-	    	}
+            Iterator it = this.getDomainResource().iterator();
+            while (it.hasNext()) {
+                StyleDomainResource sdr = (StyleDomainResource)it.next();
+                rootElement.appendChild(sdr.toElement(doc));
+            }
         }
-        result.append(tabulator + "</Style>\n");
-            	
-    	return result.toString();    	
+        return rootElement;
     }
 }

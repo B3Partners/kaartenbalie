@@ -6,10 +6,6 @@
             <name>kaartenbalie</name>
             <minimum-ant-version>1.6</minimum-ant-version>
             <web-module-libraries>
-                <library files="8">
-                    <file>${libs.struts.classpath}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
                 <library files="2">
                     <file>${libs.jstl11.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
@@ -24,6 +20,14 @@
                 </library>
                 <library files="9">
                     <file>${libs.B3pHibernateLib.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library files="6">
+                    <file>${libs.struts.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library files="5">
+                    <file>${libs.B3pAxisLib.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>

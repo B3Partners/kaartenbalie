@@ -1,78 +1,71 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import nl.b3p.kaartenbalie.core.server.Organization;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.core.server.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @(#)GetCapabilitiesRequestHandler.java
  *
  * @author N. de Goeij
  * @version 1.00 2006/12/13
- * 
+ *
  * The function of this class is to create a well formed XML document of the capabilities that the server has
  * for WMS requests
  */
 
 public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     
-    //Since this class is used for the GetCapabilities request we don't need to pass this parameter anymore to the class itself
-    private static final String request = "GetCapabilities";
+    private static final Log log = LogFactory.getLog(GetCapabilitiesRequestHandler.class);
     
-    //private member variables
-    private String updateSequence;
-    private Object [] params;
-    
-    //Constructor
     public GetCapabilitiesRequestHandler() {}
     
-    // <editor-fold defaultstate="collapsed" desc="getRequest() method">
     public byte[] getRequest(Map parameters) throws IOException, Exception {
-        /*
-        parameters.put("version", request.getParameter("VERSION"));
-        parameters.put("service", request.getParameter("SERVICE"));
-        parameters.put("organization", this.organization);
-        */
-        
-        if (!((String)parameters.get("version")).equalsIgnoreCase("1.1.1")) {
-            log.error("GetCapabilitiesRequestHandler: Unsupported WMS VERSION: " + getVersion());
-            throw new Exception("Not (yet) supported WMS VERSION: " + getVersion());
-        }
-        if(!((String)parameters.get("service")).equalsIgnoreCase("WMS")) {
-            log.error("GetCapabilitiesRequestHandler: Unsupported GetCapabilities SERVICE: " + getService());
-            throw new Exception("Not supported GetCapabilities SERVICE: " + getService());
-        }
-        
-        this.organization = (Organization) parameters.get("organization");
+        user = (User) parameters.get(KB_USER);
+        url = (String) parameters.get(KB_PERSONAL_URL);
         
         ServiceProvider s = null;
-        List sps = super.getServiceProviders(true);
+        List sps = getServiceProviders(true);
         Iterator it = sps.iterator();
         
         while (it.hasNext()) {
             s = (ServiceProvider)it.next();
-            try{
-                Method m = s.getClass().getDeclaredMethod("overwriteURL", String.class);
-                m.setAccessible(true);
-                m.invoke(s, new String(url));
-            } catch (Exception e) { log.error("Error rewriting the URL's : " + e); }
+            s.overwriteURL(url);
         }
         
-        return super.getOnlineData(s.toString());
-    }
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="collapsed" desc="Get and Set methods">
-    public String getUpdateSequence() {
-        return updateSequence;
-    }
+        // TODO waarom iteratie en dan alleen laatste returnen ?????
+        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.newDocument();
+        
+        doc.appendChild(s.toElement(doc));
+        
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
 
-    public void setUpdateSequence(String updateSequence) {
-        this.updateSequence = updateSequence;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        transformer.transform(new DOMSource(doc), new StreamResult(output));
+        
+        return getOnlineData(output.toString());
     }
-    // </editor-fold>
+    
 }

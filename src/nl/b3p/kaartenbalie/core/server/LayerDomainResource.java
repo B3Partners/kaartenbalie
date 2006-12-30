@@ -12,6 +12,11 @@ package nl.b3p.kaartenbalie.core.server;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /**
  *
@@ -19,24 +24,26 @@ import java.util.Iterator;
  */
 public class LayerDomainResource {
     
+    private static final Log log = LogFactory.getLog(LayerDomainResource.class);
+    
     private Integer id;
     private Set formats;
     private String url;
     private String domain;
     private Layer layer;
-
+    
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public Set getFormats() {
         return formats;
     }
-
+    
     public void setFormats(Set formats) {
         this.formats = formats;
     }
@@ -47,11 +54,11 @@ public class LayerDomainResource {
         }
         formats.add(f);
     }
-
+    
     public String getDomain() {
         return domain;
     }
-
+    
     public void setDomain(String domain) {
         this.domain = domain;
     }
@@ -59,15 +66,15 @@ public class LayerDomainResource {
     public Layer getLayer() {
         return layer;
     }
-
+    
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
-
+    
     public String getUrl() {
         return url;
     }
-
+    
     public void setUrl(String url) {
         this.url = url;
     }
@@ -90,39 +97,44 @@ public class LayerDomainResource {
     }
     
     protected void overwriteURL(String newUrl) {
-    	//First cut off only the part which is in front of the question mark.
-    	String temporaryURL;
-    	temporaryURL = this.getUrl();
-    	if (null != temporaryURL && !temporaryURL.equals("")) {
-	    	int firstOccur = temporaryURL.indexOf("?");
-	    	if(firstOccur != -1) {
-	    		temporaryURL = temporaryURL.substring(firstOccur);
-	    		//then add the newly given url in front of the cutted part
-		    	temporaryURL = newUrl + temporaryURL;
-		    	//save this new URL as the one to be used
-		    	temporaryURL = temporaryURL.replace("&", "&amp;");
-		    	this.setUrl(temporaryURL);
-	    	}
-	    }
+        //First cut off only the part which is in front of the question mark.
+        String temporaryURL;
+        temporaryURL = this.getUrl();
+        if (null != temporaryURL && !temporaryURL.equals("")) {
+            int firstOccur = temporaryURL.indexOf("?");
+            if(firstOccur != -1) {
+                temporaryURL = temporaryURL.substring(firstOccur);
+                //then add the newly given url in front of the cutted part
+                temporaryURL = newUrl + temporaryURL;
+                //save this new URL as the one to be used
+                temporaryURL = temporaryURL.replace("&", "&amp;");
+                this.setUrl(temporaryURL);
+            }
+        }
     }
     
-    public String toString(String tabulator) {
-    	StringBuilder result = new StringBuilder();
-    	final String newLine = System.getProperty("line.separator");
+    public Element toElement(Document doc) {
         
-        result.append(tabulator + "<" + this.getDomain() + ">\n");
+        Element rootElement = doc.createElement(this.getDomain());
         if (null != this.getFormats() && this.getFormats().size() != 0) {
-	        Iterator it = formats.iterator();
-	    	while (it.hasNext()) {
-	    		result.append(tabulator + "\t<Format>" + (String)it.next() + "</Format>\n");
-	    	}
+            Iterator it = formats.iterator();
+            while (it.hasNext()) {
+                Element element = doc.createElement("Format");
+                Text text = doc.createTextNode((String)it.next());
+                element.appendChild(text);
+                rootElement.appendChild(element);
+            }
         }
         if (null != this.getUrl()) {
-        result.append(tabulator + "\t<OnlineResource xmlns:xlink=\"http://www.w3.org/1999/xlink\" xlink:type=\"simple\" xlink:href=\"" + 
-        	this.getUrl() + "\" />\n");
+            Element element = doc.createElement("OnlineResource");
+            rootElement.appendChild(element);
+            
+            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
+            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getUrl());
         }
-        result.append(tabulator + "</" + this.getDomain() + ">\n");
         
-    	return result.toString();
+        return rootElement;
     }
+    
+
 }

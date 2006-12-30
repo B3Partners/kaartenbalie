@@ -14,15 +14,11 @@ import java.io.IOException;
 
 
 public class GetStylesRequestHandler {
-
-    // <editor-fold defaultstate="collapsed" desc="GetStylesRequestHandler Constructors">
+    
     public GetStylesRequestHandler() {
     }
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="getRequest() method">
     public byte[] getRequest() throws IOException, Exception {
         return null;
     }
-    // </editor-fold>
 }

@@ -14,7 +14,6 @@ import java.io.IOException;
 
 
 public class DescribeLayerRequestHandler {
-    
     // <editor-fold defaultstate="collapsed" desc="DescribeLayerRequestHandler Constructors">
     public DescribeLayerRequestHandler() {
     }
