@@ -143,7 +143,7 @@ public class Dimensions {
         return cloneDim;
     }
 
-    public Element toElement(Document doc) {
+    public Element toElement(Element rootElement, Document doc) {
         Element rootElement = doc.createElement("Dimension");
         
         rootElement.setAttribute("name", this.getDimensionsName());

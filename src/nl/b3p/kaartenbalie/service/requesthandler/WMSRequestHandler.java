@@ -77,7 +77,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 
                 if (combine) {
                     int size = cloneSP.getDomainResource().size();
-                    // TODO
+                    // TODO iteratie over supported request in kbconstants, alleen die overal aanwezig zijn doorgeven
                     // wat gebeurt hier???
                     if (size < shortestCapabilities) {
                         shortestCapabilities = size;
@@ -102,7 +102,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     protected static byte[] getOnlineData(String xml) throws IOException {
         // TODO hoe zit dit met de encoding
-        return xml.getBytes();
+        return xml.getBytes("iso-8895-1");
     }
     
     protected static byte[] getOnlineData(StringBuffer [] urls) throws IOException {
@@ -115,6 +115,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 log.debug("url: " + url);
                 
                 //hier de controle uitvoeren
+                //TODO constante
                 String findString = "LAYERS=";
                 
                 if (url.indexOf(findString)==-1) {

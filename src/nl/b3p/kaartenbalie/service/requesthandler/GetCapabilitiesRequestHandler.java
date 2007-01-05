@@ -57,6 +57,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.newDocument();
         
+        
         doc.appendChild(s.toElement(doc));
         
         TransformerFactory tf = TransformerFactory.newInstance();
@@ -65,7 +66,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         transformer.transform(new DOMSource(doc), new StreamResult(output));
         
-        return getOnlineData(output.toString());
+        //TODO utf-8 of latin-1
+        return getOnlineData(output.toString("iso-8859-1"));
     }
     
 }

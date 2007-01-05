@@ -192,6 +192,9 @@ public class ServiceProvider {
     public void overwriteURL(String newUrl) {
         //The given URL is actually to be used for requests
         //In order to define the original URL to access the website itself we need to cutt off the last part
+        
+        // TODO check of dit zonder servlet string kan, pad onafhankelijk
+        // documentatie hoe dit werkt
         String temporaryURL = newUrl;
         int firstOccur = temporaryURL.indexOf("servlet");
         if(firstOccur != -1) {
