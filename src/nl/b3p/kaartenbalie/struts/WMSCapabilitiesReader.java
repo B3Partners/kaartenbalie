@@ -1,3 +1,14 @@
+/**
+ * @(#)WMSCapabilitiesReader.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/02
+ *
+ * Purpose: a class defining methods to read and validate an XML document.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
+ */
+
+
 /*
 ------------------------------------------------------------------------------------------
  
@@ -33,7 +44,6 @@ import nl.b3p.kaartenbalie.core.server.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 import java.util.Stack;
-//import kaartenbaliecore.beans.*;
 import java.io.IOException;
 import org.xml.sax.SAXException;
 import java.util.Set;
@@ -62,16 +72,32 @@ public class WMSCapabilitiesReader {
     private static final String SCHEMA_FILE    = "wms.xsd";
     
     private XMLReader parser;
-    private Stack stack = new Stack();
+    private Stack <Object> stack = new Stack <Object>();
     private Switcher s;
     private ServiceProvider serviceProvider;
     
+    /** Constructor of the WMSCapabilitiesReader.
+     *
+     * @param serviceProvider ServiceProvider object in which all information has to be saved.
+     */
+    // <editor-fold defaultstate="collapsed" desc="WMSCapabilitiesReader(ServiceProvider serviceProvider) constructor.">
     public WMSCapabilitiesReader(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         System.out.println(serviceProvider.getName());
         this.setElementHandlers();
     }
+    // </editor-fold>
     
+    /** Private method which validates a XML document at a given location.
+     *
+     * @param location String representing the location where the document can be found.
+     *
+     * @return a filled ServiceProvider with the information read from the XML document.
+     *
+     * @throws IOException
+     * @throws SAXException
+     */
+    // <editor-fold defaultstate="collapsed" desc="getProvider(String location) method.">
     public ServiceProvider getProvider(String location) throws IOException, SAXException {
         //call a validator for the file
         //this.validate(location);
@@ -82,12 +108,16 @@ public class WMSCapabilitiesReader {
         reader.parse(location);
         return serviceProvider;
     }
+    // </editor-fold>
     
-    /*
-     * private method which validates a given xml file to a standard xsd file
-     * if the given xml file is not conform the xsd the validation will throw an error
-     * and the parsing action will not take place at all.
+    /** Private method which validates a XML document at a given location.
+     *
+     * @param location String representing the location where the document can be found.
+     *
+     * @throws IOException
+     * @throws SAXException
      */
+    // <editor-fold defaultstate="collapsed" desc="validate(String location) method.">
     private void validate(String location) throws IOException, SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(SCHEMA_FACTORY);
         File schemaLocation = new File(SCHEMA_FILE);
@@ -97,13 +127,13 @@ public class WMSCapabilitiesReader {
         Source source = new StreamSource(new File(location));
         validator.validate(source);
     }
+    // </editor-fold>
     
-    /*
-     * private method which initializes all the elementhandlers
-     * each element in the xml document has to be treated in its own way
-     * therefore each element has its own handler which controls the actions
-     * to be taken if an element of a certain kind is found
+    /** Private method which initializes all the elementhandlers.
+     * Each element in the xml document has to be treated in its own way therefore each element has its 
+     * own handler which controls the actions to be taken if an element of a certain kind is found.
      */
+    // <editor-fold defaultstate="collapsed" desc="setElementHandlers() method.">
     private void setElementHandlers() {
         s = new Switcher();
         s.setElementHandler("WMT_MS_Capabilities", new WMTHandler());
@@ -170,13 +200,14 @@ public class WMSCapabilitiesReader {
         //s.setElementHandler("VendorSpecificCapabilities", new VendorSpecificCapabilitiesHandler());
         //s.setElementHandler("UserDefinedSymbolization", new UserDefinedSymbolizationHandler());
     }
+    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Defined Handlers.">
     /**
      * Below are all Handlers defined.
      * Each element is passed to it's own handler which takes action on its own and
      * gives control back immediatly after its action
      */
+    // <editor-fold defaultstate="collapsed" desc="Defined Handlers.">
     private class WMTHandler extends ElementHandler {
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             stack.push(serviceProvider);
@@ -1107,4 +1138,5 @@ public class WMSCapabilitiesReader {
         public void endElement(String uri, String localName, String qName) {}
     }
     //end not being used
+    // </editor-fold>
 }

@@ -1,6 +1,7 @@
 /*
- * KBConstants.java
- *
+ * @(#)KBConstants.java
+ * @author Chris
+ * @version 1.00
  * Created on 26 december 2006, 12:16
  *
  */
@@ -10,12 +11,8 @@ package nl.b3p.kaartenbalie.core;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- *
- * @author Chris
- */
 public interface KBConstants {
-    
+    // <editor-fold defaultstate="collapsed" desc="Predefined static final strings ">
     public static final String KB_USER = "user" ;
     public static final String KB_PERSONAL_URL = "personalURL" ;
     
@@ -33,6 +30,7 @@ public interface KBConstants {
     
     public static final String WMS_VERSION = "VERSION" ;
     public static final String WMS_VERSION_111 = "1.1.1" ;
+    public static final String WMS_VERSION_110 = "1.1.0" ;
     
     public static final String WMS_PARAM_LAYERS = "LAYERS" ;
     public static final String WMS_PARAM_STYLES = "STYLES" ;
@@ -58,9 +56,19 @@ public interface KBConstants {
     public static final String WMS_PARAM_TRANSPARENT = "TRANSPARENT";
     public static final String WMS_PARAM_TRANSPARENT_TRUE = "TRUE";
     
+    public static final String WMS_PARAM_EXCEPTION_TEXT = "text/plain";
+    public static final String WMS_PARAM_EXCEPTION_HTML = "text/html";
+    public static final String WMS_PARAM_EXCEPTION_XML = "text/xml";
+    public static final String WMS_PARAM_EXCEPTION_JPEG = "image/jpeg";
+    public static final String WMS_PARAM_EXCEPTION_PNG = "image/png";
     
+    public static final String CHARSET_UTF8 = "UTF-8";
+    public static final String CHARSET_ISO_8859_1 = "ISO_8859_1";
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="List with essential parameters per wms service.">
     /**
-     * Lijst met vereiste parameters per wms service.
+     * List with essential parameters per wms service.
      */
     public static final List PARAMS_GetCapabilities = Arrays.asList(new String[] {
         WMS_SERVICE,
@@ -107,9 +115,11 @@ public interface KBConstants {
         WMS_SERVICE,
         WMS_VERSION
     });
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="List with implemented requests.">
     /**
-     * Lijst met geimplementeerde requests.
+     * List with implemented requests.
      */
     public static final List SUPPORTED_REQUESTS = Arrays.asList(new String[] {
         WMS_REQUEST_GetCapabilities,
@@ -120,20 +130,36 @@ public interface KBConstants {
                 // ,WMS_REQUEST_PutStyles
                 // ,WMS_REQUEST_DescribeLayer
     });
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="List with implemented services.">
     /**
-     * Lijst met geimplementeerde services.
+     * List with implemented services.
      */
     public static final List SUPPORTED_SERVICES = Arrays.asList(new String[] {
         WMS_SERVICE_WMS
     });
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="List with implemented versions.">
     /**
-     * Lijst met geimplementeerde versions.
+     * List with implemented versions.
      */
     public static final List SUPPORTED_VERSIONS = Arrays.asList(new String[] {
-        WMS_VERSION_111
+        WMS_VERSION_111, WMS_VERSION_110
     });
+    // </editor-fold>
     
-    
+    // <editor-fold defaultstate="collapsed" desc="List with implemented exceptions.">
+    /**
+     * List with implemented exceptions.
+     */
+    public static final List SUPPORTED_EXCEPTIONS = Arrays.asList(new String[] {
+        WMS_PARAM_EXCEPTION_TEXT, 
+        WMS_PARAM_EXCEPTION_HTML, 
+        WMS_PARAM_EXCEPTION_XML, 
+        WMS_PARAM_EXCEPTION_JPEG, 
+        WMS_PARAM_EXCEPTION_PNG
+    });
+    // </editor-fold>
 }

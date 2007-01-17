@@ -1,10 +1,11 @@
-/*
- * OrganizationAction.java
+/**
+ * @(#)OrganizationAction.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/02
  *
- * Created on 2 oktober 2006, 13:58
+ * Purpose: a Struts action class defining all the Action for the Organization view.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -29,15 +30,24 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class OrganizationAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     
+    
+    /** Execute method which handles all executable requests.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         Organization organization = this.getOrganization(dynaForm, request, false, id);
@@ -47,10 +57,18 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return super.unspecified(mapping, dynaForm, request, response);
     }
+    // </editor-fold>
     
-    /*
-     * Returns the organization with a specified id.
+    /** Method which returns the organization with a specified id.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param createNew A boolean which indicates if a new object has to be created.
+     * @param id An Integer indicating which organization id has to be searched for.
+     *
+     * @return an Organization object.
      */
+    // <editor-fold defaultstate="collapsed" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         Organization organization = null;
@@ -67,10 +85,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return organization;
     }
+    // </editor-fold>
     
-    /*
-     * If a organization with a specified id is chosen this method will fill the JSP form with the dat of this organization.
+    /** Method which will fill the JSP form with the data of  a given organization.
+     *
+     * @param organization Organization object from which the information has to be printed.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
      */
+    // <editor-fold defaultstate="collapsed" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("name", organization.getName());
         dynaForm.set("organizationStreet", organization.getStreet());
@@ -84,7 +107,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationTelephone", organization.getTelephone());
         dynaForm.set("organizationFax", organization.getFax()); 
     }
+    // </editor-fold>
     
+    /** Creates a list of all the organizations in the database.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
@@ -97,7 +129,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         session.setAttribute("layerlist", layerlist);
         //request.setAttribute();
     }
+    // </editor-fold>
     
+    /** Method that fills an organization object with the user input from the forms.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param organization Organization object that to be filled
+     * @param layerList List with all the layers
+     * @param layerSelected String array with the selected layers for this organization
+     */
+    // <editor-fold defaultstate="collapsed" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
@@ -112,7 +153,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
         
         int size = layerSelected.length;
-        Set layers = new HashSet();
+        Set <Layer> layers = new HashSet <Layer>();
         for(int i = 0; i < size; i++) {
             int select = Integer.parseInt(layerSelected[i]);
             Iterator it = layerList.iterator();
@@ -127,7 +168,20 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         organization.setOrganizationLayer(layers);
     }
+    // </editor-fold>
     
+    /** Method for saving a new organization from input of a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         String [] layerSelected = dynaForm.getStrings("layerSelected");
@@ -179,7 +233,20 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
         return super.save(mapping,dynaForm,request,response);
     }
+    // </editor-fold>
     
+    /** Method for deleting an organization selected by a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;
@@ -223,4 +290,5 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return super.delete(mapping, dynaForm, request, response);
     }
+    // </editor-fold>
 }

@@ -1,3 +1,14 @@
+/**
+ * @(#)GetCapabilitiesRequestHandler.java
+ * @author N. de Goeij
+ * @version 1.00 2006/12/13
+ *
+ * Purpose: the function of this class is to create a list of url's which direct to the right servers that have the desired layers
+ * for the WMS GetFeatureInfo request.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
+ */
+
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
@@ -10,20 +21,21 @@ import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 
-/**
- * @(#)GetFeatureInfoRequestHandler.java
- *
- *
- * @author N. de Goeij
- * @version 1.00 2006/12/13
- */
-
-
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     
+    // <editor-fold defaultstate="collapsed" desc="default GetFeatureInfoRequestHandler() constructor.">
     public GetFeatureInfoRequestHandler() {}
+    // </editor-fold>
     
-    public byte[] getRequest(Map parameters) throws IOException, Exception {
+    /** Processes the parameters and creates the specified urls from the given parameters.
+     * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
+     * @param parameters Map parameters
+     * @return byte[]
+     *
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
@@ -32,7 +44,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         if (tempSP==null)
             return null;
         
-        ArrayList urls = new ArrayList();
+        ArrayList <StringBuffer []> urls = new ArrayList <StringBuffer []>();
         
         Iterator it = tempSP.iterator();
         while (it.hasNext()) {
@@ -94,6 +106,5 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         StringBuffer [] url = null;
         return getOnlineData((StringBuffer[])urls.toArray(url));
     }
-    
-    
+    // </editor-fold>
 }

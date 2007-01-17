@@ -1,20 +1,17 @@
-/*
- * User.java
+/**
+ * @(#)User.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 16:57
+ * Purpose: Bean representing a User.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
 
 import java.security.Principal;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class User implements Principal {
     
     private Integer id;
@@ -28,7 +25,8 @@ public class User implements Principal {
     private String registeredIP;
     private String timeout;
     private Organization organization;
-
+    
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -121,4 +119,5 @@ public class User implements Principal {
     public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
+    // </editor-fold>
 }

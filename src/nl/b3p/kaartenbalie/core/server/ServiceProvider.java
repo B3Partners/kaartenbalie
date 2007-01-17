@@ -1,27 +1,33 @@
-/*
- * ServiceProvider.java
+/**
+ * @(#)ServiceProvider.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 18 september 2006, 11:15
+ * Purpose: Bean representing a ServiceProvider.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class ServiceProvider {
+public class ServiceProvider implements XMLElement {
     
     private Integer id;
     private String name;
@@ -34,11 +40,14 @@ public class ServiceProvider {
     private Date updatedDate;
     private boolean reviewed;
     private ContactInformation contactInformation = new ContactInformation();
-    private Set domainResource = new HashSet();
-    private Set serviceProviderKeywordList = new HashSet();
-    private Set exceptions = new HashSet();
-    private Set layers;// = new HashSet();
+    private Set <ServiceDomainResource> domainResource;
+    private Set <String> serviceProviderKeywordList;
+    private Set <String> exceptions;
+    private Set <Layer> layers;
     
+    /** default ServiceProvider() constructor.
+     */
+    // <editor-fold defaultstate="collapsed" desc="default ServiceProvider() constructor">
     public ServiceProvider() {
         name = "OGC:WMS";
         title = "Kaartenbalie Map Portal";
@@ -46,7 +55,9 @@ public class ServiceProvider {
         fees = "None";
         accessConstraints = "None";
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -140,11 +151,14 @@ public class ServiceProvider {
         return exceptions;
     }
     
-    public void setExceptions(Set exceptions) {
+    public void setExceptions(Set <String> exceptions) {
         this.exceptions = exceptions;
     }
     
     public void addException(String except) {
+        if (exceptions == null) {
+             exceptions = new HashSet <String>();
+        }
         exceptions.add(except);
     }
     
@@ -152,11 +166,14 @@ public class ServiceProvider {
         return domainResource;
     }
     
-    public void setDomainResource(Set domainResource) {
+    public void setDomainResource(Set <ServiceDomainResource> domainResource) {
         this.domainResource = domainResource;
     }
     
     public void addDomainResource(ServiceDomainResource dr) {
+        if (domainResource == null) {
+             domainResource = new HashSet <ServiceDomainResource>();
+        }
         domainResource.add(dr);
         dr.setServiceProvider(this);
     }
@@ -165,13 +182,13 @@ public class ServiceProvider {
         return layers;
     }
     
-    public void setLayers(Set layers) {
+    public void setLayers(Set <Layer> layers) {
         this.layers = layers;
     }
     
     public void addLayer(Layer layer) {
         if(null == layers) {
-            layers = new HashSet();
+            layers = new HashSet <Layer>();
         }
         layers.add(layer);
         layer.setServiceProvider(this);
@@ -181,27 +198,35 @@ public class ServiceProvider {
         return serviceProviderKeywordList;
     }
     
-    public void setServiceProviderKeywordList(Set serviceProviderKeywordList) {
+    public void setServiceProviderKeywordList(Set <String> serviceProviderKeywordList) {
         this.serviceProviderKeywordList = serviceProviderKeywordList;
     }
     
     public void addKeyword(String keyword) {
+        if(null == serviceProviderKeywordList) {
+            serviceProviderKeywordList = new HashSet <String>();
+        } 
         serviceProviderKeywordList.add(keyword);
     }
+    // </editor-fold>
     
+    /** Method that will overwrite the URL's stored in the database with the URL specified for Kaartenbalie.
+     * This new URL indicate the link to the kaartenbalie, while the old link is used to indicate the URL
+     * to the real location of the service. Because the client which is connected to kaartenbalie has to send
+     * his requests back to kaartenbalie and not directly to the official resource, the URL has to be replaced.
+     *
+     * @param newUrl String representing the URL the old URL has to be replaced with.
+     */
+    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
     public void overwriteURL(String newUrl) {
-        //The given URL is actually to be used for requests
-        //In order to define the original URL to access the website itself we need to cutt off the last part
-        
-        // TODO check of dit zonder servlet string kan, pad onafhankelijk
-        // documentatie hoe dit werkt
-        String temporaryURL = newUrl;
-        int firstOccur = temporaryURL.indexOf("servlet");
-        if(firstOccur != -1) {
-            temporaryURL = temporaryURL.substring(0, firstOccur);
+        //String temporaryURL = newUrl;
+        //int firstOccur = temporaryURL.indexOf("servlet");
+        //if(firstOccur != -1) {
+        //    temporaryURL = temporaryURL.substring(0, firstOccur);
             //save this new URL as the one to be used
-            this.url = temporaryURL.replace("&", "&amp;");
-        }
+        //    this.url = temporaryURL.replace("&", "&amp;");
+        this.url = newUrl;
+        //}
         
         //Now call the same method in the underlying objects which are stored in this object
         Iterator it;
@@ -219,7 +244,13 @@ public class ServiceProvider {
             layer.overwriteURL(newUrl);
         }
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         ServiceProvider cloneSP = new ServiceProvider();
         
@@ -254,7 +285,7 @@ public class ServiceProvider {
             cloneSP.contactInformation          = (ContactInformation)this.contactInformation.clone();
         }
         if (null != this.domainResource) {
-            cloneSP.domainResource              = new HashSet();
+            cloneSP.domainResource              = new HashSet <ServiceDomainResource>();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 ServiceDomainResource sdr       = (ServiceDomainResource)((ServiceDomainResource)it.next()).clone();
@@ -263,13 +294,13 @@ public class ServiceProvider {
             }
         }
         if (null != this.serviceProviderKeywordList) {
-            cloneSP.serviceProviderKeywordList  = new HashSet(this.serviceProviderKeywordList);
+            cloneSP.serviceProviderKeywordList  = new HashSet <String>(this.serviceProviderKeywordList);
         }
         if (null != this.exceptions) {
-            cloneSP.exceptions                  = new HashSet(this.exceptions);
+            cloneSP.exceptions                  = new HashSet <String>(this.exceptions);
         }
         if (null != this.layers) {
-            cloneSP.layers = new HashSet();
+            cloneSP.layers = new HashSet <Layer>();
             Iterator itlayer = this.layers.iterator();
             while (itlayer.hasNext()) {
                 Layer layer = (Layer)((Layer)itlayer.next()).clone();
@@ -280,110 +311,115 @@ public class ServiceProvider {
         cloneSP.reviewed = this.reviewed;
         return cloneSP;
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
-        //Bouw eerst het gedeelte van de Service op en ga daarna verder met de Capabilities....
-        //Na alle opbouw moet er nog een controle uitgevoerd worden, oftewel iedere waarde moet eerst van
-        //gekeken worden of deze beschikbaar is, zo niet dan ook niet toevoegen aan het document.
-        Element rootElement = doc.createElement("WMT_MS_Capabilities");
-        rootElement.setAttribute("version", "1.1.1");
-        rootElement.setAttribute("updateSequence", "0");
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
         
-        Element element = doc.createElement("Service");
-        rootElement.appendChild(element);
+        Element serviceElement = doc.createElement("Service");
         
         if(null != this.getName()) {
-            Element subElement = doc.createElement("Name");
+            Element nameElement = doc.createElement("Name");
             Text text = doc.createTextNode(this.getName());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            nameElement.appendChild(text);
+            serviceElement.appendChild(nameElement);
         }
+        
         if (null != this.getTitle()) {
-            Element subElement = doc.createElement("Title");
+            Element titleElement = doc.createElement("Title");
             Text text = doc.createTextNode(this.getTitle());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            titleElement.appendChild(text);
+            serviceElement.appendChild(titleElement);
         }
         if (null != this.getAbstracts()) {
-            Element subElement = doc.createElement("Abstract");
+            Element abstractElement = doc.createElement("Abstract");
             Text text = doc.createTextNode(this.getAbstracts());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            abstractElement.appendChild(text);
+            serviceElement.appendChild(abstractElement);
         }
         
         if(null != this.getServiceProviderKeywordList() && this.getServiceProviderKeywordList().size() != 0) {
-            Element subElement = doc.createElement("KeywordList");
-            element.appendChild(subElement);
+            Element keywordListElement = doc.createElement("KeywordList");
+            
             Iterator it = this.getServiceProviderKeywordList().iterator();
             while (it.hasNext()) {
                 String keyword = (String)it.next();
-                Element sub2Element = doc.createElement("Keyword");
+                Element keywordElement = doc.createElement("Keyword");
                 Text text = doc.createTextNode(keyword);
-                sub2Element.appendChild(text);
-                subElement.appendChild(sub2Element);
+                keywordElement.appendChild(text);
+                keywordListElement.appendChild(keywordElement);
             }
+            
+            serviceElement.appendChild(keywordListElement);
         }
         
         if (null != this.getUrl()) {
-            Element subElement = doc.createElement("OnlineResource");
-            element.appendChild(subElement);
-            
-            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
-            subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getUrl());
+            Element onlineElement = doc.createElement("OnlineResource");
+            onlineElement.setAttribute("xlink:href", this.getUrl());
+            onlineElement.setAttribute("xlink:type", "simple");
+            onlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); 
+            serviceElement.appendChild(onlineElement);
         }
         
         if (null != this.getContactInformation()) {
-            element.appendChild(this.getContactInformation().toElement(doc));
+            serviceElement = this.getContactInformation().toElement(doc, serviceElement);
         }
         
         if (null != this.getFees()) {
-            Element subElement = doc.createElement("Fees");
+            Element feesElement = doc.createElement("Fees");
             Text text = doc.createTextNode(this.getFees());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            feesElement.appendChild(text);
+            serviceElement.appendChild(feesElement);
         }
         if (null != this.getAccessConstraints()) {
-            Element subElement = doc.createElement("AccessConstraints");
+            Element accessElement = doc.createElement("AccessConstraints");
             Text text = doc.createTextNode(this.getAccessConstraints());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            accessElement.appendChild(text);
+            serviceElement.appendChild(accessElement);
         }
         //End of Service
         
         //Start of Capability
-        element = doc.createElement("Capability");
-        rootElement.appendChild(element);
+        Element capabilityElement = doc.createElement("Capability");
         
         //De verschillende request mogelijkheden....
-        Element subElement = doc.createElement("Request");
-        element.appendChild(subElement);
+        Element requestElement = doc.createElement("Request");
         Iterator it = domainResource.iterator();
         while (it.hasNext()) {
             ServiceDomainResource sdr = (ServiceDomainResource)it.next();
-            subElement.appendChild(sdr.toElement(doc));
+            requestElement = sdr.toElement(doc, requestElement);
         }
+        capabilityElement.appendChild(requestElement);
         
         //De exception formaten
-        element = doc.createElement("Exception");
-        rootElement.appendChild(element);
+        Element exceptionElement = doc.createElement("Exception");
         it = exceptions.iterator();
         while (it.hasNext()) {
-            subElement = doc.createElement("Format");
+            Element formatElement = doc.createElement("Format");
             Text text = doc.createTextNode((String)it.next());
-            subElement.appendChild(text);
-            element.appendChild(subElement);
+            formatElement.appendChild(text);
+            exceptionElement.appendChild(formatElement);
         }
+        capabilityElement.appendChild(exceptionElement);
         
-        //De beschikbare layers...
+        //De beschikbare layers.
         it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer)it.next();
-            rootElement.appendChild(layer.toElement(doc));
+            capabilityElement = layer.toElement(doc, capabilityElement);
         }
-        
         //End of Capability
         
+        rootElement.appendChild(serviceElement);
+        rootElement.appendChild(capabilityElement);
         return rootElement;
     }
-    
+    // </editor-fold>
 }

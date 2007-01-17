@@ -1,10 +1,11 @@
-/*
- * ServerAction.java
+/**
+ * @(#)ServerAction.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/02
  *
- * Created on 2 oktober 2006, 13:58
+ * Purpose: a Struts action class defining all the Action for the ServiceProvider view.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -24,15 +25,23 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class ServerAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     
+    /** Execute method which handles all executable requests.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         ServiceProvider serviceProvider = this.getServiceProvider(dynaForm, request, false, id);
@@ -42,10 +51,18 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         return super.unspecified(mapping, dynaForm, request, response);
     }
+    // </editor-fold>
     
-    /*
-     * Returns the server with a specified id.
+    /** Method which returns the service provider with a specified id.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param createNew A boolean which indicates if a new object has to be created.
+     * @param id An Integer indicating which organization id has to be searched for.
+     *
+     * @return a service provider object.
      */
+    // <editor-fold defaultstate="collapsed" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         ServiceProvider serviceProvider = null;
@@ -57,10 +74,15 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         return serviceProvider;
     }
+    // </editor-fold>
     
-    /*
-     * If a server with a specified id is chosen this method will fill the JSP form with the dat of this server.
+    /** Method which will fill the JSP form with the data of a given service provider.
+     *
+     * @param serviceProvider ServiceProvider object from which the information has to be printed.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
      */
+    // <editor-fold defaultstate="collapsed" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", serviceProvider.getId().toString());
         dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
@@ -68,22 +90,50 @@ public class ServerAction extends KaartenbalieCrudAction {
         dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("serviceProviderReviewed", "false");
     }
+    // </editor-fold>
     
+    /** Creates a list of all the service providers in the database.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
         List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
         request.setAttribute("serviceproviderlist", serviceproviderlist);        
     }
+    // </editor-fold>
     
+    /** Method that fills a serive provider object with the user input from the forms.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param serviceProvider ServiceProvider object that to be filled
+     */
+    // <editor-fold defaultstate="collapsed" desc="populateOrganizationObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     private void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
         //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setReviewed(false);
     }
+    // </editor-fold>
     
-    //This method has not been implemented yet into the system.
+    /** Method for saving a new service provider from input of a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         if (!isTokenValid(request)) {
@@ -144,7 +194,20 @@ public class ServerAction extends KaartenbalieCrudAction {
         
         return super.save(mapping,dynaForm,request,response);
     }
+    // </editor-fold>
     
+    /** Method for deleting a serviceprovider selected by a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         String [] serviceProviderSelected = dynaForm.getStrings("serviceProviderSelected");
@@ -185,4 +248,5 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         return super.delete(mapping, dynaForm, request, response);
     }
+    // </editor-fold>
 }

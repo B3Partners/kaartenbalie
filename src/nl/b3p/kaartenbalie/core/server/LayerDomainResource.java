@@ -1,10 +1,11 @@
-/*
- * LayerDomainResource.java
+/**
+ * @(#)LayerDomainResource.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 15:39
+ * Purpose: Bean representing a LayerDomainResource.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -18,20 +19,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class LayerDomainResource {
+public class LayerDomainResource implements XMLElement {
     
     private static final Log log = LogFactory.getLog(LayerDomainResource.class);
     
     private Integer id;
-    private Set formats;
+    private Set <String> formats;
     private String url;
     private String domain;
     private Layer layer;
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -44,13 +42,13 @@ public class LayerDomainResource {
         return formats;
     }
     
-    public void setFormats(Set formats) {
+    public void setFormats(Set <String> formats) {
         this.formats = formats;
     }
     
     public void addFormat(String f) {
         if (null == formats) {
-            formats = new HashSet();
+            formats = new HashSet <String>();
         }
         formats.add(f);
     }
@@ -78,14 +76,20 @@ public class LayerDomainResource {
     public void setUrl(String url) {
         this.url = url;
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         LayerDomainResource cloneLDR        = new LayerDomainResource();
         if (null != this.id) {
             cloneLDR.id                     = new Integer(this.id.intValue());
         }
         if (null != this.formats) {
-            cloneLDR.formats                = new HashSet(this.formats);
+            cloneLDR.formats                = new HashSet <String>(this.formats);
         }
         if (null != this.url) {
             cloneLDR.url                    = new String(this.url);
@@ -95,7 +99,16 @@ public class LayerDomainResource {
         }
         return cloneLDR;
     }
+    // </editor-fold>
     
+    /** Method that will overwrite the URL's stored in the database with the URL specified for Kaartenbalie.
+     * This new URL indicate the link to the kaartenbalie, while the old link is used to indicate the URL
+     * to the real location of the service. Because the client which is connected to kaartenbalie has to send
+     * his requests back to kaartenbalie and not directly to the official resource, the URL has to be replaced.
+     *
+     * @param newUrl String representing the URL the old URL has to be replaced with.
+     */
+    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
         //First cut off only the part which is in front of the question mark.
         String temporaryURL;
@@ -112,29 +125,38 @@ public class LayerDomainResource {
             }
         }
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
         
-        Element rootElement = doc.createElement(this.getDomain());
+        Element domainElement = doc.createElement(this.getDomain());
         if (null != this.getFormats() && this.getFormats().size() != 0) {
             Iterator it = formats.iterator();
             while (it.hasNext()) {
-                Element element = doc.createElement("Format");
+                Element formatElement = doc.createElement("Format");
                 Text text = doc.createTextNode((String)it.next());
-                element.appendChild(text);
-                rootElement.appendChild(element);
+                formatElement.appendChild(text);
+                domainElement.appendChild(formatElement);
             }
         }
         if (null != this.getUrl()) {
-            Element element = doc.createElement("OnlineResource");
-            rootElement.appendChild(element);
-            
-            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
-            element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getUrl());
+            Element onlineElement = doc.createElement("OnlineResource");
+            onlineElement.setAttribute("xlink:href", this.getUrl());
+            onlineElement.setAttribute("xlink:type", "simple");
+            onlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); 
+            domainElement.appendChild(onlineElement);
         }
         
+        rootElement.appendChild(domainElement);
         return rootElement;
     }
-    
-
+    // </editor-fold>
 }

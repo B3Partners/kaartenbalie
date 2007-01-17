@@ -1,10 +1,11 @@
-/*
- * Organization.java
+/**
+ * @(#)Organization.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 15:38
+ * Purpose: Bean representing a Organization.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -14,10 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class Organization {
     
     private Integer id;
@@ -34,8 +31,9 @@ public class Organization {
     private String fax;
     private Set user;
     private Set billing;
-    private Set organizationLayer;
-
+    private Set <Layer> organizationLayer;
+    
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -128,13 +126,13 @@ public class Organization {
         return organizationLayer;
     }
 
-    public void setOrganizationLayer(Set organizationLayer) {
+    public void setOrganizationLayer(Set <Layer> organizationLayer) {
         this.organizationLayer = organizationLayer;
     }
     
     public void addOrganizationLayer(Layer layer) {
         if (null == organizationLayer) {
-            organizationLayer = new HashSet();
+            organizationLayer = new HashSet <Layer>();
         }
         organizationLayer.add(layer);
     }
@@ -162,4 +160,5 @@ public class Organization {
     public void setVisitorsAddress(String visitorsAddress) {
         this.visitorsAddress = visitorsAddress;
     }
+    // </editor-fold>
 }

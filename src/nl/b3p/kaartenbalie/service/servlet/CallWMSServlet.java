@@ -1,7 +1,14 @@
 /*
- * CallWMSServlet.java
- *
+ * @(#)CallWMSServlet.java
+ * @author Nando De Goeij
+ * @version 1.00
  * Created on 25 oktober 2006, 10:21
+ *
+ * Purpose: portal to which a client sends his requests. This servlet takes all incoming requests and handles
+ * each request differently depending on the input given in the request. The Servlets takes the KBConstants
+ * interface to check for all the different parameters which can be send together with the request.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.service.servlet;
@@ -28,20 +35,18 @@ import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
 import nl.b3p.kaartenbalie.core.KBConstants;
 
-/**
- *
- * @author Nando De Goeij
- * @version
- * http://localhost:8084/kaartenbalie/servlet/CallWMSServlet/98100ae84e47961542bc82c14f19aa4f?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
- * http://x3.b3p.nl/cgi-bin/mapserv?map=/home/mapserver/ijmond.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
- * http://x3.b3p.nl/cgi-bin/mapserv?map=/home/mapserver/gbkn.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
- * http://x3.b3p.nl/cgi-bin/mapserv?map=/home/mapserver/gstreet-demo.map&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities
- *
- */
 public class CallWMSServlet extends HttpServlet implements KBConstants {
     private static Log log = null;
+    public static final long serialVersionUID = 24362462L;    
     
-    /** Initializes the servlet. */
+    /** Initializes the servlet.
+     * Turns the logging of the servlet on.
+     *
+     * @param config ServletConfig config
+     *
+     * @throws ServletException
+     */
+    // <editor-fold defaultstate="collapsed" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         
@@ -49,59 +54,80 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         log = LogFactory.getLog(this.getClass());
         log.info("Initializing Call WMS Servlet");
     }
+    // </editor-fold>
     
-    /** Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+    //TODO:
+    // De foutafhandeling in processRequest moet nog verbeterd worden.
+    // De wms client kan vragen om een image of een xml bestand als return voor een foutmelding.
+    // Daartoe dient ook de response.setContentType("text/xml;charset=UTF-8"); aangepast te worden,
+    // zodat deze de response op de juiste wijze terug kan sturen naar de client.
+        
+    /** Processes the incoming request and calls the various methods to create the right output stream.
+     *
      * @param request servlet request
      * @param response servlet response
+     *
+     * @throws ServletException
+     * @throws IOException
      */
+    // <editor-fold defaultstate="collapsed" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        // foutafhandeling moet nog verbeterd worden:
-        // wms kan plaatje of xml vragen om fout in te wrappen
-        // TODO
-        
         User user = null;
+        byte[] data = null;
+        OutputStream sos = null;
+        
         try {
-            user= checkLogin(request);
+            user = checkLogin(request);
+            
+            if (user != null) {
+                Map <String, Object> parameters = new HashMap <String, Object>();
+                parameters.putAll(request.getParameterMap());
+                parameters.put(KB_USER, user);
+                parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
+                data = parseRequestAndData(parameters);
+                
+                if (parameters.get(WMS_PARAM_EXCEPTION_FORMAT) != null) {
+                    String exception = ((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0];
+                    response.setContentType(exception + ";charset=" + CHARSET_UTF8);
+                }
+
+//                if (!SUPPORTED_EXCEPTIONS.contains(exception)) {
+//                    response.setContentType(exception + ";charset=" + CHARSET_UTF8);
+//                } else {
+//                    response.setContentType("text/xml;charset=" + CHARSET_UTF8);
+//                }
+                
+                sos = response.getOutputStream();
+                sos.write(data);
+            } else {
+                response.sendError(response.SC_UNAUTHORIZED);
+            }
         } catch (NoSuchAlgorithmException ex) {
             log.error("NoSuchAlgorithmException error: ", ex);
             throw new ServletException("NoSuchAlgorithmException", ex);
         } catch (UnsupportedEncodingException ex) {
             log.error("UnsupportedEncodingException error: ", ex);
             throw new ServletException("UnsupportedEncodingException", ex);
-        }
-        if (user==null)
-            response.sendError(response.SC_UNAUTHORIZED);
-        
-        Map parameters = new HashMap();
-        parameters.putAll(request.getParameterMap());
-        // beter user meegeven in map dan organisatie
-        parameters.put(KB_USER, user);
-        parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
-        
-        byte[] data = null;
-        try {
-            data = parseRequestAndData(parameters);
-            log.debug("response data: " + new String(data));
-        } catch (Exception ex) {
-            log.error("parseRequestAndData error: ", ex);
-            throw new ServletException("parseRequestAndData Exception", ex);
-        }
-        
-        // dit klopt nog niet, kan xml of image zijn
-        // TODO
-        response.setContentType("text/xml;charset=UTF-8");
-        
-        OutputStream sos = null;
-        try {
-            sos = response.getOutputStream();
-            sos.write(data);
+        } catch (Exception e) {
+            log.error("Undefined error: ", e);
         } finally {
             if (sos!=null)
                 sos.close();
         }
     }
+    // </editor-fold>
     
+    /** Checks if an user is allowed to make any requests.
+     * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
+     *
+     * @param request servlet request
+     *
+     * @return user object
+     *
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     */
+    // <editor-fold defaultstate="collapsed" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         
         // eerst checken of user gewoon ingelogd is
@@ -109,12 +135,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         if (user==null) {
             // niet ingelogd dus, dan checken op token in url
             Session sess = MyDatabase.currentSession();
+            Transaction tx = sess.beginTransaction();
+            try {
             user = (User)sess.createQuery(
                     "from User u where " +
                     "lower(u.personalURL) = lower(:personalURL) ")
                     .setParameter("personalURL", request.getRequestURL().toString())
                     .uniqueResult();
-            
+            } finally {
+            tx.commit();
+            }
             if (user!=null) {
                 // bereken token voor deze user
                  String token = calcToken(
@@ -134,7 +164,20 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
         return user;
     }
+    // </editor-fold>
     
+    /** Creates a hash of the IP address, username and the password.
+     *
+     * @param registeredIP string representing the ip address of this user
+     * @param username string representing the username of this user
+     * @param password string representing the password of this user
+     *
+     * @return hashed string which is unique for the user
+     *
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     */
+    // <editor-fold defaultstate="collapsed" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String toBeHashedString = registeredIP + username + password;
         MessageDigest md = MessageDigest.getInstance("MD5");
@@ -142,19 +185,30 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         BigInteger hash = new BigInteger(1, md.digest());
         return hash.toString( 16 );
     }
+    // </editor-fold>
     
-    public byte[] parseRequestAndData(Map parameters) throws Exception {
-        
-        String givenRequest = (String) parameters.get(WMS_REQUEST);
-        if (SUPPORTED_REQUESTS.contains(givenRequest))
+    /** Parses any incoming request.
+     *
+     * @param parameters map with the given parameters
+     *
+     * @return byte array with the requested data
+     *
+     * @throws IllegalArgumentException
+     * @throws UnsupportedOperationException
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="collapsed" desc="parseRequestAndData(Map parameters) method.">
+    public byte[] parseRequestAndData(Map <String, Object> parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException {
+        String givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
+        if (!SUPPORTED_REQUESTS.contains(givenRequest))
             throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
         
-        String givenService = (String) parameters.get(WMS_SERVICE);
-        if (SUPPORTED_SERVICES.contains(givenService))
+        String givenService = ((String[]) parameters.get(WMS_SERVICE))[0];
+        if (!SUPPORTED_SERVICES.contains(givenService))
             throw new UnsupportedOperationException("Service '" + givenService + "' not supported!");
         
-        String givenVersion = (String) parameters.get(WMS_VERSION);
-        if (SUPPORTED_VERSIONS.contains(givenVersion))
+        String givenVersion = ((String[]) parameters.get(WMS_VERSION))[0];
+        if (!SUPPORTED_VERSIONS.contains(givenVersion))
             throw new UnsupportedOperationException("Version '" + givenVersion + "' not supported!");
         
         RequestHandler requestHandler = null;
@@ -164,13 +218,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             reqParams = PARAMS_GetCapabilities;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
             requestHandler = new GetMapRequestHandler();
-            reqParams = PARAMS_GetCapabilities;
+            reqParams = PARAMS_GetMap;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
             requestHandler = new GetFeatureInfoRequestHandler();
-            reqParams = PARAMS_GetCapabilities;
+            reqParams = PARAMS_GetFeatureInfo;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
             requestHandler = new GetLegendGraphicRequestHandler();
-            reqParams = PARAMS_GetCapabilities;
+            reqParams = PARAMS_GetLegendGraphic;
         }
         
         if (!requestComplete(parameters, reqParams))
@@ -180,13 +234,18 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         return requestHandler.getRequest(parameters);
     }
+    // </editor-fold>
     
+    /** Handles the requestComplete method.
+     *
+     * @param parameters map with the given parameters
+     * @param requiredParameters list with the required parameters
+     *
+     * @return boolean which indicates if the request was incomplete or not
+     */
+    // <editor-fold defaultstate="collapsed" desc="requestComplete(Map parameters, List requiredParameters) method">
     protected boolean requestComplete(Map parameters, List requiredParameters) {
-        if (parameters==null || requiredParameters==null)
-            return false;
-        if (requiredParameters.isEmpty())
-            return true;
-        if (parameters.isEmpty())
+        if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
             return false;
         Iterator it = requiredParameters.iterator();
         while (it.hasNext()) {
@@ -196,7 +255,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
         return true;
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -220,4 +281,5 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public String getServletInfo() {
         return "CallWMSServlet info";
     }
+    // </editor-fold>
 }

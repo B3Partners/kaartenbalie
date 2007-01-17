@@ -1,15 +1,15 @@
-package nl.b3p.kaartenbalie.service.requesthandler;
-
 /**
  * @(#)GetMapRequestHandler.java
- *
- *
  * @author N. de Goeij
  * @version 1.00 2006/12/13
  *
- * The function of this class is to create a list of url's which direct to the right servers that have the desired layers
- * for WMS requests
+ * Purpose: the function of this class is to create a list of url's which direct to the right servers that have the desired layers
+ * for the WMS GetMap request.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
  */
+
+package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,27 +24,42 @@ import nl.b3p.kaartenbalie.core.server.User;
 
 public class GetMapRequestHandler extends WMSRequestHandler {
     
+    // <editor-fold defaultstate="collapsed" desc="default GetMapRequestHandler() constructor.">
     public GetMapRequestHandler() {}
+    // </editor-fold>
     
-    public byte[] getRequest(Map parameters) throws IOException, Exception {
-        
+    /** Processes the parameters and creates the specified urls from the given parameters.
+     * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
+     * @param parameters Map parameters
+     * @return byte[]
+     *
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
         List tempSP = getServiceProviders(false);
-        if (tempSP==null)
+        if (tempSP == null) {
             return null;
+        }
         
-        ArrayList urls = new ArrayList();
+//        ArrayList urls = new ArrayList();
+        int counter = 0;
+        StringBuffer [] urls = new StringBuffer[tempSP.size()];
         
         Iterator it = tempSP.iterator();
         while (it.hasNext()) {
+            
             ServiceProvider s = (ServiceProvider)it.next();
             StringBuffer spUrl = null;
             
             //Lets first check if this ServiceProvider can provide us the asked layers
             //otherwise it is not necessary at all to look further and ask for a lot of resources
-            String[] layer = (String[])parameters.get(WMS_PARAM_LAYERS);
+            String[] l = (String[])parameters.get(WMS_PARAM_LAYERS);
+            String lString = l[0];
+            String [] layer = lString.split(",");
             String spls = calcFormattedLayers(s, layer);
             if (spls==null)
                 continue;
@@ -55,10 +70,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             if (spUrl==null)
                 continue;
             
+            
             // toevoegen van andere parameters
             spUrl.append(WMS_VERSION);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_VERSION));
+            spUrl.append((String)((String[])parameters.get(WMS_VERSION))[0]);
             spUrl.append("&");
             spUrl.append(WMS_REQUEST);
             spUrl.append("=");
@@ -71,12 +87,12 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             spUrl.append("&");
             spUrl.append(WMS_PARAM_BBOX);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_BBOX));
+            spUrl.append((String)((String[])parameters.get(WMS_PARAM_BBOX))[0]);
             
             spUrl.append("&");
             spUrl.append(WMS_PARAM_SRS);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_SRS));
+            spUrl.append((String)((String[])parameters.get(WMS_PARAM_SRS))[0]);
             
             spUrl.append("&");
             spUrl.append(WMS_PARAM_TRANSPARENT);
@@ -86,22 +102,31 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             spUrl.append("&");
             spUrl.append(WMS_PARAM_FORMAT);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_FORMAT));
+            spUrl.append((String)((String[])parameters.get(WMS_PARAM_FORMAT))[0]);
             
             spUrl.append("&");
             spUrl.append(WMS_PARAM_WIDTH);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_WIDTH));
+            spUrl.append((String)((String[])parameters.get(WMS_PARAM_WIDTH))[0]);
             
             spUrl.append("&");
             spUrl.append(WMS_PARAM_HEIGHT);
             spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_HEIGHT));
+            spUrl.append((String)((String[])parameters.get(WMS_PARAM_HEIGHT))[0]);
+            
+            if (parameters.get(WMS_PARAM_EXCEPTION_FORMAT) != null) {
+                spUrl.append("&");
+                spUrl.append(WMS_PARAM_EXCEPTION_FORMAT);
+                spUrl.append("=");
+                spUrl.append((String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0]);
+            }
+            
+            urls[counter] = spUrl;
+            counter++;
         }
         
-        StringBuffer [] url = null;
-        return getOnlineData((StringBuffer[])urls.toArray(url));
-        
-
+        return getOnlineData(urls);
+        //return getOnlineData((StringBuffer[])urls.toArray(url));
     }
+    // </editor-fold>
 }

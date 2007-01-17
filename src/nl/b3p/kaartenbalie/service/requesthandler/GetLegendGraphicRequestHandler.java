@@ -1,3 +1,13 @@
+/**
+ * @(#)GetLegendGraphicRequestHandler.java
+ * @author N. de Goeij
+ * @version 1.00 2006/12/13
+ *
+ * Purpose: *
+ *
+ * @copyright 2007 All rights reserved. B3Partners
+ */
+
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
@@ -10,23 +20,24 @@ import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 
-/**
- * @(#)GetLegendGraphicRequestHandler.java
- *
- *
- * @author N. de Goeij
- * @version 1.00 2006/12/13
- *
- * This class has no function yet, needs to be implemented
- */
-
-
 public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
     
-    public GetLegendGraphicRequestHandler() {
-    }
+    // <editor-fold defaultstate="collapsed" desc="default GetLegendGraphicRequestHandler() constructor.">
+    public GetLegendGraphicRequestHandler() {}
+    // </editor-fold>
     
-    public byte[] getRequest(Map parameters) throws IOException, Exception {
+    // TODO: onderstaande getRequest methode werkt nog niet naar behoren. De implementatie kan misschien
+    // volledig verwijderd worden omdat deze niet de functie uitvoert die ze uit zou moeten voeren.
+    
+    /** Processes the parameters and creates the specified urls from the given parameters.
+     * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
+     * @param parameters Map parameters
+     * @return byte[]
+     *
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
@@ -35,7 +46,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         if (tempSP==null)
             return null;
         
-        ArrayList urls = new ArrayList();
+        ArrayList <StringBuffer []> urls = new ArrayList <StringBuffer []>();
         
         Iterator it = tempSP.iterator();
         while (it.hasNext()) {
@@ -134,4 +145,5 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         StringBuffer [] url = null;
         return getOnlineData((StringBuffer[])urls.toArray(url));
     }
+    // </editor-fold>
 }

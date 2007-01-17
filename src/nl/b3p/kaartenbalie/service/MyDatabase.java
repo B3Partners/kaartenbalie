@@ -1,15 +1,16 @@
-/*
- * MyDatabase.java
+/**
+ * @(#)MyDatabase.java
+ * @author R. Braam
+ * @version 1.00 2006/09/07
  *
- * Created on 7 september 2006, 13:22
+ * Purpose: a class for initializing the database and creating a connection to it.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.service;
 
-/**
- *
- * @author Roy
- */import java.util.*;
+import java.util.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,16 +28,17 @@ import org.hibernate.*;
 public class MyDatabase extends HttpServlet {
     
     private static Log log = LogFactory.getLog(MyDatabase.class);
-    
     private static Random rg = null;
     private static String cachePath = null;
-    
     private static SessionFactory sessionFactory;
     private static String hibernateInitExceptionMessage;
-    
+    public static final long serialVersionUID = 24362462L;
     
     /** Initializes the servlet.
+     *
+     * @param config ServletConfig configuration file in which is described how to configure the servlet.
      */
+    // <editor-fold defaultstate="collapsed" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         
@@ -45,13 +47,8 @@ public class MyDatabase extends HttpServlet {
             log.info("Initializing MyDatabase servlet");
         
         // Initialize cache pad
-        try {
-            cachePath = getServletContext().getRealPath( config.getInitParameter("cache") );
-            log("cache pad: " + cachePath);
-        } catch (Exception e) {
-            log("Cache Path load exception", e);
-            throw new ServletException("Cannot load cache path");
-        }
+        cachePath = getServletContext().getRealPath( config.getInitParameter("cache") );
+        log.debug("cache pad: " + cachePath);
         
         // Randomizer
         rg = new Random();
@@ -64,9 +61,11 @@ public class MyDatabase extends HttpServlet {
         }
         
     }
+    // </editor-fold>
     
     /** Destroys the servlet.
      */
+    // <editor-fold defaultstate="collapsed" desc="destroy() method.">
     public void destroy() {
         
         /* Matthijs: fix voor memleak bij vaak reloaden
@@ -83,10 +82,11 @@ public class MyDatabase extends HttpServlet {
         
         super.destroy();
     }
+    // </editor-fold>
     
-    /**
-     * Initializes Hibernate
+    /** Initializes Hibernate.
      */
+    // <editor-fold defaultstate="collapsed" desc="initHibernate() method.">
     public static void initHibernate() throws Exception {
         
         try {
@@ -103,30 +103,69 @@ public class MyDatabase extends HttpServlet {
             throw ex;
         }
     }
+    // </editor-fold>
     
+    /** Returns the SessionFactory of Hibernate.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getSessionFactory() method.">
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
+    // </editor-fold>
     
+    /** Returns the current session of Hibernate.
+     */
+    // <editor-fold defaultstate="collapsed" desc="currentSession() method.">
     public static Session currentSession() {
         return getSessionFactory().getCurrentSession();
     }
+    // </editor-fold>
     
+    /** Closes the current session of Hibernate.
+     */
+    // <editor-fold defaultstate="collapsed" desc="closeSession() method.">
     public static void closeSession() {
         currentSession().close();
         return;
     }
+    // </editor-fold>
     
+    /** Returns the local path of a filename.
+     *
+     * @param fileName String containing the fileName
+     *
+     * @return string containing the local path
+     */
+    // <editor-fold defaultstate="collapsed" desc="localPath(String fileName) method.">
     public static String localPath(String fileName) {
         if (fileName==null)
             return "";
         return cachePath + fileName;
     }
+    // </editor-fold>
     
+    /** Returns a unique name created with given parameters without taking the path into account.
+     *
+     * @param prefix String containing the prefix.
+     * @param extension String containing the extension.
+     *
+     * @return a String representing a unique name for these parameters.
+     */
+    // <editor-fold defaultstate="collapsed" desc="uniqueName(String prefix, String extension) method.">
     public static String uniqueName(String prefix, String extension) {
         return uniqueName(prefix, extension, false);
     }
+    // </editor-fold>
     
+    /** Returns a unique name created with given parameters.
+     *
+     * @param prefix String containing the prefix.
+     * @param extension String containing the extension.
+     * @param includePath boolean setting the including of the path to true or false.
+     *
+     * @return a String representing a unique name for these parameters.
+     */
+    // <editor-fold defaultstate="collapsed" desc="uniqueName(String prefix, String extension, boolean includePath) method.">
     public static String uniqueName(String prefix, String extension, boolean includePath) {
         // Gebruik tijd in milliseconden om gerekend naar een radix van 36.
         // Hierdoor ontstaat een lekker korte code.
@@ -144,5 +183,6 @@ public class MyDatabase extends HttpServlet {
             extension = "";
         return thePath + prefix + val1 + val2 + extension;
     }
+    // </editor-fold>
     
 }

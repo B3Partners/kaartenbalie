@@ -1,10 +1,11 @@
-/*
- * ContactInformation.java
+/**
+ * @(#)ContactInformation.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 26 september 2006, 14:36
+ * Purpose: Bean representing ContactInformation.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -14,11 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class ContactInformation {
+public class ContactInformation implements XMLElement {
     
     private Integer id;
     private String contactPerson;
@@ -35,6 +32,9 @@ public class ContactInformation {
     private String emailAddress;
     private ServiceProvider serviceProvider;
     
+    /** default ContactInformation() constructor.
+     */
+    // <editor-fold defaultstate="collapsed" desc="default ContactInformation() constructor">
     public ContactInformation() {
         contactPerson = "Chris van Lith";
         contactPosition = "Software Developer";
@@ -49,7 +49,9 @@ public class ContactInformation {
         fascimileTelephone = "";
         emailAddress = "info@b3p.nl";
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -161,7 +163,7 @@ public class ContactInformation {
     public void setContactOrganization(String contactOrganization) {
         this.contactOrganization = contactOrganization;
     }
-    
+    // </editor-fold>
     
     /*
     The String class does not allow you to clone String objects because Java has a policy where it shares a single
@@ -175,6 +177,12 @@ public class ContactInformation {
     and each element in the array references that same String object. Because of the String sharing policy, strings are
     considered immutable.
      */
+    
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         ContactInformation cloneCI      = new ContactInformation();
         if (null != this.id) {
@@ -218,92 +226,123 @@ public class ContactInformation {
         }
         return cloneCI;
     }
+    // </editor-fold>
     
-    Element toElement(Document doc) {
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
         
-        Element rootElement = doc.createElement("ContactInformation");
+        Element contactElement = doc.createElement("ContactInformation");
         
-        Element element = doc.createElement("ContactPersonPrimary");
-        rootElement.appendChild(element);
+        //contact person primary element
+        Element personPrimElement = doc.createElement("ContactPersonPrimary");
+        
+        //contact person element
         if(null != this.getContactPerson()) {
-            Element subelement = doc.createElement("ContactPerson");
+            Element personElement = doc.createElement("ContactPerson");
             Text text = doc.createTextNode(this.getContactPerson());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            personElement.appendChild(text);
+            personPrimElement.appendChild(personElement);
         }
+        //end contact person element
+        
+        //contact organization element
         if(null != this.getContactOrganization()) {
-            Element subelement = doc.createElement("ContactOrganization");
+            Element orgElement = doc.createElement("ContactOrganization");
             Text text = doc.createTextNode(this.getContactOrganization());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            orgElement.appendChild(text);
+            personPrimElement.appendChild(orgElement);
         }
+        //end contact organization element
         
+        contactElement.appendChild(personPrimElement);
+        //end contact person primary element
+        
+        //contact position element
         if(null != this.getContactPosition()) {
-            Element subelement = doc.createElement("ContactPosition");
+            Element posElement = doc.createElement("ContactPosition");
             Text text = doc.createTextNode(this.getContactPosition());
-            subelement.appendChild(text);
-            rootElement.appendChild(subelement);
+            posElement.appendChild(text);
+            contactElement.appendChild(posElement);
         }
+        //end contact position element
         
-        element = doc.createElement("ContactAddress");
-        rootElement.appendChild(element);
+        //address element
+        Element addressElement = doc.createElement("ContactAddress");        
         if(null != this.getAddressType()) {
-            Element subelement = doc.createElement("AddressType");
+            Element addressTypeElement = doc.createElement("AddressType");
             Text text = doc.createTextNode(this.getAddressType());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            addressTypeElement.appendChild(text);
+            addressElement.appendChild(addressTypeElement);
         }
         if(null != this.getAddress()) {
-            Element subelement = doc.createElement("Address");
+            Element streetElement = doc.createElement("Address");
             Text text = doc.createTextNode(this.getAddress());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            streetElement.appendChild(text);
+            addressElement.appendChild(streetElement);
         }
         if(null != this.getCity()) {
-            Element subelement = doc.createElement("City");
+            Element cityElement = doc.createElement("City");
             Text text = doc.createTextNode(this.getCity());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            cityElement.appendChild(text);
+            addressElement.appendChild(cityElement);
         }
         if(null != this.getStateOrProvince()) {
-            Element subelement = doc.createElement("StateOrProvince");
+            Element stateElement = doc.createElement("StateOrProvince");
             Text text = doc.createTextNode(this.getStateOrProvince());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            stateElement.appendChild(text);
+            addressElement.appendChild(stateElement);
         }
         if(null != this.getPostcode()) {
-            Element subelement = doc.createElement("PostCode");
+            Element postalElement = doc.createElement("PostCode");
             Text text = doc.createTextNode(this.getPostcode());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            postalElement.appendChild(text);
+            addressElement.appendChild(postalElement);
         }
         if(null != this.getCountry()) {
-            Element subelement = doc.createElement("Country");
+            Element countryElement = doc.createElement("Country");
             Text text = doc.createTextNode(this.getCountry());
-            subelement.appendChild(text);
-            element.appendChild(subelement);
+            countryElement.appendChild(text);
+            addressElement.appendChild(countryElement);
         }
+        contactElement.appendChild(addressElement);
+        //end address element
         
+        //voice phone element
         if(null != this.getVoiceTelephone()) {
-            Element subelement = doc.createElement("ContactVoiceTelephone");
+            Element vTelElement = doc.createElement("ContactVoiceTelephone");
             Text text = doc.createTextNode(this.getVoiceTelephone());
-            subelement.appendChild(text);
-            rootElement.appendChild(subelement);
+            vTelElement.appendChild(text);
+            contactElement.appendChild(vTelElement);
         }
-        if(null != this.getFascimileTelephone()) {
-            Element subelement = doc.createElement("ContactFacsimileTelephone");
-            Text text = doc.createTextNode(this.getFascimileTelephone());
-            subelement.appendChild(text);
-            rootElement.appendChild(subelement);
-        }
-        if(null != this.getEmailAddress()) {
-            Element subelement = doc.createElement("ContactElectronicMailAddress");
-            Text text = doc.createTextNode(this.getEmailAddress());
-            subelement.appendChild(text);
-            rootElement.appendChild(subelement);
-        }
+        //end voice phone element
         
+        //fascimile phone element
+        if(null != this.getFascimileTelephone()) {
+            Element fTelElement = doc.createElement("ContactFacsimileTelephone");
+            Text text = doc.createTextNode(this.getFascimileTelephone());
+            fTelElement.appendChild(text);
+            contactElement.appendChild(fTelElement);
+        }
+        //end fascimile phone element
+        
+        //email element
+        if(null != this.getEmailAddress()) {
+            Element mailElement = doc.createElement("ContactElectronicMailAddress");
+            Text text = doc.createTextNode(this.getEmailAddress());
+            mailElement.appendChild(text);
+            contactElement.appendChild(mailElement);
+        }
+        //end email element
+        
+        rootElement.appendChild(contactElement);
         return rootElement;
     }
-    
+    // </editor-fold>
 }

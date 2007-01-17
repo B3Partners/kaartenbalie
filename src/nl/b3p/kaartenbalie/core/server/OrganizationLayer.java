@@ -1,18 +1,15 @@
-/*
- * OrganizationLayer.java
+/**
+ * @(#)OrganizationLayer.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 15:38
+ * Purpose: Bean representing a OrganizationLayer.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class OrganizationLayer {
     
     /** Creates a new instance of OrganizationLayer */

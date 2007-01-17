@@ -1,10 +1,20 @@
+/**
+ * @(#)Attribution.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
+ *
+ * Purpose: Bean representing an Attribution.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
+ */
+
 package nl.b3p.kaartenbalie.core.server;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-public class Attribution {
+public class Attribution implements XMLElement {
     
     private Integer id;
     private String title;
@@ -15,6 +25,7 @@ public class Attribution {
     private String logoHeight;
     private Layer layer;
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -78,7 +89,13 @@ public class Attribution {
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         Attribution cloneAtt        = new Attribution();
         if (null != this.id) {
@@ -104,35 +121,59 @@ public class Attribution {
         }
         return cloneAtt;
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
-        Element rootElement = doc.createElement("Attribution");
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
+        Element attributionElement = doc.createElement("Attribution");
         
-        Element element = doc.createElement("Title");
+        //title element
+        Element titleElement = doc.createElement("Title");
         Text text = doc.createTextNode(this.getTitle());
-        element.appendChild(text);
-        rootElement.appendChild(element);
+        titleElement.appendChild(text);
+        attributionElement.appendChild(titleElement);
+        //end title element
         
-        element = doc.createElement("OnlineResource");
-        element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
-        element.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getAttributionURL());
-        rootElement.appendChild(element);
+        //onlineResource element
+        Element attOnlineElement = doc.createElement("OnlineResource");
+        attOnlineElement.setAttribute("xlink:href", this.getAttributionURL());
+        attOnlineElement.setAttribute("xlink:type", "simple");
+        attOnlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); 
+        attributionElement.appendChild(attOnlineElement);
+        //end onlineResource element
         
-        element = doc.createElement("LogoURL");
-        element.setAttribute("width", this.getLogoWidth());
-        element.setAttribute("height", this.getLogoHeight());
-        rootElement.appendChild(element);
+        //Logo element
+        Element logoElement = doc.createElement("LogoURL");
+        logoElement.setAttribute("width", this.getLogoWidth());
+        logoElement.setAttribute("height", this.getLogoHeight());
         
-        Element subElement = doc.createElement("Format");
+        //format element
+        Element formatElement = doc.createElement("Format");
         text = doc.createTextNode(this.getLogoFormat());
-        subElement.appendChild(text);
-        element.appendChild(subElement);
+        formatElement.appendChild(text);
+        logoElement.appendChild(formatElement);
+        //end format element
         
-        subElement = doc.createElement("OnlineResource");
-        subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:type", "simple");
-        subElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", this.getLogoURL());
-        element.appendChild(subElement);
+        //onlineResource element
+        Element logoOnlineElement = doc.createElement("OnlineResource");
+        logoOnlineElement.setAttribute("xlink:href", this.getLogoURL());
+        logoOnlineElement.setAttribute("xlink:type", "simple");
+        logoOnlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        logoElement.appendChild(logoOnlineElement);
+        //end onlineResource element
         
+        attributionElement.appendChild(logoElement);
+        //end Logo element
+        
+        rootElement.appendChild(attributionElement);        
         return rootElement;
     }
+    // </editor-fold>
 }

@@ -1,10 +1,11 @@
-/*
- * SRS.java
+/**
+ * @(#)SRS.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 15:40
+ * Purpose: Bean representing a SRS.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -17,11 +18,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class SRS {
+public class SRS implements XMLElement {
     
     private Integer id;
     private String srs;
@@ -33,8 +30,7 @@ public class SRS {
     private String resy;
     private Layer layer;
     
-//    public static final List srsen = new ArrayList();
-    
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public SRS() {
         //       srsen.add(this);
     }
@@ -110,7 +106,13 @@ public class SRS {
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         SRS cloneSrs   = new SRS();
         if (null != this.id) {
@@ -136,32 +138,42 @@ public class SRS {
         }
         return cloneSrs;
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
         
-        Element rootElement = null;
+        Element srsBBElement = null;
         
-        if(null == this.getMinx()  && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
-            rootElement = doc.createElement("SRS");
+        if(null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
+            Element srsElement = doc.createElement("SRS");
             Text text = doc.createTextNode(this.getSrs());
-            rootElement.appendChild(text);
-            return rootElement;
-        }
-        
-        rootElement = doc.createElement("BoundingBox");
-        
-        rootElement.setAttribute("SRS", this.getSrs());
-        rootElement.setAttribute("minx", this.getMinx());
-        rootElement.setAttribute("miny", this.getMiny());
-        rootElement.setAttribute("maxx", this.getMaxx());
-        rootElement.setAttribute("maxy", this.getMaxy());
-        
-        if (null != this.getResx() && null != this.getResy()) {
-            rootElement.setAttribute("resx", this.getResx());
-            rootElement.setAttribute("resy", this.getResy());
+            srsElement.appendChild(text);
+            rootElement.appendChild(srsElement);
+        } 
+        if (null != this.getSrs() && !(null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy())) {
+            Element bbElement = doc.createElement("BoundingBox");
+            bbElement.setAttribute("SRS", this.getSrs());
+            bbElement.setAttribute("minx", this.getMinx());
+            bbElement.setAttribute("miny", this.getMiny());
+            bbElement.setAttribute("maxx", this.getMaxx());
+            bbElement.setAttribute("maxy", this.getMaxy());
+            
+            if (null != this.getResx() && null != this.getResy()) {
+                bbElement.setAttribute("resx", this.getResx());
+                bbElement.setAttribute("resy", this.getResy());
+            }
+            rootElement.appendChild(bbElement);
         }
         
         return rootElement;
     }
-    
+    // </editor-fold>
 }

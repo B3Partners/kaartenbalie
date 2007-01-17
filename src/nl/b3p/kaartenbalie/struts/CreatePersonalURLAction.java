@@ -1,10 +1,12 @@
-/*
- * CreatePersonalURLAction.java
+/**
+ * @(#)CreatePersonalURLAction.java
+ * @author N. de Goeij
+ * @version 1.00 2006/11/08
  *
- * Created on 8 november 2006, 14:09
+ * Purpose: a class for creating a personal URL for a user when he uses a program that doesn't 
+ * understand basis HTTP authentication.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -29,10 +31,7 @@ import org.hibernate.Session;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
-/**
- *
- * @author Nando De Goeij
- */
+
 public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     
     /* forward name="success" path="" */
@@ -40,11 +39,35 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     private String registeredIP;
     private String personalURL;
     
+    /** Unspecified method which handles all incoming request that have no actions defined.
+     *
+     * @param mapping action mapping
+     * @param dynaForm dyna validator form
+     * @param request servlet request
+     * @param response servlet response
+     *
+     * @return ActionForward defined by Apache foundation
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return super.unspecified(mapping, dynaForm, request, response);
     }
+    // </editor-fold>
     
-    //This method has not been implemented yet into the system.
+    /** Save method which creates a unique IP address for the user and saves this address into the database.
+     *
+     * @param mapping action mapping
+     * @param dynaForm dyna validator form
+     * @param request servlet request
+     * @param response servlet response
+     *
+     * @return ActionForward defined by Apache foundation
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //Bij deze save actie moet er een unieke 'sleutel' gemaakt worden om mee in te kunnen loggen
         //Deze sleutel moet gebaseerd worden op drie gegevens, namelijk:
@@ -121,4 +144,5 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         return super.save(mapping,dynaForm,request,response);
     }
+    // </editor-fold>
 }

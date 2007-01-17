@@ -16,13 +16,13 @@
         <id name="id" type="int" column="ORGANIZATIONID" >
             <generator class="native"/>
         </id>
-        <set name="organizationLayer" table="OrganizationLayer">
+        <set name="organizationLayer" table="OrganizationLayer" lazy="false">
             <key column="ORGANIZATIONID"/>
-            <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer"/>
+            <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer" lazy="false"/>
         </set>
         
         
-        <set name="user" lazy="true">
+        <set name="user" lazy="false">
             <key column="USERID" update="false"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
         </set>

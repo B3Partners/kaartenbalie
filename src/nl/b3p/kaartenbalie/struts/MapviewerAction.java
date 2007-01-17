@@ -1,10 +1,11 @@
-/*
- * MapviewerAction.java
+/**
+ * @(#)MapviewerAction.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/24
  *
- * Created on 24 oktober 2006, 15:18
+ * Purpose: a Struts action class defining all the Action for the map viewer.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -32,30 +33,30 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-/**
- *
- * @author Nando De Goeij
- */
 public class MapviewerAction extends KaartenbalieCrudAction {
     //Moet toch een kaartenbaliecrudaction extenden, vanwege de createlist....
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
-    
-    /**
-     * This is the action called from the Struts framework.
+    private List <Object []> layerList = new ArrayList <Object []>();
+    private int id;
+    private static final Log log = LogFactory.getLog(MapviewerAction.class);
+        
+    /** Execute method which handles all executable requests.
+     *
      * @param mapping The ActionMapping used to select this instance.
-     * @param form The optional ActionForm bean for this request.
+     * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      * @param response The HTTP Response we are processing.
-     * @throws java.lang.Exception
-     * @return
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
      */
+    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, DynaValidatorForm dynaForm,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        
-        System.out.println("The incoming request is: " + request);
         
         Map requestMap = request.getParameterMap();
         if(requestMap.get("REQUEST") != null || requestMap.get("request") != null) {
@@ -71,7 +72,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         dynaForm.set("miny","345822");
         dynaForm.set("maxx","194755");
         dynaForm.set("maxy","353322");
-
+        
         //welke layers mag de gebruiker zien?
         createLists(dynaForm, request);
         Layer layers = new Layer();
@@ -80,96 +81,32 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         
         return mapping.findForward(SUCCESS);
     }
+    // </editor-fold>
     
-    private List layerList = new ArrayList();
-    //layerList.
-    
-    //private Map layerMap;
-    private int id;
-    
-    public void walkThroughLayers(Set layers, int id) {
-        id++;
-        
-        for (Iterator it = layers.iterator(); it.hasNext();) {
-            Layer layer = (Layer)it.next();
-            
-            if(layer != null) {
-                //Object [] layerInfo = {layer.getId(), layer.getTitle()};
-                Object [] triple = {new Integer(id), layer.getId(), layer.getTitle()};
-                layerList.add(triple);
-                
-                if (layer.getLayers() != null) {
-                    walkThroughLayers(layer.getLayers(), id);
-                }
-            }
-        }
-        id--;
-    }
-    /*
-    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
-        super.createLists(form, request);
-        
-        List organizationlist = getHibernateSession().createQuery("from Organization").list();
-        request.setAttribute("organizationlist", organizationlist);
-        
-        List layerlist = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
-        HttpSession session = request.getSession();
-        session.setAttribute("layerlist", layerlist);
-        //request.setAttribute();
-    }
-    /*
-    private void createList(HttpServletRequest request) {
-        //User user = request.getUserPrincipal().getName();
-        
-//        Session sess = getHibernateSession();
-//        User user = (User)(sess.createQuery("from User as u where u.username = :name").setString("name", request.getUserPrincipal().getName()).uniqueResult());
-//        System.out.println(user.getFirstName() + user.getLastName());
-
-        //query maken die alle layers van alle wms servers in een keer ophaalt.
-        //Wel alvast nadenken over hoe dit straks in combinatie met gebruikersrechten gedaan moet worden.
-        //List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
-        //Iterator i = serviceproviderlist.iterator();
-        //while(i.hasNext()) {
-//            ServiceProvider sp = (ServiceProvider)i.next();
-//            walkThroughLayers(sp.getLayers());            
-//        }
-        
-        //Session sess;
-        //sess.
-        
-    }
-    */
-    private static final Log log = LogFactory.getLog(MapviewerAction.class);
-    private static void printLayer(Layer l, int depth) {
-        String s = "";
-        for (int i = 0; i < depth; i++) {
-            s += "- ";
-        }
-         log.debug(s + ": " + l.getTitle());
-         for (Iterator it = l.getLayers().iterator(); it.hasNext();) {
-             Layer elem = (Layer) it.next();
-             printLayer(elem, depth+1);
-             
-         }
-    }
-    
+    /** Creates a list with the available layers.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
         //createList(request);
-      /*  List splist = getHibernateSession().createQuery(
-                "SELECT DISTINCT l.id, l.Parent.id, layer.serviceProvider.id, l.title " + 
-                "FROM Layer" + 
+        /*  List splist = getHibernateSession().createQuery(
+                "SELECT DISTINCT l.id, l.Parent.id, layer.serviceProvider.id, l.title " +
+                "FROM Layer" +
                 "ServiceProvider AS sp").list();
         */
         
-/*--------------------------------------  
+        /*--------------------------------------
         List layers = getHibernateSession().createQuery(
                 "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
-        
+ 
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp left join fetch sp.contactInformation").list();
-
+ 
         Map layerSublayers = new HashMap();
         Map serviceProviderToLayersMap = new HashMap();
         for (Iterator it = layers.iterator(); it.hasNext();) {
@@ -212,23 +149,23 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                 sp.setLayers(new HashSet(serviceProviderLayers));
             }
         }
-        
+ 
         //Layer l = (Layer)getHibernateSession().load(Layer.class, new Integer(15));
         //printLayer(l, 0);
-        
-
+ 
+ 
         for (Iterator it = serviceProviders.iterator(); it.hasNext();) {
             ServiceProvider elem = (ServiceProvider) it.next();
-            LogFactory.getLog(MapviewerAction.class).debug("Service provider " + elem.getName()); 
+            LogFactory.getLog(MapviewerAction.class).debug("Service provider " + elem.getName());
             for (Iterator it2 = elem.getLayers().iterator(); it2.hasNext();) {
                 printLayer((Layer)it2.next(),0);
             }
         }
-        
-        
+ 
+ 
         /*
         List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
-        
+ 
         id = 0;
         for (Iterator it = serviceproviderlist.iterator(); it.hasNext();) {
             ServiceProvider sp = (ServiceProvider) it.next();
@@ -236,7 +173,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             walkThroughLayers(layers, id);
             id++;
         }
-        
+ 
         serviceproviderlist = null;
         */
         
@@ -246,30 +183,30 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator i = serviceproviderlist.iterator();
         while(i.hasNext()) {
             ServiceProvider sp = (ServiceProvider)i.next();
-            walkThroughLayers(sp.getLayers());            
+            walkThroughLayers(sp.getLayers());
         }
          **/
         /*
         for (Iterator it = layerList.iterator(); it.hasNext();) {
             //Object [] layerInfo = {layer.getId(), layer.getTitle()};
             //Object [] tuple = {new Integer(id), layerInfo};
-            
+         
             Object [] tuple = (Object[])it.next();
             Integer levelid = (Integer)tuple[0];
-            
+         
             Object [] layerInfo = (Object[])tuple[1];
             Integer layerid = (Integer)layerInfo[0];
             String layerTitle = (String)layerInfo[1];
-            
-            
+         
+         
             //Object [] set = (Object[])it.next();
             //System.out.println((Integer)set[0]);
             //Layer l = (Layer)set[1];
             System.out.println("Level id : " + levelid);
             System.out.println("Layer id : " + layerid);
             System.out.println("Layer title : " + layerTitle);
-        } 
-        */
+        }
+         */
         
         //Hieronder is een tijdelijk stukje code om te testen of het systeem uberhaupt goed werkt.
         //super.createLists(form, request);
@@ -286,16 +223,33 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         
         session.setAttribute("layerList", layerList);//List);
         
-                
+        
     }
+    // </editor-fold>
     
+    // TODO: de onderstaande methode heet delete en is alleen zo genoemd omdat deze door bovenliggende klasse
+    // ondersteunt wordt. Deze naamgeving komt dus helemaal niet overeen met wat de klasse doet. De naam van
+    // deze klasse moet dan nog zeker even aangepast worden!!!
+    
+    /** Method that checks layers are selected and looks if these layers can be found in the whole list of layers from the database.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         System.out.println("checkpoint 1");
         String [] selectedLayers = dynaForm.getStrings("selectedLayers");
         int size = selectedLayers.length;
         HttpSession session = request.getSession();
         List layerList = (ArrayList)session.getAttribute("layerList");
-        ArrayList maps = new ArrayList();
+        ArrayList <String> maps = new ArrayList <String>();
         for(int i = 0; i < size; i++) {
             System.out.println("checkpoint 2");
             Integer id = Integer.parseInt(selectedLayers[i]);
@@ -310,12 +264,65 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         request.setAttribute("maps", maps);
         return mapping.findForward(SUCCESS);
     }
+    // </editor-fold>
     
-    
-
+    /** Method which walks through a set of layers.
+     *
+     * @param layers A set of layers where has to be stepped through.
+     * @param id Integer of the id the walkthrough has to begin from.
+     */
+    // <editor-fold defaultstate="collapsed" desc="walkThroughLayers(Set layers, int id) method.">
+    public void walkThroughLayers(Set <Layer> layers, int id) {
+        id++;
+        
+        for (Iterator it = layers.iterator(); it.hasNext();) {
+            Layer layer = (Layer)it.next();
+            
+            if(layer != null) {
+                //Object [] layerInfo = {layer.getId(), layer.getTitle()};
+                Object [] triple = {new Integer(id), layer.getId(), layer.getTitle()};
+                layerList.add(triple);
+                
+                if (layer.getLayers() != null) {
+                    walkThroughLayers(layer.getLayers(), id);
+                }
+            }
+        }
+        id--;
+    }
+    // </editor-fold>
+        
+    /** Method which prints a specified layer at the right location of the screen.
+     *
+     * @param l Layer that has to be printed.
+     * @param depth Integer representing the depth of this specific layer in the tree.
+     */
+    // <editor-fold defaultstate="collapsed" desc="printLayer(Layer l, int depth) method.">
+    private static void printLayer(Layer l, int depth) {
+        String s = "";
+        for (int i = 0; i < depth; i++) {
+            s += "- ";
+        }
+        log.debug(s + ": " + l.getTitle());
+        for (Iterator it = l.getLayers().iterator(); it.hasNext();) {
+            Layer elem = (Layer) it.next();
+            printLayer(elem, depth+1);
+            
+        }
+    }
+    // </editor-fold>
+        
+    /** Method which adds a new handler to the hash table.
+     *
+     * @param l String representing the name of the layer that has to be found.
+     * @param layers List of layers in which the layer has to be found.
+     *
+     * @return a string representing the name of the layer that matched the search.
+     */
+    // <editor-fold defaultstate="collapsed" desc="findLayer(List layers, String l) method.">
     private String findLayer(List layers, String l) {
         String found = null;
-        if(null != layers) {            
+        if(null != layers) {
             Iterator it = layers.iterator();
             while (it.hasNext()) {
                 Layer layer = (Layer) it.next();
@@ -327,4 +334,5 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         }
         return found;
     }
+    // </editor-fold>
 }

@@ -1,10 +1,11 @@
-/*
- * Style.java
+/**
+ * @(#)Style.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 18 september 2006, 11:17
+ * Purpose: Bean representing a Style.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -18,19 +19,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class Style {
+public class Style implements XMLElement {
     
     private Integer id;
     private String name = "default";
     private String title;
     private String abstracts;
     private Layer layer;
-    private Set domainResource;
+    private Set <StyleDomainResource> domainResource;
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -67,13 +65,13 @@ public class Style {
         return domainResource;
     }
     
-    public void setDomainResource(Set domainResource) {
+    public void setDomainResource(Set <StyleDomainResource> domainResource) {
         this.domainResource = domainResource;
     }
     
     public void addDomainResource(StyleDomainResource dr) {
         if (null == domainResource) {
-            domainResource = new HashSet();
+            domainResource = new HashSet <StyleDomainResource>();
         }
         domainResource.add(dr);
         dr.setStyle(this);
@@ -86,7 +84,16 @@ public class Style {
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
+    // </editor-fold>
     
+    /** Method that will overwrite the URL's stored in the database with the URL specified for Kaartenbalie.
+     * This new URL indicate the link to the kaartenbalie, while the old link is used to indicate the URL
+     * to the real location of the service. Because the client which is connected to kaartenbalie has to send
+     * his requests back to kaartenbalie and not directly to the official resource, the URL has to be replaced.
+     *
+     * @param newUrl String representing the URL the old URL has to be replaced with.
+     */
+    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
         Iterator it;
         //StyleDomainResource:
@@ -98,7 +105,13 @@ public class Style {
             }
         }
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         Style cloneStyle            = new Style();
         if (null != this.id) {
@@ -114,7 +127,7 @@ public class Style {
             cloneStyle.abstracts        = new String(this.abstracts);
         }
         if (null != this.domainResource) {
-            cloneStyle.domainResource   = new HashSet();
+            cloneStyle.domainResource   = new HashSet <StyleDomainResource>();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 StyleDomainResource sdr = (StyleDomainResource)((StyleDomainResource)it.next()).clone();
@@ -124,28 +137,39 @@ public class Style {
         }
         return cloneStyle;
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
-        Element rootElement = doc.createElement("Style");
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
+        Element styleElement = doc.createElement("Style");
         if(null != this.getName()) {
-            Element element = doc.createElement("Name");
+            Element nameElement = doc.createElement("Name");
             Text text = doc.createTextNode(this.getName());
-            element.appendChild(text);
-            rootElement.appendChild(element);
+            nameElement.appendChild(text);
+            styleElement.appendChild(nameElement);
         }
         if(null != this.getTitle()) {
-            Element element = doc.createElement("Title");
+            Element titleElement = doc.createElement("Title");
             Text text = doc.createTextNode(this.getTitle());
-            element.appendChild(text);
-            rootElement.appendChild(element);
+            titleElement.appendChild(text);
+            styleElement.appendChild(titleElement);
         }
         if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
             Iterator it = this.getDomainResource().iterator();
             while (it.hasNext()) {
                 StyleDomainResource sdr = (StyleDomainResource)it.next();
-                rootElement.appendChild(sdr.toElement(doc));
+                sdr.toElement(doc, styleElement);
             }
         }
+        rootElement.appendChild(styleElement);
         return rootElement;
     }
+    // </editor-fold>
 }

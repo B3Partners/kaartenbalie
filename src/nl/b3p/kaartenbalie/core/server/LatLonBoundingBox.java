@@ -1,10 +1,11 @@
-/*
- * LatLonBoundingBox.java
+/**
+ * @(#)LatLonBoundingBox.java
+ * @author N. de Goeij
+ * @version 1.00 2006/10/11
  *
- * Created on 11 oktober 2006, 16:39
+ * Purpose: Bean representing a LatLonBoundingBox.
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.core.server;
@@ -13,11 +14,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- *
- * @author Nando De Goeij
- */
-public class LatLonBoundingBox {
+public class LatLonBoundingBox implements XMLElement {
     
     private Integer id;
     private String minx;
@@ -26,6 +23,7 @@ public class LatLonBoundingBox {
     private String maxy;
     private Layer layer;
     
+    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -73,7 +71,13 @@ public class LatLonBoundingBox {
     public void setLayer(Layer layer) {
         this.layer = layer;
     }
+    // </editor-fold>
     
+    /** Method that will create a deep copy of this object.
+     *
+     * @return an object of type Object
+     */
+    // <editor-fold defaultstate="collapsed" desc="clone() method">
     public Object clone() {
         LatLonBoundingBox cloneLlbb = new LatLonBoundingBox();
         if (null != this.id) {
@@ -93,17 +97,27 @@ public class LatLonBoundingBox {
         }
         return cloneLlbb;
     }
+    // </editor-fold>
     
-    public Element toElement(Document doc) {
+    /** Method that will create piece of the XML tree to create a proper XML docuement.
+     *
+     * @param doc Document object which is being used to create new Elements
+     * @param rootElement The element where this object belongs to.
+     *
+     * @return an object of type Element
+     */
+    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    public Element toElement(Document doc, Element rootElement) {
         
-        Element rootElement = doc.createElement("LatLonBoundingBox");
+        Element latLonElement = doc.createElement("LatLonBoundingBox");
         
-        rootElement.setAttribute("minx", this.getMinx());
-        rootElement.setAttribute("miny", this.getMiny());
-        rootElement.setAttribute("maxx", this.getMaxx());
-        rootElement.setAttribute("maxy", this.getMaxy());
+        latLonElement.setAttribute("minx", this.getMinx());
+        latLonElement.setAttribute("miny", this.getMiny());
+        latLonElement.setAttribute("maxx", this.getMaxx());
+        latLonElement.setAttribute("maxy", this.getMaxy());
         
+        rootElement.appendChild(latLonElement);
         return rootElement;
     }
-    
+    // </editor-fold>
 }

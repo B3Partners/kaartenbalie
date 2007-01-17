@@ -1,7 +1,11 @@
-/*
- * KaartenbalieCrudAction.java
+/**
+ * @(#)KaartenbalieCrudAction.java
+ * @author R. Braam
+ * @version 1.00 2006/09/08
  *
- * Created on 8 september 2006, 10:28
+ * Purpose: a class handling the different actions which come from classes extending this class.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -19,18 +23,32 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-/**
- *
- * @author Roy
- */
 public class KaartenbalieCrudAction extends CrudAction{
     
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     
+    /** Protected method which returns the current Hibernate session.
+     *
+     * @return the current Hibernate Session
+     */
+    // <editor-fold defaultstate="collapsed" desc="getHibernateSession() method.">
     protected Session getHibernateSession() {
         return MyDatabase.currentSession();
     }
+    // </editor-fold>
     
+    /** Execute method which handles all incoming request.
+     *
+     * @param mapping action mapping
+     * @param dynaForm dyna validator form
+     * @param request servlet request
+     * @param response servlet response
+     *
+     * @return ActionForward defined by Apache foundation
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         
@@ -63,4 +81,5 @@ public class KaartenbalieCrudAction extends CrudAction{
         }
         return getAlternateForward(mapping, request);
     }
+    // </editor-fold>
 }
