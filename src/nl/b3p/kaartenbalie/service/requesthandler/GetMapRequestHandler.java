@@ -120,7 +120,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 spUrl.append("=");
                 spUrl.append((String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0]);
             }
-            
             urls[counter] = spUrl;
             counter++;
         }

@@ -98,7 +98,6 @@ public class UserAction extends KaartenbalieCrudAction {
                     "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
             return org;
         } catch(Exception e){
-            System.out.println("Exception is : " + e);
             return org;
         }
         

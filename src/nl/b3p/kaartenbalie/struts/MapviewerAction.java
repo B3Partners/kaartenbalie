@@ -244,21 +244,17 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        System.out.println("checkpoint 1");
         String [] selectedLayers = dynaForm.getStrings("selectedLayers");
         int size = selectedLayers.length;
         HttpSession session = request.getSession();
         List layerList = (ArrayList)session.getAttribute("layerList");
         ArrayList <String> maps = new ArrayList <String>();
         for(int i = 0; i < size; i++) {
-            System.out.println("checkpoint 2");
             Integer id = Integer.parseInt(selectedLayers[i]);
             String foundLayer = findLayer(layerList, id.toString());
             
             if(foundLayer != null) {
-                System.out.println("checkpoint 3");
                 maps.add(foundLayer);
-                System.out.println("Foundlayer = " + foundLayer);
             }
         }
         request.setAttribute("maps", maps);

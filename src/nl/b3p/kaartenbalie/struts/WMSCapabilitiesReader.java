@@ -83,7 +83,6 @@ public class WMSCapabilitiesReader {
     // <editor-fold defaultstate="collapsed" desc="WMSCapabilitiesReader(ServiceProvider serviceProvider) constructor.">
     public WMSCapabilitiesReader(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
-        System.out.println(serviceProvider.getName());
         this.setElementHandlers();
     }
     // </editor-fold>

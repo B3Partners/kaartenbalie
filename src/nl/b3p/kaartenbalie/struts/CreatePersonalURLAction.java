@@ -103,7 +103,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 user.SetRegisteredIP(registeredIP);
                 user.setPersonalURL(personalURL);
                 user.setTimeout(timeout);
-                System.out.println(personalURL);
             } catch (NoSuchAlgorithmException ns) {
                 ns.printStackTrace();
             }

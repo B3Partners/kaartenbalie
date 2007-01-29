@@ -16,6 +16,9 @@
 
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.imageio.ImageIO;
 import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
@@ -163,15 +167,90 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected static byte[] getOnlineData(StringBuffer [] urls) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
-        for (int i = 0; i < urls.length; i++) {
+        //TODO:
+        // De urls.length geeft aan hoeveel urls er tijdens het request gevormd zijn. Met behulp van deze urls en een kleine
+        // check of deze urls ook allemaal een waarde bevatten, kan er gecontroleerd worden er een image decoder en re-encoder
+        // op de images losgelaten moet worden waarbij de images samengevoegd worden tot een image.
+        BufferedImage [] bi = null;
+        
+        if (urls.length > 1) {
+            bi = new BufferedImage [urls.length];
+            for (int i = 0; i < urls.length; i++) {
+                if (urls[i] != null) {
+                    String url = urls[i].toString();
+                    System.out.println(url);
+                    URL u = new URL(url);
+                    bi[i] = ImageIO.read(u);
+                }
+            }
             
+            Graphics2D g = bi[0].createGraphics();
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            
+            for (int i = 1; i < urls.length; i++) {
+                if(bi[i] != null) {
+                    g.drawImage(bi[i], (bi[i-1].getWidth()-bi[i].getWidth())/2, (bi[i-1].getHeight()-bi[i].getHeight())/2, null);
+                }
+            }
+            g.dispose();
+            ImageIO.write(bi[0], "gif", baos);
+        } else {
+            String url = urls[0].toString();
+            
+            /*
+             * if the url has layers defined, the url should be executed and
+             * the information should be retreieved from the different providers
+             * through a http connection
+             */
+            URL u = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) u.openConnection();
+            
+            BufferedInputStream bis = null;
+            try {
+                bis = new BufferedInputStream(con.getInputStream());
+                
+                int read;
+                byte[] buffer = new byte[8192];
+                
+                while ((read = bis.read()) > -1) {
+                    baos.write(read);
+                }
+            } finally {
+                if (bis!=null)
+                    bis.close();
+            }
+        }
+        return baos.toByteArray();
+        
+        
+        
+        
+        
+        
+        /*
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
+        //TODO:
+        // De urls.length geeft aan hoeveel urls er tijdens het request gevormd zijn. Met behulp van deze urls en een kleine
+        // check of deze urls ook allemaal een waarde bevatten, kan er gecontroleerd worden er een image decoder en re-encoder
+        // op de images losgelaten moet worden waarbij de images samengevoegd worden tot een image.
+        
+        // Een tweede punt waar op gelet moet worden
+        
+        for (int i = 0; i < urls.length; i++) {
+            if (null == urls[i]) {
+                System.out.println("The url is empty");
+            }
             if (null != urls[i]) {
                 String url = urls[i].toString();
+                
+                System.out.println("The url for the request is :" + url);
                 
                 /*
                  * A small check to found out wether the given url has any layers at all.
                  * If not, then the url should not be executed.
                  */
+        /*
                 if (url.indexOf(WMS_PARAM_LAYERS)==-1) {
                     continue;
                 }
@@ -181,7 +260,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                  * the information should be retreieved from the different providers
                  * through a http connection
                  */                
-                URL u = new URL(url);
+       /*         URL u = new URL(url);
                 HttpURLConnection con = (HttpURLConnection) u.openConnection();
                 
                 BufferedInputStream bis = null;
@@ -200,7 +279,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
             }
         }
-        return baos.toByteArray();
+        return baos.toByteArray();*/
     }
     // </editor-fold>
     

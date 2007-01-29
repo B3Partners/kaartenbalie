@@ -79,7 +79,6 @@ public class Switcher implements ContentHandler {
         if (handler!=null) {
             handler.characters(ch, start, length);
             String s = new String(ch, start, length);
-            System.out.println("caharacters : " + s);
         }
     }
     // </editor-fold>
