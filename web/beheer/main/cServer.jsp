@@ -136,41 +136,11 @@ window.onload = function() { stripedTable(); }
             </TR>
             </THEAD>
             <TBODY class=scrollContent>
-            <TR><TD>Foutmeldingen</TD></TR>
-            <TR><TD>Error code 21: fout in bestand.... bla bla bla</TD></TR>
-            <TR><TD>Gevonden locaties in de buurt:</TD></TR>
-            <TR><TD>Locatie 1: buurtsuper</TD></TR>
-            <TR><TD>Locatie 2: bouwput</TD></TR>
-            <TR><TD>Gebruiker 'nando' bestaat al</TD></TR>
-            <TR><TD>Ongeldig postcode/adres gegeven</TD></TR>
-            <TR><TD>Gebruiker 'nando' opgeslagen in het system</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
-            <TR><TD>Nando</TD></TR>
+                <TR><TD></TD></TR>
             </TBODY>
         </TABLE>
     </DIV>
     </td>
-    <td>comments</td>
     </tr>
 </table>
 </html:form>

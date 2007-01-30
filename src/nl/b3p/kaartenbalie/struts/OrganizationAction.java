@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.service.MyDatabase;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -29,6 +30,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class OrganizationAction extends KaartenbalieCrudAction {
     
@@ -53,6 +55,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         Organization organization = this.getOrganization(dynaForm, request, false, id);
         
         if (null != organization) {
+            Set l = organization.getOrganizationLayer();
+            
+            Object [] organizationLayer = l.toArray();            
+            String [] layerid = new String[l.size()];
+            
+            for (int i = 0; i < organizationLayer.length; i++) {
+                layerid [i] = ((Layer)organizationLayer[i]).getId().toString();
+            }
+            
+            dynaForm.set("layerSelected", layerid);
             this.populateOrganizationForm(organization, dynaForm, request);
         }
         return super.unspecified(mapping, dynaForm, request, response);
@@ -230,6 +242,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationVisitorsAddress", "");
         dynaForm.set("organizationTelephone", "");
         dynaForm.set("organizationFax", ""); 
+        dynaForm.set("layerSelected", null);
         
         return super.save(mapping,dynaForm,request,response);
     }
