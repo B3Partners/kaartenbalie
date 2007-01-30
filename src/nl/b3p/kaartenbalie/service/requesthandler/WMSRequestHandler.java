@@ -164,43 +164,52 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="collapsed" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static byte[] getOnlineData(StringBuffer [] urls) throws IOException {
+    protected static byte[] getOnlineData(ArrayList urls) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
-        //TODO:
-        // De urls.length geeft aan hoeveel urls er tijdens het request gevormd zijn. Met behulp van deze urls en een kleine
-        // check of deze urls ook allemaal een waarde bevatten, kan er gecontroleerd worden er een image decoder en re-encoder
-        // op de images losgelaten moet worden waarbij de images samengevoegd worden tot een image.
         BufferedImage [] bi = null;
         
-        if (urls.length > 1) {
-            bi = new BufferedImage [urls.length];
-            for (int i = 0; i < urls.length; i++) {
-                if (urls[i] != null) {
-                    String url = urls[i].toString();
-                    System.out.println(url);
-                    URL u = new URL(url);
-                    bi[i] = ImageIO.read(u);
-                }
+        /* To save time, this method checks first if the ArrayList contains more then one url
+         * If it contains only one url then the method doesn't have to load the image into the G2D
+         * environment, which saves a lot of time and capacity because it doesn't have to decode
+         * and recode the image.
+         */
+        if (urls.size() > 1) {
+            bi = new BufferedImage [urls.size()];
+            
+            /* For each url in the ArrayList a new BufferedImage is created in order to lay those
+             * images over eachother and combine them into one image
+             */            
+            for (int i = 0; i < urls.size(); i++) {
+                String url = ((StringBuffer)urls.get(i)).toString();
+                URL u = new URL(url);
+                bi[i] = ImageIO.read(u);
             }
             
+            /* After creating the BufferedImages, a Graphics 2D environment is set up in which the images
+             * can be projected over eachother.
+             * An AlphaComposite.SRC_OVER, 1.0f is used to let transparent parts of the tops layers be totally transparent.
+             */
             Graphics2D g = bi[0].createGraphics();
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
             
-            for (int i = 1; i < urls.length; i++) {
+            /* Each of the layers recieved from a different url is projected on top of the previous layers
+             * NOTICE that a new image is projected over the previous images. So we start with BufferedImage 0
+             * project image 1 over it, etc, etc.
+             */
+            for (int i = 1; i < urls.size(); i++) {
                 if(bi[i] != null) {
                     g.drawImage(bi[i], (bi[i-1].getWidth()-bi[i].getWidth())/2, (bi[i-1].getHeight()-bi[i].getHeight())/2, null);
                 }
             }
+            
             g.dispose();
             ImageIO.write(bi[0], "png", baos);
         } else {
-            String url = urls[0].toString();
+            String url = ((StringBuffer)urls.get(0)).toString();
             
             /*
-             * if the url has layers defined, the url should be executed and
-             * the information should be retreieved from the different providers
-             * through a http connection
+             * Because only one url is defined, the images don't have to be loaded into a
+             * BufferedImage. The data recieved from the url can be directly transported to the client.
              */
             URL u = new URL(url);
             HttpURLConnection con = (HttpURLConnection) u.openConnection();
@@ -208,10 +217,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             BufferedInputStream bis = null;
             try {
                 bis = new BufferedInputStream(con.getInputStream());
-                
-                int read;
                 byte[] buffer = new byte[8192];
-                
+                int read;
                 while ((read = bis.read()) > -1) {
                     baos.write(read);
                 }
@@ -221,65 +228,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
         return baos.toByteArray();
-        
-        
-        
-        
-        
-        
-        /*
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
-        //TODO:
-        // De urls.length geeft aan hoeveel urls er tijdens het request gevormd zijn. Met behulp van deze urls en een kleine
-        // check of deze urls ook allemaal een waarde bevatten, kan er gecontroleerd worden er een image decoder en re-encoder
-        // op de images losgelaten moet worden waarbij de images samengevoegd worden tot een image.
-        
-        // Een tweede punt waar op gelet moet worden
-        
-        for (int i = 0; i < urls.length; i++) {
-            if (null == urls[i]) {
-                System.out.println("The url is empty");
-            }
-            if (null != urls[i]) {
-                String url = urls[i].toString();
-                
-                System.out.println("The url for the request is :" + url);
-                
-                /*
-                 * A small check to found out wether the given url has any layers at all.
-                 * If not, then the url should not be executed.
-                 */
-        /*
-                if (url.indexOf(WMS_PARAM_LAYERS)==-1) {
-                    continue;
-                }
-                
-                /*
-                 * if the url has layers defined, the url should be executed and
-                 * the information should be retreieved from the different providers
-                 * through a http connection
-                 */                
-       /*         URL u = new URL(url);
-                HttpURLConnection con = (HttpURLConnection) u.openConnection();
-                
-                BufferedInputStream bis = null;
-                try {
-                    bis = new BufferedInputStream(con.getInputStream());
-                    
-                    int read;
-                    byte[] buffer = new byte[8192];
-                    
-                    while ((read = bis.read()) > -1) {
-                        baos.write(read);
-                    }
-                } finally {
-                    if (bis!=null)
-                        bis.close();
-                }
-            }
-        }
-        return baos.toByteArray();*/
     }
     // </editor-fold>
     

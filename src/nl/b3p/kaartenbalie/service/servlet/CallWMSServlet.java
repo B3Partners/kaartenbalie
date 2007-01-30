@@ -272,6 +272,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         if (!SUPPORTED_REQUESTS.contains(givenRequest))
             throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
         
+        /*
         String givenService = ((String[]) parameters.get(WMS_SERVICE))[0];
         if (!SUPPORTED_SERVICES.contains(givenService))
             throw new UnsupportedOperationException("Service '" + givenService + "' not supported!");
@@ -279,6 +280,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String givenVersion = ((String[]) parameters.get(WMS_VERSION))[0];
         if (!SUPPORTED_VERSIONS.contains(givenVersion))
             throw new UnsupportedOperationException("Version '" + givenVersion + "' not supported!");
+        */
         
         RequestHandler requestHandler = null;
         List reqParams = null;

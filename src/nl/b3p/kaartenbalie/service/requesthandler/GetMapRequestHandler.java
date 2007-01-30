@@ -46,8 +46,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         }
         
 //        ArrayList urls = new ArrayList();
-        int counter = 0;
-        StringBuffer [] urls = new StringBuffer[tempSP.size()];
+        //int counter = 0;
+        //StringBuffer [] urls = new StringBuffer[tempSP.size()];
+        //StringBuffer [] urls = null;
+        
+        ArrayList urls = new ArrayList();
         
         Iterator it = tempSP.iterator();
         while (it.hasNext()) {
@@ -120,9 +123,16 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 spUrl.append("=");
                 spUrl.append((String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0]);
             }
-            urls[counter] = spUrl;
-            counter++;
+            
+            urls.add(spUrl);
         }
+//        urls = new StringBuffer[tempList.size()];
+        
+//        for (int counter = 0; counter < tempList.size(); counter++) {
+//            urls[counter] = (StringBuffer)tempList.get(counter);
+//        }
+            //counter++;
+        //return getOnlineData(urls);
         return getOnlineData(urls);
         //return getOnlineData((StringBuffer[])urls.toArray(url));
     }

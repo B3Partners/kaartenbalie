@@ -76,7 +76,7 @@ public interface KBConstants {
     });
     
     public static final List PARAMS_GetMap = Arrays.asList(new String[] {
-        WMS_REQUEST_GetMap,
+        WMS_REQUEST,
         WMS_VERSION,
         WMS_PARAM_LAYERS,
         WMS_PARAM_STYLES,

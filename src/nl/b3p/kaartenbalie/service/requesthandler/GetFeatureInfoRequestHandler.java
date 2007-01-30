@@ -104,7 +104,10 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         }
         
         StringBuffer [] url = null;
-        return getOnlineData((StringBuffer[])urls.toArray(url));
+        ArrayList tempList = new ArrayList();
+        //return getOnlineData((StringBuffer[])urls.toArray(url));
+        return getOnlineData(tempList);
+
     }
     // </editor-fold>
 }
