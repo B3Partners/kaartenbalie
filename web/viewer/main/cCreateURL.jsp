@@ -16,6 +16,21 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
+   
+<html:link href="calendar-brown" title="summer" />
+
+<!-- main calendar program -->
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar.js' module='' />"></script>
+
+<!-- language for the calendar -->
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-en.js' module='' />"></script>
+
+<!-- the following script defines the Calendar.setup helper function, which makes
+   adding a calendar a matter of 1 or 2 lines of code. -->
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"></script>
+
+<link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
+
 <body>
     <H1>Persoonlijke URL cre&euml;ren</H1>
 <table>
@@ -29,8 +44,26 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <td><html:password property="password" /></td>
         </tr>
         <tr>
-        <td>Gewenste timeout:</td>
-        <td><html:text property="timeout"/></td>
+            <td>Gewenste timeout:</td>
+            <td><html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
+                <img src="<html:rewrite page='/viewer/images/calendar_image.gif' module='' />" id="cal-button"
+                     style="cursor: pointer; border: 1px solid red;" 
+                     title="Date selector"
+                     onmouseover="this.style.background='red';" 
+                     onmouseout="this.style.background=''" />
+                <script type="text/javascript">
+                    Calendar.setup({
+                      inputField        : "cal_date",
+                      button            : "cal-button",
+                      align             : "Tr",
+                      singleClick       : true
+                    });
+                    
+                     var myDate = new Date();
+                     myDate.setDate(myDate.getDate()+7);
+                     Calendar.setDate(myDate);
+                </script>
+            </td>
         </tr>
         <tr>
         <td>Geregisteerd IP adres:</td> 

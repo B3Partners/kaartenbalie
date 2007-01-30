@@ -193,7 +193,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
             }
             g.dispose();
-            ImageIO.write(bi[0], "gif", baos);
+            ImageIO.write(bi[0], "png", baos);
         } else {
             String url = urls[0].toString();
             

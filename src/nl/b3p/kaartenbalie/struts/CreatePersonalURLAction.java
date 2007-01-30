@@ -11,6 +11,10 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -95,14 +99,27 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         if (null != user) {
             try {
-                String toBeHashedString = registeredIP + username + password;
+                Date date = null;
+                DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+                try {
+                    // Parse with a custom format
+                    date = df.parse(timeout);
+                    System.out.println("De opgegeven datum is : " + date.toString());
+                } catch(ParseException e) {
+                    System.out.println("Unable to parse " + date);
+                }
+                
+                String toBeHashedString = registeredIP + username + password + df.format(date);
+                System.out.println("String to be hashed in create Personal URL is : " + toBeHashedString);
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(toBeHashedString.getBytes("8859_1"));
                 BigInteger hash = new BigInteger(1, md.digest());
                 personalURL = sb.toString() + hash.toString( 16 );
                 user.SetRegisteredIP(registeredIP);
                 user.setPersonalURL(personalURL);
-                user.setTimeout(timeout);
+                user.setTimeout(date);
+                // Format with a custom format
+                
             } catch (NoSuchAlgorithmException ns) {
                 ns.printStackTrace();
             }

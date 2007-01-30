@@ -123,7 +123,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             urls[counter] = spUrl;
             counter++;
         }
-        
         return getOnlineData(urls);
         //return getOnlineData((StringBuffer[])urls.toArray(url));
     }

@@ -13,6 +13,10 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
 import java.io.*;
@@ -76,6 +80,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         User user = null;
         byte[] data = null;
         OutputStream sos = null;
+        
+        String tempurl = request.getRequestURL().toString();
+        System.out.println("The incoming url is : " + tempurl);
         
         try {
             long secondMeasurement = System.currentTimeMillis();
@@ -184,18 +191,35 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     .setParameter("personalURL", request.getRequestURL().toString())
                     .uniqueResult();
             } finally {
-            tx.commit();
+                tx.commit();
             }
+            
             if (user!=null) {
+                Date date = user.getTimeout();
+                
+                if (date.compareTo(new Date()) <= 0) {
+                    System.out.println("The date for your personal URL has expired");
+                    return null;
+                } else {
+                    System.out.println("The date for your personal URL is still ok");
+                }
+                
+                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+                // Parse with a custom format
+                String personalDate = df.format(date);
+                System.out.println("De opgegeven datum is : " + date.toString());
+                                
                 // bereken token voor deze user
                  String token = calcToken(
                          request.getRemoteAddr(), 
                          user.getUsername(), 
-                         user.getPassword());
+                         user.getPassword(), 
+                         personalDate);
                 
                 // bereken token in url
                 String pathInfo = request.getPathInfo();
                 String urlToken = pathInfo.substring(1);
+                
                 
                 if (!urlToken.equals(token)) {
                     // ongeldig token!
@@ -219,11 +243,15 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws UnsupportedEncodingException
      */
     // <editor-fold defaultstate="collapsed" desc="calcToken(String registeredIP, String username, String password) method.">
-    private String calcToken(String registeredIP, String username, String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String toBeHashedString = registeredIP + username + password;
+    private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        String toBeHashedString = registeredIP + username + password + personalDate;
+        System.out.println("String to be hashed in CallWMS is  : " + toBeHashedString);
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(toBeHashedString.getBytes("8859_1")); // UTF-8 ???
         BigInteger hash = new BigInteger(1, md.digest());
+        
+        
+        System.out.println("Personal URL in CallWMSServlet: " + hash.toString( 16 ));
         return hash.toString( 16 );
     }
     // </editor-fold>

@@ -11,6 +11,7 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.security.Principal;
+import java.util.Date;
 
 public class User implements Principal {
     
@@ -23,7 +24,7 @@ public class User implements Principal {
     private String role;
     private String personalURL;
     private String registeredIP;
-    private String timeout;
+    private Date timeout;
     private Organization organization;
     
     // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
@@ -112,11 +113,11 @@ public class User implements Principal {
         this.registeredIP = registeredIP;
     }
 
-    public String getTimeout() {
+    public Date getTimeout() {
         return timeout;
     }
 
-    public void setTimeout(String timeout) {
+    public void setTimeout(Date timeout) {
         this.timeout = timeout;
     }
     // </editor-fold>

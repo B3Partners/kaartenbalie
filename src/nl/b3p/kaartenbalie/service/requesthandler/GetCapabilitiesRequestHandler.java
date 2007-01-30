@@ -110,6 +110,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             } catch (ParserConfigurationException ex) {
                 ex.printStackTrace();
             }
+        System.out.println(output.toString());
         return getOnlineData(output.toString());
     }
     // </editor-fold>
