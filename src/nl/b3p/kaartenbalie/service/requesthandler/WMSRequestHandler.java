@@ -17,10 +17,16 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -176,34 +182,85 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (urls.size() > 1) {
             bi = new BufferedImage [urls.size()];
             
-            /* For each url in the ArrayList a new BufferedImage is created in order to lay those
-             * images over eachother and combine them into one image
-             */            
             for (int i = 0; i < urls.size(); i++) {
                 String url = ((StringBuffer)urls.get(i)).toString();
                 URL u = new URL(url);
                 bi[i] = ImageIO.read(u);
             }
             
+            Frame f = new Frame();
+            f.setVisible(true);
+            Image image = f.createImage(bi[0].getWidth(), bi[0].getHeight());
+            Graphics graphics = image.getGraphics();
+            f.setVisible(false);
+            Graphics2D g2 = (Graphics2D) graphics;
+            
+            BufferedImage buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D gbi = buffImg.createGraphics();
+
+            // Clears the previously drawn image.
+            g2.setColor(Color.white);
+            g2.fillRect(0, 0, bi[0].getWidth(), bi[0].getHeight());
+
+            gbi.drawImage(bi[0], 0, 0, null);
+            gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
+            
+            for (int i = 1; i < urls.size(); i++) {
+                gbi.drawImage(bi[i], 0, 0, null);
+            }
+
+            ImageIO.write(buffImg, "png", baos);
+            
+            
+            
+            /* For each url in the ArrayList a new BufferedImage is created in order to lay those
+             * images over eachother and combine them into one image
+             *            
+            for (int i = 0; i < urls.size(); i++) {
+                String url = ((StringBuffer)urls.get(i)).toString();
+                URL u = new URL(url);
+                bi[i] = ImageIO.read(u);
+                ByteArrayOutputStream baosTest = new ByteArrayOutputStream();
+                ImageIO.write(bi[i], "png", baosTest);
+                byte [] byteTest = baosTest.toByteArray();
+                String test = new String (byteTest);
+                System.out.println("New incoming picture converted to a byte Array. Size of the incoming pictute is : " + test.length());
+            }
+            //Test of the incoming pictures.....
+            
+            
+                    
             /* After creating the BufferedImages, a Graphics 2D environment is set up in which the images
              * can be projected over eachother.
              * An AlphaComposite.SRC_OVER, 1.0f is used to let transparent parts of the tops layers be totally transparent.
-             */
+             *
             Graphics2D g = bi[0].createGraphics();
+            
+            bi[0].isAlphaPremultiplied();
+            
+            AlphaComposite ac = (AlphaComposite) g.getComposite();
+            ac.getAlpha();
+            
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
             
             /* Each of the layers recieved from a different url is projected on top of the previous layers
              * NOTICE that a new image is projected over the previous images. So we start with BufferedImage 0
              * project image 1 over it, etc, etc.
-             */
+             *
             for (int i = 1; i < urls.size(); i++) {
                 if(bi[i] != null) {
                     g.drawImage(bi[i], (bi[i-1].getWidth()-bi[i].getWidth())/2, (bi[i-1].getHeight()-bi[i].getHeight())/2, null);
+                    
                 }
             }
             
+            Component c = new Component();
+            
+            Graphics2D g2d = bi[0].createGraphics();
+            g2d.create();
             g.dispose();
             ImageIO.write(bi[0], "png", baos);
+            ImageIO.write(bi[0], "png", new File("test.png"));//(bi[0], "png", baos); */
         } else {
             String url = ((StringBuffer)urls.get(0)).toString();
             
@@ -289,6 +346,26 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return requestedLayers.toString();
     }
     // </editor-fold>
+    
+    
+    
+    protected String findLayer(String layerToBeFound, Set layers) {
+        if (layers==null || layers.isEmpty())
+            return null;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            String identity = layer.getId() + "_" + layer.getName();
+            if(identity.equalsIgnoreCase(layerToBeFound))
+                return layer.getName();
+            
+            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
+            if (foundLayer != null)
+                return foundLayer;
+        }        
+        return null;
+    }    
     
     /** Checks wether a post or get url is available for an incomming request.
      * @param serviceProvider ServiceProvider to which the request belongs

@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
 import java.io.*;
@@ -81,8 +82,22 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         byte[] data = null;
         OutputStream sos = null;
         
+        //Test case
         String tempurl = request.getRequestURL().toString();
         System.out.println("The incoming url is : " + tempurl);
+        Enumeration enumeration = request.getParameterNames();
+        while (enumeration.hasMoreElements()) {
+            String paramName = (String)enumeration.nextElement();
+            String [] paramValues = request.getParameterValues(paramName);
+            String paramValue = "";
+            for (int i = 0; i < paramValues.length; i++) {
+                paramValue = paramValue + "/" + paramValues[i];
+            }
+            System.out.println("Parameter found: " + paramName + ". Value(s): " + paramValue + ".");
+        }
+        //end of Test case
+        
+        
         
         try {
             long secondMeasurement = System.currentTimeMillis();
@@ -115,36 +130,36 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 long eighthMeasurement = System.currentTimeMillis();
                 
                 /*-----------------------------------------------------------------------------------------------------------*/
-                System.out.println("Resultaten van verschillende metingen : ");
+//                System.out.println("Resultaten van verschillende metingen : ");
                 long elapsedTimeMillis = secondMeasurement - firstMeasurement;
                 long elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Kleine initialisatie : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Kleine initialisatie : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = thirdMeasurement - secondMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Gebruikersrechten test : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Gebruikersrechten test : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = fourthMeasurement - thirdMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Kopie van alle params : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Kopie van alle params : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = fifthMeasurement - fourthMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Het parsen van het request : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Het parsen van het request : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = sixthMeasurement - fifthMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Printout op scherm van data : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Printout op scherm van data : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = eighthMeasurement - seventhMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
                 elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
-                System.out.println("Doorvoer van gegevens naar client : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
+//                System.out.println("Doorvoer van gegevens naar client : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 
             } else {
