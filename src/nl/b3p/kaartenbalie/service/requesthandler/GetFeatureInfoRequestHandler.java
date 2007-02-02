@@ -27,6 +27,10 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     public GetFeatureInfoRequestHandler() {}
     // </editor-fold>
     
+    //TODO: De methode werkt nog niet juist omdat ze nog geen volledige URL's maakt.
+    //Dat wil zeggen dat de URL's nog niet aangevuld zijn met de parameters van de GetMap
+    //functie.
+    
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      * @param parameters Map parameters
@@ -36,77 +40,110 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      */
     // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
     public byte[] getRequest(Map <String, Object> parameters) throws IOException {
-        
+        /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
+        String previousUrl = "";
+        ArrayList urls = new ArrayList();
+        StringBuffer spUrl = null;
         
+        /* Get a list with ServiceProviders from the database */
         List tempSP = getServiceProviders(false);
-        if (tempSP==null)
+        if (tempSP == null) 
             return null;
         
-        ArrayList <StringBuffer []> urls = new ArrayList <StringBuffer []>();
+        /* Split the string with layers into a String array */
+        String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
         
-        Iterator it = tempSP.iterator();
-        while (it.hasNext()) {
-            ServiceProvider s = (ServiceProvider)it.next();
-            StringBuffer spUrl = null;
-            
-            //Lets first check if this ServiceProvider can provide us the asked layers
-            //otherwise it is not necessary at all to look further and ask for a lot of resources
-            String[] layer = (String[])parameters.get(WMS_PARAM_LAYERS);
-            String spls = calcFormattedLayers(s, layer);
-            if (spls==null)
-                continue;
-            
-            //Since some or all layers were found, we need to build up a string to become an url
-            //Find the beginning of the url which thise layers belong to
-            spUrl = calcRequestUrl(s, WMS_REQUEST_GetFeatureInfo);
-            if (spUrl==null)
-                continue;
-            
-            // toevoegen van andere parameters
-            spUrl.append(WMS_VERSION);
-            spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_VERSION));
-            spUrl.append("&");
-            spUrl.append(WMS_REQUEST);
-            spUrl.append("=");
-            spUrl.append(WMS_REQUEST_GetFeatureInfo);
-            spUrl.append("&");
-            spUrl.append(WMS_PARAM_QUERY_LAYERS);
-            spUrl.append("=");
-            spUrl.append(spls);
-            
-            String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
-            if(null != infoFormat) {
-                spUrl.append("&");
-                spUrl.append(WMS_PARAM_INFO_FORMAT);
-                spUrl.append("=");
-                spUrl.append(infoFormat);
+        //TODO: deze code moet verwijderd worden voor de oplevering
+        //Een klein stukje test code
+        /**/
+        int length = layers.length;
+        String [] reverseLayers = new String [length];
+        for (int i = length - 1; i >= 0; i--) {
+            reverseLayers[i] = layers[length - i - 1];
+        }        
+        layers = reverseLayers;
+        System.out.println("There are " + length + " layers selected.");
+        System.out.println("There are " + tempSP.size() + " service providers available.");
+        /**/
+        //Einde test
+        
+        
+        
+        /* Go through each layer and find the ServiceProvider this layer belongs to.
+         * If a ServiceProvider has been found there will be checked if the previous
+         * layer belonged to the same ServiceProvider. If yes then this layer is added
+         * up in the URL of the previous layer, otherwise a new URL if created and will
+         * be stored in the previous URL variable to let further layer do the same 
+         * check.
+         */
+        for (int i = 0; i < layers.length; i++) {
+            String layer = layers[i];
+            Iterator it = tempSP.iterator();
+            while (it.hasNext()) {
+                ServiceProvider serviceProvider = (ServiceProvider)it.next();
+                Set serviceProviderLayers = serviceProvider.getLayers();
+                String spls = findLayer(layer, serviceProviderLayers);
+                System.out.println("The service provider in progress is " + serviceProvider.getGivenName());
+                System.out.println("This layer has been found " + layer + ". And belongs to service provider " + spls);
+                if (spls != null) {
+                    spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
+                    
+                    if (spUrl == null) {
+                        continue;
+                    }
+                    
+                    if(previousUrl.equals(spUrl.toString())) {
+                        StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
+                        url.append("," + spls);
+                        urls.remove(urls.size() - 1);
+                        urls.add(url);                        
+                    } else {
+                        previousUrl = spUrl.toString();            
+                        spUrl.append(WMS_VERSION);
+                        spUrl.append("=");
+                        spUrl.append((String)parameters.get(WMS_VERSION));
+                        spUrl.append("&");
+                        spUrl.append(WMS_REQUEST);
+                        spUrl.append("=");
+                        spUrl.append(WMS_REQUEST_GetFeatureInfo);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_QUERY_LAYERS);
+                        spUrl.append("=");
+                        spUrl.append(spls);
+
+                        String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
+                        if(null != infoFormat) {
+                            spUrl.append("&");
+                            spUrl.append(WMS_PARAM_INFO_FORMAT);
+                            spUrl.append("=");
+                            spUrl.append(infoFormat);
+                        }
+
+                        String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+                        if (null != featureCount) {
+                            spUrl.append("&");
+                            spUrl.append(WMS_PARAM_FEATURECOUNT);
+                            spUrl.append("=");
+                            spUrl.append(featureCount);
+                        }
+
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_X);
+                        spUrl.append("=");
+                        spUrl.append((String)parameters.get(WMS_PARAM_X));
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_Y);
+                        spUrl.append("=");
+                        spUrl.append((String)parameters.get(WMS_PARAM_Y));
+                        
+                        urls.add(spUrl);
+                    }
+                }
             }
-            
-            String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
-            if (null != featureCount) {
-                spUrl.append("&");
-                spUrl.append(WMS_PARAM_FEATURECOUNT);
-                spUrl.append("=");
-                spUrl.append(featureCount);
-            }
-            
-            spUrl.append("&");
-            spUrl.append(WMS_PARAM_X);
-            spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_X));
-            spUrl.append("&");
-            spUrl.append(WMS_PARAM_Y);
-            spUrl.append("=");
-            spUrl.append((String)parameters.get(WMS_PARAM_Y));
         }
-        
-        StringBuffer [] url = null;
-        ArrayList tempList = new ArrayList();
-        //return getOnlineData((StringBuffer[])urls.toArray(url));
-        return getOnlineData(tempList);
+        return getOnlineData(urls);
 
     }
     // </editor-fold>

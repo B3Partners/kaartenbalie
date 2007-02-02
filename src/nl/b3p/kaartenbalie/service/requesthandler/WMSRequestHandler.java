@@ -90,8 +90,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
         
-        
+        System.out.println("An user has been found : " + dbUser.getFirstName());
         Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
+        
+        System.out.println("A set of layers for this user have been found : " + dbLayers.size() + " available.");
 
         if (dbLayers==null)
             return null;
@@ -127,6 +129,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 } else {
                     sps.add(cloneSP);
                 }
+            } else {
+                System.out.println("This layer has a parent layer");
             }
         }
         
@@ -182,85 +186,42 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (urls.size() > 1) {
             bi = new BufferedImage [urls.size()];
             
+            /* Read each of the strings and create an URL for each one of them
+             * With the defined URL create a BufferedImage which will contain the
+             * image the URL was loacting to.
+             */
             for (int i = 0; i < urls.size(); i++) {
                 String url = ((StringBuffer)urls.get(i)).toString();
                 URL u = new URL(url);
                 bi[i] = ImageIO.read(u);
             }
             
-            Frame f = new Frame();
-            f.setVisible(true);
-            Image image = f.createImage(bi[0].getWidth(), bi[0].getHeight());
-            Graphics graphics = image.getGraphics();
-            f.setVisible(false);
-            Graphics2D g2 = (Graphics2D) graphics;
-            
+            /* After all images are loaded into the memory, these images
+             * can be combined (blended) to make it one image. In order to
+             * be able to blend the images, an empty Graphics 2D object is
+             * needed to project all the other images onto. This Graphics 
+             * object is recieved through a new and empty BufferedImage which
+             * has the same size as our BufferedImages.
+             */
             BufferedImage buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D gbi = buffImg.createGraphics();
-
-            // Clears the previously drawn image.
-            g2.setColor(Color.white);
-            g2.fillRect(0, 0, bi[0].getWidth(), bi[0].getHeight());
-
+            
+            /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
+             * After drawing this layer we draw all the other layers on top of it, setting the
+             * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
+             */
             gbi.drawImage(bi[0], 0, 0, null);
             gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
             
             for (int i = 1; i < urls.size(); i++) {
                 gbi.drawImage(bi[i], 0, 0, null);
             }
-
+            
+            /* All images have been drawn onto the Graphics 2D object so now
+             * it is possible to create a byte output stream of this newly created
+             * BufferedImage
+             */
             ImageIO.write(buffImg, "png", baos);
-            
-            
-            
-            /* For each url in the ArrayList a new BufferedImage is created in order to lay those
-             * images over eachother and combine them into one image
-             *            
-            for (int i = 0; i < urls.size(); i++) {
-                String url = ((StringBuffer)urls.get(i)).toString();
-                URL u = new URL(url);
-                bi[i] = ImageIO.read(u);
-                ByteArrayOutputStream baosTest = new ByteArrayOutputStream();
-                ImageIO.write(bi[i], "png", baosTest);
-                byte [] byteTest = baosTest.toByteArray();
-                String test = new String (byteTest);
-                System.out.println("New incoming picture converted to a byte Array. Size of the incoming pictute is : " + test.length());
-            }
-            //Test of the incoming pictures.....
-            
-            
-                    
-            /* After creating the BufferedImages, a Graphics 2D environment is set up in which the images
-             * can be projected over eachother.
-             * An AlphaComposite.SRC_OVER, 1.0f is used to let transparent parts of the tops layers be totally transparent.
-             *
-            Graphics2D g = bi[0].createGraphics();
-            
-            bi[0].isAlphaPremultiplied();
-            
-            AlphaComposite ac = (AlphaComposite) g.getComposite();
-            ac.getAlpha();
-            
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-            
-            /* Each of the layers recieved from a different url is projected on top of the previous layers
-             * NOTICE that a new image is projected over the previous images. So we start with BufferedImage 0
-             * project image 1 over it, etc, etc.
-             *
-            for (int i = 1; i < urls.size(); i++) {
-                if(bi[i] != null) {
-                    g.drawImage(bi[i], (bi[i-1].getWidth()-bi[i].getWidth())/2, (bi[i-1].getHeight()-bi[i].getHeight())/2, null);
-                    
-                }
-            }
-            
-            Component c = new Component();
-            
-            Graphics2D g2d = bi[0].createGraphics();
-            g2d.create();
-            g.dispose();
-            ImageIO.write(bi[0], "png", baos);
-            ImageIO.write(bi[0], "png", new File("test.png"));//(bi[0], "png", baos); */
         } else {
             String url = ((StringBuffer)urls.get(0)).toString();
             
@@ -317,6 +278,33 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     }
     // </editor-fold>
     
+    /** Tries to find a specified layer given for a certain ServiceProvider.
+     *
+     * @param layers the set with layers which the method has to surch through
+     * @param layerToBeFound the layer to be found
+     *
+     * @return string with the name of the found layer or null if no layer was found
+     */
+    // <editor-fold defaultstate="collapsed" desc="findLayer(String layerToBeFound, Set layers) method.">
+    protected String findLayer(String layerToBeFound, Set layers) {
+        if (layers==null || layers.isEmpty())
+            return null;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            String identity = layer.getId() + "_" + layer.getName();
+            if(identity.equalsIgnoreCase(layerToBeFound))
+                return layer.getName();
+            
+            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
+            if (foundLayer != null)
+                return foundLayer;
+        }        
+        return null;
+    }
+    // </editor-fold>
+    
     /** Builds a Stringbuffer of the layers found in the database and compared with the requested layers.
      * @param serviceProvider ServiceProvider to which the layers belong
      * @param layer string array with layersto be found and added to the list
@@ -346,27 +334,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return requestedLayers.toString();
     }
     // </editor-fold>
-    
-    
-    
-    protected String findLayer(String layerToBeFound, Set layers) {
-        if (layers==null || layers.isEmpty())
-            return null;
         
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getId() + "_" + layer.getName();
-            if(identity.equalsIgnoreCase(layerToBeFound))
-                return layer.getName();
-            
-            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
-            if (foundLayer != null)
-                return foundLayer;
-        }        
-        return null;
-    }    
-    
     /** Checks wether a post or get url is available for an incomming request.
      * @param serviceProvider ServiceProvider to which the request belongs
      * @param request String with the specified request

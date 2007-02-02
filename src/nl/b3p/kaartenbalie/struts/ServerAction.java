@@ -113,7 +113,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param serviceProvider ServiceProvider object that to be filled
      */
-    // <editor-fold defaultstate="collapsed" desc="populateOrganizationObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="collapsed" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     private void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
         //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));

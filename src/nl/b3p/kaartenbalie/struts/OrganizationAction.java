@@ -172,7 +172,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId() == select) {
-                    layers.add(layer);///layerList.get(select));
+                    layers = getAllTopLayers(layer, layers);
+                    //layers.add(layer);///layerList.get(select));
                     break;
                 }
                     
@@ -181,6 +182,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
+    
+    private Set getAllTopLayers(Layer layer, Set layers) {
+        if(layer.getParent() != null) {
+            layers.add(layer);
+            this.getAllTopLayers(layer.getParent(), layers);
+        } else {
+            layers.add(layer);
+        }
+        return layers;
+    }
     
     /** Method for saving a new organization from input of a user.
      *

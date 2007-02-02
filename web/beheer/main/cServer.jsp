@@ -103,18 +103,22 @@ window.onload = function() { stripedTable(); }
         <td><html:text property="serviceProviderUrl" /></td>
         </tr>
         <tr>
-        <td><B>URL Server:</B></td>
+        <td><B>Laatste update:</B></td>
         <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>URL Server:</B></td>
-        <td><html:text property="serviceProviderReviewed" /></td>
-        </tr>        
-        <select>
-            <option>WMS</option>
-            <option>WFS</option>
-            <option>GML</option>
-        </select>
+        <td><B>Is geupdate:</B></td>
+        <td><html:text property="serviceProviderReviewed" readonly="true" /></td>
+        </tr>
+        <tr>
+        <td><B>Soort service:</B></td>
+        <td>
+            <select>
+                <option>WMS</option>
+            </select>
+        </td>
+        </tr>
+        
         </td>
         </tr>
         <tr>

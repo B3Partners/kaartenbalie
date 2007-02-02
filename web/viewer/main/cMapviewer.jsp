@@ -760,20 +760,7 @@ window.onload = function() { stripedTable(); }
                                 </tr>
                             </thead>
                             <tbody class=scrollContent>
-                                <tr><td>FoutmeldingentdTD></tr>
-                                <tr><td>Error code 21: fout in bestand.... bla bla bla</td></tr>
-                                <tr><td>Gevonden locaties in de buurt:</td></tr>
-                                <tr><td>Locatie 1: buurtsuper</td></tr>
-                                <tr><td>Locatie 2: bouwput</td></tr>
-                                <tr><td>Gebruiker 'nando' bestaat al</td></tr>
-                                <tr><td>Ongeldig postcode/adres gegeven</td></tr>
-                                <tr><td>Gebruiker 'nando' opgeslagen in het system</td></tr>
-                                <tr><td>Nando</td></tr>
-                                <tr><td>Nando</td></tr>
-                                <tr><td>Nando</td></tr>
-                                <tr><td>Nando</td></tr>
-                                <tr><td>Nando</td></tr>
-                                <tr><td>Nando</td></tr>
+                                <tr><td></td></tr>
                             </tbody>
                         </table>
                     </div>

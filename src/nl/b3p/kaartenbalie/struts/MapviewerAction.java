@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.MyDatabase;
@@ -214,8 +215,29 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         //List organizationlist = getHibernateSession().createQuery("from Organization").list();
         //request.setAttribute("organizationlist", organizationlist);
         
-        List layerList = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
+        
+        
+        
+        
+        
+        //Onderstaande regels moeten toegevoegd worden om er voor te zorgen dat alleen die layers
+        //zichtbaar zijn die voor de huidige gebruiker beschikbaar zijn.
+        /*
+        User dbUser = (User)sess.createQuery("from User u where " +
+                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
+        
+        System.out.println("An user has been found : " + dbUser.getFirstName());
+        Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
+        */
+        User user = (User) request.getUserPrincipal();
+        Set dbLayers = user.getOrganization().getOrganizationLayer();
+        
+        List layerList = new ArrayList();
+        layerList.addAll(dbLayers);
+        //dbLayers.
+        
+        //List layerList = getHibernateSession().createQuery(
+//                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
         HttpSession session = request.getSession();
         //session.setAttribute("layerlist", layerlist);
         //request.setAttribute();
