@@ -90,11 +90,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
         
-        System.out.println("An user has been found : " + dbUser.getFirstName());
         Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
-        
-        System.out.println("A set of layers for this user have been found : " + dbLayers.size() + " available.");
-
         if (dbLayers==null)
             return null;
         
@@ -129,8 +125,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 } else {
                     sps.add(cloneSP);
                 }
-            } else {
-                System.out.println("This layer has a parent layer");
             }
         }
         
@@ -169,12 +163,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * the ServiceProvider which this url holds.
      *
      * @param urls StringBuffer with the urls where kaartenbalie should connect to to recieve the requested data.
+     * @param overlay A boolean setting the overlay to true or false. If false is chosen the images are placed under eachother
      * @return byte[]
      *
      * @throws IOException
      */
     // <editor-fold defaultstate="collapsed" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static byte[] getOnlineData(ArrayList urls) throws IOException {
+    protected static byte[] getOnlineData(ArrayList urls, boolean overlay) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -203,18 +198,49 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
              * object is recieved through a new and empty BufferedImage which
              * has the same size as our BufferedImages.
              */
-            BufferedImage buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
-            Graphics2D gbi = buffImg.createGraphics();
+            BufferedImage buffImg = null;
             
-            /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
-             * After drawing this layer we draw all the other layers on top of it, setting the
-             * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
-             */
-            gbi.drawImage(bi[0], 0, 0, null);
-            gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
-            
-            for (int i = 1; i < urls.size(); i++) {
-                gbi.drawImage(bi[i], 0, 0, null);
+            if(overlay) {
+                buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
+                Graphics2D gbi = buffImg.createGraphics();
+
+                /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
+                 * After drawing this layer we draw all the other layers on top of it, setting the
+                 * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
+                 */
+                gbi.drawImage(bi[0], 0, 0, null);
+                gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
+
+                for (int i = 1; i < urls.size(); i++) {
+                    gbi.drawImage(bi[i], 0, 0, null);
+                }
+            } else {
+                int [] width = new int[urls.size()];
+                int [] height= new int[urls.size()];
+                
+                for (int i = 1; i < urls.size(); i++) {
+                    width[i] = bi[i].getWidth();
+                    height[i] = bi[i].getHeight();
+                }
+                
+                int maxWidth = 0;
+                int maxHeight= 0;
+                for (int i = 0; i < urls.size(); i++) {
+                    if (width[i] > maxWidth) {
+                        maxWidth = width[i];
+                    }
+                    maxHeight += height[i];
+                }
+
+                buffImg = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
+                Graphics2D gbi = buffImg.createGraphics();
+                maxHeight = 0;
+                for (int i = 0; i < urls.size(); i++) {
+                    gbi.drawImage(bi[i], 0, maxHeight, null);
+                    maxHeight = bi[i].getHeight();
+                }
+
+                //gbi.dispose();
             }
             
             /* All images have been drawn onto the Graphics 2D object so now

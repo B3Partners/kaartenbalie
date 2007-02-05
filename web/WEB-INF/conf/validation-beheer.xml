@@ -47,7 +47,7 @@
             <field property="organizationStreet" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationStreet"/>
             </field>
-            <field property="organizationNumber" depends="required"> <!-- required -->
+            <field property="organizationNumber" depends="required, integer"> <!-- required -->
                 <arg0 key="beheer.organizationNumber"/>
             </field>
             <field property="organizationProvince" depends="required"> <!-- required -->
@@ -56,7 +56,7 @@
             <field property="organizationCountry" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationCountry"/>
             </field>
-            <field property="organizationTelephone" depends="required"> <!-- required -->
+            <field property="organizationTelephone" depends="required, integer"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
             </field>            
         </form>

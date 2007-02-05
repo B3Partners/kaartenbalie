@@ -27,10 +27,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     public GetFeatureInfoRequestHandler() {}
     // </editor-fold>
     
-    //TODO: De methode werkt nog niet juist omdat ze nog geen volledige URL's maakt.
-    //Dat wil zeggen dat de URL's nog niet aangevuld zijn met de parameters van de GetMap
-    //functie.
-    
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      * @param parameters Map parameters
@@ -55,21 +51,22 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
         
-        //TODO: deze code moet verwijderd worden voor de oplevering
-        //Een klein stukje test code
-        /**/
-        int length = layers.length;
-        String [] reverseLayers = new String [length];
-        for (int i = length - 1; i >= 0; i--) {
-            reverseLayers[i] = layers[length - i - 1];
-        }        
-        layers = reverseLayers;
-        System.out.println("There are " + length + " layers selected.");
-        System.out.println("There are " + tempSP.size() + " service providers available.");
-        /**/
-        //Einde test
+        String layer = "";
         
+        if (layers.length == 0) {
+            //Geen layer opgegeven.
+            return null;
+        }
         
+        if (layers.length > 1) {
+            if (WMS_GETFEATUREINFO_RETURN_EXCEPTION) {
+                //Genereer hier een exception en return deze
+                return null;
+            } else {
+                //neem alleen de eerste layer in de lijst en maak hier een GetFeatureInfo van
+                 layer = layers[0];
+            }
+        }
         
         /* Go through each layer and find the ServiceProvider this layer belongs to.
          * If a ServiceProvider has been found there will be checked if the previous
@@ -78,73 +75,78 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
          * be stored in the previous URL variable to let further layer do the same 
          * check.
          */
-        for (int i = 0; i < layers.length; i++) {
-            String layer = layers[i];
-            Iterator it = tempSP.iterator();
-            while (it.hasNext()) {
-                ServiceProvider serviceProvider = (ServiceProvider)it.next();
-                Set serviceProviderLayers = serviceProvider.getLayers();
-                String spls = findLayer(layer, serviceProviderLayers);
-                System.out.println("The service provider in progress is " + serviceProvider.getGivenName());
-                System.out.println("This layer has been found " + layer + ". And belongs to service provider " + spls);
-                if (spls != null) {
-                    spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
-                    
-                    if (spUrl == null) {
-                        continue;
+        
+        Iterator it = tempSP.iterator();
+        while (it.hasNext()) {
+            ServiceProvider serviceProvider = (ServiceProvider)it.next();
+            Set serviceProviderLayers = serviceProvider.getLayers();
+            String spls = findLayer(layer, serviceProviderLayers);
+            if (spls != null) {
+                spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
+
+                if (spUrl == null) {
+                    continue;
+                }
+
+                if(previousUrl.equals(spUrl.toString())) {
+                    StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
+                    url.append("," + spls);
+                    urls.remove(urls.size() - 1);
+                    urls.add(url);                        
+                } else {
+                    previousUrl = spUrl.toString();            
+                    spUrl.append(WMS_VERSION);
+                    spUrl.append("=");
+                    spUrl.append((String)parameters.get(WMS_VERSION));
+                    spUrl.append("&");
+                    spUrl.append(WMS_REQUEST);
+                    spUrl.append("=");
+                    spUrl.append(WMS_REQUEST_GetFeatureInfo);
+                    spUrl.append("&");
+                    spUrl.append(WMS_PARAM_QUERY_LAYERS);
+                    spUrl.append("=");
+                    spUrl.append(spls);
+
+                    String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
+                    if(null != infoFormat) {
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_INFO_FORMAT);
+                        spUrl.append("=");
+                        spUrl.append(infoFormat);
                     }
-                    
-                    if(previousUrl.equals(spUrl.toString())) {
-                        StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
-                        url.append("," + spls);
-                        urls.remove(urls.size() - 1);
-                        urls.add(url);                        
-                    } else {
-                        previousUrl = spUrl.toString();            
-                        spUrl.append(WMS_VERSION);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_VERSION));
-                        spUrl.append("&");
-                        spUrl.append(WMS_REQUEST);
-                        spUrl.append("=");
-                        spUrl.append(WMS_REQUEST_GetFeatureInfo);
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_QUERY_LAYERS);
-                        spUrl.append("=");
-                        spUrl.append(spls);
 
-                        String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
-                        if(null != infoFormat) {
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_INFO_FORMAT);
-                            spUrl.append("=");
-                            spUrl.append(infoFormat);
-                        }
-
-                        String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
-                        if (null != featureCount) {
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_FEATURECOUNT);
-                            spUrl.append("=");
-                            spUrl.append(featureCount);
-                        }
-
+                    String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+                    if (null != featureCount) {
                         spUrl.append("&");
-                        spUrl.append(WMS_PARAM_X);
+                        spUrl.append(WMS_PARAM_FEATURECOUNT);
                         spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_X));
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_Y);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_Y));
-                        
-                        urls.add(spUrl);
+                        spUrl.append(featureCount);
                     }
+
+                    spUrl.append("&");
+                    spUrl.append(WMS_PARAM_X);
+                    spUrl.append("=");
+                    spUrl.append((String)parameters.get(WMS_PARAM_X));
+                    spUrl.append("&");
+                    spUrl.append(WMS_PARAM_Y);
+                    spUrl.append("=");
+                    spUrl.append((String)parameters.get(WMS_PARAM_Y));
+
+                    urls.add(spUrl);
                 }
             }
         }
-        return getOnlineData(urls);
-
+        
+        /* This return might be a little confusing, because this specific 
+         * super method getOnlineData is mostly used to transfer image data 
+         * from one or more serviceproviders to the client. But since the 
+         * boolean is set to false, and the urls exists of only ONE url the 
+         * method automatically returns all the incoming data without any 
+         * control or adaptation of this information. Therefore we don't have 
+         * to be affraid anything will go wrong when using this method for 
+         * an xml document as well.
+         */
+        return getOnlineData(urls, false);
     }
     // </editor-fold>
 }

@@ -23,6 +23,8 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.SecurityRealm;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -39,6 +41,7 @@ import java.math.BigInteger;
 public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     
     /* forward name="success" path="" */
+    private static Log log = LogFactory.getLog(CreatePersonalURLAction.class);
     private final static String SUCCESS = "success";
     private String registeredIP;
     private String personalURL;
@@ -104,13 +107,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 try {
                     // Parse with a custom format
                     date = df.parse(timeout);
-                    System.out.println("De opgegeven datum is : " + date.toString());
                 } catch(ParseException e) {
-                    System.out.println("Unable to parse " + date);
+                    log.error("Unable to parse " + date);
                 }
                 
                 String toBeHashedString = registeredIP + username + password + df.format(date);
-                System.out.println("String to be hashed in create Personal URL is : " + toBeHashedString);
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(toBeHashedString.getBytes("8859_1"));
                 BigInteger hash = new BigInteger(1, md.digest());

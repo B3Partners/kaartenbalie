@@ -60,15 +60,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             throws Exception {
         
         Map requestMap = request.getParameterMap();
-        if(requestMap.get("REQUEST") != null || requestMap.get("request") != null) {
-            System.out.println("REQUEST Binnengekregen!");
-        }
-        
-        //get username
         String username = request.getUserPrincipal().getName();
         
-        
-        //DynaValidatorForm dynaForm= (DynaValidatorForm)dynaForm;
         dynaForm.set("minx","184479");
         dynaForm.set("miny","345822");
         dynaForm.set("maxx","194755");

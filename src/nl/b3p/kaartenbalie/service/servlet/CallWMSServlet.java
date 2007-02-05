@@ -81,24 +81,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         User user = null;
         byte[] data = null;
         OutputStream sos = null;
-        
-        //Test case
-        String tempurl = request.getRequestURL().toString();
-        System.out.println("The incoming url is : " + tempurl);
-        Enumeration enumeration = request.getParameterNames();
-        while (enumeration.hasMoreElements()) {
-            String paramName = (String)enumeration.nextElement();
-            String [] paramValues = request.getParameterValues(paramName);
-            String paramValue = "";
-            for (int i = 0; i < paramValues.length; i++) {
-                paramValue = paramValue + "/" + paramValues[i];
-            }
-            System.out.println("Parameter found: " + paramName + ". Value(s): " + paramValue + ".");
-        }
-        //end of Test case
-        
-        
-        
+                
         try {
             long secondMeasurement = System.currentTimeMillis();
             user = checkLogin(request);

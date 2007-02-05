@@ -61,8 +61,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             reverseLayers[i] = layers[length - i - 1];
         }        
         layers = reverseLayers;
-        System.out.println("There are " + length + " layers selected.");
-        System.out.println("There are " + tempSP.size() + " service providers available.");
         /**/
         //Einde test
         
@@ -82,8 +80,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 ServiceProvider serviceProvider = (ServiceProvider)it.next();
                 Set serviceProviderLayers = serviceProvider.getLayers();
                 String spls = findLayer(layer, serviceProviderLayers);
-                System.out.println("The service provider in progress is " + serviceProvider.getGivenName());
-                System.out.println("This layer has been found " + layer + ". And belongs to service provider " + spls);
                 if (spls != null) {
                     spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
                     
@@ -153,7 +149,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 } 
             }
         }
-        return getOnlineData(urls);
+        return getOnlineData(urls, true);
     }
     // </editor-fold>
 }

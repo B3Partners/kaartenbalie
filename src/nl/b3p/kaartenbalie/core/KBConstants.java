@@ -64,6 +64,8 @@ public interface KBConstants {
     
     public static final String CHARSET_UTF8 = "UTF-8";
     public static final String CHARSET_ISO_8859_1 = "ISO_8859_1";
+    
+    public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="List with essential parameters per wms service.">
