@@ -15,9 +15,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 --%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd">
- <SCRIPT type=text/javascript>
-<!--
+"http://www.w3.org/TR/html4/loose.dtd">
+<SCRIPT type=text/javascript>
+        <!--
 /* http://www.alistapart.com/articles/zebratables/ */
 function removeClassName (elem, className) {
 	elem.className = elem.className.replace(className, "").trim();
@@ -54,97 +54,86 @@ function stripedTable() {
 }
 
 window.onload = function() { stripedTable(); }
--->
-</SCRIPT>
+        -->
+        </SCRIPT>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 <html:form action="/server" onsubmit="return validateServerForm(this)">
-
-<table>
-    <tr>
-    <td valign="top"><b>Server tabel:</b>
-    <DIV class=tableContainer id=tableContainer>
-        <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
-            <THEAD class=fixedHeader>
+    
+    Server tabel:
+        <TABLE class=fixedHeader>
             <TR>
-            <TH>Select</TH>
-            <TH>Naam</TH>
-            <TH>URL</TH>
-            <TH>Datum aanmaak</TH>
-            <TH>Laatste update</TH>
+                <TH style="width: 50px;">Select</TH>
+                <TH style="width: 100px;">Naam</TH>
+                <TH style="width: 300px;">URL</TH>
+                <TH style="width: 150px;">Datum aanmaak</TH>
+                <TH style="width: 100px;">Laatste update</TH>
             </TR>
-            </THEAD>
-            <TBODY class=scrollContent>            
-            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                <TR>
-                    <TD><html:multibox value="${nServiceProvider.id}" property="serviceProviderSelected" /></TD>
-                    <TD><a href="server.do?id=${nServiceProvider.id}"><c:out value="${nServiceProvider.givenName}"/></a></TD>
-                    <TD><c:out value="${nServiceProvider.url}"/></a></TD>
-                    <TD><c:out value="${nServiceProvider.updatedDate}"/></TD>
-                    <TD><c:out value="${nServiceProvider.reviewed}"/></TD>                    
-                </TR>
-            </c:forEach>
-            </TBODY>
         </TABLE>
-    </DIV>
+        <DIV class="tableContainer" id="tableContainerServer">
+            <TABLE class=scrollContent>            
+                <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                    <TR>
+                        <TD style="width: 50px;"><html:multibox value="${nServiceProvider.id}" property="serviceProviderSelected" /></TD>
+                        <TD style="width: 100px;"><a href="server.do?id=${nServiceProvider.id}"><c:out value="${nServiceProvider.givenName}"/></a></TD>
+                        <TD style="width: 300px;"><c:out value="${nServiceProvider.url}"/></TD>
+                        <TD style="width: 150px;"><c:out value="${nServiceProvider.updatedDate}"/></TD>
+                        <TD style="width: 100px;"><c:out value="${nServiceProvider.reviewed}"/></TD>                    
+                    </TR>
+                </c:forEach>
+            </TABLE>
+        </DIV>
     <html:submit value="Delete selected server(s)" property="delete"/>
-    </td>
-    <td width="33%" align="right">
     <table>
-       <tr>
-        <td><B>Server ID:</B></td>
-        <td><html:text property="id" readonly="true" /></td>
+        <tr>
+            <td><B>Server ID:</B></td>
+            <td><html:text property="id" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>Naam server:</B></td>
-        <td><html:text property="serviceProviderGivenName" /></td>
+            <td><B>Naam server:</B></td>
+            <td><html:text property="serviceProviderGivenName" /></td>
         </tr>
         <tr>
-        <td><B>URL Server:</B></td>
-        <td><html:text property="serviceProviderUrl" /></td>
+            <td><B>URL Server:</B></td>
+            <td><html:text property="serviceProviderUrl" /></td>
         </tr>
         <tr>
-        <td><B>Laatste update:</B></td>
-        <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
+            <td><B>Laatste update:</B></td>
+            <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>Is geupdate:</B></td>
-        <td><html:text property="serviceProviderReviewed" readonly="true" /></td>
+            <td><B>Is geupdate:</B></td>
+            <td><html:text property="serviceProviderReviewed" readonly="true" /></td>
         </tr>
         <tr>
-        <td><B>Soort service:</B></td>
-        <td>
-            <select>
-                <option>WMS</option>
-            </select>
-        </td>
+            <td><B>Soort service:</B></td>
+            <td>
+                <select>
+                    <option>WMS</option>
+                </select>
+            </td>
         </tr>
         
         </td>
         </tr>
         <tr>
-        <td colspan="0"><center>
-            <html:reset  value="Delete values" />
-            <html:submit value="Add/Change Server" property="save"/>            
-        </center></td>
+            <td colspan="0"><center>
+                    <html:reset  value="Delete values" />
+                    <html:submit value="Add/Change Server" property="save"/>            
+            </center></td>
         </tr>
     </table>
-    </td>
-    </tr>
-    <tr>
-    <td><b>Administratieve meldingen</b>
+    
+    <b>Administratieve meldingen</b>
     <DIV class=tableContainer id=tableContainer2 style="top: auto">
         <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
             <THEAD class=fixedHeader>
-            <TR> 
-            <TH><B>Administratieve data</B></TH>
-            </TR>
+                <TR> 
+                    <TH><B>Administratieve data</B></TH>
+                </TR>
             </THEAD>
             <TBODY class=scrollContent>
                 <TR><TD></TD></TR>
             </TBODY>
         </TABLE>
     </DIV>
-    </td>
-    </tr>
-</table>
 </html:form>

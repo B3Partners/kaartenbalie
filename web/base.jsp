@@ -22,6 +22,9 @@ version $Id: base.jsp 3519 2006-05-10 15:48:02Z Frank $
     <head>
         <title>Kaartenbalie</title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
+        <!--[if IE 6]>
+            <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
+        <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>">
         </script>
     </head>

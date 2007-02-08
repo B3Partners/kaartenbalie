@@ -10,6 +10,11 @@
             <tiles:get name='top'/>
             <!-- END header -->
         </div>
+        <div id="balk">
+            <div>
+                <a href="<html:rewrite page='/login.do' module='' />">Login</a>
+            </div>
+        </div>
         <div id="nav">
             <!-- BEGIN menu -->
             <tiles:get name='menu'/>
