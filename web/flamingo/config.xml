@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : config.xml
+    Created on : 24 januari 2007, 11:16
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<FLAMINGO xmlns:fmc="flamingo" lang="en" languages="en,nl" tooltipdelay="300" commtojava="true" preloadtitle="Groundwatermap">
+    <style id=".tooltip" font-family="Verdana" font-size="11" color="#880000" display="block"/>
+    <yguide id="my" y="50%"/>
+    <xguide id="mx" x="50%"/>
+    <fmc:MonitorMap id="monitor2" left="165" top="60" listento="map1"/>
+    <fmc:MonitorLayer id="monitor" left="165" top="100" listento="map1"/>
+        <fmc:ToolGroup tool="zoom" listento="map1" width="148" height="65" left="0" top="0">
+            <fmc:ToolZoomin id="zoom"/>
+            <fmc:ToolZoomout left="30"/>
+            <fmc:ToolPan left="60"/>
+        </fmc:ToolGroup>
+    <fmc:BorderNavigation listento="map1"/>
+    <fmc:Map id="map1" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="130087,315639,249418,386267" fullextent="120087,305639,259418,396267">
+        <fmc:LayerIdentifyIcon  id="identifyicon"  />
+        <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
+        <fmc:LayerOGWMS id="map" url="http://b3p-nan/cgi-bin/mapserv.exe?map=d:/public/aerogrid.map&amp;SERVICE=WMS&amp;VERSION=1.1.1&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS="demo_basis,aerogrid"/>
+    </fmc:Map>
+</FLAMINGO>
