@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : tiles-algemeen-defs.xml
+    Created on : 5 september 2006, 13:46
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<tiles-definitions>
+    <definition name="base.demo" extends="base">
+        <put name="top" value="/algemeen/main/hIndex.jsp"/>
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
+        <put name="footer" value="/algemeen/main/fIndex.jsp"/>
+    </definition>
+    <definition name="base.demo.index" extends="base.demo">
+        <put name="menu" value="/demo/mIndex.jsp"/>
+        <put name="content" value="/demo/cIndex.jsp"/>
+    </definition> 
+    <definition name="base.demo.registration" extends="base.demo">
+        <put name="content" value="/demo/cRegistratie.jsp"/>
+    </definition>
+</tiles-definitions>

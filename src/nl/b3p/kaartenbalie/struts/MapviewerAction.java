@@ -33,6 +33,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MapviewerAction extends KaartenbalieCrudAction {
     //Moet toch een kaartenbaliecrudaction extenden, vanwege de createlist....
@@ -55,25 +58,27 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward execute(ActionMapping mapping, DynaValidatorForm dynaForm,
+    public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         
         Map requestMap = request.getParameterMap();
         String username = request.getUserPrincipal().getName();
         
-        dynaForm.set("minx","184479");
+/*        dynaForm.set("minx","184479");
         dynaForm.set("miny","345822");
         dynaForm.set("maxx","194755");
         dynaForm.set("maxy","353322");
+        createLists(dynaForm, request);    
         
         //welke layers mag de gebruiker zien?
-        createLists(dynaForm, request);
         Layer layers = new Layer();
         //layers setten in dynaform
-        request.setAttribute("layers",layers);
+        request.setAttribute("layers",layers);*/
         
-        return mapping.findForward(SUCCESS);
+        String checkedLayers=request.getParameter("layers");
+        request.setAttribute("checkedLayers",checkedLayers);
+        return super.unspecified(mapping,dynaForm,request,response);
     }
     // </editor-fold>
     
@@ -221,7 +226,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         
         System.out.println("An user has been found : " + dbUser.getFirstName());
         Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
-        */
+        
         User user = (User) request.getUserPrincipal();
         Set dbLayers = user.getOrganization().getOrganizationLayer();
         
@@ -237,10 +242,168 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         //Eind van het stukje test code.
         
         session.setAttribute("layerList", layerList);//List);
+        */
         
         
+        User user = (User) request.getUserPrincipal();
+        Set organizationLayers = user.getOrganization().getOrganizationLayer();
+        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp").list();
+        
+        JSONObject root = new JSONObject(); 
+        JSONArray rootArray = new JSONArray(); 
+        
+        Iterator it = serviceProviders.iterator();
+        while (it.hasNext()) {
+            ServiceProvider sp = (ServiceProvider)it.next();
+            JSONObject parentObj = this.serviceProviderToJSON(sp);            
+            JSONArray parent = new JSONArray();
+            parentObj.put("children", parent);
+            parentObj = createTreeList(sp.getLayers(), organizationLayers, parentObj);
+            rootArray.put(parentObj);
+            
+//            parent = createTreeList(sp.getLayers(), organizationLayers, parent);
+            //root.put("serviceprovider", parent);
+            //System.out.println(parentObj.toString());
+        }
+        root.put("name","root");
+        root.put("children", rootArray);
+        
+        System.out.println(root.toString());
+        
+        //HttpSession session = request.getSession();
+        //session.setAttribute("layerList", root);//List);
+        request.setAttribute("layerList", root);
     }
     // </editor-fold>
+    
+    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
+     * of which layer is visible and which isn't.
+     * 
+     * @param layers Set of layers from which the part of the tree ahs to be build
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     * @param parent JSONObject which represents the parent object to which this set of layers should be added
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
+    private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent) throws JSONException {
+        /* This method has a recusive function in it. Its functionality is to create a list of layers
+         * in a tree like array which can be used to build up a menu structure. 
+         */
+        Iterator layerIterator = layers.iterator();
+        while (layerIterator.hasNext()) {
+            /* For each layer in the set we are going to create a JSON object which we will add to de total
+             * list of layer objects.
+             */
+            Layer layer = (Layer)layerIterator.next();
+            
+            /* Before a layer is going to be added we need to make sure that this layer is allowed to be seen
+             * If a layer is not allowed to be seen there is no use to create a JSON object for it, neither
+             * is it necessary to check if child layers shoudl be added.
+             */
+            if(hasVisibility(layer, organizationLayers)) {
+                /* When the visibility check has turned out to be ok. we start adding this layer to
+                 * the list of layers. This method provides us with a JSONObject called parent. This parent
+                 * object should have an JSONArray carried inside (empty or not empty) which we can use to
+                 * add another layer to. Therefore we first need to retrieve this JSONArray.
+                 */
+                JSONArray parentArray = (JSONArray) parent.get("children");
+                
+                /* When we have retrieved this array we are able to save our object we are working with
+                 * at the moment. This object is our present layer object. This object first needs to be
+                 * transformed into a JSONObject, which we do by calling the method to do so.
+                 */
+                JSONObject layerObj = this.layerToJSON(layer);
+                
+                /* Before we are going to save the present object we can first use our object to recieve and store
+                 * any information which there might be for the child layers. First we check if the set of layers 
+                 * is not empty, because if it is, no effort has to be taken.
+                 * If, on the other hand, this layer does have children then the method is called recursivly to
+                 * add these childs to the present layer we are working on.
+                 */
+                Set childLayers = layer.getLayers();
+                if (childLayers != null && !childLayers.isEmpty()) {
+                    JSONArray layerArray = new JSONArray();
+                    layerObj.put("children", layerArray);
+                    layerObj = createTreeList(childLayers, organizationLayers, layerObj);
+                }
+                
+                /* After creating the JSONObject for this layer and if necessary, filling this
+                 * object with her childs, we can add this JSON layer object back into its parent array.
+                 */
+                parentArray.put(layerObj);
+                
+                /* This JSONArray parent in return can be stored again into the JSON parent object which can be returned
+                 * after doing so.
+                 */
+                parent.put("children", parentArray);                
+            }
+        }
+        return parent;
+    }
+    // </editor-fold>
+    
+    /* Method which checks if a certain layer is allowed to be shown on the screen.
+     * 
+     * @param layer Layer object that has to be checked
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     *
+     * @return boolean
+     */
+    // <editor-fold defaultstate="collapsed" desc="hasVisibility(Layer layer, Set orgLayers) method.">
+    private boolean hasVisibility(Layer layer, Set organizationLayers) {
+        Iterator it = organizationLayers.iterator();
+        while (it.hasNext()) {
+            Layer organizationLayer = (Layer) it.next();
+            if(layer.getId().equals(organizationLayer.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // </editor-fold>
+    
+    /* Creates a JSON object from the ServiceProvider with its given name and id.
+     * 
+     * @param serviceProvider The ServiceProvider object which has to be converted
+     *
+     * @return JSONObject
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
+    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("id", serviceProvider.getId());
+        root.put("name", serviceProvider.getGivenName());
+        root.put("type", "serviceprovider");
+        return root;
+    }
+    // </editor-fold>
+    
+    /* Creates a JSON object from the Layer with its given name and id.
+     * 
+     * @param layer The Layer object which has to be converted
+     *
+     * @return JSONObject
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="layerToJSON(Layer layer) method.">
+    private JSONObject layerToJSON(Layer layer) throws JSONException{
+        JSONObject jsonLayer = new JSONObject();
+        jsonLayer.put("id", layer.getId() + "_" + layer.getName());
+        jsonLayer.put("name", layer.getName());
+        jsonLayer.put("type", "layer");
+        return jsonLayer;
+    }
+    // </editor-fold>
+    
+    
+    
+    
+    
+    
     
     // TODO: de onderstaande methode heet delete en is alleen zo genoemd omdat deze door bovenliggende klasse
     // ondersteunt wordt. Deze naamgeving komt dus helemaal niet overeen met wat de klasse doet. De naam van
