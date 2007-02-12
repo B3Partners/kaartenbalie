@@ -50,8 +50,6 @@ so.write("flashcontent");
         function itemClick(item) {
             var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
             treeview_toggleItemChildren(DOMItemId);
-
-            
         }
 
         function createLabel(container, item) {
@@ -87,7 +85,6 @@ so.write("flashcontent");
             "expandAll": false
         });
         function reloadLayers(){
-            alert("reload");
             var layersString="";
             var treeElement=document.getElementById("tree");
             var checkboxes=treeElement.getElementsByTagName("input");
