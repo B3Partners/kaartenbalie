@@ -275,3 +275,37 @@ margin: 0;
 #tableContainerServer {
     width: 705px;
 }
+
+/*Treeview*/
+.serviceproviderLabel{
+    background-image: url(../images/treeview/map.gif);
+    background-repeat: no-repeat;
+    background-position: top left;
+    padding-left: 22px;
+    cursor: pointer;
+    float: left;
+}
+.layerLabel{
+    background-image: url(../images/treeview/kaart.gif);
+    background-repeat: no-repeat;
+    background-position: top left;
+    padding-left: 22px;
+    cursor: pointer;
+    float: left;
+}
+.layerVink{
+    float: left;
+    clear: none;
+}
+/*de holder voor de tree*/
+.treeHolder{
+    float: left;
+    width: 300px;
+    height: 470px;
+    overflow: auto;
+}
+/*flamingo viewer*/
+#flashcontent{
+    float: left;
+    clear: none;
+}

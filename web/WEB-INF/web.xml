@@ -73,6 +73,14 @@
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>FlamingoConfigServlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>
+        <init-param>
+            <param-name>defaultConfigLocation</param-name>
+            <param-value>/viewer/flamingo/config.xml</param-value>
+        </init-param>
+    </servlet>
     <servlet-mapping>
         <servlet-name>action</servlet-name>
         <url-pattern>*.do</url-pattern>
@@ -80,6 +88,10 @@
     <servlet-mapping>
         <servlet-name>CallWMSServlet</servlet-name>
         <url-pattern>/servlet/CallWMSServlet/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FlamingoConfigServlet</servlet-name>
+        <url-pattern>/servlet/FlamingoConfigServlet/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

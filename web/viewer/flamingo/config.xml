@@ -23,6 +23,6 @@
     <fmc:Map id="map1" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="130087,315639,249418,386267" fullextent="120087,305639,259418,396267">
         <fmc:LayerIdentifyIcon  id="identifyicon"  />
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
-        <fmc:LayerOGWMS id="map" url="http://b3p-nan/cgi-bin/mapserv.exe?map=d:/public/aerogrid.map&amp;SERVICE=WMS&amp;VERSION=1.1.1&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS=""/>
+        <fmc:LayerOGWMS id="map" url="http://localhost:8084/kaartenbalie/servlet/CallWMSServlet/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS=""/>
     </fmc:Map>
 </FLAMINGO>

@@ -23,41 +23,19 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <%@ page isELIgnored="false"%>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/swfobject.js' module='' />"></script>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
+<%-- flamingo viewer --%>
+<div id="flashcontent">
+    <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
+</div>
+<script type="text/javascript">
+var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>/', "flamingo", "500", "500", "8", "#FFFFFF");
+so.write("flashcontent");
+</script>
 
-
-<%--
-<c:if test="${not empty message}">
-    <h3><c:out value="${message}"/></h3>
-</c:if>
-
-<c:if test="${not empty layersString}">--%>
-    <div id="flashcontent">
-        <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
-    </div>
-    <script type="text/javascript">
-   var so = new SWFObject('/flamingo/flamingo.swf?config=http://localhost:8084/kaartenbalie/viewer/flamingo/config.xml', "flamingo", "600", "600", "8", "#FFFFFF");
-   so.write("flashcontent");
-    </script>
-
-<%--
-<div style="float: right; clear: none; width: 190px; height: 600px;">
-    <div>
-        <html:form action="/index">
-            <html:text property="zoeken" size="20" styleId="zoeken"/>
-            <html:submit property="search" styleClass="knopZoek">
-                <fmt:message key="button.zoeken"/>
-            </html:submit>
-            <html:submit property="clear" styleClass="knopZoek" onclick="javascript: document.getElementById('zoeken').value=''">
-                <fmt:message key="button.reset"/>
-            </html:submit>
-        </html:form>
-    </div>
+<div class="treeHolder">
     <div id="tree"></div>
 </div>
---%>
-
-<div id="tree"></div>
-<input type="button" value="reload" onclick="javascript: reloadLayers()"/>
+<input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 <%--
 <c:if test="${not empty kaartId}">
     <div>
@@ -70,10 +48,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         var root = ${layerList};
 
         function itemClick(item) {
-            if(item.type == "serviceprovider") {
-                var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
-                treeview_toggleItemChildren(DOMItemId);
-            } else {}
+            var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
+            treeview_toggleItemChildren(DOMItemId);
+
             
         }
 
@@ -81,19 +58,15 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             var div = document.createElement("div");
             var vink= document.createElement("input");
             vink.type="checkbox";
-            vink.value="item.id";
-            div.className = item.type == "serviceprovider" ? "serviceprovider" : "layer";
+            vink.value=item.id;
+            vink.layerType=item.type;
+            vink.className="layerVink";
+            div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
             container.appendChild(vink);
-            if(item.type=="serviceprovider"){
-                div.onclick = function() {
-                     itemClick(item);
-                };
-            }
-            else{
-                 div.onclick= function(){
-                    window.location.href="index.do?";
-                 };
-            }    
+            div.onclick = function() {
+                itemClick(item);
+            };
+             
 
             div.appendChild(document.createTextNode(item.name));
             container.appendChild(div);
@@ -114,6 +87,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             "expandAll": false
         });
         function reloadLayers(){
+            alert("reload");
             var layersString="";
             var treeElement=document.getElementById("tree");
             var checkboxes=treeElement.getElementsByTagName("input");
@@ -128,7 +102,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                     }
                 }
             }
-            window.location.ahref="/viewer/mapviewer.do?layers="+layersString
+            window.location.href="mapviewer.do?layers="+layersString;
         }
     </c:if>
 </script>

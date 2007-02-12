@@ -50,7 +50,7 @@ public class FlamingoConfigServlet extends HttpServlet {
      * @param response servlet response
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (defaultConfig == null){
+        /*if (defaultConfig == null){
             throw new ServletException("Default config bestand is niet geladen");
         }
         
@@ -83,7 +83,27 @@ public class FlamingoConfigServlet extends HttpServlet {
                 
             }
             write(response,doc);
-        }
+         *
+        }*/
+        
+        
+        String layers= request.getPathInfo();
+        //don't alter config if no parameter is given
+        Document returnConfig = (Document)defaultConfig.cloneNode(true);
+        if (layers!=null && layers.length()>1)
+        {
+            layers=layers.replaceAll("/","");
+            Node node = getElementBy(returnConfig,"id","map");
+            for (int i = 0; i < node.getAttributes().getLength(); i++){
+                if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("layers")){
+                    node.getAttributes().item(i).setNodeValue(layers);
+                }
+            }
+            
+            
+        }        
+        
+        write(response,returnConfig);
     }
     
     public void write(HttpServletResponse response, Document doc) throws IOException{
