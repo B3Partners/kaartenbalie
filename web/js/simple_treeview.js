@@ -1,4 +1,4 @@
-alert("pagina aangeroepen");
+
 
 var globalTreeOptions = {};
 

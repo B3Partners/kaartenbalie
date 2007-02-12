@@ -25,25 +25,19 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 
-<!--object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="600" height="600" id="flamingo" align="middle">
-<param name="allowScriptAccess" value="sameDomain" />
-<param name="movie" value="flamingo/flamingo.swf?config=flamingo/pehs.xml" /><param name="quality" value="high" /><param name="bgcolor" value="#ffffff" /><embed src="flamingo/flamingo.swf?config=flamingo/pehs.xml" quality="high" bgcolor="#ffffff" width="600" height="600" name="flamingo" swLiveConnect="true" align="middle" allowScriptAccess="sameDomain" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" />
-</object-->
-
 <%--
 <c:if test="${not empty message}">
     <h3><c:out value="${message}"/></h3>
 </c:if>
---%>
-<c:if test="${not empty layersString}">
+
+<c:if test="${not empty layersString}">--%>
     <div id="flashcontent">
         <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
     </div>
     <script type="text/javascript">
-   var so = new SWFObject('flamingo/flamingo.swf?config=servlet/FlamingoConfigServlet/layers=<c:out value="${layersString}"/>', "flamingo", "600", "600", "8", "#FFFFFF");
+   var so = new SWFObject('/flamingo/flamingo.swf?config=http://localhost:8084/kaartenbalie/viewer/flamingo/config.xml', "flamingo", "600", "600", "8", "#FFFFFF");
    so.write("flashcontent");
     </script>
-</c:if>
 
 <%--
 <div style="float: right; clear: none; width: 190px; height: 600px;">
@@ -73,7 +67,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 --%>
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
-        alert("pagina aangeroepen");
         var root = ${layerList};
 
         function itemClick(item) {
