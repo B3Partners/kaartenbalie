@@ -25,7 +25,4 @@
     <definition name="base.beheer.organization" extends="base.beheer">
         <put name="content" value="/beheer/main/cOrganization.jsp"/>
     </definition>
-    <definition name="base.beheer.test" extends="base.beheer">
-        <put name="content" value="/beheer/main/cTest.jsp"/>
-    </definition>
 </tiles-definitions>

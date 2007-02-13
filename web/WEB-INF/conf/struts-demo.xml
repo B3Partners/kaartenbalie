@@ -53,8 +53,7 @@
 
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
-        <action path="/help" forward="base.demo.help"/>
-        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
+        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerAction" scope="request" validate="false">
             <forward name="success" path="base.demo.addUrl"/>
             <forward name="failure" path="base.demo.addUrl"/>
         </action>
