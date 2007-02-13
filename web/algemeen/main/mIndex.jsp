@@ -11,6 +11,7 @@
                 <li><a href="<html:rewrite page='/beheer/index.do' module='' />">Beheer</a></li>
                 <li><a href="<html:rewrite page='/viewer/index.do' module='' />">Viewer</a></li>
                 <li><a href="<html:rewrite page='/viewer/mapviewer.do' module='' />">Mapviewer</a></li>
+                <li><a href="<html:rewrite page='/demo/index.do' module='' />">Demo</a></li>
             </ul>
         </div>
     </p>

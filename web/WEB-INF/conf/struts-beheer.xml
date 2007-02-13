@@ -46,6 +46,7 @@
             <form-property name="organizationStreet" type="java.lang.String"/>
             <form-property name="organizationNumber" type="java.lang.String"/>
             <form-property name="organizationAddition" type="java.lang.String"/>
+            <form-property name="organizationPostalcode" type="java.lang.String"/>
             <form-property name="organizationProvince" type="java.lang.String"/>
             <form-property name="organizationCountry" type="java.lang.String"/>
             <form-property name="organizationPostbox" type="java.lang.String"/>

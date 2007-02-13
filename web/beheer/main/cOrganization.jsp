@@ -106,6 +106,10 @@ window.onload = function() { stripedTable(); }
         <td><html:text property="organizationAddition"/></td>
         </tr>
         <tr>
+        <td><B>Postcode:</B></td>
+        <td><html:text property="organizationPostalcode"/></td>
+        </tr>
+        <tr>
         <td><B>Provincie:</B></td>
         <td><html:text property="organizationProvince"/></td>
         </tr>

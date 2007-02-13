@@ -22,6 +22,7 @@ public class Organization {
     private String street;
     private String number;
     private String addition;
+    private String postalcode;
     private String province;
     private String country;
     private String postbox;
@@ -72,6 +73,14 @@ public class Organization {
 
     public void setAddition(String addition) {
         this.addition = addition;
+    }
+    
+    public String getPostalcode() {
+        return postalcode;
+    }
+
+    public void setPostalcode(String postalcode) {
+        this.postalcode = postalcode;
     }
 
     public String getProvince() {

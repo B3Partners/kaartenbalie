@@ -118,6 +118,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationStreet", organization.getStreet());
         dynaForm.set("organizationNumber", organization.getNumber());
         dynaForm.set("organizationAddition", organization.getAddition());
+        dynaForm.set("organizationPostalcode", organization.getPostalcode());
         dynaForm.set("organizationProvince", organization.getProvince());
         dynaForm.set("organizationCountry", organization.getCountry());
         dynaForm.set("organizationPostbox", organization.getPostbox());
@@ -165,6 +166,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
         organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
         organization.setAddition(FormUtils.nullIfEmpty(dynaForm.getString("organizationAddition")));
+        organization.setPostalcode(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostalcode")));
         organization.setProvince(FormUtils.nullIfEmpty(dynaForm.getString("organizationProvince")));
         organization.setCountry(FormUtils.nullIfEmpty(dynaForm.getString("organizationCountry")));
         organization.setPostbox(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostbox")));
@@ -248,6 +250,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         request.setAttribute("organizationStreet", organization.getStreet());
         request.setAttribute("organizationNumber", organization.getNumber());
         request.setAttribute("organizationAddition", organization.getAddition());
+        request.setAttribute("organizationPostalcode", organization.getPostalcode());
         request.setAttribute("organizationProvince", organization.getProvince());
         request.setAttribute("organizationCountry", organization.getCountry());
         request.setAttribute("organizationPostbox", organization.getPostbox());

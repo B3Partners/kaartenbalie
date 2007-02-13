@@ -17,34 +17,34 @@ global tag styles
 body {
     margin: 0;
     padding: 0;
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    
     font-size: 14px;
     color: #000;
     background-color: #ddd;
 }
 
 H1 {
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 28px;
 }
 
 H2 {
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 24px;
 }
 
 H3 {
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 20px;
 }
 
 H4 {
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 18px;
 }
 
 H5 {
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
 
@@ -147,7 +147,7 @@ body {
     background: #fff;
     padding-bottom: 0px;
     margin: 10px;
-    font-family: Georgia, "Times New Roman", Times, Serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 12px;
     color: #000;
     padding-top: 0px;
@@ -263,7 +263,25 @@ margin: 0;
 #nav-menu ul li a:hover {
     color: #1C6CA7; 
     background-color: #FFD96B;
- } 
+ }
+
+.intellitextLink {
+    text-decoration: none;
+    border-bottom: darkgreen 1px solid;
+    padding-bottom: 0px;
+    color: darkgreen;
+    background-color: transparent;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.intellitxtTooltip {
+    border: none;
+    border-style: none;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    background-color: transparent;
+} 
 
 
 /* Fix IE. Hide from IE Mac \*/

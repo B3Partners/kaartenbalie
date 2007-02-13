@@ -24,12 +24,23 @@
             <form-property name="organizationStreet" type="java.lang.String"/>
             <form-property name="organizationNumber" type="java.lang.String"/>
             <form-property name="organizationAddition" type="java.lang.String"/>
+            <form-property name="organizationPostalcode" type="java.lang.String"/>
             <form-property name="organizationProvince" type="java.lang.String"/>
             <form-property name="organizationCountry" type="java.lang.String"/>
             <form-property name="organizationPostbox" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
             <form-property name="organizationFax" type="java.lang.String"/>
-        </form-bean>  
+        </form-bean>
+        
+        <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="serviceProviderUrl" type="java.lang.String"/>
+            <form-property name="serviceProviderGivenName" type="java.lang.String"/>
+        </form-bean> 
     </form-beans>
     
     <global-exceptions>
@@ -42,6 +53,11 @@
 
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
+        <action path="/help" forward="base.demo.help"/>
+        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
+            <forward name="success" path="base.demo.addUrl"/>
+            <forward name="failure" path="base.demo.addUrl"/>
+        </action>
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>

@@ -111,6 +111,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationStreet", organization.getStreet());
         dynaForm.set("organizationNumber", organization.getNumber());
         dynaForm.set("organizationAddition", organization.getAddition());
+        dynaForm.set("organizationPostalcode", organization.getPostalcode());
         dynaForm.set("organizationProvince", organization.getProvince());
         dynaForm.set("organizationCountry", organization.getCountry());
         dynaForm.set("organizationPostbox", organization.getPostbox());
@@ -156,6 +157,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
         organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
         organization.setAddition(FormUtils.nullIfEmpty(dynaForm.getString("organizationAddition")));
+        organization.setPostalcode(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostalcode")));
         organization.setProvince(FormUtils.nullIfEmpty(dynaForm.getString("organizationProvince")));
         organization.setCountry(FormUtils.nullIfEmpty(dynaForm.getString("organizationCountry")));
         organization.setPostbox(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostbox")));
@@ -246,6 +248,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationStreet", "");
         dynaForm.set("organizationNumber", "");
         dynaForm.set("organizationAddition", "");
+        dynaForm.set("organizationPostalcode", "");
         dynaForm.set("organizationProvince", "");
         dynaForm.set("organizationCountry", "");
         dynaForm.set("organizationPostbox", "");

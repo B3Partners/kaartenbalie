@@ -51,6 +51,9 @@
         <property name="addition">
             <column name="ADDITION" />
         </property>
+        <property name="postalcode">
+            <column name="POSTALCODE" />
+        </property>
         <property name="province">
             <column name="PROVINCE" />
         </property>
