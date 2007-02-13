@@ -29,44 +29,32 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <script language="JavaScript" type="text/javascript">
         var titleArray = new Array();
-        titleArray[0] = "Das ist ein \"Tooltip\"";
-        titleArray[1] = "title goes here";
-        titleArray[2] = "More Titles";
-        titleArray[3] = "title goes here";
+        titleArray[0] = "De Viewer";
+        titleArray[1] = "De Layers";
 
         //TOOLTIP BODY TEXT
         var bodyArray = new Array();
-        bodyArray[0] = "nope";
-        bodyArray[1] = "Hieronder staat de viewer met veel veel functies";
-        bodyArray[2] = "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla";
-        bodyArray[3] = "Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla Bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla";
+        bodyArray[0] = "Tekstuitleg viewer";
+        bodyArray[1] = "Tekstuitleg layers";
         
         //TOOLTIP DISPLAY LINK
         var linkArray = new Array();
-        linkArray[0] = "www.vibrantmedia.com";
-        linkArray[1] = "www.urlGoesHere.com";
-        linkArray[2] = "www.vibrantmedia.com";
-        linkArray[3] = "www.urlGoesHere.com";
+        linkArray[0] = "http://www.b3p.nl/";
+        linkArray[1] = "http://www.b3p.nl/";
 
         //TOOLTIP URL
         var urlArray = new Array();
-        urlArray[0] = "http://www.landingPageURLGoesHere.com";
-        urlArray[1] = "http://www.landingPageURLGoesHere.com";
-        urlArray[2] = "http://www.landingPageURLGoesHere.com";
-        urlArray[3] = "http://www.landingPageURLGoesHere.com";
+        urlArray[0] = "http://www.b3p.nl/";
+        urlArray[1] = "http://www.b3p.nl/";
         
         //TOOLTIP OFFSET
         var xOffsetArray = new Array();
         xOffsetArray[0] = 0;
         xOffsetArray[1] = 0;
-        xOffsetArray[2] = 0;
-        xOffsetArray[3] = 0;
 
         var yOffsetArray = new Array();
         yOffsetArray[0] = 0;
         yOffsetArray[1] = 0;
-        yOffsetArray[2] = 0;
-        yOffsetArray[3] = 0;
 
         //TOOLTIP BOX DEFAULT WIDTH
         var toolTipDefaultWidth = 500;
@@ -94,19 +82,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 </script>
 
 
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink">Tooltip</span>
-
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink">Tooltip</span>
-
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link2" onMouseOver="displayAd(2);" onMouseOut="hideAd();" class="intellitextLink">Tooltip</span>
-
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link3" onMouseOver="displayAd(3);" onMouseOut="hideAd();" class="intellitextLink">Tooltip</span>
-
-
 <%-- flamingo viewer --%>
 <div id="flashcontent">
     <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
@@ -116,9 +91,18 @@ var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigSe
 so.write("flashcontent");
 </script>
 
+
+<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+<span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+
+
 <div class="treeHolder">
     <div id="tree"></div>
 </div>
+
+<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+<span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+
 <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 <%--
 <c:if test="${not empty kaartId}">
