@@ -256,8 +256,6 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);            
-            JSONArray parent = new JSONArray();
-            parentObj.put("children", parent);
             parentObj = createTreeList(sp.getLayers(), organizationLayers, parentObj);
             rootArray.put(parentObj);
             
@@ -291,23 +289,20 @@ public class MapviewerAction extends KaartenbalieCrudAction {
          * in a tree like array which can be used to build up a menu structure. 
          */
         Iterator layerIterator = layers.iterator();
+        JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
             /* For each layer in the set we are going to create a JSON object which we will add to de total
              * list of layer objects.
              */
             Layer layer = (Layer)layerIterator.next();
-            
             /* Before a layer is going to be added we need to make sure that this layer is allowed to be seen
              * If a layer is not allowed to be seen there is no use to create a JSON object for it, neither
              * is it necessary to check if child layers shoudl be added.
              */
             if(hasVisibility(layer, organizationLayers)) {
                 /* When the visibility check has turned out to be ok. we start adding this layer to
-                 * the list of layers. This method provides us with a JSONObject called parent. This parent
-                 * object should have an JSONArray carried inside (empty or not empty) which we can use to
-                 * add another layer to. Therefore we first need to retrieve this JSONArray.
+                 * the list of layers.
                  */
-                JSONArray parentArray = (JSONArray) parent.get("children");
                 
                 /* When we have retrieved this array we are able to save our object we are working with
                  * at the moment. This object is our present layer object. This object first needs to be
@@ -323,8 +318,6 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                  */
                 Set childLayers = layer.getLayers();
                 if (childLayers != null && !childLayers.isEmpty()) {
-                    JSONArray layerArray = new JSONArray();
-                    layerObj.put("children", layerArray);
                     layerObj = createTreeList(childLayers, organizationLayers, layerObj);
                 }
                 
@@ -333,11 +326,11 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                  */
                 parentArray.put(layerObj);
                 
-                /* This JSONArray parent in return can be stored again into the JSON parent object which can be returned
-                 * after doing so.
-                 */
-                parent.put("children", parentArray);                
+                              
             }
+        }
+        if (parentArray.length()>0){
+            parent.put("children",parentArray);
         }
         return parent;
     }

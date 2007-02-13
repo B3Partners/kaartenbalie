@@ -55,19 +55,29 @@ so.write("flashcontent");
         function createLabel(container, item) {
             var div = document.createElement("div");
             var vink= document.createElement("input");
-            vink.type="checkbox";
-            vink.value=item.id;
-            vink.layerType=item.type;
-            vink.className="layerVink";
+            //als het item kinderen heeft dan geen vink toevoegen.
+            if (!item.children){
+                vink.type="checkbox";
+                vink.value=item.id;
+                vink.id=item.id;
+                vink.layerType=item.type;
+                vink.className="layerVink";
+                container.appendChild(vink);
+            }
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
-            container.appendChild(vink);
             div.onclick = function() {
                 itemClick(item);
             };
-             
-
             div.appendChild(document.createTextNode(item.name));
             container.appendChild(div);
+            if (item.children){
+                var d=document.createElement("a");
+                d.href="#";
+                d.onclick= function(){selectAll(this);};
+                d.selecteditem=item;
+                d.innerHTML=" Selecteer alles";
+                container.appendChild(d);
+            }
         }
 
         treeview_create({
@@ -101,5 +111,37 @@ so.write("flashcontent");
             }
             window.location.href="mapviewer.do?layers="+layersString;
         }
+        
+        function selectAll(element){
+            var item=element.selecteditem;
+            if(item && item.children){
+                selectAllChilds(item.children);
+            }
+            
+        }
+        function selectAllChilds(children){
+            for(var i=0; i < children.length; i++){
+                var element=document.getElementById(children[i].id);
+                if(element){
+                    element.checked="true";                    
+                }
+                if (children[i].children){
+                    selectAllChilds(children[i].children);
+                }
+            }
+        
+        }
+        //check the selected layers
+        <c:if test="${not empty checkedLayers}">
+            var layerstring="${checkedLayers}";
+            var layers=layerstring.split(",");
+            for (var i=0; i < layers.length; i++){
+                var element=document.getElementById(layers[i]);
+                //if found
+                if (element){
+                    element.checked="true";
+                }
+            }
+        </c:if>
     </c:if>
 </script>
