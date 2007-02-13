@@ -21,9 +21,10 @@
         <many-to-one name="parent" column="PARENTID" class="nl.b3p.kaartenbalie.core.server.Layer" />
         
 
-        <set name="layers" inverse="true" cascade="all"> 
+        <set name="layers" inverse="true" cascade="all" order-by="name"> 
             <key column="PARENTID" /> 
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"></one-to-many> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"></one-to-many>
+            
         </set>
         
         <!--

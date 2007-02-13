@@ -94,7 +94,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         super.createLists(form, request);
         User user = (User) request.getUserPrincipal();
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
-        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp").list();
+        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         
         JSONObject root = new JSONObject(); 
         JSONArray rootArray = new JSONArray(); 
