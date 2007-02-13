@@ -193,7 +193,17 @@ public class ServiceProvider implements XMLElement {
         layers.add(layer);
         layer.setServiceProvider(this);
     }
-    
+    public Layer getTopLayer(){
+        Set set= getLayers();
+        Iterator it=set.iterator();
+        while (it.hasNext()){
+            Layer layer=(Layer)it.next();
+            if (layer.getParent()==null){
+                return layer;
+            }
+        }
+        return null;
+    }
     public Set getServiceProviderKeywordList() {
         return serviceProviderKeywordList;
     }

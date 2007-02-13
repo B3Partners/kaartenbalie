@@ -102,11 +102,13 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);            
-            parentObj = createTreeList(sp.getLayers(), organizationLayers, parentObj);
+            JSONObject parentObj = this.serviceProviderToJSON(sp);
+            HashSet<Layer> set= new HashSet<Layer>();
+            set.add(sp.getTopLayer());
+            parentObj = createTreeList(set, organizationLayers, parentObj);
             rootArray.put(parentObj);
             
-//            parent = createTreeList(sp.getLayers(), organizationLayers, parent);
+            //parent = createTreeList(sp.getLayers(), organizationLayers, parent);
             //root.put("serviceprovider", parent);
             //System.out.println(parentObj.toString());
         }
