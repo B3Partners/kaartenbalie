@@ -38,8 +38,11 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="serviceProviderUrl" type="java.lang.String"/>
             <form-property name="serviceProviderGivenName" type="java.lang.String"/>
+            <form-property name="serviceProviderUrl" type="java.lang.String"/>
+            <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
+            <form-property name="serviceProviderReviewed" type="java.lang.String"/>
+            <form-property name="serviceProviderSelected" type="java.lang.String[]"/>
         </form-bean> 
     </form-beans>
     
@@ -53,7 +56,7 @@
 
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
-        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerAction" scope="request" validate="false">
+        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">
             <forward name="success" path="base.demo.addUrl"/>
             <forward name="failure" path="base.demo.addUrl"/>
         </action>

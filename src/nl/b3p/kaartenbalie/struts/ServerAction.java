@@ -63,7 +63,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @return a service provider object.
      */
     // <editor-fold defaultstate="collapsed" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         ServiceProvider serviceProvider = null;
         
@@ -106,7 +106,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
         request.setAttribute("serviceproviderlist", serviceproviderlist);        
     }
-    // </editor-fold>
+    // </editor-fold>z
     
     /** Method that fills a serive provider object with the user input from the forms.
      *
@@ -114,7 +114,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @param serviceProvider ServiceProvider object that to be filled
      */
     // <editor-fold defaultstate="collapsed" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
-    private void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
+    protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
         //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
         serviceProvider.setUpdatedDate(new Date());
