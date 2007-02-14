@@ -141,7 +141,7 @@ so.write("flashcontent");
             if (item.children){
                 var d=document.createElement("a");
                 d.href="#";
-                d.onclick= function(){selectAll(this);};
+                d.onclick= function(){setAllTrue(this);};
                 d.selecteditem=item;
                 d.innerHTML=" Selecteer alles";
                 container.appendChild(d);
@@ -180,21 +180,32 @@ so.write("flashcontent");
             window.location.href="mapviewer.do?layers="+layersString;
         }
         
-        function selectAll(element){
+        function setAllTrue(element){
+            setAll(element,true);
+            element.onclick= function(){setAllFalse(this);};
+            element.innerHTML=" Deselecteer alles";
+        }
+        function setAllFalse(element){
+            setAll(element,false);
+            element.onclick= function(){setAllTrue(this);};
+            element.innerHTML=" Selecteer alles";
+        }
+        
+        function setAll(element,checked){
             var item=element.selecteditem;
             if(item && item.children){
-                selectAllChilds(item.children);
+                setAllChilds(item.children,checked);
             }
             
         }
-        function selectAllChilds(children){
+        function setAllChilds(children,checked){
             for(var i=0; i < children.length; i++){
                 var element=document.getElementById(children[i].id);
                 if(element){
-                    element.checked="true";                    
+                    element.checked=checked;                    
                 }
                 if (children[i].children){
-                    selectAllChilds(children[i].children);
+                    setAllChilds(children[i].children,checked);
                 }
             }
         
