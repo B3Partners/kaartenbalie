@@ -65,17 +65,6 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Map requestMap = request.getParameterMap();
         String username = request.getUserPrincipal().getName();
         
-/*        dynaForm.set("minx","184479");
-        dynaForm.set("miny","345822");
-        dynaForm.set("maxx","194755");
-        dynaForm.set("maxy","353322");
-        createLists(dynaForm, request);    
-        
-        //welke layers mag de gebruiker zien?
-        Layer layers = new Layer();
-        //layers setten in dynaform
-        request.setAttribute("layers",layers);*/
-        
         String checkedLayers=request.getParameter("layers");
         request.setAttribute("checkedLayers",checkedLayers);
         return super.unspecified(mapping,dynaForm,request,response);
@@ -106,7 +95,9 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             HashSet<Layer> set= new HashSet<Layer>();
             set.add(sp.getTopLayer());
             parentObj = createTreeList(set, organizationLayers, parentObj);
-            rootArray.put(parentObj);
+            if (parentObj.has("children")){
+                rootArray.put(parentObj);
+            }
             
             //parent = createTreeList(sp.getLayers(), organizationLayers, parent);
             //root.put("serviceprovider", parent);
