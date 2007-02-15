@@ -115,7 +115,7 @@
             
             
         </table>
-        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'">
+        <input type="button" value="Verder" onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'">
 <%--        <html:form action="/voegurltoe">
             <html:hidden property="userid" value="${id}"></html:hidden>
             <html:submit value="Volgende"/>

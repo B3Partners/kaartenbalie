@@ -70,7 +70,5 @@ WMS service aangeboden wordt op genomen in haar eigen database. Door middel van 
 viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen.
 
 <P>
-<html:form action="/mapviewer"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
-<html:submit value="Naar de viewer"/>
-</html:form>
+    <input type="button" value="jiiij" onclick="javascript:window.location.href='<html:rewrite page='/viewer/mapviewer.do' module='' />'">
 </P>
