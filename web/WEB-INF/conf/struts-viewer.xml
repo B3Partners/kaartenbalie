@@ -19,6 +19,7 @@
             <form-property name="maxx" type="java.lang.String" initial="280000"/>
             <form-property name="maxy" type="java.lang.String" initial="625000"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="helpOn_Off" type="java.lang.Boolean" />
         </form-bean>
         <!--6.49499583151191,50.9099968504161,6.50249583134428,50.9174968502484-->
         <!--5.25804640016269,3.13362127696184,1.99137980016269,10.333045323-->

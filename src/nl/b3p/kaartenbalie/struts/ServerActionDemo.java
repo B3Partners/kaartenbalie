@@ -47,6 +47,63 @@ public class ServerActionDemo extends ServerAction {
     }
     // </editor-fold>
     
+    /** Method for saving a new service provider from input of a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //if invalid
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        // nieuwe default actie op delete zetten
+        Session sess = getHibernateSession();
+        //validate and check for errors
+        ActionErrors errors = dynaForm.validate(mapping, request);
+        if(!errors.isEmpty()) {
+            addMessages(request, errors);
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
+        ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
+                
+        if (null == serviceProvider) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader(serviceProvider);
+        String url = dynaForm.getString("serviceProviderUrl");
+        serviceProvider = wms.getProvider(url);
+        populateServerObject(dynaForm, serviceProvider);
+        sess.saveOrUpdate(serviceProvider);
+        sess.flush();
+        
+        dynaForm.set("id", "");
+        dynaForm.set("serviceProviderGivenName", "");
+        dynaForm.set("serviceProviderUrl", "");
+        dynaForm.set("serviceProviderUpdatedDate", "");
+        dynaForm.set("serviceProviderReviewed", "");
+        
+        return mapping.findForward("nextPage");//return super.save(mapping,dynaForm,request,response);
+    }
+    // </editor-fold>
+    
     /** Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.

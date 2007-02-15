@@ -56,6 +56,23 @@
         -->
     </security-constraint>
     
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>
+                kaartenbalie Collection 2
+            </web-resource-name>
+            <url-pattern>/demo/*</url-pattern>
+            <url-pattern>/viewer/mapviewer.do</url-pattern>
+            <http-method>POST</http-method>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>beheerder</role-name>
+            <role-name>gebruiker</role-name>
+            <role-name>demogebruiker</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
     
   
     <login-config>

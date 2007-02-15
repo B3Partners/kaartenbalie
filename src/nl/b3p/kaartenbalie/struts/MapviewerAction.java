@@ -26,6 +26,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import nl.b3p.kaartenbalie.service.SecurityRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
@@ -63,7 +64,11 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             throws Exception {
         
         Map requestMap = request.getParameterMap();
-        String username = request.getUserPrincipal().getName();
+        SecurityRealm sr = new SecurityRealm();
+        boolean helpOn_Off = sr.isUserInRole(request.getUserPrincipal(), "demogebruiker");
+        if(helpOn_Off) {
+            request.setAttribute("helpOn_Off", new Boolean(helpOn_Off));
+        }        
         
         String checkedLayers=request.getParameter("layers");
         request.setAttribute("checkedLayers",checkedLayers);

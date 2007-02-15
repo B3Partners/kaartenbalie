@@ -43,7 +43,21 @@
             <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
             <form-property name="serviceProviderReviewed" type="java.lang.String"/>
             <form-property name="serviceProviderSelected" type="java.lang.String[]"/>
-        </form-bean> 
+        </form-bean>
+        
+        <form-bean name="mapviewerForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="sortedDatasets" type="java.util.List"/>
+            <form-property name="minx" type="java.lang.String" initial="20000"/>   
+            <form-property name="miny" type="java.lang.String" initial="280000"/>
+            <form-property name="maxx" type="java.lang.String" initial="280000"/>
+            <form-property name="maxy" type="java.lang.String" initial="625000"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+        </form-bean>
     </form-beans>
     
     <global-exceptions>
@@ -56,14 +70,21 @@
 
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
-        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">
-            <forward name="success" path="base.demo.addUrl"/>
-            <forward name="failure" path="base.demo.addUrl"/>
-        </action>
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
-            <forward name="failure" path="base.demo.registration"/>
+            <forward name="failure" path="base.demo.index"/>
+        </action>
+        
+        <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">
+            <forward name="success" path="base.demo.addUrl"/>
+            <forward name="nextPage" path="base.demo.addUrlsuccessfull"/>
+            <forward name="failure" path="base.demo.index"/>
+        </action>
+        
+        <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
+            <forward name="success" path="base.demo.mapviewer"/>
+            <forward name="failure" path="base.demo.index"/>
         </action>
     </action-mappings>
     

@@ -111,6 +111,9 @@ so.write("flashcontent");
     </div>
 </c:if>
 --%>
+<c:if test = "${helpOn_Off}">
+    JAAAAAA..... KOMT IE DAN HE, KOMT IE KOMT IE DAN HE!!!!!!    
+</c:if>
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         var root = ${layerList};

@@ -134,6 +134,7 @@ window.onload = function() { stripedTable(); }
         <html:select property="selectedRole">
             <html:option value="beheerder">beheerder</html:option>
             <html:option value="gebruiker">gebruiker</html:option>
+            <html:option value="demogebruiker">demogebruiker</html:option>
         </html:select>     
         </td>
         </tr>
