@@ -91,29 +91,22 @@ var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigSe
 so.write("flashcontent");
 </script>
 
-
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-
+<c:if test = "${helpOn_Off}">
+    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+    <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+</c:if>
 
 <div class="treeHolder">
     <div id="tree"></div>
 </div>
 
-<div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-<span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+<c:if test = "${helpOn_Off}">
+    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+    <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+</c:if>
 
 <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
-<%--
-<c:if test="${not empty kaartId}">
-    <div>
-        <a class="link" href='download.do?kaartId=<c:out value="${kaartId}"/>'>Download kaart </a>
-    </div>
-</c:if>
---%>
-<c:if test = "${helpOn_Off}">
-    JAAAAAA..... KOMT IE DAN HE, KOMT IE KOMT IE DAN HE!!!!!!    
-</c:if>
+
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         var root = ${layerList};

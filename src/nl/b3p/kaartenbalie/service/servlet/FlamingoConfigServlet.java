@@ -35,6 +35,8 @@ import org.w3c.dom.NodeList;
 
 public class FlamingoConfigServlet extends HttpServlet {
     
+    public static final long serialVersionUID = 24362462L; 
+    
     /** Creates a new instance of FlamingoConfigServlet */
     public FlamingoConfigServlet() {
     }

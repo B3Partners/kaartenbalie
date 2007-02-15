@@ -41,7 +41,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         String previousUrl = "";
-        ArrayList urls = new ArrayList();
+        ArrayList <StringBuffer> urls = new ArrayList <StringBuffer> ();
         StringBuffer spUrl = null;
         
         /* Get a list with ServiceProviders from the database */

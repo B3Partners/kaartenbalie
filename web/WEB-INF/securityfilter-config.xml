@@ -61,7 +61,6 @@
             <web-resource-name>
                 kaartenbalie Collection 2
             </web-resource-name>
-            <url-pattern>/demo/*</url-pattern>
             <url-pattern>/viewer/mapviewer.do</url-pattern>
             <http-method>POST</http-method>
             <http-method>GET</http-method>

@@ -174,7 +174,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId() == select) {
-                    layers = getAllTopLayers(layer, layers);
+                    layers = getAllTopLayers(layer,  layers );
                     //layers.add(layer);///layerList.get(select));
                     break;
                 }
@@ -185,7 +185,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    private Set getAllTopLayers(Layer layer, Set layers) {
+    private Set <Layer> getAllTopLayers(Layer layer, Set <Layer> layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
             this.getAllTopLayers(layer.getParent(), layers);
