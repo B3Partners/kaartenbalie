@@ -115,9 +115,11 @@
             
             
         </table>
-        <html:form action="/voegurltoe">
+        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'">
+<%--        <html:form action="/voegurltoe">
+            <html:hidden property="userid" value="${id}"></html:hidden>
             <html:submit value="Volgende"/>
-        </html:form>        
+        </html:form> --%>       
     </c:when>
     <c:otherwise>
         <html:form action="/registration" onsubmit="return validateRegistrationForm(this)">

@@ -13,11 +13,15 @@ package nl.b3p.kaartenbalie.struts;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
@@ -43,7 +47,10 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return super.unspecified(mapping, dynaForm, request, response);
+        String userid = (String) request.getParameter("userid");
+        ActionForward action = super.unspecified(mapping, dynaForm, request, response);
+        dynaForm.set("userid", userid);
+        return action;
     }
     // </editor-fold>
     
@@ -91,7 +98,15 @@ public class ServerActionDemo extends ServerAction {
         String url = dynaForm.getString("serviceProviderUrl");
         serviceProvider = wms.getProvider(url);
         populateServerObject(dynaForm, serviceProvider);
+                
+        String userid = dynaForm.getString("userid");
+        User user = getUser(dynaForm, request, false, Integer.parseInt(userid));
+        Organization org = user.getOrganization();
+        org.setOrganizationLayer(serviceProvider.getLayers());
+        
+        
         sess.saveOrUpdate(serviceProvider);
+        sess.saveOrUpdate(org);
         sess.flush();
         
         dynaForm.set("id", "");
@@ -101,6 +116,29 @@ public class ServerActionDemo extends ServerAction {
         dynaForm.set("serviceProviderReviewed", "");
         
         return mapping.findForward("nextPage");//return super.save(mapping,dynaForm,request,response);
+    }
+    // </editor-fold>
+    
+    /** Method which returns the user with a specified id.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param createNew A boolean which indicates if a new object has to be created.
+     * @param id An Integer indicating which organization id has to be searched for.
+     *
+     * @return a User object.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+        Session session = getHibernateSession();
+        User user = null;
+        
+        if(null == id && createNew) {
+            user = new User();
+        } else if (null != id) {
+            user = (User)session.load(User.class, new Integer(id));
+        }
+        return user;
     }
     // </editor-fold>
     

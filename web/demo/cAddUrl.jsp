@@ -102,6 +102,7 @@ te voeren. Dat is precies de kracht van de kaartenbalie. <B>Eenvoudig edoch krac
                 <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
             </td>
         </tr>
+        <html:hidden property="userid"></html:hidden>
         <tr>
             <td colspan="0">
                 <center>

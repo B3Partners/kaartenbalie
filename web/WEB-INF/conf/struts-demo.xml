@@ -38,6 +38,7 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
+            <form-property name="userid" type="java.lang.String"/>
             <form-property name="serviceProviderGivenName" type="java.lang.String"/>
             <form-property name="serviceProviderUrl" type="java.lang.String"/>
             <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>

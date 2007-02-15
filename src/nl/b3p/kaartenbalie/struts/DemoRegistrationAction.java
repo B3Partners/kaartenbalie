@@ -223,6 +223,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         populateRegistrationObject(request, dynaForm, user, organization);
         sess.saveOrUpdate(organization);
         
+        user.setRole("demogebruiker");
         user.setOrganization(organization);
         
         sess.saveOrUpdate(user);
