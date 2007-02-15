@@ -18,6 +18,7 @@
             <fmc:ToolZoomin id="zoom"/>
             <fmc:ToolZoomout left="30"/>
             <fmc:ToolPan left="60"/>
+            <fmc:ToolMeasure left="90"/>
         </fmc:ToolGroup>                                                                                
     <fmc:BorderNavigation listento="mainMap"/>
     <fmc:Map id="mainMap" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="130087,315639,249418,386267">

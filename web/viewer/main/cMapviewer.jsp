@@ -102,14 +102,18 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <div class="treeHolder">
     <div id="tree"></div>
 </div>
-
 <c:if test = "${helpOn_Off}">
     <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
     <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
 </c:if>
 
 <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
-
+<div>
+    <div id="currentCoordinates">
+    </div>
+    <div id="currentScale">
+    </div>
+</div>
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         
@@ -178,7 +182,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 }
             }
             //haal de extent op van de mainmap en plaats die in de request
-            var e=flamingo.call("mainMap", "getMapExtent");
+            var e=flamingo.call("mainMap", "getCurrentExtent");
             window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
                  
 
@@ -226,7 +230,19 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 }
             }
         </c:if>
-    
+        function mainMap_onUpdateProgress(){
+            setMapInfo();
+        }
+        function setMapInfo(){
+            var e=flamingo.call("mainMap", "getCurrentExtent");
+            var s=flamingo.call("mainMap", "getCurrentScale");
+            
+            var x=Math.round((e.minx+e.maxx)/2);
+            var y=Math.round((e.miny+e.maxy)/2);
+            document.getElementById("currentScale").innerHTML="Schaal= "+s;
+            document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
+        }
+        
     </c:if>
 </script>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
