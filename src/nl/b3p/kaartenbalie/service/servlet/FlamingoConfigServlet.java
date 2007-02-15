@@ -52,58 +52,37 @@ public class FlamingoConfigServlet extends HttpServlet {
      * @param response servlet response
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /*if (defaultConfig == null){
-            throw new ServletException("Default config bestand is niet geladen");
+       
+        String path= request.getPathInfo();
+        path=path.replaceAll("/","");
+        String[] tokens=path.split("extent=");
+        String layers=null;
+        String extent=null;
+        if (tokens.length>0){
+            layers=tokens[0];
         }
-        
-        String layersSelected = request.getPathInfo();
-        layersSelected = layersSelected.substring(1, layersSelected.length());
-        
-        if (layersSelected != null){
-            Session sess= MyDatabase.currentSession();
-            Transaction tx = sess.beginTransaction();
-            FlamingoMap flamingoMap = (FlamingoMap)sess.get(FlamingoMap.class, new Integer(layersSelected));
-            
-            Document doc = (Document) defaultConfig.cloneNode(true);
-            //vervang de url en layers attributen in de map node
-            Node node = getElementBy(doc,"id","map");
-            
-            for (int i = 0; i < node.getAttributes().getLength(); i++){
-                if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("url")){
-                    node.getAttributes().item(i).setNodeValue(flamingoMap.getFMCWMSLink());
-                }
-                if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("layers")){
-                    node.getAttributes().item(i).setNodeValue(flamingoMap.getLayers());
-                }
-            }
-            
-            try{
-                tx.commit();
-            } catch(Exception e) {
-                tx.rollback();
-                log.error("Exception occured, rollback", e);
-                
-            }
-            write(response,doc);
-         *
-        }*/
-        
-        
-        String layers= request.getPathInfo();
+        if (tokens.length==2){
+            extent=tokens[1];
+        }        
         //don't alter config if no parameter is given
         Document returnConfig = (Document)defaultConfig.cloneNode(true);
         if (layers!=null && layers.length()>1)
         {
-            layers=layers.replaceAll("/","");
             Node node = getElementBy(returnConfig,"id","map");
             for (int i = 0; i < node.getAttributes().getLength(); i++){
                 if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("layers")){
                     node.getAttributes().item(i).setNodeValue(layers);
                 }
             }
-            
-            
-        }        
+        }
+        if (extent!=null && extent.length()>1){
+            Node node = getElementBy(returnConfig,"id","mainMap");
+            for (int i = 0; i < node.getAttributes().getLength(); i++){
+                if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("extent")){
+                    node.getAttributes().item(i).setNodeValue(extent);
+                }
+            }
+        }
         
         write(response,returnConfig);
     }

@@ -71,7 +71,9 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         }        
         
         String checkedLayers=request.getParameter("layers");
+        String extend=request.getParameter("extent");
         request.setAttribute("checkedLayers",checkedLayers);
+        request.setAttribute("extent",extend);
         return super.unspecified(mapping,dynaForm,request,response);
     }
     // </editor-fold>

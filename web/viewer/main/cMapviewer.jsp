@@ -28,6 +28,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
 <script language="JavaScript" type="text/javascript">
+    
         var titleArray = new Array();
         titleArray[0] = "De Viewer";
         titleArray[1] = "De Layers";
@@ -79,6 +80,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         var tooltipURLDecorationOn = "underline";
         //............................................................
         // 								END EDITABLE TOOLTIP VARIABLES
+       
 </script>
 
 
@@ -87,9 +89,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
 </div>
 <script type="text/javascript">
-var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>/', "flamingo", "500", "500", "8", "#FFFFFF");
-so.write("flashcontent");
-</script>
+    var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
+    so.write("flashcontent");
+  
+ </script>
 
 <c:if test = "${helpOn_Off}">
     <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
@@ -109,8 +112,9 @@ so.write("flashcontent");
 
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
+        
         var root = ${layerList};
-
+        
         function itemClick(item) {
             var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
             treeview_toggleItemChildren(DOMItemId);
@@ -173,9 +177,12 @@ so.write("flashcontent");
                     }
                 }
             }
-            window.location.href="mapviewer.do?layers="+layersString;
-        }
-        
+            //haal de extent op van de mainmap en plaats die in de request
+            var e=flamingo.call("mainMap", "getMapExtent");
+            window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
+                 
+
+        }        
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
@@ -215,8 +222,11 @@ so.write("flashcontent");
                 //if found
                 if (element){
                     element.checked="true";
+                    
                 }
             }
         </c:if>
+    
     </c:if>
 </script>
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
