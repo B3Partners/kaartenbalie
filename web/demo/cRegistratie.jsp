@@ -201,8 +201,8 @@
                 </tr>
                 <tr>
                     <td colspan="0"><center>
-                            <html:reset  value="Verwijder invoer" />
-                            <html:submit value="Registreer" property="save"/>
+                        <html:submit value="Registreer" property="save"/>    
+                        <html:reset  value="Verwijder invoer" />
                     </center></td>
                 </tr>
             </table>

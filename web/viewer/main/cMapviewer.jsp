@@ -50,12 +50,12 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         
         //TOOLTIP OFFSET
         var xOffsetArray = new Array();
-        xOffsetArray[0] = 0;
-        xOffsetArray[1] = 0;
+        xOffsetArray[0] = 10;
+        xOffsetArray[1] = 10;
 
         var yOffsetArray = new Array();
-        yOffsetArray[0] = 0;
-        yOffsetArray[1] = 0;
+        yOffsetArray[0] = 105;
+        yOffsetArray[1] = 105;
 
         //TOOLTIP BOX DEFAULT WIDTH
         var toolTipDefaultWidth = 500;
@@ -94,18 +94,27 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
   
  </script>
 
-<c:if test = "${helpOn_Off}">
-    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-    <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-</c:if>
-
-<div class="treeHolder">
-    <div id="tree"></div>
+<div id="treeContainer">
+    <div class="treeHolder">
+        <div id="tree"></div>
+    </div>
+    <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 </div>
-<c:if test = "${helpOn_Off}">
-    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-    <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-</c:if>
+
+
+<div id="tooltips">
+    <c:if test = "${helpOn_Off}">
+        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+        <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+    </c:if>
+    
+    
+    
+    <c:if test = "${helpOn_Off}">
+        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+        <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+    </c:if>
+</div>
 
 <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 <div>

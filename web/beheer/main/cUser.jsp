@@ -18,6 +18,12 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
    "http://www.w3.org/TR/html4/loose.dtd">
  <SCRIPT type=text/javascript>
 <!--
+function toggleDiv(divid) {
+            var divEl = document.getElementById(divid);
+            if(divEl.style.display == 'none') divEl.style.display = 'block';
+            else divEl.style.display = 'none';
+        }
+
 /* http://www.alistapart.com/articles/zebratables/ */
 function removeClassName (elem, className) {
 	elem.className = elem.className.replace(className, "").trim();
@@ -63,105 +69,98 @@ window.onload = function() { stripedTable(); }
 
 
 
-<table>
-    <tr>
-    <td valign="top"><b>Gebruikers tabel:</b>
-    <DIV class=tableContainer id=tableContainer>
-        <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
-            <THEAD class=fixedHeader>
-            <TR>
-            <TH>Select</TH>
-            <TH>Voornaam</TH>
-            <TH>Achternaam</TH>
-            <TH>Gebruikersnaam</TH>
-            <TH>Email adres</TH>
-            </TR>
-            </THEAD>
-            <TBODY class=scrollContent>            
+    <div class="containerdiv" style="float: left; clear: none;">
+        <b>Gebruikers tabel:</b>
+        <div class="serverRijTitel">
+            <div style="width: 50px;">Select</div>
+            <div style="width: 160px;">Voornaam</div>
+            <div style="width: 160px;">Achternaam</div>
+            <div style="width: 160px;">Gebruikersnaam</div>
+            <div style="width: 160px;">E-mailadres</div>
+        </div>
+        <DIV class="tableContainer" id="tableContainer">          
             <c:forEach var="nUser" varStatus="status" items="${userlist}">
-                <TR>
-                    <TD><html:multibox value="${nUser.id}" property="userSelected" /></TD>
-                    <TD><c:out value="${nUser.firstName}"/></TD>
-                    <TD><c:out value="${nUser.lastName}"/></TD>
-                    <TD><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></TD>
-                    <TD><c:out value="${nUser.emailAddress}"/></TD>
-                </TR>
+            <div class="serverRij">    
+                <div style="width: 50px;"><html:multibox value="${nUser.id}" property="userSelected" /></div>
+                <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>"><c:out value="${nUser.firstName}"/></div>
+                <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>"><c:out value="${nUser.lastName}"/></div>
+                <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>"><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></div>
+                <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>"><c:out value="${nUser.emailAddress}"/></div>
+            </div>    
             </c:forEach>
-            </TBODY>
-        </TABLE>
-    </DIV>
-    <html:submit value="Add/Change User" property="delete"/>
-    </td>
-    <td width="33%" align="right">
-    <table>
-        <tr>
-        <td><B>ID:</B></td>
-        <td><html:text property="id" readonly="true" /></td>
-        </tr>
-        <tr>
-        <td><B>Voornaam:</B></td>
-        <td><html:text property="firstname"/></td>
-        </tr>
-        <tr>
-        <td><B>Achternaam:</B></td>
-        <td><html:text property="lastname"/></td>
-        </tr>
-        <tr>
-        <td><B>Email:</B></td>
-        <td><html:text property="emailAddress"/></td>
-        </tr>
-        <tr>
-        <td><B>Gebruikersnaam:</B></td>
-        <td><html:text property="username"/></td>
-        </tr>
-        <tr>
-        <td><B>Wachtwoord:</B></td>
-        <td><html:text property="password"/></td>
-        </tr>
-        <tr>
-        <td><B>Organisatie:</B></td>
-        <td>
-        <html:select property="selectedOrganization">
-            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
-            </c:forEach>
-        </html:select>     
-        </td>
-        </tr>
-        <tr>
-        <td><B>Roles:</B></td>
-        <td>
-        <html:select property="selectedRole">
-            <html:option value="beheerder">beheerder</html:option>
-            <html:option value="gebruiker">gebruiker</html:option>
-            <html:option value="demogebruiker">demogebruiker</html:option>
-        </html:select>     
-        </td>
-        </tr>
-        <tr>
-        <td colspan="0"><center>
-            <html:reset  value="Delete values" />
-            <html:submit value="Add/Change User" property="save"/>
-        </center></td>
-        </tr>
-    </table>
-    </td>
-    </tr>
-    <tr>
-    <td><b>Administratieve meldingen</b>
-    <DIV class=tableContainer id=tableContainer2 style="top: auto">
-        <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
-            <THEAD class=fixedHeader>
-            <TR> 
-            <TH><B>Administratieve data</B></TH>
-            </TR>
-            </THEAD>
-            <TBODY class=scrollContent>
-                <TR><TD></TD></TR>
-            </TBODY>
-        </TABLE>
-    </DIV>
-    </td>
-    </tr>
-</table>
+        </DIV>
+    </div>
+    <html:submit value="Delete selected user(s)" property="delete"  style="margin-top: 5px; margin-bottom: 5px;"/>
+
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+        <table>
+            <tr>
+                <td><B>ID:</B></td>
+                <td><html:text property="id" readonly="true" /></td>
+            </tr>
+            <tr>
+                <td><B>Voornaam:</B></td>
+                <td><html:text property="firstname"/></td>
+            </tr>
+            <tr>
+                <td><B>Achternaam:</B></td>
+                <td><html:text property="lastname"/></td>
+            </tr>
+            <tr>
+                <td><B>Email:</B></td>
+                <td><html:text property="emailAddress"/></td>
+            </tr>
+            <tr>
+                <td><B>Gebruikersnaam:</B></td>
+                <td><html:text property="username"/></td>
+            </tr>
+            <tr>
+                <td><B>Wachtwoord:</B></td>
+                <td><html:text property="password"/></td>
+            </tr>
+            <tr>
+                <td><B>Organisatie:</B></td>
+                <td>
+                    <html:select property="selectedOrganization">
+                        <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                            <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
+                        </c:forEach>
+                    </html:select>     
+                </td>
+            </tr>
+            <tr>
+                <td><B>Roles:</B></td>
+                <td>
+                    <html:select property="selectedRole">
+                        <html:option value="beheerder">beheerder</html:option>
+                        <html:option value="gebruiker">gebruiker</html:option>
+                        <html:option value="demogebruiker">demogebruiker</html:option>
+                    </html:select>     
+                </td>
+            </tr>
+            <tr>
+                <td colspan="0"><center>
+                        <html:reset  value="Delete values" />
+                        <html:submit value="Add/Change User" property="save"/>
+                </center></td>
+            </tr>
+        </table>
+    </div>
+
+    <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
+    <div id="adminContainer" style="clear: left; display: none;" class="containerdiv">
+        <b>Administratieve meldingen</b>
+        <DIV class=tableContainer id=tableContainer2 style="top: auto">
+            <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
+                <THEAD class=fixedHeader>
+                    <TR> 
+                        <TH><B>Administratieve data</B></TH>
+                    </TR>
+                </THEAD>
+                <TBODY class=scrollContent>
+                    <TR><TD></TD></TR>
+                </TBODY>
+            </TABLE>
+        </DIV>
+    </div>
 </html:form>
