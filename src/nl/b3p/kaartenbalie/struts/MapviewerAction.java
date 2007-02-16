@@ -68,8 +68,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         boolean helpOn_Off = sr.isUserInRole(request.getUserPrincipal(), "demogebruiker");
         if(helpOn_Off) {
             request.setAttribute("helpOn_Off", new Boolean(helpOn_Off));
-        }        
-        
+        }
         String checkedLayers=request.getParameter("layers");
         String extend=request.getParameter("extent");
         request.setAttribute("checkedLayers",checkedLayers);

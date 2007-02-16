@@ -55,6 +55,7 @@ H5 {
     margin-left: auto; 
     margin-right: auto;
     background-color: #E9F1F7;
+    
 }
 
 #container {
@@ -363,7 +364,7 @@ margin: 0;
 }
 /*de holder voor de tree*/
 #treeContainer {
-    height: 490px;
+    height: 500px;
     width: 270px;
     float: left;
     text-align: right;
@@ -374,7 +375,7 @@ margin: 0;
 .treeHolder{
     float: left;
     width: 270px;
-    height: 480px;
+    height: 470px;
     overflow: auto;
     text-align: left;
 }
@@ -386,4 +387,30 @@ margin: 0;
     float: left;
     clear: left;
     height: 25px;
+}
+/*Layer order gedeelte*/
+.orderLayerBox{
+    float: left;
+    overflow: auto;
+    height: 100px;
+    width: 400px;    
+}
+.orderLayerClass{
+    float: left;
+    clear: both;
+    cursor: pointer;
+    background-color: #ffffff;
+    
+}
+.orderLayerClassSelected{
+    float: left;
+    clear: both;
+    background-color: #bbbbbb;
+    cursor: pointer;
+    
+}
+/*map info*/
+.mapInfo{
+    background-color: #ffffff;
+    
 }

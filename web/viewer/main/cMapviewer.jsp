@@ -23,7 +23,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <%@ page isELIgnored="false"%>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/swfobject.js' module='' />"></script>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
-
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/moveLayers.js' module='' />"></script>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
@@ -100,7 +100,19 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     </div>
     <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 </div>
-
+    <div class="mapInfo">
+        <div id="currentCoordinates">
+        </div>
+        <div id="currentScale">
+        </div>
+    </div>   
+    <b>Volgorde</b><br>
+    Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
+    <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
+    <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
+    <div id="orderLayerBox" class="orderLayerBox">
+    </div>
+    
 
 <div id="tooltips">
     <c:if test = "${helpOn_Off}">
@@ -116,18 +128,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     </c:if>
 </div>
 
-<input type="button" value="Vernieuw" onclick="reloadLayers()"/>
-<div>
-    <div id="currentCoordinates">
-    </div>
-    <div id="currentScale">
-    </div>
-</div>
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         
         var root = ${layerList};
-        
         function itemClick(item) {
             var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
             treeview_toggleItemChildren(DOMItemId);
@@ -139,10 +143,12 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             //als het item kinderen heeft dan geen vink toevoegen.
             if (!item.children){
                 vink.type="checkbox";
-                vink.value=item.id;
+                vink.value=item.name;
+                vink.name=item.id;
                 vink.id=item.id;
                 vink.layerType=item.type;
                 vink.className="layerVink";
+                vink.onclick=function(){checkboxClick(this);};
                 container.appendChild(vink);
             }
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
@@ -177,25 +183,20 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         });
         function reloadLayers(){
             var layersString="";
-            var treeElement=document.getElementById("tree");
-            var checkboxes=treeElement.getElementsByTagName("input");
-            for (var i=0; i < checkboxes.length; i++){
-                if (checkboxes[i].type=="checkbox"){
-                    if(checkboxes[i].checked){
-                        if(layersString.length==0){
-                            layersString+=checkboxes[i].value;
-                        }else{
-                            layersString+=","+checkboxes[i].value;
-                        }
-                    }
+            var orderLayerBox= document.getElementById("orderLayerBox");
+            var orderLayers=orderLayerBox.childNodes;
+            for (var i=0; i < orderLayers.length; i++){
+                if(layersString.length==0){
+                    layersString+=orderLayers[i].name;
+                }else{
+                    layersString+=","+orderLayers[i].name;
                 }
-            }
+            }                
             //haal de extent op van de mainmap en plaats die in de request
             var e=flamingo.call("mainMap", "getCurrentExtent");
             window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
-                 
-
-        }        
+        } 
+        
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
@@ -218,7 +219,8 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             for(var i=0; i < children.length; i++){
                 var element=document.getElementById(children[i].id);
                 if(element){
-                    element.checked=checked;                    
+                    element.checked=checked;
+                    checkboxClick(element);
                 }
                 if (children[i].children){
                     setAllChilds(children[i].children,checked);
@@ -232,11 +234,11 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             var layers=layerstring.split(",");
             for (var i=0; i < layers.length; i++){
                 var element=document.getElementById(layers[i]);
-                //if found
                 if (element){
-                    element.checked="true";
-                    
+                    element.checked=true;
+                    checkboxClick(element);
                 }
+                
             }
         </c:if>
         function mainMap_onUpdateProgress(){
