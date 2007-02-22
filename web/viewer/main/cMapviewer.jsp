@@ -54,8 +54,8 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         xOffsetArray[1] = 10;
 
         var yOffsetArray = new Array();
-        yOffsetArray[0] = 105;
-        yOffsetArray[1] = 105;
+        yOffsetArray[0] = -5;
+        yOffsetArray[1] = -5;
 
         //TOOLTIP BOX DEFAULT WIDTH
         var toolTipDefaultWidth = 500;
