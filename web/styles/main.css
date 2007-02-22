@@ -110,7 +110,7 @@ H5 {
     padding-top: 1em;
     padding-left: 25px;
     padding-right: 2em;
-    margin: 0 0 0 175px;
+    margin: 0px 0px 0px 175px;
     background-color: #FFFFFF;
     min-height: 175px;
 }
@@ -384,30 +384,27 @@ margin: 0;
     float: left;
 }
 #tooltips {
-    float: left;
     clear: left;
     height: 25px;
 }
 /*Layer order gedeelte*/
 .orderLayerBox{
-    float: left;
     overflow: auto;
     height: 100px;
-    width: 400px;    
+    width: 400px;
+    border: 1px solid #F4F5F9;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .orderLayerClass{
-    float: left;
     clear: both;
     cursor: pointer;
     background-color: #ffffff;
-    
 }
 .orderLayerClassSelected{
-    float: left;
     clear: both;
     background-color: #bbbbbb;
     cursor: pointer;
-    
 }
 /*map info*/
 .mapInfo{

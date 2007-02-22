@@ -91,8 +91,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <script type="text/javascript">
     var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
     so.write("flashcontent");
-  
- </script>
+</script>
 
 <div id="treeContainer">
     <div class="treeHolder">
@@ -100,34 +99,33 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     </div>
     <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 </div>
-    <div class="mapInfo">
-        <div id="currentCoordinates">
-        </div>
-        <div id="currentScale">
-        </div>
-    </div>   
+<div class="mapInfo">
+    <div id="currentCoordinates"></div>
+    <div id="currentScale"></div>
+</div>
+
+<div>
     <b>Volgorde</b><br>
     Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
     <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
     <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
-    <div id="orderLayerBox" class="orderLayerBox">
+    <div id="orderLayerBox" class="orderLayerBox"></div>
+    
+    
+    <div id="tooltips">
+        <c:if test = "${helpOn_Off}">
+            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+            <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+        </c:if>
+        
+        
+        
+        <c:if test = "${helpOn_Off}">
+            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+        </c:if>
     </div>
-    
-
-<div id="tooltips">
-    <c:if test = "${helpOn_Off}">
-        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-        <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-    </c:if>
-    
-    
-    
-    <c:if test = "${helpOn_Off}">
-        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-        <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-    </c:if>
 </div>
-
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         
@@ -256,4 +254,4 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         
     </c:if>
 </script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>
