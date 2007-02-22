@@ -42,7 +42,7 @@ function moveSelected(amount){
         var orderLayers=orderLayerBox.childNodes;
         for (var i=0; i < orderLayers.length; i++){
             if (orderLayers[i].name==selectedLayer.name){
-                if (i+amount > 0 && i+amount < orderLayers.length){
+                if (i+amount > -1 && i+amount < orderLayers.length){
                     switchLayers(orderLayers[i+amount],orderLayers[i]);
                     selectedLayer=orderLayers[i+amount];
                     return;
