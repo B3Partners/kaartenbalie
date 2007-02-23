@@ -217,8 +217,11 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             for(var i=0; i < children.length; i++){
                 var element=document.getElementById(children[i].id);
                 if(element){
-                    element.checked=checked;
-                    checkboxClick(element);
+                    if (checked && element.checked){
+                    }else{
+                        element.checked=checked;
+                        checkboxClick(element);
+                    }
                 }
                 if (children[i].children){
                     setAllChilds(children[i].children,checked);

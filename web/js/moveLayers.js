@@ -10,9 +10,12 @@ function checkboxClick(checkbox){
         div.onclick=function(){selectLayer(this);};
         orderLayerBox.appendChild(div);
     }else{
-        var div=orderLayerBox.getElementById(checkbox.id);
-        if (div){
-            orderLayerBox.removeChild(div);
+        var div=document.getElementsByName(checkbox.id);
+        var orderLayers=orderLayerBox.childNodes;
+        for (var i=0; i < orderLayers.length; i++){
+            if (orderLayers[i].name==checkbox.id){
+                orderLayerBox.removeChild(orderLayers[i]);
+            }
         }
     }
 }
