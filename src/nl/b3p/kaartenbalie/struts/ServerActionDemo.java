@@ -96,6 +96,25 @@ public class ServerActionDemo extends ServerAction {
         
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader(serviceProvider);
         String url = dynaForm.getString("serviceProviderUrl");
+        
+        //check this URL, if no parameters are given, fill them in yourself with the standard options
+        //Split eerst in twee delen, namelijk daar waar het vraagteken zich bevindt
+        String [] urls = url.split("\\?");
+        url = urls[0] + "?";
+        
+        boolean req = false, version = false, service = false;        
+        String [] params = urls[1].split("&");
+        for (int i = 0; i < params.length; i++) {
+            String [] paramValue = params[i].split("=");
+            if (!paramValue[0].equalsIgnoreCase("REQUEST") &&
+                !paramValue[0].equalsIgnoreCase("VERSION") &&
+                !paramValue[0].equalsIgnoreCase("SERVICE")) {
+                url += paramValue[0] + "=" + paramValue[1] + "&";
+            }
+        }
+        
+        url += "REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS";
+        
         serviceProvider = wms.getProvider(url);
         populateServerObject(dynaForm, serviceProvider);
                 

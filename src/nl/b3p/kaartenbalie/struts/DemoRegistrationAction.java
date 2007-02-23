@@ -160,7 +160,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         sb.append("servlet/CallWMSServlet/");
         
         user.setPersonalURL(sb.toString() + hash.toString());
-        user.setRole("gebruiker");
+        user.setRole("demogebruiker");
         
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
