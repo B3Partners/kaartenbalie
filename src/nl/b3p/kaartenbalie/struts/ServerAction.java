@@ -246,8 +246,12 @@ public class ServerAction extends KaartenbalieCrudAction {
 
             populateServerObject(dynaForm, serviceProvider);
             //store in db
-            sess.delete(serviceProvider);
-            sess.flush();
+            try {
+                sess.delete(serviceProvider);
+                sess.flush();
+            } catch (Exception e) {
+                request.setAttribute("message", "De service is niet verwijderd: Er zijn nog organisaties gekoppeld aan deze service.");
+            }
         }
         return super.delete(mapping, dynaForm, request, response);
     }

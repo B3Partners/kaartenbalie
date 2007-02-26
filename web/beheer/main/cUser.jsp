@@ -15,9 +15,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 --%>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd">
- <SCRIPT type=text/javascript>
-<!--
+"http://www.w3.org/TR/html4/loose.dtd">
+<SCRIPT type=text/javascript>
+        <!--
 function toggleDiv(divid) {
             var divEl = document.getElementById(divid);
             if(divEl.style.display == 'none') divEl.style.display = 'block';
@@ -60,15 +60,16 @@ function stripedTable() {
 }
 
 window.onload = function() { stripedTable(); }
--->
-</SCRIPT>
+        -->
+        </SCRIPT>
 <html:javascript formName="userForm" staticJavascript="false"/>
 <html:form action="/user" onsubmit="return validateUserForm(this)">
-
-
-
-
-
+    <c:if test="${not empty message}">
+        <div id="error">
+            <h3><c:out value="${message}"/></h3>
+        </div>
+    </c:if>
+    
     <div class="containerdiv" style="float: left; clear: none;">
         <b>Gebruikers tabel:</b>
         <div class="serverRijTitel">
@@ -80,18 +81,18 @@ window.onload = function() { stripedTable(); }
         </div>
         <DIV class="tableContainer" id="tableContainer">          
             <c:forEach var="nUser" varStatus="status" items="${userlist}">
-            <div class="serverRij">    
-                <div style="width: 50px;"><html:multibox value="${nUser.id}" property="userSelected" /></div>
-                <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>"><c:out value="${nUser.firstName}"/></div>
-                <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>"><c:out value="${nUser.lastName}"/></div>
-                <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>"><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></div>
-                <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>"><c:out value="${nUser.emailAddress}"/></div>
-            </div>    
+                <div class="serverRij">    
+                    <div style="width: 50px;"><html:multibox value="${nUser.id}" property="userSelected" /></div>
+                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>"><c:out value="${nUser.firstName}"/></div>
+                    <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>"><c:out value="${nUser.lastName}"/></div>
+                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>"><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></div>
+                    <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>"><c:out value="${nUser.emailAddress}"/></div>
+                </div>    
             </c:forEach>
         </DIV>
     </div>
     <html:submit value="Delete selected user(s)" property="delete"  style="margin-top: 5px; margin-bottom: 5px;"/>
-
+    
     <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         <table>
             <tr>
@@ -146,7 +147,7 @@ window.onload = function() { stripedTable(); }
             </tr>
         </table>
     </div>
-
+    
     <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
     <div id="adminContainer" style="clear: left; display: none;" class="containerdiv">
         <b>Administratieve meldingen</b>

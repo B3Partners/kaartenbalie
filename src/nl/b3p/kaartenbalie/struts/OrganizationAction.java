@@ -312,8 +312,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
 
             populateOrganizationObject(dynaForm, organization, layerList, layerSelected);
             //store in db
-            sess.delete(organization);
-            sess.flush();
+            try {
+                sess.delete(organization);
+                sess.flush();
+            } catch (Exception e) {
+                request.setAttribute("message", "De organizatie is niet verwijderd: Er zijn nog gebruikers gekoppeld aan deze organisatie.");
+            }            
         }
         return super.delete(mapping, dynaForm, request, response);
     }

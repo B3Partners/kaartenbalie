@@ -65,6 +65,11 @@ window.onload = function() { stripedTable(); }
 
 <html:javascript formName="organizationForm" staticJavascript="false"/>
 <html:form action="/organization" onsubmit="return validateOrganizationForm(this)">
+    <c:if test="${not empty message}">
+        <div id="error">
+            <h3><c:out value="${message}"/></h3>
+        </div>
+    </c:if>
     
     <div class="containerdiv" style="float: left; clear: none;">
         <b>Groepstabel:</b>

@@ -208,7 +208,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         User user = getUser(dynaForm,request,true, id);
-                
+        
         if (null == user) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
@@ -221,6 +221,20 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         }        
         
         populateRegistrationObject(request, dynaForm, user, organization);
+        
+        User dbUser = (User)getHibernateSession().createQuery(
+                "from User u where " +
+                "lower(u.username) = lower(:username) ")
+                .setParameter("username", user.getUsername())
+                .uniqueResult();
+        
+        if(dbUser != null) {
+            request.setAttribute("message", "De opgegeven gebruikersnaam bestaat al. Probeert u een andere naam.");
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         sess.saveOrUpdate(organization);
         
         user.setRole("demogebruiker");

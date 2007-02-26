@@ -59,7 +59,47 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      */
     // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return super.unspecified(mapping, dynaForm, request, response);
+        User user = (User) request.getUserPrincipal();
+        
+        ActionForward af = super.unspecified(mapping, dynaForm, request, response);
+        dynaForm.set("username", user.getUsername());
+        dynaForm.set("password", user.getPassword());
+        
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        String date = df.format(user.getTimeout());        
+        
+        dynaForm.set("timeout", date);
+        dynaForm.set("personalURL", user.getPersonalURL());
+        return af;
+    }
+    // </editor-fold>
+    
+    /**
+     * Ability to enter a new password
+     *
+     * @param mapping The mapping of the action
+     * @param form The form the action is linking to
+     * @param request The request of this action
+     * @param response response of this action
+     *
+     * @return the action forward
+     *
+     * @throws java.lang.Exception when an error occurs
+     */
+    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("changePassword", "changepwd");
+        User user = (User) request.getUserPrincipal();
+        ActionForward afcreate = super.create(mapping, dynaForm, request, response);
+        dynaForm.set("username", user.getUsername());
+        
+        
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        String date = df.format(user.getTimeout());        
+        
+        dynaForm.set("timeout", date);
+        dynaForm.set("personalURL", user.getPersonalURL());
+        return afcreate;
     }
     // </editor-fold>
     
@@ -92,6 +132,9 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
         
+        String newpassword = FormUtils.nullIfEmpty(dynaForm.getString("newpassword"));
+        String newpasswordretyped = FormUtils.nullIfEmpty(dynaForm.getString("newpasswordretyped"));
+        
         User user = (User)getHibernateSession().createQuery(
                 "from User u where " +
                 "lower(u.username) = lower(:username) " +
@@ -100,6 +143,15 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 .setParameter("password", password)
                 .uniqueResult();
         
+        if(newpassword != null && newpasswordretyped != null) {
+            if(!newpassword.equals(newpasswordretyped)) {
+                request.setAttribute("message", "De opgegeven nieuwe wachtwoorden komen niet overeen");
+                return getAlternateForward(mapping, request);
+            } else {
+                password = newpassword;
+            }
+        }
+        
         if (null != user) {
             try {
                 Date date = null;
@@ -107,8 +159,9 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 try {
                     // Parse with a custom format
                     date = df.parse(timeout);
+                    System.out.println(date.toString());
                 } catch(ParseException e) {
-                    log.error("Unable to parse " + date);
+                    log.error("Unable to parse : " + e);
                 }
                 
                 String toBeHashedString = registeredIP + username + password + df.format(date);
@@ -116,6 +169,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 md.update(toBeHashedString.getBytes("8859_1"));
                 BigInteger hash = new BigInteger(1, md.digest());
                 personalURL = sb.toString() + hash.toString( 16 );
+                user.setPassword(password);
                 user.SetRegisteredIP(registeredIP);
                 user.setPersonalURL(personalURL);
                 user.setTimeout(date);
@@ -124,6 +178,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             } catch (NoSuchAlgorithmException ns) {
                 ns.printStackTrace();
             }
+        } else {
+            request.setAttribute("message", "Het huidige wachtwoord is onjuist");
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
         }
         
         //if invalid
@@ -141,12 +200,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        if (null == user) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         

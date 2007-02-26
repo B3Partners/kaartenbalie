@@ -39,8 +39,8 @@
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
             <form-property name="userid" type="java.lang.String"/>
-            <form-property name="serviceProviderGivenName" type="java.lang.String"/>
-            <form-property name="serviceProviderUrl" type="java.lang.String"/>
+            <form-property name="serviceProviderGivenName" type="java.lang.String" initial="Standaard WMS"/>
+            <form-property name="serviceProviderUrl" type="java.lang.String" initial="http://b3p-nando/cgi-bin/mapserv.exe?map=d:/public/aerogrid.map&amp;REQUEST=GetCapabilities&amp;VERSION=1.1.1&amp;SERVICE=WMS"/>
             <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
             <form-property name="serviceProviderReviewed" type="java.lang.String"/>
             <form-property name="serviceProviderSelected" type="java.lang.String[]"/>
@@ -74,7 +74,7 @@
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
-            <forward name="failure" path="base.demo.index"/>
+            <forward name="failure" path="base.demo.registration"/>
         </action>
         
         <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">

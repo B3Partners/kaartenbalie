@@ -116,7 +116,7 @@
             
         </table>
         <input type="button" value="Verder" onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'">
-<%--        <html:form action="/voegurltoe">
+        <%--        <html:form action="/voegurltoe">
             <html:hidden property="userid" value="${id}"></html:hidden>
             <html:submit value="Volgende"/>
         </html:form> --%>       
@@ -131,81 +131,86 @@
             <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
             <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="10" height="10"></span>
             <P>
-            Op deze manier blijft het materiaal van u beschermd voor ongenode gasten. Tevens geldt dat u ook geen toegang
-            heeft tot kaartmateriaal van anderen. Met andere woorden: kaartenbalie garandeerd de veiligheid van de gegevens
-            door deze gegevens persoonlijk te maken en persoonlijk te houden.
-            Indien er kaarten zijn die wel voor een groter publiek toegankelijk moeten zijn, dan kan dit met behulp van 
-            rechten opgelost worden.
+                Op deze manier blijft het materiaal van u beschermd voor ongenode gasten. Tevens geldt dat u ook geen toegang
+                heeft tot kaartmateriaal van anderen. Met andere woorden: kaartenbalie garandeerd de veiligheid van de gegevens
+                door deze gegevens persoonlijk te maken en persoonlijk te houden.
+                Indien er kaarten zijn die wel voor een groter publiek toegankelijk moeten zijn, dan kan dit met behulp van 
+                rechten opgelost worden.
             </P>
             
             <P>
-            <h2>Uw gegegevens</h2>
-            <table>
-                <tr>
-                    <td><B>Voornaam:</B></td>
-                    <td><html:text property="firstname"/></td>
-                    <td><B>Achternaam:</B></td>
-                    <td><html:text property="lastname"/></td>
-                </tr>
-                <tr>
-                    <td><B>Email:</B></td>
-                    <td><html:text property="emailAddress"/></td>
-                </tr>
-                <tr>
-                    <td><B>Gewenste gebruikersnaam:</B></td>
-                    <td><html:text property="username"/></td>
-                </tr>
-                <tr>
-                    <td><B>Gewenst wachtwoord:</B></td>
-                    <td><html:text property="password"/></td>
-                </tr>
-                
-                <tr>
-                    <td><B>Naam organisatie:</B></td>
-                    <td><html:text property="name"/></td>
-                </tr>
-                <tr>
-                    <td><B>Straat:</B></td>
-                    <td><html:text property="organizationStreet"/></td>
-                    <td><B>Nummer:</B></td>
-                    <td><html:text property="organizationNumber"/></td>
-                    <td><B>Toevoeging:</B></td>
-                    <td><html:text property="organizationAddition"/></td>
-                </tr>
-                
-                <tr>
-                    <td><B>Postcode:</B></td>
-                    <td><html:text property="organizationPostalcode"/></td>
-                    <td><B>Plaats:</B></td>
-                    <td><html:text property="organizationProvince"/></td>
-                    <td><B>Land:</B></td>
-                    <td><html:text property="organizationCountry"/></td>
-                </tr>
-                
-                <tr>
-                    <td><B>Postbus:</B></td>
-                    <td><html:text property="organizationPostbox"/></td>
-                </tr>
-                
-                <tr>
-                    <td><B>Telefoon nr.:</B></td>
-                    <td><html:text property="organizationTelephone"/></td>
-                </tr>
-                <tr>
-                    <td><B>Fax nr.:</B></td>
-                    <td><html:text property="organizationFax"/></td>
-                </tr>     
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                </tr>
-                <tr>
-                    <td colspan="0"><center>
-                        <html:submit value="Registreer" property="save"/>    
-                        <html:reset  value="Verwijder invoer" />
-                    </center></td>
-                </tr>
-            </table>
+                <h2>Uw gegegevens</h2>
+                <c:if test="${not empty message}">
+                    <div id="error">
+                        <h3><c:out value="${message}"/></h3>
+                    </div>
+                </c:if>
+                <table>
+                    <tr>
+                        <td><B>Voornaam:</B></td>
+                        <td><html:text property="firstname"/></td>
+                        <td><B>Achternaam:</B></td>
+                        <td><html:text property="lastname"/></td>
+                    </tr>
+                    <tr>
+                        <td><B>Email:</B></td>
+                        <td><html:text property="emailAddress"/></td>
+                    </tr>
+                    <tr>
+                        <td><B>Gewenste gebruikersnaam:</B></td>
+                        <td><html:text property="username"/></td>
+                    </tr>
+                    <tr>
+                        <td><B>Gewenst wachtwoord:</B></td>
+                        <td><html:text property="password"/></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><B>Naam organisatie:</B></td>
+                        <td><html:text property="name"/></td>
+                    </tr>
+                    <tr>
+                        <td><B>Straat:</B></td>
+                        <td><html:text property="organizationStreet"/></td>
+                        <td><B>Nummer:</B></td>
+                        <td><html:text property="organizationNumber"/></td>
+                        <td><B>Toevoeging:</B></td>
+                        <td><html:text property="organizationAddition"/></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><B>Postcode:</B></td>
+                        <td><html:text property="organizationPostalcode"/></td>
+                        <td><B>Plaats:</B></td>
+                        <td><html:text property="organizationProvince"/></td>
+                        <td><B>Land:</B></td>
+                        <td><html:text property="organizationCountry"/></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><B>Postbus:</B></td>
+                        <td><html:text property="organizationPostbox"/></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><B>Telefoon nr.:</B></td>
+                        <td><html:text property="organizationTelephone"/></td>
+                    </tr>
+                    <tr>
+                        <td><B>Fax nr.:</B></td>
+                        <td><html:text property="organizationFax"/></td>
+                    </tr>     
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td colspan="0"><center>
+                                <html:submit value="Registreer" property="save"/>    
+                                <html:reset  value="Verwijder invoer" />
+                        </center></td>
+                    </tr>
+                </table>
             </P>
         </html:form>
     </c:otherwise>

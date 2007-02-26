@@ -65,6 +65,11 @@ window.onload = function() { stripedTable(); }
         </SCRIPT>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 <html:form action="/server" onsubmit="return validateServerForm(this)">
+    <c:if test="${not empty message}">
+        <div id="error">
+            <h3><c:out value="${message}"/></h3>
+        </div>
+    </c:if>
     
     <div class="containerdiv" style="float: left; clear: none;">
         <b>Server tabel:</b>
@@ -119,7 +124,7 @@ window.onload = function() { stripedTable(); }
                     </select>
                 </td>
             </tr>
-
+            
             </td>
             </tr>
             <tr>

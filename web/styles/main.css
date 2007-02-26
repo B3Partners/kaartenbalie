@@ -6,6 +6,21 @@
         Purpose of the stylesheet follows.
 */
 
+#error {
+    border: 1px solid red;
+    width: 400px;
+    padding: 5px;
+    margin: 10px;
+    background: #fff5f5 url(../images/error.gif) no-repeat;
+}
+
+#error h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    color: red;
+}
+
 /* 
 global tag styles
 */

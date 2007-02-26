@@ -32,6 +32,8 @@
             <!-- user form fields-->
             <form-property name="username" type="java.lang.String"/>   
             <form-property name="password" type="java.lang.String"/>
+            <form-property name="newpassword" type="java.lang.String"/>
+            <form-property name="newpasswordretyped" type="java.lang.String"/>
             <form-property name="personalURL" type="java.lang.String"/>
             <form-property name="registeredIP" type="java.lang.String"/>
             <form-property name="timeout" type="java.lang.String"/>
@@ -54,7 +56,7 @@
         </action>
         <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.createurl"/>
-            <forward name="failure" path="base.viewer.index"/>
+            <forward name="failure" path="base.viewer.createurl"/>
         </action>        
     </action-mappings>
     

@@ -205,6 +205,21 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         
         populateUserObject(dynaForm, user, request);
+        
+        
+        User dbUser = (User)getHibernateSession().createQuery(
+                "from User u where " +
+                "lower(u.username) = lower(:username) ")
+                .setParameter("username", user.getUsername())
+                .uniqueResult();
+        
+        if(dbUser != null) {
+            request.setAttribute("message", "De opgegeven gebruikersnaam bestaat al. Probeert u een andere naam.");
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         //store in db
         sess.saveOrUpdate(user);
         sess.flush();

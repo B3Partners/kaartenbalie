@@ -33,16 +33,44 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <body>
     <H1>Persoonlijke URL cre&euml;ren</H1>
+    
+        <c:if test="${not empty message}">
+            <div id="error">
+            <h3><c:out value="${message}"/></h3>
+            </div>
+        </c:if>
+    
 <table>
     <html:form action="/createPersonalURL">
         <tr>
         <td>Gebruikersnaam:</td>
-        <td><html:text property="username"  /></td>
+        <td><html:text property="username" readonly="true" /></td>
         </tr>
-        <tr>
-        <td>Wachtwoord:</td>
-        <td><html:password property="password" /></td>
-        </tr>
+        <c:if test="${empty changePassword}">
+            <tr>
+                <td>Wachtwoord:</td>
+                <td>
+                    <html:password property="password" readonly="true" />
+                    <html:submit property="create" styleClass="knop">
+                        <fmt:message key="button.changepwd"/>
+                    </html:submit>
+                </td>
+            </tr>
+        </c:if>
+        <c:if test="${!empty changePassword}">
+            <tr>
+                <td>Oude Wachtwoord:</td>
+                <td><html:password property="password"/></td>
+            </tr>
+            <tr>
+                <td>Nieuwe Wachtwoord:</td>
+                <td><html:password property="newpassword" /></td>
+            </tr>
+            <tr>
+                <td>Herhaal Nieuwe Wachtwoord:</td>
+                <td><html:password property="newpasswordretyped" /></td>
+            </tr>
+        </c:if>
         <tr>
             <td>Gewenste timeout:</td>
             <td><html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
