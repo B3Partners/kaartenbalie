@@ -74,7 +74,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <tr>
             <td>Gewenste timeout:</td>
             <td><html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
-                <img src="<html:rewrite page='/viewer/images/calendar_image.gif' module='' />" id="cal-button"
+                <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
                      style="cursor: pointer; border: 1px solid red;" 
                      title="Date selector"
                      onmouseover="this.style.background='red';" 

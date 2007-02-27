@@ -21,7 +21,9 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import org.apache.commons.validator.Form;
 
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
@@ -31,6 +33,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class OrganizationAction extends KaartenbalieCrudAction {
     
@@ -63,8 +68,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             for (int i = 0; i < organizationLayer.length; i++) {
                 layerid [i] = ((Layer)organizationLayer[i]).getId().toString();
             }
-            
-            dynaForm.set("layerSelected", layerid);
+            String checkedLayers = "";
+            for (int i = 0; i < organizationLayer.length; i++) {
+                if (i < organizationLayer.length - 1) {
+                    checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
+                } else {
+                    checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
+                }
+            }
+            request.setAttribute("checkedLayers",checkedLayers);
             this.populateOrganizationForm(organization, dynaForm, request);
         }
         return super.unspecified(mapping, dynaForm, request, response);
@@ -122,27 +134,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Creates a list of all the organizations in the database.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
-    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
-        super.createLists(form, request);
-        
-        List organizationlist = getHibernateSession().createQuery("from Organization").list();
-        request.setAttribute("organizationlist", organizationlist);
-        
-        List layerlist = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
-        HttpSession session = request.getSession();
-        session.setAttribute("layerlist", layerlist);
-        //request.setAttribute();
-    }
-    // </editor-fold>
+    
     
     /** Method that fills an organization object with the user input from the forms.
      *
@@ -152,7 +144,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param layerSelected String array with the selected layers for this organization
      */
     // <editor-fold defaultstate="collapsed" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
-    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) {
+    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {// List layerList, String layerSelected) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
         organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
@@ -166,25 +158,26 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
         
-        int size = layerSelected.length;
+        List layerList = getHibernateSession().createQuery(
+                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
+        
+        int size = selectedLayers.length;
         Set <Layer> layers = new HashSet <Layer>();
         for(int i = 0; i < size; i++) {
-            int select = Integer.parseInt(layerSelected[i]);
+            int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
+            System.out.println("Select is : " +  select);
             Iterator it = layerList.iterator();
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId() == select) {
-                    layers = getAllTopLayers(layer,  layers );
-                    //layers.add(layer);///layerList.get(select));
-                    break;
+                    layers.add(layer);
                 }
-                    
             }
         }
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
-    
+    /*
     private Set <Layer> getAllTopLayers(Layer layer, Set <Layer> layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
@@ -194,6 +187,153 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return layers;
     }
+     **/
+    
+    
+    
+    
+    
+    
+    /** Creates a list with the available layers.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
+        super.createLists(form, request);
+        
+        super.createLists(form, request);
+        
+        List organizationlist = getHibernateSession().createQuery("from Organization").list();
+        request.setAttribute("organizationlist", organizationlist);
+        
+        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
+        
+        JSONObject root = new JSONObject(); 
+        JSONArray rootArray = new JSONArray(); 
+        
+        Iterator it = serviceProviders.iterator();
+        while (it.hasNext()) {
+            ServiceProvider sp = (ServiceProvider)it.next();
+            JSONObject parentObj = this.serviceProviderToJSON(sp);
+            HashSet<Layer> set= new HashSet<Layer>();
+            set.add(sp.getTopLayer());
+            parentObj = createTreeList(set, parentObj);
+            if (parentObj.has("children")){
+                rootArray.put(parentObj);
+            }
+        }
+        root.put("name","root");
+        root.put("children", rootArray);
+        request.setAttribute("layerList", root);
+    }
+    // </editor-fold>
+    
+    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
+     * of which layer is visible and which isn't.
+     * 
+     * @param layers Set of layers from which the part of the tree ahs to be build
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     * @param parent JSONObject which represents the parent object to which this set of layers should be added
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
+    private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
+        /* This method has a recusive function in it. Its functionality is to create a list of layers
+         * in a tree like array which can be used to build up a menu structure. 
+         */
+        Iterator layerIterator = layers.iterator();
+        JSONArray parentArray = new JSONArray();
+        while (layerIterator.hasNext()) {
+            /* For each layer in the set we are going to create a JSON object which we will add to de total
+             * list of layer objects.
+             */
+            Layer layer = (Layer)layerIterator.next();
+            
+            /* When we have retrieved this array we are able to save our object we are working with
+             * at the moment. This object is our present layer object. This object first needs to be
+             * transformed into a JSONObject, which we do by calling the method to do so.
+             */
+            JSONObject layerObj = this.layerToJSON(layer);
+
+            /* Before we are going to save the present object we can first use our object to recieve and store
+             * any information which there might be for the child layers. First we check if the set of layers 
+             * is not empty, because if it is, no effort has to be taken.
+             * If, on the other hand, this layer does have children then the method is called recursivly to
+             * add these childs to the present layer we are working on.
+             */
+            Set childLayers = layer.getLayers();
+            if (childLayers != null && !childLayers.isEmpty()) {
+                layerObj = createTreeList(childLayers, layerObj);
+            }
+
+            /* After creating the JSONObject for this layer and if necessary, filling this
+             * object with her childs, we can add this JSON layer object back into its parent array.
+             */
+            parentArray.put(layerObj);            
+        }
+        if (parentArray.length()>0){
+            parent.put("children",parentArray);
+        }
+        return parent;
+    }
+    // </editor-fold>
+    
+    /* Creates a JSON object from the ServiceProvider with its given name and id.
+     * 
+     * @param serviceProvider The ServiceProvider object which has to be converted
+     *
+     * @return JSONObject
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
+    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("id", serviceProvider.getId());
+        root.put("name", serviceProvider.getGivenName());
+        root.put("type", "serviceprovider");
+        return root;
+    }
+    // </editor-fold>
+    
+    /* Creates a JSON object from the Layer with its given name and id.
+     * 
+     * @param layer The Layer object which has to be converted
+     *
+     * @return JSONObject
+     *
+     * @throws JSONException
+     */
+    // <editor-fold defaultstate="collapsed" desc="layerToJSON(Layer layer) method.">
+    private JSONObject layerToJSON(Layer layer) throws JSONException{
+        JSONObject jsonLayer = new JSONObject();
+        jsonLayer.put("id", layer.getId() + "_" + layer.getName());
+        jsonLayer.put("name", layer.getName());
+        jsonLayer.put("type", "layer");
+        return jsonLayer;
+    }
+    // </editor-fold>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     /** Method for saving a new organization from input of a user.
      *
@@ -209,10 +349,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
-        String [] layerSelected = dynaForm.getStrings("layerSelected");
+        //String layerSelected = dynaForm.getString("layerSelected");
         HttpSession session = request.getSession();
         //sess.setAttribute("layerlist", layerlist);
-        List layerList = (List)session.getAttribute("layerlist");        
+        
+        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        //List layerList = (List)session.getAttribute("layerlist");        
         
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -238,7 +380,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        populateOrganizationObject(dynaForm, organization, layerList, layerSelected);
+        populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
         //store in db
         sess.saveOrUpdate(organization);
         sess.flush();
@@ -278,9 +420,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;
         
-        String [] layerSelected = dynaForm.getStrings("layerSelected");
+        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        
+        //String layerSelected = dynaForm.getString("layerSelected");
         HttpSession session = request.getSession();
-        List layerList = (List)session.getAttribute("layerlist"); 
+        //List layerList = (List)session.getAttribute("layerlist"); 
         
         for(int i = 0; i < size; i++) {
             //if invalid
@@ -310,7 +454,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 return getAlternateForward(mapping, request);
             }
 
-            populateOrganizationObject(dynaForm, organization, layerList, layerSelected);
+            populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
             //store in db
             try {
                 sess.delete(organization);

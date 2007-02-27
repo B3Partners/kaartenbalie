@@ -80,7 +80,7 @@
         <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">
             <forward name="success" path="base.demo.addUrl"/>
             <forward name="nextPage" path="base.demo.addUrlsuccessfull"/>
-            <forward name="failure" path="base.demo.index"/>
+            <forward name="failure" path="base.demo.addUrl"/>
         </action>
         
         <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  

@@ -115,7 +115,13 @@ public class ServerActionDemo extends ServerAction {
         
         url += "REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS";
         
-        serviceProvider = wms.getProvider(url);
+        try {
+            serviceProvider = wms.getProvider(url);
+        } catch (Exception e) {
+            request.setAttribute("message", "De opgegeven URL is onjuist. Probeert u het alstublieft opnieuw.");
+            return getAlternateForward(mapping, request);
+        }
+        
         populateServerObject(dynaForm, serviceProvider);
                 
         String userid = dynaForm.getString("userid");

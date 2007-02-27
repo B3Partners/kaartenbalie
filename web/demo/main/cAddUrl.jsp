@@ -83,34 +83,39 @@ beschikt om kaarten van verschillende systemen die op verschillende locaties kun
 een geheel, zonder dat u hier als gebruiker veel moeite voor hoeft te doen of omslachtige handelingen uit dient
 te voeren. Dat is precies de kracht van de kaartenbalie. <B>Eenvoudig edoch krachtig</B>.
 <P>
-<%-- <html:javascript formName="voegurltoeForm" staticJavascript="false"/>--%>
-<html:form action="/voegurltoe"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
-    <table>
-        <tr>
-            <td><B>Naam server:</B></td>
-            <td>
-                <html:text property="serviceProviderGivenName" />
-                <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-            </td>
-        </tr>
-        <tr>
-            <td><B>URL Server:</B></td>
-            <td>
-                <html:text property="serviceProviderUrl" />
-                <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-            </td>
-        </tr>
-        <html:hidden property="userid"></html:hidden>
-        <tr>
-            <td colspan="0">
-                <center>
-                    <html:reset  value="Verwijder invoer" />
-                    <html:submit value="Voeg WMS server toe" property="save"/>
-                </center>
-            </td>
-        </tr>
-    </table>
-</html:form>
+    <%-- <html:javascript formName="voegurltoeForm" staticJavascript="false"/>--%>
+    <html:form action="/voegurltoe"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
+        <c:if test="${not empty message}">
+            <div id="error">
+                <h3><c:out value="${message}"/></h3>
+            </div>
+        </c:if>
+        <table>
+            <tr>
+                <td><B>Naam server:</B></td>
+                <td>
+                    <html:text property="serviceProviderGivenName" />
+                    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                    <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                </td>
+            </tr>
+            <tr>
+                <td><B>URL Server:</B></td>
+                <td>
+                    <html:text property="serviceProviderUrl" />
+                    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                    <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                </td>
+            </tr>
+            <html:hidden property="userid"></html:hidden>
+            <tr>
+                <td colspan="0">
+                    <center>
+                        <html:reset  value="Verwijder invoer" />
+                        <html:submit value="Voeg WMS server toe" property="save"/>
+                    </center>
+                </td>
+            </tr>
+        </table>
+    </html:form>
 </P>

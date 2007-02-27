@@ -55,7 +55,8 @@
             <form-property name="organizationTelephone" type="java.lang.String"/>
             <form-property name="organizationFax" type="java.lang.String"/>
             <form-property name="organizationSelected" type="java.lang.String[]"/>
-            <form-property name="layerSelected" type="java.lang.String[]"/>
+            <form-property name="layerSelected" type="java.lang.String"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
     </form-beans>
     
