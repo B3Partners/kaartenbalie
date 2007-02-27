@@ -170,14 +170,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId() == select) {
-                    layers.add(layer);
+                    //layers.add(layer);
+                    layers = getAllTopLayers(layer,  layers );
+                    break;
                 }
             }
         }
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
-    /*
+    
     private Set <Layer> getAllTopLayers(Layer layer, Set <Layer> layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
@@ -187,8 +189,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return layers;
     }
-     **/
-    
+       
     
     
     
