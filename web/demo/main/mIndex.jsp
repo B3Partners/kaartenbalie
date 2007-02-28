@@ -7,20 +7,19 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 
-
-<div id="nav">
-    <center><B>Menu algemeen</B></center>
-    <p>
-        <div id="nav-menu">
-            <ul>
-                <li><a href="<html:rewrite page='/index.do' module='' />">Home</a></li>
-                <li><a href="<html:rewrite page='/beheer/index.do' module='' />">Beheer</a></li>
-                <li><a href="<html:rewrite page='/viewer/index.do' module='' />">Viewer</a></li>
-                <li><a href="<html:rewrite page='/viewer/mapviewer.do' module='' />">Mapviewer</a></li>
-                <% if (getServletConfig().getInitParameter("demoActive").equals("true")) { %>
+<% if (getServletConfig().getInitParameter("demoActive").equals("true")) { %>
+    <div id="nav">
+        <center><B>Menu Demo</B></center>
+        <p>
+            <div id="nav-menu">
+                <ul>
+                    <li><a href="<html:rewrite page='/index.do' module='' />">Home</a></li>
                     <li><a href="<html:rewrite page='/demo/index.do' module='' />">Demo</a></li>
-                <% } %>
-            </ul>
-        </div>
-    </p>
-</div>
+                    <li><a href="<html:rewrite page='/viewer/mapviewer.do' module='' />">Mapviewer</a></li>
+                    <li><a href="<html:rewrite page='/demo/registration.do' module='' />">Registratie</a></li>
+                    <li><a href="<html:rewrite page='/viewer/createPersonalURL.do' module='' />">Cre&euml;er Personal URL</a></li>
+                </ul>
+            </div>
+        </p>
+    </div>
+<% } %>

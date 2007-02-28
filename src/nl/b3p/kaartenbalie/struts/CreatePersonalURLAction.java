@@ -59,16 +59,23 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      */
     // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        User user = (User) request.getUserPrincipal();
-        
+        User user = (User) request.getUserPrincipal();        
         ActionForward af = super.unspecified(mapping, dynaForm, request, response);
+        
+        SecurityRealm sr = new SecurityRealm();
+        boolean helpOn_Off = sr.isUserInRole(request.getUserPrincipal(), "demogebruiker");
+        if(!helpOn_Off) {
+            request.setAttribute("helpOn_Off", new Boolean(!helpOn_Off));
+        }
+        
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        String date = df.format(user.getTimeout());        
-        
-        dynaForm.set("timeout", date);
+        if (user.getTimeout() != null) {
+            String date = df.format(user.getTimeout());
+            dynaForm.set("timeout", date);
+        }
         dynaForm.set("personalURL", user.getPersonalURL());
         return af;
     }

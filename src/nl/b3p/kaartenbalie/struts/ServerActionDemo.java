@@ -125,7 +125,15 @@ public class ServerActionDemo extends ServerAction {
         populateServerObject(dynaForm, serviceProvider);
                 
         String userid = dynaForm.getString("userid");
-        User user = getUser(dynaForm, request, false, Integer.parseInt(userid));
+        
+        User user = null;
+        try {
+            user = getUser(dynaForm, request, false, Integer.parseInt(userid));
+        } catch (Exception e) {
+            request.setAttribute("message", "U dient zich eerst te registreren voordat u een WMS server toe kunt voegen.");
+            return getAlternateForward(mapping, request);
+        }
+        
         Organization org = user.getOrganization();
         org.setOrganizationLayer(serviceProvider.getLayers());
         

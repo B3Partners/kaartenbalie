@@ -289,7 +289,7 @@ margin: 0;
     background-color: transparent;
     cursor: pointer;
     cursor: hand;
-    float: left;
+    float: inherit;
     clear: none;
 }
 

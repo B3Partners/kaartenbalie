@@ -124,12 +124,28 @@
         <c:otherwise>
             <html:form action="/registration" onsubmit="return validateRegistrationForm(this)">
                 <h1>Registratie pagina</h1>
-                Voordat u gebruik kunt maken van de Kaartenbalie Demo (maar ook bij de officiele versie van Kaartenbalie)
-                geldt dat u zich eerst moet registreren of laten registreren. De reden dat u dit dient te doen is omdat u
-                op die manier een inlognaam en wachtwoord heeft waarmee alleen u toegang heeft tot het materiaal
-                dat u op kaartenbalie aangeboden heeft.
-                <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="10" height="10"></span>
+                <P>
+                    <div id="tooltipBox" 
+                         onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
+                         onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
+                         style="z-index:5000;position:absolute;cursor:pointer;">
+                    </div>
+                    <h2>Veiligheid</h2>
+                    Voordat u gebruik kunt maken van de Kaartenbalie Demo (maar ook bij de officiele versie van Kaartenbalie)
+                    geldt dat u zich eerst moet registreren of laten registreren. Zodra u geregistreerd bent als gebruiker
+                    heeft u toegang tot het materiaal dat op kaartenbalie aangeboden wordt.<BR>
+                    Het materiaal dat voor beschikbaar is, wordt door de beheerder vastgesteld. Dat wil zeggen dat kaartenbalie
+                    u alleen toegang verschaft tot het kaartmateriaal dat voor u of meerdere mensen binnen uw bedrijf of organisatie
+                    beschikbaar gesteld is. Op deze manier biedt kaartenbalie u en andere gebruikers de bescherming van het materiaal
+                    dat aangeboden wordt.
+                    <span id="link0" 
+                          onMouseOver="displayAd(0);" 
+                          onMouseOut="hideAd();" 
+                          class="intellitextLink">
+                        <img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="12" height="12">
+                    </span>
+                </P>
+                
                 <P>
                     Op deze manier blijft het materiaal van u beschermd voor ongenode gasten. Tevens geldt dat u ook geen toegang
                     heeft tot kaartmateriaal van anderen. Met andere woorden: kaartenbalie garandeerd de veiligheid van de gegevens
@@ -206,8 +222,8 @@
                         </tr>
                         <tr>
                             <td colspan="0"><center>
-                                    <html:submit value="Registreer" property="save"/>    
-                                    <html:reset  value="Verwijder invoer" />
+                                <html:reset  value="Verwijder invoer" />
+                                <html:submit value="Registreer" property="save"/>                                        
                             </center></td>
                         </tr>
                     </table>

@@ -51,21 +51,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
-        
-        //TODO: deze code moet verwijderd worden voor de oplevering
-        //Een klein stukje test code
-        /**/
-        int length = layers.length;
-        String [] reverseLayers = new String [length];
-        for (int i = length - 1; i >= 0; i--) {
-            reverseLayers[i] = layers[length - i - 1];
-        }        
-        layers = reverseLayers;
-        /**/
-        //Einde test
-        
-        
-        
+                
         /* Go through each layer and find the ServiceProvider this layer belongs to.
          * If a ServiceProvider has been found there will be checked if the previous
          * layer belonged to the same ServiceProvider. If yes then this layer is added

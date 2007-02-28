@@ -163,7 +163,7 @@ window.onload = function() { stripedTable(); }
             <tr>
                 <td colspan="0"><center>
                         <html:reset  value="Delete values" />
-                        <html:submit property="save">
+                        <html:submit property="save" >
                             <fmt:message key="button.ok"/>
                         </html:submit>
                 </center></td>

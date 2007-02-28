@@ -72,6 +72,7 @@
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
         
+        
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
             <forward name="failure" path="base.demo.registration"/>

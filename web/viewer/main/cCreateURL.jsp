@@ -33,8 +33,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <body>
     <H1>Persoonlijke URL cre&euml;ren</H1>
-    Deze pagina geeft u de mogelijkheid 
-    
+    <P>
+    U kunt door middel van deze pagina een persoonlijke URL aanmaken.
+    Deze URL stelt u in staat om de verschillende kaarten ook op te vragen met behulp van een externe viewer.
+    </P>
         <c:if test="${not empty message}">
             <div id="error">
             <h3><c:out value="${message}"/></h3>
@@ -43,6 +45,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     
 <table>
     <html:form action="/createPersonalURL">
+        <tr>
+        <td>&nbsp;</td>
+        </tr>
         <tr>
         <td>Gebruikersnaam:</td>
         <td><html:text property="username" readonly="true" /></td>
@@ -74,7 +79,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         </c:if>
         <tr>
             <td>Gewenste timeout:</td>
-            <td><html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
+            <td>
+                
+                <html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
+                <c:if test = "${helpOn_Off}">
                 <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
                      style="cursor: pointer; border: 1px solid red;" 
                      title="Date selector"
@@ -92,6 +100,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                      myDate.setDate(myDate.getDate()+7);
                      Calendar.setDate(myDate);
                 </script>
+                </c:if>
             </td>
         </tr>
         <tr>
@@ -103,7 +112,14 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <td><html:text property="personalURL" readonly="true" size="100" /></td>
         </tr>
         <tr>
-        <td><html:submit value="Create personal URL" property="save"/></td>
+        <td>&nbsp;</td>
+        </tr>
+        <tr>
+        <td>
+            <html:submit property="save" styleClass="knop">
+                <fmt:message key="button.create"/>
+            </html:submit>
+        </td>
         </tr>
 </html:form>
 </table>

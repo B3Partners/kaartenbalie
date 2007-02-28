@@ -30,6 +30,7 @@
         <action path="/viewer" forward="/viewer/index.do"/>
         <action path="/beheer" forward="/beheer/index.do"/>
         <action path="/demo" forward="/demo/index.do"/>
+        
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
