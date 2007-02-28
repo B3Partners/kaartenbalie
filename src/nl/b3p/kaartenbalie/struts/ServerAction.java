@@ -117,8 +117,10 @@ public class ServerAction extends KaartenbalieCrudAction {
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
         //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
-        serviceProvider.setUpdatedDate(new Date());
-        serviceProvider.setReviewed(false);
+        if (serviceProvider.getId() == null) {
+            serviceProvider.setUpdatedDate(new Date());
+            serviceProvider.setReviewed(false);
+        }
     }
     // </editor-fold>
     

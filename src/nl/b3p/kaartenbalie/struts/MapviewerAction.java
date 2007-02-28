@@ -104,15 +104,9 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             if (parentObj.has("children")){
                 rootArray.put(parentObj);
             }
-            
-            //parent = createTreeList(sp.getLayers(), organizationLayers, parent);
-            //root.put("serviceprovider", parent);
-            //System.out.println(parentObj.toString());
         }
         root.put("name","root");
         root.put("children", rootArray);
-        //HttpSession session = request.getSession();
-        //session.setAttribute("layerList", root);//List);
         request.setAttribute("layerList", root);
     }
     // </editor-fold>
@@ -179,6 +173,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
+    private int counter = 0;
     /* Method which checks if a certain layer is allowed to be shown on the screen.
      * 
      * @param layer Layer object that has to be checked
@@ -191,7 +186,10 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
             Layer organizationLayer = (Layer) it.next();
+            System.out.println("");
             if(layer.getId().equals(organizationLayer.getId())) {
+                counter++;
+                System.out.println("The counter is : " + counter);
                 return true;
             }
         }

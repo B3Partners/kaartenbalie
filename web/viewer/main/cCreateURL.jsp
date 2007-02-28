@@ -33,6 +33,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <body>
     <H1>Persoonlijke URL cre&euml;ren</H1>
+    Deze pagina geeft u de mogelijkheid 
     
         <c:if test="${not empty message}">
             <div id="error">

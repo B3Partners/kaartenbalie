@@ -78,7 +78,7 @@ window.onload = function() { stripedTable(); }
             <div style="width: 100px;">Naam</div>
             <div style="width: 315px;">URL</div>
             <div style="width: 150px;">Datum aanmaak</div>
-            <div style="width: 100px;">Laatste update</div>
+            <div style="width: 100px;">Is geupdate</div>
         </div>
         <div class="tableContainer" id="tableContainer">         
             <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
