@@ -63,12 +63,17 @@
         // 								END EDITABLE TOOLTIP VARIABLES
 </script>
 
+<% if (getServletConfig().getInitParameter("demoActive").equals("true")) { %>
+    <h1>Uw WMS server is met succes toegevoegd</h1>
+    Kaartenbalie heeft met succes uw link toegevoegd aan het systeem en de verschillende data die op deze
+    WMS service aangeboden wordt op genomen in haar eigen database. Door middel van de interne (of externe)
+    viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen.
 
-<h1>Uw WMS server is met succes toegevoegd</h1>
-Kaartenbalie heeft met succes uw link toegevoegd aan het systeem en de verschillende data die op deze
-WMS service aangeboden wordt op genomen in haar eigen database. Door middel van de interne (of externe)
-viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen.
-
-<P>
-    <input type="button" value="jiiij" onclick="javascript:window.location.href='<html:rewrite page='/viewer/mapviewer.do' module='' />'">
-</P>
+    <P>
+        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/viewer/mapviewer.do' module='' />'">
+    </P>
+<% } else { %>
+    <h1>Pagina niet aanwezig</h1>
+    De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
+    indien u vragen heeft over deze pagina.
+<% } %>

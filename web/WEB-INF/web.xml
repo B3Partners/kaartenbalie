@@ -73,6 +73,90 @@
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>
+    
+    <!-- The part below are the initial variables to turn on or off the demo part. 
+         When all of the param value attributes are set to false the whole demo is deactivated
+    -->
+    <servlet>
+        <servlet-name>DemoMenu</servlet-name>
+        <jsp-file>/demo/main/mIndex.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>AlgemeenMenu</servlet-name>
+        <jsp-file>/algemeen/main/mIndex.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>DemoIndex</servlet-name>
+        <jsp-file>/demo/main/cIndex.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>DemoRegistratie</servlet-name>
+        <jsp-file>/demo/main/cRegistratie.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>DemoAddUrl</servlet-name>
+        <jsp-file>/demo/main/cAddUrl.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>DemoAddUrlSuccess</servlet-name>
+        <jsp-file>/demo/main/cAddUrlsuccess.jsp</jsp-file>
+        <init-param>
+            <param-name>demoActive</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DemoMenu</servlet-name>
+        <url-pattern>/demo/main/mIndex.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AlgemeenMenu</servlet-name>
+        <url-pattern>/algemeen/main/mIndex.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DemoIndex</servlet-name>
+        <url-pattern>/demo/main/cIndex.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DemoRegistratie</servlet-name>
+        <url-pattern>/demo/main/cRegistratie.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DemoAddUrl</servlet-name>
+        <url-pattern>/demo/main/cAddUrl.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DemoAddUrlSuccess</servlet-name>
+        <url-pattern>/demo/main/cAddUrlsuccess.jsp</url-pattern>
+    </servlet-mapping>
+    <!-- End of the demo initialization -->
+    
     <servlet>
         <servlet-name>FlamingoConfigServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>
