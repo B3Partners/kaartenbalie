@@ -128,7 +128,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 </div>
 <script type="text/javascript">
     <c:if test = "${not empty layerList}">
-        
+              
         var root = ${layerList};
         function itemClick(item) {
             var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);        
@@ -229,6 +229,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             }
         
         }
+        
         //check the selected layers
         <c:if test="${not empty checkedLayers}">
             var layerstring="${checkedLayers}";
@@ -242,6 +243,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 
             }
         </c:if>
+        
         function mainMap_onUpdateProgress(){
             setMapInfo();
         }
@@ -253,8 +255,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             var y=Math.round((e.miny+e.maxy)/2);
             document.getElementById("currentScale").innerHTML="Schaal= "+s;
             document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
-        }
-        
+        }       
     </c:if>
 </script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
