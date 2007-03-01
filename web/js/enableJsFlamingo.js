@@ -9,6 +9,5 @@ window.onload = init;
 function flamingo_onInit() {
    //at this moment the flamingo.swf is up and running, so initialize the global flamingo var.
    flamingo =getMovie("flamingo");
-
 }
 

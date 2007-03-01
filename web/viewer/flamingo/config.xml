@@ -19,6 +19,7 @@
             <fmc:ToolZoomout left="30"/>
             <fmc:ToolPan left="60"/>
             <fmc:ToolMeasure left="90"/>
+            <fmc:ToolIdentify left="120"/>
         </fmc:ToolGroup>                                                                                
     <fmc:BorderNavigation listento="mainMap"/>
     <fmc:Map id="mainMap" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="130087,315639,249418,386267">
@@ -26,4 +27,8 @@
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
         <fmc:LayerOGWMS id="map" url="../servlet/CallWMSServlet/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS=""/>
     </fmc:Map>
+    <fmc:Window  title="info" visible="false" canresize="true" width="50%" height="20%" left="50%" top="0">
+        <string id="title" nl="informatie"  en="information"/>
+        <fmc:IdentifyResults  width="100%" height="100%" visible="true" listento="mainMap" />
+    </fmc:Window>
 </FLAMINGO>
