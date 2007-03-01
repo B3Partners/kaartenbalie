@@ -271,7 +271,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="collapsed" desc="parseRequestAndData(Map parameters) method.">
     public byte[] parseRequestAndData(Map <String, Object> parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException {
         String givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
-        if (!SUPPORTED_REQUESTS.contains(givenRequest))
+        
+        boolean supported_request = false;
+        Iterator it = SUPPORTED_REQUESTS.iterator();
+        while (it.hasNext()) {
+            String elem = (String) it.next();
+            if(elem.equalsIgnoreCase(givenRequest)) {
+                supported_request = true;
+            }
+        }
+        if (!supported_request)
             throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
         
         /*

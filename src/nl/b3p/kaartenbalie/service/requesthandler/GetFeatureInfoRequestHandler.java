@@ -80,7 +80,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         while (it.hasNext()) {
             ServiceProvider serviceProvider = (ServiceProvider)it.next();
             Set serviceProviderLayers = serviceProvider.getLayers();
-            String spls = findLayer(layer, serviceProviderLayers);
+            String spls = findQueryableLayer(layer, serviceProviderLayers);
             if (spls != null) {
                 spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetFeatureInfo);
 

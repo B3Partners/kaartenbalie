@@ -331,6 +331,36 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     }
     // </editor-fold>
     
+    /** Tries to find a specified layer given for a certain ServiceProvider.
+     *
+     * @param layers the set with layers which the method has to surch through
+     * @param layerToBeFound the layer to be found
+     *
+     * @return string with the name of the found layer or null if no layer was found
+     */
+    // <editor-fold defaultstate="collapsed" desc="findQueryableLayer(String layerToBeFound, Set layers) method.">
+    protected String findQueryableLayer(String layerToBeFound, Set layers) {
+        if (layers==null || layers.isEmpty())
+            return null;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            String identity = layer.getId() + "_" + layer.getName();
+            if(identity.equalsIgnoreCase(layerToBeFound)) {
+                if (layer.getQueryable() == "1") {
+                    return layer.getName();
+                }
+            }
+            
+            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
+            if (foundLayer != null)
+                return foundLayer;
+        }        
+        return null;
+    }
+    // </editor-fold>
+    
     /** Builds a Stringbuffer of the layers found in the database and compared with the requested layers.
      * @param serviceProvider ServiceProvider to which the layers belong
      * @param layer string array with layersto be found and added to the list
