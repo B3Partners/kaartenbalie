@@ -72,6 +72,8 @@ public class FlamingoConfigServlet extends HttpServlet {
             for (int i = 0; i < node.getAttributes().getLength(); i++){
                 if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("layers")){
                     node.getAttributes().item(i).setNodeValue(layers);
+                }else if(node.getAttributes().item(i).getNodeName().equalsIgnoreCase("query_layers")){
+                    node.getAttributes().item(i).setNodeValue(layers);
                 }
             }
         }
