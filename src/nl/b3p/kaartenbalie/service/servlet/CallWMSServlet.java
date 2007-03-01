@@ -94,6 +94,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
                 long fourthMeasurement = System.currentTimeMillis();
                 data = parseRequestAndData(parameters);
+                
+                String dataRepresent = new String(data);
+                System.out.println("The data is : " + dataRepresent);
+                
                 long fifthMeasurement = System.currentTimeMillis();
                 
                 long sixthMeasurement = System.currentTimeMillis();

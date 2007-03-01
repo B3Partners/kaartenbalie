@@ -90,11 +90,18 @@ public interface KBConstants {
     });
     
     public static final List PARAMS_GetFeatureInfo = Arrays.asList(new String[] {
-        WMS_SERVICE,
         WMS_VERSION,
         WMS_PARAM_QUERY_LAYERS,
         WMS_PARAM_X,
-        WMS_PARAM_Y
+        WMS_PARAM_Y,
+        WMS_REQUEST,
+        WMS_VERSION,
+        WMS_PARAM_LAYERS,
+        WMS_PARAM_SRS,
+        WMS_PARAM_BBOX,
+        WMS_PARAM_WIDTH,
+        WMS_PARAM_HEIGHT,
+        WMS_PARAM_FORMAT
     });
     
     public static final List PARAMS_GetLegendGraphic = Arrays.asList(new String[] {
