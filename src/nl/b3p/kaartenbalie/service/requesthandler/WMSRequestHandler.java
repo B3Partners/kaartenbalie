@@ -149,7 +149,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 //doorloop de srsen van de layers
                 while (it.hasNext()){
                     SRS srs= (SRS)it.next();
-                    if (srs.getSrs()!=null){
+                    if (srs.getSrs()!=null && srs.getMaxx()==null){
                         if (srs.getSrs().contains(" ")){
                             String[] tokens= srs.getSrs().split(" ");
                             //doorloop de door komma gescheiden srsen
