@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -51,6 +53,7 @@ import org.hibernate.Transaction;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
+    private static final String TOPLAYERNAME = "B3P_Kaartenbalie";
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
     protected String url;
@@ -134,13 +137,55 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         if (combine) {
             Layer layer = new Layer();
+            layer.setName(TOPLAYERNAME);
             //TODO:
-            
+            HashMap hm= new HashMap();
+            //Layer[] layerArray= (Layer[])layers.toArray();
+            Iterator lit=layers.iterator();
+            //doorloop de layers
+            while(lit.hasNext()){
+                Set <SRS> srsen= ((Layer)lit.next()).getSrs();
+                Iterator it= srsen.iterator();
+                //doorloop de srsen van de layers
+                while (it.hasNext()){
+                    SRS srs= (SRS)it.next();
+                    if (srs.getSrs()!=null){
+                        if (srs.getSrs().contains(" ")){
+                            String[] tokens= srs.getSrs().split(" ");
+                            //doorloop de door komma gescheiden srsen
+                            for (int t=0; t < tokens.length; t++){
+                                addSrsCount(hm,tokens[t]);
+                            }
+                        }else{
+                           addSrsCount(hm,srs.getSrs()); 
+                        }
+                    }
+                }
+            }
+            Iterator it=hm.entrySet().iterator();
+            while(it.hasNext()){
+                Map.Entry entry=(Map.Entry)it.next();
+                int i= ((Integer)entry.getValue()).intValue();
+                if (i>=layers.size()){
+                    SRS srs= new SRS();
+                    srs.setSrs((String)entry.getKey());
+                    layer.addSrs(srs);
+                }
+            }           
             layer.setLayers(layers);
             sp.addLayer(layer);
             sps.add(sp);
         }
         return sps;
+    }
+    
+    private void addSrsCount(HashMap hm, String srs){
+        if (hm.containsKey(srs)){
+            int i= ((Integer)hm.get(srs)).intValue()+1;
+            hm.put(srs,new Integer(i));
+        }else{
+            hm.put(srs,new Integer("1"));
+        }
     }
     // </editor-fold>
     

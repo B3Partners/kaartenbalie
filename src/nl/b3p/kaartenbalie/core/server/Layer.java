@@ -519,7 +519,16 @@ public class Layer implements XMLElement {
         
         if(null != this.getName()) {
             Element nameElement = doc.createElement("Name");
-            Text text = doc.createTextNode(this.getId() + "_" + this.getName());
+            String nname="";
+            if (this.getId()!=null){
+                nname+=this.getId();
+            }if (this.getName()!=null){
+                if (nname.length()>0){
+                    nname+="_";
+                }
+                nname+=this.getName();
+            }                
+            Text text = doc.createTextNode(nname);
             nameElement.appendChild(text);
             layerElement.appendChild(nameElement);
         }
