@@ -833,7 +833,7 @@ public class WMSCapabilitiesReader {
         
         public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
-            System.out.println("Title found. Title is " + sb.toString());
+            //System.out.println("Title found. Title is " + sb.toString());
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
                 serviceProvider.setTitle(sb.toString());

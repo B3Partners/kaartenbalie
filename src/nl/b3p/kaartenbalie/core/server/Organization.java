@@ -33,6 +33,7 @@ public class Organization {
     private Set user;
     private Set billing;
     private Set <Layer> organizationLayer;
+    private boolean hasValidGetCapabilities;
     
     // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
@@ -168,6 +169,14 @@ public class Organization {
 
     public void setVisitorsAddress(String visitorsAddress) {
         this.visitorsAddress = visitorsAddress;
+    }
+    
+    public boolean getHasValidGetCapabilities() {
+        return hasValidGetCapabilities;
+    }
+
+    public void setHasValidGetCapabilities(boolean hasValidGetCapabilities) {
+        this.hasValidGetCapabilities = hasValidGetCapabilities;
     }
     // </editor-fold>
 }

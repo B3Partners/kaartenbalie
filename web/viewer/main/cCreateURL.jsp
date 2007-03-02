@@ -42,6 +42,12 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <h3><c:out value="${message}"/></h3>
             </div>
         </c:if>
+        
+        <c:if test="${not empty warning}">
+        <div id="warning">
+            <h3><c:out value="${warning}"/></h3>
+        </div>
+    </c:if>
     
 <table>
     <html:form action="/createPersonalURL">

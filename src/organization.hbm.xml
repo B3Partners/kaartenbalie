@@ -75,5 +75,8 @@
         <property name="fax">
             <column name="FAX" />
         </property>
+        <property name="hasValidGetCapabilities">
+            <column name="HASVALIDGETCAPABILITIES" />
+        </property>
     </class>
 </hibernate-mapping>

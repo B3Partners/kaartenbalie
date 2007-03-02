@@ -236,6 +236,15 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             user.setDefaultGetMap(newGetMap);
         }
         dynaForm.set("defaultGetMap",user.getDefaultGetMap());
+        
+        if(!user.getOrganization().getHasValidGetCapabilities()) {
+            request.setAttribute("warning", "De combinatie van de verschillende " +
+                    "servers heeft problemen opgeleverd.\n De selectie is wel opgeslagen " +
+                    "maar kan problemen opleveren bij het opvragen van de GetCapabilities. " +
+                    "Het probleem dat opgetreden is een conflict in de ondersteuning van " +
+                    "de Spatial reference en/of de image format.");
+        }
+        
         //store in db
         sess.saveOrUpdate(user);
         sess.flush(); 

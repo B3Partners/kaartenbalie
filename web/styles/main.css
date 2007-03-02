@@ -16,6 +16,21 @@
 
 #error h3 {
     font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    padding: 10px;
+    color: red;
+}
+
+#warning {
+    border: 1px solid blue;
+    width: 600px;
+    padding: 5px;
+    margin: 10px;
+    background: #fff5f5 url(../images/siteImages/warning.png) no-repeat;
+}
+
+#warning h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 14px;
     padding: 10px;
     color: red;

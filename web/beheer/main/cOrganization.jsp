@@ -74,6 +74,12 @@ window.onload = function() { stripedTable(); }
         </div>
     </c:if>
     
+    <c:if test="${not empty warning}">
+        <div id="warning">
+            <h3><c:out value="${warning}"/></h3>
+        </div>
+    </c:if>
+    
     <div class="containerdiv" style="float: left; clear: none;">
         <b>Groepstabel:</b>
         <div class="serverRijTitel">

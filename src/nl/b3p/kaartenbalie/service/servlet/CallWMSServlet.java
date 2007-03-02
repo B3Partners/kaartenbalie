@@ -93,10 +93,12 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 parameters.put(KB_USER, user);
                 parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
                 long fourthMeasurement = System.currentTimeMillis();
+                
+                
                 data = parseRequestAndData(parameters);
                 
-                String dataRepresent = new String(data);
-                System.out.println("The data is : " + dataRepresent);
+                //String dataRepresent = new String(data);
+                //System.out.println("The data is : " + dataRepresent);
                 
                 long fifthMeasurement = System.currentTimeMillis();
                 
@@ -200,16 +202,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 Date date = user.getTimeout();
                 
                 if (date.compareTo(new Date()) <= 0) {
-                    System.out.println("The date for your personal URL has expired");
+                    //System.out.println("The date for your personal URL has expired");
                     return null;
-                } else {
-                    System.out.println("The date for your personal URL is still ok");
-                }
+                } //else {
+                    //System.out.println("The date for your personal URL is still ok");
+                //}
                 
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
                 // Parse with a custom format
                 String personalDate = df.format(date);
-                System.out.println("De opgegeven datum is : " + date.toString());
+                //System.out.println("De opgegeven datum is : " + date.toString());
                                 
                 // bereken token voor deze user
                  String token = calcToken(
@@ -247,13 +249,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="collapsed" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String toBeHashedString = registeredIP + username + password + personalDate;
-        System.out.println("String to be hashed in CallWMS is  : " + toBeHashedString);
+        //System.out.println("String to be hashed in CallWMS is  : " + toBeHashedString);
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(toBeHashedString.getBytes("8859_1")); // UTF-8 ???
         BigInteger hash = new BigInteger(1, md.digest());
         
         
-        System.out.println("Personal URL in CallWMSServlet: " + hash.toString( 16 ));
+        //System.out.println("Personal URL in CallWMSServlet: " + hash.toString( 16 ));
         return hash.toString( 16 );
     }
     // </editor-fold>

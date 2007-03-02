@@ -11,6 +11,7 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +22,9 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.validator.Form;
 
@@ -161,39 +164,118 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         List layerList = getHibernateSession().createQuery(
                 "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
         
+        /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
+         * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
+         * checked if a layer has any parents and if so this has to be checked recursively until there
+         * aren't any parents anymore. Each of the parents found have to be added to the list of layers 
+         * which are allowed to be requested.
+         */
         int size = selectedLayers.length;
         Set <Layer> layers = new HashSet <Layer>();
         for(int i = 0; i < size; i++) {
             int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
-            System.out.println("Select is : " +  select);
+            //System.out.println("Select is : " +  select);
             Iterator it = layerList.iterator();
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId() == select) {
                     //layers.add(layer);
-                    layers = getAllTopLayers(layer,  layers );
+                    layers = getAllParentLayers(layer,  layers );
                     break;
                 }
             }
         }
+        
+        /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
+         * Some might have compatibility some others not. To make sure this wont give any problems, we need to
+         * check which formats and srs's are the same. If and only if this complies we can say for sure that
+         * the GetCapabilities request which is going to be sent to the client is valid. In all other cases
+         * we need to give a warning that the GetCapabilities can have problems when used with certain viewers.
+         * 
+         * In order to give the user the same warning as the supervisor and in order to keep the administration
+         * up to date a boolean hasValidGetCapabilities will be set to false if a GetCapabilities is not stictly
+         * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
+         * work properly.
+         */
+        LayerValidator lv = new LayerValidator();
+        lv.setLayers(layers);
+        //lv.setLayers(layerList);
+        boolean valid = lv.validate();
+        organization.setHasValidGetCapabilities(false);
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
     
-    private Set <Layer> getAllTopLayers(Layer layer, Set <Layer> layers) {
+    
+    private void addSrsCount(HashMap hm, String srs){
+        if (hm.containsKey(srs)){
+            int i= ((Integer)hm.get(srs)).intValue()+1;
+            hm.put(srs,new Integer(i));
+        }else{
+            hm.put(srs,new Integer("1"));
+        }
+    }
+    
+    /** Creates a list with the available layers.
+     *
+     * @param layer The layer of which we have to find the parent layers.
+     * @param layers Set <Layer> with all direct and indirect parental layers..
+     *
+     * @return the same set Set <Layer> as given.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getTopSRS(Layer layer) method.">
+    private Set <SRS> getTopSRS(Layer layer) {
+        System.out.println("In TOPSRS!");
+        if(layer.getParent() != null) {
+            System.out.println("Layer has a parent!");
+            this.getTopSRS(layer.getParent());
+        }
+        System.out.println("Top is found!");
+        return layer.getSrs();
+    }
+    // </editor-fold>
+    
+    
+    /** Creates a list with the available layers.
+     *
+     * @param layer The layer of which we have to find the parent layers.
+     * @param layers Set <Layer> with all direct and indirect parental layers..
+     *
+     * @return the same set Set <Layer> as given.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getTopLayer(Layer layer) method.">
+    private Layer getTopLayer(Layer layer) {
+        if(layer.getParent() != null) {
+            this.getTopLayer(layer.getParent());
+        }
+        return layer.getParent();
+    }
+    // </editor-fold>
+    
+    
+    
+    
+    
+    
+    
+    /** Creates a list with the available layers.
+     *
+     * @param layer The layer of which we have to find the parent layers.
+     * @param layers Set <Layer> with all direct and indirect parental layers..
+     *
+     * @return the same set Set <Layer> as given.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
+    private Set <Layer> getAllParentLayers(Layer layer, Set <Layer> layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
-            this.getAllTopLayers(layer.getParent(), layers);
+            this.getAllParentLayers(layer.getParent(), layers);
         } else {
             layers.add(layer);
         }
         return layers;
     }
-       
-    
-    
-    
-    
+    // </editor-fold>
     
     /** Creates a list with the available layers.
      *
@@ -320,22 +402,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /** Method for saving a new organization from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -382,6 +448,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         
         populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
+        
+        if(!organization.getHasValidGetCapabilities()) {
+            request.setAttribute("warning", "De combinatie van de verschillende " +
+                    "servers heeft problemen opgeleverd.\n De selectie is wel opgeslagen " +
+                    "maar kan problemen opleveren bij het opvragen van de GetCapabilities. " +
+                    "Het probleem dat opgetreden is een conflict in de ondersteuning van " +
+                    "de Spatial reference en/of de image format.");
+        }
+        
         //store in db
         sess.saveOrUpdate(organization);
         sess.flush();
