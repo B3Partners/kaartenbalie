@@ -24,6 +24,7 @@ public class User implements Principal {
     private String role;
     private String personalURL;
     private String registeredIP;
+    private String defaultGetMap;
     private Date timeout;
     private Organization organization;
     
@@ -119,6 +120,12 @@ public class User implements Principal {
 
     public void setTimeout(Date timeout) {
         this.timeout = timeout;
+    }
+    public String getDefaultGetMap(){
+        return defaultGetMap;
+    }
+    public void setDefaultGetMap(String s){
+        defaultGetMap=s;
     }
     // </editor-fold>
 }

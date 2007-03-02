@@ -42,6 +42,9 @@
         </property>
         <property name="timeout">
             <column name="TIMEOUT"/>
-        </property>        
+        </property>
+        <property name="defaultGetMap">
+            <column name="DEFAULTGETMAP"/>
+        </property>
     </class>
 </hibernate-mapping>
