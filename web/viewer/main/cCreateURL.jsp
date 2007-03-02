@@ -109,10 +109,14 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         </tr>
         <tr>
         <td>Persoonlijk gecre&euml;erde URL:</td>
-        <td><html:text property="personalURL" readonly="true" size="100" /></td>
+        <td><html:text property="personalURL" styleId="personalURL" readonly="true" size="100" /></td>
         </tr>
         <tr>
         <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>Default getMap:</td>
+            <td><html:text property="defaultGetMap" styleId="defaultGetMap" readonly="true" size="100" /></td>
         </tr>
         <tr>
         <td>
@@ -120,7 +124,34 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 <fmt:message key="button.create"/>
             </html:submit>
         </td>
+        <td>
+            <input id="openWMSHelpButton" class="knop" style="display: none;" type="button" onclick="javascript: openWMSHelp()" value="<fmt:message key='button.createDefaultgetMap'/>"/>
+        </td>
         </tr>
 </html:form>
 </table>
+    <script>
+        function openWMSHelp(){
+            var elementGetMap= document.getElementById("defaultGetMap");
+            var elementPUrl= document.getElementById("personalURL");
+            var value="wmsUrlCreator.do"
+            if (elementGetMap && elementGetMap.value.length > 0){
+                value+="?getMap="+encodeURIComponent(elementGetMap.value);
+            }
+            if (elementPUrl && elementPUrl.value.length > 0){
+                if (value.indexOf('?')<0){
+                    value+="?";
+                }else{
+                    value+="&";
+                }
+                value+="pUrl="+encodeURIComponent(elementPUrl.value);
+            }
+            window.open(value,"GetMapBuilder","width=700,height=600,resizable=yes,scrollbars=yes");
+        }
+                
+        if (document.getElementById("personalURL") && document.getElementById("personalURL").value!="" && document.getElementById("personalURL").value.length>0){
+            document.getElementById("openWMSHelpButton").style.display="block";
+        }
+        
+    </script>
 </body>

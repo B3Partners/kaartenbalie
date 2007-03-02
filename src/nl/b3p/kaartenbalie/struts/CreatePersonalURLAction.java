@@ -23,6 +23,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.SecurityRealm;
+import nl.b3p.kaartenbalie.service.WMSParamUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -60,6 +61,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = (User) request.getUserPrincipal();        
+        if (user==null){
+            log.error("ingelogde user == null");
+            return mapping.findForward("failure");
+        }
+        user = (User) getHibernateSession().get(User.class,user.getId());
+        if (user==null){
+            log.error("Ingelogde user bestaat niet meer in database");
+            return mapping.findForward("failure");
+        }
+        
         ActionForward af = super.unspecified(mapping, dynaForm, request, response);
         
         SecurityRealm sr = new SecurityRealm();
@@ -77,6 +88,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             dynaForm.set("timeout", date);
         }
         dynaForm.set("personalURL", user.getPersonalURL());
+        
+        dynaForm.set("defaultGetMap",user.getDefaultGetMap());
         return af;
     }
     // </editor-fold>
@@ -99,7 +112,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         User user = (User) request.getUserPrincipal();
         ActionForward afcreate = super.create(mapping, dynaForm, request, response);
         dynaForm.set("username", user.getUsername());
-        
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         String date = df.format(user.getTimeout());        
@@ -214,7 +226,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         dynaForm.set("password", user.getPassword());
         dynaForm.set("registeredIP", registeredIP);
         dynaForm.set("personalURL", personalURL);
-        
+        /*als de personal url niet begint in de default getmap is hij dus veranderd t.o.v. de defaultgetmap
+         *Daarom moet deze niewe URL worden geplaatst in de defaultGetMap
+         */        
+        if (user.getDefaultGetMap()!=null && !user.getDefaultGetMap().startsWith(personalURL)){
+            int lengthOldPUrl= WMSParamUtil.removeAllWMSParameters(user.getDefaultGetMap()).length();
+            String newGetMap= user.getPersonalURL();
+            newGetMap+=user.getDefaultGetMap().substring(lengthOldPUrl);
+            user.setDefaultGetMap(newGetMap);
+        }
+        dynaForm.set("defaultGetMap",user.getDefaultGetMap());
         //store in db
         sess.saveOrUpdate(user);
         sess.flush(); 

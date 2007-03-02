@@ -442,3 +442,17 @@ margin: 0;
     background-color: #ffffff;
     
 }
+/*voor de hulp bij het maken van wms request*/
+.wmscomponentdiv{
+    float: left;
+    width: 300px;
+    max-height: 350px;
+}
+
+.listdiv{
+    float: left;
+    width: 300px;
+    height: 300px;
+    overflow: auto;
+    color: red;
+}

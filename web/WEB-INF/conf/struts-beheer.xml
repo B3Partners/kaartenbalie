@@ -58,6 +58,7 @@
             <form-property name="layerSelected" type="java.lang.String"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
+        
     </form-beans>
     
     <global-exceptions>
@@ -82,7 +83,7 @@
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
-        </action>
+        </action>        
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

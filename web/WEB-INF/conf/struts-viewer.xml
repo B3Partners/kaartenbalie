@@ -37,7 +37,18 @@
             <form-property name="personalURL" type="java.lang.String"/>
             <form-property name="registeredIP" type="java.lang.String"/>
             <form-property name="timeout" type="java.lang.String"/>
-        </form-bean>        
+            <form-property name="defaultGetMap" type="java.lang.String"/>
+        </form-bean>
+        <form-bean name="wmsUrlCreatorForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- nodig voor crud action-->
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- in form -->
+            <form-property name="getCapabilitiesUrl" type="java.lang.String"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="selectedProjectie" type="java.lang.String"/>
+            <form-property name="bbox" type="java.lang.String"/>
+        </form-bean>
     </form-beans>
     
     <global-exceptions>
@@ -57,7 +68,11 @@
         <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.createurl"/>
             <forward name="failure" path="base.viewer.createurl"/>
-        </action>        
+        </action>
+        <action path="/wmsUrlCreator" name="wmsUrlCreatorForm" scope="request" type="nl.b3p.kaartenbalie.struts.WMSUrlCreatorAction" validate="false">
+            <forward name="success" path="/main/wmsurlcreator.jsp"/>
+            <forward name="failure" path="/main/wmsurlcreator.jsp"/>
+        </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

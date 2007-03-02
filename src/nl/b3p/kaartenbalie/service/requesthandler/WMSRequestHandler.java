@@ -134,6 +134,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         if (combine) {
             Layer layer = new Layer();
+            //TODO:
+            
             layer.setLayers(layers);
             sp.addLayer(layer);
             sps.add(sp);
