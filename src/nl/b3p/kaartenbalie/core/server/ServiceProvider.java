@@ -195,11 +195,13 @@ public class ServiceProvider implements XMLElement {
     }
     public Layer getTopLayer(){
         Set set= getLayers();
-        Iterator it=set.iterator();
-        while (it.hasNext()){
-            Layer layer=(Layer)it.next();
-            if (layer.getParent()==null){
-                return layer;
+        if (set!=null){
+            Iterator it=set.iterator();
+            while (it.hasNext()){
+                Layer layer=(Layer)it.next();
+                if (layer.getParent()==null){
+                    return layer;
+                }
             }
         }
         return null;
