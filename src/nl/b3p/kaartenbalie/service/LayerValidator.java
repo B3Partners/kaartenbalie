@@ -49,24 +49,33 @@ public class LayerValidator {
         HashMap hm= new HashMap();
         //Layer[] layerArray= (Layer[])layers.toArray();
         Iterator lit=layers.iterator();
+        //Een teller die alle layers telt die een SRS hebben.
+        int tellerMeeTellendeLayers=0;
+        boolean layersHasSRS;
         //doorloop de layers
         while(lit.hasNext()){
+            layersHasSRS=false;
             Set <SRS> srsen= ((Layer)lit.next()).getSrs();
             Iterator it= srsen.iterator();
             //doorloop de srsen van de layers
             while (it.hasNext()){
                 SRS srs= (SRS)it.next();
                 if (srs.getSrs()!=null && srs.getMaxx()==null){
+                    layersHasSRS=true;
                     if (srs.getSrs().contains(" ")){
                         String[] tokens= srs.getSrs().split(" ");
                         //doorloop de door komma gescheiden srsen
                         for (int t=0; t < tokens.length; t++){
-                            addSrsCount(hm,tokens[t]);
+                            addSrsCount(hm,tokens[t]);                           
                         }
                     }else{
                         addSrsCount(hm,srs.getSrs());
                     }
                 }
+            }
+            if (layersHasSRS){
+                 //Teller ophogen: Layer heeft srs
+                tellerMeeTellendeLayers++;
             }
         }
         ArrayList supportedSrsen=new ArrayList();
@@ -74,7 +83,7 @@ public class LayerValidator {
         while(it.hasNext()){
             Map.Entry entry=(Map.Entry)it.next();
             int i= ((Integer)entry.getValue()).intValue();
-            if (i>=layers.size()){
+            if (i>=tellerMeeTellendeLayers){
                 supportedSrsen.add((String)entry.getKey());                
             }
         }

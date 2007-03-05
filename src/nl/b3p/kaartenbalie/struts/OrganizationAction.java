@@ -201,7 +201,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         lv.setLayers(layers);
         //lv.setLayers(layerList);
         boolean valid = lv.validate();
-        organization.setHasValidGetCapabilities(false);
+        organization.setHasValidGetCapabilities(valid);
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
