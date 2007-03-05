@@ -179,7 +179,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
          * an xml document as well.
          */
         System.out.println("The size of the link is : " + urls.size());
-        return getOnlineData(urls, false);
+        return getOnlineData(urls, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>
 }

@@ -182,7 +182,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="collapsed" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static byte[] getOnlineData(ArrayList urls, boolean overlay) throws IOException {
+    protected static byte[] getOnlineData(ArrayList urls, boolean overlay, String REQUEST_TYPE) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -192,75 +192,79 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * and recode the image.
          */
         if (urls.size() > 1) {
-            bi = new BufferedImage [urls.size()];
-            
-            /* Read each of the strings and create an URL for each one of them
-             * With the defined URL create a BufferedImage which will contain the
-             * image the URL was loacting to.
-             */
-            for (int i = 0; i < urls.size(); i++) {
-                String url = ((StringBuffer)urls.get(i)).toString();
-                URL u = new URL(url);
-                bi[i] = ImageIO.read(u);
-            }
-            
-            /* After all images are loaded into the memory, these images
-             * can be combined (blended) to make it one image. In order to
-             * be able to blend the images, an empty Graphics 2D object is
-             * needed to project all the other images onto. This Graphics 
-             * object is recieved through a new and empty BufferedImage which
-             * has the same size as our BufferedImages.
-             */
-            BufferedImage buffImg = null;
-            
-            if(overlay) {
-                buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
-                Graphics2D gbi = buffImg.createGraphics();
+            if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+                bi = new BufferedImage [urls.size()];
 
-                /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
-                 * After drawing this layer we draw all the other layers on top of it, setting the
-                 * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
+                /* Read each of the strings and create an URL for each one of them
+                 * With the defined URL create a BufferedImage which will contain the
+                 * image the URL was loacting to.
                  */
-                gbi.drawImage(bi[0], 0, 0, null);
-                gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
-
-                for (int i = 1; i < urls.size(); i++) {
-                    gbi.drawImage(bi[i], 0, 0, null);
-                }
-            } else {
-                int [] width = new int[urls.size()];
-                int [] height= new int[urls.size()];
-                
-                for (int i = 1; i < urls.size(); i++) {
-                    width[i] = bi[i].getWidth();
-                    height[i] = bi[i].getHeight();
-                }
-                
-                int maxWidth = 0;
-                int maxHeight= 0;
                 for (int i = 0; i < urls.size(); i++) {
-                    if (width[i] > maxWidth) {
-                        maxWidth = width[i];
+                    String url = ((StringBuffer)urls.get(i)).toString();
+                    URL u = new URL(url);
+                    bi[i] = ImageIO.read(u);
+                }
+
+                /* After all images are loaded into the memory, these images
+                 * can be combined (blended) to make it one image. In order to
+                 * be able to blend the images, an empty Graphics 2D object is
+                 * needed to project all the other images onto. This Graphics 
+                 * object is recieved through a new and empty BufferedImage which
+                 * has the same size as our BufferedImages.
+                 */
+                BufferedImage buffImg = null;
+
+                if(overlay) {
+                    buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D gbi = buffImg.createGraphics();
+
+                    /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
+                     * After drawing this layer we draw all the other layers on top of it, setting the
+                     * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
+                     */
+                    gbi.drawImage(bi[0], 0, 0, null);
+                    gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
+
+                    for (int i = 1; i < urls.size(); i++) {
+                        gbi.drawImage(bi[i], 0, 0, null);
                     }
-                    maxHeight += height[i];
+                } else {
+                    int [] width = new int[urls.size()];
+                    int [] height= new int[urls.size()];
+
+                    for (int i = 1; i < urls.size(); i++) {
+                        width[i] = bi[i].getWidth();
+                        height[i] = bi[i].getHeight();
+                    }
+
+                    int maxWidth = 0;
+                    int maxHeight= 0;
+                    for (int i = 0; i < urls.size(); i++) {
+                        if (width[i] > maxWidth) {
+                            maxWidth = width[i];
+                        }
+                        maxHeight += height[i];
+                    }
+
+                    buffImg = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D gbi = buffImg.createGraphics();
+                    maxHeight = 0;
+                    for (int i = 0; i < urls.size(); i++) {
+                        gbi.drawImage(bi[i], 0, maxHeight, null);
+                        maxHeight = bi[i].getHeight();
+                    }
+
+                    //gbi.dispose();
                 }
 
-                buffImg = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
-                Graphics2D gbi = buffImg.createGraphics();
-                maxHeight = 0;
-                for (int i = 0; i < urls.size(); i++) {
-                    gbi.drawImage(bi[i], 0, maxHeight, null);
-                    maxHeight = bi[i].getHeight();
-                }
-
-                //gbi.dispose();
+                /* All images have been drawn onto the Graphics 2D object so now
+                 * it is possible to create a byte output stream of this newly created
+                 * BufferedImage
+                 */
+                ImageIO.write(buffImg, "png", baos);
+            } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+                //combineer de featureinfo....
             }
-            
-            /* All images have been drawn onto the Graphics 2D object so now
-             * it is possible to create a byte output stream of this newly created
-             * BufferedImage
-             */
-            ImageIO.write(buffImg, "png", baos);
         } else {
             String url = ((StringBuffer)urls.get(0)).toString();
             

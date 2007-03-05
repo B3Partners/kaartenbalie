@@ -145,7 +145,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         StringBuffer [] url = null;
         ArrayList tempList = new ArrayList();
         //return getOnlineData((StringBuffer[])urls.toArray(url));
-        return getOnlineData(tempList, false);
+        return getOnlineData(tempList, false, WMS_REQUEST_GetLegendGraphic);
     }
     // </editor-fold>
 }

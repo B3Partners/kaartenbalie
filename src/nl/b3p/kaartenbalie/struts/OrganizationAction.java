@@ -199,9 +199,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          */
         LayerValidator lv = new LayerValidator();
         lv.setLayers(layers);
-        //lv.setLayers(layerList);
-        boolean valid = lv.validate();
-        organization.setHasValidGetCapabilities(valid);
+        organization.setHasValidGetCapabilities(lv.validate());
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>

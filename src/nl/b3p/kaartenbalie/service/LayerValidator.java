@@ -38,11 +38,21 @@ public class LayerValidator {
     
     public void setLayers(Set<Layer> layers) {
         this.layers = layers;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer l = (Layer) it.next();
+            Set srs = l.getSrs();
+            if (srs == null) {
+                System.out.println("SRS is null");
+            }
+        }
     }
     
     public boolean validate() {
         return this.validateSRS().length > 0;
     }
+    
     /** Returns the combined srs's that all layers given supports
      */
     public String[] validateSRS(){

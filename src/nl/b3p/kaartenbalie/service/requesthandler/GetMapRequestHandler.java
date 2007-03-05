@@ -135,7 +135,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 } 
             }
         }
-        return getOnlineData(urls, true);
+        return getOnlineData(urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
 }
