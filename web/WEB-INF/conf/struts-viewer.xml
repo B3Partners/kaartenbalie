@@ -44,15 +44,18 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- in form -->
-            <form-property name="getCapabilitiesUrl" type="java.lang.String"/>
+            <form-property name="personalUrl" type="java.lang.String"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="selectedProjectie" type="java.lang.String"/>
             <form-property name="bbox" type="java.lang.String"/>
+            <form-property name="height" type="java.lang.Integer" initial="400"/>
+            <form-property name="width" type="java.lang.Integer" initial="300"/>
+            <form-property name="selectedFormat" type="java.lang.String"/>            
         </form-bean>
     </form-beans>
     
     <global-exceptions>
-    
+        
     </global-exceptions>
 
     <global-forwards>

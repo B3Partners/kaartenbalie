@@ -87,7 +87,7 @@
         
         
         
-        <set name="srs" inverse="true" cascade="all" >
+        <set name="srs" inverse="true" cascade="all" lazy="false" >
             <key column="LAYERID"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.SRS"/>
         </set>

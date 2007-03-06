@@ -320,6 +320,10 @@ public class Layer implements XMLElement {
             attribution.setLayer(this);
         }
     }
+    
+    public String getUniqueName(){
+        return ""+this.getId()+"_"+this.getName();
+    }
     // </editor-fold>
     
     /** Method that will perfom a shallow clone of the given object into this object.

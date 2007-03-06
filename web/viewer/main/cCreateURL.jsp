@@ -122,7 +122,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         </tr>
         <tr>
             <td>Default getMap:</td>
-            <td><html:text property="defaultGetMap" styleId="defaultGetMap" readonly="true" size="100" /></td>
+            <td><html:textarea property="defaultGetMap" styleId="defaultGetMap" readonly="true" cols="75" rows="5" /></td>
         </tr>
         <tr>
         <td>
@@ -153,6 +153,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                 value+="pUrl="+encodeURIComponent(elementPUrl.value);
             }
             window.open(value,"GetMapBuilder","width=700,height=600,resizable=yes,scrollbars=yes");
+        }
+        function putWmsGetMap(value){
+            document.getElementById("defaultGetMap").value=value;
         }
                 
         if (document.getElementById("personalURL") && document.getElementById("personalURL").value!="" && document.getElementById("personalURL").value.length>0){
