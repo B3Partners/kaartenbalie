@@ -129,6 +129,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                         spUrl.append(WMS_PARAM_LAYERS);
                         spUrl.append("=");
                         spUrl.append(spls);
+                        
+                        System.out.println(spUrl.toString());
 
                         urls.add(spUrl);
                     }

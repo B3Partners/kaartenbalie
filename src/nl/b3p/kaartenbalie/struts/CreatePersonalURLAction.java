@@ -204,12 +204,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             return getAlternateForward(mapping, request);
         }
         
-        //if invalid
-        if (!isTokenValid(request)) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
+        
         
         // nieuwe default actie op delete zetten
         Session sess = getHibernateSession();

@@ -205,12 +205,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     
-    private void addSrsCount(HashMap hm, String srs){
+    private void addSrsCount(HashMap <String, Integer> hm, String srs){
         if (hm.containsKey(srs)){
-            int i= ((Integer)hm.get(srs)).intValue()+1;
-            hm.put(srs,new Integer(i));
-        }else{
-            hm.put(srs,new Integer("1"));
+            int i = ((Integer)hm.get(srs)).intValue()+1;
+            hm.put(srs, new Integer(i));
+        } else {
+            hm.put(srs, new Integer("1"));
         }
     }
     

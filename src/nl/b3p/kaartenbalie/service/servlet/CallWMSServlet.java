@@ -97,8 +97,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
                 data = parseRequestAndData(parameters);
                 
-                //String dataRepresent = new String(data);
-                //System.out.println("The data is : " + dataRepresent);
+                String dataRepresent = new String(data);
+                System.out.println("The data is : " + dataRepresent);
                 
                 long fifthMeasurement = System.currentTimeMillis();
                 
@@ -188,6 +188,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             // niet ingelogd dus, dan checken op token in url
             Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();
+            String url = request.getRequestURL().toString();
+            String remote = request.getRemoteAddr();
             try {
             user = (User)sess.createQuery(
                     "from User u where " +
@@ -199,9 +201,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             if (user!=null) {
-                Date date = user.getTimeout();
+                java.util.Date date = (java.util.Date)user.getTimeout();
                 
-                if (date.compareTo(new Date()) <= 0) {
+                if (date.compareTo(new java.util.Date()) <= 0) {
                     //System.out.println("The date for your personal URL has expired");
                     return null;
                 } //else {
@@ -348,6 +350,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
     
@@ -357,6 +360,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
     

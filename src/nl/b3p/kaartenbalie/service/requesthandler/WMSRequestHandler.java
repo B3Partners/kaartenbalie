@@ -28,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.SRS;
@@ -51,6 +55,13 @@ import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Transaction;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
@@ -98,6 +109,50 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (dbLayers==null)
             return null;
         
+        //als er gecombineerd moet worden moet er hier een nieuw sp object gemaakt worden
+        //dit object moet vervolgens gevuld worden met gecheckte domain resources
+        //en daarna moet er voor layers even gekeken worden hoe dit vervolgens aangepast wordt.
+        Set <ServiceProvider> serviceprovider = new HashSet <ServiceProvider> ();
+        Iterator it = dbLayers.iterator();
+        while (it.hasNext()) {
+            Layer l = (Layer)it.next();
+            Layer topLayer = this.getTopLayer(l);
+            ServiceProvider s = topLayer.getServiceProvider();
+            serviceprovider.add(s);
+        }        
+        
+        ServiceProviderValidator spv = new ServiceProviderValidator(serviceprovider);
+        //spv.validateFormats()
+        spv.
+        
+        //The same problem we have with the supporting capabilities
+        //Each of the capabilities has to checked with the capabilities of the other serviceproviders
+        //to find out which capabilities are supported by ALL serviceproviders.
+        ServiceDomainResource sdr = new ServiceDomainResource();
+        
+        layer.setName(TOPLAYERNAME);
+        LayerValidator lv = new LayerValidator(layers);
+        String [] supportedSRS = lv.validateSRS();
+        for (int i=0; i < supportedSRS.length; i++){
+            SRS srs= new SRS();
+            srs.setSrs(supportedSRS[i]);
+            layer.addSrs(srs);
+        }
+
+        layer.setLayers(layers);
+        */
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         //Initialize a couple of variables
         
         
@@ -137,6 +192,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
         
         if (combine) {
+            //Solving the problem with the toplayer naming and the SRS supported by all the layers of all the serviceproviders
             Layer layer = new Layer();
             layer.setName(TOPLAYERNAME);
             LayerValidator lv = new LayerValidator(layers);
@@ -148,10 +204,35 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
           
             layer.setLayers(layers);
+            
+            
+            
+            
+            
+            
+            
+            
+            
             sp.addLayer(layer);
             sps.add(sp);
         }
         return sps;
+    }
+    // </editor-fold>
+    
+    /** Creates a list with the available layers.
+     *
+     * @param layer The layer of which we have to find the parent layers.
+     * @param layers Set <Layer> with all direct and indirect parental layers..
+     *
+     * @return the same set Set <Layer> as given.
+     */
+    // <editor-fold defaultstate="collapsed" desc="getTopLayer(Layer layer) method.">
+    private Layer getTopLayer(Layer layer) {
+        if(layer.getParent() != null) {
+            this.getTopLayer(layer.getParent());
+        }
+        return layer.getParent();
     }
     // </editor-fold>
     
@@ -263,7 +344,52 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                  */
                 ImageIO.write(buffImg, "png", baos);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-                //combineer de featureinfo....
+                //combineer de featureinfo....                    
+                try {
+                    //Setting up the DocumentBuilderFactory
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    //Setting the validations, namespace awareness and whitespace handling
+                    dbf.setValidating(true);
+                    dbf.setNamespaceAware(true);
+                    dbf.setIgnoringElementContentWhitespace(true);
+
+                    //Creating a new document builder
+                    DocumentBuilder builder = dbf.newDocumentBuilder();
+
+                    //Creating a new destination
+                    Document destination = builder.newDocument();
+                    Element rootElement = destination.createElement("msGMLOutput");
+                    destination.appendChild(rootElement);
+                    rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
+                    rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+                    rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
+                    Document source = null;
+                    for (int i = 0; i < urls.size(); i++) {
+                        //Creating the source
+                        source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
+
+                        //Copying the elements from one document to the other
+                        copyElements(source, destination);
+                    }
+
+                    /*
+                     * Create a new output format to which this document should be translated and
+                     * serialize the tree to an XML document type
+                     */
+                    OutputFormat format = new OutputFormat(destination);
+                    format.setIndenting(true);
+                    XMLSerializer serializer = new XMLSerializer(baos, format);        
+                    serializer.serialize(destination);
+                } catch (SAXException e) {
+                    //System.exit(1);
+                } catch (ParserConfigurationException e) {
+                    System.err.println(e);
+                    //System.exit(1);
+                } catch (IOException e) {
+                    System.err.println(e);
+                    //System.exit(1);
+                }
             }
         } else {
             String url = ((StringBuffer)urls.get(0)).toString();
@@ -291,6 +417,27 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return baos.toByteArray();
     }
     // </editor-fold>
+        
+    private static void copyElements(Document source, Document destination) {
+        Element root_source = source.getDocumentElement();
+        NodeList nodelist_source = root_source.getChildNodes();
+        int size_source = nodelist_source.getLength();
+
+        for (int i = 0; i < size_source; i ++) {
+            Node node_source = nodelist_source.item(i);
+            if (node_source instanceof Element) {
+                Element element_source = (Element) node_source;
+                String tagName = element_source.getTagName();
+                if (!tagName.equalsIgnoreCase("ServiceException")) {
+                    Node importedNode = destination.importNode(element_source, true);
+                    Element root_destination = destination.getDocumentElement();
+                    root_destination.appendChild(importedNode);
+                }
+            }
+        }
+    }
+    
+    
     
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *
@@ -365,12 +512,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             Layer layer = (Layer) it.next();
             String identity = layer.getId() + "_" + layer.getName();
             if(identity.equalsIgnoreCase(layerToBeFound)) {
-                if (layer.getQueryable() == "1") {
+                if (layer.getQueryable().equals("1")) {
                     return layer.getName();
+                } else {
+                    return null;
                 }
             }
             
-            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
+            String foundLayer = findQueryableLayer(layerToBeFound, layer.getLayers());
             if (foundLayer != null)
                 return foundLayer;
         }        

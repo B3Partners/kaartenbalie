@@ -51,13 +51,14 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
         
-        String layer = "";
+        //String layer = "";
         
         if (layers.length == 0) {
             //Geen layer opgegeven.
             return null;
         }
         
+        /*
         if (layers.length > 1) {
             if (WMS_GETFEATUREINFO_RETURN_EXCEPTION) {
                 //Genereer hier een exception en return deze
@@ -75,96 +76,102 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
          * be stored in the previous URL variable to let further layer do the same 
          * check.
          */
-        
-        Iterator it = tempSP.iterator();
-        while (it.hasNext()) {
-            ServiceProvider serviceProvider = (ServiceProvider)it.next();
-            Set serviceProviderLayers = serviceProvider.getLayers();
-            String spls = findQueryableLayer(layer, serviceProviderLayers);
-            if (spls != null) {
-                spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetFeatureInfo);
+        for (int j = 0; j < layers.length; j++) {
+            String layer = layers[j];
+            
+            Iterator it = tempSP.iterator();
+            while (it.hasNext()) {
+                ServiceProvider serviceProvider = (ServiceProvider)it.next();
+                Set serviceProviderLayers = serviceProvider.getLayers();
+                String spls = findQueryableLayer(layer, serviceProviderLayers);
+                if (spls != null) {
+                    spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetFeatureInfo);
 
-                if (spUrl == null) {
-                    continue;
-                }
-
-                if(previousUrl.equals(spUrl.toString())) {
-                    StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
-                    url.append("," + spls);
-                    urls.remove(urls.size() - 1);
-                    urls.add(url);                        
-                } else {
-                    previousUrl = spUrl.toString();            
-                    spUrl.append(WMS_VERSION);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_VERSION))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_REQUEST);
-                    spUrl.append("=");
-                    spUrl.append(WMS_REQUEST_GetFeatureInfo);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_QUERY_LAYERS);
-                    spUrl.append("=");
-                    spUrl.append(spls);
-
-                    String infoFormat = ((String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0]);
-                    if(null != infoFormat) {
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_INFO_FORMAT);
-                        spUrl.append("=");
-                        spUrl.append(infoFormat);
+                    if (spUrl == null) {
+                        continue;
                     }
 
-                    String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
-                    if (null != featureCount) {
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_FEATURECOUNT);
+                    if(previousUrl.equals(spUrl.toString())) {
+                        StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
+                        url.append("," + spls);
+                        urls.remove(urls.size() - 1);
+                        urls.add(url);                        
+                    } else {
+                        previousUrl = spUrl.toString();            
+                        spUrl.append(WMS_VERSION);
                         spUrl.append("=");
-                        spUrl.append(featureCount);
-                    }
+                        spUrl.append((String)((String[])parameters.get(WMS_VERSION))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_REQUEST);
+                        spUrl.append("=");
+                        spUrl.append(WMS_REQUEST_GetFeatureInfo);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_QUERY_LAYERS);
+                        spUrl.append("=");
+                        spUrl.append(spls);
 
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_X);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_X))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_Y);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_Y))[0]);
-                    
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_LAYERS);
-                    spUrl.append("=");
-                    
-                    String [] dbLayers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
-                    StringBuffer cutOffdbLayers = new StringBuffer();
-                    for (int i = 0; i < dbLayers.length; i++) {
-                        cutOffdbLayers.append(dbLayers[i].substring(dbLayers[i].indexOf("_") + 1));
-                        if (i != (dbLayers.length - 1)) {
-                            cutOffdbLayers.append(",");
+                        String infoFormat = ((String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0]);
+                        if(null != infoFormat) {
+                            spUrl.append("&");
+                            spUrl.append(WMS_PARAM_INFO_FORMAT);
+                            spUrl.append("=");
+                            spUrl.append(FEATURE_INFO_FORMAT);
                         }
-                    }
-                    
-                    spUrl.append(cutOffdbLayers.toString());
-                    //spUrl.append((String)((String[])parameters.get(WMS_PARAM_LAYERS))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_SRS);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_SRS))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_BBOX);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_BBOX))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_WIDTH);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_WIDTH))[0]);
-                    spUrl.append("&");
-                    spUrl.append(WMS_PARAM_HEIGHT);
-                    spUrl.append("=");
-                    spUrl.append((String)((String[])parameters.get(WMS_PARAM_HEIGHT))[0]);                    
 
-                    urls.add(spUrl);
+                        String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+                        if (null != featureCount) {
+                            spUrl.append("&");
+                            spUrl.append(WMS_PARAM_FEATURECOUNT);
+                            spUrl.append("=");
+                            spUrl.append(featureCount);
+                        }
+
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_X);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_X))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_Y);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_Y))[0]);
+
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_LAYERS);
+                        spUrl.append("=");
+
+                        String [] dbLayers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
+                        StringBuffer cutOffdbLayers = new StringBuffer();
+                        for (int i = 0; i < dbLayers.length; i++) {
+                            cutOffdbLayers.append(dbLayers[i].substring(dbLayers[i].indexOf("_") + 1));
+                            if (i != (dbLayers.length - 1)) {
+                                cutOffdbLayers.append(",");
+                            }
+                        }
+
+                        //spUrl.append(cutOffdbLayers.toString());
+                        spUrl.append(spls);
+                        //spUrl.append((String)((String[])parameters.get(WMS_PARAM_LAYERS))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_SRS);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_SRS))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_BBOX);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_BBOX))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_WIDTH);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_WIDTH))[0]);
+                        spUrl.append("&");
+                        spUrl.append(WMS_PARAM_HEIGHT);
+                        spUrl.append("=");
+                        spUrl.append((String)((String[])parameters.get(WMS_PARAM_HEIGHT))[0]);  
+                        
+                        System.out.println(spUrl.toString());
+
+                        urls.add(spUrl);
+                    }
                 }
             }
         }
