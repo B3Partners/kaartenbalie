@@ -539,7 +539,11 @@ public class Layer implements XMLElement {
         
         if(null != this.getTitle()) {
             Element titleElement = doc.createElement("Title");
-            Text text = doc.createTextNode(this.getId() + "_" + this.getTitle());
+            Integer id = this.getId();
+            if (id == null) {
+                id = new Integer(0);
+            }
+            Text text = doc.createTextNode(id + "_" + this.getTitle());
             titleElement.appendChild(text);
             layerElement.appendChild(titleElement);
         }

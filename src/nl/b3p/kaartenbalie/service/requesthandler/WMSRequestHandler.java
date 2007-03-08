@@ -51,6 +51,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,110 +92,92 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="collapsed" desc="getServiceProviders(boolean combine) method.">
     protected List getServiceProviders(boolean combine) {
+        User dbUser                 = null;
+        ServiceProvider sp          = null;
+        Set <Layer> layers          = new HashSet <Layer>();
+        List <ServiceProvider> sps  = new ArrayList <ServiceProvider>();
+        Set <ServiceProvider> serviceproviders = null;
         
+        /*
+         * Access the database to retrieve information about the layer 
+         * which are available to the user. If no layers are available
+         * null will be returned immediatly.
+         */
         Session sess = MyDatabase.currentSession();
-        //sess.createQuery("from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
-        //Set dbLayers = user.getOrganization().getOrganizationLayer();
-        User dbUser = null;
-        Set <Layer> layers = new HashSet <Layer>();
-        ServiceProvider sp = null;
-        List <ServiceProvider> sps = new ArrayList <ServiceProvider>();
-        
         Transaction tx = sess.beginTransaction();
         try {
             dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
         
-        Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
-        if (dbLayers==null)
-            return null;
-        
-        //als er gecombineerd moet worden moet er hier een nieuw sp object gemaakt worden
-        //dit object moet vervolgens gevuld worden met gecheckte domain resources
-        //en daarna moet er voor layers even gekeken worden hoe dit vervolgens aangepast wordt.
-        Set <ServiceProvider> serviceprovider = new HashSet <ServiceProvider> ();
-        Iterator it = dbLayers.iterator();
-        while (it.hasNext()) {
-            Layer l = (Layer)it.next();
-            Layer topLayer = this.getTopLayer(l);
-            ServiceProvider s = topLayer.getServiceProvider();
-            serviceprovider.add(s);
-        }        
-        
-        ServiceProviderValidator spv = new ServiceProviderValidator(serviceprovider);
-        //spv.validateFormats()
-        spv.
-        
-        //The same problem we have with the supporting capabilities
-        //Each of the capabilities has to checked with the capabilities of the other serviceproviders
-        //to find out which capabilities are supported by ALL serviceproviders.
-        ServiceDomainResource sdr = new ServiceDomainResource();
-        
-        layer.setName(TOPLAYERNAME);
-        LayerValidator lv = new LayerValidator(layers);
-        String [] supportedSRS = lv.validateSRS();
-        for (int i=0; i < supportedSRS.length; i++){
-            SRS srs= new SRS();
-            srs.setSrs(supportedSRS[i]);
-            layer.addSrs(srs);
-        }
+            Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
+            if (dbLayers == null)
+                return null;
 
-        layer.setLayers(layers);
-        */
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //Initialize a couple of variables
-        
-        
-        int shortestCapabilities = 7;
-        
-        
-        Iterator it = dbLayers.iterator();
-        while (it.hasNext()) {
-            Layer dbLayer = (Layer)it.next();
-            if(null == dbLayer.getParent()) {
-                ServiceProvider testSP = (ServiceProvider)(dbLayer.getServiceProvider());
-                                
-                ServiceProvider cloneSP = (ServiceProvider)(testSP.clone());
-                Layer cloneLayer = (Layer)dbLayer.clone();
-                
-                cloneSP.setLayers(null);
-                cloneSP.addLayer(cloneLayer);
-                
-                if (combine) {
-                    int size = cloneSP.getDomainResource().size();
-                    // TODO
-                    // wat gebeurt hier???
-                    if (size < shortestCapabilities) {
-                        shortestCapabilities = size;
-                        sp = cloneSP;
-                        sp.setLayers(null);
+            /*
+             * We have to create a Set with ServiceProviders based on the layers the user
+             * is allowed to see. When the ServiceProviders are available we can create the
+             * object requested for.
+             */
+            serviceproviders = new HashSet <ServiceProvider> ();
+            Iterator it = dbLayers.iterator();
+            while (it.hasNext()) {
+                Layer dbLayer = (Layer)it.next();
+                if(null == dbLayer.getParent()) {
+                    ServiceProvider testSP = (ServiceProvider)(dbLayer.getServiceProvider());
+                    
+                    /* 
+                     * Adding the ServiceProvider to the Set of ServiceProviders.
+                     * After adding we need to clone the ServiceProvider aswell as the Layers
+                     * The reason for cloning is that the ServiceProviders and Layers are 
+                     * directly requested from the Database.
+                     * Hibernate keeps the objects from the database in it's memory and each
+                     * transformation on one of those objects will result in a change of the
+                     * data in the database.
+                     * In order to prevent changes from happening at all we create a deep clone
+                     * object which we can use to do all our transformations on.
+                     */
+                    serviceproviders.add(testSP);
+
+                    ServiceProvider cloneSP = (ServiceProvider)(testSP.clone());
+                    cloneSP.setLayers(null);
+                    
+                    Layer cloneLayer = (Layer)dbLayer.clone();
+                    cloneSP.addLayer(cloneLayer);
+                    
+                    /*
+                     * If the ServiceProviders are going to be merged the only thing that
+                     * has to be done is to put the cloned toplayer into a Set of layers
+                     * which can be used later on again to add to a newly created ServiceProvider.
+                     * Else we need to add the found ServiceProvider to a list of ServiceProviders.
+                     */
+                    if (combine) {
+                        layers.add(cloneLayer);
+                    } else {
+                        sps.add(cloneSP);
                     }
-                    layers.add(cloneLayer);
-                } else {
-                    sps.add(cloneSP);
                 }
-            }
-        }
-        
+            } 
         } finally {
             tx.commit();
         }
         
+        /* There are now two objects. Two Sets, one is a Set with all the toplayers while the other
+         * is a Set with all the ServiceProviders.
+         * When combining the ServiceProviders isn't necessary, we can skip this check and immediatly
+         * return the Set with ServiceProviders. But in the other case we still need to create a 
+         * ServiceProvider object which can hold the Set with layers so we can return one Service
+         * Provider object (captured in the Set object) from which a GetCapability XML can be generated.
+         */        
         if (combine) {
-            //Solving the problem with the toplayer naming and the SRS supported by all the layers of all the serviceproviders
+            /* We have still a Set of toplayers.
+             * A ServiceProvider is allowed to have only one toplayer.
+             * Therefore a toplayer has to be created manually.
+             * This toplayer has to have a certain amount of SRS values 
+             * which apply to ALL layers which are child of this toplayer.
+             */
             Layer layer = new Layer();
             layer.setName(TOPLAYERNAME);
+            layer.setTitle(TOPLAYERNAME);
             LayerValidator lv = new LayerValidator(layers);
             String [] supportedSRS = lv.validateSRS();
             for (int i=0; i < supportedSRS.length; i++){
@@ -202,39 +185,24 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 srs.setSrs(supportedSRS[i]);
                 layer.addSrs(srs);
             }
-          
             layer.setLayers(layers);
             
-            
-            
-            
-            
-            
-            
-            
-            
-            sp.addLayer(layer);
-            sps.add(sp);
+            /* Now a top layer is available we need a ServiceProviderobject to store
+             * this toplayer in. With the ServiceProvider there are also a couple of
+             * constraints, concerning the DomainResources and their available return
+             * formats. Therefore we have to validate the avaible ServiceProviders to
+             * create a valid one.
+             */
+            ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
+            ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+            validServiceProvider.addLayer(layer);
+            sps.add(validServiceProvider);
         }
         return sps;
     }
     // </editor-fold>
     
-    /** Creates a list with the available layers.
-     *
-     * @param layer The layer of which we have to find the parent layers.
-     * @param layers Set <Layer> with all direct and indirect parental layers..
-     *
-     * @return the same set Set <Layer> as given.
-     */
-    // <editor-fold defaultstate="collapsed" desc="getTopLayer(Layer layer) method.">
-    private Layer getTopLayer(Layer layer) {
-        if(layer.getParent() != null) {
-            this.getTopLayer(layer.getParent());
-        }
-        return layer.getParent();
-    }
-    // </editor-fold>
+    
     
     // TODO:
     // De functie heeft nog geen manier voor het toepassen van de juiste encoding.

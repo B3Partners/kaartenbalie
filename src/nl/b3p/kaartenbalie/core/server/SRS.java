@@ -152,7 +152,7 @@ public class SRS implements XMLElement {
         
         Element srsBBElement = null;
         
-        if(null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
+        if(null != this.getSrs() && null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
             Element srsElement = doc.createElement("SRS");
             Text text = doc.createTextNode(this.getSrs());
             srsElement.appendChild(text);

@@ -23,9 +23,7 @@ import nl.b3p.kaartenbalie.core.server.SRS;
 public class LayerValidator {
     
     private Set <Layer> layers;
-    /** Creates a new instance of LayerValidator */
-    public LayerValidator() {
-    }
+    
     /** Creates a new Instance of LayerValidator with the given layers
      */
     public LayerValidator(Set <Layer> layers){

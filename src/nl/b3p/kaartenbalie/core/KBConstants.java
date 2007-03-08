@@ -12,6 +12,27 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface KBConstants {
+    // <editor-fold defaultstate="collapsed" desc="Predefined Strings for CapabilityRequest">
+    public static final String SERVICE_NAME = "OGC:WMS";
+    public static final String SERVICE_TITLE = "Kaartenbalie Map Portal";
+    public static final String SERVICE_ABSTRACT = "WMS-based access to different maps. Try B3Partners Portal System at http://www.b3p.nl/";
+    public static final String SERVICE_FEES = "None";
+    public static final String SERVICE_CONSTRAINTS = "None";
+    
+    public static final String CONTACTPERSON = "Chris van Lith";
+    public static final String CONTACTPOSITION = "Software Developer";
+    public static final String CONTACTORGANIZATION = "B3Partners";
+    public static final String CONTACTADDRESS = "Zonnebaan 12C";
+    public static final String CONTACTADDRESS_TYPE = "Postal";
+    public static final String CONTACTPOSTCODE = "3542 EC";
+    public static final String CONTACT_CITY = "Utrecht";
+    public static final String CONTACT_STATE_OR_PROVINCE = "Utrecht";
+    public static final String CONTACT_COUNTRY = "The Netherlands";
+    public static final String CONTACT_VOICETELEPHONE = "0(031) 30 214 20 81";
+    public static final String CONTACT_FASCIMILEPHONE = "";
+    public static final String CONTACT_EMAIL = "info@b3p.nl";
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="Predefined static final strings ">
     public static final String KB_USER = "user" ;
     public static final String KB_PERSONAL_URL = "personalURL" ;

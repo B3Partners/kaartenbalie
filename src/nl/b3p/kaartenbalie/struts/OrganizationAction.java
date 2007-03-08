@@ -26,6 +26,7 @@ import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.validator.Form;
 
 import org.apache.struts.action.Action;
@@ -172,6 +173,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          */
         int size = selectedLayers.length;
         Set <Layer> layers = new HashSet <Layer>();
+        Set <ServiceProvider> serviceProviders = new HashSet <ServiceProvider>();
         for(int i = 0; i < size; i++) {
             int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
             //System.out.println("Select is : " +  select);
@@ -181,6 +183,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 if (layer.getId() == select) {
                     //layers.add(layer);
                     layers = getAllParentLayers(layer,  layers );
+                    serviceProviders.add(getTopLayer(layer).getServiceProvider());
                     break;
                 }
             }
@@ -197,9 +200,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
          * work properly.
          */
-        LayerValidator lv = new LayerValidator();
-        lv.setLayers(layers);
-        organization.setHasValidGetCapabilities(lv.validate());
+        LayerValidator lv = new LayerValidator(layers);
+        ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
+        
+        organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
