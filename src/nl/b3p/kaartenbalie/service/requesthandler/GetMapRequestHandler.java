@@ -17,12 +17,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 
-public class GetMapRequestHandler extends WMSRequestHandler {
+public class GetMapRequestHandler extends WMSRequestHandler implements KBConstants {
     
     // <editor-fold defaultstate="collapsed" desc="default GetMapRequestHandler() constructor.">
     public GetMapRequestHandler() {}
@@ -51,7 +52,25 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
-                
+        
+        /*
+        String [] newLayer = new String[tempSP.size()];
+        for (int i = 0; i < layers.length; i++) {
+            String layername = layers[i];
+            if (layername.equals("0_" + TOPLAYERNAME)) {
+                Iterator it = tempSP.iterator();
+                while (it.hasNext()) {
+                    ServiceProvider sp = (ServiceProvider)it.next();
+                    newLayer[i] = sp.getTopLayer().getId() + "_" + sp.getTopLayer().getName();
+                }
+            }
+        }
+        
+        if(newLayer.length != 0) {
+            layers = newLayer;
+        }
+        */
+        
         /* Go through each layer and find the ServiceProvider this layer belongs to.
          * If a ServiceProvider has been found there will be checked if the previous
          * layer belonged to the same ServiceProvider. If yes then this layer is added

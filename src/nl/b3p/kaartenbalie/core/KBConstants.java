@@ -28,9 +28,11 @@ public interface KBConstants {
     public static final String CONTACT_CITY = "Utrecht";
     public static final String CONTACT_STATE_OR_PROVINCE = "Utrecht";
     public static final String CONTACT_COUNTRY = "The Netherlands";
-    public static final String CONTACT_VOICETELEPHONE = "0(031) 30 214 20 81";
+    public static final String CONTACT_VOICETELEPHONE = "0 (031) 30 214 20 81";
     public static final String CONTACT_FASCIMILEPHONE = "";
     public static final String CONTACT_EMAIL = "info@b3p.nl";
+    
+    public static final String TOPLAYERNAME = "B3P_Kaartenbalie";
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Predefined static final strings ">

@@ -66,7 +66,6 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
-    private static final String TOPLAYERNAME = "B3P_Kaartenbalie";
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
     protected String url;
