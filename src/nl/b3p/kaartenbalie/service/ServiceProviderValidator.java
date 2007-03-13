@@ -277,9 +277,7 @@ public class ServiceProviderValidator implements KBConstants {
                 supportedFormats.add((String)entry.getKey());                
             }
         }
-        System.out.println("ArrayList size : " + supportedFormats.size());
         String [] formats = new String[supportedFormats.size() + 1];
-        System.out.println("String array size : " + formats.length);
         return (String[]) supportedFormats.toArray(formats);
     }
     // </editor-fold>

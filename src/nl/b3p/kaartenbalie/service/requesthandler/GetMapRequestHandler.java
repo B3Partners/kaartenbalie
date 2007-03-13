@@ -149,8 +149,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         spUrl.append("=");
                         spUrl.append(spls);
                         
-                        System.out.println(spUrl.toString());
-
                         urls.add(spUrl);
                     }
                 } 

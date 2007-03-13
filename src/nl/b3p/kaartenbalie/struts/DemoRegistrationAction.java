@@ -150,7 +150,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         String registeredIP = request.getRemoteAddr();
         
         String toBeHashedString = registeredIP + username + password + personalDate;
-        System.out.println("String to be hashed in CallWMS is  : " + toBeHashedString);
+        
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(toBeHashedString.getBytes("8859_1")); // UTF-8 ???
         BigInteger hash = new BigInteger(1, md.digest());
@@ -242,7 +242,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         
         sess.saveOrUpdate(user);
         sess.flush();
-        System.out.println(user.getId().toString());
+        
         dynaForm.set("id", user.getId().toString());
         //dynaForm.set("serviceProviderGivenName", "");
         //dynaForm.set("serviceProviderUrl", "");

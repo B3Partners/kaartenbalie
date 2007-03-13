@@ -186,10 +186,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
             Layer organizationLayer = (Layer) it.next();
-            System.out.println("");
             if(layer.getId().equals(organizationLayer.getId())) {
                 counter++;
-                System.out.println("The counter is : " + counter);
                 return true;
             }
         }

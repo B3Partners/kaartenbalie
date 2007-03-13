@@ -168,8 +168,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                         spUrl.append("=");
                         spUrl.append((String)((String[])parameters.get(WMS_PARAM_HEIGHT))[0]);  
                         
-                        System.out.println(spUrl.toString());
-
                         urls.add(spUrl);
                     }
                 }
@@ -185,7 +183,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
          * to be affraid anything will go wrong when using this method for 
          * an xml document as well.
          */
-        System.out.println("The size of the link is : " + urls.size());
         return getOnlineData(urls, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>

@@ -15,13 +15,15 @@ import java.util.Map;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.SRS;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Roy
  */
 public class LayerValidator {
-    
+    private static final Log log = LogFactory.getLog(LayerValidator.class);
     private Set <Layer> layers;
     
     /** Creates a new Instance of LayerValidator with the given layers
@@ -42,7 +44,7 @@ public class LayerValidator {
             Layer l = (Layer) it.next();
             Set srs = l.getSrs();
             if (srs == null) {
-                System.out.println("SRS is null");
+                log.debug("Layer: "+l.getName()+"don't got a SRS");
             }
         }
     }

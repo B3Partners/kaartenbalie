@@ -178,7 +178,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 try {
                     // Parse with a custom format
                     date = df.parse(timeout);
-                    System.out.println(date.toString());
                 } catch(ParseException e) {
                     log.error("Unable to parse : " + e);
                 }

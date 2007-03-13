@@ -227,12 +227,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="collapsed" desc="getTopSRS(Layer layer) method.">
     private Set <SRS> getTopSRS(Layer layer) {
-        System.out.println("In TOPSRS!");
         if(layer.getParent() != null) {
-            System.out.println("Layer has a parent!");
             this.getTopSRS(layer.getParent());
         }
-        System.out.println("Top is found!");
         return layer.getSrs();
     }
     // </editor-fold>

@@ -11,22 +11,16 @@
 
 package nl.b3p.kaartenbalie.test;
 
-import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * ImageTest definition:
@@ -34,7 +28,7 @@ import javax.swing.JLabel;
  */
 
 public class ImageTest {
-
+    private static final Log log = LogFactory.getLog(ImageTest.class);
     private Object text;
     
     /** Creates a new instance of ImageTest */
@@ -66,8 +60,7 @@ public class ImageTest {
                 //create new name for image
                 String destFileName = xStep1 + "-" + xStep2 + "_" + yStep1 + "-" + yStep2 + ".tif";
                 String destpath = "c:\\test";
-                System.out.println(destpath + "\\" + destFileName);
-                System.out.println(sourcepath + destFileName);
+                
                 combineImages(sourcepath, fileName, destpath, destFileName);
             }
         }
@@ -108,7 +101,7 @@ public class ImageTest {
         
         for (int i = 0; i < files.length; i++) {
             String filePathName = sourcepath + files[i];
-            System.out.println("Ben hier" + filePathName);
+            
             File file = new File(sourcepath + "\\" + files[i]);
             if (file.isFile()) {
                 bi[i] = ImageIO.read(file);
@@ -132,9 +125,9 @@ public class ImageTest {
         File directory = new File(pathName);
         if (!directory.isDirectory()) {
             if (!directory.exists()) {
-                System.out.println("There is no such directory!");
+                log.error("There is no such directory: "+pathName);
             } else {
-                System.out.println("That file is not a directory.");
+                log.error("That file is not a directory: "+pathName);
             }
         } else {
             files = directory.list();
