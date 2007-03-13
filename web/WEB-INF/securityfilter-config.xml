@@ -73,17 +73,15 @@
             <role-name>demogebruiker</role-name>
         </auth-constraint>
     </security-constraint>
-    
-    
-  
     <login-config>
-        <auth-method>BASIC</auth-method>
+        <auth-method>FORM</auth-method>
         <form-login-config>
             <form-login-page>/login.do</form-login-page>
             <form-error-page>/invalidlogin.do</form-error-page>
             <form-default-page>/index.do</form-default-page>
         </form-login-config>
     </login-config>
+    
 
     <realm className="nl.b3p.kaartenbalie.service.SecurityRealm"/>
 

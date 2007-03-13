@@ -21,7 +21,7 @@
         <put name="content" value="/algemeen/error/cNoRights.jsp"/>
     </definition>
       <definition name="base.algemeen.invalidlogin" extends="base.algemeen">
-        <put name="content" value="/algemeen/error/cInvallidLogin.jsp"/>
+        <put name="content" value="/algemeen/error/cInvalidLogin.jsp"/>
     </definition>  
     <definition name="base.algemeen.login" extends="base.algemeen">
         <put name="content" value="/algemeen/main/cLogin.jsp"/>

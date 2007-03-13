@@ -41,32 +41,23 @@ package nl.b3p.kaartenbalie.struts;
 
 
 import nl.b3p.kaartenbalie.core.server.*;
-import org.xml.sax.Attributes;
 import org.xml.sax.XMLReader;
 import java.util.Stack;
-import java.io.IOException;
-import org.xml.sax.SAXException;
-import java.util.Set;
 
 import java.io.File;
 import java.io.IOException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
-import java.util.Iterator;
 
 public class WMSCapabilitiesReader {
-    
+    private static final Log log = LogFactory.getLog(WMSCapabilitiesReader.class);
     private static final String SCHEMA_FEATURE = "http://apache.org/xml/features/validation/schema";
     private static final String SCHEMA_FACTORY = "http://www.w3.org/2001/XMLSchema";
     private static final String SCHEMA_FILE    = "wms.xsd";
@@ -720,7 +711,7 @@ public class WMSCapabilitiesReader {
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
                 if(attribution == null){
-                    System.out.println("Attribution is null, but still getting here.... explain to me");
+                    log.debug("Attribution is null, but still getting here.... explain to me");
                 }
                 layer.setAttribution(attribution);
             }
