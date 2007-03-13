@@ -98,7 +98,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 data = parseRequestAndData(parameters);
                 
                 String dataRepresent = new String(data);
-                System.out.println("The data is : " + dataRepresent);
+                //System.out.println("The data is : " + dataRepresent);
                 
                 long fifthMeasurement = System.currentTimeMillis();
                 
@@ -274,14 +274,22 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="collapsed" desc="parseRequestAndData(Map parameters) method.">
     public byte[] parseRequestAndData(Map <String, Object> parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException {
-        String givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
-        
+        String givenRequest=null;
         boolean supported_request = false;
-        Iterator it = SUPPORTED_REQUESTS.iterator();
-        while (it.hasNext()) {
-            String elem = (String) it.next();
-            if(elem.equalsIgnoreCase(givenRequest)) {
-                supported_request = true;
+        if (parameters.get(WMS_REQUEST)!=null){
+           givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
+        
+        /*if (givenRequest==null){
+            givenRequest=WMS_REQUEST_GetCapabilities;
+            parameters.put(WMS_VERSION,"1.1.1");
+            parameters.put(WMS_SERVICE,"WMS");
+        }*/
+            Iterator it = SUPPORTED_REQUESTS.iterator();
+            while (it.hasNext()) {
+                String elem = (String) it.next();
+                if(elem.equalsIgnoreCase(givenRequest)) {
+                    supported_request = true;
+                }
             }
         }
         if (!supported_request)
