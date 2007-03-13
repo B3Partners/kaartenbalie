@@ -11,11 +11,8 @@
 -->
 <hibernate-configuration>
 <session-factory>
-        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://b3p-nando:3306/kaartenbalie</property>
-        <property name="hibernate.connection.username">kaartenbalie</property>
-        <property name="hibernate.connection.password">kaartenbalie</property>
-                
+        <property name="connection.datasource">java:comp/env/jdbc/kaartenbalie</property>
+               
         <property name="show_sql">false</property>
         <property name="format_sql">false</property>
         <property name="use_sql_comments">true</property>
