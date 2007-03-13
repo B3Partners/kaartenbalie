@@ -774,6 +774,8 @@ public class WMSCapabilitiesReader {
             String domain = new String("LegendURL");
             stack.push(domain);
             StyleDomainResource domainResource = new StyleDomainResource();
+            domainResource.setWidth(atts.getValue("width"));
+            domainResource.setHeight(atts.getValue("height"));
             stack.push(domainResource);
         }
         

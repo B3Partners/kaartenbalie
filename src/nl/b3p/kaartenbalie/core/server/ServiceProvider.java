@@ -10,21 +10,13 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 public class ServiceProvider implements XMLElement {
@@ -157,7 +149,7 @@ public class ServiceProvider implements XMLElement {
     
     public void addException(String except) {
         if (exceptions == null) {
-             exceptions = new HashSet <String>();
+            exceptions = new HashSet <String>();
         }
         exceptions.add(except);
     }
@@ -172,7 +164,7 @@ public class ServiceProvider implements XMLElement {
     
     public void addDomainResource(ServiceDomainResource dr) {
         if (domainResource == null) {
-             domainResource = new HashSet <ServiceDomainResource>();
+            domainResource = new HashSet <ServiceDomainResource>();
         }
         domainResource.add(dr);
         dr.setServiceProvider(this);
@@ -217,7 +209,7 @@ public class ServiceProvider implements XMLElement {
     public void addKeyword(String keyword) {
         if(null == serviceProviderKeywordList) {
             serviceProviderKeywordList = new HashSet <String>();
-        } 
+        }
         serviceProviderKeywordList.add(keyword);
     }
     // </editor-fold>
@@ -235,7 +227,7 @@ public class ServiceProvider implements XMLElement {
         //int firstOccur = temporaryURL.indexOf("servlet");
         //if(firstOccur != -1) {
         //    temporaryURL = temporaryURL.substring(0, firstOccur);
-            //save this new URL as the one to be used
+        //save this new URL as the one to be used
         //    this.url = temporaryURL.replace("&", "&amp;");
         this.url = newUrl;
         //}
@@ -376,7 +368,7 @@ public class ServiceProvider implements XMLElement {
             Element onlineElement = doc.createElement("OnlineResource");
             onlineElement.setAttribute("xlink:href", this.getUrl());
             onlineElement.setAttribute("xlink:type", "simple");
-            onlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink"); 
+            onlineElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
             serviceElement.appendChild(onlineElement);
         }
         
@@ -403,11 +395,48 @@ public class ServiceProvider implements XMLElement {
         
         //De verschillende request mogelijkheden....
         Element requestElement = doc.createElement("Request");
+        
+        Hashtable sdrhash = new Hashtable();
+        ServiceDomainResource sdr = null;
         Iterator it = domainResource.iterator();
         while (it.hasNext()) {
-            ServiceDomainResource sdr = (ServiceDomainResource)it.next();
-            requestElement = sdr.toElement(doc, requestElement);
+            sdr = (ServiceDomainResource)it.next();
+            if (sdr.getDomain()==null)
+                continue;
+            else if (sdr.getDomain().equalsIgnoreCase("GetCapabilities")) {
+                sdrhash.put("GetCapabilities",sdr);
+            } else if (sdr.getDomain().equalsIgnoreCase("GetMap")) {
+                sdrhash.put("GetMap",sdr);
+            } else if (sdr.getDomain().equalsIgnoreCase("GetFeatureInfo")) {
+                sdrhash.put("GetFeatureInfo",sdr);
+            } else if (sdr.getDomain().equalsIgnoreCase("DescribeLayer")) {
+                sdrhash.put("DescribeLayer",sdr);
+            } else if (sdr.getDomain().equalsIgnoreCase("GetLegendGraphic")) {
+                sdrhash.put("GetLegendGraphic",sdr);
+            } else if (sdr.getDomain().equalsIgnoreCase("GetStyles")) {
+                sdrhash.put("GetStyles",sdr);
+            } else {
+                continue;
+            }
         }
+        sdr = (ServiceDomainResource) sdrhash.get("GetCapabilities");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
+        sdr = (ServiceDomainResource) sdrhash.get("GetMap");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
+        sdr = (ServiceDomainResource) sdrhash.get("GetFeatureInfo");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
+        sdr = (ServiceDomainResource) sdrhash.get("DescribeLayer");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
+        sdr = (ServiceDomainResource) sdrhash.get("GetLegendGraphic");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
+        sdr = (ServiceDomainResource) sdrhash.get("GetStyles");
+        if (sdr!=null)
+            requestElement = sdr.toElement(doc, requestElement);
         capabilityElement.appendChild(requestElement);
         
         //De exception formaten

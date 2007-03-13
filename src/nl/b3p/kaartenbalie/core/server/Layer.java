@@ -10,22 +10,12 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -531,7 +521,7 @@ public class Layer implements XMLElement {
                     nname+="_";
                 }
                 nname+=this.getName();
-            }                
+            }
             Text text = doc.createTextNode(nname);
             nameElement.appendChild(text);
             layerElement.appendChild(nameElement);
@@ -581,13 +571,6 @@ public class Layer implements XMLElement {
             layerElement = this.getLatLonBoundingBox().toElement(doc, layerElement);
         }
         
-        if(null != this.getScaleHintMin() && null != this.getScaleHintMax()) {
-            Element scaleHintElement = doc.createElement("ScaleHint");
-            scaleHintElement.setAttribute("min", this.getScaleHintMin());
-            scaleHintElement.setAttribute("max", this.getScaleHintMax());
-            layerElement.appendChild(scaleHintElement);
-        }
-        
         if(null != this.getDimensions() && this.getDimensions().size() != 0) {
             Iterator it = this.getDimensions().iterator();
             while (it.hasNext()) {
@@ -596,21 +579,35 @@ public class Layer implements XMLElement {
             }
         }
         
-        if(null != this.getStyles() && this.getStyles().size() != 0) {
-            Iterator it = styles.iterator();
-            while (it.hasNext()) {
-                Style style = (Style)it.next();
-                layerElement = style.toElement(doc, layerElement);
-            }
+        if(null != this.getAttribution()) {
+            layerElement = this.getAttribution().toElement(doc, layerElement);
         }
         
+        Hashtable ldrhash = new Hashtable();
+        LayerDomainResource ldr = null;
         if(null != this.getDomainResource() && this.getDomainResource().size() != 0) {
             Iterator it = domainResource.iterator();
             while (it.hasNext()) {
-                LayerDomainResource ldr = (LayerDomainResource)it.next();
-                layerElement = ldr.toElement(doc, layerElement);
+                ldr = (LayerDomainResource)it.next();
+                if (ldr.getDomain()==null)
+                    continue;
+                else if (ldr.getDomain().equalsIgnoreCase("AuthorityURL")) {
+                    ldrhash.put("GetCapabilities",ldr);
+                } else if (ldr.getDomain().equalsIgnoreCase("MetadataURL")) {
+                    ldrhash.put("GetMap",ldr);
+                } else if (ldr.getDomain().equalsIgnoreCase("DataURL")) {
+                    ldrhash.put("GetFeatureInfo",ldr);
+                } else if (ldr.getDomain().equalsIgnoreCase("FeatureListURL")) {
+                    ldrhash.put("DescribeLayer",ldr);
+                } else {
+                    continue;
+                }
             }
         }
+        
+        ldr = (LayerDomainResource) ldrhash.get("AuthorityURL");
+        if (ldr!=null)
+            layerElement = ldr.toElement(doc, layerElement);
         
         if(null != this.getIdentifiers() && this.getIdentifiers().size() != 0) {
             Iterator it = identifiers.iterator();
@@ -620,8 +617,32 @@ public class Layer implements XMLElement {
             }
         }
         
-        if(null != this.getAttribution()) {
-            layerElement = this.getAttribution().toElement(doc, layerElement);        }
+        ldr = (LayerDomainResource) ldrhash.get("MetadataURL");
+        if (ldr!=null)
+            layerElement = ldr.toElement(doc, layerElement);
+        
+        ldr = (LayerDomainResource) ldrhash.get("DataURL");
+        if (ldr!=null)
+            layerElement = ldr.toElement(doc, layerElement);
+        
+        ldr = (LayerDomainResource) ldrhash.get("FeatureListURL");
+        if (ldr!=null)
+            layerElement = ldr.toElement(doc, layerElement);
+        
+        if(null != this.getStyles() && this.getStyles().size() != 0) {
+            Iterator it = styles.iterator();
+            while (it.hasNext()) {
+                Style style = (Style)it.next();
+                layerElement = style.toElement(doc, layerElement);
+            }
+        }
+        
+        if(null != this.getScaleHintMin() && null != this.getScaleHintMax()) {
+            Element scaleHintElement = doc.createElement("ScaleHint");
+            scaleHintElement.setAttribute("min", this.getScaleHintMin());
+            scaleHintElement.setAttribute("max", this.getScaleHintMax());
+            layerElement.appendChild(scaleHintElement);
+        }
         
         if(null != this.getLayers() && this.getLayers().size() != 0) {
             Iterator it = this.getLayers().iterator();

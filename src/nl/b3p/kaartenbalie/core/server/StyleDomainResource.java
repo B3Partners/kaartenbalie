@@ -26,20 +26,20 @@ public class StyleDomainResource implements XMLElement {
     private String width;
     private String height;
     private Style style;
-
+    
     // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public Set getFormats() {
         return formats;
     }
-
+    
     public void setFormats(Set <String> formats) {
         this.formats = formats;
     }
@@ -50,11 +50,11 @@ public class StyleDomainResource implements XMLElement {
         }
         formats.add(f);
     }
-
+    
     public String getDomain() {
         return domain;
     }
-
+    
     public void setDomain(String domain) {
         this.domain = domain;
     }
@@ -62,15 +62,15 @@ public class StyleDomainResource implements XMLElement {
     public Style getStyle() {
         return style;
     }
-
+    
     public void setStyle(Style style) {
         this.style = style;
     }
-
+    
     public String getUrl() {
         return url;
     }
-
+    
     public void setUrl(String url) {
         this.url = url;
     }
@@ -78,15 +78,15 @@ public class StyleDomainResource implements XMLElement {
     public String getWidth() {
         return width;
     }
-
+    
     public void setWidth(String width) {
         this.width = width;
     }
-
+    
     public String getHeight() {
         return height;
     }
-
+    
     public void setHeight(String height) {
         this.height = height;
     }
@@ -130,20 +130,20 @@ public class StyleDomainResource implements XMLElement {
      */
     // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
-    	//First cut off only the part which is in front of the question mark.
-    	String temporaryURL;
-    	temporaryURL = this.getUrl();
-    	if (null != temporaryURL && !temporaryURL.equals("")) {
-	    	int firstOccur = temporaryURL.indexOf("?");
-	    	if(firstOccur != -1) {
-	    		temporaryURL = temporaryURL.substring(firstOccur);
-	    		//then add the newly given url in front of the cutted part
-		    	temporaryURL = newUrl + temporaryURL;
-		    	//save this new URL as the one to be used
-		    	temporaryURL = temporaryURL.replace("&", "&amp;");
-		    	this.setUrl(temporaryURL);
-	    	}
-	    }
+        //First cut off only the part which is in front of the question mark.
+        String temporaryURL;
+        temporaryURL = this.getUrl();
+        if (null != temporaryURL && !temporaryURL.equals("")) {
+            int firstOccur = temporaryURL.indexOf("?");
+            if(firstOccur != -1) {
+                temporaryURL = temporaryURL.substring(firstOccur);
+                //then add the newly given url in front of the cutted part
+                temporaryURL = newUrl + temporaryURL;
+                //save this new URL as the one to be used
+                temporaryURL = temporaryURL.replace("&", "&amp;");
+                this.setUrl(temporaryURL);
+            }
+        }
     }
     // </editor-fold>
     
@@ -157,6 +157,12 @@ public class StyleDomainResource implements XMLElement {
     // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         Element domainElement = doc.createElement(this.getDomain());
+        
+        if (this.getWidth()!=null)
+            domainElement.setAttribute("width", this.getWidth());
+        if (this.getHeight()!=null)
+            domainElement.setAttribute("height", this.getHeight());
+        
         if (null != this.getFormats() && this.getFormats().size() != 0) {
             Iterator it = formats.iterator();
             while (it.hasNext()) {

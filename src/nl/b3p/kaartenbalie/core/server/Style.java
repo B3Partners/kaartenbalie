@@ -10,13 +10,12 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 public class Style implements XMLElement {
@@ -161,6 +160,7 @@ public class Style implements XMLElement {
             titleElement.appendChild(text);
             styleElement.appendChild(titleElement);
         }
+
         if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
             Iterator it = this.getDomainResource().iterator();
             while (it.hasNext()) {
@@ -168,6 +168,36 @@ public class Style implements XMLElement {
                 sdr.toElement(doc, styleElement);
             }
         }
+        
+        if(null != this.getDomainResource() && this.getDomainResource().size() != 0) {
+            Hashtable sdrhash = new Hashtable();
+            StyleDomainResource sdr = null;
+            Iterator it = domainResource.iterator();
+            while (it.hasNext()) {
+                sdr = (StyleDomainResource)it.next();
+                if (sdr.getDomain()==null)
+                    continue;
+                else if (sdr.getDomain().equalsIgnoreCase("LegendURL")) {
+                    sdrhash.put("LegendURL",sdr);
+                } else if (sdr.getDomain().equalsIgnoreCase("StyleSheetURL")) {
+                    sdrhash.put("StyleSheetURL",sdr);
+                } else if (sdr.getDomain().equalsIgnoreCase("StyleURL")) {
+                    sdrhash.put("StyleURL",sdr);
+                } else {
+                    continue;
+                }
+            }
+            sdr = (StyleDomainResource) sdrhash.get("LegendURL");
+            if (sdr!=null)
+                styleElement = sdr.toElement(doc, styleElement);
+            sdr = (StyleDomainResource) sdrhash.get("StyleSheetURL");
+            if (sdr!=null)
+                styleElement = sdr.toElement(doc, styleElement);
+            sdr = (StyleDomainResource) sdrhash.get("StyleURL");
+            if (sdr!=null)
+                styleElement = sdr.toElement(doc, styleElement);
+        }
+        
         rootElement.appendChild(styleElement);
         return rootElement;
     }

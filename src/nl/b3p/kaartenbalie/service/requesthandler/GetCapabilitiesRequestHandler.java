@@ -74,7 +74,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          * Because the get service provider also can return several providers (not combined to one) a list will be
          * returned.
          */
-        while (it.hasNext()) {
+        if (it.hasNext()) {
             s = (ServiceProvider)it.next();
             s.overwriteURL(url);
         }
