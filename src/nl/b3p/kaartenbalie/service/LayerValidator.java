@@ -52,6 +52,29 @@ public class LayerValidator {
     public boolean validate() {
         return this.validateSRS().length > 0;
     }
+    /** add a srs supported by this layer or a parent of the layer to the supported hashmap
+     */
+    public void addLayerSupportedSRS(Layer l, HashMap supported){
+        Set srsen=l.getSrs();
+        Iterator i=srsen.iterator();
+        while (i.hasNext()){
+            SRS srs=(SRS)i.next();
+            if (srs.getSrs()!=null && srs.getMaxx()==null){
+                if (srs.getSrs().contains(" ")){
+                    String[] tokens= srs.getSrs().split(" ");
+                    //doorloop de door komma gescheiden srsen
+                    for (int t=0; t < tokens.length; t++){
+                        supported.put(tokens[t],tokens[t]);                           
+                    }
+                }else{ 
+                    supported.put(srs.getSrs(),srs.getSrs());
+                }
+            }
+        }
+        if (l.getParent()!=null){
+            addLayerSupportedSRS(l.getParent(),supported);
+        }
+    }
     
     /** Returns the combined srs's that all layers given supports
      */
@@ -64,29 +87,16 @@ public class LayerValidator {
         boolean layersHasSRS;
         //doorloop de layers
         while(lit.hasNext()){
-            layersHasSRS=false;
-            Set <SRS> srsen= ((Layer)lit.next()).getSrs();
-            Iterator it= srsen.iterator();
-            //doorloop de srsen van de layers
-            while (it.hasNext()){
-                SRS srs= (SRS)it.next();
-                if (srs.getSrs()!=null && srs.getMaxx()==null){
-                    layersHasSRS=true;
-                    if (srs.getSrs().contains(" ")){
-                        String[] tokens= srs.getSrs().split(" ");
-                        //doorloop de door komma gescheiden srsen
-                        for (int t=0; t < tokens.length; t++){
-                            addSrsCount(hm,tokens[t]);                           
-                        }
-                    }else{
-                        addSrsCount(hm,srs.getSrs());
-                    }
-                }
-            }
-            if (layersHasSRS){
-                 //Teller ophogen: Layer heeft srs
+            HashMap supportedByLayer=new HashMap();
+            addLayerSupportedSRS((Layer)lit.next(),supportedByLayer);
+            if (supportedByLayer.size()>0){
                 tellerMeeTellendeLayers++;
-            }
+                Iterator i=supportedByLayer.values().iterator();
+                while(i.hasNext()){
+                    String srs= (String)i.next();
+                    addSrsCount(hm,srs);
+                }
+            }            
         }
         ArrayList supportedSrsen=new ArrayList();
         Iterator it=hm.entrySet().iterator();
