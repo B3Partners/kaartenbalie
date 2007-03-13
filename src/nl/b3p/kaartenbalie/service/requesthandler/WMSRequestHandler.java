@@ -89,7 +89,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @param combine boolean wether to combine the serviceproviders or not
      * @return a list of the serviceproviders
      */
-    // <editor-fold defaultstate="collapsed" desc="getServiceProviders(boolean combine) method.">
+    // <editor-fold defaultstate="" desc="getServiceProviders(boolean combine) method.">
     protected List getServiceProviders(boolean combine) {
         User dbUser                 = null;
         ServiceProvider sp          = null;

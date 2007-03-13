@@ -58,7 +58,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = (User) request.getUserPrincipal();        
         if (user==null){
@@ -106,7 +106,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      *
      * @throws java.lang.Exception when an error occurs
      */
-    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         request.setAttribute("changePassword", "changepwd");
         User user = (User) request.getUserPrincipal();
@@ -133,7 +133,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //Bij deze save actie moet er een unieke 'sleutel' gemaakt worden om mee in te kunnen loggen
         //Deze sleutel moet gebaseerd worden op drie gegevens, namelijk:

@@ -30,7 +30,7 @@ public class SecurityRealm implements SecurityRealmInterface {
      *
      * @return a principal object containing the user if he has been found as a registered user. Otherwise this object wil be empty (null).
      */
-    // <editor-fold defaultstate="collapsed" desc="authenticate(String username, String password) method.">
+    // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
         Session sess = MyDatabase.getSessionFactory().getCurrentSession();
         Transaction tx = sess.beginTransaction();
@@ -59,7 +59,7 @@ public class SecurityRealm implements SecurityRealmInterface {
      *
      * @return a boolean which is true if the user is in the defined role otherwise false is returned.
      */
-    // <editor-fold defaultstate="collapsed" desc="isUserInRole(Principal principal, String role) method.">
+    // <<editor-fold defaultstate="" defaultstate="collapsed" desc="isUserInRole(Principal principal, String role) method.">
     public boolean isUserInRole(Principal principal, String role) {
         if(!(principal instanceof User)) {
             return false;
