@@ -89,7 +89,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Set <ServiceProvider> serviceproviders = null;
         
         /*
-         * Access the database to retrieve information about the layer 
+         * Access the database to retrieve information about the layer
          * which are available to the user. If no layers are available
          * null will be returned immediatly.
          */
@@ -98,11 +98,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         try {
             dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
-        
+            
             Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
             if (dbLayers == null)
                 return null;
-
+            
             /*
              * We have to create a Set with ServiceProviders based on the layers the user
              * is allowed to see. When the ServiceProviders are available we can create the
@@ -115,10 +115,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 if(null == dbLayer.getParent()) {
                     ServiceProvider testSP = (ServiceProvider)(dbLayer.getServiceProvider());
                     
-                    /* 
+                    /*
                      * Adding the ServiceProvider to the Set of ServiceProviders.
                      * After adding we need to clone the ServiceProvider aswell as the Layers
-                     * The reason for cloning is that the ServiceProviders and Layers are 
+                     * The reason for cloning is that the ServiceProviders and Layers are
                      * directly requested from the Database.
                      * Hibernate keeps the objects from the database in it's memory and each
                      * transformation on one of those objects will result in a change of the
@@ -127,7 +127,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                      * object which we can use to do all our transformations on.
                      */
                     serviceproviders.add(testSP);
-
+                    
                     ServiceProvider cloneSP = (ServiceProvider)(testSP.clone());
                     cloneSP.setLayers(null);
                     
@@ -146,7 +146,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         sps.add(cloneSP);
                     }
                 }
-            } 
+            }
         } finally {
             tx.commit();
         }
@@ -154,20 +154,30 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         /* There are now two objects. Two Sets, one is a Set with all the toplayers while the other
          * is a Set with all the ServiceProviders.
          * When combining the ServiceProviders isn't necessary, we can skip this check and immediatly
-         * return the Set with ServiceProviders. But in the other case we still need to create a 
+         * return the Set with ServiceProviders. But in the other case we still need to create a
          * ServiceProvider object which can hold the Set with layers so we can return one Service
          * Provider object (captured in the Set object) from which a GetCapability XML can be generated.
-         */        
+         */
         if (combine) {
             /* We have still a Set of toplayers.
              * A ServiceProvider is allowed to have only one toplayer.
              * Therefore a toplayer has to be created manually.
-             * This toplayer has to have a certain amount of SRS values 
+             * This toplayer has to have a certain amount of SRS values
              * which apply to ALL layers which are child of this toplayer.
              */
             Layer layer = new Layer();
-            layer.setName(TOPLAYERNAME);
             layer.setTitle(TOPLAYERNAME);
+            
+//            layer.setName(TOPLAYERNAME);
+            /*If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
+             *that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
+             *Name, then that layer is only a category title for all the layers nested within. A Map
+             *Server that advertises a Layer containing a Name element shall be able to accept that
+             *Name as the value of LAYERS argument in a GetMap request and return the
+             *corresponding map. A Client shall not attempt to request a layer that has a Title but no
+             *Name.
+             **/
+            
             LayerValidator lv = new LayerValidator(layers);
             String [] supportedSRS = lv.validateSRS();
             for (int i=0; i < supportedSRS.length; i++){
@@ -176,13 +186,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 layer.addSrsbb(srsbb);
             }
             
-            //Standaard LatLonBoundingBox voor heel nederland
+            //Standaard LatLonBoundingBox
             SrsBoundingBox llbb = new SrsBoundingBox();
             llbb.setSrs("EPSG:4326");
-            llbb.setMinx("3.2");
-            llbb.setMiny("50.5");
-            llbb.setMaxx("7.3");
-            llbb.setMaxy("54.0");
+            llbb.setMinx("-90.0");
+            llbb.setMiny("-180.0");
+            llbb.setMaxx("90.0");
+            llbb.setMaxy("180.0");
             layer.addSrsbb(llbb);
             
             layer.setLayers(layers);
@@ -203,7 +213,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     // </editor-fold>
     
     
-    /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to 
+    /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to
      * the ServiceProvider which this url holds.
      *
      * @param urls StringBuffer with the urls where kaartenbalie should connect to to recieve the requested data.
@@ -225,7 +235,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
                 bi = new BufferedImage [urls.size()];
-
+                
                 /* Read each of the strings and create an URL for each one of them
                  * With the defined URL create a BufferedImage which will contain the
                  * image the URL was loacting to.
@@ -235,39 +245,39 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     URL u = new URL(url);
                     bi[i] = ImageIO.read(u);
                 }
-
+                
                 /* After all images are loaded into the memory, these images
                  * can be combined (blended) to make it one image. In order to
                  * be able to blend the images, an empty Graphics 2D object is
-                 * needed to project all the other images onto. This Graphics 
+                 * needed to project all the other images onto. This Graphics
                  * object is recieved through a new and empty BufferedImage which
                  * has the same size as our BufferedImages.
                  */
                 BufferedImage buffImg = null;
-
+                
                 if(overlay) {
                     buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D gbi = buffImg.createGraphics();
-
+                    
                     /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
                      * After drawing this layer we draw all the other layers on top of it, setting the
                      * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
                      */
                     gbi.drawImage(bi[0], 0, 0, null);
                     gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
-
+                    
                     for (int i = 1; i < urls.size(); i++) {
                         gbi.drawImage(bi[i], 0, 0, null);
                     }
                 } else {
                     int [] width = new int[urls.size()];
                     int [] height= new int[urls.size()];
-
+                    
                     for (int i = 1; i < urls.size(); i++) {
                         width[i] = bi[i].getWidth();
                         height[i] = bi[i].getHeight();
                     }
-
+                    
                     int maxWidth = 0;
                     int maxHeight= 0;
                     for (int i = 0; i < urls.size(); i++) {
@@ -276,7 +286,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         }
                         maxHeight += height[i];
                     }
-
+                    
                     buffImg = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
                     Graphics2D gbi = buffImg.createGraphics();
                     maxHeight = 0;
@@ -284,17 +294,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         gbi.drawImage(bi[i], 0, maxHeight, null);
                         maxHeight = bi[i].getHeight();
                     }
-
+                    
                     //gbi.dispose();
                 }
-
+                
                 /* All images have been drawn onto the Graphics 2D object so now
                  * it is possible to create a byte output stream of this newly created
                  * BufferedImage
                  */
                 ImageIO.write(buffImg, "png", baos);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-                //combineer de featureinfo....                    
+                //combineer de featureinfo....
                 try {
                     //Setting up the DocumentBuilderFactory
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -302,10 +312,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     dbf.setValidating(true);
                     dbf.setNamespaceAware(true);
                     dbf.setIgnoringElementContentWhitespace(true);
-
+                    
                     //Creating a new document builder
                     DocumentBuilder builder = dbf.newDocumentBuilder();
-
+                    
                     //Creating a new destination
                     Document destination = builder.newDocument();
                     Element rootElement = destination.createElement("msGMLOutput");
@@ -313,23 +323,23 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
                     rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
                     rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-
+                    
                     Document source = null;
                     for (int i = 0; i < urls.size(); i++) {
                         //Creating the source
                         source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
-
+                        
                         //Copying the elements from one document to the other
                         copyElements(source, destination);
                     }
-
+                    
                     /*
                      * Create a new output format to which this document should be translated and
                      * serialize the tree to an XML document type
                      */
                     OutputFormat format = new OutputFormat(destination);
                     format.setIndenting(true);
-                    XMLSerializer serializer = new XMLSerializer(baos, format);        
+                    XMLSerializer serializer = new XMLSerializer(baos, format);
                     serializer.serialize(destination);
                 } catch (SAXException e) {
                     //System.exit(1);
@@ -367,12 +377,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return baos.toByteArray();
     }
     // </editor-fold>
-        
+    
     private static void copyElements(Document source, Document destination) {
         Element root_source = source.getDocumentElement();
         NodeList nodelist_source = root_source.getChildNodes();
         int size_source = nodelist_source.getLength();
-
+        
         for (int i = 0; i < size_source; i ++) {
             Node node_source = nodelist_source.item(i);
             if (node_source instanceof Element) {
@@ -440,7 +450,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             String foundLayer = findLayer(layerToBeFound, layer.getLayers());
             if (foundLayer != null)
                 return foundLayer;
-        }        
+        }
         return null;
     }
     // </editor-fold>
@@ -472,7 +482,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             String foundLayer = findQueryableLayer(layerToBeFound, layer.getLayers());
             if (foundLayer != null)
                 return foundLayer;
-        }        
+        }
         return null;
     }
     // </editor-fold>
@@ -506,7 +516,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return requestedLayers.toString();
     }
     // </editor-fold>
-        
+    
     /** Checks wether a post or get url is available for an incomming request.
      * @param serviceProvider ServiceProvider to which the request belongs
      * @param request String with the specified request
