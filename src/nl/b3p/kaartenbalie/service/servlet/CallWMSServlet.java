@@ -370,12 +370,17 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         } catch (Exception e) {
             // TODO: moet nog echt xml error bericht worden
             StringBuffer es = new StringBuffer();
-            es.append("<error version=\"not compliant\">");
+            es.append("<?xml version='1.0' encoding='UTF-8' standalone='no' ?>");
+            es.append("<ServiceExceptionReport version='1.1.1'>");
+            es.append("<ServiceException>");
+            es.append("<![CDATA[");
             es.append(e.getMessage());
-            es.append("</error>");
+            es.append("]]>");
+            es.append("</ServiceException>");
+            es.append("</ServiceExceptionReport>");
             
             data = es.toString().getBytes(CHARSET_UTF8);
-            response.setContentType("text/xml");
+            response.setContentType("application/vnd.ogc.se_xml");
             response.setContentLength(data.length);
             response.setHeader("Content-Disposition", "inline; filename=\"error.xml\";");
         }
