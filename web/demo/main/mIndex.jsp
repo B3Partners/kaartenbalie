@@ -17,7 +17,7 @@
                     <li><a href="<html:rewrite page='/demo/index.do' module='' />">Demo</a></li>
                     <li><a href="<html:rewrite page='/viewer/mapviewer.do' module='' />">Mapviewer</a></li>
                     <li><a href="<html:rewrite page='/demo/registration.do' module='' />">Registratie</a></li>
-                    <li><a href="<html:rewrite page='/viewer/createPersonalURL.do' module='' />">Cre&euml;er Personal URL</a></li>
+                    <li><a href="<html:rewrite page='/viewer/createPersonalURL.do' module='' />"><fmt:message key="viewer.persoonlijkeurl"/></a></li>
                 </ul>
             </div>
         </p>
