@@ -81,8 +81,6 @@
             <form-default-page>/index.do</form-default-page>
         </form-login-config>
     </login-config>
-    
-
     <realm className="nl.b3p.kaartenbalie.service.SecurityRealm"/>
 
 </securityfilter-config>
