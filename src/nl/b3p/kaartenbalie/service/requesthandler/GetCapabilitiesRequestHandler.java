@@ -108,7 +108,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             XMLSerializer serializer = new XMLSerializer(output, format);        
             serializer.serialize(dom);
         } catch (ParserConfigurationException ex) {
-            ex.printStackTrace();
+            log.error("",ex);
         }
         return getOnlineData(output.toString());
     }

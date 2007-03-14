@@ -42,7 +42,7 @@ import nl.b3p.kaartenbalie.core.KBConstants;
 
 public class CallWMSServlet extends HttpServlet implements KBConstants {
     private static Log log = null;
-    public static final long serialVersionUID = 24362462L;    
+    public static final long serialVersionUID = 24362462L;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -66,7 +66,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // De wms client kan vragen om een image of een xml bestand als return voor een foutmelding.
     // Daartoe dient ook de response.setContentType("text/xml;charset=UTF-8"); aangepast te worden,
     // zodat deze de response op de juiste wijze terug kan sturen naar de client.
-        
+    
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *
      * @param request servlet request
@@ -81,7 +81,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         User user = null;
         byte[] data = null;
         OutputStream sos = null;
-                
+        
         try {
             long secondMeasurement = System.currentTimeMillis();
             user = checkLogin(request);
@@ -95,59 +95,62 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 long fourthMeasurement = System.currentTimeMillis();
                 
                 
-                data = parseRequestAndData(parameters);
+                data = parseRequestAndData(parameters, response);
                 
                 String dataRepresent = new String(data);
-                //System.out.println("The data is : " + dataRepresent);
                 
                 long fifthMeasurement = System.currentTimeMillis();
                 
                 long sixthMeasurement = System.currentTimeMillis();
+                
                 if (parameters.get(WMS_PARAM_EXCEPTION_FORMAT) != null) {
                     String exception = ((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0];
                     response.setContentType(exception + ";charset=" + CHARSET_UTF8);
                 }
-
+                
 //                if (!SUPPORTED_EXCEPTIONS.contains(exception)) {
 //                    response.setContentType(exception + ";charset=" + CHARSET_UTF8);
 //                } else {
 //                    response.setContentType("text/xml;charset=" + CHARSET_UTF8);
 //                }
                 long seventhMeasurement = System.currentTimeMillis();
+                
                 sos = response.getOutputStream();
                 sos.write(data);
+                sos.flush();
+                
+                
                 long eighthMeasurement = System.currentTimeMillis();
                 
-                /*-----------------------------------------------------------------------------------------------------------*/
 //                System.out.println("Resultaten van verschillende metingen : ");
                 long elapsedTimeMillis = secondMeasurement - firstMeasurement;
                 long elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Kleine initialisatie : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = thirdMeasurement - secondMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Gebruikersrechten test : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = fourthMeasurement - thirdMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Kopie van alle params : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = fifthMeasurement - fourthMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Het parsen van het request : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = sixthMeasurement - fifthMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Printout op scherm van data : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 elapsedTimeMillis = eighthMeasurement - seventhMeasurement;
                 elapsedTimeSecond = elapsedTimeMillis / 1000; // total # of seconds
-                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left 
+                elapsedTimeMillis = elapsedTimeMillis % 1000; // total number of millis left
 //                System.out.println("Doorvoer van gegevens naar client : Seconds = " + elapsedTimeSecond + " millis = " + elapsedTimeMillis);
                 
                 
@@ -166,6 +169,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             if (sos!=null)
                 sos.close();
         }
+        
     }
     // </editor-fold>
     
@@ -191,11 +195,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             String url = request.getRequestURL().toString();
             String remote = request.getRemoteAddr();
             try {
-            user = (User)sess.createQuery(
-                    "from User u where " +
-                    "lower(u.personalURL) = lower(:personalURL) ")
-                    .setParameter("personalURL", request.getRequestURL().toString())
-                    .uniqueResult();
+                user = (User)sess.createQuery(
+                        "from User u where " +
+                        "lower(u.personalURL) = lower(:personalURL) ")
+                        .setParameter("personalURL", request.getRequestURL().toString())
+                        .uniqueResult();
             } finally {
                 tx.commit();
             }
@@ -207,20 +211,20 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     //System.out.println("The date for your personal URL has expired");
                     return null;
                 } //else {
-                    //System.out.println("The date for your personal URL is still ok");
+                //System.out.println("The date for your personal URL is still ok");
                 //}
                 
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
                 // Parse with a custom format
                 String personalDate = df.format(date);
                 //System.out.println("De opgegeven datum is : " + date.toString());
-                                
+                
                 // bereken token voor deze user
-                 String token = calcToken(
-                         request.getRemoteAddr(), 
-                         user.getUsername(), 
-                         user.getPassword(), 
-                         personalDate);
+                String token = calcToken(
+                        request.getRemoteAddr(),
+                        user.getUsername(),
+                        user.getPassword(),
+                        personalDate);
                 
                 // bereken token in url
                 String pathInfo = request.getPathInfo();
@@ -273,60 +277,112 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
-    public byte[] parseRequestAndData(Map <String, Object> parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException {
-        String givenRequest=null;
-        boolean supported_request = false;
-        if (parameters.get(WMS_REQUEST)!=null){
-           givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
+    public byte[] parseRequestAndData(Map <String, Object> parameters, HttpServletResponse response) throws IllegalArgumentException, UnsupportedOperationException, IOException {
         
-        /*if (givenRequest==null){
-            givenRequest=WMS_REQUEST_GetCapabilities;
-            parameters.put(WMS_VERSION,"1.1.1");
-            parameters.put(WMS_SERVICE,"WMS");
-        }*/
-            Iterator it = SUPPORTED_REQUESTS.iterator();
-            while (it.hasNext()) {
-                String elem = (String) it.next();
-                if(elem.equalsIgnoreCase(givenRequest)) {
-                    supported_request = true;
+        byte[] data = null;
+        
+        try {
+            
+            String givenRequest=null;
+            boolean supported_request = false;
+            if (parameters.get(WMS_REQUEST)!=null){
+                givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
+                
+                /*if (givenRequest==null){
+                givenRequest=WMS_REQUEST_GetCapabilities;
+                parameters.put(WMS_VERSION,"1.1.1");
+                parameters.put(WMS_SERVICE,"WMS");
+                }*/
+                
+                Iterator it = SUPPORTED_REQUESTS.iterator();
+                while (it.hasNext()) {
+                    String elem = (String) it.next();
+                    if(elem.equalsIgnoreCase(givenRequest)) {
+                        supported_request = true;
+                    }
                 }
             }
+            if (!supported_request)
+                throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
+            
+            /*
+            String givenService = ((String[]) parameters.get(WMS_SERVICE))[0];
+            if (!SUPPORTED_SERVICES.contains(givenService))
+                throw new UnsupportedOperationException("Service '" + givenService + "' not supported!");
+             
+            String givenVersion = ((String[]) parameters.get(WMS_VERSION))[0];
+            if (!SUPPORTED_VERSIONS.contains(givenVersion))
+                throw new UnsupportedOperationException("Version '" + givenVersion + "' not supported!");
+             */
+            
+            RequestHandler requestHandler = null;
+            List reqParams = null;
+            
+            if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+                requestHandler = new GetCapabilitiesRequestHandler();
+                reqParams = PARAMS_GetCapabilities;
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+                requestHandler = new GetMapRequestHandler();
+                reqParams = PARAMS_GetMap;
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+                requestHandler = new GetFeatureInfoRequestHandler();
+                reqParams = PARAMS_GetFeatureInfo;
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+                requestHandler = new GetLegendGraphicRequestHandler();
+                reqParams = PARAMS_GetLegendGraphic;
+            }
+            
+            if (!requestComplete(parameters, reqParams))
+                throw new IllegalArgumentException("Not all parameters for request '" +
+                        givenRequest + "' are available, required: [" + reqParams.toString() +
+                        "], available: [" + parameters.toString() + "].");
+            
+            data = requestHandler.getRequest(parameters);
+            
+            if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+                response.setContentType("text/xml");
+                response.setContentLength(data.length);
+                response.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
+                
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+                
+                String ct = (String)((String[])parameters.get(WMS_PARAM_FORMAT))[0];
+                response.setContentType(ct);
+                response.setContentLength(data.length);
+                
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+                String infoFormat = ((String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0]);
+                if (infoFormat!=null)
+                    response.setContentType(infoFormat);
+                else
+                    response.setContentType("text/xml");
+                response.setContentLength(data.length);
+                
+            } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+                String infoFormat = (String)parameters.get(WMS_PARAM_FORMAT);
+                if (infoFormat!=null)
+                    response.setContentType(infoFormat);
+                else
+                    response.setContentType("image/png");
+                response.setContentLength(data.length);
+                
+            }
+        } catch (Exception e) {
+            // TODO: moet nog echt xml error bericht worden
+            StringBuffer es = new StringBuffer();
+            es.append("<error version=\"not compliant\">");
+            es.append(e.getMessage());
+            es.append("</error>");
+            
+            data = es.toString().getBytes(CHARSET_UTF8);
+            response.setContentType("text/xml");
+            response.setContentLength(data.length);
+            response.setHeader("Content-Disposition", "inline; filename=\"error.xml\";");
         }
-        if (!supported_request)
-            throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
         
-        /*
-        String givenService = ((String[]) parameters.get(WMS_SERVICE))[0];
-        if (!SUPPORTED_SERVICES.contains(givenService))
-            throw new UnsupportedOperationException("Service '" + givenService + "' not supported!");
         
-        String givenVersion = ((String[]) parameters.get(WMS_VERSION))[0];
-        if (!SUPPORTED_VERSIONS.contains(givenVersion))
-            throw new UnsupportedOperationException("Version '" + givenVersion + "' not supported!");
-        */
+        return data;
         
-        RequestHandler requestHandler = null;
-        List reqParams = null;
-        if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-            requestHandler = new GetCapabilitiesRequestHandler();
-            reqParams = PARAMS_GetCapabilities;
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-            requestHandler = new GetMapRequestHandler();
-            reqParams = PARAMS_GetMap;
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-            requestHandler = new GetFeatureInfoRequestHandler();
-            reqParams = PARAMS_GetFeatureInfo;
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
-            requestHandler = new GetLegendGraphicRequestHandler();
-            reqParams = PARAMS_GetLegendGraphic;
-        }
-        
-        if (!requestComplete(parameters, reqParams))
-            throw new IllegalArgumentException("Not all parameters for request '" +
-                    givenRequest + "' are available, required: [" + reqParams.toString() +
-                    "], available: [" + parameters.toString() + "].");
-        
-        return requestHandler.getRequest(parameters);
     }
     // </editor-fold>
     
