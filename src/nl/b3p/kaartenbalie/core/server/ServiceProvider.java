@@ -348,7 +348,7 @@ public class ServiceProvider implements XMLElement {
             abstractElement.appendChild(text);
             serviceElement.appendChild(abstractElement);
         }
-/*        
+
         if(null != this.getServiceProviderKeywordList() && this.getServiceProviderKeywordList().size() != 0) {
             Element keywordListElement = doc.createElement("KeywordList");
             
@@ -388,7 +388,6 @@ public class ServiceProvider implements XMLElement {
             accessElement.appendChild(text);
             serviceElement.appendChild(accessElement);
         }
- */
         //End of Service
         
         //Start of Capability

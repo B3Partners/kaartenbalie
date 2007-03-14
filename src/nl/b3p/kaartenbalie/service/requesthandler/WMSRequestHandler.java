@@ -175,6 +175,16 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 srsbb.setSrs(supportedSRS[i]);
                 layer.addSrsbb(srsbb);
             }
+            
+            //Standaard LatLonBoundingBox voor heel nederland
+            SrsBoundingBox llbb = new SrsBoundingBox();
+            llbb.setSrs("EPSG:4326");
+            llbb.setMinx("3.2");
+            llbb.setMiny("50.5");
+            llbb.setMaxx("7.3");
+            llbb.setMaxy("54.0");
+            layer.addSrsbb(llbb);
+            
             layer.setLayers(layers);
             
             /* Now a top layer is available we need a ServiceProviderobject to store
@@ -192,24 +202,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     }
     // </editor-fold>
     
-    
-    
-    // TODO:
-    // De functie heeft nog geen manier voor het toepassen van de juiste encoding.
-    // Deze moet nog geimplementeerd worden.        
-    
-    
-    /** Creates a byte array of a given String.
-     * @param xml string representing the xml document
-     * @return byte array of the recieved data
-     *
-     * @throws IOException
-     */
-    // <editor-fold defaultstate="" desc="getOnlineData(String xml) method.">
-    protected static byte[] getOnlineData(String xml) throws IOException {
-        return xml.getBytes(CHARSET_UTF8);
-    }
-    // </editor-fold>
     
     /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to 
      * the ServiceProvider which this url holds.

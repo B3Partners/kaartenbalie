@@ -79,7 +79,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             s.overwriteURL(url);
         }
         
-        OutputStream output = null;
+        ByteArrayOutputStream output = null;
         
         try {
             /*
@@ -110,7 +110,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         } catch (ParserConfigurationException ex) {
             log.error("",ex);
         }
-        return getOnlineData(output.toString());
+        return output.toByteArray();
     }
     // </editor-fold>
 }

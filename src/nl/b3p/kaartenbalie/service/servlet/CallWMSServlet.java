@@ -340,7 +340,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             data = requestHandler.getRequest(parameters);
             
             if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                response.setContentType("text/xml");
+                response.setContentType("application/vnd.ogc.wms_xml");
                 response.setContentLength(data.length);
                 response.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
                 
@@ -355,7 +355,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 if (infoFormat!=null)
                     response.setContentType(infoFormat);
                 else
-                    response.setContentType("text/xml");
+                    response.setContentType("application/vnd.ogc.gml");
                 response.setContentLength(data.length);
                 
             } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
