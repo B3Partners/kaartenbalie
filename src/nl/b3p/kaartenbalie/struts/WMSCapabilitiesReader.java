@@ -40,7 +40,6 @@ filter out the different kind of errors:
 package nl.b3p.kaartenbalie.struts;
 
 
-import nl.b3p.kaartenbalie.core.server.*;
 import org.xml.sax.XMLReader;
 import java.util.Stack;
 
@@ -48,10 +47,22 @@ import java.io.File;
 import java.io.IOException;
 import org.xml.sax.Attributes;
 
-import java.io.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.*;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import nl.b3p.kaartenbalie.core.server.Attribution;
+import nl.b3p.kaartenbalie.core.server.ContactInformation;
+import nl.b3p.kaartenbalie.core.server.Dimensions;
+import nl.b3p.kaartenbalie.core.server.Identifier;
+import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.kaartenbalie.core.server.LayerDomainResource;
+import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
+import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
+import nl.b3p.kaartenbalie.core.server.Style;
+import nl.b3p.kaartenbalie.core.server.StyleDomainResource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
@@ -90,10 +101,12 @@ public class WMSCapabilitiesReader {
     // <editor-fold defaultstate="" desc="getProvider(String location) method.">
     public ServiceProvider getProvider(String location) throws IOException, SAXException {
         //call a validator for the file
-        //this.validate(location);
+//        this.validate(location);
         
         //if no error on validation, start parsing process
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
+        
+        //TODO DTD en error handlers
         reader.setContentHandler(s);
         reader.parse(location);
         return serviceProvider;
@@ -423,35 +436,52 @@ public class WMSCapabilitiesReader {
     }
     
     private class FormatHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
-            //System.out.println("In FormatHandler");
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof LayerDomainResource) {
                 LayerDomainResource domainResource = (LayerDomainResource) object;
-                domainResource.addFormat(new String(chars, start, len));
+                domainResource.addFormat(sb.toString());
             } else if (object instanceof ServiceDomainResource) {
                 ServiceDomainResource domainResource = (ServiceDomainResource) object;
-                domainResource.addFormat(new String(chars, start, len));
+                domainResource.addFormat(sb.toString());
             } else if (object instanceof StyleDomainResource) {
                 StyleDomainResource domainResource = (StyleDomainResource) object;
-                domainResource.addFormat(new String(chars, start, len));
+                domainResource.addFormat(sb.toString());
             } else if (object instanceof Attribution) {
                 Attribution attribution = (Attribution) object;
-                attribution.setLogoFormat(new String(chars, start, len));
+                attribution.setLogoFormat(sb.toString());
             } else if (object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
-                serviceProvider.addException(new String(chars, start, len));
+                serviceProvider.addException(sb.toString());
             }
         }
     }
     
     private class SRSHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             SrsBoundingBox srsbb = new SrsBoundingBox();
             Object object = stack.peek();
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
-                srsbb.setSrs(new String(chars, start, len));
+                srsbb.setSrs(sb.toString());
                 layer.addSrsbb(srsbb);
             }
         }
@@ -815,37 +845,64 @@ public class WMSCapabilitiesReader {
     }
     
     private class AbstractHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
-                serviceProvider.setAbstracts(new String(chars, start, len));
+                serviceProvider.setAbstracts(sb.toString());
             } else if (object instanceof Layer) {
                 Layer layer = (Layer) object;
-                layer.setAbstracts(new String(chars, start, len));
+                layer.setAbstracts(sb.toString());
             } else if (object instanceof Style) {
                 Style style = (Style) object;
-                style.setAbstracts(new String(chars, start, len));
+                style.setAbstracts(sb.toString());
             }
         }
     }
     
     private class FeesHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
-                serviceProvider.setFees(new String(chars, start, len));
+                serviceProvider.setFees(sb.toString());
             }
         }
     }
     
     private class ConstraintsHandler extends ElementHandler {
+         StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
-                serviceProvider.setAccessConstraints(new String(chars, start, len));
+                serviceProvider.setAccessConstraints(sb.toString());
             }
         }
     }
@@ -856,15 +913,24 @@ public class WMSCapabilitiesReader {
     }
     
     private class KeywordHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             //System.out.println("In KeywordHandler");
             Object object = stack.peek();
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
-                serviceProvider.addKeyword(new String(chars, start, len));
+                serviceProvider.addKeyword(sb.toString());
             } else if(object instanceof Layer) {
                 Layer layer = (Layer) object;
-                layer.addKeyword(new String(chars, start, len));
+                layer.addKeyword(sb.toString());
             }
         }
     }
@@ -953,31 +1019,58 @@ public class WMSCapabilitiesReader {
     }
     
     private class ContactPersonHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setContactPerson(new String(chars, start, len));
+                contactInformation.setContactPerson(sb.toString());
             }
         }
     }
     
     private class ContactOrganizationHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setContactOrganization(new String(chars, start, len));
+                contactInformation.setContactOrganization(sb.toString());
             }
         }
     }
     
     private class ContactPositionHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setContactPosition(new String(chars, start, len));
+                contactInformation.setContactPosition(sb.toString());
             }
         }
     }
@@ -988,91 +1081,172 @@ public class WMSCapabilitiesReader {
     }
     
     private class AddressTypeHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setAddressType(new String(chars, start, len));
+                contactInformation.setAddressType(sb.toString());
             }
         }
     }
     
     private class AddressHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setAddress(new String(chars, start, len));
+                contactInformation.setAddress(sb.toString());
             }
         }
     }
     
     private class CityHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setCity(new String(chars, start, len));
+                contactInformation.setCity(sb.toString());
             }
         }
     }
     
     private class StateOrProvinceHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setStateOrProvince(new String(chars, start, len));
+                contactInformation.setStateOrProvince(sb.toString());
             }
         }
     }
     
     private class PostCodeHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setPostcode(new String(chars, start, len));
+                contactInformation.setPostcode(sb.toString());
             }
         }
     }
     
     private class CountryHandler extends ElementHandler {
+         StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setCountry(new String(chars, start, len));
+                contactInformation.setCountry(sb.toString());
             }
         }
     }
     
     private class ContactVoiceTelephoneHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setVoiceTelephone(new String(chars, start, len));
+                contactInformation.setVoiceTelephone(sb.toString());
             }
         }
     }
     
     private class ContactFacsimileTelephoneHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setFascimileTelephone(new String(chars, start, len));
+                contactInformation.setFascimileTelephone(sb.toString());
             }
         }
     }
     
     private class ContactElectronicMailAddressHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
         public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
             if(object instanceof ContactInformation) {
                 ContactInformation contactInformation = (ContactInformation) object;
-                contactInformation.setEmailAddress(new String(chars, start, len));
+                contactInformation.setEmailAddress(sb.toString());
             }
         }
     }

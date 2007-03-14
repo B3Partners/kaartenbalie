@@ -10,8 +10,13 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import org.xml.sax.*;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Stack;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+
 
 public class Switcher implements ContentHandler {
     private Hashtable <String, ElementHandler> rules = new Hashtable <String, ElementHandler>();
