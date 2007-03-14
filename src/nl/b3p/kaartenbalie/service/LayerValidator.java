@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.Layer;
-import nl.b3p.kaartenbalie.core.server.SRS;
+import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,9 +42,9 @@ public class LayerValidator {
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer l = (Layer) it.next();
-            Set srs = l.getSrs();
-            if (srs == null) {
-                log.debug("Layer: "+l.getName()+"don't got a SRS");
+            Set srsbb = l.getSrsbb();
+            if (srsbb == null) {
+                log.debug("Layer: "+l.getName()+" does not have a SRS");
             }
         }
     }
@@ -55,20 +55,14 @@ public class LayerValidator {
     /** add a srs supported by this layer or a parent of the layer to the supported hashmap
      */
     public void addLayerSupportedSRS(Layer l, HashMap supported){
-        Set srsen=l.getSrs();
+        Set srsen=l.getSrsbb();
+        if (srsen==null)
+            return;
         Iterator i=srsen.iterator();
         while (i.hasNext()){
-            SRS srs=(SRS)i.next();
-            if (srs.getSrs()!=null && srs.getMaxx()==null){
-                if (srs.getSrs().contains(" ")){
-                    String[] tokens= srs.getSrs().split(" ");
-                    //doorloop de door komma gescheiden srsen
-                    for (int t=0; t < tokens.length; t++){
-                        supported.put(tokens[t],tokens[t]);                           
-                    }
-                }else{ 
-                    supported.put(srs.getSrs(),srs.getSrs());
-                }
+            SrsBoundingBox srsbb=(SrsBoundingBox)i.next();
+            if (srsbb.getSrs()!=null && srsbb.getMaxx()==null){
+                    supported.put(srsbb.getSrs(),srsbb.getSrs());
             }
         }
         if (l.getParent()!=null){

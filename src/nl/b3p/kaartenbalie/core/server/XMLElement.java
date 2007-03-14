@@ -23,7 +23,7 @@ public interface XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="public Element toElement(Document doc, Element rootElement);">
+    // <editor-fold defaultstate="" desc="public Element toElement(Document doc, Element rootElement);">
     public Element toElement(Document doc, Element rootElement);
     // </editor-fold>
 }

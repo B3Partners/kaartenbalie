@@ -38,7 +38,7 @@ public class MyDatabase extends HttpServlet {
      *
      * @param config ServletConfig configuration file in which is described how to configure the servlet.
      */
-    // <editor-fold defaultstate="collapsed" desc="init(ServletConfig config) method.">
+    // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         
@@ -65,7 +65,7 @@ public class MyDatabase extends HttpServlet {
     
     /** Destroys the servlet.
      */
-    // <editor-fold defaultstate="collapsed" desc="destroy() method.">
+    // <editor-fold defaultstate="" desc="destroy() method.">
     public void destroy() {
         
         /* Matthijs: fix voor memleak bij vaak reloaden
@@ -86,7 +86,7 @@ public class MyDatabase extends HttpServlet {
     
     /** Initializes Hibernate.
      */
-    // <editor-fold defaultstate="collapsed" desc="initHibernate() method.">
+    // <editor-fold defaultstate="" desc="initHibernate() method.">
     public static void initHibernate() throws Exception {
         
         try {
@@ -107,7 +107,7 @@ public class MyDatabase extends HttpServlet {
     
     /** Returns the SessionFactory of Hibernate.
      */
-    // <editor-fold defaultstate="collapsed" desc="getSessionFactory() method.">
+    // <editor-fold defaultstate="" desc="getSessionFactory() method.">
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
@@ -115,7 +115,7 @@ public class MyDatabase extends HttpServlet {
     
     /** Returns the current session of Hibernate.
      */
-    // <editor-fold defaultstate="collapsed" desc="currentSession() method.">
+    // <editor-fold defaultstate="" desc="currentSession() method.">
     public static Session currentSession() {
         return getSessionFactory().getCurrentSession();
     }
@@ -123,7 +123,7 @@ public class MyDatabase extends HttpServlet {
     
     /** Closes the current session of Hibernate.
      */
-    // <editor-fold defaultstate="collapsed" desc="closeSession() method.">
+    // <editor-fold defaultstate="" desc="closeSession() method.">
     public static void closeSession() {
         currentSession().close();
         return;
@@ -136,7 +136,7 @@ public class MyDatabase extends HttpServlet {
      *
      * @return string containing the local path
      */
-    // <editor-fold defaultstate="collapsed" desc="localPath(String fileName) method.">
+    // <editor-fold defaultstate="" desc="localPath(String fileName) method.">
     public static String localPath(String fileName) {
         if (fileName==null)
             return "";
@@ -151,7 +151,7 @@ public class MyDatabase extends HttpServlet {
      *
      * @return a String representing a unique name for these parameters.
      */
-    // <editor-fold defaultstate="collapsed" desc="uniqueName(String prefix, String extension) method.">
+    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension) method.">
     public static String uniqueName(String prefix, String extension) {
         return uniqueName(prefix, extension, false);
     }
@@ -165,7 +165,7 @@ public class MyDatabase extends HttpServlet {
      *
      * @return a String representing a unique name for these parameters.
      */
-    // <editor-fold defaultstate="collapsed" desc="uniqueName(String prefix, String extension, boolean includePath) method.">
+    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension, boolean includePath) method.">
     public static String uniqueName(String prefix, String extension, boolean includePath) {
         // Gebruik tijd in milliseconden om gerekend naar een radix van 36.
         // Hierdoor ontstaat een lekker korte code.

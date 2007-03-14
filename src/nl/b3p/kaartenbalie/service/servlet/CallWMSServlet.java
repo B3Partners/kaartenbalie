@@ -51,7 +51,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      *
      * @throws ServletException
      */
-    // <editor-fold defaultstate="collapsed" desc="init(ServletConfig config) method.">
+    // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         
@@ -75,7 +75,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws ServletException
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long firstMeasurement = System.currentTimeMillis();
         User user = null;
@@ -179,7 +179,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    // <editor-fold defaultstate="collapsed" desc="checkLogin(HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         
         // eerst checken of user gewoon ingelogd is
@@ -248,7 +248,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
      */
-    // <editor-fold defaultstate="collapsed" desc="calcToken(String registeredIP, String username, String password) method.">
+    // <editor-fold defaultstate="" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String toBeHashedString = registeredIP + username + password + personalDate;
         //System.out.println("String to be hashed in CallWMS is  : " + toBeHashedString);
@@ -272,7 +272,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws UnsupportedOperationException
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="parseRequestAndData(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
     public byte[] parseRequestAndData(Map <String, Object> parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException {
         String givenRequest=null;
         boolean supported_request = false;
@@ -337,7 +337,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      *
      * @return boolean which indicates if the request was incomplete or not
      */
-    // <editor-fold defaultstate="collapsed" desc="requestComplete(Map parameters, List requiredParameters) method">
+    // <editor-fold defaultstate="" desc="requestComplete(Map parameters, List requiredParameters) method">
     protected boolean requestComplete(Map parameters, List requiredParameters) {
         if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
             return false;
@@ -351,7 +351,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response

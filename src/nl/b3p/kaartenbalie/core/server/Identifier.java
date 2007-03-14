@@ -23,7 +23,7 @@ public class Identifier implements XMLElement {
     private String authorityURL;
     private Layer layer;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -61,7 +61,7 @@ public class Identifier implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         Identifier cloneIdent           = new Identifier();
         if (null != this.id) {
@@ -87,7 +87,7 @@ public class Identifier implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         
         Element authorityElement = doc.createElement("AuthorityURL");

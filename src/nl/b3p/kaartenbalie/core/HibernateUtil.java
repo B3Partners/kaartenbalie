@@ -26,7 +26,7 @@ public class HibernateUtil {
      *
      * @throws ExceptionInInitializerError
      */
-    // <editor-fold defaultstate="collapsed" desc="static declaration for creating a new SessionFactory">
+    // <editor-fold defaultstate="" desc="static declaration for creating a new SessionFactory">
     static {
         try {
             // Create the SessionFactory
@@ -44,7 +44,7 @@ public class HibernateUtil {
      *
      * @throws HibernateException
      */
-    // <editor-fold defaultstate="collapsed" desc="currentSession() method.">
+    // <editor-fold defaultstate="" desc="currentSession() method.">
     public static Session currentSession() throws HibernateException {
         Session session = (Session) threadLocal.get();
         // Open a new Session, if this Thread has none yet
@@ -60,7 +60,7 @@ public class HibernateUtil {
      *
      * @throws HibernateException
      */
-    // <editor-fold defaultstate="collapsed" desc="closeSession() method.">
+    // <editor-fold defaultstate="" desc="closeSession() method.">
     public static void closeSession() throws HibernateException {
         Session session = (Session) threadLocal.get();
         threadLocal.set(null);

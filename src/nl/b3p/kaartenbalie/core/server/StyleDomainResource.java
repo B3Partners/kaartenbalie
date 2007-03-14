@@ -27,7 +27,7 @@ public class StyleDomainResource implements XMLElement {
     private String height;
     private Style style;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -96,7 +96,7 @@ public class StyleDomainResource implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         StyleDomainResource cloneSDR    = new StyleDomainResource();
         if (null != this.id) {
@@ -128,7 +128,7 @@ public class StyleDomainResource implements XMLElement {
      *
      * @param newUrl String representing the URL the old URL has to be replaced with.
      */
-    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
+    // <editor-fold defaultstate="" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
         //First cut off only the part which is in front of the question mark.
         String temporaryURL;
@@ -154,7 +154,7 @@ public class StyleDomainResource implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         Element domainElement = doc.createElement(this.getDomain());
         

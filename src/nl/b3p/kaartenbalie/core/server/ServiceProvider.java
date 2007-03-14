@@ -39,7 +39,7 @@ public class ServiceProvider implements XMLElement {
     
     /** default ServiceProvider() constructor.
      */
-    // <editor-fold defaultstate="collapsed" desc="default ServiceProvider() constructor">
+    // <editor-fold defaultstate="" desc="default ServiceProvider() constructor">
     public ServiceProvider() {
         name = "OGC:WMS";
         title = "Kaartenbalie Map Portal";
@@ -49,7 +49,7 @@ public class ServiceProvider implements XMLElement {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -221,7 +221,7 @@ public class ServiceProvider implements XMLElement {
      *
      * @param newUrl String representing the URL the old URL has to be replaced with.
      */
-    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
+    // <editor-fold defaultstate="" desc="overwriteURL(String newUrl) method">
     public void overwriteURL(String newUrl) {
         //String temporaryURL = newUrl;
         //int firstOccur = temporaryURL.indexOf("servlet");
@@ -254,7 +254,7 @@ public class ServiceProvider implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         ServiceProvider cloneSP = new ServiceProvider();
         
@@ -324,7 +324,7 @@ public class ServiceProvider implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         
         Element serviceElement = doc.createElement("Service");
@@ -401,30 +401,13 @@ public class ServiceProvider implements XMLElement {
         Iterator it = domainResource.iterator();
         while (it.hasNext()) {
             sdr = (ServiceDomainResource)it.next();
-            if (sdr.getDomain()==null)
-                continue;
-            else if (sdr.getDomain().equalsIgnoreCase("GetCapabilities")) {
-                sdrhash.put("GetCapabilities",sdr);
-            } else if (sdr.getDomain().equalsIgnoreCase("GetMap")) {
-                sdrhash.put("GetMap",sdr);
-            } else if (sdr.getDomain().equalsIgnoreCase("GetFeatureInfo")) {
-                sdrhash.put("GetFeatureInfo",sdr);
-            } else if (sdr.getDomain().equalsIgnoreCase("DescribeLayer")) {
-                sdrhash.put("DescribeLayer",sdr);
-            } else if (sdr.getDomain().equalsIgnoreCase("GetLegendGraphic")) {
-                sdrhash.put("GetLegendGraphic",sdr);
-            } else if (sdr.getDomain().equalsIgnoreCase("GetStyles")) {
-                sdrhash.put("GetStyles",sdr);
-            } else {
-                continue;
-            }
+            sdrhash.put(sdr.getDomain(),sdr);
         }
         sdr = (ServiceDomainResource) sdrhash.get("GetCapabilities");
-        if (sdr!=null)
-            requestElement = sdr.toElement(doc, requestElement);
+        requestElement = sdr.toElement(doc, requestElement);
         sdr = (ServiceDomainResource) sdrhash.get("GetMap");
-        if (sdr!=null)
-            requestElement = sdr.toElement(doc, requestElement);
+        requestElement = sdr.toElement(doc, requestElement);
+        
         sdr = (ServiceDomainResource) sdrhash.get("GetFeatureInfo");
         if (sdr!=null)
             requestElement = sdr.toElement(doc, requestElement);

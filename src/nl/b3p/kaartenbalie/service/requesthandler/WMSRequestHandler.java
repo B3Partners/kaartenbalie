@@ -17,22 +17,14 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -44,10 +36,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
-import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
-import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
@@ -180,9 +171,9 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             LayerValidator lv = new LayerValidator(layers);
             String [] supportedSRS = lv.validateSRS();
             for (int i=0; i < supportedSRS.length; i++){
-                SRS srs= new SRS();
-                srs.setSrs(supportedSRS[i]);
-                layer.addSrs(srs);
+                SrsBoundingBox srsbb= new SrsBoundingBox();
+                srsbb.setSrs(supportedSRS[i]);
+                layer.addSrsbb(srsbb);
             }
             layer.setLayers(layers);
             
@@ -214,7 +205,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="getOnlineData(String xml) method.">
+    // <editor-fold defaultstate="" desc="getOnlineData(String xml) method.">
     protected static byte[] getOnlineData(String xml) throws IOException {
         return xml.getBytes(CHARSET_UTF8);
     }
@@ -229,7 +220,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="getOnlineData(StringBuffer [] urls) method.">
+    // <editor-fold defaultstate="" desc="getOnlineData(StringBuffer [] urls) method.">
     protected static byte[] getOnlineData(ArrayList urls, boolean overlay, String REQUEST_TYPE) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
@@ -414,7 +405,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @return string with the name of the found layer or null if no layer was found
      */
-    // <editor-fold defaultstate="collapsed" desc="findLayer(Set layers, String l, ServiceProvider s) method.">
+    // <editor-fold defaultstate="" desc="findLayer(Set layers, String l, ServiceProvider s) method.">
     protected String findLayer(Set layers, String l, ServiceProvider s) {
         if (layers==null || layers.isEmpty())
             return null;
@@ -442,7 +433,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @return string with the name of the found layer or null if no layer was found
      */
-    // <editor-fold defaultstate="collapsed" desc="findLayer(String layerToBeFound, Set layers) method.">
+    // <editor-fold defaultstate="" desc="findLayer(String layerToBeFound, Set layers) method.">
     protected String findLayer(String layerToBeFound, Set layers) {
         if (layers==null || layers.isEmpty())
             return null;
@@ -469,7 +460,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @return string with the name of the found layer or null if no layer was found
      */
-    // <editor-fold defaultstate="collapsed" desc="findQueryableLayer(String layerToBeFound, Set layers) method.">
+    // <editor-fold defaultstate="" desc="findQueryableLayer(String layerToBeFound, Set layers) method.">
     protected String findQueryableLayer(String layerToBeFound, Set layers) {
         if (layers==null || layers.isEmpty())
             return null;
@@ -500,7 +491,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @return string with all the request layers
      */
-    // <editor-fold defaultstate="collapsed" desc="calcFormattedLayers(ServiceProvider serviceProvider, String[] layer) method.">
+    // <editor-fold defaultstate="" desc="calcFormattedLayers(ServiceProvider serviceProvider, String[] layer) method.">
     protected String calcFormattedLayers(ServiceProvider serviceProvider, String[] layer) {
         if (serviceProvider==null)
             return null;
@@ -529,7 +520,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @param request String with the specified request
      * @return stringbuffer with the url found in the database for this specific request
      */
-    // <editor-fold defaultstate="collapsed" desc="calcRequestUrl(ServiceProvider serviceProvider, String request) method.">
+    // <editor-fold defaultstate="" desc="calcRequestUrl(ServiceProvider serviceProvider, String request) method.">
     protected StringBuffer calcRequestUrl(ServiceProvider serviceProvider, String request) {
         Set domain = serviceProvider.getDomainResource();
         Iterator domainIter = domain.iterator();
@@ -555,11 +546,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
+    // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract byte[] getRequest(Map <String, Object> params) throws IOException;
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="getter methods.">
+    // <editor-fold defaultstate="" desc="getter methods.">
     public User getUser() {
         return user;
     }

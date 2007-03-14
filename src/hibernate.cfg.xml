@@ -36,9 +36,8 @@
         
         
         <mapping resource="identifier.hbm.xml"/>
-        <mapping resource="latLonBoundingBox.hbm.xml"/>
         <mapping resource="layerDomainResource.hbm.xml"/>
-        <mapping resource="srs.hbm.xml"/>
+        <mapping resource="srsboundingbox.hbm.xml"/>
         <mapping resource="style.hbm.xml"/>
         <mapping resource="styleDomainResource.hbm.xml"/>
        

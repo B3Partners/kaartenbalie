@@ -59,6 +59,9 @@
             <field property="organizationTelephone" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
             </field>            
+            <field property="organizationPostalcode" depends="required"> <!-- required -->
+                <arg0 key="beheer.organizationPostalcode"/>
+            </field>            
         </form>
     </formset>
 </form-validation>

@@ -27,7 +27,7 @@ public class Style implements XMLElement {
     private Layer layer;
     private Set <StyleDomainResource> domainResource;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -92,7 +92,7 @@ public class Style implements XMLElement {
      *
      * @param newUrl String representing the URL the old URL has to be replaced with.
      */
-    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
+    // <editor-fold defaultstate="" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
         Iterator it;
         //StyleDomainResource:
@@ -110,7 +110,7 @@ public class Style implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         Style cloneStyle            = new Style();
         if (null != this.id) {
@@ -145,7 +145,7 @@ public class Style implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         Element styleElement = doc.createElement("Style");
         if(null != this.getName()) {

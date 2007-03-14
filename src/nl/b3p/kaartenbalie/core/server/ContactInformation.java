@@ -34,7 +34,7 @@ public class ContactInformation implements XMLElement {
     
     /** default ContactInformation() constructor.
      */
-    // <editor-fold defaultstate="collapsed" desc="default ContactInformation() constructor">
+    // <editor-fold defaultstate="" desc="default ContactInformation() constructor">
     public ContactInformation() {
         contactPerson = "Chris van Lith";
         contactPosition = "Software Developer";
@@ -51,7 +51,7 @@ public class ContactInformation implements XMLElement {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -182,7 +182,7 @@ public class ContactInformation implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         ContactInformation cloneCI      = new ContactInformation();
         if (null != this.id) {
@@ -235,7 +235,7 @@ public class ContactInformation implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         
         Element contactElement = doc.createElement("ContactInformation");

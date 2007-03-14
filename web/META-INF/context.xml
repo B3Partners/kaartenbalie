@@ -16,9 +16,21 @@
             minEvictableIdleTimeMillis="10000"
             timeBetweenEvictionRunsMillis="60000"
     />
-    -->
-
-	<!-- Config voor MNP productie, Tomcat 5.0 -->
+   -->
+    <Resource
+            name="jdbc/kaartenbalie"
+            type="javax.sql.DataSource"
+            driverClassName="com.mysql.jdbc.Driver"
+            password="kaartenbalie"
+            maxIdle="30"
+            maxWait="5000"
+            validationQuery="select now();"
+            username="kaartenbalie"
+            url="jdbc:mysql://b3p-nando:3306/kaartenbalie"
+            maxActive="100"
+    />
+ 
+	<!-- Config voor MNP productie, Tomcat 5.0 
 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
@@ -66,5 +78,5 @@
 		<value>SELECT 1</value>
 	</parameter>
 	</ResourceParams>
-
+-->
 </Context>

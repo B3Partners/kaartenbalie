@@ -22,7 +22,7 @@ public class Switcher implements ContentHandler {
      * @param name String representing the name of the TAG to handle
      * @param handler String representing the name of the handler to handle this TAG
      */
-    // <editor-fold defaultstate="collapsed" desc="setElementHandler(String name, ElementHandler handler) method.">
+    // <editor-fold defaultstate="" desc="setElementHandler(String name, ElementHandler handler) method.">
     public void setElementHandler(String name, ElementHandler handler) {
         rules.put(name, handler);
     }
@@ -37,7 +37,7 @@ public class Switcher implements ContentHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="startElement (String uri, String localName, String qName, Attributes atts) method.">
+    // <editor-fold defaultstate="" desc="startElement (String uri, String localName, String qName, Attributes atts) method.">
     public void startElement (String uri, String localName, String qName, Attributes atts) throws SAXException {
         ElementHandler handler = (ElementHandler)rules.get(localName);
         stack.push(handler);
@@ -56,7 +56,7 @@ public class Switcher implements ContentHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="endElement (String uri, String localName, String qName) method.">
+    // <editor-fold defaultstate="" desc="endElement (String uri, String localName, String qName) method.">
     public void endElement (String uri, String localName, String qName) throws SAXException {
         ElementHandler handler = (ElementHandler)stack.pop();
         if (handler!=null) {
@@ -73,7 +73,7 @@ public class Switcher implements ContentHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="characters (char[] ch, int start, int length) method.">
+    // <editor-fold defaultstate="" desc="characters (char[] ch, int start, int length) method.">
     public void characters (char[] ch, int start, int length) throws SAXException {
         ElementHandler handler = (ElementHandler)stack.peek();
         if (handler!=null) {
@@ -83,7 +83,7 @@ public class Switcher implements ContentHandler {
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Methods overriding the methods declared in the interface.">
+    // <editor-fold defaultstate="" desc="Methods overriding the methods declared in the interface.">
     public void skippedEntity (String name) throws SAXException {}
     
     public void setDocumentLocator (Locator locator) {}

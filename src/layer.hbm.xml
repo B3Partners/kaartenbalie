@@ -87,17 +87,10 @@
         
         
         
-        <set name="srs" inverse="true" cascade="all" lazy="false" >
+        <set name="srsbb" inverse="true" cascade="all" lazy="false" >
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.SRS"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.SrsBoundingBox"/>
         </set>
-        
-        <one-to-one name="latLonBoundingBox"
-                    class="nl.b3p.kaartenbalie.core.server.LatLonBoundingBox"
-                    cascade="all"    
-                    fetch="join"
-                    lazy="false"
-        />
         
         <one-to-one name="attribution"
                     class="nl.b3p.kaartenbalie.core.server.Attribution"

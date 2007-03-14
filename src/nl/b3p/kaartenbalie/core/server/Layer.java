@@ -10,6 +10,7 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -38,7 +39,6 @@ public class Layer implements XMLElement {
     private String scaleHintMax;
     private Attribution attribution;// = new Attribution();
     private Layer parent;
-    private LatLonBoundingBox latLonBoundingBox;// = new LatLonBoundingBox();
     private ServiceProvider serviceProvider;// = new ServiceProvider();
     private Set <Dimensions> dimensions;
     private Set <String> layerKeywordList;
@@ -46,10 +46,10 @@ public class Layer implements XMLElement {
     private Set <LayerDomainResource >domainResource;
     private Set <Identifier> identifiers;
     private Set <OrganizationLayer> organizationLayers;
-    private Set <SRS> srs;
+    private Set <SrsBoundingBox> srsbb;
     private Set <Layer> layers;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -255,19 +255,19 @@ public class Layer implements XMLElement {
         this.organizationLayers = organizationLayers;
     }
     
-    public Set getSrs() {
-        return srs;
+    public Set getSrsbb() {
+        return srsbb;
     }
     
-    public void setSrs(Set <SRS> srs) {
-        this.srs = srs;
+    public void setSrsbb(Set <SrsBoundingBox> srsbb) {
+        this.srsbb = srsbb;
     }
     
-    public void addSrs(SRS s) {
-        if(null == srs) {
-            srs = new HashSet <SRS>();
+    public void addSrsbb(SrsBoundingBox s) {
+        if(null == srsbb) {
+            srsbb = new HashSet <SrsBoundingBox>();
         }
-        srs.add(s);
+        srsbb.add(s);
         s.setLayer(this);
     }
     
@@ -287,17 +287,6 @@ public class Layer implements XMLElement {
         layer.setParent(this);
         //layer.setServiceProvider(serviceProvider);
         //layer.setStyles(styles);
-    }
-    
-    public LatLonBoundingBox getLatLonBoundingBox() {
-        return latLonBoundingBox;
-    }
-    
-    public void setLatLonBoundingBox(LatLonBoundingBox latLonBoundingBox) {
-        this.latLonBoundingBox = latLonBoundingBox;
-        if(null != latLonBoundingBox) {
-            latLonBoundingBox.setLayer(this);
-        }
     }
     
     public Attribution getAttribution() {
@@ -320,7 +309,7 @@ public class Layer implements XMLElement {
      *
      * @param l Layer objectfrom which the information has to be cloned.
      */
-    // <editor-fold defaultstate="collapsed" desc="shallowClone(Layer l) method">
+    // <editor-fold defaultstate="" desc="shallowClone(Layer l) method">
     public void shallowClone(Layer l) {
         this.id = l.id;
         this.title = l.title;
@@ -334,7 +323,7 @@ public class Layer implements XMLElement {
      *
      * @param newUrl String representing the URL the old URL has to be replaced with.
      */
-    // <editor-fold defaultstate="collapsed" desc="overwriteURL(String newUrl) method">
+    // <editor-fold defaultstate="" desc="overwriteURL(String newUrl) method">
     protected void overwriteURL(String newUrl) {
         Iterator it;
         //Layers:
@@ -370,7 +359,7 @@ public class Layer implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         Layer cloneLayer                    = new Layer();
         if (null != this.id) {
@@ -412,9 +401,6 @@ public class Layer implements XMLElement {
         if (null != this.attribution) {
             cloneLayer.attribution          = (Attribution)this.attribution.clone();
             cloneLayer.attribution.setLayer(cloneLayer);
-        }
-        if (null != this.latLonBoundingBox) {
-            cloneLayer.latLonBoundingBox    = (LatLonBoundingBox)this.latLonBoundingBox.clone();
         }
         if (null != this.dimensions) {
             cloneLayer.dimensions           = new HashSet <Dimensions>();
@@ -458,13 +444,13 @@ public class Layer implements XMLElement {
         if (null != this.organizationLayers) {
             cloneLayer.organizationLayers   = new HashSet <OrganizationLayer>(this.organizationLayers);
         }
-        if (null != this.srs) {
-            cloneLayer.srs                  = new HashSet <SRS>(this.srs);
-            Iterator it = this.srs.iterator();
+        if (null != srsbb) {
+            cloneLayer.srsbb = new HashSet <SrsBoundingBox>(this.srsbb);
+            Iterator it = srsbb.iterator();
             while (it.hasNext()) {
-                SRS s = (SRS)((SRS)it.next()).clone();
+                SrsBoundingBox s = (SrsBoundingBox)((SrsBoundingBox)it.next()).clone();
                 s.setLayer(cloneLayer);
-                cloneLayer.srs.add(s);
+                cloneLayer.srsbb.add(s);
             }
         }
         if (null != this.layers) {
@@ -487,7 +473,7 @@ public class Layer implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         
         Element layerElement = doc.createElement("Layer");
@@ -558,17 +544,45 @@ public class Layer implements XMLElement {
             layerElement.appendChild(keywordListElement);
         }
         
-        
-        if(null != this.getSrs() && this.getSrs().size() != 0) {
-            Iterator it = srs.iterator();
+        ArrayList hlist = null;
+        Hashtable srshash = new Hashtable();
+        SrsBoundingBox srsbb = null;
+        if(null != this.getSrsbb() && this.getSrsbb().size() != 0) {
+            Iterator it = this.getSrsbb().iterator();
             while (it.hasNext()) {
-                SRS s = (SRS)it.next();
-                layerElement = s.toElement(doc, layerElement);
+                srsbb = (SrsBoundingBox)it.next();
+                if (srsbb.getType()==null)
+                    continue;
+                hlist = (ArrayList) srshash.get(srsbb.getType());
+                if (hlist==null)
+                    hlist = new ArrayList();
+                hlist.add(srsbb);
+                srshash.put(srsbb.getType(),hlist);
             }
         }
-        
-        if(null != this.getLatLonBoundingBox()) {
-            layerElement = this.getLatLonBoundingBox().toElement(doc, layerElement);
+        hlist = (ArrayList) srshash.get("SRS");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                srsbb = (SrsBoundingBox) it.next();
+                layerElement = srsbb.toElement(doc, layerElement);
+            }
+        }
+        hlist = (ArrayList) srshash.get("LatLonBoundingBox");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            if (it.hasNext()) { // max 1 latlon box
+                srsbb = (SrsBoundingBox) it.next();
+                layerElement = srsbb.toElement(doc, layerElement);
+            }
+        }
+        hlist = (ArrayList) srshash.get("BoundingBox");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                srsbb = (SrsBoundingBox) it.next();
+                layerElement = srsbb.toElement(doc, layerElement);
+            }
         }
         
         if(null != this.getDimensions() && this.getDimensions().size() != 0) {
@@ -591,23 +605,22 @@ public class Layer implements XMLElement {
                 ldr = (LayerDomainResource)it.next();
                 if (ldr.getDomain()==null)
                     continue;
-                else if (ldr.getDomain().equalsIgnoreCase("AuthorityURL")) {
-                    ldrhash.put("GetCapabilities",ldr);
-                } else if (ldr.getDomain().equalsIgnoreCase("MetadataURL")) {
-                    ldrhash.put("GetMap",ldr);
-                } else if (ldr.getDomain().equalsIgnoreCase("DataURL")) {
-                    ldrhash.put("GetFeatureInfo",ldr);
-                } else if (ldr.getDomain().equalsIgnoreCase("FeatureListURL")) {
-                    ldrhash.put("DescribeLayer",ldr);
-                } else {
-                    continue;
-                }
+                hlist = (ArrayList) ldrhash.get(ldr.getDomain());
+                if (hlist==null)
+                    hlist = new ArrayList();
+                hlist.add(ldr);
+                ldrhash.put(ldr.getDomain(),hlist);
             }
         }
         
-        ldr = (LayerDomainResource) ldrhash.get("AuthorityURL");
-        if (ldr!=null)
-            layerElement = ldr.toElement(doc, layerElement);
+        hlist = (ArrayList) srshash.get("AuthorityURL");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                ldr = (LayerDomainResource) it.next();
+                layerElement = ldr.toElement(doc, layerElement);
+            }
+        }
         
         if(null != this.getIdentifiers() && this.getIdentifiers().size() != 0) {
             Iterator it = identifiers.iterator();
@@ -617,17 +630,32 @@ public class Layer implements XMLElement {
             }
         }
         
-        ldr = (LayerDomainResource) ldrhash.get("MetadataURL");
-        if (ldr!=null)
-            layerElement = ldr.toElement(doc, layerElement);
+        hlist = (ArrayList) srshash.get("MetadataURL");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                ldr = (LayerDomainResource) it.next();
+                layerElement = ldr.toElement(doc, layerElement);
+            }
+        }
         
-        ldr = (LayerDomainResource) ldrhash.get("DataURL");
-        if (ldr!=null)
-            layerElement = ldr.toElement(doc, layerElement);
+        hlist = (ArrayList) srshash.get("DataURL");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                ldr = (LayerDomainResource) it.next();
+                layerElement = ldr.toElement(doc, layerElement);
+            }
+        }
         
-        ldr = (LayerDomainResource) ldrhash.get("FeatureListURL");
-        if (ldr!=null)
-            layerElement = ldr.toElement(doc, layerElement);
+        hlist = (ArrayList) srshash.get("FeatureListURL");
+        if (hlist!=null && !hlist.isEmpty()) {
+            Iterator it = hlist.iterator();
+            while (it.hasNext()) {
+                ldr = (LayerDomainResource) it.next();
+                layerElement = ldr.toElement(doc, layerElement);
+            }
+        }
         
         if(null != this.getStyles() && this.getStyles().size() != 0) {
             Iterator it = styles.iterator();

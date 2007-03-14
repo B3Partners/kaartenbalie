@@ -23,7 +23,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     
-    // <editor-fold defaultstate="collapsed" desc="default GetFeatureInfoRequestHandler() constructor.">
+    // <editor-fold defaultstate="" desc="default GetFeatureInfoRequestHandler() constructor.">
     public GetFeatureInfoRequestHandler() {}
     // </editor-fold>
     
@@ -34,7 +34,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);

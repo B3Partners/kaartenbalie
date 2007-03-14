@@ -77,7 +77,7 @@ public class FlamingoMap {
     
     
     /*Getters and setters*/
-    //<editor-fold defaultstate="collapsed">
+    //<editor-fold defaultstate="">
     public Integer getId() {
         return id;
     }

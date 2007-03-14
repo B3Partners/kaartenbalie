@@ -25,7 +25,7 @@ public class Attribution implements XMLElement {
     private String logoHeight;
     private Layer layer;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }
@@ -95,7 +95,7 @@ public class Attribution implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
         Attribution cloneAtt        = new Attribution();
         if (null != this.id) {
@@ -130,7 +130,7 @@ public class Attribution implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         Element attributionElement = doc.createElement("Attribution");
         

@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface KBConstants {
-    // <editor-fold defaultstate="collapsed" desc="Predefined Strings for CapabilityRequest">
+    // <editor-fold defaultstate="" desc="Predefined Strings for CapabilityRequest">
     public static final String SERVICE_NAME = "OGC:WMS";
     public static final String SERVICE_TITLE = "Kaartenbalie Map Portal";
     public static final String SERVICE_ABSTRACT = "WMS-based access to different maps. Try B3Partners Portal System at http://www.b3p.nl/";
@@ -35,7 +35,7 @@ public interface KBConstants {
     public static final String TOPLAYERNAME = "B3P_Kaartenbalie";
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Predefined static final strings ">
+    // <editor-fold defaultstate="" desc="Predefined static final strings ">
     public static final String KB_USER = "user" ;
     public static final String KB_PERSONAL_URL = "personalURL" ;
     
@@ -93,7 +93,7 @@ public interface KBConstants {
     public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="List with essential parameters per wms service.">
+    // <editor-fold defaultstate="" desc="List with essential parameters per wms service.">
     /**
      * List with essential parameters per wms service.
      */
@@ -151,7 +151,7 @@ public interface KBConstants {
     });
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="List with implemented requests.">
+    // <editor-fold defaultstate="" desc="List with implemented requests.">
     /**
      * List with implemented requests.
      */
@@ -166,7 +166,7 @@ public interface KBConstants {
     });
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="List with implemented services.">
+    // <editor-fold defaultstate="" desc="List with implemented services.">
     /**
      * List with implemented services.
      */
@@ -175,7 +175,7 @@ public interface KBConstants {
     });
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="List with implemented versions.">
+    // <editor-fold defaultstate="" desc="List with implemented versions.">
     /**
      * List with implemented versions.
      */
@@ -184,7 +184,7 @@ public interface KBConstants {
     });
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="List with implemented exceptions.">
+    // <editor-fold defaultstate="" desc="List with implemented exceptions.">
     /**
      * List with implemented exceptions.
      */

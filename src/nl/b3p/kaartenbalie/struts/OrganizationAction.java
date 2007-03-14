@@ -10,7 +10,6 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,21 +21,16 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
 import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.validator.Form;
-
-import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +52,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         Organization organization = this.getOrganization(dynaForm, request, false, id);
@@ -96,7 +90,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Organization object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         Organization organization = null;
@@ -121,7 +115,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="collapsed" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("name", organization.getName());
         dynaForm.set("organizationStreet", organization.getStreet());
@@ -147,7 +141,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param layerList List with all the layers
      * @param layerSelected String array with the selected layers for this organization
      */
-    // <editor-fold defaultstate="collapsed" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
+    // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {// List layerList, String layerSelected) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
@@ -163,7 +157,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
         
         List layerList = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.latLonBoundingBox left join fetch l.attribution").list();
+                "from Layer l left join fetch l.attribution").list();
         
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
@@ -225,12 +219,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return the same set Set <Layer> as given.
      */
-    // <editor-fold defaultstate="collapsed" desc="getTopSRS(Layer layer) method.">
-    private Set <SRS> getTopSRS(Layer layer) {
+    // <editor-fold defaultstate="" desc="getTopSRS(Layer layer) method.">
+    private Set <SrsBoundingBox> getTopSRS(Layer layer) {
         if(layer.getParent() != null) {
             this.getTopSRS(layer.getParent());
         }
-        return layer.getSrs();
+        return layer.getSrsbb();
     }
     // </editor-fold>
     
@@ -242,7 +236,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return the same set Set <Layer> as given.
      */
-    // <editor-fold defaultstate="collapsed" desc="getTopLayer(Layer layer) method.">
+    // <editor-fold defaultstate="" desc="getTopLayer(Layer layer) method.">
     private Layer getTopLayer(Layer layer) {
         if(layer.getParent() != null) {
             this.getTopLayer(layer.getParent());
@@ -264,7 +258,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return the same set Set <Layer> as given.
      */
-    // <editor-fold defaultstate="collapsed" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
+    // <editor-fold defaultstate="" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
     private Set <Layer> getAllParentLayers(Layer layer, Set <Layer> layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
@@ -283,7 +277,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
@@ -323,7 +317,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
+    // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its functionality is to create a list of layers
          * in a tree like array which can be used to build up a menu structure. 
@@ -373,7 +367,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
     private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
@@ -391,7 +385,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="layerToJSON(Layer layer) method.">
+    // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getId() + "_" + layer.getName());
@@ -412,7 +406,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         //String layerSelected = dynaForm.getString("layerSelected");
@@ -490,7 +484,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;

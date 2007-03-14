@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class DescribeLayerRequestHandler extends WMSRequestHandler {
     
-    // <editor-fold defaultstate="collapsed" desc="default DescribeLayerRequestHandler() constructor">
+    // <editor-fold defaultstate="" desc="default DescribeLayerRequestHandler() constructor">
     public DescribeLayerRequestHandler() {
     }
     // </editor-fold>
@@ -29,7 +29,7 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         return null;
     }

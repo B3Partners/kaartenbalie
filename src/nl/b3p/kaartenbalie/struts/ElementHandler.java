@@ -24,7 +24,7 @@ public class ElementHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="startElement (String uri, String localName, String qName, Attributes atts) method.">
+    // <editor-fold defaultstate="" desc="startElement (String uri, String localName, String qName, Attributes atts) method.">
     public void startElement (String uri, String localName, String qName, Attributes atts) throws SAXException {}
     // </editor-fold>
     
@@ -36,7 +36,7 @@ public class ElementHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="endElement (String uri, String localName, String qName) method.">
+    // <editor-fold defaultstate="" desc="endElement (String uri, String localName, String qName) method.">
     public void endElement (String uri, String localName, String qName) throws SAXException {}
     // </editor-fold>
     
@@ -48,7 +48,7 @@ public class ElementHandler {
      *
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="characters (char[] ch, int start, int length) method.">
+    // <editor-fold defaultstate="" desc="characters (char[] ch, int start, int length) method.">
     public void characters (char[] ch, int start, int length) throws SAXException {}
     // </editor-fold>
 }

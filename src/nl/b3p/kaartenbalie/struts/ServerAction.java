@@ -11,14 +11,11 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
-import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
@@ -41,7 +38,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         ServiceProvider serviceProvider = this.getServiceProvider(dynaForm, request, false, id);
@@ -62,7 +59,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @return a service provider object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         ServiceProvider serviceProvider = null;
@@ -82,7 +79,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="collapsed" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", serviceProvider.getId().toString());
         dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
@@ -99,7 +96,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
@@ -113,7 +110,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param serviceProvider ServiceProvider object that to be filled
      */
-    // <editor-fold defaultstate="collapsed" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
         //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
@@ -135,7 +132,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         if (!isTokenValid(request)) {
@@ -217,7 +214,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         String [] serviceProviderSelected = dynaForm.getStrings("serviceProviderSelected");

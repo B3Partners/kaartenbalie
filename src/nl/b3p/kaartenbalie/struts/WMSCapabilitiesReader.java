@@ -71,7 +71,7 @@ public class WMSCapabilitiesReader {
      *
      * @param serviceProvider ServiceProvider object in which all information has to be saved.
      */
-    // <editor-fold defaultstate="collapsed" desc="WMSCapabilitiesReader(ServiceProvider serviceProvider) constructor.">
+    // <editor-fold defaultstate="" desc="WMSCapabilitiesReader(ServiceProvider serviceProvider) constructor.">
     public WMSCapabilitiesReader(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         this.setElementHandlers();
@@ -87,7 +87,7 @@ public class WMSCapabilitiesReader {
      * @throws IOException
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="getProvider(String location) method.">
+    // <editor-fold defaultstate="" desc="getProvider(String location) method.">
     public ServiceProvider getProvider(String location) throws IOException, SAXException {
         //call a validator for the file
         //this.validate(location);
@@ -107,7 +107,7 @@ public class WMSCapabilitiesReader {
      * @throws IOException
      * @throws SAXException
      */
-    // <editor-fold defaultstate="collapsed" desc="validate(String location) method.">
+    // <editor-fold defaultstate="" desc="validate(String location) method.">
     private void validate(String location) throws IOException, SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(SCHEMA_FACTORY);
         File schemaLocation = new File(SCHEMA_FILE);
@@ -120,10 +120,10 @@ public class WMSCapabilitiesReader {
     // </editor-fold>
     
     /** Private method which initializes all the elementhandlers.
-     * Each element in the xml document has to be treated in its own way therefore each element has its 
+     * Each element in the xml document has to be treated in its own way therefore each element has its
      * own handler which controls the actions to be taken if an element of a certain kind is found.
      */
-    // <editor-fold defaultstate="collapsed" desc="setElementHandlers() method.">
+    // <editor-fold defaultstate="" desc="setElementHandlers() method.">
     private void setElementHandlers() {
         s = new Switcher();
         s.setElementHandler("WMT_MS_Capabilities", new WMTHandler());
@@ -171,8 +171,8 @@ public class WMSCapabilitiesReader {
         s.setElementHandler("Post", new PostHandler());
         s.setElementHandler("HTTP", new HTTPHandler());
         s.setElementHandler("PutStyles", new PutStylesHandler());
-        s.setElementHandler("LatLonBoundingBox", new LatLonBoundingBoxHandler());
         s.setElementHandler("BoundingBox", new BoundingBoxHandler());
+        s.setElementHandler("LatLonBoundingBox", new LatLonBoundingBoxHandler());
         s.setElementHandler("Dimension", new DimensionHandler());
         s.setElementHandler("Extent", new ExtentHandler());
         s.setElementHandler("AuthorityURL", new AuthorityURLHandler());
@@ -197,20 +197,20 @@ public class WMSCapabilitiesReader {
      * Each element is passed to it's own handler which takes action on its own and
      * gives control back immediatly after its action
      */
-    // <editor-fold defaultstate="collapsed" desc="Defined Handlers.">
+    // <editor-fold defaultstate="" desc="Defined Handlers.">
     private class WMTHandler extends ElementHandler {
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             stack.push(serviceProvider);
-        }        
+        }
         public void endElement(String uri, String localName, String qName) {
-        	serviceProvider = (ServiceProvider) stack.pop();
+            serviceProvider = (ServiceProvider) stack.pop();
         }
     }
     
     private class ServiceHandler extends ElementHandler {
-        public void startElement(String uri, String localName, String qName, Attributes atts) {}        
+        public void startElement(String uri, String localName, String qName, Attributes atts) {}
         public void endElement(String uri, String localName, String qName) {
-        	
+            
         }
     }
     
@@ -441,101 +441,61 @@ public class WMSCapabilitiesReader {
             } else if (object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
                 serviceProvider.addException(new String(chars, start, len));
-            }                
+            }
         }
     }
     
     private class SRSHandler extends ElementHandler {
         public void characters(char[] chars, int start, int len) {
-            //System.out.println("In SRSHandler");
-            SRS srs = new SRS();
+            SrsBoundingBox srsbb = new SrsBoundingBox();
             Object object = stack.peek();
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
-                srs.setSrs(new String(chars, start, len));
-                layer.addSrs(srs);
+                srsbb.setSrs(new String(chars, start, len));
+                layer.addSrsbb(srsbb);
             }
         }
     }
     
     //Begin part of layer
-    private class LatLonBoundingBoxHandler extends ElementHandler {
-        public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            LatLonBoundingBox latLonBoundingBox = new LatLonBoundingBox();
-            String minx = attributes.getValue("minx");
-            String miny = attributes.getValue("miny");
-            String maxx = attributes.getValue("maxx");
-            String maxy = attributes.getValue("maxy");
-            latLonBoundingBox.setMinx(minx);
-            latLonBoundingBox.setMiny(miny);
-            latLonBoundingBox.setMaxx(maxx);
-            latLonBoundingBox.setMaxy(maxy);
-            stack.push(latLonBoundingBox);
-        }
-        
-        public void endElement(String uri, String localName, String qName) {
-            LatLonBoundingBox latLonBoundingBox = (LatLonBoundingBox) stack.pop();
-            Object object = stack.peek();
-            if(object instanceof Layer) {
-                Layer layer = (Layer) object;
-                layer.setLatLonBoundingBox(latLonBoundingBox);
-            }
-        }
-    }
     
     private class BoundingBoxHandler extends ElementHandler {
         //instance of Layer
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            //System.out.println("In BoundingBoxHandler");
             Object object = stack.peek();
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
-//                boolean found = false;
+                SrsBoundingBox srsbb = new SrsBoundingBox();
+                srsbb.setSrs(attributes.getValue("SRS"));
+                srsbb.setMinx(attributes.getValue("minx"));
+                srsbb.setMiny(attributes.getValue("miny"));
+                srsbb.setMaxx(attributes.getValue("maxx"));
+                srsbb.setMaxy(attributes.getValue("maxy"));
+                srsbb.setResx(attributes.getValue("resx"));
+                srsbb.setResy(attributes.getValue("resy"));
+                srsbb.setLayer(layer);
+                layer.addSrsbb(srsbb);
                 
-                String srs  = attributes.getValue("SRS");
-                String minx = attributes.getValue("minx");
-                String miny = attributes.getValue("miny");
-                String maxx = attributes.getValue("maxx");
-                String maxy = attributes.getValue("maxy");
-                String resx = attributes.getValue("resx");
-                String resy = attributes.getValue("resy");
-/*                
-                Set srses = layer.getSrs();
-                Iterator it = srses.iterator();
-                while (it.hasNext()) {
-                    // Get element
-                    SRS element = (SRS)it.next();
-                    if ((element.getSrs()).equals(srs)) {
-                        element.setMinx(minx);
-                        element.setMiny(miny);
-                        element.setMaxx(maxx);
-                        element.setMaxy(maxy);
-                        element.setResx(resx);
-                        element.setResy(resy);
-                        element.setLayer(layer);
-                        srses.remove(element);
-                        srses.add(element);
-                        found = true;
-                        break;
-                    }
-                }
-                
-                if(!found) { */
-                    SRS element = new SRS();
-                    element.setSrs(srs);
-                    element.setMinx(minx);
-                    element.setMiny(miny);
-                    element.setMaxx(maxx);
-                    element.setMaxy(maxy);
-                    element.setResx(resx);
-                    element.setResy(resy);
-                    element.setLayer(layer);
-              //      srses.add(element);
-              //  }
-                
-              //  layer.setSrs(srses);
-                layer.addSrs(element);
- 
+            }
+        }
+        
+        public void endElement(String uri, String localName, String qName) {}
+    }
+    
+    private class LatLonBoundingBoxHandler extends ElementHandler {
+        //instance of Layer
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            Object object = stack.peek();
+            if(object instanceof Layer) {
+                Layer layer = (Layer) object;
+                SrsBoundingBox srsbb = new SrsBoundingBox();
+                srsbb.setSrs("EPSG:4326");
+                srsbb.setMinx(attributes.getValue("minx"));
+                srsbb.setMiny(attributes.getValue("miny"));
+                srsbb.setMaxx(attributes.getValue("maxx"));
+                srsbb.setMaxy(attributes.getValue("maxy"));
+                srsbb.setLayer(layer);
+                layer.addSrsbb(srsbb);
             }
         }
         
@@ -820,7 +780,7 @@ public class WMSCapabilitiesReader {
             sb = new StringBuffer();
         }
         
-        public void characters(char[] chars, int start, int len) {            
+        public void characters(char[] chars, int start, int len) {
             sb.append(chars, start, len);
         }
         
@@ -843,7 +803,7 @@ public class WMSCapabilitiesReader {
                 String s = new String(chars);
                 System.out.println("Chars info is : " + s);
                 //----------------------------------------------------------------------
-                */
+                 */
             } else if (object instanceof Attribution) {
                 Attribution attribution = (Attribution) object;
                 attribution.setTitle(sb.toString());

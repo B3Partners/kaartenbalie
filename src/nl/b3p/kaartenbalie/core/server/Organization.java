@@ -35,7 +35,7 @@ public class Organization {
     private Set <Layer> organizationLayer;
     private boolean hasValidGetCapabilities;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
     }

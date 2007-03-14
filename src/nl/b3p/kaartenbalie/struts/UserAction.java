@@ -42,7 +42,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         User user = this.getUser(dynaForm,request,false, id);
@@ -63,7 +63,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @return a User object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         User user = null;
@@ -85,7 +85,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @return a Organization object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
+    // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) {
         Session session = getHibernateSession();
         Organization org = null;
@@ -117,7 +117,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="collapsed" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("lastname", user.getLastName());
@@ -136,7 +136,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
@@ -154,7 +154,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param user User object that to be filled.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="collapsed" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
     private void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setLastName(FormUtils.nullIfEmpty(dynaForm.getString("lastname")));
@@ -177,7 +177,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         if (!isTokenValid(request)) {
@@ -247,7 +247,7 @@ public class UserAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         String [] userSelected = dynaForm.getStrings("userSelected");

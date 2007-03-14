@@ -7,7 +7,6 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,13 +14,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
-import nl.b3p.kaartenbalie.core.server.SRS;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.kaartenbalie.service.WMSParamUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

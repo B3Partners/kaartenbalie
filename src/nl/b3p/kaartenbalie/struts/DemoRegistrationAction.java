@@ -16,16 +16,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.SRS;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
@@ -57,7 +52,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //We select here on user id's...
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
@@ -83,7 +78,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      *
      * @return a User object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
         Session session = getHibernateSession();
         User user = null;
@@ -103,7 +98,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="collapsed" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateRegistrationForm(User user, Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", user.getId().toString());
         dynaForm.set("firstname", user.getFirstName());
@@ -134,7 +129,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param serviceProvider ServiceProvider object that to be filled
      */
-    // <editor-fold defaultstate="collapsed" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     private void populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setLastName(FormUtils.nullIfEmpty(dynaForm.getString("lastname")));
@@ -186,7 +181,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if invalid
         if (!isTokenValid(request)) {
@@ -287,7 +282,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     /*
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         

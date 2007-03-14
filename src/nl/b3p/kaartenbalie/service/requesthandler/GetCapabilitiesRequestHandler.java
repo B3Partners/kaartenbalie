@@ -42,7 +42,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     
     private static final Log log = LogFactory.getLog(GetCapabilitiesRequestHandler.class);
     
-    // <editor-fold defaultstate="collapsed" desc="default GetCapabilitiesRequestHandler() constructor.">
+    // <editor-fold defaultstate="" desc="default GetCapabilitiesRequestHandler() constructor.">
     public GetCapabilitiesRequestHandler() {}
     // </editor-fold>
     
@@ -56,7 +56,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
      * @throws IOException
      * @exception ParserConfigurationException
      */
-    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);

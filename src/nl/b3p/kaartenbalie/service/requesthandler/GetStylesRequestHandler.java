@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class GetStylesRequestHandler extends WMSRequestHandler {
     
-    // <editor-fold defaultstate="collapsed" desc="default GetStylesRequestHandler() constructor.">
+    // <editor-fold defaultstate="" desc="default GetStylesRequestHandler() constructor.">
     public GetStylesRequestHandler() {}
     // </editor-fold>
     
@@ -28,7 +28,7 @@ public class GetStylesRequestHandler extends WMSRequestHandler {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="collapsed" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public byte[] getRequest(Map <String, Object> parameters) throws IOException {
         return null;
     }

@@ -58,7 +58,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -84,7 +84,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         User user = (User) request.getUserPrincipal();
@@ -120,7 +120,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
+    // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its functionality is to create a list of layers
          * in a tree like array which can be used to build up a menu structure. 
@@ -181,7 +181,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @return boolean
      */
-    // <editor-fold defaultstate="collapsed" desc="hasVisibility(Layer layer, Set orgLayers) method.">
+    // <editor-fold defaultstate="" desc="hasVisibility(Layer layer, Set orgLayers) method.">
     private boolean hasVisibility(Layer layer, Set organizationLayers) {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
@@ -203,7 +203,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
     private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
@@ -221,7 +221,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="collapsed" desc="layerToJSON(Layer layer) method.">
+    // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getId() + "_" + layer.getName());
@@ -252,7 +252,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String [] selectedLayers = dynaForm.getStrings("selectedLayers");
         int size = selectedLayers.length;
@@ -277,7 +277,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      * @param layers A set of layers where has to be stepped through.
      * @param id Integer of the id the walkthrough has to begin from.
      */
-    // <editor-fold defaultstate="collapsed" desc="walkThroughLayers(Set layers, int id) method.">
+    // <editor-fold defaultstate="" desc="walkThroughLayers(Set layers, int id) method.">
     public void walkThroughLayers(Set <Layer> layers, int id) {
         id++;
         
@@ -303,7 +303,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      * @param l Layer that has to be printed.
      * @param depth Integer representing the depth of this specific layer in the tree.
      */
-    // <editor-fold defaultstate="collapsed" desc="printLayer(Layer l, int depth) method.">
+    // <editor-fold defaultstate="" desc="printLayer(Layer l, int depth) method.">
     private static void printLayer(Layer l, int depth) {
         String s = "";
         for (int i = 0; i < depth; i++) {
@@ -325,7 +325,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      *
      * @return a string representing the name of the layer that matched the search.
      */
-    // <editor-fold defaultstate="collapsed" desc="findLayer(List layers, String l) method.">
+    // <editor-fold defaultstate="" desc="findLayer(List layers, String l) method.">
     private String findLayer(List layers, String l) {
         String found = null;
         if(null != layers) {

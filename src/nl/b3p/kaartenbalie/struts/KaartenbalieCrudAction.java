@@ -31,7 +31,7 @@ public class KaartenbalieCrudAction extends CrudAction{
      *
      * @return the current Hibernate Session
      */
-    // <editor-fold defaultstate="collapsed" desc="getHibernateSession() method.">
+    // <editor-fold defaultstate="" desc="getHibernateSession() method.">
     protected Session getHibernateSession() {
         return MyDatabase.currentSession();
     }
@@ -48,7 +48,7 @@ public class KaartenbalieCrudAction extends CrudAction{
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws Exception {
         

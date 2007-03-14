@@ -1,9 +1,9 @@
 /**
- * @(#)SRS.java
+ * @(#)SrsBoundingBox.java
  * @author N. de Goeij
  * @version 1.00 2006/10/11
  *
- * Purpose: Bean representing a SRS.
+ * Purpose: Bean representing a SRS or Bounding Box.
  *
  * @copyright 2007 All rights reserved. B3Partners
  */
@@ -18,7 +18,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-public class SRS implements XMLElement {
+public class SrsBoundingBox implements XMLElement {
     
     private Integer id;
     private String srs;
@@ -30,8 +30,8 @@ public class SRS implements XMLElement {
     private String resy;
     private Layer layer;
     
-    // <editor-fold defaultstate="collapsed" desc="getter and setter methods.">
-    public SRS() {
+    // <editor-fold defaultstate="" desc="getter and setter methods.">
+    public SrsBoundingBox() {
         //       srsen.add(this);
     }
     
@@ -112,9 +112,9 @@ public class SRS implements XMLElement {
      *
      * @return an object of type Object
      */
-    // <editor-fold defaultstate="collapsed" desc="clone() method">
+    // <editor-fold defaultstate="" desc="clone() method">
     public Object clone() {
-        SRS cloneSrs   = new SRS();
+        SrsBoundingBox cloneSrs   = new SrsBoundingBox();
         if (null != this.id) {
             cloneSrs.id    = new Integer(this.id);
         }
@@ -140,6 +140,17 @@ public class SRS implements XMLElement {
     }
     // </editor-fold>
     
+    
+    public String getType() {
+        if (getSrs()==null)
+            return null;
+        if (getMinx()==null && getMiny()==null &&  getMaxx()==null &&  getMaxy()==null)
+            return "SRS";
+        if (getSrs().trim().equalsIgnoreCase("EPSG:4326"))
+            return "LatLonBoundingBox";
+        return "BoundingBox";
+    }
+    
     /** Method that will create piece of the XML tree to create a proper XML docuement.
      *
      * @param doc Document object which is being used to create new Elements
@@ -147,18 +158,27 @@ public class SRS implements XMLElement {
      *
      * @return an object of type Element
      */
-    // <editor-fold defaultstate="collapsed" desc="toElement(Document doc, Element rootElement) method">
+    // <editor-fold defaultstate="" desc="toElement(Document doc, Element rootElement) method">
     public Element toElement(Document doc, Element rootElement) {
         
         Element srsBBElement = null;
+        String type = getType();
         
-        if(null != this.getSrs() && null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy()) {
+        if (type.equalsIgnoreCase("SRS")) {
             Element srsElement = doc.createElement("SRS");
             Text text = doc.createTextNode(this.getSrs());
             srsElement.appendChild(text);
             rootElement.appendChild(srsElement);
-        } 
-        if (null != this.getSrs() && !(null == this.getMinx() && null == this.getMiny() && null == this.getMaxx() && null == this.getMaxy())) {
+            
+        } else if (type.equalsIgnoreCase("LatLonBoundingBox")) {
+            Element bbElement = doc.createElement("LatLonBoundingBox");
+            bbElement.setAttribute("minx", this.getMinx());
+            bbElement.setAttribute("miny", this.getMiny());
+            bbElement.setAttribute("maxx", this.getMaxx());
+            bbElement.setAttribute("maxy", this.getMaxy());
+            rootElement.appendChild(bbElement);
+            
+        } else if (type.equalsIgnoreCase("BoundingBox")) {
             Element bbElement = doc.createElement("BoundingBox");
             bbElement.setAttribute("SRS", this.getSrs());
             bbElement.setAttribute("minx", this.getMinx());
@@ -171,8 +191,8 @@ public class SRS implements XMLElement {
                 bbElement.setAttribute("resy", this.getResy());
             }
             rootElement.appendChild(bbElement);
+            
         }
-        
         return rootElement;
     }
     // </editor-fold>

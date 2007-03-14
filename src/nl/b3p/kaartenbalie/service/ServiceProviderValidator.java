@@ -33,7 +33,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a valid ServiceProvider object.
      */
-    // <editor-fold defaultstate="collapsed" desc="ServiceProvider constructor.">
+    // <editor-fold defaultstate="" desc="ServiceProvider constructor.">
     public ServiceProviderValidator(Set <ServiceProvider> serviceProviders) {
         setServiceProviders(serviceProviders);
     }
@@ -44,7 +44,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a valid ServiceProvider object.
      */
-    // <editor-fold defaultstate="collapsed" desc="getValidServiceProvider() method.">
+    // <editor-fold defaultstate="" desc="getValidServiceProvider() method.">
     public ServiceProvider getValidServiceProvider() {
         ServiceProvider newSP = new ServiceProvider();
         this.fillServiceProviderConstants(newSP);
@@ -90,7 +90,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @param serviceProvider The ServiceProvider object that has to be filled.
      */
-    // <editor-fold defaultstate="collapsed" desc="fillServiceProviderConstants(ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="fillServiceProviderConstants(ServiceProvider serviceProvider) method.">
     private void fillServiceProviderConstants(ServiceProvider serviceProvider) {
         serviceProvider.setName(SERVICE_NAME);
         serviceProvider.setTitle(SERVICE_TITLE);
@@ -121,7 +121,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetMap Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateGetMapFormat() method.">
+    // <editor-fold defaultstate="" desc="validateGetMapFormat() method.">
     public boolean validate() {
         return (validateFormats(KBConstants.WMS_REQUEST_GetMap).length > 0) &&
                (validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0) &&
@@ -136,7 +136,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetMap Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateGetMapFormat() method.">
+    // <editor-fold defaultstate="" desc="validateGetMapFormat() method.">
     public boolean validateGetMapFormat() {
         return validateFormats(KBConstants.WMS_REQUEST_GetMap).length > 0;
     }
@@ -147,7 +147,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetCapabilities Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateGetCapabilitiesFormat() method.">
+    // <editor-fold defaultstate="" desc="validateGetCapabilitiesFormat() method.">
     public boolean validateGetCapabilitiesFormat(){
         return validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0;
     }
@@ -158,7 +158,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetFeatureInfo Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateGetFeatureInfoFormat() method.">
+    // <editor-fold defaultstate="" desc="validateGetFeatureInfoFormat() method.">
     public boolean validateGetFeatureInfoFormat(){
         return validateFormats(KBConstants.WMS_REQUEST_GetFeatureInfo).length > 0;
     }
@@ -169,7 +169,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a DescribeLayer Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateDescribeLayerFormat() method.">
+    // <editor-fold defaultstate="" desc="validateDescribeLayerFormat() method.">
     public boolean validateDescribeLayerFormat(){
         return validateFormats(KBConstants.WMS_REQUEST_DescribeLayer).length > 0;
     }
@@ -180,7 +180,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetLegendGraphic Capability.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateGetLegendGraphicFormat() method.">
+    // <editor-fold defaultstate="" desc="validateGetLegendGraphicFormat() method.">
     public boolean validateGetLegendGraphicFormat(){
         return validateFormats(KBConstants.WMS_REQUEST_GetLegendGraphic).length > 0;
     }
@@ -191,7 +191,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return String[] with only the domains supported by all the serviceproviders.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateDomains() method.">
+    // <editor-fold defaultstate="" desc="validateDomains() method.">
     private String[] validateExceptions() {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
@@ -212,7 +212,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return String[] with only the domains supported by all the serviceproviders.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateDomains() method.">
+    // <editor-fold defaultstate="" desc="validateDomains() method.">
     private String[] validateDomains() {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
@@ -236,7 +236,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return String[] with only the formats that are supported by all the serviceproviders.
      */
-    // <editor-fold defaultstate="collapsed" desc="validateFormats(String domain) method.">
+    // <editor-fold defaultstate="" desc="validateFormats(String domain) method.">
     private String[] validateFormats(String domain) {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
@@ -266,7 +266,7 @@ public class ServiceProviderValidator implements KBConstants {
      *
      * @return a String Array with the supported formats.
      */
-    // <editor-fold defaultstate="collapsed" desc="formats(HashMap hashMap) method.">
+    // <editor-fold defaultstate="" desc="formats(HashMap hashMap) method.">
     private String [] formats(HashMap hashMap) {
         ArrayList <String> supportedFormats = new ArrayList <String> ();
         Iterator it = hashMap.entrySet().iterator();
@@ -288,7 +288,7 @@ public class ServiceProviderValidator implements KBConstants {
      * @param results The hashmap that contains the counted values.
      * @param filterValue The value to add to the count.
      */
-    // <editor-fold defaultstate="collapsed" desc="hashmapFilter(HashMap results, String filterValue) method.">
+    // <editor-fold defaultstate="" desc="hashmapFilter(HashMap results, String filterValue) method.">
     private void hashmapFilter(HashMap results, String filterValue){
         if (results.containsKey(filterValue)) {
             int i = ((Integer)results.get(filterValue)).intValue() + 1;
@@ -299,7 +299,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="Getter and setter methods.">
+    //<editor-fold defaultstate="" desc="Getter and setter methods.">
     public Set<ServiceProvider> getServiceProviders() {
         return serviceProviders;
     }
