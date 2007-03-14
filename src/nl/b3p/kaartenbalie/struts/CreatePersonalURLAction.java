@@ -81,6 +81,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
+        if(user.getRegisteredIP()!=null){
+            dynaForm.set("registeredIP",user.getRegisteredIP());
+        }else{
+            dynaForm.set("registeredIP",request.getRemoteAddr());
+        }
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         if (user.getTimeout() != null) {
@@ -141,7 +146,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         //- het password
         //- het ip adres van de gebruiker
         //maak gebruik van request.getRemoteAddr();
-        registeredIP = request.getRemoteAddr();
+        registeredIP = FormUtils.nullIfEmpty(dynaForm.getString("registeredIP"));
         StringBuffer sb = request.getRequestURL();
         //rip off the last two slashes of the URL and fill it up with the right URL
         sb.delete(sb.indexOf("viewer/createPersonalURL.do"), sb.capacity());

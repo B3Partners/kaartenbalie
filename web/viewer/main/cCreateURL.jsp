@@ -28,11 +28,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <!-- the following script defines the Calendar.setup helper function, which makes
    adding a calendar a matter of 1 or 2 lines of code. -->
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"></script>
-
+<c:set var="form" value="${createPersonalURLForm.map}"/>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
-
-<body>
-    <H1>Persoonlijke URL cre&euml;ren</H1>
+    <H1>Persoonlijke URL</H1>
     <P>
     U kunt door middel van deze pagina een persoonlijke URL aanmaken.
     Deze URL stelt u in staat om de verschillende kaarten ook op te vragen met behulp van een externe viewer.
@@ -50,19 +48,20 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     </c:if>
     
 <table>
-    <html:form action="/createPersonalURL">
+    <html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
+    <html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)">
         <tr>
         <td>&nbsp;</td>
         </tr>
         <tr>
-        <td>Gebruikersnaam:</td>
-        <td><html:text property="username" readonly="true" /></td>
+        <td><fmt:message key="viewer.persoonlijkeurl.username"/>:</td>
+        <td><html:text property="username" readonly="true" styleClass="readOnly" /></td>
         </tr>
         <c:if test="${empty changePassword}">
             <tr>
-                <td>Wachtwoord:</td>
+                <td><fmt:message key="viewer.persoonlijkeurl.password"/>:</td>
                 <td>
-                    <html:password property="password" readonly="true" />
+                    <html:password property="password" readonly="true" styleClass="readOnly"/>
                     <html:submit property="create" styleClass="knop">
                         <fmt:message key="button.changepwd"/>
                     </html:submit>
@@ -71,24 +70,24 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         </c:if>
         <c:if test="${!empty changePassword}">
             <tr>
-                <td>Oude Wachtwoord:</td>
+                <td><fmt:message key="viewer.persoonlijkeurl.oudpw"/>:</td>
                 <td><html:password property="password"/></td>
             </tr>
             <tr>
-                <td>Nieuwe Wachtwoord:</td>
+                <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
                 <td><html:password property="newpassword" /></td>
             </tr>
             <tr>
-                <td>Herhaal Nieuwe Wachtwoord:</td>
+                <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
                 <td><html:password property="newpasswordretyped" /></td>
             </tr>
         </c:if>
         <tr>
-            <td>Gewenste timeout:</td>
+            <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
             <td>
                 
-                <html:text property="timeout" styleId="cal_date" readonly="true"/> &nbsp;
-                <c:if test = "${helpOn_Off}">
+                <html:text property="timeout" styleId="cal_date"/> &nbsp;
+                
                 <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
                      style="cursor: pointer; border: 1px solid red;" 
                      title="Date selector"
@@ -104,36 +103,40 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                     
                      var myDate = new Date();
                      myDate.setDate(myDate.getDate()+7);
-                     Calendar.setDate(myDate);
+                     //Calendar.setDate(myDate);
                 </script>
-                </c:if>
+                
             </td>
         </tr>
         <tr>
-        <td>Geregisteerd IP adres:</td> 
-        <td><html:text property="registeredIP" readonly="true" /></td>
+        <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
+        <td><html:text property="registeredIP"/></td>
         </tr>
         <tr>
-        <td>Persoonlijk gecre&euml;erde URL:</td>
-        <td><html:text property="personalURL" styleId="personalURL" readonly="true" size="100" /></td>
+        <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
+        <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
         </tr>
         <tr>
         <td>&nbsp;</td>
         </tr>
         <tr>
-            <td>Default getMap:</td>
-            <td><html:textarea property="defaultGetMap" styleId="defaultGetMap" readonly="true" cols="75" rows="5" /></td>
+            <td>
+                <html:submit property="save" styleClass="knop">
+                    <fmt:message key="button.create"/>
+                </html:submit>
+            </td>
         </tr>
-        <tr>
-        <td>
-            <html:submit property="save" styleClass="knop">
-                <fmt:message key="button.create"/>
-            </html:submit>
-        </td>
-        <td>
-            <input id="openWMSHelpButton" class="knop" style="display: none;" type="button" onclick="javascript: openWMSHelp()" value="<fmt:message key='button.createDefaultgetMap'/>"/>
-        </td>
-        </tr>
+        <c:if test="${not empty form.personalURL}">
+            <tr>
+                <td>Default getMap:</td>
+                <td><html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="75" rows="5" /></td>
+            </tr>
+        <tr>                
+                <td>
+                    <input id="openWMSHelpButton" class="knop" type="button" onclick="javascript: openWMSHelp()" value="<fmt:message key='button.createDefaultgetMap'/>"/>
+                </td>
+            </tr>
+        </c:if>
 </html:form>
 </table>
     <script>
@@ -157,10 +160,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         function putWmsGetMap(value){
             document.getElementById("defaultGetMap").value=value;
         }
-                
-        if (document.getElementById("personalURL") && document.getElementById("personalURL").value!="" && document.getElementById("personalURL").value.length>0){
-            document.getElementById("openWMSHelpButton").style.display="block";
-        }
+
         
     </script>
 </body>

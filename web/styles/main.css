@@ -392,6 +392,9 @@ margin: 0;
     float: left;
     clear: none;
 }
+.readOnly{
+    background-color: #D8D8D8;
+}
 /*de holder voor de tree*/
 #treeContainer {
     height: 500px;

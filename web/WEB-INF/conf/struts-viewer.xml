@@ -79,6 +79,7 @@
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
+    <message-resources parameter="KaartenbalieResources"/>
 
     <!-- ========================= Tiles plugin ===============================-->
     <plug-in className="org.apache.struts.tiles.TilesPlugin" >
