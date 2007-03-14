@@ -104,6 +104,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
              */
             OutputFormat format = new OutputFormat(dom);
             format.setIndenting(true);
+//            format.setEncoding(CHARSET_ISO_8859_1);
             output = new ByteArrayOutputStream();
             XMLSerializer serializer = new XMLSerializer(output, format);        
             serializer.serialize(dom);
