@@ -17,9 +17,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.SecurityRealm;
@@ -44,9 +46,24 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     /* forward name="success" path="" */
     private static Log log = LogFactory.getLog(CreatePersonalURLAction.class);
     private final static String SUCCESS = "success";
+    private final static String GETIPADRS = "getIpAdrs";
     private String registeredIP;
     private String personalURL;
     
+    /**Return a map of actionMethods
+     * Add a actionmethod to the map
+     */
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETIPADRS);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("viewer.persoonlijkeurl.success");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("viewer.persoonlijkeurl.failure");
+        map.put(GETIPADRS, crudProp);               
+        return map;
+    }
+     
     /** Unspecified method which handles all incoming request that have no actions defined.
      *
      * @param mapping action mapping
@@ -60,12 +77,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        User user = (User) request.getUserPrincipal();        
-        if (user==null){
+        User sesuser = (User) request.getUserPrincipal();        
+        if (sesuser==null){
             log.error("ingelogde user == null");
             return mapping.findForward("failure");
         }
-        user = (User) getHibernateSession().get(User.class,user.getId());
+        User user = (User) getHibernateSession().get(User.class,sesuser.getId());
         if (user==null){
             log.error("Ingelogde user bestaat niet meer in database");
             return mapping.findForward("failure");
@@ -81,12 +98,10 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
-        if(user.getRegisteredIP()!=null){
-            dynaForm.set("registeredIP",user.getRegisteredIP());
-        }else{
-            dynaForm.set("registeredIP",request.getRemoteAddr());
-        }
         
+        
+        dynaForm.set("registeredIP",request.getRemoteAddr());
+                
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         if (user.getTimeout() != null) {
             String date = df.format(user.getTimeout());
@@ -146,7 +161,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         //- het password
         //- het ip adres van de gebruiker
         //maak gebruik van request.getRemoteAddr();
-        registeredIP = FormUtils.nullIfEmpty(dynaForm.getString("registeredIP"));
+        String regIP = FormUtils.nullIfEmpty(dynaForm.getString("registeredIP"));
         StringBuffer sb = request.getRequestURL();
         //rip off the last two slashes of the URL and fill it up with the right URL
         sb.delete(sb.indexOf("viewer/createPersonalURL.do"), sb.capacity());
@@ -187,13 +202,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                     log.error("Unable to parse : " + e);
                 }
                 
-                String toBeHashedString = registeredIP + username + password + df.format(date);
+                String toBeHashedString = regIP + username + password + df.format(date);
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(toBeHashedString.getBytes("8859_1"));
                 BigInteger hash = new BigInteger(1, md.digest());
                 personalURL = sb.toString() + hash.toString( 16 );
                 user.setPassword(password);
-                user.SetRegisteredIP(registeredIP);
+                user.SetRegisteredIP(regIP);
                 user.setPersonalURL(personalURL);
                 user.setTimeout(date);
                 // Format with a custom format
@@ -223,7 +238,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
-        dynaForm.set("registeredIP", registeredIP);
+        dynaForm.set("registeredIP", regIP);
         dynaForm.set("personalURL", personalURL);
         /*als de personal url niet begint in de default getmap is hij dus veranderd t.o.v. de defaultgetmap
          *Daarom moet deze niewe URL worden geplaatst in de defaultGetMap
@@ -249,6 +264,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         sess.flush(); 
         
         return super.save(mapping,dynaForm,request,response);
+    }
+    public ActionForward getIpAdrs(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        dynaForm.set("registeredIP",request.getRemoteAddr());
+        return getDefaultForward(mapping,request);
+    
     }
     // </editor-fold>
 }

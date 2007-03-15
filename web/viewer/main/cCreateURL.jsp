@@ -110,7 +110,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         </tr>
         <tr>
         <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-        <td><html:text property="registeredIP"/></td>
+        <td><html:text property="registeredIP"/>
+            <html:submit property="getIpAdrs" styleClass="knop">
+                <fmt:message key="button.getipadrs"/>
+            </html:submit>
         </tr>
         <tr>
         <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>

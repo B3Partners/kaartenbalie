@@ -241,9 +241,9 @@ window.onload = function() { stripedTable(); }
             "rootChildrenAsRoots": true,
             "itemLabelCreatorFunction": createLabel,        
             "toggleImages": {
-                "collapsed": "/kaartenbalie/images/treeview/plus.gif",
-                "expanded": "/kaartenbalie/images/treeview/minus.gif",
-                "leaf": "/kaartenbalie/images/treeview/leaft.gif"
+                "collapsed": "../images/treeview/plus.gif",
+                "expanded": "../images/treeview/minus.gif",
+                "leaf": "../images/treeview/leaft.gif"
             },
             "saveExpandedState": true,
             "saveScrollState": true,

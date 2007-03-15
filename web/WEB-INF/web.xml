@@ -82,7 +82,7 @@
         <jsp-file>/demo/main/mIndex.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
@@ -91,7 +91,7 @@
         <jsp-file>/algemeen/main/mIndex.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
@@ -100,7 +100,7 @@
         <jsp-file>/demo/main/cIndex.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
@@ -109,7 +109,7 @@
         <jsp-file>/demo/main/cRegistratie.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
@@ -118,7 +118,7 @@
         <jsp-file>/demo/main/cAddUrl.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
@@ -127,7 +127,7 @@
         <jsp-file>/demo/main/cAddUrlsuccess.jsp</jsp-file>
         <init-param>
             <param-name>demoActive</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     
