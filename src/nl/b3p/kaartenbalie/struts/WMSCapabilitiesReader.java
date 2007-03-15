@@ -477,12 +477,23 @@ public class WMSCapabilitiesReader {
         }
         
         public void endElement(String uri, String localName, String qName) {
-            SrsBoundingBox srsbb = new SrsBoundingBox();
             Object object = stack.peek();
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
-                srsbb.setSrs(sb.toString());
-                layer.addSrsbb(srsbb);
+                String srssen = sb.toString();
+                if (srssen.contains(" ")){
+                    String[] tokens= srssen.split(" ");
+                    //doorloop de door spatie gescheiden srsen
+                    for (int t=0; t < tokens.length; t++){
+                        SrsBoundingBox srsbb = new SrsBoundingBox();
+                        srsbb.setSrs(tokens[t]);
+                        layer.addSrsbb(srsbb);
+                    }
+                } else if (srssen.length()>0) {
+                    SrsBoundingBox srsbb = new SrsBoundingBox();
+                    srsbb.setSrs(srssen);
+                    layer.addSrsbb(srsbb);
+                }
             }
         }
     }
@@ -889,7 +900,7 @@ public class WMSCapabilitiesReader {
     }
     
     private class ConstraintsHandler extends ElementHandler {
-         StringBuffer sb;
+        StringBuffer sb;
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             sb = new StringBuffer();
         }
@@ -1176,7 +1187,7 @@ public class WMSCapabilitiesReader {
     }
     
     private class CountryHandler extends ElementHandler {
-         StringBuffer sb;
+        StringBuffer sb;
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             sb = new StringBuffer();
         }

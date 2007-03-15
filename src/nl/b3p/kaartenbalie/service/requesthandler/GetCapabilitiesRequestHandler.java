@@ -3,7 +3,7 @@
  * @author N. de Goeij
  * @version 1.00 2006/12/13
  *
- * Purpose: the function of this class is to create a list of url's which direct to the right servers that 
+ * Purpose: the function of this class is to create a list of url's which direct to the right servers that
  * have the desired layers for the WMS GetCapabilities request.
  *
  * @copyright 2007 All rights reserved. B3Partners
@@ -31,7 +31,10 @@ import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Comment;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 
 
@@ -57,7 +60,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
      * @exception ParserConfigurationException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
@@ -69,7 +72,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          * Since we use List sps = getServiceProviders(true); where the boolean is set to true we don't have
          * to worry about the fact that only the last service provider in the list will be used in the capability
          * request. The boolean tells the getServiceProvider method to combine all service providers and create
-         * one new service provider object from all providers found in the database. Therefore also only ONE 
+         * one new service provider object from all providers found in the database. Therefore also only ONE
          * service provider will be returned inside the list.
          * Because the get service provider also can return several providers (not combined to one) a list will be
          * returned.
@@ -86,32 +89,42 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
              * Create a DocumentBuilderFactory from which a new document can be created
              */
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();        
-            Document dom = db.newDocument();
+            dbf.setValidating(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            DOMImplementation di = db.getDOMImplementation();
             
-            /*
-             * Create a new root element which will be the base element of the document tree
-             */            
-            Element rootElement = dom.createElement("WMT_MS_Capabilities");
-            dom.appendChild(rootElement);
+            // <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+            // [
+            // <!ELEMENT VendorSpecificCapabilities EMPTY>
+            // ]>  <!-- end of DOCTYPE declaration -->
+            DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
+            Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
+
+            Element rootElement = dom.getDocumentElement();
             rootElement.setAttribute("version", "1.1.1");
-            rootElement.setAttribute("updateSequence", "0");
+//            rootElement.setAttribute("updateSequence", "0");
             rootElement = s.toElement(dom, rootElement);
+            
             
             /*
              * Create a new output format to which this document should be translated and
              * serialize the tree to an XML document type
              */
             OutputFormat format = new OutputFormat(dom);
+
             format.setIndenting(true);
-//            format.setEncoding(CHARSET_ISO_8859_1);
             output = new ByteArrayOutputStream();
-            XMLSerializer serializer = new XMLSerializer(output, format);        
+            XMLSerializer serializer = new XMLSerializer(output, format);
             serializer.serialize(dom);
         } catch (ParserConfigurationException ex) {
             log.error("",ex);
         }
-        return output.toByteArray();
+        
+        byte[] data = output.toByteArray();
+        dw.setContentLength(data.length);
+        dw.setData(data);
+        
+        return dw;
     }
     // </editor-fold>
 }

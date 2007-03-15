@@ -37,7 +37,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
         
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
@@ -145,7 +145,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         StringBuffer [] url = null;
         ArrayList tempList = new ArrayList();
         //return getOnlineData((StringBuffer[])urls.toArray(url));
-        return getOnlineData(tempList, false, WMS_REQUEST_GetLegendGraphic);
+        return getOnlineData(dw, tempList, false, WMS_REQUEST_GetLegendGraphic);
     }
     // </editor-fold>
 }

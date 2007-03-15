@@ -37,7 +37,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
@@ -154,7 +154,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 } 
             }
         }
-        return getOnlineData(urls, true, WMS_REQUEST_GetMap);
+        return getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
 }

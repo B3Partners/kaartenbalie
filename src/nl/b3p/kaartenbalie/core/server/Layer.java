@@ -26,8 +26,8 @@ public class Layer implements XMLElement {
     private static final Log log = LogFactory.getLog(Layer.class);
     
     private Integer id;
-    private String name = "";
-    private String title = "";
+    private String name;
+    private String title;
     private String abstracts;
     private String queryable;
     private String cascaded;
@@ -556,6 +556,7 @@ public class Layer implements XMLElement {
                 hlist = (ArrayList) srshash.get(srsbb.getType());
                 if (hlist==null)
                     hlist = new ArrayList();
+                
                 hlist.add(srsbb);
                 srshash.put(srsbb.getType(),hlist);
             }

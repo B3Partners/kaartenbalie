@@ -53,17 +53,6 @@ public class LayerValidator {
         return this.validateSRS().length > 0;
     }
     /** add a srs supported by this layer or a parent of the layer to the supported hashmap
-     *
-     * When a Layer is available in several Spatial Reference Systems, there are two ways to
-     * encode the list of SRS values. The first of these is new in this version of the
-     * specification, the second is deprecated but still included for backwards compatibility.
-     * 1. Optional, recommended: Multiple single-valued <SRS> elements: a list of SRS
-     * values is represented as a sequence of <SRS> elements, each of which contains only a
-     * single SRS name. Example: <SRS>EPSG:1234</SRS> <SRS>EPSG:5678</SRS>.
-     * 2. Deprecated: Single list-valued <SRS> element: a list of SRS values is represented as
-     * a whitespace-separated list of SRS names contained within a single <SRS> element.
-     * Example: <SRS>EPSG:1234 EPSG:5678</SRS>.
-     * WMS 1.1.1 Clients shall be prepared to handle either encoding.
      */
     public void addLayerSupportedSRS(Layer l, HashMap supported){
         Set srsen=l.getSrsbb();
@@ -73,15 +62,9 @@ public class LayerValidator {
         while (i.hasNext()){
             SrsBoundingBox srsbb = (SrsBoundingBox)i.next();
             if (srsbb.getSrs()!=null){
-                if (srsbb.getSrs().contains(" ")){
-                    String[] tokens= srsbb.getSrs().split(" ");
-                    //doorloop de door spatie gescheiden srsen
-                    for (int t=0; t < tokens.length; t++){
-                        supported.put(tokens[t],tokens[t]);                           
-                    }
-                }else{ 
+                // alleen srs zonder boundingbox coords
+                if (srsbb.getMinx()==null && srsbb.getMiny()==null && srsbb.getMaxx()==null && srsbb.getMaxy()==null)
                     supported.put(srsbb.getSrs(),srsbb.getSrs());
-                }
             }
         }
         if (l.getParent()!=null){
@@ -114,7 +97,7 @@ public class LayerValidator {
                     String srs= (String)i.next();
                     addSrsCount(hm,srs);
                 }
-            }            
+            }
         }
         ArrayList supportedSrsen=new ArrayList();
         Iterator it=hm.entrySet().iterator();
@@ -122,7 +105,7 @@ public class LayerValidator {
             Map.Entry entry=(Map.Entry)it.next();
             int i= ((Integer)entry.getValue()).intValue();
             if (i>=tellerMeeTellendeLayers){
-                supportedSrsen.add((String)entry.getKey());                
+                supportedSrsen.add((String)entry.getKey());
             }
         }
         //Voeg lege srs toe indien geen overeenkomstige gevonden
@@ -140,7 +123,7 @@ public class LayerValidator {
      * @parameter hm The hashmap that contains the counted srsen
      * @parameter srs The srs to add to the count.
      */
-     private void addSrsCount(HashMap hm, String srs){
+    private void addSrsCount(HashMap hm, String srs){
         if (hm.containsKey(srs)){
             int i= ((Integer)hm.get(srs)).intValue()+1;
             hm.put(srs,new Integer(i));

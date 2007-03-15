@@ -35,7 +35,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public byte[] getRequest(Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
@@ -183,7 +183,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
          * to be affraid anything will go wrong when using this method for 
          * an xml document as well.
          */
-        return getOnlineData(urls, false, WMS_REQUEST_GetFeatureInfo);
+        return getOnlineData(dw, urls, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>
 }

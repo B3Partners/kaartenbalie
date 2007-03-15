@@ -189,10 +189,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             //Standaard LatLonBoundingBox
             SrsBoundingBox llbb = new SrsBoundingBox();
             llbb.setSrs("EPSG:4326");
-            llbb.setMinx("-90.0");
-            llbb.setMiny("-180.0");
-            llbb.setMaxx("90.0");
-            llbb.setMaxy("180.0");
+            llbb.setMiny("-90.0");
+            llbb.setMinx("-180.0");
+            llbb.setMaxy("90.0");
+            llbb.setMaxx("180.0");
             layer.addSrsbb(llbb);
             
             layer.setLayers(layers);
@@ -223,7 +223,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static byte[] getOnlineData(ArrayList urls, boolean overlay, String REQUEST_TYPE) throws IOException {
+    protected static DataWrapper getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -244,6 +244,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     String url = ((StringBuffer)urls.get(i)).toString();
                     URL u = new URL(url);
                     bi[i] = ImageIO.read(u);
+                    
+                    
                 }
                 
                 /* After all images are loaded into the memory, these images
@@ -360,6 +362,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
              */
             URL u = new URL(url);
             HttpURLConnection con = (HttpURLConnection) u.openConnection();
+            dw.setContentType(con.getContentType());
             
             BufferedInputStream bis = null;
             try {
@@ -373,8 +376,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 if (bis!=null)
                     bis.close();
             }
+            
         }
-        return baos.toByteArray();
+        
+        dw.setContentLength(baos.size());
+        dw.setData(baos.toByteArray());
+        
+        return dw;
     }
     // </editor-fold>
     
@@ -549,7 +557,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
-    public abstract byte[] getRequest(Map <String, Object> params) throws IOException;
+    public abstract DataWrapper getRequest(DataWrapper dw, Map <String, Object> params) throws IOException;
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="getter methods.">
