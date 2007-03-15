@@ -321,11 +321,19 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     protected boolean requestComplete(Map parameters, List requiredParameters) {
         if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
             return false;
+        
+        // lijst met default waarden voor parameters die eigenlijk verplicht zijn, goed idee?
+        HashMap defVals = new HashMap();
+        defVals.put(WMS_PARAM_STYLES, "");
+        
         Iterator it = requiredParameters.iterator();
         while (it.hasNext()) {
             String reqParam = (String)it.next();
-            if (!parameters.containsKey(reqParam))
-                return false;
+            if (!parameters.containsKey(reqParam)) {
+                if (!defVals.containsKey(reqParam))
+                    return false;
+                parameters.put(reqParam, defVals.get(reqParam));
+            }
         }
         return true;
     }

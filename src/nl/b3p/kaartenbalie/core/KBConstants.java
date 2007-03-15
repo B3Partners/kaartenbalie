@@ -79,6 +79,7 @@ public interface KBConstants {
     public static final String WMS_PARAM_TRANSPARENT = "TRANSPARENT";
     public static final String WMS_PARAM_TRANSPARENT_TRUE = "TRUE";
     
+    // TODO dit klopt niet, andere mimi types!
     public static final String WMS_PARAM_EXCEPTION_TEXT = "text/plain";
     public static final String WMS_PARAM_EXCEPTION_HTML = "text/html";
     public static final String WMS_PARAM_EXCEPTION_XML = "text/xml";
