@@ -110,7 +110,7 @@ public class User implements Principal {
         return registeredIP;
     }
 
-    public void SetRegisteredIP(String registeredIP) {
+    public void setRegisteredIP(String registeredIP) {
         this.registeredIP = registeredIP;
     }
 
@@ -121,9 +121,11 @@ public class User implements Principal {
     public void setTimeout(Date timeout) {
         this.timeout = timeout;
     }
+    
     public String getDefaultGetMap(){
         return defaultGetMap;
     }
+    
     public void setDefaultGetMap(String s){
         defaultGetMap=s;
     }

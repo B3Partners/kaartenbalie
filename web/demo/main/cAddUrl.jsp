@@ -98,7 +98,7 @@
             </c:if>
             <table>
                 <tr>
-                    <td><B>Naam server:</B></td>
+                    <td><B><fmt:message key="demo.serverName"/>:</B></td>
                     <td>
                         <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
                         <html:text property="serviceProviderGivenName" />
@@ -106,7 +106,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><B>URL Server:</B></td>
+                    <td><B><fmt:message key="demo.serverURL"/>:</B></td>
                     <td>
                         <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
                         <html:text property="serviceProviderUrl" />
@@ -121,8 +121,12 @@
                 <tr>
                     <td colspan="0">
                         <center>
-                            <html:reset  value="Verwijder invoer" />
-                            <html:submit value="Voeg WMS server toe" property="save"/>
+                            <html:reset>
+                                <fmt:message key="button.reset"/>
+                            </html:reset>
+                            <html:submit property="save" >
+                                <fmt:message key="button.ok"/>
+                            </html:submit> 
                         </center>
                     </td>
                 </tr>

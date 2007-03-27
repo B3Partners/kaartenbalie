@@ -99,8 +99,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
         
-        
-        dynaForm.set("registeredIP",request.getRemoteAddr());
+        String ipAddress = user.getRegisteredIP();
+        if (ipAddress != null && !ipAddress.equals("")) {
+            dynaForm.set("registeredIP", ipAddress);
+        } else {
+            dynaForm.set("registeredIP",request.getRemoteAddr());
+        }
                 
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         if (user.getTimeout() != null) {
@@ -129,12 +133,20 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     // <editor-fold defaultstate="" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         request.setAttribute("changePassword", "changepwd");
-        User user = (User) request.getUserPrincipal();
+        User sesuser = (User) request.getUserPrincipal();
+        User user = (User) getHibernateSession().get(User.class, sesuser.getId());
         ActionForward afcreate = super.create(mapping, dynaForm, request, response);
         dynaForm.set("username", user.getUsername());
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         String date = df.format(user.getTimeout());        
+        
+        String ipAddress = user.getRegisteredIP();
+        if (ipAddress != null && ipAddress != "") {
+            dynaForm.set("registeredIP", ipAddress);
+        } else {
+            dynaForm.set("registeredIP",request.getRemoteAddr());
+        }
         
         dynaForm.set("timeout", date);
         dynaForm.set("personalURL", user.getPersonalURL());
@@ -208,7 +220,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
                 BigInteger hash = new BigInteger(1, md.digest());
                 personalURL = sb.toString() + hash.toString( 16 );
                 user.setPassword(password);
-                user.SetRegisteredIP(regIP);
+                user.setRegisteredIP(regIP);
                 user.setPersonalURL(personalURL);
                 user.setTimeout(date);
                 // Format with a custom format

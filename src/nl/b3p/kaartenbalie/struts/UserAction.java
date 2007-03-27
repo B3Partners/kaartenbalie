@@ -44,13 +44,44 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        User user = this.getUser(dynaForm,request,false, id);
+        String selectedId = request.getParameter("id");
         
-        if (null != user) {
-            this.populateUserForm(user, dynaForm, request);
+        if (selectedId != null) {
+            Integer id = FormUtils.StringToInteger(selectedId);
+            User user = this.getUser(dynaForm,request,false, id);
+            
+            if (null != user) {
+                this.populateUserForm(user, dynaForm, request);
+            }
+            
+            request.setAttribute("selectedId", selectedId);
+        } else {
+            request.setAttribute("selectedId", null);
         }
         return super.unspecified(mapping, dynaForm, request, response);
+        
+        
+        
+        
+    }
+    // </editor-fold>
+    
+    /**
+     * Creates a new login code for the specified email address
+     *
+     * @param mapping The mapping of the action
+     * @param form The form the action is linking to
+     * @param request The request of this action
+     * @param response response of this action
+     *
+     * @return the action forward
+     *
+     * @throws java.lang.Exception when an error occurs
+     */
+    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("showFields", "show");
+        return super.create(mapping, form, request, response);
     }
     // </editor-fold>
     
@@ -119,12 +150,13 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("userid", user.getId().toString());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("lastname", user.getLastName());
         dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
-        dynaForm.set("selectedOrganization", user.getOrganization().getName());
+        dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
         dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
@@ -196,7 +228,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
+        Integer id = FormUtils.StringToInteger(dynaForm.getString("userid"));
         User user = getUser(dynaForm,request,true, id);
         if (user==null) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -224,7 +256,7 @@ public class UserAction extends KaartenbalieCrudAction {
         sess.saveOrUpdate(user);
         sess.flush();
         
-        dynaForm.set("id", "");
+        dynaForm.set("userid", "");
         dynaForm.set("firstname", "");
         dynaForm.set("lastname", "");
         dynaForm.set("emailAddress", "");

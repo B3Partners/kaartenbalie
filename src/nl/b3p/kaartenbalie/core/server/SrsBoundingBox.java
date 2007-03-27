@@ -118,6 +118,9 @@ public class SrsBoundingBox implements XMLElement {
         if (null != this.id) {
             cloneSrs.id    = new Integer(this.id);
         }
+        if (null != this.srs) {
+            cloneSrs.srs  = new String(this.srs);
+        }
         if (null != this.minx) {
             cloneSrs.minx  = new String(this.minx);
         }
@@ -142,12 +145,12 @@ public class SrsBoundingBox implements XMLElement {
     
     
     public String getType() {
-        if (getSrs()==null)
+        if (getSrs()==null && getMinx()==null && getMiny()==null &&  getMaxx()==null &&  getMaxy()==null)
             return null;
+        if (getSrs()==null)
+            return "LatLonBoundingBox";
         if (getMinx()==null && getMiny()==null &&  getMaxx()==null &&  getMaxy()==null)
             return "SRS";
-        if (getSrs().trim().equalsIgnoreCase("EPSG:4326"))
-            return "LatLonBoundingBox";
         return "BoundingBox";
     }
     

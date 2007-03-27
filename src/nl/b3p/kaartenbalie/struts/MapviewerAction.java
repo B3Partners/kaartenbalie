@@ -87,7 +87,9 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        User user = (User) request.getUserPrincipal();
+        User sesuser = (User) request.getUserPrincipal();
+        User user = (User) getHibernateSession().get(User.class, sesuser.getId());
+        
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         

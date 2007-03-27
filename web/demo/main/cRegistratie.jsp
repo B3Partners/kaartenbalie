@@ -82,40 +82,43 @@
 
             <table>
                 <tr>
-                    <td><B>Naam:</B>&nbsp;<c:out value="${firstname}"/>&nbsp;<c:out value="${lastname}"/></td>
+                    <td><B><fmt:message key="beheer.userFirstname"/>:</B>&nbsp;<c:out value="${firstname}"/>&nbsp;<c:out value="${lastname}"/></td>
                 </tr>
                 <tr>
-                    <td><B>Email:</B>&nbsp;<c:out value="${emailAddress}"/></td>
+                    <td><B><fmt:message key="beheer.userEmail"/>:</B>&nbsp;<c:out value="${emailAddress}"/></td>
                 </tr>
                 <tr>
-                    <td><B>Opgegeven gebruikersnaam:</B>&nbsp;<c:out value="${username}"/></td>
+                    <td><B><fmt:message key="beheer.userUsername"/>:</B>&nbsp;<c:out value="${username}"/></td>
                 </tr>
                 <tr>
-                    <td><B>Persoonlijke URL:</B>&nbsp;<c:out value="${personalURL}"/></td>
+                    <td><B><fmt:message key="viewer.persoonlijkeurl"/>:URL:</B>&nbsp;<c:out value="${personalURL}"/></td>
                 </tr>
 
 
                 <tr>
-                    <td><B>Naam organisatie:</B>&nbsp;<c:out value="${name}"/></td>
+                    <td><B><fmt:message key="beheer.name"/>:</B>&nbsp;<c:out value="${name}"/></td>
                 </tr>
                 <tr>
-                    <td><B>Straat:</B>&nbsp;<c:out value="${organizationStreet}"/>&nbsp;
+                    <td><B><fmt:message key="beheer.organizationStreet"/>:</B>&nbsp;<c:out value="${organizationStreet}"/>&nbsp;
                     <c:out value="${organizationNumber}"/>&nbsp;<c:out value="${organizationAddition}"/></td>
                 </tr>
 
                 <tr>
-                    <td><B>Postcode:</B>&nbsp;<c:out value="${organizationPostalcode}"/>
-                    <B>Plaats:</B>&nbsp;<c:out value="${organizationProvince}"/></td>
+                    <td><B><fmt:message key="beheer.organizationPostalcode"/>:</B>&nbsp;<c:out value="${organizationPostalcode}"/>
+                    <B><fmt:message key="beheer.organizationProvince"/>:</B>&nbsp;<c:out value="${organizationProvince}"/></td>
                 </tr>
 
 
                 <tr>
-                    <td><B>Telefoon nr.:</B>&nbsp;<c:out value="${organizationTelephone}"/></td>
+                    <td><B><fmt:message key="beheer.organizationTelephone"/>:</B>&nbsp;<c:out value="${organizationTelephone}"/></td>
                 </tr>    
 
 
             </table>
-            <input type="button" value="Verder" onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'">
+            <!-- input type="button" value="Verder" onclick="javascript:window.location.href='<!--html:rewrite page='/demo/voegurltoe.do?userid={id}' module='' />'">-->
+            <html:submit onclick="javascript:window.location.href='<html:rewrite page='/demo/voegurltoe.do?userid=${id}' module='' />'" property="delete" style="margin-top: 5px; margin-bottom: 5px;">
+                <fmt:message key="button.next"/>
+            </html:submit>
             <%--        <html:form action="/voegurltoe">
                 <html:hidden property="userid" value="${id}"></html:hidden>
                 <html:submit value="Volgende"/>
@@ -163,57 +166,57 @@
                     </c:if>
                     <table>
                         <tr>
-                            <td><B>Voornaam:</B></td>
+                            <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
                             <td><html:text property="firstname"/></td>
-                            <td><B>Achternaam:</B></td>
+                            <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
                             <td><html:text property="lastname"/></td>
                         </tr>
                         <tr>
-                            <td><B>Email:</B></td>
+                            <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
                             <td><html:text property="emailAddress"/></td>
                         </tr>
                         <tr>
-                            <td><B>Gewenste gebruikersnaam:</B></td>
+                            <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
                             <td><html:text property="username"/></td>
                         </tr>
                         <tr>
-                            <td><B>Gewenst wachtwoord:</B></td>
-                            <td><html:text property="password"/></td>
+                            <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
+                            <td><html:password property="password"/></td>
                         </tr>
 
                         <tr>
-                            <td><B>Naam organisatie:</B></td>
+                            <td><B><fmt:message key="beheer.name"/>Naam organisatie:</B></td>
                             <td><html:text property="name"/></td>
                         </tr>
                         <tr>
-                            <td><B>Straat:</B></td>
+                            <td><B><fmt:message key="beheer.organizationStreet"/>Straat:</B></td>
                             <td><html:text property="organizationStreet"/></td>
-                            <td><B>Nummer:</B></td>
+                            <td><B><fmt:message key="beheer.organizationNumber"/>Nummer:</B></td>
                             <td><html:text property="organizationNumber"/></td>
-                            <td><B>Toevoeging:</B></td>
+                            <td><B><fmt:message key="beheer.organizationToevoeging"/>Toevoeging:</B></td>
                             <td><html:text property="organizationAddition"/></td>
                         </tr>
 
                         <tr>
-                            <td><B>Postcode:</B></td>
+                            <td><B><fmt:message key="beheer.organizationPostalcode"/>Postcode:</B></td>
                             <td><html:text property="organizationPostalcode"/></td>
-                            <td><B>Plaats:</B></td>
+                            <td><B><fmt:message key="beheer.organizationProvince"/>Plaats:</B></td>
                             <td><html:text property="organizationProvince"/></td>
-                            <td><B>Land:</B></td>
+                            <td><B><fmt:message key="beheer.organizationCountry"/>Land:</B></td>
                             <td><html:text property="organizationCountry"/></td>
                         </tr>
 
                         <tr>
-                            <td><B>Postbus:</B></td>
+                            <td><B><fmt:message key="beheer.organizationPostbox"/>Postbus:</B></td>
                             <td><html:text property="organizationPostbox"/></td>
                         </tr>
 
                         <tr>
-                            <td><B>Telefoon nr.:</B></td>
+                            <td><B><fmt:message key="beheer.organizationTelephone"/>Telefoon nr.:</B></td>
                             <td><html:text property="organizationTelephone"/></td>
                         </tr>
                         <tr>
-                            <td><B>Fax nr.:</B></td>
+                            <td><B><fmt:message key="beheer.organizationFaxnumber"/>Fax nr.:</B></td>
                             <td><html:text property="organizationFax"/></td>
                         </tr>     
                         <tr>
@@ -222,8 +225,12 @@
                         </tr>
                         <tr>
                             <td colspan="0"><center>
-                                <html:reset  value="Verwijder invoer" />
-                                <html:submit value="Registreer" property="save"/>                                        
+                                <html:reset>
+                                    <fmt:message key="button.reset"/>
+                                </html:reset>
+                                <html:submit property="save" >
+                                    <fmt:message key="button.ok"/>
+                                </html:submit>                                        
                             </center></td>
                         </tr>
                     </table>

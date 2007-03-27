@@ -424,7 +424,7 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.domainResource) {
-            cloneLayer.domainResource       = new HashSet <LayerDomainResource>(this.domainResource);
+            cloneLayer.domainResource       = new HashSet <LayerDomainResource>();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 LayerDomainResource ldr = (LayerDomainResource)((LayerDomainResource)it.next()).clone();
@@ -433,7 +433,7 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.identifiers) {
-            cloneLayer.identifiers          = new HashSet <Identifier>(this.identifiers);
+            cloneLayer.identifiers          = new HashSet <Identifier>();
             Iterator it = this.identifiers.iterator();
             while (it.hasNext()) {
                 Identifier identifier = (Identifier)((Identifier)it.next()).clone();
@@ -445,7 +445,7 @@ public class Layer implements XMLElement {
             cloneLayer.organizationLayers   = new HashSet <OrganizationLayer>(this.organizationLayers);
         }
         if (null != srsbb) {
-            cloneLayer.srsbb = new HashSet <SrsBoundingBox>(this.srsbb);
+            cloneLayer.srsbb = new HashSet <SrsBoundingBox>();
             Iterator it = srsbb.iterator();
             while (it.hasNext()) {
                 SrsBoundingBox s = (SrsBoundingBox)((SrsBoundingBox)it.next()).clone();
@@ -544,6 +544,9 @@ public class Layer implements XMLElement {
             layerElement.appendChild(keywordListElement);
         }
         
+        //System.out.println("NIEUWE LAYER");
+        //System.out.println("SRSBB size" + this.getSrsbb().size());
+        
         ArrayList hlist = null;
         Hashtable srshash = new Hashtable();
         SrsBoundingBox srsbb = null;
@@ -558,11 +561,13 @@ public class Layer implements XMLElement {
                     hlist = new ArrayList();
                 
                 hlist.add(srsbb);
-                srshash.put(srsbb.getType(),hlist);
+                srshash.put(srsbb.getType(), hlist);
             }
         }
+                
         hlist = (ArrayList) srshash.get("SRS");
         if (hlist!=null && !hlist.isEmpty()) {
+            //System.out.println("SRS size" + hlist.size());
             Iterator it = hlist.iterator();
             while (it.hasNext()) {
                 srsbb = (SrsBoundingBox) it.next();
@@ -571,6 +576,7 @@ public class Layer implements XMLElement {
         }
         hlist = (ArrayList) srshash.get("LatLonBoundingBox");
         if (hlist!=null && !hlist.isEmpty()) {
+            //System.out.println("LatLonBoundingBox size" + hlist.size());
             Iterator it = hlist.iterator();
             if (it.hasNext()) { // max 1 latlon box
                 srsbb = (SrsBoundingBox) it.next();
@@ -579,6 +585,7 @@ public class Layer implements XMLElement {
         }
         hlist = (ArrayList) srshash.get("BoundingBox");
         if (hlist!=null && !hlist.isEmpty()) {
+            //System.out.println("BoundingBox size" + hlist.size());
             Iterator it = hlist.iterator();
             while (it.hasNext()) {
                 srsbb = (SrsBoundingBox) it.next();

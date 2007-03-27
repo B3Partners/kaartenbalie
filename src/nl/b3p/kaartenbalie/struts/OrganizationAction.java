@@ -54,30 +54,62 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        Organization organization = this.getOrganization(dynaForm, request, false, id);
         
-        if (null != organization) {
-            Set l = organization.getOrganizationLayer();
+        
+        
+        
+        
+        String selectedId = request.getParameter("id");
+        
+        if (selectedId != null) {
+            Integer id = FormUtils.StringToInteger(selectedId);
+            Organization organization = this.getOrganization(dynaForm, request, false, id);
             
-            Object [] organizationLayer = l.toArray();            
-            String [] layerid = new String[l.size()];
-            
-            for (int i = 0; i < organizationLayer.length; i++) {
-                layerid [i] = ((Layer)organizationLayer[i]).getId().toString();
-            }
-            String checkedLayers = "";
-            for (int i = 0; i < organizationLayer.length; i++) {
-                if (i < organizationLayer.length - 1) {
-                    checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
-                } else {
-                    checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
+            if (null != organization) {
+                Set l = organization.getOrganizationLayer();
+
+                Object [] organizationLayer = l.toArray();            
+                String [] layerid = new String[l.size()];
+
+                for (int i = 0; i < organizationLayer.length; i++) {
+                    layerid [i] = ((Layer)organizationLayer[i]).getId().toString();
                 }
+                String checkedLayers = "";
+                for (int i = 0; i < organizationLayer.length; i++) {
+                    if (i < organizationLayer.length - 1) {
+                        checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
+                    } else {
+                        checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
+                    }
+                }
+                request.setAttribute("checkedLayers",checkedLayers);
+                this.populateOrganizationForm(organization, dynaForm, request);
             }
-            request.setAttribute("checkedLayers",checkedLayers);
-            this.populateOrganizationForm(organization, dynaForm, request);
+            
+            request.setAttribute("selectedId", selectedId);
+        } else {
+            request.setAttribute("selectedId", null);
         }
         return super.unspecified(mapping, dynaForm, request, response);
+    }
+    // </editor-fold>
+    
+    /**
+     * Creates a new login code for the specified email address
+     *
+     * @param mapping The mapping of the action
+     * @param form The form the action is linking to
+     * @param request The request of this action
+     * @param response response of this action
+     *
+     * @return the action forward
+     *
+     * @throws java.lang.Exception when an error occurs
+     */
+    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("showFields", "show");
+        return super.create(mapping, form, request, response);
     }
     // </editor-fold>
     
@@ -117,6 +149,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("organizationid", organization.getId().toString());
         dynaForm.set("name", organization.getName());
         dynaForm.set("organizationStreet", organization.getStreet());
         dynaForm.set("organizationNumber", organization.getNumber());
@@ -432,7 +465,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
+        Integer id = FormUtils.StringToInteger(dynaForm.getString("organizationid"));
         Organization organization = getOrganization(dynaForm, request, true, id);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -454,7 +487,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         sess.saveOrUpdate(organization);
         sess.flush();
         
-        dynaForm.set("id", "");
+        dynaForm.set("organizationid", "");
         dynaForm.set("name", "");
         dynaForm.set("organizationStreet", "");
         dynaForm.set("organizationNumber", "");
@@ -505,15 +538,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
 
             // nieuwe default actie op delete zetten
             Session sess = getHibernateSession();
-            //validate and check for errors
-            ActionErrors errors = dynaForm.validate(mapping, request);
-            if(!errors.isEmpty()) {
-                addMessages(request, errors);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-            
+                        
             Integer id = Integer.parseInt(organizationSelected[i]);
             Organization organization = getOrganization(dynaForm, request, false, id);
             

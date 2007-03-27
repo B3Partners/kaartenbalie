@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Set;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
 import java.io.*;
 import java.util.Iterator;
@@ -248,8 +249,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         String givenRequest=null;
         boolean supported_request = false;
-        if (parameters.get(WMS_REQUEST)!=null){
-            givenRequest = ((String[]) parameters.get(WMS_REQUEST))[0];
+        
+        String requestType = checkCaseInsensitiveParameter(parameters, WMS_REQUEST);
+        if (parameters.get(requestType)!=null){
+            givenRequest = ((String[]) parameters.get(requestType))[0];
             
                 /*if (givenRequest==null){
                 givenRequest=WMS_REQUEST_GetCapabilities;
@@ -310,6 +313,24 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     }
     // </editor-fold>
     
+    private String checkCaseInsensitiveParameter(Map <String, Object> parameters, String param) {
+        //The list with parameters is now checked with predefined parameters
+        //This goes all good if we use the same writing in the request as defined
+        //in the predefined list. This should offcourse be case insensitive
+        //Therefore we need to go over the list of parameters and check the keys
+        //which hold the variables
+        Set paramKeySet = parameters.keySet();
+        Iterator keySetIterator = paramKeySet.iterator();
+        String requestType = null;
+        while (keySetIterator.hasNext()) {
+            String key = (String)keySetIterator.next();
+            if (key.equalsIgnoreCase(param)) {
+                return key;
+            }
+        }
+        return null;
+    }
+    
     /** Handles the requestComplete method.
      *
      * @param parameters map with the given parameters
@@ -337,6 +358,31 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
         return true;
     }
+    
+    /*
+    protected boolean requestComplete(Map parameters, List requiredParameters) {
+        if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
+            return false;
+        
+        // lijst met default waarden voor parameters die eigenlijk verplicht zijn, goed idee?
+        HashMap defVals = new HashMap();
+        defVals.put(WMS_PARAM_STYLES, "");
+        
+        Iterator it = requiredParameters.iterator();
+        while (it.hasNext()) {
+            String reqParam = (String)it.next();
+            String requestType = checkCaseInsensitiveParameter(parameters, reqParam);
+            
+            if (requestType != null) {
+                String requestType_Style = checkCaseInsensitiveParameter(defVals, reqParam);
+                if (requestType_Style != null)
+                    return false;
+                parameters.put(reqParam, defVals.get(reqParam));
+            }
+        }
+        return true;
+    }
+     */
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

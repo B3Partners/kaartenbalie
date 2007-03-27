@@ -39,6 +39,8 @@ import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
+import nl.b3p.kaartenbalie.core.server.Style;
+import nl.b3p.kaartenbalie.core.server.StyleDomainResource;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
@@ -63,15 +65,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     public WMSRequestHandler() { }
     
-    // TODO:
-    // De onderstaande methode maakt gebruik van een stuk code dat controleert welke van de opgevraagde ServiceProviders
-    // de minste aantal capabilities heeft. Dit stukje code moet ofwel aangepast worden zodat het programma zelf uitzoekt
-    // welke capability bij welke provider wel of niet mogelijk is, of ze moet er helemaal uitgehaald worden.
-    // Niet alleen moet er gecontroleerd worden welke de minste capabilities heeft, maar daarnaast moet er ook gecontroleerd
-    // worden of de capabilities dan wel allemaal gelijk zijn aan elkaar, dus eigenlijk moet er gekeken worden naar het mini
-    // male aanbod van allemaal dezelfde capabilities.
-    // Dit stukje code moet vervolgens ook dusdanig gecommentarieerd worden.
-    
     /** Creates a List of ServiceProviders recieved from the Database.
      * If the boolean is set to true, this method creates a single ServiceProvider in a List which holds again all
      * layers supported by the kaartenbalie. Otherwise if the boolean is set to false the method will get each single
@@ -82,135 +75,145 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="getServiceProviders(boolean combine) method.">
     protected List getServiceProviders(boolean combine) {
-        User dbUser                 = null;
-        ServiceProvider sp          = null;
-        Set <Layer> layers          = new HashSet <Layer>();
-        List <ServiceProvider> sps  = new ArrayList <ServiceProvider>();
-        Set <ServiceProvider> serviceproviders = null;
         
-        /*
-         * Access the database to retrieve information about the layer
-         * which are available to the user. If no layers are available
-         * null will be returned immediatly.
-         */
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
+        
+        List <ServiceProvider> sps  = new ArrayList <ServiceProvider>();
+        List <ServiceProvider> clonedsps  = new ArrayList <ServiceProvider>();
+        Set dbLayers = null;
+        Set clonedLayers = new HashSet();
+        
+        /*
+         * First we a set with layers which are visible to the user doing the request
+         */
         try {
-            dbUser = (User)sess.createQuery("from User u where " +
+            User dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
             
-            Set dbLayers = dbUser.getOrganization().getOrganizationLayer();
+            dbLayers = dbUser.getOrganization().getOrganizationLayer();
+            System.out.println("Size of the databaselayers: " + dbLayers.size());
             if (dbLayers == null)
                 return null;
-            
+                        
             /*
-             * We have to create a Set with ServiceProviders based on the layers the user
-             * is allowed to see. When the ServiceProviders are available we can create the
-             * object requested for.
+             * Now we have a set of layers with which we can perform our action.
+             * There can be two types of actions; there can be a combination of all
+             * serviceproviders or return each serviceprovider seperatly in a list.
+             *
+             * Before we can perform the action we need to take some action in order
+             * to be able to perform the action.
              */
-            serviceproviders = new HashSet <ServiceProvider> ();
+
+            /*
+             * Getting the serviceproviders from the database layers.
+             * By walking through all layers, checking if the layer has a parent we can
+             * select only those layers which hang directly under a serviceprovider
+             */ 
+            Set <ServiceProvider> serviceproviders = new HashSet <ServiceProvider> ();
             Iterator it = dbLayers.iterator();
             while (it.hasNext()) {
                 Layer dbLayer = (Layer)it.next();
                 if(null == dbLayer.getParent()) {
-                    ServiceProvider testSP = (ServiceProvider)(dbLayer.getServiceProvider());
+                    serviceproviders.add( (ServiceProvider)(dbLayer.getServiceProvider()) );
+                    clonedLayers.add((Layer)dbLayer.clone());
                     
-                    /*
-                     * Adding the ServiceProvider to the Set of ServiceProviders.
-                     * After adding we need to clone the ServiceProvider aswell as the Layers
-                     * The reason for cloning is that the ServiceProviders and Layers are
-                     * directly requested from the Database.
-                     * Hibernate keeps the objects from the database in it's memory and each
-                     * transformation on one of those objects will result in a change of the
-                     * data in the database.
-                     * In order to prevent changes from happening at all we create a deep clone
-                     * object which we can use to do all our transformations on.
-                     */
-                    serviceproviders.add(testSP);
+                    ServiceProvider clonedServiceprovider = (ServiceProvider)(((ServiceProvider)(dbLayer.getServiceProvider())).clone());
+                    clonedServiceprovider.setLayers(null);
                     
-                    ServiceProvider cloneSP = (ServiceProvider)(testSP.clone());
-                    cloneSP.setLayers(null);
-                    
-                    Layer cloneLayer = (Layer)dbLayer.clone();
-                    cloneSP.addLayer(cloneLayer);
-                    
-                    /*
-                     * If the ServiceProviders are going to be merged the only thing that
-                     * has to be done is to put the cloned toplayer into a Set of layers
-                     * which can be used later on again to add to a newly created ServiceProvider.
-                     * Else we need to add the found ServiceProvider to a list of ServiceProviders.
-                     */
-                    if (combine) {
-                        layers.add(cloneLayer);
-                    } else {
-                        sps.add(cloneSP);
-                    }
+                    clonedServiceprovider.addLayer((Layer)dbLayer.clone());
+                    clonedsps.add(clonedServiceprovider);
                 }
+            }
+            
+            if(combine) {
+                /* Now a top layer is available we need a ServiceProviderobject to store
+                 * this toplayer in. With the ServiceProvider there are also a couple of
+                 * constraints, concerning the DomainResources and their available return
+                 * formats. Therefore we have to validate the avaible ServiceProviders to
+                 * create a valid one.
+                 */
+                ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
+                ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+                
+                /* We have still a Set of toplayers.
+                 * A ServiceProvider is allowed to have only one toplayer.
+                 * Therefore a toplayer has to be created manually.
+                 * This toplayer has to have a certain amount of SRS values
+                 * which apply to ALL layers which are child of this toplayer.
+                 */
+                Layer layer = new Layer();
+                layer.setTitle(TOPLAYERNAME);
+                //layer.setName(TOPLAYERNAME);
+                
+                //Standaard LatLonBoundingBox
+                //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
+                //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
+                //elkaar legt en even de minimale en maximale waarden van de verschillende minnen en maxen
+                //er tussen uit pikt en deze vervolgens in een nieuw srs object plaatst en dit object terug
+                //geeft aan de aanroep.
+                //In het srs object moet vervolgens nog een kleine aanpassing gedaan worden mbt de getType
+                //functie om de juiste types te selecteren en in de WMSCapabilityReader moet nog een kleine
+                //aanpassing gedaan worden zodat een LLBB geen SRS meer meekrijgt aangezien een LLBB geen
+                //SRS heeft.
+                LayerValidator lv = new LayerValidator(dbLayers);
+                layer.addSrsbb(lv.validateLatLonBoundingBox());
+                layer.setLayers(clonedLayers);
+                
+                /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
+                 * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
+                 * Name, then that layer is only a category title for all the layers nested within. A Map
+                 * Server that advertises a Layer containing a Name element shall be able to accept that
+                 * Name as the value of LAYERS argument in a GetMap request and return the
+                 * corresponding map. A Client shall not attempt to request a layer that has a Title but no
+                 * Name.
+                 */
+                lv = new LayerValidator(clonedLayers);
+                String [] supportedSRS = lv.validateSRS();
+                for (int i=0; i < supportedSRS.length; i++){
+                    SrsBoundingBox srsbb= new SrsBoundingBox();
+                    srsbb.setSrs(supportedSRS[i]);
+                    layer.addSrsbb(srsbb);
+                }
+                
+                validServiceProvider.addLayer(layer);
+                sps.add(validServiceProvider);
+            } else {
+                sps = clonedsps;
             }
         } finally {
             tx.commit();
         }
-        
-        /* There are now two objects. Two Sets, one is a Set with all the toplayers while the other
-         * is a Set with all the ServiceProviders.
-         * When combining the ServiceProviders isn't necessary, we can skip this check and immediatly
-         * return the Set with ServiceProviders. But in the other case we still need to create a
-         * ServiceProvider object which can hold the Set with layers so we can return one Service
-         * Provider object (captured in the Set object) from which a GetCapability XML can be generated.
-         */
-        if (combine) {
-            /* We have still a Set of toplayers.
-             * A ServiceProvider is allowed to have only one toplayer.
-             * Therefore a toplayer has to be created manually.
-             * This toplayer has to have a certain amount of SRS values
-             * which apply to ALL layers which are child of this toplayer.
-             */
-            Layer layer = new Layer();
-            layer.setTitle(TOPLAYERNAME);
-            
-//            layer.setName(TOPLAYERNAME);
-            /*If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
-             *that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
-             *Name, then that layer is only a category title for all the layers nested within. A Map
-             *Server that advertises a Layer containing a Name element shall be able to accept that
-             *Name as the value of LAYERS argument in a GetMap request and return the
-             *corresponding map. A Client shall not attempt to request a layer that has a Title but no
-             *Name.
-             **/
-            
-            LayerValidator lv = new LayerValidator(layers);
-            String [] supportedSRS = lv.validateSRS();
-            for (int i=0; i < supportedSRS.length; i++){
-                SrsBoundingBox srsbb= new SrsBoundingBox();
-                srsbb.setSrs(supportedSRS[i]);
-                layer.addSrsbb(srsbb);
-            }
-            
-            //Standaard LatLonBoundingBox
-            SrsBoundingBox llbb = new SrsBoundingBox();
-            llbb.setSrs("EPSG:4326");
-            llbb.setMiny("-90.0");
-            llbb.setMinx("-180.0");
-            llbb.setMaxy("90.0");
-            llbb.setMaxx("180.0");
-            layer.addSrsbb(llbb);
-            
-            layer.setLayers(layers);
-            
-            /* Now a top layer is available we need a ServiceProviderobject to store
-             * this toplayer in. With the ServiceProvider there are also a couple of
-             * constraints, concerning the DomainResources and their available return
-             * formats. Therefore we have to validate the avaible ServiceProviders to
-             * create a valid one.
-             */
-            ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
-            ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-            validServiceProvider.addLayer(layer);
-            sps.add(validServiceProvider);
-        }
         return sps;
     }
     // </editor-fold>
+    
+    /*
+    private void showLayerDetail(Set layers) {
+        Iterator layerIterator = layers.iterator();
+        while (layerIterator.hasNext()) {
+            Layer layer = (Layer)layerIterator.next();
+            System.out.println("Layer name: " + layer.getName());
+            //System.out.println("Layer title: " + layer.getTitle());
+            if(layer.getStyles() != null) {
+                Iterator styleIterator = layer.getStyles().iterator();
+                while (styleIterator.hasNext()) {
+                    Style style = (Style)styleIterator.next();
+                    //System.out.println("Style name: " + style.getName());
+                    //System.out.println("Style title: " + style.getTitle());
+                    Iterator domainIterator = style.getDomainResource().iterator();
+                    while(domainIterator.hasNext()) {
+                        StyleDomainResource sdr = (StyleDomainResource)domainIterator.next();
+                        System.out.println("StyleID : " + sdr.getId());
+                        //System.out.println("StyleID : " + sdr.getDomain());                        
+                    }
+                }
+            }
+            if(layer.getLayers() != null)
+                showLayerDetail(layer.getLayers());
+        }
+    }
+    */
     
     
     /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to
@@ -244,8 +247,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     String url = ((StringBuffer)urls.get(i)).toString();
                     URL u = new URL(url);
                     bi[i] = ImageIO.read(u);
-                    
-                    
                 }
                 
                 /* After all images are loaded into the memory, these images
@@ -378,7 +379,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
             
         }
-        
         dw.setContentLength(baos.size());
         dw.setData(baos.toByteArray());
         

@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
@@ -26,6 +28,7 @@ public class ServerAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
+     private static final Log log = LogFactory.getLog(ServerAction.class);
     
     /** Execute method which handles all executable requests.
      *
@@ -40,16 +43,62 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        ServiceProvider serviceProvider = this.getServiceProvider(dynaForm, request, false, id);
+        String selectedId = request.getParameter("id");
         
-        if (null != serviceProvider) {
-            this.populateServiceProviderForm(serviceProvider, dynaForm, request);
+        if (selectedId != null) {
+            Integer id = FormUtils.StringToInteger(selectedId);
+            ServiceProvider serviceProvider = this.getServiceProvider(dynaForm, request, false, id);
+            
+            if (null != serviceProvider) {
+                this.populateServiceProviderForm(serviceProvider, dynaForm, request);
+            }
+            
+            request.setAttribute("selectedId", selectedId);
+        } else {
+            request.setAttribute("selectedId", null);
         }
         return super.unspecified(mapping, dynaForm, request, response);
     }
     // </editor-fold>
     
+    /**
+     * Creates a new login code for the specified email address
+     *
+     * @param mapping The mapping of the action
+     * @param form The form the action is linking to
+     * @param request The request of this action
+     * @param response response of this action
+     *
+     * @return the action forward
+     *
+     * @throws java.lang.Exception when an error occurs
+     */
+    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("showFields", "show");
+        return super.create(mapping, form, request, response);
+    }
+    // </editor-fold>
+        
+    /**
+     * Creates a new login code for the specified email address
+     *
+     * @param mapping The mapping of the action
+     * @param form The form the action is linking to
+     * @param request The request of this action
+     * @param response response of this action
+     *
+     * @return the action forward
+     *
+     * @throws java.lang.Exception when an error occurs
+     */
+    // <editor-fold defaultstate="collapsed" desc="cancelled(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("showFields", null);
+        return super.cancelled(mapping, form, request, response);
+    }
+    // </editor-fold>
+        
     /** Method which returns the service provider with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -81,7 +130,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("id", serviceProvider.getId().toString());
+        dynaForm.set("serverid", serviceProvider.getId().toString());
         dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
         dynaForm.set("serviceProviderUrl", serviceProvider.getUrl());
         dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
@@ -113,7 +162,7 @@ public class ServerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
-        //serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
+        serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
         if (serviceProvider.getId() == null) {
             serviceProvider.setUpdatedDate(new Date());
             serviceProvider.setReviewed(false);
@@ -152,7 +201,7 @@ public class ServerAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
+        Integer id = FormUtils.StringToInteger(dynaForm.getString("serverid"));
         ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
                 
         if (null == serviceProvider) {
@@ -186,14 +235,20 @@ public class ServerAction extends KaartenbalieCrudAction {
             serviceProvider = wms.getProvider(url);
         } catch (Exception e) {
             request.setAttribute("message", "De opgegeven URL is onjuist. Probeert u het alstublieft opnieuw.");
+            log.error("Error saving server", e);
             return getAlternateForward(mapping, request);
         }
         
         populateServerObject(dynaForm, serviceProvider);
-        sess.saveOrUpdate(serviceProvider);
-        sess.flush();
         
-        dynaForm.set("id", "");
+        try { 
+            sess.saveOrUpdate(serviceProvider);
+            sess.flush();
+        } catch (Exception e) {
+            log.error("Error saving server", e);
+        }
+        
+        dynaForm.set("serverid", "");
         dynaForm.set("serviceProviderGivenName", "");
         dynaForm.set("serviceProviderUrl", "");
         dynaForm.set("serviceProviderUpdatedDate", "");
@@ -230,15 +285,7 @@ public class ServerAction extends KaartenbalieCrudAction {
 
             // nieuwe default actie op delete zetten
             Session sess = getHibernateSession();
-            //validate and check for errors
-            ActionErrors errors = dynaForm.validate(mapping, request);
-            if(!errors.isEmpty()) {
-                addMessages(request, errors);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-            
+                        
             Integer id = Integer.parseInt(serviceProviderSelected[i]);
             ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
             
@@ -255,6 +302,7 @@ public class ServerAction extends KaartenbalieCrudAction {
                 sess.flush();
             } catch (Exception e) {
                 request.setAttribute("message", "De service is niet verwijderd: Er zijn nog organisaties gekoppeld aan deze service.");
+                log.error("Error deleting server", e);
             }
         }
         return super.delete(mapping, dynaForm, request, response);

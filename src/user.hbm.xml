@@ -46,5 +46,8 @@
         <property name="defaultGetMap">
             <column name="DEFAULTGETMAP"/>
         </property>
+        <property name="registeredIP">
+            <column name="IPADDRESS"/>
+        </property>
     </class>
 </hibernate-mapping>

@@ -52,6 +52,95 @@ public class LayerValidator {
     public boolean validate() {
         return this.validateSRS().length > 0;
     }
+    
+    public SrsBoundingBox validateLatLonBoundingBox() {
+        Iterator it = layers.iterator();
+        ArrayList supportedLLBB = new ArrayList();
+        while (it.hasNext()) {
+            addLayerSupportedLLBB((Layer)it.next(), supportedLLBB);
+        }
+        
+        //nu hebben we een lijst met alle LLBB's
+        //van deze LLBB's moet nu per item bekeken worden welke de uiterste waarden
+        //heeft voor de minx, miny, maxx, maxy
+        double minx = 0, miny = 0, maxx = 0, maxy = 0;
+        it = supportedLLBB.iterator();
+        while (it.hasNext()) {
+            SrsBoundingBox llbb = (SrsBoundingBox)it.next();
+            double xmin = Double.parseDouble(llbb.getMinx());
+            double ymin = Double.parseDouble(llbb.getMiny());
+            double xmax = Double.parseDouble(llbb.getMaxx());
+            double ymax = Double.parseDouble(llbb.getMaxy());
+            
+            if(xmin < minx) {
+                minx = xmin;
+            }
+            
+            if(ymin < miny) {
+                miny = ymin;
+            }
+            
+            if(xmax > maxx) {
+                maxx = xmax;
+            }
+            
+            if(ymax > maxy) {
+                maxy = ymax;
+            }
+        }
+        
+        
+        
+        SrsBoundingBox llbb = new SrsBoundingBox();
+        
+        
+        llbb.setMinx("" + minx);
+        llbb.setMiny("" + miny);
+        llbb.setMaxx("" + maxx);
+        llbb.setMaxy("" + maxy);
+        
+        //llbb.setMiny("-90.0");
+        //llbb.setMinx("-180.0");
+        //llbb.setMaxy("90.0");
+        //llbb.setMaxx("180.0");
+        
+        return llbb;
+    }
+    
+    /** 
+     * Checks wether or not a layer has a LatLonBoundingBox. If so this LatLonBoundingBox is added to the supported hashmap
+     */
+    // <editor-fold defaultstate="collapsed" desc="default DescribeLayerRequestHandler() constructor">
+    private void addLayerSupportedLLBB(Layer layer, ArrayList supported) {
+        Set srsen = layer.getSrsbb();
+        if (srsen == null) {
+            return;
+        }
+        
+        Iterator it = srsen.iterator();
+        while (it.hasNext()) {
+            SrsBoundingBox srsbb = (SrsBoundingBox)it.next();
+            String type = srsbb.getType();
+            
+            if (type != null) {
+                if (type.equalsIgnoreCase("LatLonBoundingBox")) {
+                    supported.add(srsbb);
+                    //System.out.println("Type of srs: " + type);
+                    //System.out.println("minx of srs: " + srsbb.getMinx());
+                    //System.out.println("miny of srs: " + srsbb.getMiny());
+                    //System.out.println("maxx of srs: " + srsbb.getMaxx());
+                    //System.out.println("maxy of srs: " + srsbb.getMaxy());
+                    //System.out.println("-------------------------------");
+                }
+            }
+        }
+        
+        if (layer.getParent() != null) {
+            addLayerSupportedLLBB(layer.getParent(), supported);
+        }
+    }
+    // </editor-fold>
+        
     /** add a srs supported by this layer or a parent of the layer to the supported hashmap
      */
     public void addLayerSupportedSRS(Layer l, HashMap supported){

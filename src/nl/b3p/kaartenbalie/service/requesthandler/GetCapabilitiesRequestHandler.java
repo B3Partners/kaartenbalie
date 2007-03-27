@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,6 +29,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,6 +68,32 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         
         ServiceProvider s = null;
         List sps = getServiceProviders(true);
+        
+        /*
+        Iterator it1 = sps.iterator();
+        while(it1.hasNext()) {
+            ServiceProvider sp = (ServiceProvider)it1.next();
+            System.out.println("NIEUWE SP");
+            Set layers = sp.getLayers();
+            Iterator it2 = layers.iterator();
+            while(it2.hasNext()) {
+                Layer layer = (Layer)it2.next();
+                Set sbbs = layer.getSrsbb();
+                Iterator it3 = sbbs.iterator();
+                while(it3.hasNext()) {
+                    SrsBoundingBox sbb = (SrsBoundingBox)it3.next();
+                    System.out.println("SRS" + sbb.getSrs());
+                    System.out.println("Minx" + sbb.getMinx());
+                    System.out.println("Miny" + sbb.getMiny());
+                    System.out.println("Maxx" + sbb.getMaxx());
+                    System.out.println("Maxy" + sbb.getMaxy());
+                    System.out.println("Resx" + sbb.getResx());
+                    System.out.println("Resy" + sbb.getResy());
+                }
+            }
+        }
+        */
+        
         Iterator it = sps.iterator();
         
         /*

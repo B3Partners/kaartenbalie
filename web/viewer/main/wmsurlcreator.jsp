@@ -30,7 +30,7 @@
                 <!-- toon de layers -->
                 <c:if test="${not empty layerList}">
                     <div class="wmscomponentdiv">
-                        <div><b>Layers:</b></div>
+                        <div><b><fmt:message key="beheer.getmapurl.layers"/>:</b></div>
                         <div class="listdiv">
                             <c:forEach items="${layerList}" var="l">
                                 <html:multibox property="selectedLayers" value="${l.uniqueName}"></html:multibox><c:out value="${l.name}"/><br/>
@@ -40,21 +40,21 @@
                 </c:if>
                 <div class="wmscomponentdiv">
                 <c:if test="${not empty projectieList}">                    
-                    <div><b>Projecties:</b></div>
+                    <div><b><fmt:message key="beheer.getmapurl.projecties"/>:</b></div>
                     <html:select property="selectedProjectie">
                         <c:forEach items="${projectieList}" var="p">
                             <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
                         </c:forEach>
                     </html:select>
                 </c:if>
-                <div><b>Height:</b></div>
+                <div><b><fmt:message key="beheer.getmapurl.height"/>:</b></div>
                 <html:text property="height"/>
-                <div><b>Width:</b></div>
+                <div><b><fmt:message key="beheer.getmapurl.width"/>:</b></div>
                 <html:text property="width"/>
-                <div><b>BBox:</b></div>
+                <div><b><fmt:message key="beheer.getmapurl.bbox"/>:</b></div>
                 <html:text property="bbox" size="40"/>
                 <c:if test="${not empty formatList}">
-                    <div><b>Format:</b></div>
+                    <div><b><fmt:message key="beheer.getmapurl.format"/>:</b></div>
                     <html:select property="selectedFormat">
                         <c:forEach items="${formatList}" var="f">
                             <html:option value="${f}"><c:out value="${f}"/></html:option><br/>

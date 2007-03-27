@@ -9,7 +9,7 @@
     <form-beans>
         <form-bean name="userForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
-            <form-property name="id" type="java.lang.String"/>
+            <form-property name="userid" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
@@ -25,7 +25,7 @@
         
         <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
-            <form-property name="id" type="java.lang.String"/>
+            <form-property name="serverid" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
@@ -38,7 +38,7 @@
         
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
-            <form-property name="id" type="java.lang.String"/>
+            <form-property name="organizationid" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->

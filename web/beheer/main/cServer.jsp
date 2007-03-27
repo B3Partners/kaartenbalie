@@ -83,58 +83,81 @@ window.onload = function() { stripedTable(); }
         <div class="tableContainer" id="tableContainer">         
             <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                 <div class="serverRij">
-                    <div style="width: 50px;"><html:multibox value="${nServiceProvider.id}" property="serviceProviderSelected" /></div>
-                    <div style="width: 100px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.givenName}"/>"><a href="server.do?id=${nServiceProvider.id}"><c:out value="${nServiceProvider.givenName}"/></a></div>
-                    <div style="width: 315px;" title="<c:out value="${nServiceProvider.url}"/>"><c:out value="${nServiceProvider.url}"/></div>
-                    <div style="width: 150px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.updatedDate}"/>"><c:out value="${nServiceProvider.updatedDate}"/></div>
-                    <div style="width: 100px;" title="<c:out value="${nServiceProvider.reviewed}"/>"><c:out value="${nServiceProvider.reviewed}"/></div>                    
+                    <div style="width: 50px;">
+                        <html:multibox value="${nServiceProvider.id}" property="serviceProviderSelected" />
+                    </div>
+                    <div style="width: 100px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.givenName}"/>">
+                        <a href="server.do?id=${nServiceProvider.id}"><c:out value="${nServiceProvider.givenName}"/></a>
+                    </div>
+                    <div style="width: 315px;" title="<c:out value="${nServiceProvider.url}"/>">
+                        <c:out value="${nServiceProvider.url}"/>
+                    </div>
+                    <div style="width: 150px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.updatedDate}"/>">
+                        <c:out value="${nServiceProvider.updatedDate}"/>
+                    </div>
+                    <div style="width: 100px;" title="<c:out value="${nServiceProvider.reviewed}"/>">
+                        <c:out value="${nServiceProvider.reviewed}"/>
+                    </div>                    
                 </div>
             </c:forEach>
         </div>
     </div>
-    <html:submit value="Delete selected server(s)" property="delete" style="margin-top: 5px; margin-bottom: 5px;"/>
+    <c:if test="${empty showFields && empty selectedId}">
+        <html:submit property="delete" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.delete"/>
+        </html:submit>
+        <html:submit property="create" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.new"/>
+        </html:submit>
+    </c:if>
     
-    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
-        <table>
-            <tr>
-                <td><B>Server ID:</B></td>
-                <td><html:text property="id" readonly="true" /></td>
-            </tr>
-            <tr>
-                <td><B>Naam server:</B></td>
-                <td><html:text property="serviceProviderGivenName" /></td>
-            </tr>
-            <tr>
-                <td><B>URL Server:</B></td>
-                <td><html:text property="serviceProviderUrl" /></td>
-            </tr>
-            <tr>
-                <td><B>Laatste update:</B></td>
-                <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
-            </tr>
-            <tr>
-                <td><B>Is geupdate:</B></td>
-                <td><html:text property="serviceProviderReviewed" readonly="true" /></td>
-            </tr>
-            <tr>
-                <td><B>Soort service:</B></td>
-                <td>
-                    <select>
-                        <option>WMS</option>
-                    </select>
+    <c:if test="${not empty showFields || not empty selectedId}">
+        <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
+            <table>
+                <tr>
+                    <td><B><fmt:message key="beheer.serverID"/>:</B></td>
+                    <td><html:text property="serverid" readonly="true" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.serverName"/>:</B></td>
+                    <td><html:text property="serviceProviderGivenName" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                    <td><html:text property="serviceProviderUrl" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.serverUpdate"/>:</B></td>
+                    <td><html:text property="serviceProviderUpdatedDate" readonly="true" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.serverIsUpdated"/>:</B></td>
+                    <td><html:text property="serviceProviderReviewed" readonly="true" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.service"/>:</B></td>
+                    <td>
+                        <select>
+                            <option>WMS</option>
+                        </select>
+                    </td>
+                </tr>
+                
                 </td>
-            </tr>
-            
-            </td>
-            </tr>
-            <tr>
-                <td colspan="0"><center>
-                        <html:reset  value="Delete values" />
-                        <html:submit value="Add/Change Server" property="save"/>            
-                </center></td>
-            </tr>
-        </table>
-    </div>
+                </tr>
+                <tr>
+                    <td colspan="0"><center>
+                            <html:submit property="cancel" onclick="bCancel=true">
+                                <fmt:message key="button.cancel"/>
+                            </html:submit>
+                            <html:submit property="save" >
+                                <fmt:message key="button.ok"/>
+                            </html:submit>
+                    </center></td>
+                </tr>
+            </table>
+        </div>
+    </c:if>
     
     <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
     <div id="adminContainer" class="containerdiv" style="clear: left; display: none;">

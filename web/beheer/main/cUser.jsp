@@ -91,62 +91,77 @@ window.onload = function() { stripedTable(); }
             </c:forEach>
         </DIV>
     </div>
-    <html:submit value="Delete selected user(s)" property="delete"  style="margin-top: 5px; margin-bottom: 5px;"/>
+    <c:if test="${empty showFields && empty selectedId}">
+        <html:submit property="delete" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.delete"/>
+        </html:submit>
+        <html:submit property="create" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.new"/>
+        </html:submit>
+    </c:if>
     
-    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-        <table>
-            <tr>
-                <td><B>ID:</B></td>
-                <td><html:text property="id" readonly="true" /></td>
-            </tr>
-            <tr>
-                <td><B>Voornaam:</B></td>
-                <td><html:text property="firstname"/></td>
-            </tr>
-            <tr>
-                <td><B>Achternaam:</B></td>
-                <td><html:text property="lastname"/></td>
-            </tr>
-            <tr>
-                <td><B>Email:</B></td>
-                <td><html:text property="emailAddress"/></td>
-            </tr>
-            <tr>
-                <td><B>Gebruikersnaam:</B></td>
-                <td><html:text property="username"/></td>
-            </tr>
-            <tr>
-                <td><B>Wachtwoord:</B></td>
-                <td><html:text property="password"/></td>
-            </tr>
-            <tr>
-                <td><B>Organisatie:</B></td>
-                <td>
-                    <html:select property="selectedOrganization">
-                        <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                            <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
-                        </c:forEach>
-                    </html:select>     
-                </td>
-            </tr>
-            <tr>
-                <td><B>Roles:</B></td>
-                <td>
-                    <html:select property="selectedRole">
-                        <html:option value="beheerder">beheerder</html:option>
-                        <html:option value="gebruiker">gebruiker</html:option>
-                        <html:option value="demogebruiker">demogebruiker</html:option>
-                    </html:select>     
-                </td>
-            </tr>
-            <tr>
-                <td colspan="0"><center>
-                        <html:reset  value="Delete values" />
-                        <html:submit value="Add/Change User" property="save"/>
-                </center></td>
-            </tr>
-        </table>
-    </div>
+    <c:if test="${not empty showFields || not empty selectedId}">
+        <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+            <table>
+                <tr>
+                    <td><B><fmt:message key="beheer.userID"/>:</B></td>
+                    <td><html:text property="userid" readonly="true" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
+                    <td><html:text property="firstname"/></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
+                    <td><html:text property="lastname"/></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
+                    <td><html:text property="emailAddress"/></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
+                    <td><html:text property="username"/></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
+                    <td><html:text property="password"/></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>
+                    <td>
+                        <html:select property="selectedOrganization">
+                            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                                <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
+                            </c:forEach>
+                        </html:select>     
+                    </td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.userRole"/>:</B></td>
+                    <td>
+                        <html:select property="selectedRole">
+                            <html:option value="beheerder">beheerder</html:option>
+                            <html:option value="gebruiker">gebruiker</html:option>
+                            <html:option value="demogebruiker">demogebruiker</html:option>
+                        </html:select>     
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="0">
+                        <center>
+                            <html:submit property="cancel" onclick="bCancel=true">
+                                <fmt:message key="button.cancel"/>
+                            </html:submit>
+                            <html:submit property="save" >
+                                <fmt:message key="button.ok"/>
+                            </html:submit>
+                        </center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </c:if>
     
     <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
     <div id="adminContainer" style="clear: left; display: none;" class="containerdiv">

@@ -75,7 +75,9 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     /**create the lists for this action.
      */
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
-        User user= (User)request.getUserPrincipal();
+        User sesuser = (User) request.getUserPrincipal();
+        User user = (User) getHibernateSession().get(User.class, sesuser.getId());
+        
         Set <Layer> layerSet=user.getOrganization().getOrganizationLayer();
         Set <ServiceProvider> serviceProviderSet= new HashSet();
         

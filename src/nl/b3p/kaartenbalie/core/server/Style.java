@@ -160,7 +160,8 @@ public class Style implements XMLElement {
             titleElement.appendChild(text);
             styleElement.appendChild(titleElement);
         }
-
+        
+        /*
         if (null != this.getDomainResource() && this.getDomainResource().size() != 0) {
             Iterator it = this.getDomainResource().iterator();
             while (it.hasNext()) {
@@ -168,6 +169,7 @@ public class Style implements XMLElement {
                 sdr.toElement(doc, styleElement);
             }
         }
+         **/
         
         if(null != this.getDomainResource() && this.getDomainResource().size() != 0) {
             Hashtable sdrhash = new Hashtable();

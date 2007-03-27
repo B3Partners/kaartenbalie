@@ -399,6 +399,26 @@ public class WMSCapabilitiesReader {
             String fixedWidth = attributes.getValue("fixedWidth");
             String fixedHeight = attributes.getValue("fixedHeight");
             layer.setQueryable(queryable);
+            
+            /*
+             * A Layer is said to have been "cascaded" if it was obtained from an originating server and
+             * then included in the Capabilities XML of a different server. The second server may
+             * simply offer an additional access point for the Layer, or may add value by offering
+             * additional output formats or spatial reference systems.
+             * If a WMS cascades the content of another WMS then it shall increment by 1 the value of
+             * the cascaded attribute for the affected layers. If that attribute is missing from the
+             * originating WMS's Capabilities XML, then the Cascading WMS shall insert the attribute
+             * and set it to 1.
+             */
+            if(cascaded == null) {
+                cascaded = "1";
+            } else {
+                int c = Integer.parseInt(cascaded);
+                c++;
+                cascaded = "" + c;
+                
+            }
+            
             layer.setCascaded(cascaded);
             layer.setOpaque(opaque);
             layer.setNosubsets(noSubsets);
@@ -530,7 +550,7 @@ public class WMSCapabilitiesReader {
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
                 SrsBoundingBox srsbb = new SrsBoundingBox();
-                srsbb.setSrs("EPSG:4326");
+                //srsbb.setSrs("EPSG:4326");
                 srsbb.setMinx(attributes.getValue("minx"));
                 srsbb.setMiny(attributes.getValue("miny"));
                 srsbb.setMaxx(attributes.getValue("maxx"));

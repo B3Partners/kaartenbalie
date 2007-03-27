@@ -95,87 +95,100 @@ window.onload = function() { stripedTable(); }
             </c:forEach>
         </div>
     </div>
-    <html:submit value="Delete organization(s)" property="delete" style="margin-top: 5px; margin-bottom: 5px;"/>
+    <c:if test="${empty showFields && empty selectedId}">
+        <html:submit property="delete" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.delete"/>
+        </html:submit>
+        <html:submit property="create" style="margin-top: 5px; margin-bottom: 5px;">
+            <fmt:message key="button.new"/>
+        </html:submit>
+    </c:if>
     
-    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-        <table >
-            <tr>
-                <td width="300">
-                    <table>
-                        <tr>
-                            <td><B>Vestiging ID:</B></td>
-                            <td><html:text property="id" readonly="true" /></td>
-                        </tr>
-                        <tr>
-                            <td><B>Naam organisatie:</B></td>
-                            <td><html:text property="name"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Straat:</B></td>
-                            <td><html:text property="organizationStreet"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Nummer:</B></td>
-                            <td><html:text property="organizationNumber"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Toevoeging:</B></td>
-                            <td><html:text property="organizationAddition"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Postcode:</B></td>
-                            <td><html:text property="organizationPostalcode"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Provincie:</B></td>
-                            <td><html:text property="organizationProvince"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Land:</B></td>
-                            <td><html:text property="organizationCountry"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Postbus:</B></td>
-                            <td><html:text property="organizationPostbox"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Factuuradres:</B></td>
-                            <td><html:text property="organizationBillingAddress"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Bezoekadres:</B></td>
-                            <td><html:text property="organizationVisitorsAddress"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Telefoon nr.:</B></td>
-                            <td><html:text property="organizationTelephone"/></td>
-                        </tr>
-                        <tr>
-                            <td><B>Fax nr.:</B></td>
-                            <td><html:text property="organizationFax" /></td>
-                        </tr>
-                        
-                    </table>
-                </td>
-                <td valign="top">
-                    <b>Layer rechten:</B><br/><br/>
-                    <div id="treeContainerSmall">
-                        <div class="treeHolderSmall">
-                            <div id="tree"></div>
+    <c:if test="${not empty showFields || not empty selectedId}">
+        <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+            <table >
+                <tr>
+                    <td width="300">
+                        <table>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationID"/>:</B></td>
+                                <td><html:text property="organizationid" readonly="true" /></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.name"/>:</B></td>
+                                <td><html:text property="name"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationStreet"/>:</B></td>
+                                <td><html:text property="organizationStreet"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationNumber"/>:</B></td>
+                                <td><html:text property="organizationNumber"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationToevoeging"/>:</B></td>
+                                <td><html:text property="organizationAddition"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationPostalcode"/>:</B></td>
+                                <td><html:text property="organizationPostalcode"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationProvince"/>:</B></td>
+                                <td><html:text property="organizationProvince"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationCountry"/>:</B></td>
+                                <td><html:text property="organizationCountry"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationPostbox"/>:</B></td>
+                                <td><html:text property="organizationPostbox"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationFacturationAddress"/>:</B></td>
+                                <td><html:text property="organizationBillingAddress"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationVisitorAddress"/>:</B></td>
+                                <td><html:text property="organizationVisitorsAddress"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationTelephone"/>:</B></td>
+                                <td><html:text property="organizationTelephone"/></td>
+                            </tr>
+                            <tr>
+                                <td><B><fmt:message key="beheer.organizationFaxnumber"/>:</B></td>
+                                <td><html:text property="organizationFax" /></td>
+                            </tr>
+                            
+                        </table>
+                    </td>
+                    <td valign="top">
+                        <b>Layer rechten:</B><br/><br/>
+                        <div id="treeContainerSmall">
+                            <div class="treeHolderSmall">
+                                <div id="tree"></div>
+                            </div>
                         </div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="0"><center>
-                        <html:reset  value="Delete values" />
-                        <html:submit property="save" >
-                            <fmt:message key="button.ok"/>
-                        </html:submit>
-                </center></td>
-            </tr>
-        </table>
-    </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="0">
+                        <center>
+                            <html:submit property="cancel" onclick="bCancel=true">
+                                <fmt:message key="button.cancel"/>
+                            </html:submit>
+                            <html:submit property="save" >
+                                <fmt:message key="button.ok"/>
+                            </html:submit>
+                        </center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </c:if>
     
     <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
     <div id="adminContainer" style="clear: left; display: none;" class="containerdiv">
@@ -194,7 +207,7 @@ window.onload = function() { stripedTable(); }
         </DIV>
     </div>
     <script type="text/javascript">
-    <c:if test = "${not empty layerList}">
+    <c:if test = "${not empty layerList && (not empty showFields || not empty selectedId)}">
         
         var root = ${layerList};
         function itemClick(item) {
