@@ -87,6 +87,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             user = checkLogin(request);
             
             if (user != null) {
+                response.setHeader("X-Kaartenbalie-User", user.getUsername());
                 
                 Map <String, Object> parameters = new HashMap <String, Object>();
                 parameters.putAll(request.getParameterMap());
