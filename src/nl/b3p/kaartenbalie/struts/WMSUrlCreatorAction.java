@@ -1,7 +1,11 @@
-/*
- * WMSUrlCreatorAction.java
+/**
+ * @(#)WMSUrlCreatorAction.java
+ * @author R. Braam
+ * @version 1.00 2007/02/20
  *
- * Created on 20 februari 2007, 9:44
+ * Purpose: a Struts action class defining all the Action for the ServiceProvider view.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -24,11 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
-/**
- *
- * @author Roy
- * @version
- */
 
 public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     
@@ -78,8 +77,8 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         User sesuser = (User) request.getUserPrincipal();
         User user = (User) getHibernateSession().get(User.class, sesuser.getId());
         
-        Set <Layer> layerSet=user.getOrganization().getOrganizationLayer();
-        Set <ServiceProvider> serviceProviderSet= new HashSet();
+        Set layerSet=user.getOrganization().getOrganizationLayer();
+        Set serviceProviderSet= new HashSet();
         
         ArrayList alLayers= new ArrayList();
         putLayersInArrayList(layerSet,alLayers);

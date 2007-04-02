@@ -24,19 +24,19 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LayerValidator {
     private static final Log log = LogFactory.getLog(LayerValidator.class);
-    private Set <Layer> layers;
+    private Set layers;
     
     /** Creates a new Instance of LayerValidator with the given layers
      */
-    public LayerValidator(Set <Layer> layers){
+    public LayerValidator(Set layers){
         setLayers(layers);
     }
     /* Getters and setters */
-    public Set<Layer> getLayers() {
+    public Set getLayers() {
         return layers;
     }
     
-    public void setLayers(Set<Layer> layers) {
+    public void setLayers(Set layers) {
         this.layers = layers;
         
         Iterator it = layers.iterator();
@@ -125,12 +125,6 @@ public class LayerValidator {
             if (type != null) {
                 if (type.equalsIgnoreCase("LatLonBoundingBox")) {
                     supported.add(srsbb);
-                    //System.out.println("Type of srs: " + type);
-                    //System.out.println("minx of srs: " + srsbb.getMinx());
-                    //System.out.println("miny of srs: " + srsbb.getMiny());
-                    //System.out.println("maxx of srs: " + srsbb.getMaxx());
-                    //System.out.println("maxy of srs: " + srsbb.getMaxy());
-                    //System.out.println("-------------------------------");
                 }
             }
         }

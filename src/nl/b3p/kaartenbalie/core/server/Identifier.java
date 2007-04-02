@@ -65,7 +65,7 @@ public class Identifier implements XMLElement {
     public Object clone() {
         Identifier cloneIdent           = new Identifier();
         if (null != this.id) {
-            cloneIdent.id               = new Integer(this.id);
+            cloneIdent.id               = new Integer(this.id.intValue());
         }
         if (null != this.authorityName) {
             cloneIdent.authorityName    = new String(this.authorityName);

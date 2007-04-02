@@ -62,38 +62,12 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
      * @exception ParserConfigurationException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
         ServiceProvider s = null;
         List sps = getServiceProviders(true);
-        
-        /*
-        Iterator it1 = sps.iterator();
-        while(it1.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)it1.next();
-            System.out.println("NIEUWE SP");
-            Set layers = sp.getLayers();
-            Iterator it2 = layers.iterator();
-            while(it2.hasNext()) {
-                Layer layer = (Layer)it2.next();
-                Set sbbs = layer.getSrsbb();
-                Iterator it3 = sbbs.iterator();
-                while(it3.hasNext()) {
-                    SrsBoundingBox sbb = (SrsBoundingBox)it3.next();
-                    System.out.println("SRS" + sbb.getSrs());
-                    System.out.println("Minx" + sbb.getMinx());
-                    System.out.println("Miny" + sbb.getMiny());
-                    System.out.println("Maxx" + sbb.getMaxx());
-                    System.out.println("Maxy" + sbb.getMaxy());
-                    System.out.println("Resx" + sbb.getResx());
-                    System.out.println("Resy" + sbb.getResy());
-                }
-            }
-        }
-        */
-        
         Iterator it = sps.iterator();
         
         /*
@@ -112,42 +86,38 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         
         ByteArrayOutputStream output = null;
         
-        try {
-            /*
-             * Create a DocumentBuilderFactory from which a new document can be created
-             */
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setValidating(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            DOMImplementation di = db.getDOMImplementation();
-            
-            // <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
-            // [
-            // <!ELEMENT VendorSpecificCapabilities EMPTY>
-            // ]>  <!-- end of DOCTYPE declaration -->
-            DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
-            Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
+        /*
+         * Create a DocumentBuilderFactory from which a new document can be created
+         */
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        DOMImplementation di = db.getDOMImplementation();
 
-            Element rootElement = dom.getDocumentElement();
-            rootElement.setAttribute("version", "1.1.1");
+        // <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+        // [
+        // <!ELEMENT VendorSpecificCapabilities EMPTY>
+        // ]>  <!-- end of DOCTYPE declaration -->
+        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
+        Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
+
+        Element rootElement = dom.getDocumentElement();
+        rootElement.setAttribute("version", "1.1.1");
 //            rootElement.setAttribute("updateSequence", "0");
-            rootElement = s.toElement(dom, rootElement);
-            
-            
-            /*
-             * Create a new output format to which this document should be translated and
-             * serialize the tree to an XML document type
-             */
-            OutputFormat format = new OutputFormat(dom);
+        rootElement = s.toElement(dom, rootElement);
 
-            format.setIndenting(true);
-            output = new ByteArrayOutputStream();
-            XMLSerializer serializer = new XMLSerializer(output, format);
-            serializer.serialize(dom);
-        } catch (ParserConfigurationException ex) {
-            log.error("",ex);
-        }
-        
+
+        /*
+         * Create a new output format to which this document should be translated and
+         * serialize the tree to an XML document type
+         */
+        OutputFormat format = new OutputFormat(dom);
+
+        format.setIndenting(true);
+        output = new ByteArrayOutputStream();
+        XMLSerializer serializer = new XMLSerializer(output, format);
+        serializer.serialize(dom);
+
         byte[] data = output.toByteArray();
         dw.setContentLength(data.length);
         dw.setData(data);

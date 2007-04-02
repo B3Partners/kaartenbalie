@@ -40,14 +40,14 @@ public class Layer implements XMLElement {
     private Attribution attribution;// = new Attribution();
     private Layer parent;
     private ServiceProvider serviceProvider;// = new ServiceProvider();
-    private Set <Dimensions> dimensions;
-    private Set <String> layerKeywordList;
-    private Set <Style> styles;
-    private Set <LayerDomainResource >domainResource;
-    private Set <Identifier> identifiers;
-    private Set <OrganizationLayer> organizationLayers;
-    private Set <SrsBoundingBox> srsbb;
-    private Set <Layer> layers;
+    private Set dimensions;
+    private Set layerKeywordList;
+    private Set styles;
+    private Set domainResource;
+    private Set identifiers;
+    private Set organizationLayers;
+    private Set srsbb;
+    private Set layers;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -172,13 +172,13 @@ public class Layer implements XMLElement {
         return dimensions;
     }
     
-    public void setDimensions(Set <Dimensions> dimensions) {
+    public void setDimensions(Set dimensions) {
         this.dimensions = dimensions;
     }
     
     public void addDimension(Dimensions dimension) {
         if(dimensions == null) {
-            dimensions = new HashSet <Dimensions>();
+            dimensions = new HashSet();
         }
         dimensions.add(dimension);
         dimension.setLayer(this);
@@ -188,13 +188,13 @@ public class Layer implements XMLElement {
         return layerKeywordList;
     }
     
-    public void setLayerKeywordList(Set <String> layerKeywordList) {
+    public void setLayerKeywordList(Set layerKeywordList) {
         this.layerKeywordList = layerKeywordList;
     }
     
     public void addKeyword(String keyword) {
         if(layerKeywordList == null) {
-            layerKeywordList = new HashSet <String>();
+            layerKeywordList = new HashSet();
         }
         layerKeywordList.add(keyword);
     }
@@ -203,13 +203,13 @@ public class Layer implements XMLElement {
         return styles;
     }
     
-    public void setStyles(Set <Style> styles) {
+    public void setStyles(Set styles) {
         this.styles = styles;
     }
     
     public void addStyle(Style style) {
         if (null == styles) {
-            styles = new HashSet <Style>();
+            styles = new HashSet();
         }
         styles.add(style);
         style.setLayer(this);
@@ -219,13 +219,13 @@ public class Layer implements XMLElement {
         return domainResource;
     }
     
-    public void setDomainResource(Set <LayerDomainResource> domainResource) {
+    public void setDomainResource(Set domainResource) {
         this.domainResource = domainResource;
     }
     
     public void addDomainResource(LayerDomainResource dr) {
         if(null == domainResource) {
-            domainResource = new HashSet <LayerDomainResource>();
+            domainResource = new HashSet();
         }
         domainResource.add(dr);
         dr.setLayer(this);
@@ -235,13 +235,13 @@ public class Layer implements XMLElement {
         return identifiers;
     }
     
-    public void setIdentifiers(Set <Identifier> identifiers) {
+    public void setIdentifiers(Set identifiers) {
         this.identifiers = identifiers;
     }
     
     public void addIdentifier(Identifier identifier) {
         if(null == identifiers) {
-            identifiers = new HashSet <Identifier>();
+            identifiers = new HashSet();
         }
         identifiers.add(identifier);
         identifier.setLayer(this);
@@ -251,7 +251,7 @@ public class Layer implements XMLElement {
         return organizationLayers;
     }
     
-    public void setOrganizationLayers(Set <OrganizationLayer> organizationLayers) {
+    public void setOrganizationLayers(Set organizationLayers) {
         this.organizationLayers = organizationLayers;
     }
     
@@ -259,29 +259,29 @@ public class Layer implements XMLElement {
         return srsbb;
     }
     
-    public void setSrsbb(Set <SrsBoundingBox> srsbb) {
+    public void setSrsbb(Set srsbb) {
         this.srsbb = srsbb;
     }
     
     public void addSrsbb(SrsBoundingBox s) {
         if(null == srsbb) {
-            srsbb = new HashSet <SrsBoundingBox>();
+            srsbb = new HashSet();
         }
         srsbb.add(s);
         s.setLayer(this);
     }
     
-    public Set <Layer> getLayers() {
+    public Set getLayers() {
         return layers;
     }
     
-    public void setLayers(Set <Layer> layers) {
+    public void setLayers(Set layers) {
         this.layers = layers;
     }
     
     public void addLayer(Layer layer) {
         if (null == layers) {
-            layers = new HashSet <Layer>();
+            layers = new HashSet();
         }
         layers.add(layer);
         layer.setParent(this);
@@ -363,7 +363,7 @@ public class Layer implements XMLElement {
     public Object clone() {
         Layer cloneLayer                    = new Layer();
         if (null != this.id) {
-            cloneLayer.id                   = new Integer(this.id);
+            cloneLayer.id                   = new Integer(this.id.intValue());
         }
         if (null != this.name) {
             cloneLayer.name                 = new String(this.name);
@@ -403,7 +403,7 @@ public class Layer implements XMLElement {
             cloneLayer.attribution.setLayer(cloneLayer);
         }
         if (null != this.dimensions) {
-            cloneLayer.dimensions           = new HashSet <Dimensions>();
+            cloneLayer.dimensions           = new HashSet();
             Iterator it = this.dimensions.iterator();
             while (it.hasNext()) {
                 Dimensions dim = (Dimensions)((Dimensions)it.next()).clone();
@@ -412,10 +412,10 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.layerKeywordList) {
-            cloneLayer.layerKeywordList     = new HashSet <String>(this.layerKeywordList);
+            cloneLayer.layerKeywordList     = new HashSet(this.layerKeywordList);
         }
         if (null != this.styles) {
-            cloneLayer.styles               = new HashSet <Style>();
+            cloneLayer.styles               = new HashSet();
             Iterator it = this.styles.iterator();
             while (it.hasNext()) {
                 Style style = (Style)((Style)it.next()).clone();
@@ -424,7 +424,7 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.domainResource) {
-            cloneLayer.domainResource       = new HashSet <LayerDomainResource>();
+            cloneLayer.domainResource       = new HashSet();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 LayerDomainResource ldr = (LayerDomainResource)((LayerDomainResource)it.next()).clone();
@@ -433,7 +433,7 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.identifiers) {
-            cloneLayer.identifiers          = new HashSet <Identifier>();
+            cloneLayer.identifiers          = new HashSet();
             Iterator it = this.identifiers.iterator();
             while (it.hasNext()) {
                 Identifier identifier = (Identifier)((Identifier)it.next()).clone();
@@ -442,10 +442,10 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.organizationLayers) {
-            cloneLayer.organizationLayers   = new HashSet <OrganizationLayer>(this.organizationLayers);
+            cloneLayer.organizationLayers   = new HashSet(this.organizationLayers);
         }
         if (null != srsbb) {
-            cloneLayer.srsbb = new HashSet <SrsBoundingBox>();
+            cloneLayer.srsbb = new HashSet();
             Iterator it = srsbb.iterator();
             while (it.hasNext()) {
                 SrsBoundingBox s = (SrsBoundingBox)((SrsBoundingBox)it.next()).clone();
@@ -454,7 +454,7 @@ public class Layer implements XMLElement {
             }
         }
         if (null != this.layers) {
-            cloneLayer.layers               = new HashSet <Layer>();
+            cloneLayer.layers               = new HashSet();
             Iterator it = this.layers.iterator();
             while (it.hasNext()) {
                 Layer layer = (Layer)((Layer)it.next()).clone();
@@ -544,9 +544,6 @@ public class Layer implements XMLElement {
             layerElement.appendChild(keywordListElement);
         }
         
-        //System.out.println("NIEUWE LAYER");
-        //System.out.println("SRSBB size" + this.getSrsbb().size());
-        
         ArrayList hlist = null;
         Hashtable srshash = new Hashtable();
         SrsBoundingBox srsbb = null;
@@ -567,7 +564,6 @@ public class Layer implements XMLElement {
                 
         hlist = (ArrayList) srshash.get("SRS");
         if (hlist!=null && !hlist.isEmpty()) {
-            //System.out.println("SRS size" + hlist.size());
             Iterator it = hlist.iterator();
             while (it.hasNext()) {
                 srsbb = (SrsBoundingBox) it.next();
@@ -576,7 +572,6 @@ public class Layer implements XMLElement {
         }
         hlist = (ArrayList) srshash.get("LatLonBoundingBox");
         if (hlist!=null && !hlist.isEmpty()) {
-            //System.out.println("LatLonBoundingBox size" + hlist.size());
             Iterator it = hlist.iterator();
             if (it.hasNext()) { // max 1 latlon box
                 srsbb = (SrsBoundingBox) it.next();
@@ -585,7 +580,6 @@ public class Layer implements XMLElement {
         }
         hlist = (ArrayList) srshash.get("BoundingBox");
         if (hlist!=null && !hlist.isEmpty()) {
-            //System.out.println("BoundingBox size" + hlist.size());
             Iterator it = hlist.iterator();
             while (it.hasNext()) {
                 srsbb = (SrsBoundingBox) it.next();

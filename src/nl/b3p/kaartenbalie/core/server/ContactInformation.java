@@ -11,11 +11,12 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.util.Iterator;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-public class ContactInformation implements XMLElement {
+public class ContactInformation implements XMLElement, KBConstants {
     
     private Integer id;
     private String contactPerson;
@@ -36,18 +37,18 @@ public class ContactInformation implements XMLElement {
      */
     // <editor-fold defaultstate="" desc="default ContactInformation() constructor">
     public ContactInformation() {
-        contactPerson = "Chris van Lith";
-        contactPosition = "Software Developer";
-        contactOrganization = "B3Partners";
-        address = "Zonnebaan 12C";
-        addressType = "Postal";
-        postcode = "3542 EC";
-        city = "Utrecht";
-        stateOrProvince = "Utrecht";
-        country = "The Netherlands";
-        voiceTelephone = "0(031) 30 214 20 81";
-        fascimileTelephone = "";
-        emailAddress = "info@b3p.nl";
+        contactPerson       = CONTACT_PERSON;
+        contactPosition     = CONTACT_POSITION;
+        contactOrganization = CONTACT_ORGANIZATION;
+        address             = CONTACT_ADDRESS;
+        addressType         = CONTACT_ADDRESS_TYPE;
+        postcode            = CONTACT_POSTCODE;
+        city                = CONTACT_CITY;
+        stateOrProvince     = CONTACT_STATE_OR_PROVINCE;
+        country             = CONTACT_COUNTRY;
+        voiceTelephone      = CONTACT_VOICETELEPHONE;
+        fascimileTelephone  = CONTACT_FASCIMILEPHONE;
+        emailAddress        = CONTACT_EMAIL;
     }
     // </editor-fold>
     

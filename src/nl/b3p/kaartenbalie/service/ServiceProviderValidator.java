@@ -26,7 +26,7 @@ import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 
 public class ServiceProviderValidator implements KBConstants {
     
-    private Set <ServiceProvider> serviceProviders;
+    private Set serviceProviders;
     
     /** 
      * Create a ServiceProvider object which has only Capabilities and Formats which are supported by all ServiceProviders.
@@ -34,7 +34,7 @@ public class ServiceProviderValidator implements KBConstants {
      * @return a valid ServiceProvider object.
      */
     // <editor-fold defaultstate="" desc="ServiceProvider constructor.">
-    public ServiceProviderValidator(Set <ServiceProvider> serviceProviders) {
+    public ServiceProviderValidator(Set serviceProviders) {
         setServiceProviders(serviceProviders);
     }
     // </editor-fold>
@@ -75,7 +75,7 @@ public class ServiceProviderValidator implements KBConstants {
         
         //Now we still need to check for the right Exception formats.....
         String [] exceptions = this.validateExceptions();
-        Set <String> exception = new HashSet <String> ();
+        Set exception = new HashSet();
         for(int j = 0; j < exceptions.length; j++) {
             if (exceptions[j] != null && exceptions[j] != "null")
                 exception.add(exceptions[j]);
@@ -99,12 +99,12 @@ public class ServiceProviderValidator implements KBConstants {
         serviceProvider.setFees(SERVICE_CONSTRAINTS);
         
         ContactInformation ci = new ContactInformation();
-        ci.setContactPerson(CONTACTPERSON);
-        ci.setContactPosition(CONTACTPOSITION);
-        ci.setContactOrganization(CONTACTORGANIZATION);
-        ci.setAddress(CONTACTADDRESS);
-        ci.setAddressType(CONTACTADDRESS_TYPE);
-        ci.setPostcode(CONTACTPOSTCODE);
+        ci.setContactPerson(CONTACT_PERSON);
+        ci.setContactPosition(CONTACT_POSITION);
+        ci.setContactOrganization(CONTACT_ORGANIZATION);
+        ci.setAddress(CONTACT_ADDRESS);
+        ci.setAddressType(CONTACT_ADDRESS_TYPE);
+        ci.setPostcode(CONTACT_POSTCODE);
         ci.setCity(CONTACT_CITY);
         ci.setStateOrProvince(CONTACT_STATE_OR_PROVINCE);
         ci.setCountry(CONTACT_COUNTRY);
@@ -246,7 +246,7 @@ public class ServiceProviderValidator implements KBConstants {
             while(domainResourceIterator.hasNext()) {
                 ServiceDomainResource sdr = (ServiceDomainResource)domainResourceIterator.next();
                 if (sdr.getDomain().equalsIgnoreCase(domain)) {
-                    Set <String> formats= sdr.getFormats();
+                    Set formats= sdr.getFormats();
                     Iterator itf = formats.iterator();
                     while(itf.hasNext()){
                         String format=(String)itf.next();
@@ -268,7 +268,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="formats(HashMap hashMap) method.">
     private String [] formats(HashMap hashMap) {
-        ArrayList <String> supportedFormats = new ArrayList <String> ();
+        ArrayList supportedFormats = new ArrayList();
         Iterator it = hashMap.entrySet().iterator();
         while(it.hasNext()) {
             Map.Entry entry = (Map.Entry)it.next();
@@ -300,11 +300,11 @@ public class ServiceProviderValidator implements KBConstants {
     // </editor-fold>
     
     //<editor-fold defaultstate="" desc="Getter and setter methods.">
-    public Set<ServiceProvider> getServiceProviders() {
+    public Set getServiceProviders() {
         return serviceProviders;
     }
 
-    public void setServiceProviders(Set<ServiceProvider> serviceProviders) {
+    public void setServiceProviders(Set serviceProviders) {
         this.serviceProviders = serviceProviders;
     }
     //</editor-fold>

@@ -26,6 +26,7 @@ import org.hibernate.Transaction;
 public class KaartenbalieCrudAction extends CrudAction{
     
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
+    protected String msg;
     
     /** Protected method which returns the current Hibernate session.
      *
@@ -56,13 +57,14 @@ public class KaartenbalieCrudAction extends CrudAction{
         Transaction tx = sess.beginTransaction();
         
         ActionForward forward = null;
-        String msg = null;
+        
         
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
             return forward;
         } catch(Exception e) {
+            request.setAttribute("message", msg);
             tx.rollback();
             log.error("Exception occured, rollback", e);
             /*melding etc. naar formulier/site*/
@@ -76,6 +78,7 @@ public class KaartenbalieCrudAction extends CrudAction{
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
             tx.commit();
         } catch(Exception e) {
+            request.setAttribute("message", e);
             tx.rollback();
             log.error("Exception occured in second session, rollback", e);
         }

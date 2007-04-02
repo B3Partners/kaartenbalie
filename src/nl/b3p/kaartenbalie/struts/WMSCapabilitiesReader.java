@@ -69,12 +69,13 @@ import org.xml.sax.SAXException;
 
 public class WMSCapabilitiesReader {
     private static final Log log = LogFactory.getLog(WMSCapabilitiesReader.class);
+    private static final String VALIDATION_FEATURE = "http://xml.org/sax/features/validation";
     private static final String SCHEMA_FEATURE = "http://apache.org/xml/features/validation/schema";
     private static final String SCHEMA_FACTORY = "http://www.w3.org/2001/XMLSchema";
     private static final String SCHEMA_FILE    = "wms.xsd";
     
     private XMLReader parser;
-    private Stack <Object> stack = new Stack <Object>();
+    private Stack stack = new Stack();
     private Switcher s;
     private ServiceProvider serviceProvider;
     
@@ -101,11 +102,12 @@ public class WMSCapabilitiesReader {
     // <editor-fold defaultstate="" desc="getProvider(String location) method.">
     public ServiceProvider getProvider(String location) throws IOException, SAXException {
         //call a validator for the file
-//        this.validate(location);
+        //this.validate(location);
         
         //if no error on validation, start parsing process
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
-        
+        reader.setFeature(VALIDATION_FEATURE, true);
+        reader.setFeature(SCHEMA_FEATURE,true);
         //TODO DTD en error handlers
         reader.setContentHandler(s);
         reader.parse(location);
@@ -442,7 +444,6 @@ public class WMSCapabilitiesReader {
     
     private class StyleHandler extends ElementHandler {
         public void startElement(String uri, String localName, String qName, Attributes atts) {
-            //System.out.println("In LayerHandler");
             Style style = new Style();
             stack.push(style);
         }
@@ -587,7 +588,6 @@ public class WMSCapabilitiesReader {
     
     private class ExtentHandler extends ElementHandler {
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            //System.out.println("In ExtentHandler");
             Object object = stack.peek();
             if(object instanceof Layer) {
                 Layer layer = (Layer) object;
@@ -847,24 +847,12 @@ public class WMSCapabilitiesReader {
         
         public void endElement(String uri, String localName, String qName) {
             Object object = stack.peek();
-            //System.out.println("Title found. Title is " + sb.toString());
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
                 serviceProvider.setTitle(sb.toString());
             } else if (object instanceof Layer) {
                 Layer layer = (Layer) object;
                 layer.setTitle(sb.toString());
-                /*
-                //----------------------------------------------------------------------
-                System.out.println("In Title Handler. Some information:");
-                System.out.println("Start is : " + start);
-                System.out.println("Len is : " + len);
-                System.out.println("Chars length is : " + chars.length);
-                System.out.println("Chars pointer is : " + chars.toString());
-                String s = new String(chars);
-                System.out.println("Chars info is : " + s);
-                //----------------------------------------------------------------------
-                 */
             } else if (object instanceof Attribution) {
                 Attribution attribution = (Attribution) object;
                 attribution.setTitle(sb.toString());
@@ -954,7 +942,6 @@ public class WMSCapabilitiesReader {
         }
         
         public void endElement(String uri, String localName, String qName) {
-            //System.out.println("In KeywordHandler");
             Object object = stack.peek();
             if(object instanceof ServiceProvider) {
                 ServiceProvider serviceProvider = (ServiceProvider) object;
@@ -971,10 +958,7 @@ public class WMSCapabilitiesReader {
             String xlink = attributes.getValue("xmlns:xlink"); //not being used
             String type = attributes.getValue("xlink:type"); //not being used
             String href = attributes.getValue("xlink:href");
-            
-            
-            //System.out.println("In OnlineResourceHandler: ");
-            //System.out.println("De HREF is : " + href);
+
             //Stappenplan
             // eerst controleren of bovenste in stack een String met POST of GET is
             // zo ja dan weten we dat de laag eronder een ServiceDomainResource is
@@ -1289,9 +1273,7 @@ public class WMSCapabilitiesReader {
     }
     
     private class UserDefinedSymbolizationHandler extends ElementHandler {
-        public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            //System.out.println("In UserDefinedSymbolizationHandler");
-        }
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {        }
         public void endElement(String uri, String localName, String qName) {}
     }
     //end not being used

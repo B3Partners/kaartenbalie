@@ -35,12 +35,12 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         String previousUrl = "";
-        ArrayList <StringBuffer> urls = new ArrayList <StringBuffer> ();
+        ArrayList urls = new ArrayList();
         StringBuffer spUrl = null;
         
         /* Get a list with ServiceProviders from the database */
@@ -50,25 +50,9 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
-        
-        //String layer = "";
-        
-        if (layers.length == 0) {
-            //Geen layer opgegeven.
+        if (layers.length == 0)
             return null;
-        }
         
-        /*
-        if (layers.length > 1) {
-            if (WMS_GETFEATUREINFO_RETURN_EXCEPTION) {
-                //Genereer hier een exception en return deze
-                //return null;
-            } else {
-                //neem alleen de eerste layer in de lijst en maak hier een GetFeatureInfo van
-                 layer = layers[0];
-            }
-        }
-        layer = layers[0];
         /* Go through each layer and find the ServiceProvider this layer belongs to.
          * If a ServiceProvider has been found there will be checked if the previous
          * layer belonged to the same ServiceProvider. If yes then this layer is added

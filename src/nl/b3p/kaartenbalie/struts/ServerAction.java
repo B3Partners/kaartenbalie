@@ -10,6 +10,7 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
+import org.xml.sax.SAXException;
 
 public class ServerAction extends KaartenbalieCrudAction {
     
@@ -116,7 +118,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
-            serviceProvider = (ServiceProvider)session.load(ServiceProvider.class, new Integer(id));
+            serviceProvider = (ServiceProvider)session.load(ServiceProvider.class, new Integer(id.intValue()));
         }
         return serviceProvider;
     }
@@ -191,7 +193,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         
         // nieuwe default actie op delete zetten
-        Session sess = getHibernateSession();
+        //
         //validate and check for errors
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
@@ -202,51 +204,67 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         
         Integer id = FormUtils.StringToInteger(dynaForm.getString("serverid"));
+        
         ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
-                
-        if (null == serviceProvider) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
         
-        WMSCapabilitiesReader wms = new WMSCapabilitiesReader(serviceProvider);
-        String url = dynaForm.getString("serviceProviderUrl");
-                
-        //check this URL, if no parameters are given, fill them in yourself with the standard options
-        //Split eerst in twee delen, namelijk daar waar het vraagteken zich bevindt
-        String [] urls = url.split("\\?");
-        url = urls[0] + "?";
-        
-        boolean req = false, version = false, service = false;        
-        String [] params = urls[1].split("&");
-        for (int i = 0; i < params.length; i++) {
-            String [] paramValue = params[i].split("=");
-            if (!paramValue[0].equalsIgnoreCase("REQUEST") &&
-                !paramValue[0].equalsIgnoreCase("VERSION") &&
-                !paramValue[0].equalsIgnoreCase("SERVICE")) {
-                url += paramValue[0] + "=" + paramValue[1] + "&";
+        if(id == null) {                
+            if (null == serviceProvider) {
+                prepareMethod(dynaForm, request, LIST, EDIT);
+                addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
+
+            WMSCapabilitiesReader wms = new WMSCapabilitiesReader(serviceProvider);
+            String url = dynaForm.getString("serviceProviderUrl");
+
+            //check this URL, if no parameters are given, fill them in yourself with the standard options
+            //Split eerst in twee delen, namelijk daar waar het vraagteken zich bevindt
+            String [] urls = url.split("\\?");
+            url = urls[0] + "?";
+
+            boolean req = false, version = false, service = false;        
+            String [] params = urls[1].split("&");
+            for (int i = 0; i < params.length; i++) {
+                String [] paramValue = params[i].split("=");
+                if (!paramValue[0].equalsIgnoreCase("REQUEST") &&
+                    !paramValue[0].equalsIgnoreCase("VERSION") &&
+                    !paramValue[0].equalsIgnoreCase("SERVICE")) {
+                    url += paramValue[0] + "=" + paramValue[1] + "&";
+                }
+            }
+
+            url += "REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS";
+
+            try {
+                serviceProvider = wms.getProvider(url);
+            } catch (IOException e) {
+                request.setAttribute("message", "Kan geen verbinding maken met de server. Controleer de URL en/of controleer of de server actief is.");
+                //super.msg = "Kan geen verbinding maken met de server. Controleer de URL en/of controleer of de server actief is.";
+                log.error("Error saving server", e);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            } catch (SAXException e) {
+                request.setAttribute("message", "Kan verbinding met server maken maar deze heeft een ongeldige Capability en niet worden opgeslagen.");
+                //super.msg = "Kan verbinding met server maken maar deze heeft een ongeldige Capability en niet worden opgeslagen.";
+                log.error("Error saving server", e);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            } catch (Exception e) {
+                request.setAttribute("message", "Er is een fout opgetreden: " + e);
+                //super.msg = "Er is een fout opgetreden: " + e;
+                log.error("Error saving server", e);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+                return getAlternateForward(mapping, request);
             }
         }
         
-        url += "REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS";
-        
-        try {
-            serviceProvider = wms.getProvider(url);
-        } catch (Exception e) {
-            request.setAttribute("message", "De opgegeven URL is onjuist. Probeert u het alstublieft opnieuw.");
-            log.error("Error saving server", e);
-            return getAlternateForward(mapping, request);
-        }
-        
         populateServerObject(dynaForm, serviceProvider);
-        
-        try { 
-            sess.saveOrUpdate(serviceProvider);
-            sess.flush();
-        } catch (Exception e) {
-            log.error("Error saving server", e);
-        }
+        Session sess = getHibernateSession();
+        sess.saveOrUpdate(serviceProvider);
+        sess.flush();
         
         dynaForm.set("serverid", "");
         dynaForm.set("serviceProviderGivenName", "");
@@ -286,7 +304,7 @@ public class ServerAction extends KaartenbalieCrudAction {
             // nieuwe default actie op delete zetten
             Session sess = getHibernateSession();
                         
-            Integer id = Integer.parseInt(serviceProviderSelected[i]);
+            Integer id = new Integer(Integer.parseInt(serviceProviderSelected[i]));
             ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
             
             if (null == serviceProvider) {
@@ -301,7 +319,7 @@ public class ServerAction extends KaartenbalieCrudAction {
                 sess.delete(serviceProvider);
                 sess.flush();
             } catch (Exception e) {
-                request.setAttribute("message", "De service is niet verwijderd: Er zijn nog organisaties gekoppeld aan deze service.");
+                super.msg = "De service is niet verwijderd: Er zijn nog organisaties gekoppeld aan deze service.";
                 log.error("Error deleting server", e);
             }
         }

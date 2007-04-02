@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 public class ServerActionDemo extends ServerAction {
@@ -121,7 +122,7 @@ public class ServerActionDemo extends ServerAction {
         
         User user = null;
         try {
-            user = getUser(dynaForm, request, false, Integer.parseInt(userid));
+            user = getUser(dynaForm, request, false, new Integer(Integer.parseInt(userid)));
         } catch (Exception e) {
             request.setAttribute("message", "U dient zich eerst te registreren voordat u een WMS server toe kunt voegen.");
             return getAlternateForward(mapping, request);
@@ -129,8 +130,6 @@ public class ServerActionDemo extends ServerAction {
         
         Organization org = user.getOrganization();
         org.setOrganizationLayer(serviceProvider.getLayers());
-        
-        
         
         sess.saveOrUpdate(serviceProvider);
         sess.saveOrUpdate(org);
@@ -142,7 +141,7 @@ public class ServerActionDemo extends ServerAction {
         dynaForm.set("serviceProviderUpdatedDate", "");
         dynaForm.set("serviceProviderReviewed", "");
         
-        return mapping.findForward("nextPage");//return super.save(mapping,dynaForm,request,response);
+        return mapping.findForward("nextPage");
     }
     // </editor-fold>
     
@@ -156,14 +155,14 @@ public class ServerActionDemo extends ServerAction {
      * @return a User object.
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) throws HibernateException {
         Session session = getHibernateSession();
         User user = null;
         
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id));
+            user = (User)session.load(User.class, new Integer(id.intValue()));
         }
         return user;
     }

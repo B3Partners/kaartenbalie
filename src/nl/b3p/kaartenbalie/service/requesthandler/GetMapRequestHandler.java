@@ -37,12 +37,12 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         String previousUrl = "";
-        ArrayList <StringBuffer> urls = new ArrayList <StringBuffer> ();
+        ArrayList urls = new ArrayList();
         StringBuffer spUrl = null;
         
         /* Get a list with ServiceProviders from the database */
@@ -52,24 +52,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         /* Split the string with layers into a String array */
         String [] layers = (((String[])parameters.get(WMS_PARAM_LAYERS))[0]).split(",");
-        
-        /*
-        String [] newLayer = new String[tempSP.size()];
-        for (int i = 0; i < layers.length; i++) {
-            String layername = layers[i];
-            if (layername.equals("0_" + TOPLAYERNAME)) {
-                Iterator it = tempSP.iterator();
-                while (it.hasNext()) {
-                    ServiceProvider sp = (ServiceProvider)it.next();
-                    newLayer[i] = sp.getTopLayer().getId() + "_" + sp.getTopLayer().getName();
-                }
-            }
-        }
-        
-        if(newLayer.length != 0) {
-            layers = newLayer;
-        }
-        */
         
         /* Go through each layer and find the ServiceProvider this layer belongs to.
          * If a ServiceProvider has been found there will be checked if the previous

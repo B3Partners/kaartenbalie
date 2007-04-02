@@ -29,7 +29,7 @@ public class GetStylesRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException {
+    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException {
         return null;
     }
     // </editor-fold>

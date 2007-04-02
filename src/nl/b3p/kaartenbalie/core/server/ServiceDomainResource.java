@@ -20,7 +20,7 @@ import org.w3c.dom.Text;
 public class ServiceDomainResource implements XMLElement {
     
     private Integer id;
-    private Set <String> formats;
+    private Set formats;
     private String getUrl;
     private String postUrl;
     private String domain;
@@ -39,13 +39,13 @@ public class ServiceDomainResource implements XMLElement {
         return formats;
     }
 
-    public void setFormats(Set <String> formats) {
+    public void setFormats(Set formats) {
         this.formats = formats;
     }
     
     public void addFormat(String f) {
         if (null == formats) {
-            formats = new HashSet <String>();
+            formats = new HashSet();
         }
         formats.add(f);
     }
@@ -91,10 +91,10 @@ public class ServiceDomainResource implements XMLElement {
     public Object clone() {
         ServiceDomainResource cloneSDR      = new ServiceDomainResource();
         if (null != this.id) {
-            cloneSDR.id                     = new Integer(this.id);
+            cloneSDR.id                     = new Integer(this.id.intValue());
         }
         if (null != this.formats) {
-            cloneSDR.formats                = new HashSet <String>(this.formats);
+            cloneSDR.formats                = new HashSet(this.formats);
         }
         if (null != this.getUrl) {
             cloneSDR.getUrl                 = new String(this.getUrl);

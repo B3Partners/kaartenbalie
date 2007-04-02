@@ -25,7 +25,7 @@ public class Style implements XMLElement {
     private String title;
     private String abstracts;
     private Layer layer;
-    private Set <StyleDomainResource> domainResource;
+    private Set domainResource;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -64,13 +64,13 @@ public class Style implements XMLElement {
         return domainResource;
     }
     
-    public void setDomainResource(Set <StyleDomainResource> domainResource) {
+    public void setDomainResource(Set domainResource) {
         this.domainResource = domainResource;
     }
     
     public void addDomainResource(StyleDomainResource dr) {
         if (null == domainResource) {
-            domainResource = new HashSet <StyleDomainResource>();
+            domainResource = new HashSet();
         }
         domainResource.add(dr);
         dr.setStyle(this);
@@ -114,7 +114,7 @@ public class Style implements XMLElement {
     public Object clone() {
         Style cloneStyle            = new Style();
         if (null != this.id) {
-            cloneStyle.id               = new Integer(this.id);
+            cloneStyle.id               = new Integer(this.id.intValue());
         }
         if (null != this.name) {
             cloneStyle.name             = new String(this.name);
@@ -126,7 +126,7 @@ public class Style implements XMLElement {
             cloneStyle.abstracts        = new String(this.abstracts);
         }
         if (null != this.domainResource) {
-            cloneStyle.domainResource   = new HashSet <StyleDomainResource>();
+            cloneStyle.domainResource   = new HashSet();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 StyleDomainResource sdr = (StyleDomainResource)((StyleDomainResource)it.next()).clone();

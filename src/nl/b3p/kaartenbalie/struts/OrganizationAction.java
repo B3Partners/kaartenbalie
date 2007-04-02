@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +40,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
-    
     
     /** Execute method which handles all executable requests.
      *
@@ -54,11 +54,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        
-        
-        
-        
         String selectedId = request.getParameter("id");
         
         if (selectedId != null) {
@@ -130,12 +125,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            try {
-                organization = (Organization)session.createQuery(
-                        "from Organization o where " +
-                        "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
-            } catch(Exception e){}
-            //organization = (Organization)session.load(Organization.class, new Integer(id));
+            organization = (Organization)session.createQuery(
+                    "from Organization o where " +
+                    "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
         }
         return organization;
     }
@@ -165,8 +157,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    
-    
     /** Method that fills an organization object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -175,7 +165,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param layerSelected String array with the selected layers for this organization
      */
     // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
-    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {// List layerList, String layerSelected) {
+    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
         organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
@@ -199,15 +189,14 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * which are allowed to be requested.
          */
         int size = selectedLayers.length;
-        Set <Layer> layers = new HashSet <Layer>();
-        Set <ServiceProvider> serviceProviders = new HashSet <ServiceProvider>();
+        Set layers = new HashSet();
+        Set serviceProviders = new HashSet();
         for(int i = 0; i < size; i++) {
             int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
-            //System.out.println("Select is : " +  select);
             Iterator it = layerList.iterator();
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
-                if (layer.getId() == select) {
+                if (layer.getId().intValue() == select) {
                     //layers.add(layer);
                     layers = getAllParentLayers(layer,  layers );
                     serviceProviders.add(getTopLayer(layer).getServiceProvider());
@@ -235,8 +224,14 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    
-    private void addSrsCount(HashMap <String, Integer> hm, String srs){
+    /** Creates a list with the available layers.
+     *
+     * @param hm The HashMapin which a found SRS has to stored.
+     * @param srs String srs which has to be stored.
+     *
+     */
+    // <editor-fold defaultstate="" desc="addSrsCount(HashMap hm, String srs) method.">
+    private void addSrsCount(HashMap hm, String srs){
         if (hm.containsKey(srs)){
             int i = ((Integer)hm.get(srs)).intValue()+1;
             hm.put(srs, new Integer(i));
@@ -244,6 +239,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             hm.put(srs, new Integer("1"));
         }
     }
+    // </editor-fold>
     
     /** Creates a list with the available layers.
      *
@@ -253,14 +249,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @return the same set Set <Layer> as given.
      */
     // <editor-fold defaultstate="" desc="getTopSRS(Layer layer) method.">
-    private Set <SrsBoundingBox> getTopSRS(Layer layer) {
+    private Set getTopSRS(Layer layer) {
         if(layer.getParent() != null) {
             this.getTopSRS(layer.getParent());
         }
         return layer.getSrsbb();
     }
     // </editor-fold>
-    
     
     /** Creates a list with the available layers.
      *
@@ -278,12 +273,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    
-    
-    
-    
-    
-    
     /** Creates a list with the available layers.
      *
      * @param layer The layer of which we have to find the parent layers.
@@ -292,7 +281,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @return the same set Set <Layer> as given.
      */
     // <editor-fold defaultstate="" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
-    private Set <Layer> getAllParentLayers(Layer layer, Set <Layer> layers) {
+    private Set getAllParentLayers(Layer layer, Set layers) {
         if(layer.getParent() != null) {
             layers.add(layer);
             this.getAllParentLayers(layer.getParent(), layers);
@@ -308,10 +297,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      *
-     * @throws Exception
+     * @throws HibernateException, JSONException, Exception
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
-    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
+    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
         
         super.createLists(form, request);
@@ -328,7 +317,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet<Layer> set= new HashSet<Layer>();
+            HashSet set= new HashSet();
             set.add(sp.getTopLayer());
             parentObj = createTreeList(set, parentObj);
             if (parentObj.has("children")){
@@ -437,10 +426,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Actionforward object.
      *
-     * @throws Exception
+     * @throws Exception, HibernateException
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         //if invalid
         //String layerSelected = dynaForm.getString("layerSelected");
         HttpSession session = request.getSession();
@@ -515,10 +504,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Actionforward object.
      *
-     * @throws Exception
+     * @throws Exception, HibernateException
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         String [] organizationSelected = dynaForm.getStrings("organizationSelected");
         int size = organizationSelected.length;
         
@@ -539,7 +528,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             // nieuwe default actie op delete zetten
             Session sess = getHibernateSession();
                         
-            Integer id = Integer.parseInt(organizationSelected[i]);
+            Integer id = new Integer(Integer.parseInt(organizationSelected[i]));
             Organization organization = getOrganization(dynaForm, request, false, id);
             
             if (null == organization) {
@@ -549,13 +538,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             }
 
             populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
-            //store in db
-            try {
-                sess.delete(organization);
-                sess.flush();
-            } catch (Exception e) {
-                request.setAttribute("message", "De organizatie is niet verwijderd: Er zijn nog gebruikers gekoppeld aan deze organisatie.");
-            }            
+
+            sess.delete(organization);
+            sess.flush();         
         }
         return super.delete(mapping, dynaForm, request, response);
     }

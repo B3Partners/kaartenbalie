@@ -20,7 +20,7 @@ import org.w3c.dom.Text;
 public class StyleDomainResource implements XMLElement {
     
     private Integer id;
-    private Set <String> formats;
+    private Set formats;
     private String url;
     private String domain;
     private String width;
@@ -40,13 +40,13 @@ public class StyleDomainResource implements XMLElement {
         return formats;
     }
     
-    public void setFormats(Set <String> formats) {
+    public void setFormats(Set formats) {
         this.formats = formats;
     }
     
     public void addFormat(String f) {
         if (null == formats) {
-            formats = new HashSet <String>();
+            formats = new HashSet();
         }
         formats.add(f);
     }
@@ -103,7 +103,7 @@ public class StyleDomainResource implements XMLElement {
             cloneSDR.id                     = new Integer(this.id.intValue());
         }
         if (null != this.formats) {
-            cloneSDR.formats                = new HashSet <String>(this.formats);
+            cloneSDR.formats                = new HashSet(this.formats);
         }
         if (null != this.url) {
             cloneSDR.url                    = new String(this.url);

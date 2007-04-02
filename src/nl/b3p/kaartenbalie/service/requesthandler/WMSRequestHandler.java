@@ -79,8 +79,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
         
-        List <ServiceProvider> sps  = new ArrayList <ServiceProvider>();
-        List <ServiceProvider> clonedsps  = new ArrayList <ServiceProvider>();
+        List sps  = new ArrayList();
+        List clonedsps  = new ArrayList();
         Set dbLayers = null;
         Set clonedLayers = new HashSet();
         
@@ -92,7 +92,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
             
             dbLayers = dbUser.getOrganization().getOrganizationLayer();
-            System.out.println("Size of the databaselayers: " + dbLayers.size());
             if (dbLayers == null)
                 return null;
                         
@@ -110,7 +109,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
              * By walking through all layers, checking if the layer has a parent we can
              * select only those layers which hang directly under a serviceprovider
              */ 
-            Set <ServiceProvider> serviceproviders = new HashSet <ServiceProvider> ();
+            Set serviceproviders = new HashSet();
             Iterator it = dbLayers.iterator();
             while (it.hasNext()) {
                 Layer dbLayer = (Layer)it.next();
@@ -187,35 +186,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return sps;
     }
     // </editor-fold>
-    
-    /*
-    private void showLayerDetail(Set layers) {
-        Iterator layerIterator = layers.iterator();
-        while (layerIterator.hasNext()) {
-            Layer layer = (Layer)layerIterator.next();
-            System.out.println("Layer name: " + layer.getName());
-            //System.out.println("Layer title: " + layer.getTitle());
-            if(layer.getStyles() != null) {
-                Iterator styleIterator = layer.getStyles().iterator();
-                while (styleIterator.hasNext()) {
-                    Style style = (Style)styleIterator.next();
-                    //System.out.println("Style name: " + style.getName());
-                    //System.out.println("Style title: " + style.getTitle());
-                    Iterator domainIterator = style.getDomainResource().iterator();
-                    while(domainIterator.hasNext()) {
-                        StyleDomainResource sdr = (StyleDomainResource)domainIterator.next();
-                        System.out.println("StyleID : " + sdr.getId());
-                        //System.out.println("StyleID : " + sdr.getDomain());                        
-                    }
-                }
-            }
-            if(layer.getLayers() != null)
-                showLayerDetail(layer.getLayers());
-        }
-    }
-    */
-    
-    
+        
     /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to
      * the ServiceProvider which this url holds.
      *
@@ -226,7 +197,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static DataWrapper getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws IOException {
+    protected static DataWrapper getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws ParserConfigurationException, IOException, SAXException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -308,51 +279,41 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 ImageIO.write(buffImg, "png", baos);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                 //combineer de featureinfo....
-                try {
-                    //Setting up the DocumentBuilderFactory
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    //Setting the validations, namespace awareness and whitespace handling
-                    dbf.setValidating(true);
-                    dbf.setNamespaceAware(true);
-                    dbf.setIgnoringElementContentWhitespace(true);
-                    
-                    //Creating a new document builder
-                    DocumentBuilder builder = dbf.newDocumentBuilder();
-                    
-                    //Creating a new destination
-                    Document destination = builder.newDocument();
-                    Element rootElement = destination.createElement("msGMLOutput");
-                    destination.appendChild(rootElement);
-                    rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
-                    rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-                    rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                    
-                    Document source = null;
-                    for (int i = 0; i < urls.size(); i++) {
-                        //Creating the source
-                        source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
-                        
-                        //Copying the elements from one document to the other
-                        copyElements(source, destination);
-                    }
-                    
-                    /*
-                     * Create a new output format to which this document should be translated and
-                     * serialize the tree to an XML document type
-                     */
-                    OutputFormat format = new OutputFormat(destination);
-                    format.setIndenting(true);
-                    XMLSerializer serializer = new XMLSerializer(baos, format);
-                    serializer.serialize(destination);
-                } catch (SAXException e) {
-                    //System.exit(1);
-                } catch (ParserConfigurationException e) {
-                    System.err.println(e);
-                    //System.exit(1);
-                } catch (IOException e) {
-                    System.err.println(e);
-                    //System.exit(1);
+                //Setting up the DocumentBuilderFactory
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                //Setting the validations, namespace awareness and whitespace handling
+                dbf.setValidating(true);
+                dbf.setNamespaceAware(true);
+                dbf.setIgnoringElementContentWhitespace(true);
+
+                //Creating a new document builder
+                DocumentBuilder builder = dbf.newDocumentBuilder();
+
+                //Creating a new destination
+                Document destination = builder.newDocument();
+                Element rootElement = destination.createElement("msGMLOutput");
+                destination.appendChild(rootElement);
+                rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
+                rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+                rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
+                Document source = null;
+                for (int i = 0; i < urls.size(); i++) {
+                    //Creating the source
+                    source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
+
+                    //Copying the elements from one document to the other
+                    copyElements(source, destination);
                 }
+
+                /*
+                 * Create a new output format to which this document should be translated and
+                 * serialize the tree to an XML document type
+                 */
+                OutputFormat format = new OutputFormat(destination);
+                format.setIndenting(true);
+                XMLSerializer serializer = new XMLSerializer(baos, format);
+                serializer.serialize(destination);
             }
         } else {
             String url = ((StringBuffer)urls.get(0)).toString();
@@ -404,8 +365,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
     }
-    
-    
     
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *
@@ -557,7 +516,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
-    public abstract DataWrapper getRequest(DataWrapper dw, Map <String, Object> params) throws IOException;
+    public abstract DataWrapper getRequest(DataWrapper dw, Map params) throws IOException, Exception;
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="getter methods.">

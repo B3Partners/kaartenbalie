@@ -27,7 +27,6 @@ public class DataWrapper {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
-        System.out.println("ContentType : " + contentType);
     }
 
     public String getContentEncoding() {
@@ -76,7 +75,5 @@ public class DataWrapper {
 
     public void setContentDisposition(String header) {
         this.contentDisposition = header;
-        System.out.println("Header : " + contentDisposition);
-    }
-    
+    }    
 }

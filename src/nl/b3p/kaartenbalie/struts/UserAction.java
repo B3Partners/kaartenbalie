@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 public class UserAction extends KaartenbalieCrudAction {
@@ -102,7 +103,7 @@ public class UserAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id));
+            user = (User)session.load(User.class, new Integer(id.intValue()));
         }
         return user;
     }
@@ -117,28 +118,11 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a Organization object.
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
-    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) {
-        Session session = getHibernateSession();
-        Organization org = null;
-        
-        
+    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) throws HibernateException {
         Session sess = getHibernateSession();
-        try {
-            org = (Organization)sess.createQuery(
+        return (Organization)sess.createQuery(
                     "from Organization o where " +
                     "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
-            return org;
-        } catch(Exception e){
-            return org;
-        }
-        
-        
-        /*
-        if (null != id) {
-            org = (Organization)session.load(Organization.class, new Integer(id));
-         }
-         */
-        //return org;
     }
     // </editor-fold>
     
@@ -171,11 +155,12 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        Session sess = getHibernateSession();
         
-        List userList = getHibernateSession().createQuery("from User").list();
+        List userList = sess.createQuery("from User").list();
         request.setAttribute("userlist", userList); 
         
-        List organizationlist = getHibernateSession().createQuery("from Organization").list();
+        List organizationlist = sess.createQuery("from Organization").list();
         request.setAttribute("organizationlist", organizationlist); 
     }
     // </editor-fold>
@@ -304,7 +289,7 @@ public class UserAction extends KaartenbalieCrudAction {
                 return getAlternateForward(mapping, request);
             }
             
-            Integer id = Integer.parseInt(userSelected[i]);
+            Integer id = new Integer(Integer.parseInt(userSelected[i]));
             User user = getUser(dynaForm,request,true, id);
             
             if (null == user) {

@@ -27,19 +27,10 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 
-/**
- * DemoRegistrationAction definition:
- *
- */
-
 public class DemoRegistrationAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
-    
-    /** Creates a new instance of DemoRegistrationAction */
-    public DemoRegistrationAction() {
-    }
     
     /** Execute method which handles all executable requests.
      *
@@ -86,7 +77,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id));
+            user = (User)session.load(User.class, new Integer(id.intValue()));
         }
         return user;
     }
@@ -121,8 +112,6 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         dynaForm.set("organizationFax", organization.getFax());
     }
     // </editor-fold>
-    
-    
     
     /** Method that fills a serive provider object with the user input from the forms.
      *
@@ -239,13 +228,8 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         sess.flush();
         
         dynaForm.set("id", user.getId().toString());
-        //dynaForm.set("serviceProviderGivenName", "");
-        //dynaForm.set("serviceProviderUrl", "");
-        //dynaForm.set("serviceProviderUpdatedDate", "");
-        //dynaForm.set("serviceProviderReviewed", "");
+        
         ActionForward action = super.save(mapping,dynaForm,request,response);
-        //request.setAttribute("id", user.getId().toString());
-        //dynaForm.set("id", user.getId().toString());
         
         request.setAttribute("id", user.getId().toString());
         request.setAttribute("firstname", user.getFirstName());
@@ -253,9 +237,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         request.setAttribute("emailAddress", user.getEmailAddress());
         request.setAttribute("username", user.getUsername());
         request.setAttribute("password", user.getPassword());
-        
         request.setAttribute("personalURL", user.getPersonalURL());
-        
         request.setAttribute("name", organization.getName());
         request.setAttribute("organizationStreet", organization.getStreet());
         request.setAttribute("organizationNumber", organization.getNumber());
@@ -267,62 +249,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         request.setAttribute("organizationTelephone", organization.getTelephone());
         request.setAttribute("organizationFax", organization.getFax());
         
-        return action; //super.save(mapping,dynaForm,request,response);
+        return action;
     }
-    // </editor-fold>
-    
-    /** Method for deleting a serviceprovider selected by a user.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    /*
-    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        String [] serviceProviderSelected = dynaForm.getStrings("serviceProviderSelected");
-        int size = serviceProviderSelected.length;
-        
-        for(int i = 0; i < size; i++) {
-            //if invalid
-            if (!isTokenValid(request)) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            // nieuwe default actie op delete zetten
-            Session sess = getHibernateSession();
-            //validate and check for errors
-            ActionErrors errors = dynaForm.validate(mapping, request);
-            if(!errors.isEmpty()) {
-                addMessages(request, errors);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-            
-            Integer id = Integer.parseInt(serviceProviderSelected[i]);
-            ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
-            
-            if (null == serviceProvider) {
-                prepareMethod(dynaForm, request, LIST, EDIT);
-                addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            populateServerObject(dynaForm, serviceProvider);
-            //store in db
-            sess.delete(serviceProvider);
-            sess.flush();
-        }
-        return super.delete(mapping, dynaForm, request, response);
-    }*/
     // </editor-fold>
 }

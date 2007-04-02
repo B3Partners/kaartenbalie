@@ -19,18 +19,24 @@ public interface KBConstants {
     public static final String SERVICE_FEES = "None";
     public static final String SERVICE_CONSTRAINTS = "None";
     
-    public static final String CONTACTPERSON = "Chris van Lith";
-    public static final String CONTACTPOSITION = "Software Developer";
-    public static final String CONTACTORGANIZATION = "B3Partners";
-    public static final String CONTACTADDRESS = "Zonnebaan 12C";
-    public static final String CONTACTADDRESS_TYPE = "Postal";
-    public static final String CONTACTPOSTCODE = "3542 EC";
+    public static final String CONTACT_PERSON = "Chris van Lith";
+    public static final String CONTACT_POSITION = "Software Developer";
+    public static final String CONTACT_ORGANIZATION = "B3Partners";
+    public static final String CONTACT_ADDRESS = "Zonnebaan 12C";
+    public static final String CONTACT_ADDRESS_TYPE = "Postal";
+    public static final String CONTACT_POSTCODE = "3542 EC";
     public static final String CONTACT_CITY = "Utrecht";
     public static final String CONTACT_STATE_OR_PROVINCE = "Utrecht";
     public static final String CONTACT_COUNTRY = "The Netherlands";
     public static final String CONTACT_VOICETELEPHONE = "0 (031) 30 214 20 81";
     public static final String CONTACT_FASCIMILEPHONE = "";
     public static final String CONTACT_EMAIL = "info@b3p.nl";
+    
+    public static final String SERVICEPROVIDER_NAME = "OGC:WMS";
+    public static final String SERVICEPROVIDER_TITLE = "Kaartenbalie Map Portal";
+    public static final String SERVICEPROVIDER_ABSTRACT = "WMS-based access to different maps. Try B3Partners Portal System at http://www.b3p.nl/";
+    public static final String SERVICEPROVIDER_FEES = "none";
+    public static final String SERVICEPROVIDER_ACCESSCONSTRAINTS = "none";
     
     public static final String TOPLAYERNAME = "B3P_Kaartenbalie";
     // </editor-fold>
@@ -80,18 +86,16 @@ public interface KBConstants {
     public static final String WMS_PARAM_TRANSPARENT_TRUE = "TRUE";
     
     // TODO dit klopt niet, andere mimi types!
-    public static final String WMS_PARAM_EXCEPTION_TEXT = "text/plain";
-    public static final String WMS_PARAM_EXCEPTION_HTML = "text/html";
-    public static final String WMS_PARAM_EXCEPTION_XML = "text/xml";
-    public static final String WMS_PARAM_EXCEPTION_JPEG = "image/jpeg";
-    public static final String WMS_PARAM_EXCEPTION_PNG = "image/png";
+    public static final String WMS_PARAM_WMS_XML = "application/vnd.ogc.wms_xml";
+    public static final String WMS_PARAM_EXCEPTION_XML = "application/vnd.ogc.se_xml";
+    
     
     public static final String CHARSET_UTF8 = "UTF-8";
     public static final String CHARSET_ISO_8859_1 = "ISO_8859_1";
     
     public static final String FEATURE_INFO_FORMAT = "application/vnd.ogc.gml";
     
-    public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;
+    public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;    
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="List with essential parameters per wms service.">
@@ -190,11 +194,8 @@ public interface KBConstants {
      * List with implemented exceptions.
      */
     public static final List SUPPORTED_EXCEPTIONS = Arrays.asList(new String[] {
-        WMS_PARAM_EXCEPTION_TEXT, 
-        WMS_PARAM_EXCEPTION_HTML, 
-        WMS_PARAM_EXCEPTION_XML, 
-        WMS_PARAM_EXCEPTION_JPEG, 
-        WMS_PARAM_EXCEPTION_PNG
+        WMS_PARAM_WMS_XML,
+        WMS_PARAM_EXCEPTION_XML
     });
     // </editor-fold>
 }

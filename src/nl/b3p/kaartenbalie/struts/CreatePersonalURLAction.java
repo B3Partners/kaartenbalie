@@ -50,9 +50,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
     private String registeredIP;
     private String personalURL;
     
-    /**Return a map of actionMethods
-     * Add a actionmethod to the map
+    /*
+     * Which in which self specified ActionMethods can be added to a Map of ActionMethods which will be returned.
+     *
+     * @return Map with ActionMethods
+     *
      */
+    // <editor-fold defaultstate="" desc="getActionMethodPropertiesMap() method.">
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
         ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETIPADRS);
@@ -63,6 +67,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         map.put(GETIPADRS, crudProp);               
         return map;
     }
+    // </editor-fold>
      
     /** Unspecified method which handles all incoming request that have no actions defined.
      *
@@ -163,10 +168,10 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
      *
      * @return ActionForward defined by Apache foundation
      *
-     * @throws Exception
+     * @throws NoSuchAlgorithmException, ParseException, Exception
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws NoSuchAlgorithmException, ParseException, Exception {
         //Bij deze save actie moet er een unieke 'sleutel' gemaakt worden om mee in te kunnen loggen
         //Deze sleutel moet gebaseerd worden op drie gegevens, namelijk:
         //- de username
@@ -204,38 +209,24 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         }
         
         if (null != user) {
-            try {
-                Date date = null;
-                DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-                try {
-                    // Parse with a custom format
-                    date = df.parse(timeout);
-                } catch(ParseException e) {
-                    log.error("Unable to parse : " + e);
-                }
-                
-                String toBeHashedString = regIP + username + password + df.format(date);
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                md.update(toBeHashedString.getBytes("8859_1"));
-                BigInteger hash = new BigInteger(1, md.digest());
-                personalURL = sb.toString() + hash.toString( 16 );
-                user.setPassword(password);
-                user.setRegisteredIP(regIP);
-                user.setPersonalURL(personalURL);
-                user.setTimeout(date);
-                // Format with a custom format
-                
-            } catch (NoSuchAlgorithmException ns) {
-                ns.printStackTrace();
-            }
+            Date date = null;
+            DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+            date = df.parse(timeout);
+            String toBeHashedString = regIP + username + password + df.format(date);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(toBeHashedString.getBytes("8859_1"));
+            BigInteger hash = new BigInteger(1, md.digest());
+            personalURL = sb.toString() + hash.toString( 16 );
+            user.setPassword(password);
+            user.setRegisteredIP(regIP);
+            user.setPersonalURL(personalURL);
+            user.setTimeout(date);
         } else {
             request.setAttribute("message", "Het huidige wachtwoord is onjuist");
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
-        
         
         // nieuwe default actie op delete zetten
         Session sess = getHibernateSession();
@@ -277,10 +268,23 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
         
         return super.save(mapping,dynaForm,request,response);
     }
+    // </editor-fold>
+    
+    /** Method which sets a the IP address of the users from his current location to the screen.
+     *
+     * @param mapping action mapping
+     * @param dynaForm dyna validator form
+     * @param request servlet request
+     * @param response servlet response
+     *
+     * @return ActionForward defined by Apache foundation
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="getIpAdrs(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward getIpAdrs(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         dynaForm.set("registeredIP",request.getRemoteAddr());
         return getDefaultForward(mapping,request);
-    
     }
     // </editor-fold>
 }

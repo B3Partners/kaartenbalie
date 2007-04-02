@@ -32,7 +32,7 @@ public class Organization {
     private String fax;
     private Set user;
     private Set billing;
-    private Set <Layer> organizationLayer;
+    private Set organizationLayer;
     private boolean hasValidGetCapabilities;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
@@ -136,13 +136,13 @@ public class Organization {
         return organizationLayer;
     }
 
-    public void setOrganizationLayer(Set <Layer> organizationLayer) {
+    public void setOrganizationLayer(Set organizationLayer) {
         this.organizationLayer = organizationLayer;
     }
     
     public void addOrganizationLayer(Layer layer) {
         if (null == organizationLayer) {
-            organizationLayer = new HashSet <Layer>();
+            organizationLayer = new HashSet();
         }
         organizationLayer.add(layer);
     }

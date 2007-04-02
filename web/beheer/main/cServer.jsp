@@ -122,9 +122,15 @@ window.onload = function() { stripedTable(); }
                     <td><B><fmt:message key="beheer.serverName"/>:</B></td>
                     <td><html:text property="serviceProviderGivenName" /></td>
                 </tr>
+                
                 <tr>
                     <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                    <c:if test="${not empty selectedId}">
+                    <td><html:text property="serviceProviderUrl" readonly="true" /></td>
+                    </c:if>
+                    <c:if test="${empty selectedId}">
                     <td><html:text property="serviceProviderUrl" /></td>
+                    </c:if>
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.serverUpdate"/>:</B></td>

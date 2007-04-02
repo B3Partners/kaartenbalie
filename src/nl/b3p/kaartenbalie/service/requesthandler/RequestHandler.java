@@ -15,5 +15,5 @@ import java.io.IOException;
 import java.util.Map;
 
 public interface RequestHandler {
-    public DataWrapper getRequest(DataWrapper dw, Map <String, Object> parameters) throws IOException;
+    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException, Exception;
 }

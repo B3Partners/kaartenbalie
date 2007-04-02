@@ -24,7 +24,7 @@ public class LayerDomainResource implements XMLElement {
     private static final Log log = LogFactory.getLog(LayerDomainResource.class);
     
     private Integer id;
-    private Set <String> formats;
+    private Set formats;
     private String url;
     private String domain;
     private Layer layer;
@@ -42,13 +42,13 @@ public class LayerDomainResource implements XMLElement {
         return formats;
     }
     
-    public void setFormats(Set <String> formats) {
+    public void setFormats(Set formats) {
         this.formats = formats;
     }
     
     public void addFormat(String f) {
         if (null == formats) {
-            formats = new HashSet <String>();
+            formats = new HashSet();
         }
         formats.add(f);
     }
@@ -89,7 +89,7 @@ public class LayerDomainResource implements XMLElement {
             cloneLDR.id                     = new Integer(this.id.intValue());
         }
         if (null != this.formats) {
-            cloneLDR.formats                = new HashSet <String>(this.formats);
+            cloneLDR.formats                = new HashSet(this.formats);
         }
         if (null != this.url) {
             cloneLDR.url                    = new String(this.url);

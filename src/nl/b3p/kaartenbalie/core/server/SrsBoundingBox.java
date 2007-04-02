@@ -116,7 +116,7 @@ public class SrsBoundingBox implements XMLElement {
     public Object clone() {
         SrsBoundingBox cloneSrs   = new SrsBoundingBox();
         if (null != this.id) {
-            cloneSrs.id    = new Integer(this.id);
+            cloneSrs.id    = new Integer(this.id.intValue());
         }
         if (null != this.srs) {
             cloneSrs.srs  = new String(this.srs);

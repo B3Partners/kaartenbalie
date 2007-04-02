@@ -15,11 +15,12 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-public class ServiceProvider implements XMLElement {
+public class ServiceProvider implements XMLElement, KBConstants {
     
     private Integer id;
     private String name;
@@ -31,21 +32,21 @@ public class ServiceProvider implements XMLElement {
     private String url;
     private Date updatedDate;
     private boolean reviewed;
-    private ContactInformation contactInformation = new ContactInformation();
-    private Set <ServiceDomainResource> domainResource;
-    private Set <String> serviceProviderKeywordList;
-    private Set <String> exceptions;
-    private Set <Layer> layers;
+    private ContactInformation contactInformation;
+    private Set domainResource;
+    private Set serviceProviderKeywordList;
+    private Set exceptions;
+    private Set layers;
     
     /** default ServiceProvider() constructor.
      */
     // <editor-fold defaultstate="" desc="default ServiceProvider() constructor">
     public ServiceProvider() {
-        name = "OGC:WMS";
-        title = "Kaartenbalie Map Portal";
-        abstracts = "WMS-based access to different maps. Try B3Partners Portal System at http://www.b3p.nl/";
-        fees = "None";
-        accessConstraints = "None";
+        name                = SERVICEPROVIDER_NAME;
+        title               = SERVICEPROVIDER_TITLE;
+        abstracts           = SERVICEPROVIDER_ABSTRACT;
+        fees                = SERVICEPROVIDER_FEES;
+        accessConstraints   = SERVICEPROVIDER_ACCESSCONSTRAINTS;
     }
     // </editor-fold>
     
@@ -136,20 +137,21 @@ public class ServiceProvider implements XMLElement {
     
     public void setContactInformation(ContactInformation contactInformation) {
         this.contactInformation = contactInformation;
-        contactInformation.setServiceProvider(this);
+        if(contactInformation != null)
+            contactInformation.setServiceProvider(this);
     }
     
     public Set getExceptions() {
         return exceptions;
     }
     
-    public void setExceptions(Set <String> exceptions) {
+    public void setExceptions(Set exceptions) {
         this.exceptions = exceptions;
     }
     
     public void addException(String except) {
         if (exceptions == null) {
-            exceptions = new HashSet <String>();
+            exceptions = new HashSet();
         }
         exceptions.add(except);
     }
@@ -158,13 +160,13 @@ public class ServiceProvider implements XMLElement {
         return domainResource;
     }
     
-    public void setDomainResource(Set <ServiceDomainResource> domainResource) {
+    public void setDomainResource(Set domainResource) {
         this.domainResource = domainResource;
     }
     
     public void addDomainResource(ServiceDomainResource dr) {
         if (domainResource == null) {
-            domainResource = new HashSet <ServiceDomainResource>();
+            domainResource = new HashSet();
         }
         domainResource.add(dr);
         dr.setServiceProvider(this);
@@ -174,13 +176,13 @@ public class ServiceProvider implements XMLElement {
         return layers;
     }
     
-    public void setLayers(Set <Layer> layers) {
+    public void setLayers(Set layers) {
         this.layers = layers;
     }
     
     public void addLayer(Layer layer) {
         if(null == layers) {
-            layers = new HashSet <Layer>();
+            layers = new HashSet();
         }
         layers.add(layer);
         layer.setServiceProvider(this);
@@ -202,13 +204,13 @@ public class ServiceProvider implements XMLElement {
         return serviceProviderKeywordList;
     }
     
-    public void setServiceProviderKeywordList(Set <String> serviceProviderKeywordList) {
+    public void setServiceProviderKeywordList(Set serviceProviderKeywordList) {
         this.serviceProviderKeywordList = serviceProviderKeywordList;
     }
     
     public void addKeyword(String keyword) {
         if(null == serviceProviderKeywordList) {
-            serviceProviderKeywordList = new HashSet <String>();
+            serviceProviderKeywordList = new HashSet();
         }
         serviceProviderKeywordList.add(keyword);
     }
@@ -289,7 +291,7 @@ public class ServiceProvider implements XMLElement {
             cloneSP.contactInformation          = (ContactInformation)this.contactInformation.clone();
         }
         if (null != this.domainResource) {
-            cloneSP.domainResource              = new HashSet <ServiceDomainResource>();
+            cloneSP.domainResource              = new HashSet();
             Iterator it = this.domainResource.iterator();
             while (it.hasNext()) {
                 ServiceDomainResource sdr       = (ServiceDomainResource)((ServiceDomainResource)it.next()).clone();
@@ -298,13 +300,13 @@ public class ServiceProvider implements XMLElement {
             }
         }
         if (null != this.serviceProviderKeywordList) {
-            cloneSP.serviceProviderKeywordList  = new HashSet <String>(this.serviceProviderKeywordList);
+            cloneSP.serviceProviderKeywordList  = new HashSet(this.serviceProviderKeywordList);
         }
         if (null != this.exceptions) {
-            cloneSP.exceptions                  = new HashSet <String>(this.exceptions);
+            cloneSP.exceptions                  = new HashSet(this.exceptions);
         }
         if (null != this.layers) {
-            cloneSP.layers = new HashSet <Layer>();
+            cloneSP.layers = new HashSet();
             Iterator itlayer = this.layers.iterator();
             while (itlayer.hasNext()) {
                 Layer layer = (Layer)((Layer)itlayer.next()).clone();

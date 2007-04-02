@@ -19,8 +19,8 @@ import org.xml.sax.SAXException;
 
 
 public class Switcher implements ContentHandler {
-    private Hashtable <String, ElementHandler> rules = new Hashtable <String, ElementHandler>();
-    private Stack <ElementHandler> stack = new Stack <ElementHandler>();
+    private Hashtable rules = new Hashtable();
+    private Stack stack = new Stack();
     
     /** Method which adds a new handler to the hash table.
      *
