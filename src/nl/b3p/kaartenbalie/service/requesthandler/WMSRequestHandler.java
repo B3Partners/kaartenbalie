@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -197,7 +198,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static DataWrapper getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws ParserConfigurationException, IOException, SAXException {
+    protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws ParserConfigurationException, IOException, SAXException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -276,7 +277,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                  * it is possible to create a byte output stream of this newly created
                  * BufferedImage
                  */
-                ImageIO.write(buffImg, "png", baos);
+                ImageIO.write(buffImg, dw.getContentType().substring(dw.getContentType().indexOf("/") + 1), baos);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                 //combineer de featureinfo....
                 //Setting up the DocumentBuilderFactory
@@ -315,35 +316,19 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 XMLSerializer serializer = new XMLSerializer(baos, format);
                 serializer.serialize(destination);
             }
-        } else {
-            String url = ((StringBuffer)urls.get(0)).toString();
-            
+            dw.write(baos);
+            //return dw;
+        } else {            
             /*
              * Because only one url is defined, the images don't have to be loaded into a
              * BufferedImage. The data recieved from the url can be directly transported to the client.
              */
-            URL u = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) u.openConnection();
+            URL url = new URL( ((StringBuffer)urls.get(0)).toString() );
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
             dw.setContentType(con.getContentType());
-            
-            BufferedInputStream bis = null;
-            try {
-                bis = new BufferedInputStream(con.getInputStream());
-                byte[] buffer = new byte[8192];
-                int read;
-                while ((read = bis.read()) > -1) {
-                    baos.write(read);
-                }
-            } finally {
-                if (bis!=null)
-                    bis.close();
-            }
-            
+            dw.write(new BufferedInputStream(con.getInputStream()));
+            //return dw;
         }
-        dw.setContentLength(baos.size());
-        dw.setData(baos.toByteArray());
-        
-        return dw;
     }
     // </editor-fold>
     
@@ -516,7 +501,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
-    public abstract DataWrapper getRequest(DataWrapper dw, Map params) throws IOException, Exception;
+    public abstract void getRequest(DataWrapper dw, Map params) throws IOException, Exception;
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="getter methods.">

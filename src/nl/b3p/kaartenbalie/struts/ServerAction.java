@@ -221,6 +221,15 @@ public class ServerAction extends KaartenbalieCrudAction {
             //Split eerst in twee delen, namelijk daar waar het vraagteken zich bevindt
             String [] urls = url.split("\\?");
             url = urls[0] + "?";
+            
+            try {
+                String params = urls[1];
+            } catch (Exception e) {
+                request.setAttribute("message", "Missing parameters REQUEST, VERSION and/or SERVICE in URL");
+                prepareMethod(dynaForm, request, LIST, EDIT);
+                addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
 
             boolean req = false, version = false, service = false;        
             String [] params = urls[1].split("&");

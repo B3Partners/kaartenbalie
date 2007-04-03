@@ -280,15 +280,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
             // nieuwe default actie op delete zetten
             Session sess = getHibernateSession();
-            //validate and check for errors
-            ActionErrors errors = dynaForm.validate(mapping, request);
-            if(!errors.isEmpty()) {
-                addMessages(request, errors);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-            
+                        
             Integer id = new Integer(Integer.parseInt(userSelected[i]));
             User user = getUser(dynaForm,request,true, id);
             

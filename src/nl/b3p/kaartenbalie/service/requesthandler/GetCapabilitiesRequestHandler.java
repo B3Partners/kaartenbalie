@@ -11,6 +11,7 @@
 
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -62,7 +63,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
      * @exception ParserConfigurationException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
+    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
@@ -103,10 +104,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");
-//            rootElement.setAttribute("updateSequence", "0");
         rootElement = s.toElement(dom, rootElement);
-
-
+        
         /*
          * Create a new output format to which this document should be translated and
          * serialize the tree to an XML document type
@@ -117,12 +116,15 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(dom);
-
-        byte[] data = output.toByteArray();
-        dw.setContentLength(data.length);
-        dw.setData(data);
         
-        return dw;
+        DOMValidator dv = new DOMValidator();
+        dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes("UTF-8")));
+        
+        byte[] data = output.toByteArray();
+        //dw.setContentLength(data.length);
+        //dw.setData(data);
+        dw.write(output);
+        //return dw;
     }
     // </editor-fold>
 }

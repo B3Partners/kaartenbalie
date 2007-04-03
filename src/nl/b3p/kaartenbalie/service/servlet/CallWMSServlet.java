@@ -90,10 +90,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DataWrapper data = new DataWrapper();
-        OutputStream sos = null;
+        DataWrapper data = new DataWrapper(response);
         User user = null;
-        
         
         try {
             //Get the information about the user performing the request
@@ -102,7 +100,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             //Setting the header for this specific user so that any action
             //of the user can be logged.
-            response.setHeader("X-Kaartenbalie-User", user.getUsername());
+            data.setHeader("X-Kaartenbalie-User", user.getUsername());
             
             //Create a map with parameters of of reques parameters given
             //with the request of this user.
@@ -111,21 +109,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             parameters.put(KB_USER, user);
             parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
             
-            //Recieve the data the user is requesting for
-            //This method will throw an error if the request doesn't
-            //exist or if one of the parameters required for a specific
-            //request is missing
-            data = parseRequestAndData(data, parameters);
-            
-            //Setting the response data
-            response.setContentType(data.getContentType());
-            response.setContentLength(data.getContentLength());
-            response.setHeader("Content-Disposition", data.getContentDisposition());
-            
-            //Write the data tot the outputstream.
-            sos = response.getOutputStream();
-            sos.write(data.getData());
-            sos.flush();
+            parseRequestAndData(data, parameters);
         } catch (Exception ex) {
             /*
             Hier moet een contenttype realisatie toegevoegd worden.
@@ -241,20 +225,17 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             es.append("</ServiceException>");
             es.append("</ServiceExceptionReport>");
             byte[] ba = es.toString().getBytes(CHARSET_UTF8);
-            data.setData(ba);
+            //data.setData(ba);
             
             //zet de juiste response methoden en stuur dan pas het bericht uit.
             data.setContentType("application/vnd.ogc.se_xml");
             
-            data.setContentLength(ba.length);
-            data.setContentDisposition("inline; filename=\"error.xml\";");
+            //data.setContentLength(ba.length);
+            //data.setContentDisposition("inline; filename=\"error.xml\";");
             
-            sos = response.getOutputStream();
-            sos.write(data.getData());
-            sos.flush();
-        } finally {
-            if (sos!=null)
-                sos.close();
+            //sos = response.getOutputStream();
+            //sos.write(data.getData());
+            //sos.flush();
         }
     }
     // </editor-fold>
@@ -379,7 +360,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
-    public DataWrapper parseRequestAndData(DataWrapper data, Map parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
+    public void parseRequestAndData(DataWrapper data, Map parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         
         String givenRequest=null;
         boolean supported_request = false;
@@ -405,7 +386,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
-            data.setContentDisposition("inline; filename=\"GetCapabilities.xml\";");
+            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
             data.setContentType("application/vnd.ogc.wms_xml");
             
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
@@ -423,7 +404,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             requestHandler = new GetFeatureInfoRequestHandler();
             reqParams = PARAMS_GetFeatureInfo;
-            data.setContentDisposition("inline; filename=\"GetCapabilities.xml\";");
+            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
             try {
                 format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
             } catch (Exception e) {
@@ -435,7 +416,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             requestHandler = new GetLegendGraphicRequestHandler();
             reqParams = PARAMS_GetLegendGraphic;
-            data.setContentDisposition("inline; filename=\"GetCapabilities.xml\";");
+            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
             try {
                 format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
             } catch (Exception e) {
@@ -451,10 +432,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     "], available: [" + parameters.toString() + "].");
         
         //This can throw also a ParserConfigurationException.
-        data = requestHandler.getRequest(data, parameters); 
-        
-        return data;
-        
+        requestHandler.getRequest(data, parameters);       
     }
     // </editor-fold>
     

@@ -25,6 +25,8 @@ import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.Form;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
@@ -40,6 +42,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
+    private static final Log log = LogFactory.getLog(OrganizationAction.class);
     
     /** Execute method which handles all executable requests.
      *
@@ -539,8 +542,17 @@ public class OrganizationAction extends KaartenbalieCrudAction {
 
             populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
 
-            sess.delete(organization);
-            sess.flush();         
+            try {
+                sess.delete(organization);
+                sess.flush();
+            } catch (Exception e) {
+                request.setAttribute("message", "Organisatie kan niet verwijderd worden. Er zijn nog gebruikers gekoppeld aan de organisatie.");
+                //super.msg = "Er is een fout opgetreden: " + e;
+                log.error("Error saving server", e);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
         }
         return super.delete(mapping, dynaForm, request, response);
     }

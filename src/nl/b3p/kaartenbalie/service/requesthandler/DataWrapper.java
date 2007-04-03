@@ -7,6 +7,14 @@
 
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Locale;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  *
  * @author Chris
@@ -19,61 +27,107 @@ public class DataWrapper {
     private int  responseCode;
     private int  contentLength;
     private byte[] data;
+    private HttpServletResponse response;
+    private OutputStream sos;
     private String contentDisposition;
+    
+    public DataWrapper(HttpServletResponse response) throws IOException {
+        this.response = response;
+        this.sos = response.getOutputStream();
+    }
 
     public String getContentType() {
-        return contentType;
+        return response.getContentType();        
     }
 
     public void setContentType(String contentType) {
-        this.contentType = contentType;
+        response.setContentType(contentType);
+    }
+    
+    public int getBufferSize() {
+        return response.getBufferSize();
+    }
+    
+    public void setBufferSize(int buffer) {
+        response.setBufferSize(buffer);
+    }
+    
+    public String getCharacterEncoding() {
+        return response.getCharacterEncoding();
+    }
+    
+    public void setCharacterEncoding(String characterEncoding) {
+        response.setCharacterEncoding(characterEncoding);
+    }
+    
+    private void setContentLength(int lenght) {
+        response.setContentLength(lenght);
+    }
+    
+    public void setDateHeader(String name, long date) {
+        response.setDateHeader(name, date);
     }
 
-    public String getContentEncoding() {
-        return contentEncoding;
+    public void setHeader(String name, String value) {
+        response.setHeader(name, value);
     }
-
-    public void setContentEncoding(String contentEncoding) {
-        this.contentEncoding = contentEncoding;
+    
+    public void setIntHeader(String name, int value) {
+        response.setIntHeader(name, value);
     }
-
-    public String getResponseMessage() {
-        return responseMessage;
+    
+    public Locale getLocale() {
+        return response.getLocale();
     }
-
-    public void setResponseMessage(String responseMessage) {
-        this.responseMessage = responseMessage;
+    
+    public void setLocale(Locale locale) {
+        response.setLocale(locale);
     }
-
-    public int getResponseCode() {
-        return responseCode;
+    
+    public void setStatus(int sc) {
+        response.setStatus(sc);
     }
-
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
+    
+    public OutputStream getOutputStream() {
+        return this.sos;
     }
-
-    public int getContentLength() {
-        return contentLength;
+    
+    public void write(BufferedInputStream bis) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int bytesRead = 0;
+        while ((bytesRead = bis.read()) != -1) {
+            baos.write(bytesRead);
+        }
+        this.write(baos);
     }
-
-    public void setContentLength(int contentLength) {
-        this.contentLength = contentLength;
+    
+    public void write(ByteArrayOutputStream baos) throws IOException {
+        this.setContentLength(baos.size());
+        try {
+            sos.write(baos.toByteArray());
+            sos.flush();
+        } finally {
+            if (sos!=null)
+                sos.close();
+        }        
     }
-
-    public byte[] getData() {
-        return data;
+    
+    //Onderstaande voorbeeld kan misschien nog beter zijn dan het hierboven geschreven stukje
+    //Doet in principe wel precies hetzelfde als bovenstaande methoden. Geen idee of het nog
+    //verschil maakt.
+    /*
+    private void InputToOutput(InputStream is, OutputStream os) {
+        if (is == null) return;
+        try {
+            int bytesRead = 0;
+            byte[] buf = new byte[4096];
+            while ((bytesRead = is.read(buf)) != -1) {
+                if (os != null && bytesRead > 0) {
+                    os.write(buf, 0, bytesRead);
+                    os.flush();
+                }
+            }
+        } catch (IOException e) {}
     }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
-    public String getContentDisposition() {
-        return contentDisposition;
-    }
-
-    public void setContentDisposition(String header) {
-        this.contentDisposition = header;
-    }    
+    */
 }

@@ -44,24 +44,9 @@
             <field property="name" depends="required"> <!-- required -->
                 <arg0 key="beheer.name"/>
             </field>
-            <field property="organizationStreet" depends="required"> <!-- required -->
-                <arg0 key="beheer.organizationStreet"/>
-            </field>
-            <field property="organizationNumber" depends="required, integer"> <!-- required -->
-                <arg0 key="beheer.organizationNumber"/>
-            </field>
-            <field property="organizationProvince" depends="required"> <!-- required -->
-                <arg0 key="beheer.organizationProvince"/>
-            </field>
-            <field property="organizationCountry" depends="required"> <!-- required -->
-                <arg0 key="beheer.organizationCountry"/>
-            </field>
             <field property="organizationTelephone" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
-            </field>            
-            <field property="organizationPostalcode" depends="required"> <!-- required -->
-                <arg0 key="beheer.organizationPostalcode"/>
-            </field>            
+            </field>           
         </form>
     </formset>
 </form-validation>

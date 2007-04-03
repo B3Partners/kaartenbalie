@@ -30,8 +30,8 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public DataWrapper getRequest(DataWrapper dw, Map parameters) throws IOException {
-        return null;
+    public void getRequest(DataWrapper dw, Map parameters) throws IOException {
+        return;
     }
     // </editor-fold>
 }
