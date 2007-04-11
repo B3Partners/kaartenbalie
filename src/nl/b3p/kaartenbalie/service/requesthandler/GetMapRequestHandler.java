@@ -118,19 +118,12 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         spUrl.append(WMS_PARAM_HEIGHT);
                         spUrl.append("=");
                         spUrl.append((String)((String[])parameters.get(WMS_PARAM_HEIGHT))[0]);
-
-                        if (parameters.get(WMS_PARAM_EXCEPTION_FORMAT) != null) {
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_EXCEPTION_FORMAT);
-                            spUrl.append("=");
-                            spUrl.append((String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0]);
-                        }
-
+                        
                         spUrl.append("&");
                         spUrl.append(WMS_PARAM_LAYERS);
                         spUrl.append("=");
                         spUrl.append(spls);
-                        
+                        System.out.println("GetMap url of outgoing request: " + spUrl);
                         urls.add(spUrl);
                     }
                 } 

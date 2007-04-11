@@ -13,6 +13,8 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,7 +49,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
 import nl.b3p.kaartenbalie.core.KBConstants;
+import org.w3c.dom.CDATASection;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -56,6 +62,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     private static Log log = null;
     public static final long serialVersionUID = 24362462L;
     private String format;
+    private String inimageType;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -77,7 +84,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     //TODO:
     // De foutafhandeling in processRequest moet nog verbeterd worden.
     // De wms client kan vragen om een image of een xml bestand als return voor een foutmelding.
-    // Daartoe dient ook de response.setContentType("text/xml;charset=UTF-8"); aangepast te worden,
+    // Daartoe dient ook de response.setContentType(CHARSET); aangepast te worden,
     // zodat deze de response op de juiste wijze terug kan sturen naar de client.
     
     /** Processes the incoming request and calls the various methods to create the right output stream.
@@ -111,156 +118,87 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             parseRequestAndData(data, parameters);
         } catch (Exception ex) {
-            /*
-            Hier moet een contenttype realisatie toegevoegd worden.
-            Het is echter van belang dat er met een aantal punten rekening gehouden wordt.
-            - De gebruiker kan een request doen met een verkeerde URL -> er hoeft dan niets te gebeuren
-            - De gebruiker kan een request doen met verkeerde parameters:
-              -afhankelijk van het soort request moet er een actie ondernomen worden
-                  -GetCapability request:
-                    het progamma stuurt de error terug in een XML
-                    dit geldt ook in het geval dat een gebruiker een verkeerde code gebruikt
-                  -GetMap request:
-                    het programma stuurt de error terug in het opgegeven formaat
-                    maar als deze parameter ontbreekt moet het de error alsnog terugsturen in xml
-                  -GetFeatureInfo
-                    het programma stuurt de error terug in een XML
-
-             Er moet wel duidelijk gegeken worden naar de volgorde en daarnaast moet er ook goed opgelet
-             worden dat het samenstellen van een error message zelf niet ook weer een error opleverd waar
-             door alsnog geen error teruggestuurd wordt (of een vage error).
-
-             Als het samenstellen van het bericht voltooid is moet dit bericht nog gecontroleerd worden
-             op de DTD. Dus er zal ook een validatie aangeroepen moeten worden. Ook deze validatie kan fouten
-             genereren. In dat geval zal er even nagegaan moeten worden wat er in dat uiterste geval voor
-             oplossing bedacht kan worden.
-            */
-            
             log.error("error: ", ex);
-            /*
-            StringBuffer es = new StringBuffer();
-            //We hebben nu een variabele dat het formaat aangeeft: format
-            String exceptionName = ex.getClass().getName();
-            if(ex instanceof AccessDeniedException || ex instanceof IllegalArgumentException) {
-                //if the user is not recognized by the system then the system cannot perform any action
-                //therefore the system cannot find out what kind of format has to be used in which an
-                //exception has to be returned.
-                //The same happens if an User is a known user but the user tries to perform an
-                //action which is not supported by the system. In both cases the system is unaware
-                //of the kind of format which has to be returned. Therefore the system needs to return
-                //the information in standard XML.
-                es.append("<?xml version='1.0' encoding='UTF-8' standalone='no' ?>\n");
-                es.append("<!DOCTYPE ServiceExceptionReport SYSTEM \"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd\">\n");
-                es.append("<ServiceExceptionReport version='1.1.1'>\n");
-                es.append("<ServiceException code=\"" + exceptionName + "\">\n");
-                //es.append("<![CDATA[");
-                es.append(ex.getMessage() + "\n");
-                //es.append(" - ");
-                if(ex.getCause() != null) {
-                    es.append(ex.getCause() + "\n");
+            String errorContentType = data.getErrorContentType();
+            
+            if(errorContentType != null) {
+                String exceptionName, message, cause;
+                try {
+                    exceptionName = ex.getClass().getName();
+                } catch (Exception e) {
+                    exceptionName = "";
                 }
-                //es.append("]]>");
-                es.append("</ServiceException>\n");
-                es.append("</ServiceExceptionReport>\n");
+                
+                try {
+                    message = ex.getMessage();
+                } catch (Exception e) {
+                    message = "";
+                }
+                
+                //Creeer nu een plaatje van deze gegegevens en stuur dit plaatje uit.
+                // configure all of the parameters
+                try {
+                TextToImage tti = new TextToImage();
+                data.setContentType(errorContentType);
+                tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
+                
+                //data.write(baos);
+                //baos.close();
+                } catch (Exception e) {
+                    log.error("error: ", e);
+                }
             } else {
-                //In case of: UnsupportedOperationException, IOException, UnsupportedEncodingException, NoSuchAlgorithmException, Exception
-                //The system has found a problem during processing the request.
-                //if the process could find out in which format the user wanted
-                //to recieve the exceptions we use this format to send back an
-                //error message, otherwise we use again a standard XML format
-                //in which the information can be returned.
-                if(format.equalsIgnoreCase("application/vnd.ogc.se_xml")) {
-                    es.append("<?xml version='1.0' encoding='UTF-8' standalone='no' ?>");
-                    es.append("<!DOCTYPE ServiceExceptionReport SYSTEM \"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd\">");
-                    es.append("<ServiceExceptionReport version='1.1.1'>");
-                    es.append("<ServiceException code=\"" + exceptionName + "\">");
-                    es.append("<![CDATA[");
-                    es.append(ex.getMessage());
-                    es.append(" - ");
-                    es.append(ex.getCause());
-                    es.append("]]>");
-                    es.append("</ServiceException>");
-                    es.append("</ServiceExceptionReport>"); 
-                } else {
-                    //format is in a kind of image
-                    //all we need to do is find out what kind of image is asked for
+                ByteArrayOutputStream output = null;
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setValidating(true);
+                DocumentBuilder db = null;
+                try {
+                    db = dbf.newDocumentBuilder();
+                } catch (Exception e) {
+                    log.error("error: ", e);
+                    throw new IOException("Exception occured during creation of error message: " + e);
                 }
+                DOMImplementation di = db.getDOMImplementation();
+                
+                // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
+                // <!-- end of DOCTYPE declaration -->
+                DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd");
+                Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
+                Element rootElement = dom.getDocumentElement();
+                rootElement.setAttribute("version", "1.1.1");
+                
+                Element serviceExceptionElement = dom.createElement("ServiceException");
+                serviceExceptionElement.setAttribute("code", ex.getClass().getName());
+                
+                CDATASection cdata = dom.createCDATASection(ex.getMessage() + " - " + ex.getCause());
+                serviceExceptionElement.appendChild(cdata);
+                rootElement.appendChild(serviceExceptionElement);
+                
+                /*
+                 * Create a new output format to which this document should be translated and
+                 * serialize the tree to an XML document type
+                 */
+                OutputFormat format = new OutputFormat(dom);
+
+                format.setIndenting(true);
+                output = new ByteArrayOutputStream();
+                XMLSerializer serializer = new XMLSerializer(output, format);
+                serializer.serialize(dom);
+
+                DOMValidator dv = new DOMValidator();
+                try {
+                    dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
+                } catch (Exception e) {
+                    log.error("error: ", e);
+                    throw new IOException("Exception occured during validation of error message: " + e);
+                }
+                
+                data.setContentType("application/vnd.ogc.se_xml");
+                data.write(output);
             }
-            
-            try {
-                InputStream inputStream = new ByteArrayInputStream(es.toString().getBytes("UTF-8"));
-                Source source = new StreamSource(inputStream);
-                //File x = new File(args[0]);
-                DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-                f.setValidating(true); // Default is false
-                DocumentBuilder b = f.newDocumentBuilder();
-                // ErrorHandler h = new DefaultHandler();
-                ErrorHandler h = new MyErrorHandler();
-                b.setErrorHandler(h);
-                Document d = b.parse(source);
-            } catch (ParserConfigurationException e) {
-                System.out.println(e.toString());
-            } catch (SAXException e) {
-                System.out.println(e.toString());
-            } catch (IOException e) {
-                System.out.println(e.toString()); 	
-            }
-   
-            */
-            
-                        
-            //validatie van het xml vordat het uitgestuurd wordt
-            StringBuffer es = new StringBuffer();
-            String exceptionName = ex.getClass().getName();
-            //OLD STYLE:
-            es.append("<?xml version='1.0' encoding='UTF-8' standalone='no' ?>");
-            es.append("<!DOCTYPE ServiceExceptionReport SYSTEM \"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd\">");
-            es.append("<ServiceExceptionReport version='1.1.1'>");
-            es.append("<ServiceException code=\"" + exceptionName + "\">");
-            es.append("<![CDATA[");
-            es.append(ex.getMessage());
-            es.append(" - ");
-            es.append(ex.getCause());
-            es.append("]]>");
-            es.append("</ServiceException>");
-            es.append("</ServiceExceptionReport>");
-            byte[] ba = es.toString().getBytes(CHARSET_UTF8);
-            //data.setData(ba);
-            
-            //zet de juiste response methoden en stuur dan pas het bericht uit.
-            data.setContentType("application/vnd.ogc.se_xml");
-            
-            //data.setContentLength(ba.length);
-            //data.setContentDisposition("inline; filename=\"error.xml\";");
-            
-            //sos = response.getOutputStream();
-            //sos.write(data.getData());
-            //sos.flush();
         }
     }
     // </editor-fold>
-    
-    private static class MyErrorHandler implements ErrorHandler {
-      public void warning(SAXParseException e) throws SAXException {
-         System.out.println("Warning: "); 
-         printInfo(e);
-      }
-      public void error(SAXParseException e) throws SAXException {
-         System.out.println("Error: "); 
-         printInfo(e);
-      }
-      public void fatalError(SAXParseException e) throws SAXException {
-         System.out.println("Fattal error: "); 
-         printInfo(e);
-      }
-      private void printInfo(SAXParseException e) {
-      	 System.out.println("   Public ID: "+e.getPublicId());
-      	 System.out.println("   System ID: "+e.getSystemId());
-      	 System.out.println("   Line number: "+e.getLineNumber());
-      	 System.out.println("   Column number: "+e.getColumnNumber());
-      	 System.out.println("   Message: "+e.getMessage());
-      }
-   }
     
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
@@ -283,6 +221,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             Transaction tx = sess.beginTransaction();
             String url = request.getRequestURL().toString();
             String remote = request.getRemoteAddr();
+            
+            System.out.println("remote address: " + remote);
+            
             try {
                 user = (User)sess.createQuery(
                         "from User u where " +
@@ -315,6 +256,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String pathInfo = request.getPathInfo();
                 String urlToken = pathInfo.substring(1);
                 
+                System.out.println("token: " + token);
                 
                 if (!urlToken.equals(token)) {
                     // ongeldig token!
@@ -342,8 +284,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String toBeHashedString = registeredIP + username + password + personalDate;
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(toBeHashedString.getBytes("8859_1")); // UTF-8 ???
+        MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
+        md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
         return hash.toString( 16 );
     }
@@ -398,6 +340,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             } catch (Exception e) {
                 format = "image/png";
             }
+            
+            try {
+                inimageType = (String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0];
+            } catch (Exception e) {
+                inimageType = null;
+            }
+            if (inimageType != null) {
+                data.setErrorContentType(format);
+            }
+                
             data.setContentType(format);
             
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {

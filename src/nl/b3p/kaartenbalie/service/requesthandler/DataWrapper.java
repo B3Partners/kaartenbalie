@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 public class DataWrapper {
 
     private String contentType;
+    private String errorContentType;
     private String contentEncoding;
     private String responseMessage;
     private int  responseCode;
@@ -42,6 +43,14 @@ public class DataWrapper {
 
     public void setContentType(String contentType) {
         response.setContentType(contentType);
+    }
+    
+    public String getErrorContentType() {
+        return errorContentType;
+    }
+
+    public void setErrorContentType(String errorContentType) {
+        this.errorContentType = errorContentType;
     }
     
     public int getBufferSize() {
@@ -92,10 +101,10 @@ public class DataWrapper {
         return this.sos;
     }
     
-    public void write(BufferedInputStream bis) throws IOException {
+    public void write(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int bytesRead = 0;
-        while ((bytesRead = bis.read()) != -1) {
+        while ((bytesRead = is.read()) != -1) {
             baos.write(bytesRead);
         }
         this.write(baos);
