@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.SecurityRealm;
@@ -41,7 +42,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
 
-public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
+public class CreatePersonalURLAction extends KaartenbalieCrudAction implements KBConstants  {
     
     /* forward name="success" path="" */
     private static Log log = LogFactory.getLog(CreatePersonalURLAction.class);
@@ -213,8 +214,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction  {
             DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
             date = df.parse(timeout);
             String toBeHashedString = regIP + username + password + df.format(date);
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(toBeHashedString.getBytes("8859_1"));
+            MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
+            md.update(toBeHashedString.getBytes(CHARSET));
             BigInteger hash = new BigInteger(1, md.digest());
             personalURL = sb.toString() + hash.toString( 16 );
             user.setPassword(password);

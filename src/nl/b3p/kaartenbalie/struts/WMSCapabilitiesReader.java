@@ -40,6 +40,8 @@ filter out the different kind of errors:
 package nl.b3p.kaartenbalie.struts;
 
 
+import nl.b3p.kaartenbalie.core.KBConstants;
+import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import java.util.Stack;
 
@@ -67,7 +69,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
-public class WMSCapabilitiesReader {
+public class WMSCapabilitiesReader implements KBConstants {
     private static final Log log = LogFactory.getLog(WMSCapabilitiesReader.class);
     private static final String VALIDATION_FEATURE = "http://xml.org/sax/features/validation";
     private static final String SCHEMA_FEATURE = "http://apache.org/xml/features/validation/schema";
@@ -110,7 +112,9 @@ public class WMSCapabilitiesReader {
         reader.setFeature(SCHEMA_FEATURE,true);
         //TODO DTD en error handlers
         reader.setContentHandler(s);
-        reader.parse(location);
+        InputSource is = new InputSource(location);
+        is.setEncoding(CHARSET);
+        reader.parse(is);
         return serviceProvider;
     }
     // </editor-fold>

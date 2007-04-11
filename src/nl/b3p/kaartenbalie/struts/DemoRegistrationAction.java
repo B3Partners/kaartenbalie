@@ -19,6 +19,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
@@ -27,7 +28,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 
-public class DemoRegistrationAction extends KaartenbalieCrudAction {
+public class DemoRegistrationAction extends KaartenbalieCrudAction implements KBConstants {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
@@ -135,8 +136,8 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction {
         
         String toBeHashedString = registeredIP + username + password + personalDate;
         
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(toBeHashedString.getBytes("8859_1")); // UTF-8 ???
+        MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
+        md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
         
         StringBuffer sb = request.getRequestURL();

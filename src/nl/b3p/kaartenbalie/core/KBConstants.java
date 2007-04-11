@@ -88,14 +88,11 @@ public interface KBConstants {
     // TODO dit klopt niet, andere mimi types!
     public static final String WMS_PARAM_WMS_XML = "application/vnd.ogc.wms_xml";
     public static final String WMS_PARAM_EXCEPTION_XML = "application/vnd.ogc.se_xml";
-    
-    
-    public static final String CHARSET_UTF8 = "UTF-8";
-    public static final String CHARSET_ISO_8859_1 = "ISO_8859_1";
-    
     public static final String FEATURE_INFO_FORMAT = "application/vnd.ogc.gml";
+    //public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;    
     
-    public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;    
+    public static final String CHARSET = "UTF-8";
+    public static final String MD_ALGORITHM= "MD5";
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="List with essential parameters per wms service.">

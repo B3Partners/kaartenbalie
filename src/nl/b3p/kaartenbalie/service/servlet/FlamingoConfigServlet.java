@@ -17,6 +17,7 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.FlamingoMap;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
@@ -33,7 +34,7 @@ import org.w3c.dom.NodeList;
  *
  */
 
-public class FlamingoConfigServlet extends HttpServlet {
+public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
     
     public static final long serialVersionUID = 24362462L; 
     
@@ -46,7 +47,6 @@ public class FlamingoConfigServlet extends HttpServlet {
 
     private static Log log = null;
     private static Document defaultConfig;
-    public static final String CHARSET_UTF8 = "UTF-8";
     /** Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
@@ -90,14 +90,14 @@ public class FlamingoConfigServlet extends HttpServlet {
     }
     
     public void write(HttpServletResponse response, Document doc) throws IOException{
-        response.setContentType("text/xml;charset=UTF-8");
+        response.setContentType(CHARSET);
         OutputFormat format = new OutputFormat(doc);
         format.setIndenting(true);
         OutputStream output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(doc);
         OutputStream os = response.getOutputStream();
-        os.write(output.toString().getBytes(CHARSET_UTF8));
+        os.write(output.toString().getBytes(CHARSET));
     }
     
     public void init(ServletConfig config) throws ServletException {

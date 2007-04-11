@@ -101,7 +101,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // ]>  <!-- end of DOCTYPE declaration -->
         DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
         Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
-
+        
+        
+        
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");
         rootElement = s.toElement(dom, rootElement);
@@ -110,7 +112,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          * Create a new output format to which this document should be translated and
          * serialize the tree to an XML document type
          */
-        OutputFormat format = new OutputFormat(dom);
+        OutputFormat format = new OutputFormat(dom, CHARSET, true);
 
         format.setIndenting(true);
         output = new ByteArrayOutputStream();
@@ -118,7 +120,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         serializer.serialize(dom);
         
         DOMValidator dv = new DOMValidator();
-        dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes("UTF-8")));
+        dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
         
         byte[] data = output.toByteArray();
         //dw.setContentLength(data.length);
