@@ -97,8 +97,6 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
             
-            System.out.println("ServiceProvider: " + sp.getTitle());
-            
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             HashSet set= new HashSet();
             set.add(sp.getTopLayer());
@@ -230,42 +228,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         return jsonLayer;
     }
     // </editor-fold>
-    
-    // TODO: de onderstaande methode heet delete en is alleen zo genoemd omdat deze door bovenliggende klasse
-    // ondersteunt wordt. Deze naamgeving komt dus helemaal niet overeen met wat de klasse doet. De naam van
-    // deze klasse moet dan nog zeker even aangepast worden!!!
-    
-    /* Method that checks layers are selected and looks if these layers can be found in the whole list of layers from the database.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     *
-    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String [] selectedLayers = dynaForm.getStrings("selectedLayers");
-        int size = selectedLayers.length;
-        HttpSession session = request.getSession();
-        List layerList = (ArrayList)session.getAttribute("layerList");
-        ArrayList maps = new ArrayList();
-        for(int i = 0; i < size; i++) {
-            String foundLayer = findLayer(layerList, Integer.parseInt(selectedLayers[i]));
-            
-            if(foundLayer != null) {
-                maps.add(foundLayer);
-            }
-        }
-        request.setAttribute("maps", maps);
-        return mapping.findForward(SUCCESS);
-    }
-    // </editor-fold>
-    */
-    
+        
     /** Method which walks through a set of layers.
      *
      * @param layers A set of layers where has to be stepped through.

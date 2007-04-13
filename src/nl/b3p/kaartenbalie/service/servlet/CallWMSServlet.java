@@ -222,8 +222,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             String url = request.getRequestURL().toString();
             String remote = request.getRemoteAddr();
             
-            System.out.println("remote address: " + remote);
-            
             try {
                 user = (User)sess.createQuery(
                         "from User u where " +
@@ -255,8 +253,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 // bereken token in url
                 String pathInfo = request.getPathInfo();
                 String urlToken = pathInfo.substring(1);
-                
-                System.out.println("token: " + token);
                 
                 if (!urlToken.equals(token)) {
                     // ongeldig token!

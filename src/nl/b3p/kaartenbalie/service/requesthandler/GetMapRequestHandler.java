@@ -123,7 +123,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         spUrl.append(WMS_PARAM_LAYERS);
                         spUrl.append("=");
                         spUrl.append(spls);
-                        System.out.println("GetMap url of outgoing request: " + spUrl);
                         urls.add(spUrl);
                     }
                 } 

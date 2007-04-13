@@ -40,24 +40,24 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     
     private static final String EXTRAREQUESTDATA="&VERSION=1.1.1&STYLES=&EXCEPTIONS=INIMAGE&WRAPDATELINE=true&BGCOLOR=0xF0F0F0";
     
-    protected Map getActionMethodPropertiesMap() {
-        Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETCAPABILITIES);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
-        map.put(GETCAPABILITIES, crudProp);
-        
-        crudProp = new ExtendedMethodProperties(GETMAP);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
-        map.put(GETMAP, crudProp);
-        
-        return map;
-    }
+protected Map getActionMethodPropertiesMap() {
+    Map map = super.getActionMethodPropertiesMap();
+    ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETCAPABILITIES);
+    crudProp.setDefaultForwardName(SUCCESS);
+    crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
+    crudProp.setAlternateForwardName(FAILURE);
+    crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
+    map.put(GETCAPABILITIES, crudProp);
+
+    crudProp = new ExtendedMethodProperties(GETMAP);
+    crudProp.setDefaultForwardName(SUCCESS);
+    crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
+    crudProp.setAlternateForwardName(FAILURE);
+    crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
+    map.put(GETMAP, crudProp);
+
+    return map;
+}
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
         //if the wms url already is filled:

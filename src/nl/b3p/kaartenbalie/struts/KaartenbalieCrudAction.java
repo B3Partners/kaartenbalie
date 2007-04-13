@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -57,7 +58,7 @@ public class KaartenbalieCrudAction extends CrudAction{
         Transaction tx = sess.beginTransaction();
         
         ActionForward forward = null;
-        
+        String message = null;
         
         try {
             forward = super.execute(mapping, form, request, response);
@@ -68,6 +69,23 @@ public class KaartenbalieCrudAction extends CrudAction{
             tx.rollback();
             log.error("Exception occured, rollback", e);
             /*melding etc. naar formulier/site*/
+            MessageResources messages = getResources(request);
+            message = e.toString();
+            /*
+            if (e instanceof org.hibernate.JDBCException) {
+                msg = e.toString();
+                SQLException sqle = ((org.hibernate.JDBCException)e).getSQLException();
+                msg = msg + ": " + sqle;
+                SQLException nextSqlE = sqle.getNextException();
+                if(nextSqlE != null) {
+                    msg = msg + ": " + nextSqlE;
+                }
+            }
+            */
+            
+            
+            
+            
         }
         
         // Start tweede sessie om tenminste nog de lijsten op te halen
@@ -78,10 +96,11 @@ public class KaartenbalieCrudAction extends CrudAction{
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
             tx.commit();
         } catch(Exception e) {
-            request.setAttribute("message", e);
+            //request.setAttribute("message", e);
             tx.rollback();
             log.error("Exception occured in second session, rollback", e);
         }
+        //addAlternateMessage(mapping, request, null, message);
         return getAlternateForward(mapping, request);
     }
     // </editor-fold>

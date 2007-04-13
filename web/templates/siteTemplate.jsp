@@ -3,7 +3,6 @@
 <%@ taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html" %>
 <%@taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 
-<body>
     <div id="bodycontent">
         <div id="banner">
             <!-- BEGIN header -->
@@ -33,4 +32,3 @@
             </DIV>
         </div>
     </div>
-</body>
