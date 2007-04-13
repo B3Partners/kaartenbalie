@@ -80,7 +80,7 @@ public class ServerActionDemo extends ServerAction {
         }
         
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
+        ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true);
                 
         if (null == serviceProvider) {
             prepareMethod(dynaForm, request, LIST, EDIT);

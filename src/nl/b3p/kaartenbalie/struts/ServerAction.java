@@ -11,6 +11,8 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
@@ -31,12 +34,18 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.xml.sax.SAXException;
 
-public class ServerAction extends KaartenbalieCrudAction {
+public class ServerAction extends KaartenbalieCrudAction implements KBConstants {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
-     private static final Log log = LogFactory.getLog(ServerAction.class);
+    private static final Log log = LogFactory.getLog(ServerAction.class);
     
+    protected static final String MISSING_SEPARATOR_ERRORKEY = "error.missingseparator";
+    protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
+    protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
+    protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
+    protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
+        
     /** Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -50,62 +59,18 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String selectedId = request.getParameter("id");
-        
-        if (selectedId != null) {
-            Integer id = FormUtils.StringToInteger(selectedId);
-            ServiceProvider serviceProvider = this.getServiceProvider(dynaForm, request, false, id);
-            
-            if (null != serviceProvider) {
-                this.populateServiceProviderForm(serviceProvider, dynaForm, request);
-            }
-            
-            request.setAttribute("selectedId", selectedId);
-        } else {
-            request.setAttribute("selectedId", null);
-        }
-        return super.unspecified(mapping, dynaForm, request, response);
+        this.createLists(dynaForm, request);
+        prepareMethod(dynaForm, request, LIST, LIST);
+        addDefaultMessage(mapping, request);
+        return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
     
-    /**
-     * Creates a new login code for the specified email address
-     *
-     * @param mapping The mapping of the action
-     * @param form The form the action is linking to
-     * @param request The request of this action
-     * @param response response of this action
-     *
-     * @return the action forward
-     *
-     * @throws java.lang.Exception when an error occurs
-     */
-    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("showFields", "show");
-        return super.create(mapping, form, request, response);
-    }
-    // </editor-fold>
-        
-    /**
-     * Creates a new login code for the specified email address
-     *
-     * @param mapping The mapping of the action
-     * @param form The form the action is linking to
-     * @param request The request of this action
-     * @param response response of this action
-     *
-     * @return the action forward
-     *
-     * @throws java.lang.Exception when an error occurs
-     */
-    // <editor-fold defaultstate="collapsed" desc="cancelled(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("showFields", null);
-        return super.cancelled(mapping, form, request, response);
-    }
-    // </editor-fold>
-        
+    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        populateServiceProviderForm(getServiceProvider(dynaForm, request, false), dynaForm, request);
+        return super.edit(mapping, dynaForm, request, response);
+    }        
+           
     /** Method which returns the service provider with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -116,9 +81,10 @@ public class ServerAction extends KaartenbalieCrudAction {
      * @return a service provider object.
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
         Session session = getHibernateSession();
         ServiceProvider serviceProvider = null;
+        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
@@ -137,7 +103,7 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("serverid", serviceProvider.getId().toString());
+        dynaForm.set("id", serviceProvider.getId().toString());
         dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
         dynaForm.set("serviceProviderUrl", serviceProvider.getUrl());
         dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
@@ -159,7 +125,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
         request.setAttribute("serviceproviderlist", serviceproviderlist);        
     }
-    // </editor-fold>z
+    // </editor-fold>
     
     /** Method that fills a serive provider object with the user input from the forms.
      *
@@ -190,11 +156,19 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Session sess = getHibernateSession();
-        
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
-         * everything is valid. If not it is of no use to go on with the action.
+         * everything is valid. First there will be checked if the request is valid. This means that every JSP
+         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
+         * checked when an action will be performed.
+         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
+         * when an action is performed and Struts reads this token we can perform a check if this token is an
+         * old token (the page has been requested again with a new token) or the token has already been used for
+         * an action).
+         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
+         * button this action will perform only the first click. Second, if a user has the same page opened twice
+         * only on one page a action can be performed (this is the page which is opened last). The previous page
+         * isn't valid anymore.
          */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -202,8 +176,13 @@ public class ServerAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
+        /*
+         * If a token is valid the second validation is necessary. This validation performs a check on the
+         * given parameters supported by the user. Off course this check should already have been performed
+         * by a Javascript which does exactly the same, but some browsers might not support JavaScript or
+         * JavaScript can be disabled by the browser/user.
+         */
         ActionErrors errors = dynaForm.validate(mapping, request);
-        
         if(!errors.isEmpty()) {
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -212,96 +191,106 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
         
         /*
-         * Everything is OK, so now we can start checking if we are dealing with 
-         * a new serviceprovider or with an existing one which has to be updated.
-         * In both cases we need to load a new Serviceprovider into the memory.
-         * Before we can take any action we need the users input to read the va-
-         * riables.
+         * If previous check were completed succesfully, we can start performing the real request which is
+         * saving the user input. This means that we can start checking if we are dealing with a new 
+         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a 
+         * new Serviceprovider into the memory. Before we can take any action we need the users input to read 
+         * the variables.
          */
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("serverid"));
-        //Deze kan straks verwijderd worden.
-        //ServiceProvider serviceProvider = getServiceProvider(dynaForm, request, true, id);
-        
-        ServiceProvider newServiceProvider = null;
-        ServiceProvider oldServiceProvider = null;
-        if (id == null) {
-            newServiceProvider = getServiceProvider(dynaForm, request, true, null);
-        } else {
-            oldServiceProvider = getServiceProvider(dynaForm, request, true, id);
-            newServiceProvider = getServiceProvider(dynaForm, request, true, null);
-        }
+        Session sess = getHibernateSession();
         
         String url = dynaForm.getString("serviceProviderUrl");
         
         /*
-         * The given url needs to be checked against some rules:
-         * - the url needs to have at least the three parameters REUQEST, VERSION and SERVICE
-         * If the ? seperator is missing it means that there are no paramaters given.
-         * No extra tests have to be done.
-         * Otherwise we need to test if all three parameters are given.
-         *
-         * - if either one of them is missing we should give a error message.
-         * Also as a special extra rule, each url always has to be closed with an &.
+         * First we need to check if the given url is realy an url.
          */
-        String [] urls = url.split("\\?");
         try {
-            String params = urls[1];
-        } catch (Exception e) {
-            request.setAttribute("message", "Missing seperator \'?\'");
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        boolean req = false, version = false, service = false;        
-        String [] params = urls[1].split("&");
-        for (int i = 0; i < params.length; i++) {
-            String [] paramValue = params[i].split("=");
-            System.out.println("param value: " + paramValue[0]);
-            if (paramValue[0].equalsIgnoreCase("REQUEST"))
-                req = true;
-            if (paramValue[0].equalsIgnoreCase("VERSION"))
-                version = true;
-            if (paramValue[0].equalsIgnoreCase("SERVICE"))
-                service = true;
-        }
-        
-        if (!(req && version && service)) {
-            request.setAttribute("message", "Missing parameters REQUEST, VERSION and/or SERVICE in URL");
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-
-        int lastchar = url.lastIndexOf("&");
-        int length = url.length();
-        System.out.println("Lastchar: " + lastchar + " Length: " + length);
-        if (url.length() != (url.lastIndexOf("&") + 1)) {
-            request.setAttribute("message", "Missing closing seperator \'&\'");
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            URL tempurl = new URL(url);
+        } catch (MalformedURLException mue) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
         
         /*
-         * Because we are dealing in both cases with a new serviceprovider
-         * first thing we can do is load all the data of the new serviceproiver 
-         * into the memory. After doing that we can do one final step in which
-         * we will check if there is an old serviceproivder and if so we need
-         * to copy all the layer rights from one to the other.
-         *
-         * if the newServiceProvider is null it means that something 
-         * went wrong with the creation of this object.
+         * If the URL is valid we need to check if it complies with the WMS standard
+         * This means that it should have at least an '?' or a '&' at the end of the
+         * URL.
+         * Furthermore if nothing else has been added to the URL, KB needs to add the
+         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
+         * KB to be able to perform the request.
          */
-        if (newServiceProvider == null) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+        int lastAmper = url.lastIndexOf("&");
+        int lastQuest = url.lastIndexOf("?");
+        int length = url.length();
+        
+        boolean hasLastAmper = (length == (lastAmper + 1));
+        boolean hasLastQuest = (length == (lastQuest + 1));
+        
+        if (!hasLastAmper && !hasLastQuest) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-
-        /* 
-         * Otherwise we can fill this object with information from the internet.
-         */
+        
+        String eventualURL = new String();
+        String [] urls = url.split("\\?");
+        eventualURL += urls[0] + "?";
+        
+        if (hasLastAmper) {
+            //Maybe some parameters have been given. We need to check which params still
+            //need to be added.
+            boolean req = false, version = false, service = false;
+            String [] params = urls[1].split("&");
+            for (int i = 0; i < params.length; i++) {
+                String [] paramValue = params[i].split("=");
+                if (paramValue[0].equalsIgnoreCase("REQUEST")) {
+                    if (paramValue[1].equalsIgnoreCase("GetCapabilitiies")) {
+                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                        req = true;
+                    }
+                }
+                else if (paramValue[0].equalsIgnoreCase("VERSION")) {
+                    if (paramValue[1].equalsIgnoreCase("1.1.1")) {
+                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                        version = true;
+                    }
+                }
+                else if (paramValue[0].equalsIgnoreCase("SERVICE")) {
+                    if (paramValue[1].equalsIgnoreCase("WMS")) {
+                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                        service = true;
+                    }
+                }
+                else {
+                    //An extra parameter which has to be given.
+                    eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                }
+            }
+            if (!req) {
+                eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
+            }
+            if (!version) {
+                eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
+            }
+            if (!service) {
+                eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
+            }
+        } else {
+            //No parameters have been given at all. We need to add everything
+            eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
+            eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
+            eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
+        }
+        //eventualURL += "&";
+        
+        /*
+         * We have now a fully checked URL which can be used to add a new ServiceProvider
+         * or to change an already existing ServiceProvider. Therefore we are first going
+         * to create some objects which we need to change the data if necessary.
+         */        
+        ServiceProvider newServiceProvider = new ServiceProvider();
+        ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader(newServiceProvider);
 
         /*
@@ -315,24 +304,24 @@ public class ServerAction extends KaartenbalieCrudAction {
         try {
             newServiceProvider = wms.getProvider(url);
         } catch (IOException e) {
-            request.setAttribute("message", "Kan geen verbinding maken met de server. Controleer de URL en/of controleer of de server actief is.");
-            log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
             return getAlternateForward(mapping, request);
         } catch (SAXException e) {
-            request.setAttribute("message", "Kan verbinding met server maken maar deze heeft een ongeldige Capability en niet worden opgeslagen.");
-            log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            addAlternateMessage(mapping, request, MALFORMED_CAPABILITY_ERRORKEY);
             return getAlternateForward(mapping, request);
         } catch (Exception e) {
-            request.setAttribute("message", "Er is een fout opgetreden: " + e);
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            addAlternateMessage(mapping, request, e.toString());
             return getAlternateForward(mapping, request);
         }
+        
+        populateServerObject(dynaForm, newServiceProvider);
+        newServiceProvider.setReviewed(true);
+        sess.saveOrUpdate(newServiceProvider);
+        sess.flush();
         
         /*
          * All tests have been completed succesfully.
@@ -340,7 +329,7 @@ public class ServerAction extends KaartenbalieCrudAction {
          * is if this serviceprovider has been changed or newly added. The
          * easiest way of doing so, is by checking the id.
          */
-        if(id != null) {
+        if(oldServiceProvider != null) {
             /* Before we can start, we need to save the new serviceprovider.
              * 
              * Then we need to call for a list with organizations. 
@@ -361,10 +350,6 @@ public class ServerAction extends KaartenbalieCrudAction {
              * After completing all organizations, we can delete the old serviceprovider.
              */
             
-            populateServerObject(dynaForm, newServiceProvider);
-            newServiceProvider.setReviewed(true);
-            sess.saveOrUpdate(newServiceProvider);
-            sess.flush();
             
             List orgList = sess.createQuery("from Organization").list();
             Iterator orgit = orgList.iterator();
@@ -376,7 +361,7 @@ public class ServerAction extends KaartenbalieCrudAction {
                 while (layerit.hasNext()) {
                     Layer organizationLayer = (Layer)layerit.next();
                     ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
-                    if (orgLayerServiceProvider.getGivenName().equals(oldServiceProvider.getGivenName())) {
+                    if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
                         /* The layer belongs to the old servideprovider.
                          * So now we need to check if this same layer is
                          * still available in the new serviceprovider.
@@ -403,27 +388,19 @@ public class ServerAction extends KaartenbalieCrudAction {
                 sess.flush();
             }       
             //EIND TEST
-        } else {
-            populateServerObject(dynaForm, newServiceProvider);
-            sess.saveOrUpdate(newServiceProvider);
-            sess.flush();
+            try {
+                sess.delete(oldServiceProvider);
+                sess.flush();
+            } catch (Exception e) {
+                log.error("Error deleting the old serviceprovider", e);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, e.toString());
+                return getAlternateForward(mapping, request);
+            }
         }
         
-        try {
-            sess.delete(oldServiceProvider);
-            sess.flush();
-        } catch (Exception e) {
-            super.msg = "De service is niet juist geupdate/verwijderd; Er zijn nog organisaties gekoppeld aan deze service.";
-            log.error("Error deleting server", e);
-        }
-                
-        dynaForm.set("serverid", "");
-        dynaForm.set("serviceProviderGivenName", "");
-        dynaForm.set("serviceProviderUrl", "");
-        dynaForm.set("serviceProviderUpdatedDate", "");
-        dynaForm.set("serviceProviderReviewed", "");
-        
-        return super.save(mapping,dynaForm,request,response);
+        dynaForm.set("id", null);
+        return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
     
@@ -443,7 +420,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             
-            if(orgLayer.getName().equalsIgnoreCase(layer.getName()) || orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
+            if(orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
                 return layer;
             
             Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
@@ -468,40 +445,54 @@ public class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        String [] serviceProviderSelected = dynaForm.getStrings("serviceProviderSelected");
-        int size = serviceProviderSelected.length;
-        
-        for(int i = 0; i < size; i++) {
-            //if invalid
-            if (!isTokenValid(request)) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            // nieuwe default actie op delete zetten
-            Session sess = getHibernateSession();
-                        
-            Integer id = new Integer(Integer.parseInt(serviceProviderSelected[i]));
-            ServiceProvider serviceProvider = getServiceProvider(dynaForm,request,true, id);
-            
-            if (null == serviceProvider) {
-                prepareMethod(dynaForm, request, LIST, EDIT);
-                addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            populateServerObject(dynaForm, serviceProvider);
-            //store in db
-            try {
-                sess.delete(serviceProvider);
-                sess.flush();
-            } catch (Exception e) {
-                super.msg = "De service is niet verwijderd: Er zijn nog organisaties gekoppeld aan deze service.";
-                log.error("Error deleting server", e);
-            }
+        /*
+         * Before we can start deleting a serviceprovider, we first need to check if the given token
+         * is valid. First there will be checked if the request is valid. This means that every JSP
+         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
+         * checked when an action will be performed.
+         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
+         * when an action is performed and Struts reads this token we can perform a check if this token is an
+         * old token (the page has been requested again with a new token) or the token has already been used for
+         * an action).
+         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
+         * button this action will perform only the first click. Second, if a user has the same page opened twice
+         * only on one page a action can be performed (this is the page which is opened last). The previous page
+         * isn't valid anymore.
+         */
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
         }
+        
+        /* 
+         * Get the serviceprovider which is given in the form. If for some reason this
+         * ServiceProvider doesn't exist anymore in the database then we need to catch
+         * this error and show it to the user.
+         */
+        ServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
+        if (null == serviceProvider) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        //Hier nog een controle uitvoeren of deze serviceprovider layers heeft die gekoppeld zijn aan organisaties
+        //indien dit het geval is, dan de foutmelding die hieronder nu aangegeven staat opvangen in een if
+        // en de onderstaante foutmelding alleen gebruiker voor een werkelijke foutmelding.
+        
+        
+        Session sess = getHibernateSession();
+        try {
+            sess.delete(serviceProvider);
+            sess.flush();
+        } catch (Exception e) {
+            log.error("Error deleting server", e);
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
