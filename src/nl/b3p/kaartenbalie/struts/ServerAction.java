@@ -45,8 +45,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
+    
+    //-------------------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //-------------------------------------------------------------------------------------------------------
         
-    /** Execute method which handles all executable requests.
+    /** Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -57,7 +61,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         this.createLists(dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
@@ -66,80 +70,21 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        populateServiceProviderForm(getServiceProvider(dynaForm, request, false), dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
-    }        
-           
-    /** Method which returns the service provider with a specified id.
+    /** Edit method which handles all editable requests.
      *
+     * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
-     * @param createNew A boolean which indicates if a new object has to be created.
-     * @param id An Integer indicating which organization id has to be searched for.
+     * @param response The HTTP Response we are processing.
      *
-     * @return a service provider object.
-     */
-    // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
-        ServiceProvider serviceProvider = null;
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        
-        if(null == id && createNew) {
-            serviceProvider = new ServiceProvider();
-        } else if (null != id) {
-            serviceProvider = (ServiceProvider)session.load(ServiceProvider.class, new Integer(id.intValue()));
-        }
-        return serviceProvider;
-    }
-    // </editor-fold>
-    
-    /** Method which will fill the JSP form with the data of a given service provider.
-     *
-     * @param serviceProvider ServiceProvider object from which the information has to be printed.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     */
-    // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
-    private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("id", serviceProvider.getId().toString());
-        dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
-        dynaForm.set("serviceProviderUrl", serviceProvider.getUrl());
-        dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
-        dynaForm.set("serviceProviderReviewed", "false");
-    }
-    // </editor-fold>
-    
-    /** Creates a list of all the service providers in the database.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
+     * @return an Actionforward object.
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
-    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
-        super.createLists(form, request);
-        
-        List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
-        request.setAttribute("serviceproviderlist", serviceproviderlist);        
-    }
-    // </editor-fold>
-    
-    /** Method that fills a serive provider object with the user input from the forms.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param serviceProvider ServiceProvider object that to be filled
-     */
-    // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
-    protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
-        serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
-        serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
-        if (serviceProvider.getId() == null) {
-            serviceProvider.setUpdatedDate(new Date());
-            serviceProvider.setReviewed(false);
-        }
+    // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        populateServiceProviderForm(getServiceProvider(dynaForm, request, false), dynaForm, request);
+        return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
     
@@ -244,20 +189,20 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             String [] params = urls[1].split("&");
             for (int i = 0; i < params.length; i++) {
                 String [] paramValue = params[i].split("=");
-                if (paramValue[0].equalsIgnoreCase("REQUEST")) {
-                    if (paramValue[1].equalsIgnoreCase("GetCapabilitiies")) {
+                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
+                    if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
                         eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
                         req = true;
                     }
                 }
-                else if (paramValue[0].equalsIgnoreCase("VERSION")) {
-                    if (paramValue[1].equalsIgnoreCase("1.1.1")) {
+                else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
+                    if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
                         eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
                         version = true;
                     }
                 }
-                else if (paramValue[0].equalsIgnoreCase("SERVICE")) {
-                    if (paramValue[1].equalsIgnoreCase("WMS")) {
+                else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
+                    if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
                         eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
                         service = true;
                     }
@@ -349,8 +294,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
              * 
              * After completing all organizations, we can delete the old serviceprovider.
              */
-            
-            
             List orgList = sess.createQuery("from Organization").list();
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
@@ -386,8 +329,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 org.setOrganizationLayer(newOrganizationLayer);
                 sess.saveOrUpdate(org);
                 sess.flush();
-            }       
-            //EIND TEST
+            }
+            
             try {
                 sess.delete(oldServiceProvider);
                 sess.flush();
@@ -403,34 +346,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
-    /** Tries to find a specified layer given for a certain ServiceProvider.
-     *
-     * @param layers the set with layers which the method has to surch through
-     * @param orgLayer the layer to be found
-     *
-     * @return layer if found.
-     */
-    // <editor-fold defaultstate="" desc="checkLayer(Layer orgLayer, Set layers) method.">
-    private Layer checkLayer(Layer orgLayer, Set layers) {
-        if (layers==null || layers.isEmpty())
-            return null;
-        
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            
-            if(orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
-                return layer;
-            
-            Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
-            if (foundLayer != null)
-                return foundLayer;
-        }
-        
-        return null;
-    }
-    // </editor-fold>    
     
     /** Method for deleting a serviceprovider selected by a user.
      *
@@ -477,23 +392,171 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        //Hier nog een controle uitvoeren of deze serviceprovider layers heeft die gekoppeld zijn aan organisaties
-        //indien dit het geval is, dan de foutmelding die hieronder nu aangegeven staat opvangen in een if
-        // en de onderstaante foutmelding alleen gebruiker voor een werkelijke foutmelding.
-        
-        
+        /*
+         * Instead of letting the Database decide if it is allowed to delete a serviceprovider
+         * we can decide this our selfs. All there has to be done is checking if there are
+         * still rights connected to this serviceprovider. Since the rights to a certain layer
+         * are going from bottom to top (this means if a sub layer is set with right that all
+         * the superlayers of this sublayer also are set with the same rights) all we have to
+         * do is getting the most upper layer and compare this one with the toplayer in the
+         * servicerpovider.
+         * Therefore we only need to create a loop with all the organizationlayers, ask each
+         * one of them for it's toplayer and compare it. If we find one single equality it is 
+         * enough to stop the search and give an error.
+         */
+        Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
         Session sess = getHibernateSession();
-        try {
-            sess.delete(serviceProvider);
-            sess.flush();
-        } catch (Exception e) {
-            log.error("Error deleting server", e);
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+        List orgList = sess.createQuery("from Organization").list();
+        Iterator orgit = orgList.iterator();
+        while (orgit.hasNext()) {
+            Organization org = (Organization)orgit.next();
+            Set orgLayers = org.getOrganizationLayer();
+            Iterator orgLayerIterator = orgLayers.iterator();
+            while (orgLayerIterator.hasNext()) {
+                Layer organizationLayer = (Layer)orgLayerIterator.next();
+                Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
+                if (organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
+                    prepareMethod(dynaForm, request, LIST, EDIT);
+                    addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
+                    return getAlternateForward(mapping, request);
+                }
+            }
         }
-
+        
+        /*
+         * If no errors occured and no right were set anymore to this serviceprovider
+         * we can assume that all is good and we can safely delete this serviceproiver.
+         * Any other exception that might occur is in the form of an unknown or unsuspected
+         * form and will be thrown in the super class.
+         * 
+         */
+        sess.delete(serviceProvider);
+        sess.flush();
         return super.delete(mapping, dynaForm, request, response);
+    }
+    // </editor-fold>
+    
+    /** Creates a list of all the service providers in the database.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
+        super.createLists(form, request);
+        
+        List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
+        request.setAttribute("serviceproviderlist", serviceproviderlist);        
+    }
+    // </editor-fold>
+    
+    //-------------------------------------------------------------------------------------------------------
+    // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
+    //-------------------------------------------------------------------------------------------------------
+    
+    /** Method which returns the service provider with a specified id or a new object if no id is given.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param createNew A boolean which indicates if a new object has to be created.
+     * @param id An Integer indicating which organization id has to be searched for.
+     *
+     * @return a service provider object.
+     */
+    // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+        Session session = getHibernateSession();
+        ServiceProvider serviceProvider = null;
+        Integer id = getID(dynaForm);
+        
+        if(null == id && createNew) {
+            serviceProvider = new ServiceProvider();
+        } else if (null != id) {
+            serviceProvider = (ServiceProvider)session.load(ServiceProvider.class, new Integer(id.intValue()));
+        }
+        return serviceProvider;
+    }
+    // </editor-fold>
+    
+    /** Method that fills a serive provider object with the user input from the forms.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param serviceProvider ServiceProvider object that to be filled
+     */
+    // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+    protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
+        serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
+        serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
+        if (serviceProvider.getId() == null) {
+            serviceProvider.setUpdatedDate(new Date());
+            serviceProvider.setReviewed(false);
+        }
+    }
+    // </editor-fold>
+    
+    //-------------------------------------------------------------------------------------------------------
+    // PRIVATE METHODS
+    //-------------------------------------------------------------------------------------------------------
+    
+    /** Method which gets the hidden id in a form.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+    private Integer getID(DynaValidatorForm dynaForm) {
+        return FormUtils.StringToInteger(dynaForm.getString("id"));
+    }
+    // </editor-fold>
+    
+    /** Method which will fill the JSP form with the data of a given service provider.
+     *
+     * @param serviceProvider ServiceProvider object from which the information has to be printed.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     */
+    // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("id", serviceProvider.getId().toString());
+        dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
+        dynaForm.set("serviceProviderUrl", serviceProvider.getUrl());
+        dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
+        dynaForm.set("serviceProviderReviewed", "false");
+    }
+    // </editor-fold>
+        
+    /** Tries to find a specified layer given for a certain ServiceProvider.
+     *
+     * @param layers the set with layers which the method has to surch through
+     * @param orgLayer the layer to be found
+     *
+     * @return layer if found.
+     */
+    // <editor-fold defaultstate="" desc="checkLayer(Layer orgLayer, Set layers) method.">
+    private Layer checkLayer(Layer orgLayer, Set layers) {
+        if (layers==null || layers.isEmpty())
+            return null;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            
+            if(orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
+                return layer;
+            
+            Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
+            if (foundLayer != null)
+                return foundLayer;
+        }
+        return null;
     }
     // </editor-fold>
 }

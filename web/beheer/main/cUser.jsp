@@ -5,75 +5,30 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%--
-The taglib directive below imports the JSTL library. If you uncomment it,
-you must also add the JSTL library to the project. The Add Library... action
-on Libraries node in Projects view can be used to add the JSTL 1.1 library.
---%>
-<%--
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%> 
---%>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<SCRIPT type=text/javascript>
-        <!--
-function toggleDiv(divid) {
-            var divEl = document.getElementById(divid);
-            if(divEl.style.display == 'none') divEl.style.display = 'block';
-            else divEl.style.display = 'none';
-        }
+<c:set var="form" value="${userForm}"/>
+<c:set var="action" value="${form.map.action}"/>
+<c:set var="mainid" value="${form.map.id}"/>
 
-/* http://www.alistapart.com/articles/zebratables/ */
-function removeClassName (elem, className) {
-	elem.className = elem.className.replace(className, "").trim();
-}
+<c:set var="save" value="${action == 'save'}"/>
+<c:set var="delete" value="${action == 'delete'}"/>
 
-function addCSSClass (elem, className) {
-	removeClassName (elem, className);
-	elem.className = (elem.className + " " + className).trim();
-}
-
-String.prototype.trim = function() {
-	return this.replace( /^\s+|\s+$/, "" );
-}
-
-function stripedTable() {
-	if (document.getElementById && document.getElementsByTagName) {  
-		var allTables = document.getElementsByTagName('table');
-		if (!allTables) { return; }
-
-		for (var i = 0; i < allTables.length; i++) {
-			if (allTables[i].className.match(/[\w\s ]*scrollTable[\w\s ]*/)) {
-				var trs = allTables[i].getElementsByTagName("tr");
-				for (var j = 0; j < trs.length; j++) {
-					removeClassName(trs[j], 'alternateRow');
-					addCSSClass(trs[j], 'normalRow');
-				}
-				for (var k = 0; k < trs.length; k += 2) {
-					removeClassName(trs[k], 'normalRow');
-					addCSSClass(trs[k], 'alternateRow');
-				}
-			}
-		}
-	}
-}
-
-window.onload = function() { stripedTable(); }
-        -->
-        </SCRIPT>
 <html:javascript formName="userForm" staticJavascript="false"/>
-<html:form action="/user" onsubmit="return validateUserForm(this)">
-    <c:if test="${not empty message}">
+<html:form action="/user" onsubmit="return validateUserForm(this)" focus="firstname">
+    <html:hidden property="action"/>
+    <html:hidden property="alt_action"/>
+    
+    <html:messages id="message" message="true" >
         <div id="error">
-            <h3><c:out value="${message}"/></h3>
+            <c:out value="${message}" escapeXml="false"/>
         </div>
-    </c:if>
+    </html:messages>
     
     <div class="containerdiv" style="float: left; clear: none;">
+        <H1>Beheer Gebruikers</H1>
+        
         <b>Gebruikers tabel:</b>
         <div class="serverRijTitel">
-            <div style="width: 50px;">Select</div>
             <div style="width: 160px;">Voornaam</div>
             <div style="width: 160px;">Achternaam</div>
             <div style="width: 160px;">Gebruikersnaam</div>
@@ -82,30 +37,31 @@ window.onload = function() { stripedTable(); }
         <DIV class="tableContainer" id="tableContainer">          
             <c:forEach var="nUser" varStatus="status" items="${userlist}">
                 <div class="serverRij">    
-                    <div style="width: 50px;"><html:multibox value="${nUser.id}" property="userSelected" /></div>
-                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>"><c:out value="${nUser.firstName}"/></div>
-                    <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>"><c:out value="${nUser.lastName}"/></div>
-                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>"><a href="user.do?id=${nUser.id}"><c:out value="${nUser.username}"/></a></div>
-                    <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>"><c:out value="${nUser.emailAddress}"/></div>
+                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>">
+                        <c:out value="${nUser.firstName}"/>
+                    </div>
+                    <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>">
+                        <c:out value="${nUser.lastName}"/>
+                    </div>
+                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>">
+                        <html:link page="/user.do?edit=submit&id=${nUser.id}">
+                            <c:out value="${nUser.username}"/>
+                        </html:link>
+                    </div>
+                    <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>">
+                        <c:out value="${nUser.emailAddress}"/>
+                    </div>
                 </div>    
             </c:forEach>
         </DIV>
     </div>
-    <c:if test="${empty showFields && empty selectedId}">
-        <html:submit property="delete" style="margin-top: 5px; margin-bottom: 5px;">
-            <fmt:message key="button.delete"/>
-        </html:submit>
-        <html:submit property="create" style="margin-top: 5px; margin-bottom: 5px;">
-            <fmt:message key="button.new"/>
-        </html:submit>
-    </c:if>
     
-    <c:if test="${not empty showFields || not empty selectedId}">
+    <c:if test="${action != 'list'}">
         <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
             <table>
                 <tr>
-                    <td><B><fmt:message key="beheer.userID"/>:</B></td>
-                    <td><html:text property="userid" readonly="true" /></td>
+                    <td><html:hidden property="id" /></td>
+                    <td>&nbsp;</td>
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
@@ -132,7 +88,9 @@ window.onload = function() { stripedTable(); }
                     <td>
                         <html:select property="selectedOrganization">
                             <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                                <html:option value="${nOrganization.id}">${nOrganization.name}</html:option>
+                                <html:option value="${nOrganization.id}">
+                                    ${nOrganization.name}
+                                </html:option>
                             </c:forEach>
                         </html:select>     
                     </td>
@@ -147,36 +105,37 @@ window.onload = function() { stripedTable(); }
                         </html:select>     
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="0">
-                        <center>
-                            <html:submit property="cancel" onclick="bCancel=true">
-                                <fmt:message key="button.cancel"/>
-                            </html:submit>
-                            <html:submit property="save" >
-                                <fmt:message key="button.ok"/>
-                            </html:submit>
-                        </center>
-                    </td>
-                </tr>
             </table>
         </div>
     </c:if>
     
-    <br /><br /><a href="#" onclick="toggleDiv('adminContainer');">Toon/verberg administratieve meldingen</a><br />&nbsp;<br />&nbsp;
-    <div id="adminContainer" style="clear: left; display: none;" class="containerdiv">
-        <b>Administratieve meldingen</b>
-        <DIV class=tableContainer id=tableContainer2 style="top: auto">
-            <TABLE class=scrollTable cellSpacing=0 cellPadding=0 width="50%" border=0>
-                <THEAD class=fixedHeader>
-                    <TR> 
-                        <TH><B>Administratieve data</B></TH>
-                    </TR>
-                </THEAD>
-                <TBODY class=scrollContent>
-                    <TR><TD></TD></TR>
-                </TBODY>
-            </TABLE>
-        </DIV>
-    </div>
+    <c:choose>
+        <c:when test="${action != 'list'}">
+            <div class="knoppen">
+                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                    <fmt:message key="button.cancel"/>
+                </html:cancel>
+                <c:if test="${empty mainid}">
+                    <html:submit property="save" accesskey="s" styleClass="knop">
+                        <fmt:message key="button.save"/>
+                    </html:submit>
+                </c:if>
+                <c:if test="${not empty mainid}">
+                    <html:submit property="save" accesskey="s" styleClass="knop">
+                        <fmt:message key="button.update"/>
+                    </html:submit>
+                    <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.remove"/>
+                    </html:submit>
+                </c:if>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <div class="knoppen">
+                <html:submit property="create" accesskey="n" styleClass="knop" onclick="bCancel=true">
+                    <fmt:message key="button.new"/>
+                </html:submit>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </html:form>

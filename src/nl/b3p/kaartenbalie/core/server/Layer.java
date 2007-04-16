@@ -686,4 +686,13 @@ public class Layer implements XMLElement {
         return rootElement;
     }
     // </editor-fold>
+    
+    public Layer getTopLayer() {
+        Layer parent = this.getParent();
+        if (parent != null) {
+            return parent.getTopLayer();
+        } else {
+            return this;
+        }
+    }
 }
