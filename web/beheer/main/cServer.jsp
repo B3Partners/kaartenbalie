@@ -14,7 +14,7 @@
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <html:javascript formName="serverForm" staticJavascript="false"/>
-<html:form action="/server" onsubmit="return validateServerForm(this)" focus="serviceProviderGivenName">
+<html:form action="/server" onsubmit="return validateServerForm(this)" focus="givenName">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -61,21 +61,21 @@
                     <c:when test="${not empty mainid}">
                         <tr>
                             <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                            <td><html:text property="serviceProviderGivenName" readonly="true" /></td>
+                            <td><html:text property="givenName" readonly="true" /></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                            <td><html:text property="serviceProviderUrl" size="75" readonly="true" /></td>
+                            <td><html:text property="url" size="75" readonly="true" /></td>
                         </tr>
                     </c:when>
                     <c:otherwise>
                         <tr>
                             <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                            <td><html:text property="serviceProviderGivenName" /></td>
+                            <td><html:text property="givenName" /></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                            <td><html:text property="serviceProviderUrl" size="75" /></td>
+                            <td><html:text property="url" size="75" /></td>
                         </tr>
                     </c:otherwise>
                 </c:choose>
