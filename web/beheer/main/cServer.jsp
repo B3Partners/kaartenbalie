@@ -17,6 +17,7 @@
 <html:form action="/server" onsubmit="return validateServerForm(this)" focus="serviceProviderGivenName">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
+    <html:hidden property="id" />
     
     <html:messages id="message" message="true" >
         <div id="error">
@@ -56,10 +57,6 @@
     <c:if test="${action != 'list'}">
         <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
             <table>
-                <tr>
-                    <td><html:hidden property="id" /></td>
-                    <td>&nbsp;</td>
-                </tr>
                 <c:choose>
                     <c:when test="${not empty mainid}">
                         <tr>

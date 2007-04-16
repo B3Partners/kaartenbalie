@@ -50,7 +50,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
         
-    /** Execute method which handles all unspecified requests.
+    /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -70,7 +70,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Edit method which handles all editable requests.
+    /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -88,7 +88,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Method for saving a new service provider from input of a user.
+    /* Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -347,7 +347,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Method for deleting a serviceprovider selected by a user.
+    /* Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -436,7 +436,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Creates a list of all the service providers in the database.
+    /* Creates a list of all the service providers in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -456,7 +456,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
     
-    /** Method which returns the service provider with a specified id or a new object if no id is given.
+    /* Method which returns the service provider with a specified id or a new object if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -480,18 +480,17 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Method that fills a serive provider object with the user input from the forms.
+    /* Method that fills a serive provider object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param serviceProvider ServiceProvider object that to be filled
      */
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
-        serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("serviceProviderGivenName")));
-        serviceProvider.setUrl(dynaForm.getString("serviceProviderUrl"));
+        serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
+        serviceProvider.setUrl(dynaForm.getString("url"));
         if (serviceProvider.getId() == null) {
             serviceProvider.setUpdatedDate(new Date());
-            serviceProvider.setReviewed(false);
         }
     }
     // </editor-fold>
@@ -500,7 +499,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
     
-    /** Method which gets the hidden id in a form.
+    /* Method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -517,7 +516,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    /** Method which will fill the JSP form with the data of a given service provider.
+    /* Method which will fill the JSP form with the data of a given service provider.
      *
      * @param serviceProvider ServiceProvider object from which the information has to be printed.
      * @param form The DynaValidatorForm bean for this request.
@@ -526,14 +525,13 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", serviceProvider.getId().toString());
-        dynaForm.set("serviceProviderGivenName", serviceProvider.getGivenName());
-        dynaForm.set("serviceProviderUrl", serviceProvider.getUrl());
-        dynaForm.set("serviceProviderUpdatedDate", serviceProvider.getUpdatedDate().toString());
-        dynaForm.set("serviceProviderReviewed", "false");
+        dynaForm.set("givenName", serviceProvider.getGivenName());
+        dynaForm.set("url", serviceProvider.getUrl());
+        dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
     }
     // </editor-fold>
         
-    /** Tries to find a specified layer given for a certain ServiceProvider.
+    /* Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
      * @param orgLayer the layer to be found

@@ -20,7 +20,6 @@
             <form-property name="selectedRole" type="java.lang.String"/>
             <form-property name="selectedOrganization" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
-            <form-property name="userSelected" type="java.lang.String[]"/>
         </form-bean>
         
         <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">
@@ -29,32 +28,29 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="serviceProviderGivenName" type="java.lang.String"/>
-            <form-property name="serviceProviderUrl" type="java.lang.String"/>
-            <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
-            <form-property name="serviceProviderReviewed" type="java.lang.String"/>
+            <form-property name="givenName" type="java.lang.String"/>
+            <form-property name="url" type="java.lang.String"/>
+            <form-property name="updatedDate" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
-            <form-property name="organizationid" type="java.lang.String"/>
+            <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
             <form-property name="name" type="java.lang.String"/>
-            <form-property name="organizationStreet" type="java.lang.String"/>
-            <form-property name="organizationNumber" type="java.lang.String"/>
-            <form-property name="organizationAddition" type="java.lang.String"/>
-            <form-property name="organizationPostalcode" type="java.lang.String"/>
-            <form-property name="organizationProvince" type="java.lang.String"/>
-            <form-property name="organizationCountry" type="java.lang.String"/>
-            <form-property name="organizationPostbox" type="java.lang.String"/>
-            <form-property name="organizationBillingAddress" type="java.lang.String"/>
-            <form-property name="organizationVisitorsAddress" type="java.lang.String"/>
-            <form-property name="organizationTelephone" type="java.lang.String"/>
-            <form-property name="organizationFax" type="java.lang.String"/>
-            <form-property name="organizationSelected" type="java.lang.String[]"/>
-            <form-property name="layerSelected" type="java.lang.String"/>
+            <form-property name="street" type="java.lang.String"/>
+            <form-property name="number" type="java.lang.String"/>
+            <form-property name="addition" type="java.lang.String"/>
+            <form-property name="postalcode" type="java.lang.String"/>
+            <form-property name="province" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="postbox" type="java.lang.String"/>
+            <form-property name="billingAddress" type="java.lang.String"/>
+            <form-property name="visitorsAddress" type="java.lang.String"/>
+            <form-property name="telephone" type="java.lang.String"/>
+            <form-property name="fax" type="java.lang.String"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
         

@@ -17,6 +17,7 @@
 <html:form action="/user" onsubmit="return validateUserForm(this)" focus="firstname">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
+    <html:hidden property="id" />
     
     <html:messages id="message" message="true" >
         <div id="error">
@@ -59,10 +60,6 @@
     <c:if test="${action != 'list'}">
         <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
             <table>
-                <tr>
-                    <td><html:hidden property="id" /></td>
-                    <td>&nbsp;</td>
-                </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
                     <td><html:text property="firstname"/></td>

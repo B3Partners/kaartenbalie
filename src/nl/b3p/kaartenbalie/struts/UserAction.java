@@ -36,7 +36,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
     
-    /** Execute method which handles all executable requests.
+    /* Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -56,7 +56,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Edit method which handles all editable requests.
+    /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -74,7 +74,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method for saving a new or updating an existing user.
+    /* Method for saving a new or updating an existing user.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -170,7 +170,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method for deleting a user.
+    /* Method for deleting a user.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -228,7 +228,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Creates a list of all the users in the database.
+    /* Creates a list of all the users in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -252,7 +252,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
     
-    /** Private method which gets the hidden id in a form.
+    /* Private method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -269,7 +269,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method which returns the user with a specified id or a new user if no id is given.
+    /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -294,7 +294,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method which returns the organization with a specified id.
+    /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -311,7 +311,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method which will fill-in the JSP form with the data of a given user.
+    /* Method which will fill-in the JSP form with the data of a given user.
      *
      * @param user User object from which the information has to be printed.
      * @param form The DynaValidatorForm bean for this request.
@@ -330,7 +330,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method that fills a user object with the user input from the forms.
+    /* Method that fills a user object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param user User object that to be filled.

@@ -40,11 +40,16 @@ import org.json.JSONObject;
 
 public class OrganizationAction extends KaartenbalieCrudAction {
     
-    /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
+    protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
+    protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     
-    /** Execute method which handles all executable requests.
+    //-------------------------------------------------------------------------------------------------------
+    // PUBLIC METHODS
+    //-------------------------------------------------------------------------------------------------------
+    
+    /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -55,63 +60,226 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String selectedId = request.getParameter("id");
-        
-        if (selectedId != null) {
-            Integer id = FormUtils.StringToInteger(selectedId);
-            Organization organization = this.getOrganization(dynaForm, request, false, id);
-            
-            if (null != organization) {
-                Set l = organization.getOrganizationLayer();
-
-                Object [] organizationLayer = l.toArray();            
-                String [] layerid = new String[l.size()];
-
-                for (int i = 0; i < organizationLayer.length; i++) {
-                    layerid [i] = ((Layer)organizationLayer[i]).getId().toString();
-                }
-                String checkedLayers = "";
-                for (int i = 0; i < organizationLayer.length; i++) {
-                    if (i < organizationLayer.length - 1) {
-                        checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
-                    } else {
-                        checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
-                    }
-                }
-                request.setAttribute("checkedLayers",checkedLayers);
-                this.populateOrganizationForm(organization, dynaForm, request);
-            }
-            
-            request.setAttribute("selectedId", selectedId);
-        } else {
-            request.setAttribute("selectedId", null);
-        }
-        return super.unspecified(mapping, dynaForm, request, response);
+        this.createLists(dynaForm, request);
+        prepareMethod(dynaForm, request, LIST, LIST);
+        addDefaultMessage(mapping, request);
+        return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
     
-    /**
-     * Creates a new login code for the specified email address
+    /* Edit method which handles all editable requests.
      *
-     * @param mapping The mapping of the action
-     * @param form The form the action is linking to
-     * @param request The request of this action
-     * @param response response of this action
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
      *
-     * @return the action forward
+     * @return an Actionforward object.
      *
-     * @throws java.lang.Exception when an error occurs
+     * @throws Exception
      */
-    // <editor-fold defaultstate="collapsed" desc="create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("showFields", "show");
-        return super.create(mapping, form, request, response);
+    // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        populateOrganizationForm(getOrganization(dynaForm, request, false), dynaForm, request);
+        return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
     
-    /** Method which returns the organization with a specified id.
+    /* Method for saving a new organization from input of a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception, HibernateException
+     */
+    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        /*
+         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
+         * everything is valid. First there will be checked if the request is valid. This means that every JSP
+         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
+         * checked when an action will be performed.
+         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
+         * when an action is performed and Struts reads this token we can perform a check if this token is an
+         * old token (the page has been requested again with a new token) or the token has already been used for
+         * an action).
+         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
+         * button this action will perform only the first click. Second, if a user has the same page opened twice
+         * only on one page a action can be performed (this is the page which is opened last). The previous page
+         * isn't valid anymore.
+         */
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * If a token is valid the second validation is necessary. This validation performs a check on the
+         * given parameters supported by the user. Off course this check should already have been performed
+         * by a Javascript which does exactly the same, but some browsers might not support JavaScript or
+         * JavaScript can be disabled by the browser/user.
+         */
+        ActionErrors errors = dynaForm.validate(mapping, request);
+        if(!errors.isEmpty()) {
+            addMessages(request, errors);
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * No errors occured during validation and token check. Therefore we can get a new
+         * organization object if a we are dealing with new input of the user, otherwise we 
+         * can change the organization object which is already know, because of it's id.
+         */  
+        Organization organization = getOrganization(dynaForm, request, true);
+        if (null == organization) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * Once we have a (new or existing) organization object we can fill this object with
+         * the user input.
+         */
+        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        populateOrganizationObject(dynaForm, organization, selectedLayers);
+        
+        /*
+         * A warning has to be given if the organization has an invalid capability with the
+         * selected layers.
+         */ 
+        if(!organization.getHasValidGetCapabilities()) {
+            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);            
+        }
+        
+        /*
+         * No errors occured so we can assume that all is good and we can safely
+         * save this organization. Any other exception that might occur is in the 
+         * form of an unknown or unsuspected form and will be thrown in the super 
+         * class.
+         */
+        Session sess = getHibernateSession();
+        sess.saveOrUpdate(organization);
+        sess.flush();
+        return super.save(mapping,dynaForm,request,response);
+    }
+    // </editor-fold>
+    
+    /* Method for deleting an organization selected by a user.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception, HibernateException
+     */
+    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        /*
+         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
+         * everything is valid. First there will be checked if the request is valid. This means that every JSP
+         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
+         * checked when an action will be performed.
+         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
+         * when an action is performed and Struts reads this token we can perform a check if this token is an
+         * old token (the page has been requested again with a new token) or the token has already been used for
+         * an action).
+         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
+         * button this action will perform only the first click. Second, if a user has the same page opened twice
+         * only on one page a action can be performed (this is the page which is opened last). The previous page
+         * isn't valid anymore.
+         */
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * No errors occured during validation and token check. Therefore we can get
+         * the selected user from the database. If this user is unknown in the database
+         * something has gone wrong and we need to inform the user about it.
+         */                
+        Organization organization = getOrganization(dynaForm, request, false);
+        if (null == organization) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        populateOrganizationObject(dynaForm, organization, selectedLayers);
+        
+        /*
+         * Instead of letting the Database decide if it is allowed to delete an organization
+         * we can decide this our selfs. All there has to be done is checking if there are
+         * still users connected to this organization. This is easily done by checking if an 
+         * organization has a empty set of users or not.
+         */
+        if(!organization.getUser().isEmpty()) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, ORGANIZATION_LINKED_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }        
+        
+        /*
+         * Otherwise we can assume that all is good and we can safely delete this organization.
+         * Any other exception that might occur is in the form of an unknown or unsuspected
+         * form and will be thrown in the super class.
+         */
+        Session sess = getHibernateSession();
+        sess.delete(organization);
+        sess.flush();
+        return super.delete(mapping, dynaForm, request, response);
+    }
+    // </editor-fold>
+    
+    /* Creates a list with the available layers.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws HibernateException, JSONException, Exception
+     */
+    // <editor-fold defaultstate="" desc="create(DynaValidatorForm form, HttpServletRequest request) method.">
+    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, JSONException, Exception {
+        request.setAttribute("layerList", createTree());        
+        return super.create(mapping, dynaForm, request, response);
+    }
+    // </editor-fold>
+    
+    /* Creates a list with the available layers.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     *
+     * @throws HibernateException, JSONException, Exception
+     */
+    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
+        super.createLists(form, request);
+        List organizationlist = getHibernateSession().createQuery("from Organization").list();
+        request.setAttribute("organizationlist", organizationlist);
+    }
+    // </editor-fold>
+    
+    //-------------------------------------------------------------------------------------------------------
+    // PRIVATE METHODS
+    //-------------------------------------------------------------------------------------------------------
+    
+    /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -120,11 +288,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Organization object.
      */
-    // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) {
+    // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
+    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
         Session session = getHibernateSession();
         Organization organization = null;
-        
+        Integer id = getID(dynaForm);
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
@@ -136,51 +304,82 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Method which will fill the JSP form with the data of  a given organization.
+    /* Method which gets the hidden id in a form.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+    private Integer getID(DynaValidatorForm dynaForm) {
+        return FormUtils.StringToInteger(dynaForm.getString("id"));
+    }
+    // </editor-fold>
+    
+    /* Method which will fill the JSP form with the data of  a given organization.
      *
      * @param organization Organization object from which the information has to be printed.
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
-    private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("organizationid", organization.getId().toString());
+    private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException {
+        dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
-        dynaForm.set("organizationStreet", organization.getStreet());
-        dynaForm.set("organizationNumber", organization.getNumber());
-        dynaForm.set("organizationAddition", organization.getAddition());
-        dynaForm.set("organizationPostalcode", organization.getPostalcode());
-        dynaForm.set("organizationProvince", organization.getProvince());
-        dynaForm.set("organizationCountry", organization.getCountry());
-        dynaForm.set("organizationPostbox", organization.getPostbox());
-        dynaForm.set("organizationBillingAddress", organization.getBillingAddress());
-        dynaForm.set("organizationVisitorsAddress", organization.getVisitorsAddress());
-        dynaForm.set("organizationTelephone", organization.getTelephone());
-        dynaForm.set("organizationFax", organization.getFax()); 
+        dynaForm.set("street", organization.getStreet());
+        dynaForm.set("number", organization.getNumber());
+        dynaForm.set("addition", organization.getAddition());
+        dynaForm.set("postalcode", organization.getPostalcode());
+        dynaForm.set("province", organization.getProvince());
+        dynaForm.set("country", organization.getCountry());
+        dynaForm.set("postbox", organization.getPostbox());
+        dynaForm.set("billingAddress", organization.getBillingAddress());
+        dynaForm.set("visitorsAddress", organization.getVisitorsAddress());
+        dynaForm.set("telephone", organization.getTelephone());
+        dynaForm.set("fax", organization.getFax());
+        
+        Set l = organization.getOrganizationLayer();
+        Object [] organizationLayer = l.toArray();            
+        String checkedLayers = "";
+        for (int i = 0; i < organizationLayer.length; i++) {
+            if (i < organizationLayer.length - 1) {
+                checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
+            } else {
+                checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
+            }
+        }
+        
+        request.setAttribute("layerList", createTree());
+        request.setAttribute("checkedLayers", checkedLayers);
     }
     // </editor-fold>
     
-    /** Method that fills an organization object with the user input from the forms.
+    /* Method that fills an organization object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param organization Organization object that to be filled
      * @param layerList List with all the layers
-     * @param layerSelected String array with the selected layers for this organization
+     * @param selectedLayers String array with the selected layers for this organization
      */
-    // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] layerSelected) method.">
+    // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] selectedLayers) method.">
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
-        organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("organizationStreet")));
-        organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("organizationNumber")));
-        organization.setAddition(FormUtils.nullIfEmpty(dynaForm.getString("organizationAddition")));
-        organization.setPostalcode(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostalcode")));
-        organization.setProvince(FormUtils.nullIfEmpty(dynaForm.getString("organizationProvince")));
-        organization.setCountry(FormUtils.nullIfEmpty(dynaForm.getString("organizationCountry")));
-        organization.setPostbox(FormUtils.nullIfEmpty(dynaForm.getString("organizationPostbox")));
-        organization.setBillingAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationBillingAddress")));
-        organization.setVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("organizationVisitorsAddress")));
-        organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-        organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("organizationFax")));
+        organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("street")));
+        organization.setNumber(FormUtils.nullIfEmpty(dynaForm.getString("number")));
+        organization.setAddition(FormUtils.nullIfEmpty(dynaForm.getString("addition")));
+        organization.setPostalcode(FormUtils.nullIfEmpty(dynaForm.getString("postalcode")));
+        organization.setProvince(FormUtils.nullIfEmpty(dynaForm.getString("province")));
+        organization.setCountry(FormUtils.nullIfEmpty(dynaForm.getString("country")));
+        organization.setPostbox(FormUtils.nullIfEmpty(dynaForm.getString("postbox")));
+        organization.setBillingAddress(FormUtils.nullIfEmpty(dynaForm.getString("billingAddress")));
+        organization.setVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("visitorsAddress")));
+        organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("telephone")));
+        organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("fax")));
         
         List layerList = getHibernateSession().createQuery(
                 "from Layer l left join fetch l.attribution").list();
@@ -202,7 +401,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 if (layer.getId().intValue() == select) {
                     //layers.add(layer);
                     layers = getAllParentLayers(layer,  layers );
-                    serviceProviders.add(getTopLayer(layer).getServiceProvider());
+                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
                     break;
                 }
             }
@@ -227,56 +426,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Creates a list with the available layers.
-     *
-     * @param hm The HashMapin which a found SRS has to stored.
-     * @param srs String srs which has to be stored.
-     *
-     */
-    // <editor-fold defaultstate="" desc="addSrsCount(HashMap hm, String srs) method.">
-    private void addSrsCount(HashMap hm, String srs){
-        if (hm.containsKey(srs)){
-            int i = ((Integer)hm.get(srs)).intValue()+1;
-            hm.put(srs, new Integer(i));
-        } else {
-            hm.put(srs, new Integer("1"));
-        }
-    }
-    // </editor-fold>
-    
-    /** Creates a list with the available layers.
-     *
-     * @param layer The layer of which we have to find the parent layers.
-     * @param layers Set <Layer> with all direct and indirect parental layers..
-     *
-     * @return the same set Set <Layer> as given.
-     */
-    // <editor-fold defaultstate="" desc="getTopSRS(Layer layer) method.">
-    private Set getTopSRS(Layer layer) {
-        if(layer.getParent() != null) {
-            this.getTopSRS(layer.getParent());
-        }
-        return layer.getSrsbb();
-    }
-    // </editor-fold>
-    
-    /** Creates a list with the available layers.
-     *
-     * @param layer The layer of which we have to find the parent layers.
-     * @param layers Set <Layer> with all direct and indirect parental layers..
-     *
-     * @return the same set Set <Layer> as given.
-     */
-    // <editor-fold defaultstate="" desc="getTopLayer(Layer layer) method.">
-    private Layer getTopLayer(Layer layer) {
-        if(layer.getParent() != null) {
-            this.getTopLayer(layer.getParent());
-        }
-        return layer.getParent();
-    }
-    // </editor-fold>
-    
-    /** Creates a list with the available layers.
+    /* Creates a list with the available layers.
      *
      * @param layer The layer of which we have to find the parent layers.
      * @param layers Set <Layer> with all direct and indirect parental layers..
@@ -295,22 +445,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
-    /** Creates a list with the available layers.
+    /* Creates a JSON tree from a list of serviceproviders from the database.
+     * 
+     * @param layers Set of layers from which the part of the tree ahs to be build
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     * @param parent JSONObject which represents the parent object to which this set of layers should be added
      *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     *
-     * @throws HibernateException, JSONException, Exception
+     * @throws JSONException
      */
-    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
-    public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
-        super.createLists(form, request);
-        
-        super.createLists(form, request);
-        
-        List organizationlist = getHibernateSession().createQuery("from Organization").list();
-        request.setAttribute("organizationlist", organizationlist);
-        
+    // <editor-fold defaultstate="" desc="createTree() method.">
+    private JSONObject createTree() throws JSONException {
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         
         JSONObject root = new JSONObject(); 
@@ -329,7 +473,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         root.put("name","root");
         root.put("children", rootArray);
-        request.setAttribute("layerList", root);
+        return root;
     }
     // </editor-fold>
     
@@ -344,7 +488,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
-        /* This method has a recusive function in it. Its functionality is to create a list of layers
+        /* This method has a recusive function in it. Its function is to create a list of layers
          * in a tree like array which can be used to build up a menu structure. 
          */
         Iterator layerIterator = layers.iterator();
@@ -377,8 +521,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              */
             parentArray.put(layerObj);            
         }
-        if (parentArray.length()>0){
-            parent.put("children",parentArray);
+        if (parentArray.length() > 0){
+            parent.put("children", parentArray);
         }
         return parent;
     }
@@ -417,144 +561,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         jsonLayer.put("name", layer.getName());
         jsonLayer.put("type", "layer");
         return jsonLayer;
-    }
-    // </editor-fold>
-    
-    /** Method for saving a new organization from input of a user.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception, HibernateException
-     */
-    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        //if invalid
-        //String layerSelected = dynaForm.getString("layerSelected");
-        HttpSession session = request.getSession();
-        //sess.setAttribute("layerlist", layerlist);
-        
-        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
-        //List layerList = (List)session.getAttribute("layerlist");        
-        
-        if (!isTokenValid(request)) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        // nieuwe default actie op delete zetten
-        Session sess = getHibernateSession();
-        //validate and check for errors
-        ActionErrors errors = dynaForm.validate(mapping, request);
-        if(!errors.isEmpty()) {
-            addMessages(request, errors);
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        Integer id = FormUtils.StringToInteger(dynaForm.getString("organizationid"));
-        Organization organization = getOrganization(dynaForm, request, true, id);
-        if (null == organization) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
-        
-        if(!organization.getHasValidGetCapabilities()) {
-            request.setAttribute("warning", "De combinatie van de verschillende " +
-                    "servers heeft problemen opgeleverd.\n De selectie is wel opgeslagen " +
-                    "maar kan problemen opleveren bij het opvragen van de GetCapabilities. " +
-                    "Het probleem dat opgetreden is een conflict in de ondersteuning van " +
-                    "de Spatial reference en/of de image format.");
-        }
-        
-        //store in db
-        sess.saveOrUpdate(organization);
-        sess.flush();
-        
-        dynaForm.set("organizationid", "");
-        dynaForm.set("name", "");
-        dynaForm.set("organizationStreet", "");
-        dynaForm.set("organizationNumber", "");
-        dynaForm.set("organizationAddition", "");
-        dynaForm.set("organizationPostalcode", "");
-        dynaForm.set("organizationProvince", "");
-        dynaForm.set("organizationCountry", "");
-        dynaForm.set("organizationPostbox", "");
-        dynaForm.set("organizationBillingAddress", "");
-        dynaForm.set("organizationVisitorsAddress", "");
-        dynaForm.set("organizationTelephone", "");
-        dynaForm.set("organizationFax", ""); 
-        dynaForm.set("layerSelected", null);
-        
-        return super.save(mapping,dynaForm,request,response);
-    }
-    // </editor-fold>
-    
-    /** Method for deleting an organization selected by a user.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception, HibernateException
-     */
-    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        String [] organizationSelected = dynaForm.getStrings("organizationSelected");
-        int size = organizationSelected.length;
-        
-        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
-        
-        //String layerSelected = dynaForm.getString("layerSelected");
-        HttpSession session = request.getSession();
-        //List layerList = (List)session.getAttribute("layerlist"); 
-        
-        for(int i = 0; i < size; i++) {
-            //if invalid
-            if (!isTokenValid(request)) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            // nieuwe default actie op delete zetten
-            Session sess = getHibernateSession();
-                        
-            Integer id = new Integer(Integer.parseInt(organizationSelected[i]));
-            Organization organization = getOrganization(dynaForm, request, false, id);
-            
-            if (null == organization) {
-                prepareMethod(dynaForm, request, LIST, EDIT);
-                addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-
-            populateOrganizationObject(dynaForm, organization, selectedLayers);//layerList, layerSelected);
-
-            try {
-                sess.delete(organization);
-                sess.flush();
-            } catch (Exception e) {
-                request.setAttribute("message", "Organisatie kan niet verwijderd worden. Er zijn nog gebruikers gekoppeld aan de organisatie.");
-                //super.msg = "Er is een fout opgetreden: " + e;
-                log.error("Error saving server", e);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-                return getAlternateForward(mapping, request);
-            }
-        }
-        return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
 }

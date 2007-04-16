@@ -32,10 +32,10 @@
         </form>
         
         <form name="serverForm">
-            <field property="serviceProviderGivenName" depends="required"> <!-- required -->
+            <field property="givenName" depends="required"> <!-- required -->
                 <arg0 key="beheer.serviceProviderGivenName"/>
             </field>
-            <field property="serviceProviderUrl" depends="required"> <!-- required -->
+            <field property="url" depends="required"> <!-- required -->
                 <arg0 key="beheer.serviceProviderUrl"/>
             </field>
         </form>
@@ -44,7 +44,7 @@
             <field property="name" depends="required"> <!-- required -->
                 <arg0 key="beheer.name"/>
             </field>
-            <field property="organizationTelephone" depends="required"> <!-- required -->
+            <field property="telephone" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
             </field>           
         </form>
