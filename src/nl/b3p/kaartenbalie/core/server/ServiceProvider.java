@@ -30,6 +30,7 @@ public class ServiceProvider implements XMLElement, KBConstants {
     private String accessConstraints;
     private String givenName;
     private String url;
+    private String wmsVersion;
     private Date updatedDate;
     private boolean reviewed;
     private ContactInformation contactInformation;
@@ -448,4 +449,12 @@ public class ServiceProvider implements XMLElement, KBConstants {
         return rootElement;
     }
     // </editor-fold>
+
+    public String getWmsVersion() {
+        return wmsVersion;
+    }
+
+    public void setWmsVersion(String wmsVersion) {
+        this.wmsVersion = wmsVersion;
+    }
 }

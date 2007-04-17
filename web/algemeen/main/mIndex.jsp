@@ -1,6 +1,4 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
+<%@include file="/templates/taglibs.jsp" %>
 
 <div id="nav">
     <center><B>Menu algemeen</B></center>

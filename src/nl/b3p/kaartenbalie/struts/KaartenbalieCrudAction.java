@@ -69,23 +69,7 @@ public class KaartenbalieCrudAction extends CrudAction{
             tx.rollback();
             log.error("Exception occured, rollback", e);
             /*melding etc. naar formulier/site*/
-            MessageResources messages = getResources(request);
-            message = e.toString();
-            /*
-            if (e instanceof org.hibernate.JDBCException) {
-                msg = e.toString();
-                SQLException sqle = ((org.hibernate.JDBCException)e).getSQLException();
-                msg = msg + ": " + sqle;
-                SQLException nextSqlE = sqle.getNextException();
-                if(nextSqlE != null) {
-                    msg = msg + ": " + nextSqlE;
-                }
-            }
-            */
-            
-            
-            
-            
+            addAlternateMessage(mapping, request, null, e.toString());
         }
         
         // Start tweede sessie om tenminste nog de lijsten op te halen
@@ -96,9 +80,9 @@ public class KaartenbalieCrudAction extends CrudAction{
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
             tx.commit();
         } catch(Exception e) {
-            //request.setAttribute("message", e);
             tx.rollback();
             log.error("Exception occured in second session, rollback", e);
+            addAlternateMessage(mapping, request, null, e.toString());
         }
         //addAlternateMessage(mapping, request, null, message);
         return getAlternateForward(mapping, request);

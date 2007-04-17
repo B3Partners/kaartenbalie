@@ -45,6 +45,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
+    protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
+    
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -129,7 +131,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          */
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
-            addMessages(request, errors);
+            super.addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -144,7 +146,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          */
         Session sess = getHibernateSession();
         
-        String url = dynaForm.getString("serviceProviderUrl");
+        String url = dynaForm.getString("url");
         
         /*
          * First we need to check if the given url is realy an url.
@@ -247,7 +249,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wms.getProvider(url);
+            newServiceProvider = wms.getProvider(eventualURL);
         } catch (IOException e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
@@ -260,6 +262,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, e.toString());
+            return getAlternateForward(mapping, request);
+        }
+        
+        if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
         

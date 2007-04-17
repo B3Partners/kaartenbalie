@@ -353,8 +353,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
             }
         }
-        
-        request.setAttribute("layerList", createTree());
+        JSONObject root = this.createTree();
+        request.setAttribute("layerList", root);
         request.setAttribute("checkedLayers", checkedLayers);
     }
     // </editor-fold>

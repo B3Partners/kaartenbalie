@@ -70,8 +70,8 @@
         <property name="updatedDate">
             <column name="UPDATEDDATE"/>
         </property>
-        <property name="reviewed">
-            <column name="REVIEWED"/>
+        <property name="wmsVersion">
+            <column name="WMSVERSION"/>
         </property>
     </class>
 </hibernate-mapping>

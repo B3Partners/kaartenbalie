@@ -1,10 +1,4 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<%@ page language="java" %>
-<%@ taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@include file="/templates/taglibs.jsp" %>
 
 <c:set var="form" value="${userForm}"/>
 <c:set var="action" value="${form.map.action}"/>
@@ -18,13 +12,7 @@
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
-    
-    <html:messages id="message" message="true" >
-        <div id="error">
-            <c:out value="${message}" escapeXml="false"/>
-        </div>
-    </html:messages>
-    
+        
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Gebruikers</H1>
         

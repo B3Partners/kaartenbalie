@@ -218,7 +218,10 @@ public class WMSCapabilitiesReader implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="Defined Handlers.">
     private class WMTHandler extends ElementHandler {
-        public void startElement(String uri, String localName, String qName, Attributes atts) {
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            //<WMT_MS_Capabilities version="1.1.1">
+            String version = attributes.getValue("version");
+            serviceProvider.setWmsVersion(version);
             stack.push(serviceProvider);
         }
         public void endElement(String uri, String localName, String qName) {

@@ -13,4 +13,7 @@
     <definition name="base" path="/base.jsp">
         <put name="template" value="/templates/siteTemplate.jsp"/>
     </definition>
+    <definition name="common.actionMessages" path="/templates/actionMessages.jsp"/> 
+    <definition name="common.notFound" path="/templates/notFound.jsp"/> 
+    <definition name="common.setFocus" path="/templates/setFocus.jsp"/> 
 </tiles-definitions>
