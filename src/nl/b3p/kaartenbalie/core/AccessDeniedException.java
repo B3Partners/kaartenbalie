@@ -16,6 +16,7 @@ package nl.b3p.kaartenbalie.core;
  */
 
 public class AccessDeniedException extends Exception {
+    public static final long serialVersionUID = 24362462L;
     
     /** Creates a new instance of AccessDeniedException */
     public AccessDeniedException() {

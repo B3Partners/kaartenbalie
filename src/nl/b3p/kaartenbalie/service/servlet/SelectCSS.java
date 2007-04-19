@@ -6,6 +6,7 @@ import javax.servlet.http.*;
 import javax.servlet.*;
 
 public class SelectCSS extends HttpServlet {
+    public static final long serialVersionUID = 24362462L;
 
     private String DOMAIN = "http://localhost:8084/kaartenbalie_mnp/styles/";
     private String DEFAULT = "main";
