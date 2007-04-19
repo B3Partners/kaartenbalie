@@ -128,16 +128,10 @@ public class UserAction extends KaartenbalieCrudAction {
          */                
         User user = getUser(dynaForm, request, true);
         if (user == null) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
+            prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
-        /*
-         * Once we have a (new or existing) user object we can fill this object with
-         * the user input.
-         */
-        populateUserObject(dynaForm, user, request);
         
         /*
          * All the given input can be of any kind, but the username has to be unique.
@@ -149,14 +143,20 @@ public class UserAction extends KaartenbalieCrudAction {
         User dbUser = (User)getHibernateSession().createQuery(
                 "from User u where " +
                 "lower(u.username) = lower(:username) ")
-                .setParameter("username", user.getUsername())
+                .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
                 .uniqueResult();
         
-        if(dbUser != null && user.getId() == null) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
+        if(dbUser != null && (dbUser.getId() != user.getId())) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        
+        /*
+         * Once we have a (new or existing) user object we can fill this object with
+         * the user input.
+         */
+        populateUserObject(dynaForm, user, request);
         
         /*
          * No errors occured so we can assume that all is good and we can safely

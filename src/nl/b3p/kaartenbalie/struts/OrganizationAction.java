@@ -23,6 +23,7 @@ import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
+import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;
@@ -298,8 +299,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         } else if (null != id) {
             organization = (Organization)session.createQuery(
                     "from Organization o where " +
-                    "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
+                    "lower(o.id) = lower(:id)").setParameter("id", id).uniqueResult();
         }
+        
+        List us = session.createQuery("from User u where lower(u.organization) = lower(:organization)").setParameter("organization", organization).list();
+        Set users = new HashSet();
+        users.addAll(us);
+        organization.setUser(users);        
         return organization;
     }
     // </editor-fold>
