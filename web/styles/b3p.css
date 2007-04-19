@@ -1,0 +1,228 @@
+#error {
+    border: 1px solid red;
+    background: #fff5f5 url(../images/siteImages/error.gif) no-repeat;
+}
+
+#error h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: red;
+}
+
+#warning {
+    border: 1px solid blue;
+    background: #fff5f5 url(../images/siteImages/warning.png) no-repeat;
+}
+
+#warning h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: red;
+}
+
+body {
+    color: #000;
+    background-color: #fff;
+}
+
+#bodycontent {
+    background-color: #E9F1F7;
+    
+}
+
+#container {
+    background-color: #FFF;
+    background-image:  url(../images/siteImages/background.jpg);
+    background-repeat: repeat-y;
+}
+
+#banner {
+    background-color: #FFFFFF;
+}
+
+#balk div a {
+    color: White;
+}
+
+#balk {
+    background-image: url(../images/siteImages/bg_header.gif);
+    background-repeat: repeat-x;
+    border-bottom: 1px solid #FFFFFF;
+    text-align: right;
+}
+
+#nav {
+    background-color: #E9F1F7;
+    padding-top: 1em;
+    color: #005A9C;
+}
+
+#content {
+    background-color: #FFFFFF;
+}
+
+#footer {
+    background-image: url(../images/siteImages/bg_header.gif);
+    background-repeat: repeat-x;
+    text-align: right;
+    border-top: 1px solid #FFFFFF;
+}
+
+#footertext {
+    color: #ffffff;
+}
+
+#footertext a {
+    color: #FFFFFF;
+}
+
+table {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #005A9C;
+}
+
+td {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    color: #005A9C;
+}
+
+a {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: #203b54;
+}
+
+h1 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h2 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h3 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    color: #008000;
+}
+
+h4 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+h5 {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+div.tableContainer {
+    text-align: left;
+}
+
+div.smallTableContainer {
+    text-align: left;
+}
+
+.fixedHeader th {
+    font-weight: bold;
+    font-style: inherit;
+    background: #E9F1F7;
+    text-align: left;
+}
+
+.scrollContent td {
+    font-style: inherit;
+    text-align: left;
+}
+
+#nav-menu ul 
+{  
+    list-style: none;
+}
+
+#nav-menu ul li {
+  background-color: #1C6CA7;
+  border-bottom: 1px solid #ffffff;
+  color: #ffffff;
+} 
+
+#nav-menu ul li a, #nav-menu ul li a:link, #nav-menu ul li a:active, #nav-menu ul li a:visited, #nav-menu ul li a:hover {
+  text-align: left;
+  vertical-align: middle;
+  color: #ffffff;
+  background-image: url(../images/siteImages/navigbol.gif);
+  background-position: right center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+#nav-menu ul li a:hover {
+    color: #1C6CA7; 
+    background-color: #FFD96B;
+}
+ 
+.intellitextLink {
+    border-bottom: darkgreen 1px solid;
+    color: darkgreen;
+    background-color: transparent;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.intellitxtTooltip {
+    border: none;
+    border-style: none;
+    background-color: transparent;
+}
+.containerdiv {
+    border: 1px solid #F4F5F9;
+}
+
+#tableContainer {
+    width: 792px;
+}
+
+.serverRijTitel div {
+    font-style: inherit;
+    background: #E9F1F7;
+    text-align: left;
+    color: #005A9C;
+}
+
+.serverRij div {
+    font-style: inherit;
+    text-align: left;
+}
+
+.vakSpeciaal {
+    background-color: #E9F1F7;
+}
+
+.serviceproviderLabel{
+    background-image: url(../images/treeview/map.gif);
+    background-repeat: no-repeat;
+    background-position: top left;
+}
+.layerLabel{
+    background-image: url(../images/treeview/kaart.gif);
+    background-repeat: no-repeat;
+    background-position: top left;
+}
+.readOnly{
+    background-color: #D8D8D8;
+}
+
+.orderLayerBox{
+    border: 1px solid #F4F5F9;
+}
+.orderLayerClass{
+    background-color: #ffffff;
+}
+.orderLayerClassSelected{
+    background-color: #bbbbbb;
+}
+.mapInfo{
+    background-color: #ffffff; 
+}
+#kopImage {
+    background-image: url(../images/siteImages/kop.jpg);
+}

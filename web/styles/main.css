@@ -474,3 +474,11 @@ margin: 0;
     height: 300px;
     overflow: auto;
 }
+
+#kopImage {
+    width: 1000px;
+    height: 85px;
+    background-image: url(../images/siteImages/kop.jpg);
+    background-position: bottom left;
+    background-repeat: no-repeat;
+}
