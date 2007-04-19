@@ -42,7 +42,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
 
-public class CreatePersonalURLAction extends KaartenbalieCrudAction implements KBConstants  {
+public class ChangeProfileAction extends KaartenbalieCrudAction implements KBConstants  {
     
     /* forward name="success" path="" */
     private static Log log = LogFactory.getLog(CreatePersonalURLAction.class);
@@ -80,7 +80,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return populateUserFormAndAttribute(mapping, dynaForm, request, response, LIST, LIST);
+        return loadUser(mapping, dynaForm, request, response, LIST, LIST);
     }
     // </editor-fold>
     
@@ -97,7 +97,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, LIST);
+        
+        return loadUser(mapping, dynaForm, request, response, EDIT, LIST);
     }
     // </editor-fold>
     
@@ -115,7 +116,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="cancelled(ActionMapping mapping, DynaValidatorForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return populateUserFormAndAttribute(mapping, dynaForm, request, response, LIST, EDIT);
+        return loadUser(mapping, dynaForm, request, response, LIST, EDIT);
     }
     // </editor-fold>
     
@@ -147,7 +148,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          * isn't valid anymore.
          */
         if (!isTokenValid(request)) {
-            populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
+            loadUser(mapping, dynaForm, request, response, EDIT, EDIT);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -161,7 +162,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          */
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
-            populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
+            loadUser(mapping, dynaForm, request, response, EDIT, EDIT);
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
@@ -170,7 +171,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         
         User sessionUser = (User) request.getUserPrincipal();
         if(sessionUser == null) {
-            populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
+            loadUser(mapping, dynaForm, request, response, EDIT, EDIT);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -179,56 +180,23 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         /*
          * First get all the user input which need to be saved.
          */
-        String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        String registeredIP = FormUtils.nullIfEmpty(dynaForm.getString("registeredIP"));
+        String newpassword = FormUtils.nullIfEmpty(dynaForm.getString("newpassword"));
+        String newpasswordretyped = FormUtils.nullIfEmpty(dynaForm.getString("newpasswordretyped"));
+        String emailaddress  = FormUtils.nullIfEmpty(dynaForm.getString("emailaddress"));
         
-        /*
-         * Now lets do some checks to make sure that all the input is in the right format.
-         * Check if the date is according some specified rules
-         */
-        Date date = null;
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        try {
-            date = df.parse(timeout);
-        } catch (ParseException ex) {
-            populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, DATE_PARSE_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+        if(newpassword != null && newpasswordretyped != null) {
+            if(!newpassword.equals(newpasswordretyped)) {
+                loadUser(mapping, dynaForm, request, response, EDIT, EDIT);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NONMATCHING_PASSWORDS_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            } else {
+                sessionUser.setPassword(newpassword);
+            }
         }
         
-        if (date.compareTo(new java.util.Date()) <= 0) {
-            populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, DATE_INPUT_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        /*
-         * Everything seems to be ok, so it's alright to save the information
-         * First we need to create a personal URL based on the information from the user
-         */
-        StringBuffer sb = request.getRequestURL();
-        sb.delete(sb.indexOf("viewer/createPersonalURL.do"), sb.capacity());
-        sb.append("servlet/CallWMSServlet/");
-        String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
-        MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
-        md.update(toBeHashedString.getBytes(CHARSET));
-        BigInteger hash = new BigInteger(1, md.digest());
-        personalURL = sb.toString() + hash.toString( 16 );
-        
-        /*
-         * Set the new information in the userobject
-         */
-        sessionUser.setRegisteredIP(registeredIP);
-        sessionUser.setPersonalURL(personalURL);
-        sessionUser.setTimeout(date);
-        
-        /*
-         * Check if this user gets a valid capability when using this personalURL
-         */
-        if(!sessionUser.getOrganization().getHasValidGetCapabilities()) {
-            addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
+        if(emailaddress != null) {
+            sessionUser.setEmailAddress(emailaddress);
         }
         
         /*
@@ -236,56 +204,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          */
         Session sess = getHibernateSession();
         sess.saveOrUpdate(sessionUser);
-        sess.flush();
-        populateUserFormAndAttribute(mapping, dynaForm, request, response, LIST, LIST);
+        sess.flush(); 
+        this.loadUser(mapping, dynaForm, request, response, LIST, LIST);
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
-    /** Method which sets a the IP address of the users from his current location to the screen.
-     *
-     * @param mapping action mapping
-     * @param dynaForm dyna validator form
-     * @param request servlet request
-     * @param response servlet response
-     *
-     * @return ActionForward defined by Apache foundation
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="getIpAdrs(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward getIpAddress(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        ActionForward af = populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
-        dynaForm.set("registeredIP", request.getRemoteAddr());
-        dynaForm.set("timeout", timeout);
-        return af;
-    }
-    // </editor-fold>
-    
-    //-------------------------------------------------------------------------------------------------------
-    // PROTECTED METHODS
-    //-------------------------------------------------------------------------------------------------------    
-    
-    /*
-     * Which in which self specified ActionMethods can be added to a Map of ActionMethods which will be returned.
-     *
-     * @return Map with ActionMethods
-     *
-     */
-    // <editor-fold defaultstate="" desc="getActionMethodPropertiesMap() method.">
-    protected Map getActionMethodPropertiesMap() {
-        Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETIPADDRESS);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("viewer.persoonlijkeurl.success");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("viewer.persoonlijkeurl.failure");
-        map.put(GETIPADDRESS, crudProp);               
-        return map;
-    }
-    // </editor-fold>
-    
+        
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------    
@@ -297,7 +221,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="checkUser(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response, String def, String alt) method.">
-    private ActionForward populateUserFormAndAttribute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response, String def, String alt) throws Exception {
+    private ActionForward loadUser(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response, String def, String alt) throws Exception {
         User sessionUser = (User) request.getUserPrincipal();
         if(sessionUser == null) {
             prepareMethod(dynaForm, request, def, alt);
@@ -315,28 +239,24 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
                 
         //Als er geen fout opgetreden is, moeten de gebruikers gegevens op het request en de dynaform gezet worden.
         request.setAttribute("user", sessionUser);
-        populateCreatePersonalURLForm(sessionUser, dynaForm, request);
-        
+        populateProfileForm(sessionUser, dynaForm, request);
+                
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);
     }
-    // </editor-fold>    
+    // </editor-fold>
     
-    /* Method which will fill the JSP form with the data of a given service provider.
+    /* Method which will fill the JSP form with the data of  a given organization.
      *
-     * @param serviceProvider ServiceProvider object from which the information has to be printed.
+     * @param organization Organization object from which the information has to be printed.
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
-    private void populateCreatePersonalURLForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("username", user.getUsername());
-        dynaForm.set("registeredIP", user.getRegisteredIP());
-        
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        String date = df.format(user.getTimeout()); 
-        dynaForm.set("timeout", date);
-        dynaForm.set("personalURL", user.getPersonalURL());
+    // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    private void populateProfileForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("newpassword", user.getPassword());
+        dynaForm.set("newpasswordretyped", user.getPassword());
+        dynaForm.set("emailaddress", user.getEmailAddress());
     }
-    // </editor-fold>   
+    // </editor-fold>
 }
