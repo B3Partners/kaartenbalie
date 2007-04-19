@@ -334,8 +334,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         dynaForm.set("registeredIP", user.getRegisteredIP());
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        String date = df.format(user.getTimeout()); 
-        dynaForm.set("timeout", date);
+        Date timeout = user.getTimeout();
+        if (timeout != null) {
+            String date = df.format(timeout); 
+            dynaForm.set("timeout", date);
+        }
         dynaForm.set("personalURL", user.getPersonalURL());
     }
     // </editor-fold>   

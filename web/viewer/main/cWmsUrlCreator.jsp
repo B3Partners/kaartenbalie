@@ -7,90 +7,94 @@
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
+<c:set var="persUrl" value="${form.map.personalUrl}"/>
+
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <html:javascript formName="wmsUrlCreatorForm" staticJavascript="false"/>
 <html:form action="/wmsUrlCreator" onsubmit="return validateWmsUrlCreatorForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
+    <html:hidden property="personalUrl"/>
     
-    <div class="containerdiv" style="float: left; clear: none;">
-    <H1>Persoonlijke GetMap URL</H1>
-    <P>
-        Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
-        Indien u nopg geen persoonlijke URL heeft, dient u deze eerst aan te maken alvorens u een persoonlijke
-        GetMap URL kunt maken.
-        Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
-        gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
-        u deze URL wijzigt.
-    </P>
     
-    <table border="1px">
-        <%-- bovenste rij, met de layers en de instellingen --%>
-        <tr>
-            <td>
-                <%-- linker kolom met de layers --%>
-                <table>
-                    <tr>
-                        <td>
-                            <b>Layer rechten:</b><br>
-                            <div id="treeContainerSmall">
-                                <div class="treeHolderSmall">
-                                    <div id="tree"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <%-- rechter kolom met de instellingen --%>
-                <table>
-                    <tr><td><b><fmt:message key="beheer.getmapurl.projecties"/>:</b></td></tr>
-                    <tr><td>
-                            <c:if test="${not empty projectieList}">
-                                <html:select property="selectedProjectie">
-                                    <c:forEach items="${projectieList}" var="p">
-                                        <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
-                                    </c:forEach>
-                                </html:select>
-                            </c:if>
-                    </td></tr>
-                    <tr><td><b><fmt:message key="beheer.getmapurl.height"/>:</b></td></tr>
-                    <tr><td><html:text property="height"/></td></tr>
-                    <tr><td><b><fmt:message key="beheer.getmapurl.width"/>:</b></td></tr>
-                    <tr><td><html:text property="width"/></td></tr>
-                    <tr><td><b><fmt:message key="beheer.getmapurl.bbox"/>:</b></td></tr>
-                    <tr><td><html:text property="bbox" size="40"/></td></tr>
-                    <tr><td><b><fmt:message key="beheer.getmapurl.format"/>:</b></td></tr>
-                    <tr><td>
-                            <c:if test="${not empty formatList}">
-                                <html:select property="selectedFormat">
-                                    <c:forEach items="${formatList}" var="f">
-                                        <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
-                                    </c:forEach>
-                                </html:select>
-                            </c:if>
-                    </td></tr>
-                </table>
-            </td>
-        </tr>
-        <%-- onderste rij, met de URL--%>
-        <tr >
-            <td colspan="0" >
-                Persoonlijke GetMap URL:<BR>
-                <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="75" rows="5" />
-            </td>
-        </tr>
-    </table>
-    
-    <div style="clear: both">
-        <html:submit property="getMapUrl">
-            <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
-        </html:submit>
-    </div>
-    
-    <script type="text/javascript">
+    <c:choose>
+        <c:when test="${not empty persUrl}">
+            <div class="containerdiv" style="float: left; clear: none;">
+            <H1>Persoonlijke GetMap URL</H1>
+            <P>
+                Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
+                Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
+                gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
+                u deze URL wijzigt.
+            </P>
+            
+            <table border="1px">
+                <%-- bovenste rij, met de layers en de instellingen --%>
+                <tr>
+                    <td>
+                        <%-- linker kolom met de layers --%>
+                        <table>
+                            <tr>
+                                <td>
+                                    <b>Layer rechten:</b><br>
+                                    <div id="treeContainerSmall">
+                                        <div class="treeHolderSmall">
+                                            <div id="tree"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <%-- rechter kolom met de instellingen --%>
+                        <table>
+                            <tr><td><b><fmt:message key="beheer.getmapurl.projecties"/>:</b></td></tr>
+                            <tr><td>
+                                    <c:if test="${not empty projectieList}">
+                                        <html:select property="selectedProjectie">
+                                            <c:forEach items="${projectieList}" var="p">
+                                                <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
+                                            </c:forEach>
+                                        </html:select>
+                                    </c:if>
+                            </td></tr>
+                            <tr><td><b><fmt:message key="beheer.getmapurl.height"/>:</b></td></tr>
+                            <tr><td><html:text property="height"/></td></tr>
+                            <tr><td><b><fmt:message key="beheer.getmapurl.width"/>:</b></td></tr>
+                            <tr><td><html:text property="width"/></td></tr>
+                            <tr><td><b><fmt:message key="beheer.getmapurl.bbox"/>:</b></td></tr>
+                            <tr><td><html:text property="bbox" size="40"/></td></tr>
+                            <tr><td><b><fmt:message key="beheer.getmapurl.format"/>:</b></td></tr>
+                            <tr><td>
+                                    <c:if test="${not empty formatList}">
+                                        <html:select property="selectedFormat">
+                                            <c:forEach items="${formatList}" var="f">
+                                                <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
+                                            </c:forEach>
+                                        </html:select>
+                                    </c:if>
+                            </td></tr>
+                        </table>
+                    </td>
+                </tr>
+                <%-- onderste rij, met de URL--%>
+                <tr >
+                    <td colspan="0" >
+                        Persoonlijke GetMap URL:<BR>
+                        <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="75" rows="5" />
+                    </td>
+                </tr>
+            </table>
+            
+            <div style="clear: both">
+                <html:submit property="getMapUrl">
+                    <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
+                </html:submit>
+            </div>
+            
+            <script type="text/javascript">
     <c:if test = "${not empty layerList}">
         
         var root = ${layerList};
@@ -223,5 +227,20 @@
         }
         
     </c:if>
-    </script>
+            </script>
+        </c:when>
+        <c:otherwise>
+            <div class="containerdiv" style="float: left; clear: none;">
+                <H1>Persoonlijke GetMap URL</H1>
+                <P>
+                    Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
+                    Indien u nopg geen persoonlijke URL heeft, dient u deze eerst aan te maken alvorens u een persoonlijke
+                    GetMap URL kunt maken.
+                    Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
+                    gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
+                    u deze URL wijzigt.
+                </P>
+            </div>
+        </c:otherwise>
+    </c:choose> 
 </html:form>

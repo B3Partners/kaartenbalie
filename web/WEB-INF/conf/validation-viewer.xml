@@ -32,10 +32,10 @@
         </form>
         
         <form name="wmsUrlCreatorForm">
-            <field property="height" depends="required"> <!-- required -->
+            <field property="height" depends="required, integer"> <!-- required -->
                 <arg0 key="viewer.getmapurl.height"/>
             </field>
-            <field property="width" depends="required"> <!-- required -->
+            <field property="width" depends="required, integer"> <!-- required -->
                 <arg0 key="viewer.getmapurl.width"/>
             </field>
             <field property="bbox" depends="required"> <!-- required -->

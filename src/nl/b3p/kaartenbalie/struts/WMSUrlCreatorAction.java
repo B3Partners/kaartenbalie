@@ -45,6 +45,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     protected static final String DEFAULTSERVICE = "WMS";
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
     protected static final String UNKNOWN_DB_USER_ERROR_KEY = "error.dbuser";
+    protected static final String NO_LAYERS_SELECTED_ERROR_KEY = "error.nolayer";
     
     private static final String EXTRAREQUESTDATA="&VERSION=1.1.1&STYLES=&EXCEPTIONS=INIMAGE&WRAPDATELINE=true&BGCOLOR=0xF0F0F0";
     
@@ -82,6 +83,10 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
+        
+        User sessionUser = (User) request.getUserPrincipal();
+        form.set("personalUrl", sessionUser.getPersonalURL());
+        
         String[] formats=new String[5];
         formats[0]="image/gif";
         formats[1]="image/png";
@@ -177,26 +182,15 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         String format       = (String)  dynaForm.get("selectedFormat");
         String pUrl         = (String)  dynaForm.get("personalUrl");
         
-        String getMap=pUrl;
-        getMap=WMSParamUtil.removeParameter(WMSParamUtil.REQUEST,getMap);
-        if (getMap.contains("?"))
-            getMap+="&";
-        else
-            getMap+="?";
-        getMap+="REQUEST=getMap";
-        
-        
-        getMap+="&LAYERS=";
-        for (int i=0; i < layers.length; i++){
-            if (i==0)
-                getMap+=layers[i];
-            else{
-                getMap+=","+layers[i];
-            }
+        if(layers.length == 0) {
+            prepareMethod(dynaForm, request, LIST, LIST);
+            addAlternateMessage(mapping, request, NO_LAYERS_SELECTED_ERROR_KEY);
+            return getAlternateForward(mapping, request);
         }
         
-        getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
-        
+        /*
+         * Get the URL to start with
+         */
         User sessionUser = (User) request.getUserPrincipal();
         if(sessionUser == null) {
             prepareMethod(dynaForm, request, LIST, LIST);
@@ -204,6 +198,24 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
+        String getMap = sessionUser.getPersonalURL();
+        
+        /*
+         * Add the rest of the parameters
+         */
+        getMap += "?REQUEST=GetMap";
+        getMap+="&LAYERS=";
+        
+        for (int i = 0; i < layers.length; i++){
+            if (i == 0)
+                getMap += layers[i];
+            else{
+                getMap += "," + layers[i];
+            }
+        }
+        
+        getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
+                
         Session session = this.getHibernateSession();
         User dbUser = (User) session.get(User.class, sessionUser.getId());
         if(dbUser == null) {
@@ -216,7 +228,8 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         sessionUser.setDefaultGetMap(getMap);
         getHibernateSession().save(dbUser);
         
-        request.setAttribute("getMapMade", getMap);
+        //request.setAttribute("getMapMade", getMap);
+        populateForm(getMap, dynaForm, request);
         return mapping.findForward("success");        
     }
     // </editor-fold>
@@ -265,23 +278,25 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="populateForm(String getMap, DynaValidatorForm form) method.">
-    private void populateForm(String getMap, DynaValidatorForm form) {
-        if (WMSParamUtil.getParameter(WMSParamUtil.LAYERS,getMap)!=null){
+    private void populateForm(String getMap, DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
+        this.createLists(form, request);
+        if (WMSParamUtil.getParameter(WMSParamUtil.LAYERS, getMap) != null){
             String[] layers= WMSParamUtil.getParameter(WMSParamUtil.LAYERS,getMap).split(",");
             form.set("selectedLayers",layers);
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.BBOX,getMap)!=null){
+        if (WMSParamUtil.getParameter(WMSParamUtil.BBOX, getMap) != null){
             form.set("bbox",WMSParamUtil.getParameter(WMSParamUtil.BBOX,getMap));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.SRS,getMap)!=null){
+        if (WMSParamUtil.getParameter(WMSParamUtil.SRS, getMap) != null){
             form.set("selectedProjectie",WMSParamUtil.getParameter(WMSParamUtil.SRS,getMap));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.HEIGHT,getMap)!=null){
+        if (WMSParamUtil.getParameter(WMSParamUtil.HEIGHT, getMap) != null){
             form.set("height",new Integer(WMSParamUtil.getParameter(WMSParamUtil.HEIGHT,getMap)));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.WIDTH,getMap)!=null){
+        if (WMSParamUtil.getParameter(WMSParamUtil.WIDTH, getMap) != null){
             form.set("width",new Integer(WMSParamUtil.getParameter(WMSParamUtil.WIDTH,getMap)));
         }
+        form.set("defaultGetMap", getMap);
     }
     // </editor-fold>    
     
