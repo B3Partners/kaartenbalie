@@ -197,7 +197,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             return getAlternateForward(mapping, request);
         }
         
-        if (date.compareTo(new java.util.Date()) <= 0) {
+        if (date.compareTo(new java.util.Date()) < 0) {
             populateUserFormAndAttribute(mapping, dynaForm, request, response, EDIT, EDIT);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, DATE_INPUT_ERROR_KEY);
@@ -331,11 +331,21 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateCreatePersonalURLForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("username", user.getUsername());
-        dynaForm.set("registeredIP", user.getRegisteredIP());
+        String ipaddress = user.getRegisteredIP();
+        if (ipaddress == null || ipaddress.equals("")) {
+            dynaForm.set("registeredIP", request.getRemoteAddr());
+        } else {
+            dynaForm.set("registeredIP", user.getRegisteredIP());
+        }
+        
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         Date timeout = user.getTimeout();
         if (timeout != null) {
+            String date = df.format(timeout); 
+            dynaForm.set("timeout", date);
+        } else {
+            timeout = new Date();
             String date = df.format(timeout); 
             dynaForm.set("timeout", date);
         }
