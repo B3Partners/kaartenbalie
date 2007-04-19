@@ -1,29 +1,47 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <!DOCTYPE form-validation PUBLIC
-          "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
-          "http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
-
-      <form-validation>
-          <formset>
-              <form name="createPersonalURLForm">
-                  <field property="username" depends="required"> <!-- required -->
-                      <arg0 key="viewer.persoonlijkeurl.username"/>
-                  </field>
-                  <field property="password" depends="required"> <!-- required -->
-                      <arg0 key="viewer.persoonlijkeurl.password"/>
-                  </field>
-                  <field property="registeredIP" depends="required"> <!-- required -->
-                      <arg0 key="viewer.persoonlijkeurl.registeredip"/>
-                  </field>
-                  <field property="timeout" depends="required,date"> <!-- required -->
-                      <arg0 key="viewer.persoonlijkeurl.timeout"/>
-                      <var>
-                        <var-name>datePatternStrict</var-name>
-                        <var-value>yyyy/MM/dd</var-value>
-                      </var>
-                  </field>
-              </form>
-          </formset>
-      </form-validation>
+"-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1.3//EN"
+"http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
+<form-validation>
+    <global>
+        <constant>
+            <constant-name>numberMask</constant-name>
+            <constant-value>^[-\+]?[0-9]*[,\.]?[0-9]*$</constant-value>
+        </constant>
+    </global>
+    
+    <formset>
+        <form name="changeProfileForm">
+            <field property="emailaddress" depends="email"> <!-- Email validatie -->
+                <arg0 key="viewer.profile.email"/>
+            </field>
+        </form>
+        
+        <form name="createPersonalURLForm">
+            <field property="registeredIP" depends="required"> <!-- required -->
+                <arg0 key="viewer.persoonlijkeurl.registeredip"/>
+            </field>
+            <field property="timeout" depends="required, date"> <!-- required -->
+                <arg0 key="viewer.persoonlijkeurl.timeout"/>
+                <var>
+                    <var-name>datePatternStrict</var-name>
+                    <var-value>yyyy/MM/dd</var-value>
+                </var>
+            </field>
+        </form>
+        
+        <form name="wmsUrlCreatorForm">
+            <field property="height" depends="required"> <!-- required -->
+                <arg0 key="viewer.getmapurl.height"/>
+            </field>
+            <field property="width" depends="required"> <!-- required -->
+                <arg0 key="viewer.getmapurl.width"/>
+            </field>
+            <field property="bbox" depends="required"> <!-- required -->
+                <arg0 key="viewer.getmapurl.bbox"/>
+            </field>
+        </form>
+    </formset>
+</form-validation>
 

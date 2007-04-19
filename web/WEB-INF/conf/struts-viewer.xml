@@ -24,6 +24,17 @@
         <!--6.49499583151191,50.9099968504161,6.50249583134428,50.9174968502484-->
         <!--5.25804640016269,3.13362127696184,1.99137980016269,10.333045323-->
         
+        <form-bean name="changeProfileForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->  
+            <form-property name="newpassword" type="java.lang.String"/>
+            <form-property name="newpasswordretyped" type="java.lang.String"/>
+            <form-property name="emailaddress" type="java.lang.String"/>
+        </form-bean>
+        
         <form-bean name="createPersonalURLForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
@@ -39,6 +50,7 @@
             <form-property name="timeout" type="java.lang.String"/>
             <form-property name="defaultGetMap" type="java.lang.String"/>
         </form-bean>
+        
         <form-bean name="wmsUrlCreatorForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- nodig voor crud action-->
             <form-property name="action" type="java.lang.String"/>
@@ -50,7 +62,8 @@
             <form-property name="bbox" type="java.lang.String"/>
             <form-property name="height" type="java.lang.Integer" initial="400"/>
             <form-property name="width" type="java.lang.Integer" initial="300"/>
-            <form-property name="selectedFormat" type="java.lang.String"/>            
+            <form-property name="selectedFormat" type="java.lang.String"/>
+            <form-property name="defaultGetMap" type="java.lang.String"/>
         </form-bean>
     </form-beans>
     
@@ -68,13 +81,17 @@
             <forward name="success" path="base.viewer.mapviewer"/>
             <forward name="failure" path="base.viewer.index"/>
         </action>
+        <action path="/changeProfile" name="changeProfileForm" type="nl.b3p.kaartenbalie.struts.ChangeProfileAction" scope="request" validate="false">  
+            <forward name="success" path="base.viewer.changeprofile"/>
+            <forward name="failure" path="base.viewer.changeprofile"/>
+        </action>
         <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.createurl"/>
             <forward name="failure" path="base.viewer.createurl"/>
         </action>
         <action path="/wmsUrlCreator" name="wmsUrlCreatorForm" scope="request" type="nl.b3p.kaartenbalie.struts.WMSUrlCreatorAction" validate="false">
-            <forward name="success" path="/main/wmsurlcreator.jsp"/>
-            <forward name="failure" path="/main/wmsurlcreator.jsp"/>
+            <forward name="success" path="base.viewer.creategetmapurl"/>
+            <forward name="failure" path="base.viewer.creategetmapurl"/>
         </action>
     </action-mappings>
     

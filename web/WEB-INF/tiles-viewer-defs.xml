@@ -22,8 +22,16 @@
         <put name="menu" value="/viewer/main/mIndex.jsp"/>
         <put name="content" value="/viewer/main/cMapviewer.jsp"/>
     </definition>
+    <definition name="base.viewer.changeprofile" extends="base.viewer">
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
+        <put name="content" value="/viewer/main/cProfile.jsp"/>
+    </definition>
     <definition name="base.viewer.createurl" extends="base.viewer">
         <put name="menu" value="/viewer/main/mIndex.jsp"/>
         <put name="content" value="/viewer/main/cCreateURL.jsp"/>
+    </definition>
+    <definition name="base.viewer.creategetmapurl" extends="base.viewer">
+        <put name="menu" value="/viewer/main/mIndex.jsp"/>
+        <put name="content" value="/viewer/main/cWmsUrlCreator.jsp"/>
     </definition>
 </tiles-definitions>
