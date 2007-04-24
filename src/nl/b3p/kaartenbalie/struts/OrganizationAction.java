@@ -294,18 +294,20 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         Session session = getHibernateSession();
         Organization organization = null;
         Integer id = getID(dynaForm);
+        
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
             organization = (Organization)session.createQuery(
                     "from Organization o where " +
                     "lower(o.id) = lower(:id)").setParameter("id", id).uniqueResult();
+            
+            List us = session.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).list();
+            Set users = new HashSet();
+            users.addAll(us);
+            organization.setUser(users); 
         }
-        
-        List us = session.createQuery("from User u where lower(u.organization) = lower(:organization)").setParameter("organization", organization).list();
-        Set users = new HashSet();
-        users.addAll(us);
-        organization.setUser(users);        
+          
         return organization;
     }
     // </editor-fold>

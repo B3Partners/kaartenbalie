@@ -51,7 +51,7 @@
         <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
             <table >
                 <tr>
-                    <td width="300">
+                    <td width="300" valign="top">
                         <table>
                             <tr>
                                 <td><B><fmt:message key="beheer.name"/>:</B></td>
@@ -104,10 +104,10 @@
                             
                         </table>
                     </td>
-                    <td valign="top">
+                    <td valign="top" rowspan="0">
                         <b>Layer rechten:</B><br/><br/>
-                        <div id="treeContainerSmall">
-                            <div class="treeHolderSmall">
+                        <div id="treeContainerLarge">
+                            <div class="treeHolderLarge">
                                 <div id="tree"></div>
                             </div>
                         </div>
@@ -201,7 +201,7 @@
             },
             "saveExpandedState": true,
             "saveScrollState": true,
-            "expandAll": false
+            "expandAll": true
         });
         function reloadLayers(){
             var layersString="";

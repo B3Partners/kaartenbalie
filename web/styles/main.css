@@ -410,21 +410,36 @@ margin: 0;
     text-align: right;
 }
 
+#treeContainerLarge {
+    height: 450px;
+    width: 400px;
+    float: left;
+    text-align: right;
+}
+
 #treeContainer input {
     margin-top: 5px;
 }
 .treeHolder{
     float: left;
-    width: 270px;
     height: 470px;
+    width: 270px;
     overflow: auto;
     text-align: left;
 }
 
 .treeHolderSmall{
     float: left;
-    width: 270px;
     height: 320px;
+    width: 270px;
+    overflow: auto;
+    text-align: left;
+}
+
+.treeHolderLarge{
+    float: left;
+    height: 450px;
+    width: 400px;
     overflow: auto;
     text-align: left;
 }
