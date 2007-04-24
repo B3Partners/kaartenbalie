@@ -39,6 +39,17 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         /* Initialize some variables */
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
+        
+        String format = null;
+        dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
+        
+        try {
+            format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
+        } catch (Exception e) {
+            format = "application/vnd.ogc.gml";
+        }
+        dw.setContentType(format);
+                
         String previousUrl = "";
         ArrayList urls = new ArrayList();
         StringBuffer spUrl = null;

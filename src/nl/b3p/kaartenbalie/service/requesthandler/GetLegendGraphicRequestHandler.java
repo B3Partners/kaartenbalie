@@ -42,6 +42,16 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
+        String format = null;
+        dw.setHeader("Content-Disposition", "inline; filename=\"GetLegendGraphic.xml\";");
+        
+        try {
+            format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
+        } catch (Exception e) {
+            format = "image/png";
+        }
+        dw.setContentType(format);
+        
         List tempSP = getServiceProviders(false);
         if (tempSP==null)
             return;

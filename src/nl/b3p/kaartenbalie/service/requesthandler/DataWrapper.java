@@ -120,23 +120,4 @@ public class DataWrapper {
                 sos.close();
         }        
     }
-    
-    //Onderstaande voorbeeld kan misschien nog beter zijn dan het hierboven geschreven stukje
-    //Doet in principe wel precies hetzelfde als bovenstaande methoden. Geen idee of het nog
-    //verschil maakt.
-    /*
-    private void InputToOutput(InputStream is, OutputStream os) {
-        if (is == null) return;
-        try {
-            int bytesRead = 0;
-            byte[] buf = new byte[4096];
-            while ((bytesRead = is.read(buf)) != -1) {
-                if (os != null && bytesRead > 0) {
-                    os.write(buf, 0, bytesRead);
-                    os.flush();
-                }
-            }
-        } catch (IOException e) {}
-    }
-    */
 }

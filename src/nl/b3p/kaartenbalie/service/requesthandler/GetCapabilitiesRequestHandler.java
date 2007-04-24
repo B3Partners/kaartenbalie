@@ -66,7 +66,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
-        
+                
         ServiceProvider s = null;
         List sps = getServiceProviders(true);
         Iterator it = sps.iterator();
@@ -101,9 +101,6 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // ]>  <!-- end of DOCTYPE declaration -->
         DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
         Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
-        
-        
-        
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");
         rootElement = s.toElement(dom, rootElement);
@@ -123,10 +120,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
         
         byte[] data = output.toByteArray();
-        //dw.setContentLength(data.length);
-        //dw.setData(data);
+        dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
+        dw.setContentType("application/vnd.ogc.wms_xml");
         dw.write(output);
-        //return dw;
     }
     // </editor-fold>
 }

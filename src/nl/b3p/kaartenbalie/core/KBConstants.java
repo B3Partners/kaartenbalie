@@ -49,13 +49,13 @@ public interface KBConstants {
     public static final String WMS_SERVICE_WMS = "WMS" ;
     
     public static final String WMS_REQUEST = "REQUEST" ;
-    public static final String WMS_REQUEST_GetCapabilities = "GetCapabilities" ;
-    public static final String WMS_REQUEST_GetMap = "GetMap" ;
-    public static final String WMS_REQUEST_GetFeatureInfo = "GetFeatureInfo" ;
-    public static final String WMS_REQUEST_GetLegendGraphic = "GetLegendGraphic" ;
-    public static final String WMS_REQUEST_GetStyles = "GetStyles" ;
-    public static final String WMS_REQUEST_PutStyles = "PutStyles" ;
-    public static final String WMS_REQUEST_DescribeLayer = "DescribeLayer" ;
+    public static final String WMS_REQUEST_GetCapabilities = "GETCAPABILITIES" ;
+    public static final String WMS_REQUEST_GetMap = "GETMAP" ;
+    public static final String WMS_REQUEST_GetFeatureInfo = "GETFEATUREINFO" ;
+    public static final String WMS_REQUEST_GetLegendGraphic = "GETLEGENDGRAPHIC" ;
+    public static final String WMS_REQUEST_GetStyles = "GETSTYLES" ;
+    public static final String WMS_REQUEST_PutStyles = "PUTSTYLES" ;
+    public static final String WMS_REQUEST_DescribeLayer = "DESCRIBELAYER" ;
     
     public static final String WMS_VERSION = "VERSION" ;
     public static final String WMS_VERSION_111 = "1.1.1" ;
