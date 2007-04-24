@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -31,7 +32,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,6 +54,13 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
+import nl.b3p.kaartenbalie.struts.ElementHandler;
+import nl.b3p.kaartenbalie.struts.Switcher;
+import nl.b3p.kaartenbalie.service.KBImageTool;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HeaderElement;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,15 +69,38 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+
+
+
+
+
+
+
+
+//Even uitproberen hoe dit werkt en toepassen voor alle URL functies.
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
     protected String url;
+    
+    private XMLReader parser;
+    private static Stack stack = new Stack();
+    private Switcher s;
     
     public WMSRequestHandler() { }
     
@@ -88,7 +126,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         /*
          * First we a set with layers which are visible to the user doing the request
          */
-        try {
+        //try {
             User dbUser = (User)sess.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
             
@@ -181,24 +219,27 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             } else {
                 sps = clonedsps;
             }
-        } finally {
+        //}/* finally {
             tx.commit();
-        }
+        //}*/
         return sps;
     }
     // </editor-fold>
         
-    /** Creates a byte array of a given StringBuffer array with urls. Each of the url will be used for a connection to
-     * the ServiceProvider which this url holds.
+    /** Gets the data from a specific set of URL's and converts the information to the format usefull to the 
+     * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the 
+     * DataWrapper, which will sent the data to the client requested for this information.
      *
+     * @param dw DataWrapper object containing the clients request information
      * @param urls StringBuffer with the urls where kaartenbalie should connect to to recieve the requested data.
-     * @param overlay A boolean setting the overlay to true or false. If false is chosen the images are placed under eachother
+     * @param overlay A boolean setting the overlay to true or false. If false is chosen the images are placed under eachother.
+     *
      * @return byte[]
      *
-     * @throws IOException
+     * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="getOnlineData(StringBuffer [] urls) method.">
-    protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws ParserConfigurationException, IOException, SAXException {
+    // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
+    protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -209,129 +250,205 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                bi = new BufferedImage [urls.size()];
-                
                 /* Read each of the strings and create an URL for each one of them
                  * With the defined URL create a BufferedImage which will contain the
                  * image the URL was loacting to.
-                 */
-                for (int i = 0; i < urls.size(); i++) {
-                    String url = ((StringBuffer)urls.get(i)).toString();
-                    URL u = new URL(url);
-                    bi[i] = ImageIO.read(u);
-                }
-                
-                /* After all images are loaded into the memory, these images
+                 * Before we can combine each of the read images, we first need to 
+                 * check for for each image we read if an error occurs during reading 
+                 * or if we get an error message from the server without even reading
+                 * an image. It could be that the reading of any input could go right
+                 * but that the information we get during reading is not the information
+                 * we expect it to be.
+                 *
+                 * In order to check if the information is what we expect of it we need
+                 * to check what contenttype is given when the information comes is. If
+                 * this contenttype is of the format EXCEPTION_XML we need to throw an
+                 * exception with the same exception as we recieved from the service-
+                 * provider.
+                 *
+                 * After all images are loaded into the memory, these images
                  * can be combined (blended) to make it one image. In order to
                  * be able to blend the images, an empty Graphics 2D object is
                  * needed to project all the other images onto. This Graphics
                  * object is recieved through a new and empty BufferedImage which
                  * has the same size as our BufferedImages.
                  */
-                BufferedImage buffImg = null;
+                bi = new BufferedImage [urls.size()];
+                KBImageTool kbir = new KBImageTool();
+                String contentType = "";
                 
-                if(overlay) {
-                    buffImg = new BufferedImage(bi[0].getWidth(), bi[0].getHeight(), BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D gbi = buffImg.createGraphics();
+                for (int i = 0; i < urls.size(); i++) {
+                    String url = ((StringBuffer)urls.get(i)).toString();
+                    URL u = new URL(url);
+                                        
+                    HttpClient client = new HttpClient();
+                    GetMethod method = new GetMethod(url);
+                    checkHttpMethodConnection(client, method);
                     
-                    /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
-                     * After drawing this layer we draw all the other layers on top of it, setting the
-                     * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
-                     */
-                    gbi.drawImage(bi[0], 0, 0, null);
-                    gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
-                    
-                    for (int i = 1; i < urls.size(); i++) {
-                        gbi.drawImage(bi[i], 0, 0, null);
-                    }
-                } else {
-                    int [] width = new int[urls.size()];
-                    int [] height= new int[urls.size()];
-                    
-                    for (int i = 1; i < urls.size(); i++) {
-                        width[i] = bi[i].getWidth();
-                        height[i] = bi[i].getHeight();
+                    contentType = method.getResponseHeader("Content-Type").getValue();
+                        
+                    if (contentType.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                        InputStream is = method.getResponseBodyAsStream();
+                        String body = getServiceException(is);
+                        throw new Exception(body);
                     }
                     
-                    int maxWidth = 0;
-                    int maxHeight= 0;
-                    for (int i = 0; i < urls.size(); i++) {
-                        if (width[i] > maxWidth) {
-                            maxWidth = width[i];
-                        }
-                        maxHeight += height[i];
-                    }
-                    
-                    buffImg = new BufferedImage(maxWidth, maxHeight, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D gbi = buffImg.createGraphics();
-                    maxHeight = 0;
-                    for (int i = 0; i < urls.size(); i++) {
-                        gbi.drawImage(bi[i], 0, maxHeight, null);
-                        maxHeight = bi[i].getHeight();
-                    }
-                    
-                    //gbi.dispose();
+                    bi[i] = kbir.readImage(method, contentType);
+                    method.releaseConnection();
                 }
                 
-                /* All images have been drawn onto the Graphics 2D object so now
-                 * it is possible to create a byte output stream of this newly created
-                 * BufferedImage
-                 */
-                ImageIO.write(buffImg, dw.getContentType().substring(dw.getContentType().indexOf("/") + 1), baos);
+                kbir.writeImage(kbir.combineImages(bi), contentType, dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-                //combineer de featureinfo....
-                //Setting up the DocumentBuilderFactory
+                /*
+                 * Create a DOM document and copy all the information of the several GetFeatureInfo
+                 * responses into one document. This document has the same layout as the recieved
+                 * documents and will hold all the information of the specified objects.
+                 * After combining these documents, the new document will be sent onto the request.
+                 */
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                //Setting the validations, namespace awareness and whitespace handling
                 dbf.setValidating(true);
                 dbf.setNamespaceAware(true);
                 dbf.setIgnoringElementContentWhitespace(true);
-
-                //Creating a new document builder
+                
                 DocumentBuilder builder = dbf.newDocumentBuilder();
-
-                //Creating a new destination
                 Document destination = builder.newDocument();
                 Element rootElement = destination.createElement("msGMLOutput");
                 destination.appendChild(rootElement);
                 rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
                 rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
                 rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-
                 Document source = null;
                 for (int i = 0; i < urls.size(); i++) {
-                    //Creating the source
                     source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
-
-                    //Copying the elements from one document to the other
                     copyElements(source, destination);
                 }
-
-                /*
-                 * Create a new output format to which this document should be translated and
-                 * serialize the tree to an XML document type
-                 */
+                
                 OutputFormat format = new OutputFormat(destination);
                 format.setIndenting(true);
                 XMLSerializer serializer = new XMLSerializer(baos, format);
                 serializer.serialize(destination);
+                dw.write(baos);
             }
-            dw.write(baos);
-            //return dw;
-        } else {            
-            /*
-             * Because only one url is defined, the images don't have to be loaded into a
-             * BufferedImage. The data recieved from the url can be directly transported to the client.
-             */
-            URL url = new URL( ((StringBuffer)urls.get(0)).toString() );
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            dw.setContentType(con.getContentType());
-            dw.write(new BufferedInputStream(con.getInputStream()));
-            //return dw;
+        } else {
+            getOnlineData(dw, ((StringBuffer)urls.get(0)).toString());
         }
     }
     // </editor-fold>
     
+    /** Checks wether this httpclient can setup a connection to a given url.
+     *
+     * @param client HttpClient object.
+     * @param method GetMethod method.
+     *
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="" desc="checkHttpMethodConnection(HttpClient client, GetMethod method) method.">
+    private static void checkHttpMethodConnection(HttpClient client, GetMethod method) throws Exception {
+        int statusCode = client.executeMethod(method);
+        if (statusCode != HttpStatus.SC_OK) {
+            throw new Exception("Error connecting to server. Status code: " + statusCode);
+        }
+    }
+    // </editor-fold>
+    
+    /** Private method getOnlineData which handels the throughput of information when it is only
+     *  about one URL. This is a slightly different method, because no checks have to be done or
+     *  information has to be stored. Everything can be directly send through the open connection.
+     *
+     * @param dw DataWrapper object which handles sending the information over the request.
+     * @param url String object which has the specific url where the information should come from.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
+    private static void getOnlineData(DataWrapper dw, String url) throws Exception {
+        /*
+         * Because only one url is defined, the images don't have to be loaded into a
+         * BufferedImage. The data recieved from the url can be directly transported to the client.
+         */
+        HttpClient client = new HttpClient();
+        GetMethod method = new GetMethod(url);
+        String rhValue = "";
+
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode != HttpStatus.SC_OK) {
+                throw new Exception("Error connecting to server. Status code: " + statusCode);
+            }
+
+            rhValue = method.getResponseHeader("Content-Type").getValue();
+
+            if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                InputStream is = method.getResponseBodyAsStream();
+                String body = getServiceException(is);
+                throw new Exception(body);
+            }
+
+            dw.setContentType(rhValue);
+            dw.write(method.getResponseBodyAsStream());
+        } catch (HttpException e) {
+            log.error("Fatal protocol violation: " + e.getMessage());
+            throw new HttpException("Fatal protocol violation: " + e.getMessage());
+        } catch (IOException e) {
+            log.error("Fatal transport error: " + e.getMessage());
+            throw new IOException("Fatal transport error: " + e.getMessage());
+        } finally {
+            method.releaseConnection();
+        }
+    }
+    // </editor-fold>
+    
+    /** Constructor of the WMSCapabilitiesReader.
+     *
+     * @param byteStream InputStream object in which the serviceexception is stored.
+     *
+     * @ return String with the given exception
+     *
+     * @throws IOException, SAXException
+     */
+    // <editor-fold defaultstate="" desc="getServiceException(InputStream byteStream)">
+    private static String getServiceException(InputStream byteStream) throws IOException, SAXException {
+        Switcher s = new Switcher();
+        s.setElementHandler("ServiceException", new ServiceExceptionHandler());
+        
+        XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
+        reader.setContentHandler(s);
+        InputSource is = new InputSource(byteStream);
+        is.setEncoding(CHARSET);
+        reader.parse(is);
+        return (String)stack.pop();
+    }
+    // </editor-fold>
+    
+    /**
+     * Below is the Handler defined which reads the Exception from a ServiceException recieved when an error occurs.
+     */
+    // <editor-fold defaultstate="" desc="private inner class ServiceExceptionHandler">
+    private static class ServiceExceptionHandler extends ElementHandler {
+        StringBuffer sb;
+        public void startElement(String uri, String localName, String qName, Attributes atts) {
+            sb = new StringBuffer();
+        }
+        
+        public void characters(char[] chars, int start, int len) {
+            sb.append(chars, start, len);
+        }
+        
+        public void endElement(String uri, String localName, String qName) {
+            stack.push(sb.toString());
+        }
+    }
+    // </editor-fold>
+    
+    /** Method which copies information from one XML document to another document.
+     * It adds information to an document and with this method it's possible to create
+     * one document from several other documents as used to create an GetFeatureInfo
+     * document.
+     *
+     * @param source Document object
+     * @param destination Document object
+     */
+    // <editor-fold defaultstate="" desc="copyElements(Document source, Document destination)">
     private static void copyElements(Document source, Document destination) {
         Element root_source = source.getDocumentElement();
         NodeList nodelist_source = root_source.getChildNodes();
@@ -350,6 +467,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
     }
+    // </editor-fold>
     
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *

@@ -109,13 +109,17 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //of the user can be logged.
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             
-            //Create a map with parameters of of reques parameters given
-            //with the request of this user.
-            Map parameters = new HashMap();
-            parameters.putAll(request.getParameterMap());
+            //Create a map with parameters of of request parameters given
+            //with the request of this user and transforms each of these 
+            //parameters and their keys into uppercase values.
+            Map parameters = getUpperCaseParameterMap(request.getParameterMap());
+            
+            //put two extra parameters into the map, since these two vars
+            //are needed at several places in the application.
             parameters.put(KB_USER, user);
             parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
             
+            //Finally call the parse and request method.
             parseRequestAndData(data, parameters);
         } catch (Exception ex) {
             log.error("error: ", ex);
@@ -123,6 +127,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             if(errorContentType != null) {
                 String exceptionName, message, cause;
+                
                 try {
                     exceptionName = ex.getClass().getName();
                 } catch (Exception e) {
@@ -135,15 +140,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     message = "";
                 }
                 
-                //Creeer nu een plaatje van deze gegegevens en stuur dit plaatje uit.
-                // configure all of the parameters
                 try {
-                TextToImage tti = new TextToImage();
-                data.setContentType(errorContentType);
-                tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
-                
-                //data.write(baos);
-                //baos.close();
+                    TextToImage tti = new TextToImage();
+                    data.setContentType(errorContentType);
+                    
+                    /*
+                     * Inside TextToImage, when the image with the exception has been created, the image will be stored
+                     * into the Datawrapper and sent directly. This means we don't have to given another sent command 
+                     * anymore after calling method below.
+                     */
+                    tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
                 } catch (Exception e) {
                     log.error("error: ", e);
                 }
@@ -192,11 +198,37 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     log.error("error: ", e);
                     throw new IOException("Exception occured during validation of error message: " + e);
                 }
-                
+                data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
                 data.setContentType("application/vnd.ogc.se_xml");
                 data.write(output);
             }
         }
+    }
+    // </editor-fold>
+    
+    
+    /** Checks if an user is allowed to make any requests.
+     * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
+     *
+     * @param parameters The parameters of a given request
+     *
+     * @return Map with the same parameters and same key all in uppercase
+     */
+    // <editor-fold defaultstate="" desc="getUpperCaseParameterMap(Map parameters) method.">
+    private Map getUpperCaseParameterMap(Map parameters) {
+        Map newParameterMap = new HashMap();
+        Set paramKeySet = parameters.keySet();
+        Iterator keySetIterator = paramKeySet.iterator();
+        while (keySetIterator.hasNext()) {
+            String key   = (String)keySetIterator.next();
+            String value = ((String[]) parameters.get(key))[0];
+            
+            String caseInsensitiveKey   = key.toUpperCase();
+            String caseInsensitiveValue = value.toUpperCase();
+            
+            newParameterMap.put(caseInsensitiveKey, caseInsensitiveValue);
+        }
+        return newParameterMap;
     }
     // </editor-fold>
     
@@ -287,7 +319,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     }
     // </editor-fold>
     
-    /** Parses any incoming request.
+    /** Parses any incoming request and redirects this request to the right handler.
      *
      * @param parameters map with the given parameters
      *
@@ -299,110 +331,68 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
     public void parseRequestAndData(DataWrapper data, Map parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
-        
-        String givenRequest=null;
-        boolean supported_request = false;
-        
-        String requestType = checkCaseInsensitiveParameter(parameters, WMS_REQUEST);
-        if (parameters.get(requestType)!=null){
-            givenRequest = ((String[]) parameters.get(requestType))[0];
+        /*
+         * First we need to find out if a request given by the user is supported by the system
+         * If a request is not supported then we need to inform the user about this and throw
+         * an error. Otherwise we need to execute the request and provide the information the
+         * user asked for.
+         */
+        String givenRequest = null;
+        boolean supported = false;
+                
+        if (parameters.get(WMS_REQUEST)!=null){
+            givenRequest = (String) parameters.get(WMS_REQUEST);
             
             Iterator it = SUPPORTED_REQUESTS.iterator();
             while (it.hasNext()) {
-                String elem = (String) it.next();
-                if(elem.equalsIgnoreCase(givenRequest)) {
-                    supported_request = true;
+                String supported_requests = (String) it.next();
+                if(supported_requests.equals(givenRequest)) {
+                    supported = true;
                 }
             }
         }
-        if (!supported_request)
+        
+        if (!supported)
             throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
         
+        /*
+         * The request is supported so now we can go ahed and find the right information which
+         * the user asked for.
+         */
         RequestHandler requestHandler = null;
         List reqParams = null;
-        if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-            
+        if(givenRequest.equals(WMS_REQUEST_GetCapabilities)) {
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
-            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
-            data.setContentType("application/vnd.ogc.wms_xml");
-            
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                        
+        } else if (givenRequest.equals(WMS_REQUEST_GetMap)) {
             requestHandler = new GetMapRequestHandler();
-            reqParams = PARAMS_GetMap;
-            try {
-                format = (String)((String[])parameters.get(WMS_PARAM_FORMAT))[0];
-            } catch (Exception e) {
-                format = "image/png";
-            }
-            
-            try {
-                inimageType = (String)((String[]) parameters.get(WMS_PARAM_EXCEPTION_FORMAT))[0];
-            } catch (Exception e) {
-                inimageType = null;
-            }
-            if (inimageType != null) {
-                data.setErrorContentType(format);
-            }
-                
-            data.setContentType(format);
-            
+            reqParams = PARAMS_GetMap;            
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-            
             requestHandler = new GetFeatureInfoRequestHandler();
-            reqParams = PARAMS_GetFeatureInfo;
-            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
-            try {
-                format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
-            } catch (Exception e) {
-                format = "application/vnd.ogc.gml";
-            }
-            data.setContentType(format);
-            
+            reqParams = PARAMS_GetFeatureInfo;            
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
-            
             requestHandler = new GetLegendGraphicRequestHandler();
-            reqParams = PARAMS_GetLegendGraphic;
-            data.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
-            try {
-                format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
-            } catch (Exception e) {
-                format = "image/png";
-            }
-            data.setContentType(format);
-            
+            reqParams = PARAMS_GetLegendGraphic;            
         }
         
+        /*
+         * If the request is supported and we also know which variables are given in the request, then we
+         * also first need to find out if all the mandatory variables are given in the request. If not we 
+         * cannot proceed with the request.
+         */
         if (!requestComplete(parameters, reqParams))
             throw new IllegalArgumentException("Not all parameters for request '" +
                     givenRequest + "' are available, required: [" + reqParams.toString() +
                     "], available: [" + parameters.toString() + "].");
         
-        //This can throw also a ParserConfigurationException.
+        /*
+         * All clear, we can continue!
+         */
         requestHandler.getRequest(data, parameters);       
     }
     // </editor-fold>
     
-    private String checkCaseInsensitiveParameter(Map parameters, String param) {
-        //The list with parameters is now checked with predefined parameters
-        //This goes all good if we use the same writing in the request as defined
-        //in the predefined list. This should offcourse be case insensitive
-        //Therefore we need to go over the list of parameters and check the keys
-        //which hold the variables
-        Set paramKeySet = parameters.keySet();
-        Iterator keySetIterator = paramKeySet.iterator();
-        String requestType = null;
-        while (keySetIterator.hasNext()) {
-            String key = (String)keySetIterator.next();
-            if (key.equalsIgnoreCase(param)) {
-                return key;
-            }
-        }
-        return null;
-    }
-    
-    /** Handles the requestComplete method.
+    /** Checks if the parameters of a given request comply to the required parameters.
      *
      * @param parameters map with the given parameters
      * @param requiredParameters list with the required parameters
@@ -429,37 +419,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
         return true;
     }
-    
-    private Object createAndValidateErrorXML() {
-        //Kan een Boolean object, Image object of XML String object retouneren
-        Object object = new Object();
-        return object;
-    }
-    
-    /*
-    protected boolean requestComplete(Map parameters, List requiredParameters) {
-        if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
-            return false;
-        
-        // lijst met default waarden voor parameters die eigenlijk verplicht zijn, goed idee?
-        HashMap defVals = new HashMap();
-        defVals.put(WMS_PARAM_STYLES, "");
-        
-        Iterator it = requiredParameters.iterator();
-        while (it.hasNext()) {
-            String reqParam = (String)it.next();
-            String requestType = checkCaseInsensitiveParameter(parameters, reqParam);
-            
-            if (requestType != null) {
-                String requestType_Style = checkCaseInsensitiveParameter(defVals, reqParam);
-                if (requestType_Style != null)
-                    return false;
-                parameters.put(reqParam, defVals.get(reqParam));
-            }
-        }
-        return true;
-    }
-     */
     // </editor-fold>
     
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

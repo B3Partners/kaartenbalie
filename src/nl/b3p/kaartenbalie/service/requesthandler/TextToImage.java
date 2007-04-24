@@ -24,12 +24,14 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 
 public class TextToImage {
+    private String imageType;
     
     /** Creates a new instance of TextToImage */
     public TextToImage() {
     }
     
     public void createImage(String message, String imageType, DataWrapper data) throws IOException {
+        this.imageType = imageType;
         Color background = Color.white;
         Color textColor = Color.black;
         Font font = new Font("Serif", Font.PLAIN, 14);
@@ -68,6 +70,10 @@ public class TextToImage {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
         // output the image as png
+        if(this.imageType.equalsIgnoreCase("jpg")) {
+            this.imageType = "JPEG";
+        }
+        
         ImageIO.write(buffer, imageType, baos);
         data.write(baos);
         //return baos;
@@ -81,11 +87,14 @@ public class TextToImage {
             char c = message.charAt(i);
             temp += c;
             if (i != 0) {
-                if ((i % 50) == 0) {
+                if ((i % 70) == 0) {
                     sentences.add(temp);
                     temp = "";
                 }
             }
+        }
+        if (sentences.size() == 0) {
+            sentences.add(temp);
         }
         return sentences;
     }    
