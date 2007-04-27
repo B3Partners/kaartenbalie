@@ -89,10 +89,10 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid values for BBOX.");
         }
         
-        int minx = Integer.parseInt(boxx[0]);
-        int miny = Integer.parseInt(boxx[1]);
-        int maxx = Integer.parseInt(boxx[2]);
-        int maxy = Integer.parseInt(boxx[3]);
+        double minx = Double.parseDouble(boxx[0]);
+        double miny = Double.parseDouble(boxx[1]);
+        double maxx = Double.parseDouble(boxx[2]);
+        double maxy = Double.parseDouble(boxx[3]);
         
         if (minx > maxx || miny > maxy) {
             throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid values for BBOX.");

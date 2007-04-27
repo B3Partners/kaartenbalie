@@ -296,8 +296,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     bi[i] = kbir.readImage(method, contentType);
                     method.releaseConnection();
                 }
-                
-                kbir.writeImage(kbir.combineImages(bi), contentType, dw);
+                kbir.writeImage(bi, contentType, dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo

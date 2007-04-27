@@ -10,7 +10,9 @@
 
 package nl.b3p.kaartenbalie.service;
 
+import com.sun.imageio.plugins.png.PNGImageReader;
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -34,53 +36,88 @@ import org.apache.commons.logging.LogFactory;
 public class KBImageTool {
      private static final Log log = LogFactory.getLog(ImageReader.class);
      private BufferedImage bi;
+     
+     private final String TIFF  = "image/tiff";
+     private final String GIF   = "image/gif";
+     private final String JPEG  = "image/jpeg";
+     private final String PNG   = "image/png";
     /**
      * Creates a new instance of KBImageTool
      */
     public KBImageTool() {
     }
     
-    public BufferedImage readImage(GetMethod method, String MIME) throws Exception {
-        /*
-         * First we need to check wether or not this MIME type is supported by the program.
-         */
-        String mimeType = getMimeType(MIME);
-        /*
-        if(mimeType == null) {
-            log.error("Unknown imageformat: " + MIME);
-            throw new Exception("Unknown imageformat: " + MIME);
-        }
-        */
+    public BufferedImage readImage(GetMethod method, String mime) throws Exception {
+        String mimeType = getMimeType(mime);
+    	if (mimeType == null)
+    		throw new Exception ("unsupported mime type: " + mime);
+    	
+        ImageReader ir = getReader(mimeType);
+        if (ir == null)
+            throw new Exception ("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
         
-        /*
-         * Then we need to check if we can find a reader which can handle this MIME.
-         */
-        ImageReader ir = getReader(MIME);
-        if(ir == null) {
-            log.error("No imagereader available for imageformat: " + MIME);
-            throw new Exception("No imagereader available for imageformat: " + MIME);
-        }
-        
-        /*
-         * If we have a reader for this mime, we can read the input with the right format.
-         */
         ImageInputStream stream = ImageIO.createImageInputStream(method.getResponseBodyAsStream());
         ir.setInput(stream, true);
-        bi = ir.read(0);
-        return bi;
+        return ir.read(0);
     }
     
-    public BufferedImage combineImages(BufferedImage [] images) {
+    public void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
+        String mimeType = getMimeType(mime);
+    	if (mimeType == null)
+    		throw new Exception ("unsupported mime type: " + mime);
+        
+        BufferedImage bufferedImage = combineImages(images, mime);
+        if(mime.equals(TIFF)) {
+            writeTIFFImage(bufferedImage, dw);
+        } else {
+            writeOtherImage(bufferedImage, dw, mimeType.substring(mimeType.lastIndexOf("/") + 1));
+        }
+    }
+    
+    private void writeTIFFImage(BufferedImage bufferedImage, DataWrapper dw) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, "tif", baos);
+        dw.write(baos);
+    }
+    
+    private void writeOtherImage(BufferedImage bufferedImage, DataWrapper dw, String extension) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
+        ImageIO.write(bufferedImage, extension, ios);
+        dw.write(baos);
+        ios.flush();
+        ios.close();
+    }
+    
+    private BufferedImage combineImages(BufferedImage [] images, String mime) {
+        if(mime.equals(JPEG)) {
+            return combineJPGImages(images);
+        } else {
+            return combineOtherImages(images);
+        }
+    }
+    
+    private BufferedImage combineJPGImages(BufferedImage [] images) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         
-        BufferedImage newBufIm = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newBufIm = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D gbi = newBufIm.createGraphics();
-                    
-        /* Onto this Graphics 2D object we draw the layer which is the lowest in ranking.
-         * After drawing this layer we draw all the other layers on top of it, setting the
-         * AlphaComposite on the highest alpha (1.0f) with a DST_OVER
-         */
+        gbi.drawImage(images[0], 0, 0, null);
+        
+        for (int i = 1; i < images.length; i++) {
+            gbi.drawImage(images[i], 0, 0, null);
+        }
+        return newBufIm;
+    }
+    
+    private BufferedImage combineOtherImages(BufferedImage [] images) {
+        int width = images[0].getWidth();
+        int height = images[0].getHeight();
+        
+        BufferedImage newBufIm = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D gbi = newBufIm.createGraphics();
+        
         gbi.drawImage(images[0], 0, 0, null);
         gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
         
@@ -89,100 +126,140 @@ public class KBImageTool {
         }
         return newBufIm;
     }
-    
-    public void writeImage(BufferedImage bufferedImage, String MIME, DataWrapper dw) throws Exception {
-        /*
-         * First we need to check wether or not this MIME type is supported by the program.
-         */
-        String mimeType = getMimeType(MIME);
-        if(mimeType == null) {
-            log.error("No imagereader available for imageformat: " + MIME);
-            throw new Exception("Unknown imageformat: " + MIME);
-        }
-        
-        /*
-         * Then we need to check if we can find a reader which can handle this MIME.
-         */
-        ImageWriter iw = getWriter(mimeType);
-        if(iw == null) {
-            log.error("No imagewriter available for imageformat: " + MIME);
-            throw new Exception("No imagewriter available for imageformat: " + MIME);
-        }
                 
-        //We hebben nu een writer nodig die precies overweg kan met
-        // een specifiek MIME type. Hiervoor kan dezelfde methode gebruikt worden als
-        //hierboven voor het inlezen van een plaatje, maar om een of andere reden gaat dit helaas 
-        //nog niet helemaal zoals het moet gaan.
-        
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
-        iw.setOutput(ios);
-        iw.write(new IIOImage(bufferedImage, null, null));
-        dw.write(baos);
-        
-        // Cleanup
-        ios.flush();
-        iw.dispose();
-        ios.close();
-    }
-                
-    private String getMimeType(String MIME) {
-        String [] mimeTypes = ImageIO.getReaderMIMETypes();
-        String mime = MIME.toUpperCase();
-                
-        if(MIME.equalsIgnoreCase("image/tiff")) {
-            mime = "image/tif";
-        }
-        
-        for (int i = 0; i < mimeTypes.length; i++) {
-            if (mimeTypes[i].equalsIgnoreCase(mime)) {
-                return mimeTypes[i];
-            }
-        }
-        
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getMimeType(String MIME) method.">
+    private String getMimeType(String mime) {
+    	String [] mimeTypes = ImageIO.getReaderMIMETypes();
+        for (int i = 0; i < mimeTypes.length; i++)
+            if (mimeTypes[i].equalsIgnoreCase(mime))
+                return mimeTypes[i];        
         return null;
     }
+    // </editor-fold>
     
-    private ImageReader getReader(String MIME) {
-        ImageReader ir = null;
-        
-        String [] fnames = ImageIO.getReaderFormatNames();
-        for (int i = 0; i < fnames.length; i++) {
-            System.out.println(fnames[i]);
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getReader(String mime) method.">
+    private ImageReader getReader(String mime) {
+        if(mime.equals(JPEG) || mime.equals(PNG)) {
+            return getJPGOrPNGReader(mime);
+        } else {
+            return getGIFOrTIFFReader(mime);
         }
-        
-        Iterator it = ImageIO.getImageReadersByMIMEType(MIME);
-        while(it.hasNext()) {
-            ir = (ImageReader)it.next();
-        }
-        
-        return ir;
     }
+    // </editor-fold>
+        
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getJPGOrPNGReader(String mime) method.">
+    private ImageReader getJPGOrPNGReader(String mime) {
+        Iterator it = ImageIO.getImageReadersByMIMEType(mime);
+        ImageReader imTest = null;
+        while(it.hasNext()) {
+            imTest = (ImageReader)it.next();
+            String name = imTest.getClass().getPackage().getName();
+            String generalPackage = name.substring(0, name.lastIndexOf("."));
+            if(generalPackage.equalsIgnoreCase("com.sun.media.imageioimpl.plugins"))
+                continue;
+        }
+        return imTest;
+    }
+    // </editor-fold>
     
-    private ImageReader getReader(ImageInputStream stream) {
-        ImageReader ir = null;
-        
-        Iterator it = ImageIO.getImageReaders(stream);
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getGIFOrTIFFReader(String mime) method.">
+    private ImageReader getGIFOrTIFFReader(String mime) {
+        Iterator it = ImageIO.getImageReadersByMIMEType(mime);
+        ImageReader imTest = null;
         while(it.hasNext()) {
-            ir = (ImageReader)it.next();
+            imTest = (ImageReader)it.next();
         }
-        
-        return ir;
+        return imTest;
     }
+    // </editor-fold>
     
-    private ImageWriter getWriter(String MIME) {
-        ImageWriter iw = null;
+    /*
+     * TODO:
+     * Writers below are defined but possibly not used. Delete after testing!
+     */
         
-        String [] fnames = ImageIO.getWriterFormatNames();
-        for (int i = 0; i < fnames.length; i++) {
-            System.out.println(fnames[i]);
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getWriter(String mime) method.">
+    private ImageWriter getWriter(String mime) {
+        if(mime.equals(JPEG) || mime.equals(PNG)) {
+            return getJPGOrPNGWriter(mime);
+        } else {
+            return getGIFOrTIFFWriter(mime);
         }
-        
-        Iterator it = ImageIO.getImageWritersByMIMEType(MIME);
-        while(it.hasNext()) {
-            iw = (ImageWriter)it.next();
-        }
-        
-        return iw;
     }
+    // </editor-fold>
+    
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getJPGOrPNGWriter(String mime) method.">
+    private ImageWriter getJPGOrPNGWriter(String mime) {
+        Iterator it = ImageIO.getImageReadersByMIMEType(mime);
+        ImageWriter imTest = null;
+        while(it.hasNext()) {
+            imTest = (ImageWriter)it.next();
+            String name = imTest.getClass().getPackage().getName();
+            String generalPackage = name.substring(0, name.lastIndexOf("."));
+            if(generalPackage.equalsIgnoreCase("com.sun.media.imageioimpl.plugins"))
+                continue;
+        }
+        return imTest;
+    }
+    // </editor-fold>
+    
+    /** Private method which seeks through the specified MIME type to check if
+     * a certain MIME is supported.
+     *
+     * @param MIME String with the MIME to find.
+     *
+     * @return a String with the found MIME or null if no MIME was found.
+     */
+    // <editor-fold defaultstate="" desc="getGIFOrTIFFWriter(String mime) method.">
+    private ImageWriter getGIFOrTIFFWriter(String mime) {
+        Iterator it = ImageIO.getImageReadersByMIMEType(mime);
+        ImageWriter imTest = null;
+        while(it.hasNext()) {
+            imTest = (ImageWriter)it.next();
+        }
+        return imTest;
+    }
+    // </editor-fold>
 }
