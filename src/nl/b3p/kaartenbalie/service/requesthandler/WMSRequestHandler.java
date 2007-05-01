@@ -97,6 +97,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
     protected String url;
+    protected static long maxResponseTime = 100000;
     
     private XMLReader parser;
     private static Stack stack = new Stack();
@@ -284,6 +285,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     HttpClient client = new HttpClient();
                     GetMethod method = new GetMethod(url);
                     checkHttpMethodConnection(client, method);
+                    client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
                     
                     contentType = method.getResponseHeader("Content-Type").getValue();
                         
@@ -367,6 +369,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(url);
+        client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
+        
         String rhValue = "";
 
         try {

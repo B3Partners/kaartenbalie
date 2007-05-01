@@ -192,22 +192,28 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             for (int i = 0; i < params.length; i++) {
                 String [] paramValue = params[i].split("=");
                 if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
-                    if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                        req = true;
-                    }
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            req = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_REQUEST + " gegeven, maar value niet. App voegt waarde zelf toe."); }
                 }
                 else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
-                    if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
-                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                        version = true;
-                    }
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            version = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_VERSION + " gegeven, maar value niet. App voegt waarde zelf toe."); }
                 }
                 else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
-                    if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
-                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                        service = true;
-                    }
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            service = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_SERVICE + " gegeven, maar value niet. App voegt waarde zelf toe."); }
                 }
                 else {
                     //An extra parameter which has to be given.
@@ -291,7 +297,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
              * with the old serviceprovider.
              * 
              * The following steps have to be made:
-             * Which each layer belonging to a certain organization check if this
+             * With each layer belonging to a certain organization check if this
              * layer belongs to the old serviceprovider.
              *      if not -> save the layer in a new set and go to the next layer
              *      if yes -> check if the old layer also appears in the list of layers
@@ -310,16 +316,24 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 Set orgLayers = org.getOrganizationLayer();
                 Iterator layerit = orgLayers.iterator();
                 while (layerit.hasNext()) {
+                    /* 
+                     * We are now iterating over a set of layers which belong to one organization.
+                     * Each of these layers have specified which serviceprovider they belong to.
+                     * So we can check if the id of the layer serviceprovider is the same as the
+                     * id of the old serviceprovider from above.
+                     */
                     Layer organizationLayer = (Layer)layerit.next();
                     ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
                     if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
-                        /* The layer belongs to the old servideprovider.
-                         * So now we need to check if this same layer is
-                         * still available in the new serviceprovider.
-                         * If this is true then we need to add this layer
-                         * again to the new list with layer rights for
-                         * this organization. Otherwise we don't have to
-                         * do anything.
+                        /* It is for sure that the layer belongs to the old servideprovider.
+                         * So now we need to check if this same layer is still available in 
+                         * the new serviceprovider. If this is true then we need to add this 
+                         * layer again to the new list with layer rights for  this organization.
+                         * Otherwise we don't have to do anything.
+                         * Since this layer belongs to the old serviceprovider we don't have to
+                         * be affraid that we are checking against the wrong items. Therefore
+                         * we can perform this check just by checking if the layer titles are
+                         * the same.
                          */
                         Layer newLayer = checkLayer(organizationLayer, newServiceProvider.getLayers());
                         if (newLayer != null)
