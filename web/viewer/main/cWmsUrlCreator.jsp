@@ -80,7 +80,7 @@
                         </table>
                     </td>
                 </tr>
-                <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL.
+                <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
                 <tr>
                     <td colspan="0">
                         <b>Volgorde</b><br>
@@ -90,7 +90,7 @@
                         <div id="orderLayerBox" class="orderLayerBox"></div>
                     </td>
                 </tr>
-                --%>
+                
                 <tr >
                     <td colspan="0">
                         Persoonlijke GetMap URL:<BR>
