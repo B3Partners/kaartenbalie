@@ -39,7 +39,22 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        /* Initialize some variables */
+        /* 
+         * Initialize some variables
+         * And immediatly set the right output format (also for errors) because if an error occurs
+         * with the GetMap functionality before the outputformat is set then the standard output
+         * format would be used.
+         */
+        String format = (String) parameters.get(WMS_PARAM_FORMAT);
+        dw.setContentType(format);
+        
+        String inimageType = null;
+        
+        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+            inimageType = format;
+        }
+        dw.setErrorContentType(inimageType);
+        
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
         
@@ -182,15 +197,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             }
         }
         
-        String format = (String) parameters.get(WMS_PARAM_FORMAT);
-        dw.setContentType(format);
         
-        String inimageType = null;
-        
-        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
-            inimageType = format;
-        }
-        dw.setErrorContentType(inimageType);
         
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }

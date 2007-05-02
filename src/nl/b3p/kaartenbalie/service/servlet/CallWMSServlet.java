@@ -365,6 +365,15 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
         } else if (givenRequest.equals(WMS_REQUEST_GetMap)) {
+            
+            //Att all time set the error contenttype at first....
+            String format = (String) parameters.get(WMS_PARAM_FORMAT);
+            String inimageType = null;
+            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+                inimageType = format;
+            }
+            data.setErrorContentType(inimageType);
+            
             requestHandler = new GetMapRequestHandler();
             reqParams = PARAMS_GetMap;            
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
@@ -380,10 +389,18 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
          * also first need to find out if all the mandatory variables are given in the request. If not we 
          * cannot proceed with the request.
          */
-        if (!requestComplete(parameters, reqParams))
+        if (!requestComplete(parameters, reqParams)) {
+            StringBuffer availableParams = new StringBuffer();
+            Set paramKeySet = parameters.keySet();
+            Iterator keySetIterator = paramKeySet.iterator();
+            while (keySetIterator.hasNext()) {
+                availableParams.append((String)keySetIterator.next());
+                availableParams.append(", ");
+            }
             throw new IllegalArgumentException("Not all parameters for request '" +
                     givenRequest + "' are available, required: [" + reqParams.toString() +
-                    "], available: [" + parameters.toString() + "].");
+                    "], available: [" + availableParams.toString() + "].");
+        }
         
         /*
          * All clear, we can continue!
