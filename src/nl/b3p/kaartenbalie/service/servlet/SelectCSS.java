@@ -9,7 +9,7 @@ public class SelectCSS extends HttpServlet {
     public static final long serialVersionUID = 24362462L;
 
     private String STYLESFOLDER = "styles/";
-    private String DEFAULT = "b3p";
+    private String DEFAULT = "mnp";
     private String DOMAIN = "http://localhost:8084/kaartenbalie_mnp/";
     
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException {

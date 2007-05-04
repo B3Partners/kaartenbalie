@@ -66,7 +66,7 @@
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
-                    <td><html:text property="password"/></td>
+                    <td><html:password property="password"/></td>
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>

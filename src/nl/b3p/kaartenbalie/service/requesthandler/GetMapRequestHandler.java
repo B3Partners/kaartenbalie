@@ -127,11 +127,17 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
          */
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
+            boolean found = false;
+            int size = tempSP.size();
+            int loopsize = 0;
             Iterator it = tempSP.iterator();
             while (it.hasNext()) {
+                loopsize++;
                 ServiceProvider serviceProvider = (ServiceProvider)it.next();
                 Set serviceProviderLayers = serviceProvider.getLayers();
                 String spls = findLayer(layer, serviceProviderLayers);
+                if (spls == null && size == loopsize)
+                    throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
                 if (spls != null) {
                     spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
                     
@@ -143,7 +149,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
                         url.append("," + spls);
                         urls.remove(urls.size() - 1);
-                        urls.add(url);                        
+                        urls.add(url);
+                        found = true;
                     } else {
                         previousUrl = spUrl.toString();                     
                         spUrl.append(WMS_VERSION);
@@ -189,8 +196,11 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         spUrl.append("=");
                         spUrl.append(spls);
                         urls.add(spUrl);
+                        found = true;
                     }
-                } 
+                }
+                if (found)
+                    break;
             }
             if(spUrl == null) {
                 throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");

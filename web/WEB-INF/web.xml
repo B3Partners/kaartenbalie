@@ -182,7 +182,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>CallWMSServlet</servlet-name>
-        <url-pattern>/servlet/CallWMSServlet/*</url-pattern>
+        <url-pattern>/wms/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FlamingoConfigServlet</servlet-name>
