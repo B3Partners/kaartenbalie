@@ -210,7 +210,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          */
         StringBuffer sb = request.getRequestURL();
         sb.delete(sb.indexOf("viewer/createPersonalURL.do"), sb.capacity());
-        sb.append("servlet/CallWMSServlet/");
+        sb.append(WMS_SERVICE_WMS.toLowerCase() + "/");
         String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
