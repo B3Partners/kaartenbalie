@@ -8,24 +8,23 @@
         Purpose of the document follows.
 -->
 
-<FLAMINGO xmlns:fmc="flamingo" lang="en" languages="en,nl" tooltipdelay="300" commtojava="true" preloadtitle="Groundwatermap">
+<FLAMINGO xmlns:fmc="flamingo" lang="en" languages="en,nl" tooltipdelay="300" commtojava="true" preloadtitle="Groundwatermap" useexternalinterface="true">
     <style id=".tooltip" font-family="Verdana" font-size="11" color="#880000" display="block"/>
     <yguide id="my" y="50%"/>
     <xguide id="mx" x="50%"/>
-    <fmc:MonitorMap id="monitor2" left="165" top="60" listento="mainMap"/>
     <fmc:MonitorLayer id="monitor" left="165" top="100" listento="mainMap"/>
-        <fmc:ToolGroup tool="zoom" listento="mainMap" width="148" height="65" left="0" top="0">
-            <fmc:ToolZoomin id="zoom"/>
-            <fmc:ToolZoomout left="30"/>
-            <fmc:ToolPan left="60"/>
-            <fmc:ToolMeasure left="90"/>
-            <fmc:ToolIdentify left="120"/>
-        </fmc:ToolGroup>                                                                                
-    <fmc:BorderNavigation listento="mainMap"/>
+    <fmc:ToolGroup tool="zoom" listento="mainMap" width="148" height="65" left="0" top="0">
+        <fmc:ToolZoomin id="zoom"/>
+        <fmc:ToolZoomout left="30"/>
+        <fmc:ToolPan left="60"/>
+        <fmc:ToolMeasure left="90"/>
+        <fmc:ToolIdentify left="120"/>
+    </fmc:ToolGroup>                                                                                
+    <fmc:BorderNavigation listento="mainMap" width="100%" height="100%" skin="f1"/>
     <fmc:Map id="mainMap" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="12000,304000,280000,620000">
         <fmc:LayerIdentifyIcon  id="identifyicon"  />
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
-        <fmc:LayerOGWMS id="map" url="../servlet/CallWMSServlet/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS="" QUERY_LAYERS=""/>
+        <fmc:LayerOGWMS id="map" url="../servlet/CallWMSServlet/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS="" QUERY_LAYERS="" srs="EPSG:28992"/>
     </fmc:Map>
     <fmc:Window  title="info" visible="false" canresize="true" defocusalpha="10" width="50%" height="50%" left="50%" top="0">
         <string id="title" nl="informatie"  en="information"/>
