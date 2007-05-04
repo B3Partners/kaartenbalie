@@ -16,7 +16,12 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"/>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
 --%>
-
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
+<link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
+<script type="text/javascript">
+    var cal = new CalendarPopup("calDiv");
+    cal.setCssPrefix("calcss_");
+</script>
 <html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
 <html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)">
     <html:hidden property="action"/>
@@ -83,6 +88,7 @@
         </table>
         
         <c:if test="${action != 'list'}">
+            <div id="calDiv" style="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
             <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
                 <table>
                     <tr>
@@ -90,25 +96,15 @@
                         <td>
                             
                             <html:text property="timeout" styleId="cal_date"/> &nbsp;
-                            <%--
                             <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
                                  style="cursor: pointer; border: 1px solid red;" 
                                  title="Date selector"
+                                 alt="Date selector"
                                  onmouseover="this.style.background='red';" 
-                                 onmouseout="this.style.background=''" />
-                            <script type="text/javascript">
-                                Calendar.setup({
-                                  inputField        : "cal_date",
-                                  button            : "cal-button",
-                                  align             : "Tr",
-                                  singleClick       : true
-                                });
-
-                                 var myDate = new Date();
-                                 myDate.setDate(myDate.getDate()+7);
-                                 //Calendar.setDate(myDate);
-                            </script>
-                            --%>
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                                 name="cal-button"
+                            />
                         </td>
                     </tr>
                     <tr>

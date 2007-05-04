@@ -1,0 +1,76 @@
+.calcss_cpYearNavigation, .calcss_cpMonthNavigation {
+    text-align: center;
+    vertical-align: center;
+    text-decoration: none;
+    background: #654;
+    color: #fed;
+    font-weight: bold;
+}
+
+.calcss_cpDayColumnHeader, .calcss_cpYearNavigation, .calcss_cpMonthNavigation, .calcss_cpCurrentMonthDate, .calcss_cpCurrentMonthDateDisabled, .calcss_cpOtherMonthDate, .calcss_cpOtherMonthDateDisabled, .calcss_cpCurrentDate, .calcss_cpCurrentDateDisabled, .calcss_cpTodayText, .calcss_cpTodayTextDisabled, .calcss_cpText {
+    font-family: arial;
+    font-size: 8pt;
+}
+
+TD.calcss_cpDayColumnHeader {
+    text-align: center;
+    border: 0x none #655;
+    border-bottom: 1px solid #655;
+}
+
+.calcss_cpCurrentMonthDate, .calcss_cpOtherMonthDate, .calcss_cpCurrentDate {
+    text-align: center;
+    text-decoration: none;
+}
+
+.calcss_cpCurrentMonthDateDisabled, .calcss_cpOtherMonthDateDisabled, .calcss_cpCurrentDateDisabled {
+    color: #faa;
+    text-align: center;
+    text-decoration: line-through;
+}
+
+.calcss_cpCurrentMonthDate {
+    color: #f40;
+    font-weight: bold;
+}
+
+.calcss_cpCurrentDate {
+    color: #c77;
+    font-weight: bold;
+}
+
+.calcss_cpOtherMonthDate {
+    color: #FFCC9E;
+}
+
+TD.calcss_cpCurrentDate {
+    color: #fed;
+    background-color: #fed;
+    border: 1px solid #fed;
+}
+
+TD.calcss_cpCurrentDateDisabled {
+    border: 1px solid #fed;
+}
+
+TD.calcss_cpTodayText, TD.calcss_cpTodayTextDisabled {
+    border: 0px none #fed;
+    border-top: 1px solid #655;
+}
+
+A.calcss_cpTodayText, SPAN.calcss_cpTodayTextDisabled {
+    height: 20px;
+}
+
+A.calcss_cpTodayText {
+    color: #005A9C;
+    font-weight: bold;
+}
+
+SPAN.calcss_cpTodayTextDisabled {
+    color: #fed;
+}
+
+.calcss_cpBorder {
+    border: 1px solid #fed;
+}
