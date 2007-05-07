@@ -174,7 +174,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
         
         //Create the String
-        String[] layers     = (String[])dynaForm.get("selectedLayers");
+        String[] layers     = (String[])dynaForm.get("sortedLayers");
         String projectie    = (String)  dynaForm.get("selectedProjectie");
         String bbox         = (String)  dynaForm.get("bbox");
         Integer height      = (Integer) dynaForm.get("height");

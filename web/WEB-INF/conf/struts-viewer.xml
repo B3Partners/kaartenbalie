@@ -58,6 +58,7 @@
             <!-- in form -->
             <form-property name="personalUrl" type="java.lang.String"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="sortedLayers" type="java.lang.String[]"/>
             <form-property name="selectedProjectie" type="java.lang.String"/>
             <form-property name="bbox" type="java.lang.String"/>
             <form-property name="height" type="java.lang.Integer" initial="400"/>

@@ -10,7 +10,7 @@
 <c:set var="persUrl" value="${form.map.personalUrl}"/>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/moveLayers.js' module='' />"></script>
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/moveLayersGetMap.js' module='' />"></script>
 
 <html:javascript formName="wmsUrlCreatorForm" staticJavascript="false"/>
 <html:form action="/wmsUrlCreator" onsubmit="return validateWmsUrlCreatorForm(this)">
@@ -30,74 +30,56 @@
                 u deze URL wijzigt.
             </P>
             
-            <table border="1px">
-                <%-- bovenste rij, met de layers en de instellingen --%>
-                <tr>
-                    <td>
-                        <%-- linker kolom met de layers --%>
-                        <table>
-                            <tr>
-                                <td>
-                                    <b>Layer rechten:</B><br/><br/>
-                                    <div id="treeContainerLarge">
-                                        <div class="treeHolderLarge">
-                                            <div id="tree"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td valign="top">
-                        <%-- rechter kolom met de instellingen --%>
-                        <table>
-                            <tr><td><b><fmt:message key="beheer.getmapurl.projecties"/>:</b></td></tr>
-                            <tr><td>
-                                    <c:if test="${not empty projectieList}">
-                                        <html:select property="selectedProjectie">
-                                            <c:forEach items="${projectieList}" var="p">
-                                                <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
-                                            </c:forEach>
-                                        </html:select>
-                                    </c:if>
-                            </td></tr>
-                            <tr><td><b><fmt:message key="beheer.getmapurl.height"/>:</b></td></tr>
-                            <tr><td><html:text property="height"/></td></tr>
-                            <tr><td><b><fmt:message key="beheer.getmapurl.width"/>:</b></td></tr>
-                            <tr><td><html:text property="width"/></td></tr>
-                            <tr><td><b><fmt:message key="beheer.getmapurl.bbox"/>:</b></td></tr>
-                            <tr><td><html:text property="bbox" size="40"/></td></tr>
-                            <tr><td><b><fmt:message key="beheer.getmapurl.format"/>:</b></td></tr>
-                            <tr><td>
-                                    <c:if test="${not empty formatList}">
-                                        <html:select property="selectedFormat">
-                                            <c:forEach items="${formatList}" var="f">
-                                                <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
-                                            </c:forEach>
-                                        </html:select>
-                                    </c:if>
-                            </td></tr>
-                        </table>
-                    </td>
-                </tr>
-                <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
-                <tr>
-                    <td colspan="0">
-                        <b>Volgorde</b><br>
-                        Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
-                        <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
-                        <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
-                        <div id="orderLayerBox" class="orderLayerBox"></div>
-                    </td>
-                </tr>
+            
+            
+            <b>Layer rechten:</b><br/><br/>
+            <div id="treeContainerLarge">
+                <div class="treeHolderLarge">
+                    <div id="tree"></div>
+                </div>
+            </div>
+            <div style="float: left;width: 200px;">
+                <div class="getMapLabelValue">
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
+                    <c:if test="${not empty projectieList}">
+                        <div class="getMapValue">
+                            <html:select property="selectedProjectie">
+                                <c:forEach items="${projectieList}" var="p">
+                                    <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
+                                </c:forEach>
+                            </html:select>
+                        </div>
+                    </c:if>
+                </div>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.height"/>:</div>
+                <div class="getMapValue"><html:text property="height"/></div>
+
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.width"/>:</div>
+                <div class="getMapValue"><html:text property="width"/></div>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.bbox"/>:</div>
+                <div class="getMapValue"><html:text property="bbox" size="40"/></div>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.format"/>:</div>
                 
-                <tr >
-                    <td colspan="0">
-                        Persoonlijke GetMap URL:<BR>
-                        <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
-                    </td>
-                </tr>
-            </table>
+                <c:if test="${not empty formatList}">
+                    <div class="getMapValue">
+                        <html:select property="selectedFormat">
+                            <c:forEach items="${formatList}" var="f">
+                                <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
+                            </c:forEach>
+                        </html:select>
+                    </div>
+                </c:if>
+            </div>
+            <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
+            <div class="volgordeBox">    
+                <b>Volgorde</b><br>
+                Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
+                <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
+                <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
+                <div id="orderLayerBox" class="orderLayerBox"></div>
+            </div>
+            Persoonlijke GetMap URL:<BR>
+            <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
             
             <div style="clear: both">
                 <html:submit property="getMapUrl">
@@ -129,11 +111,12 @@
                             vink.id=item.id;
                             vink.layerType=item.type;
                             vink.className="layerVink";
+                            vink.onclick=function(){checkboxClick(this);};
                             container.appendChild(vink);
                         }
                         div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
                         div.onclick = function() {
-                            itemClick(item);
+                            itemClick(item);                            
                         };
                         div.appendChild(document.createTextNode(item.name));
                         container.appendChild(div);
@@ -160,23 +143,8 @@
                         "saveExpandedState": true,
                         "saveScrollState": true,
                         "expandAll": true
-                    });
-                    function reloadLayers(){
-                        var layersString="";
-                        var orderLayerBox= document.getElementById("orderLayerBox");
-                        var orderLayers=orderLayerBox.childNodes;
-                        for (var i=0; i < orderLayers.length; i++){
-                            if(layersString.length==0){
-                                layersString+=orderLayers[i].name;
-                            }else{
-                                layersString+=","+orderLayers[i].name;
-                            }
-                        }                
-                        //haal de extent op van de mainmap en plaats die in de request
-                        var e=flamingo.call("mainMap", "getCurrentExtent");
-                        window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
-                    } 
-
+                    });  
+                        
                     function setAllTrue(element){
                         setAll(element,true);
                         element.onclick= function(){setAllFalse(this);};
@@ -224,18 +192,7 @@
 
                         }
                     </c:if>
-                    function mainMap_onUpdateProgress(){
-                        setMapInfo();
-                    }
-                    function setMapInfo(){
-                        var e=flamingo.call("mainMap", "getCurrentExtent");
-                        var s=flamingo.call("mainMap", "getCurrentScale");
-
-                        var x=Math.round((e.minx+e.maxx)/2);
-                        var y=Math.round((e.miny+e.maxy)/2);
-                        document.getElementById("currentScale").innerHTML="Schaal= "+s;
-                        document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
-                    }
+                   
 
                 </c:if>
             </script>

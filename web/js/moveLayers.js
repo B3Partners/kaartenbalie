@@ -1,6 +1,5 @@
 var selectedLayer;
 function checkboxClick(checkbox){
-    //alert("klik");
     var orderLayerBox= document.getElementById("orderLayerBox");
     if (checkbox.checked){
         var div = document.createElement("div");

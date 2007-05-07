@@ -497,3 +497,14 @@ margin: 0;
     background-position: bottom left;
     background-repeat: no-repeat;
 }
+.getMapLabel{
+    padding: 5px;
+    font-weight: bold;
+    color: #1C6CA7;
+}
+.getMapValue{
+    padding-left: 5px;
+}
+.volgordeBox{
+    clear: both;
+}
