@@ -131,6 +131,27 @@
         </init-param>
     </servlet>
     
+    <servlet>
+        <servlet-name>SelectCSS</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.SelectCSS</servlet-class>
+        <init-param>
+            <param-name>server_default</param-name>
+            <param-value>www.kaartenbalie.nl</param-value>
+        </init-param>
+        <init-param>
+            <param-name>csspath_default</param-name>
+            <param-value>styles/b3p.css</param-value>
+        </init-param>
+        <init-param>
+            <param-name>server1</param-name>
+            <param-value>mnp.kaartenbalie.nl</param-value>
+        </init-param>
+        <init-param>
+            <param-name>csspath1</param-name>
+            <param-value>styles/mnp.css</param-value>
+        </init-param>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>DemoMenu</servlet-name>
         <url-pattern>/demo/main/mIndex.jsp</url-pattern>
@@ -158,13 +179,10 @@
     <!-- End of the demo initialization -->
     
     <!-- BEGIN Select CSS Servlet -->
-    <servlet>
-        <servlet-name>SelectCSS</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.servlet.SelectCSS</servlet-class>
-    </servlet>
+    
     <servlet-mapping>
         <servlet-name>SelectCSS</servlet-name>
-        <url-pattern>/selectcss</url-pattern>
+        <url-pattern>/styles/selectcss</url-pattern>
     </servlet-mapping>
     <!-- EINDE Select CSS Servlet -->
     

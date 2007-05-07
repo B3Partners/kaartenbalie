@@ -1,81 +1,94 @@
-package nl.b3p.kaartenbalie.service.servlet;
-import java.io.*;
-import java.net.URL;
+/**
+ * @(#)CreatePersonalURLAction.java
+ * @author G. Plaisier
+ * @version 1.00 2007/05/07
+ *
+ * Purpose: A Servlet for changing the StyleSheet of the website depending on the URL request.
+ *
+ * @copyright 2007 All rights reserved. B3Partners
+ */
 
+package nl.b3p.kaartenbalie.service.servlet;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.servlet.http.*;
 import javax.servlet.*;
 
 public class SelectCSS extends HttpServlet {
     public static final long serialVersionUID = 24362462L;
-
-    private String STYLESFOLDER = "styles/";
-    private String DEFAULT = "mnp";
-    private String DOMAIN = "http://localhost:8084/kaartenbalie_mnp/";
     
-    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException {
-        String s = "";
-        
-        if(req.getParameter("subdomain") == null) {
-            s = getStylesheetName(req.getRequestURL());
-        } else {
-            if(req.getParameter("subdomain").equals("")) {
-                s = getStylesheetName(req.getRequestURL());
-            } else {
-                s = req.getParameter("subdomain");
-            }
-        }
-        
-        
-        String cssUrl = DOMAIN + STYLESFOLDER + s + ".css";
-        try {
-            URL cssur = new URL(cssUrl);
-            StringBuffer result = new StringBuffer();
-            BufferedReader reader = null;
-            try {
-                reader = new BufferedReader( new InputStreamReader(cssur.openStream()));
-            } catch (FileNotFoundException e) {
-                cssUrl = DOMAIN + STYLESFOLDER + DEFAULT + ".css";
-                cssur = new URL(cssUrl);
-                reader = new BufferedReader( new InputStreamReader(cssur.openStream()));
-            }
-            String line = null;
-            while ( (line = reader.readLine()) != null) {
-                if(line.indexOf("url") != -1) {
-                    line = line.replace("../", DOMAIN);
-                }
-                result.append(line);
-            }
-            String content = result.toString();
-            
-            res.setContentType("text/css");
-            PrintWriter out = res.getWriter();
-            res.setContentLength(content.length());
-            out.write(content);
-            out.close();
-            
-            if (reader != null) reader.close();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private String server_default;
+    private String csspath_default;
+    private String server1;
+    private String csspath1;    
     
-    private String getStylesheetName(StringBuffer url) {
-        String s = "";
-        int index1 = url.indexOf("//");
-        s = url.substring(index1 + 2, url.length());
-
-        int index2 = s.indexOf(":");
-        if(index2 == -1) index2 = s.indexOf("/");
-        s = s.substring(0, index2);
-
-        int index3 = s.indexOf(".");
-        if(index3 == -1) {
-            // Geen subdomain - Default stylesheet
-            s = DEFAULT;
-        } else {
-            // Select subdomain
-            s = s.substring(0, index3);
-        }
-        return s;
+    /** Initializes the servlet.
+     *
+     * @param config ServletConfig configuration file in which is described how to configure the servlet.
+     *
+     * @throws ServletException
+     */
+    // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        server_default = config.getInitParameter("server_default");
+        csspath_default = config.getInitParameter("csspath_default");
+        server1 = config.getInitParameter("server1");
+        csspath1 = config.getInitParameter("csspath1");        
     }
+    // </editor-fold>
+    
+    /** Handles the HTTP <code>GET</code> method.
+     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     *
+     * @throws ServletException
+     * @throws MalformedURLException
+     * @throws IOException
+     */
+    // <editor-fold defaultstate="" desc="doGet(HttpServletRequest request, HttpServletResponse response) method.">
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, MalformedURLException, IOException {
+        String requestServerName    = request.getServerName();
+        String contextPath          = request.getContextPath();
+        int port                    = request.getServerPort();
+        
+        String url      = "";
+        String cssUrl   = "";
+        
+        //Create an url where we can find the specific css.
+        if (requestServerName.equalsIgnoreCase(server1)) {
+            url = "http://" + server1;
+            if (port != 80) {
+                url += ":" + port;
+            }
+            url += contextPath + "/";
+            cssUrl = url + csspath1;
+        } else {
+            url = "http://" + server1;
+            if (port != 80) {
+                url += ":" + port;
+            }
+            url += contextPath + "/";
+            cssUrl = url + csspath_default;
+        }
+        
+        //Connect to this URL and read the specified CSS file
+        URL cssur = new URL(cssUrl);
+        response.setContentType("text/css");
+        
+        PrintWriter out         = response.getWriter();
+        BufferedReader reader   = new BufferedReader( new InputStreamReader(cssur.openStream()));
+        String line             = null;
+        
+        while ( (line = reader.readLine()) != null) {
+            out.write(line);
+        }
+        
+        out.close();
+        reader.close();
+    }
+    // </editor-fold>
 }
