@@ -247,7 +247,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
-        if (user==null) {
+        if (user == null) {
             // niet ingelogd dus, dan checken op token in url
             Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();
@@ -268,7 +268,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 java.util.Date date = (java.util.Date)user.getTimeout();
                 
                 if (date.compareTo(new java.util.Date()) <= 0) {
-                    return null;
+                    throw new AccessDeniedException("Personal URL key has expired!");
                 }
                 
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
@@ -287,8 +287,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String urlToken = pathInfo.substring(1);
                 
                 if (!urlToken.equals(token)) {
-                    // ongeldig token!
-                    return null;
+                    throw new AccessDeniedException("Personal URL not found!");
                 }
             } else {
                 throw new AccessDeniedException("Authorisation required for this service!");

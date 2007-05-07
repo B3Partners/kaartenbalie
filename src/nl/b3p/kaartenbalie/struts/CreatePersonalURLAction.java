@@ -208,14 +208,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          * Everything seems to be ok, so it's alright to save the information
          * First we need to create a personal URL based on the information from the user
          */
-        StringBuffer sb = request.getRequestURL();
-        sb.delete(sb.indexOf("viewer/createPersonalURL.do"), sb.capacity());
-        sb.append(WMS_SERVICE_WMS.toLowerCase() + "/");
+        String requestServerName    = request.getServerName();
+        String contextPath          = request.getContextPath();
+        int port                    = request.getServerPort();
+        
         String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
-        personalURL = sb.toString() + hash.toString( 16 );
+        personalURL = "http://" + requestServerName + ":" + port + 
+                contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString();
         
         /*
          * Set the new information in the userobject

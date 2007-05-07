@@ -140,7 +140,7 @@ public class StyleDomainResource implements XMLElement {
                 //then add the newly given url in front of the cutted part
                 temporaryURL = newUrl + temporaryURL;
                 //save this new URL as the one to be used
-                temporaryURL = temporaryURL.replace("&", "&amp;");
+                //temporaryURL = temporaryURL.replace("&", "&amp;");
                 this.setUrl(temporaryURL);
             }
         }
