@@ -1,5 +1,8 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<c:set var="focus" value="newpassword" scope="request"/> 
+<tiles:insert definition="common.setFocus"/>
+
 <c:set var="form" value="${changeProfileForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>

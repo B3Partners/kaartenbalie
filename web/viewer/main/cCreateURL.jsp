@@ -1,5 +1,8 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<c:set var="focus" value="timeout" scope="request"/> 
+<tiles:insert definition="common.setFocus"/>
+
 <c:set var="form" value="${createPersonalURLForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>

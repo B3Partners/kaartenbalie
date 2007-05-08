@@ -1,5 +1,8 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<c:set var="focus" value="height" scope="request"/> 
+<tiles:insert definition="common.setFocus"/>
+
 <c:set var="form" value="${wmsUrlCreatorForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>

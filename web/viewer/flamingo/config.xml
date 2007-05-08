@@ -24,7 +24,7 @@
     <fmc:Map id="mainMap" left="0" top="0" height="100%" width="100%" bottom="bottom" visible="true" extent="12000,304000,280000,620000">
         <fmc:LayerIdentifyIcon  id="identifyicon"  />
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
-        <fmc:LayerOGWMS id="map" url="../servlet/CallWMSServlet/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS="" QUERY_LAYERS="" srs="EPSG:28992"/>
+        <fmc:LayerOGWMS id="map" url="../wms/?SERVICE=WMS&amp;VERSION=1.1.1&amp;STYLES=&amp;SRS=EPSG:28992&amp;EXCEPTIONS=INIMAGE&amp;WRAPDATELINE=true&amp;BGCOLOR=0xF0F0F0" LAYERS="" QUERY_LAYERS="" srs="EPSG:28992"/>
     </fmc:Map>
     <fmc:Window  title="info" visible="false" canresize="true" defocusalpha="10" width="50%" height="50%" left="50%" top="0">
         <string id="title" nl="informatie"  en="information"/>

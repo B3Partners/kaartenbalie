@@ -1,5 +1,8 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<c:set var="focus" value="name" scope="request"/> 
+<tiles:insert definition="common.setFocus"/>
+
 <c:set var="form" value="${organizationForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
@@ -10,7 +13,7 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <html:javascript formName="organizationForm" staticJavascript="false"/>
-<html:form action="/organization" onsubmit="return validateOrganizationForm(this)" focus="name">
+<html:form action="/organization" onsubmit="return validateOrganizationForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />

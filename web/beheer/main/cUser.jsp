@@ -1,5 +1,8 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<c:set var="focus" value="firstname" scope="request"/> 
+<tiles:insert definition="common.setFocus"/>
+
 <c:set var="form" value="${userForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
@@ -8,7 +11,7 @@
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <html:javascript formName="userForm" staticJavascript="false"/>
-<html:form action="/user" onsubmit="return validateUserForm(this)" focus="firstname">
+<html:form action="/user" onsubmit="return validateUserForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
