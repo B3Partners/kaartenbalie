@@ -26,7 +26,13 @@
             <div style="width: 160px;">Gebruikersnaam</div>
             <div style="width: 160px;">E-mailadres</div>
         </div>
-        <DIV class="tableContainer" id="tableContainer">          
+        
+        <c:set var="hoogte" value="${(fn:length(userlist) * 21)}" />
+        <c:if test="${hoogte > 230}">
+            <c:set var="hoogte" value="230" />
+        </c:if>
+        
+        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
             <c:forEach var="nUser" varStatus="status" items="${userlist}">
                 <div class="serverRij">    
                     <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>">
@@ -45,7 +51,7 @@
                     </div>
                 </div>    
             </c:forEach>
-        </DIV>
+        </div>
     </div>
     
     <c:if test="${action != 'list'}">

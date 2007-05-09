@@ -105,8 +105,8 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 </div>
 
 <div>
-    <b>Volgorde</b><br>
-    Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
+    <br /><b>Volgorde</b><br>
+    Bepaal hieronder de volgorde van de kaarten.<br />Selecteer een kaart en verplaats het met de knoppen.
     <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
     <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
     <div id="orderLayerBox" class="orderLayerBox"></div>
@@ -256,4 +256,4 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         }       
     </c:if>
 </script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>

@@ -47,44 +47,44 @@
                 <td><c:out value="${user.role}"/></td>
             </tr>
         </table>
+    </div>   
+    <div id="groupDetails" style="clear: left; padding-top: 15px;">
+        <c:if test="${action != 'list'}">
+            <table>
+                <tr>
+                    <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
+                    <td><html:password property="newpassword" /></td>
+                </tr>
+                <tr>
+                    <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
+                    <td><html:password property="newpasswordretyped" /></td>
+                </tr>
+                <tr>
+                    <td><fmt:message key="viewer.profile.email"/>:</td>
+                    <td><html:text property="emailaddress" /></td>
+                </tr>
+            </table>
+        </c:if>
         
-        <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-            <c:if test="${action != 'list'}">
-                <table>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
-                        <td><html:password property="newpassword" /></td>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
-                        <td><html:password property="newpasswordretyped" /></td>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.profile.email"/>:</td>
-                        <td><html:text property="emailaddress" /></td>
-                    </tr>
-                </table>
-            </c:if>
-            
-            <c:choose>
-                <c:when test="${action != 'list'}">
-                    <div class="knoppen">
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                            <fmt:message key="button.cancel"/>
-                        </html:cancel>
-                        <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                            <fmt:message key="button.update"/>
-                        </html:submit>
-                    </div>
-                </c:when>
-                <c:otherwise>
-                    <div class="knoppen">
-                        <html:submit property="edit" accesskey="n" styleClass="knop">
-                            <fmt:message key="button.edit"/>
-                        </html:submit>
-                    </div>
-                </c:otherwise>
-            </c:choose>
-        </div>
+        <c:choose>
+            <c:when test="${action != 'list'}">
+                <div class="knoppen">
+                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.cancel"/>
+                    </html:cancel>
+                    <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
+                        <fmt:message key="button.update"/>
+                    </html:submit>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="knoppen">
+                    <html:submit property="edit" accesskey="n" styleClass="knop">
+                        <fmt:message key="button.edit"/>
+                    </html:submit>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
+    
 </html:form>

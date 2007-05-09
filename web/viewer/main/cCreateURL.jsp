@@ -19,6 +19,7 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"/>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
 --%>
+<div id="calDiv" style="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
 <script type="text/javascript">
@@ -89,60 +90,60 @@
                 </c:otherwise>
             </c:choose>
         </table>
-        
-        <c:if test="${action != 'list'}">
-            <div id="calDiv" style="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
-            <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
-                <table>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
-                        <td>
-                            
-                            <html:text property="timeout" styleId="cal_date"/> &nbsp;
-                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                                 style="cursor: pointer; border: 1px solid red;" 
-                                 title="Date selector"
-                                 alt="Date selector"
-                                 onmouseover="this.style.background='red';" 
-                                 onmouseout="this.style.background=''"
-                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
-                                 name="cal-button"
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                        <td><html:text property="registeredIP"/>
-                        <html:submit property="getIpAddress" styleClass="knop">
-                            <fmt:message key="button.getipaddress"/>
-                        </html:submit>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
-                        <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
-                    </tr>
-                </table>
-            </div>
-        </c:if>
-        
-        <c:choose>
-            <c:when test="${action != 'list'}">
-                <div class="knoppen">
-                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.cancel"/>
-                    </html:cancel>
-                    <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
-                </div>
-            </c:when>
-            <c:otherwise>
-                <div class="knoppen">
-                    <html:submit property="edit" accesskey="n" styleClass="knop">
-                        <fmt:message key="button.edit"/>
-                    </html:submit>
-                </div>
-            </c:otherwise>
-        </c:choose>
     </div>
+    
+    <c:if test="${action != 'list'}">
+        <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
+            <table>
+                <tr>
+                    <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
+                    <td>
+                        
+                        <html:text property="timeout" styleId="cal_date"/> &nbsp;
+                        <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                             style="cursor: pointer; border: 1px solid red;" 
+                             title="Date selector"
+                             alt="Date selector"
+                             onmouseover="this.style.background='red';" 
+                             onmouseout="this.style.background=''"
+                             onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                             name="cal-button"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
+                    <td><html:text property="registeredIP"/>
+                    <html:submit property="getIpAddress" styleClass="knop">
+                        <fmt:message key="button.getipaddress"/>
+                    </html:submit>
+                </tr>
+                <tr>
+                    <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
+                    <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
+                </tr>
+            </table>
+        </div>
+    </c:if>
+    
+    <c:choose>
+        <c:when test="${action != 'list'}">
+            <div class="knoppen">
+                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                    <fmt:message key="button.cancel"/>
+                </html:cancel>
+                <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
+                    <fmt:message key="button.update"/>
+                </html:submit>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <div class="knoppen">
+                <html:submit property="edit" accesskey="n" styleClass="knop">
+                    <fmt:message key="button.edit"/>
+                </html:submit>
+            </div>
+        </c:otherwise>
+    </c:choose>
+    
 </html:form>

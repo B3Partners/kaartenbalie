@@ -47,7 +47,7 @@ global tag styles
 body {
     margin: 0;
     padding: 0;
-    
+    /* overflow: scroll; */
     font-size: 14px;
     color: #000;
     background-color: #ddd;
@@ -142,7 +142,7 @@ H5 {
     padding-right: 2em;
     margin: 0px 0px 0px 175px;
     background-color: #FFFFFF;
-    min-height: 175px;
+    min-height: 220px;
 }
 
 #content h2 { 
@@ -326,6 +326,8 @@ margin: 0;
 .containerdiv {
     border: 1px solid #F4F5F9;
     padding: 3px;
+    margin-bottom: 5px;
+    width: 792px;
 }
 
 #tableContainer {
@@ -459,11 +461,12 @@ margin: 0;
     border: 1px solid #F4F5F9;
     margin-top: 10px;
     margin-bottom: 10px;
+    background-color: rgb(233,241,247);
 }
 .orderLayerClass{
     clear: both;
     cursor: pointer;
-    background-color: #ffffff;
+    background-color: rgb(233,241,247);
 }
 .orderLayerClassSelected{
     clear: both;

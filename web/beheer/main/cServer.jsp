@@ -18,7 +18,7 @@
         
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Servers</H1>
-        
+
         <b>Server tabel:</b>
         <div class="serverRijTitel">
             <div style="width: 100px;">Naam</div>
@@ -26,7 +26,12 @@
             <div style="width: 150px;">Datum laatste update</div>
         </div>
         
-        <div class="tableContainer" id="tableContainer"> 
+        <c:set var="hoogte" value="${(fn:length(serviceproviderlist) * 21)}" />
+        <c:if test="${hoogte > 230}">
+            <c:set var="hoogte" value="230" />
+        </c:if>
+        
+        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px"> 
             <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                 <div class="serverRij">
                     <div style="width: 100px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.givenName}"/>">

@@ -24,73 +24,71 @@
     
     <c:choose>
         <c:when test="${not empty persUrl}">
-            <div class="containerdiv" style="float: left; clear: none;">
-            <H1>Persoonlijke GetMap URL</H1>
-            <P>
+            <div class="containerdiv" style="float: left; clear: none; margin-bottom: 15px;">
+                <H1>Persoonlijke GetMap URL</H1>
                 Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
                 Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
                 gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
                 u deze URL wijzigt.
-            </P>
-            
-            
-            
-            <b>Layer rechten:</b><br/><br/>
-            <div id="treeContainerLarge">
-                <div class="treeHolderLarge">
-                    <div id="tree"></div>
+            </div>    
+                
+                <!-- <b>Layer rechten:</b><br/> --><br />
+                <div id="treeContainerLarge" style="height: 240px;">
+                    <div class="treeHolderLarge" style="height: 240px;">
+                        <div id="tree"></div>
+                    </div>
                 </div>
-            </div>
-            <div style="float: left;width: 200px;">
-                <div class="getMapLabelValue">
-                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
-                    <c:if test="${not empty projectieList}">
+                <div style="float: left;width: 200px; height: 240px;">
+                    <div class="getMapLabelValue">
+                        <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
+                        <c:if test="${not empty projectieList}">
+                            <div class="getMapValue">
+                                <html:select property="selectedProjectie">
+                                    <c:forEach items="${projectieList}" var="p">
+                                        <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
+                                    </c:forEach>
+                                </html:select>
+                            </div>
+                        </c:if>
+                    </div>
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.height"/>:</div>
+                    <div class="getMapValue"><html:text property="height"/></div>
+                    
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.width"/>:</div>
+                    <div class="getMapValue"><html:text property="width"/></div>
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.bbox"/>:</div>
+                    <div class="getMapValue"><html:text property="bbox" size="40"/></div>
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.format"/>:</div>
+                    
+                    <c:if test="${not empty formatList}">
                         <div class="getMapValue">
-                            <html:select property="selectedProjectie">
-                                <c:forEach items="${projectieList}" var="p">
-                                    <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
+                            <html:select property="selectedFormat">
+                                <c:forEach items="${formatList}" var="f">
+                                    <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
                                 </c:forEach>
                             </html:select>
                         </div>
                     </c:if>
                 </div>
-                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.height"/>:</div>
-                <div class="getMapValue"><html:text property="height"/></div>
-
-                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.width"/>:</div>
-                <div class="getMapValue"><html:text property="width"/></div>
-                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.bbox"/>:</div>
-                <div class="getMapValue"><html:text property="bbox" size="40"/></div>
-                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.format"/>:</div>
+                <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
+                <div class="volgordeBox">    
+                    <br /><b>Volgorde</b><br>
+                    Bepaal hieronder de volgorde van de kaarten.
+                    <br />Selecteer een kaart en verplaats het met de knoppen.
+                    <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
+                    <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
+                    <div id="orderLayerBox" class="orderLayerBox"></div>
+                </div>
+                Persoonlijke GetMap URL:<BR>
+                <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
                 
-                <c:if test="${not empty formatList}">
-                    <div class="getMapValue">
-                        <html:select property="selectedFormat">
-                            <c:forEach items="${formatList}" var="f">
-                                <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
-                            </c:forEach>
-                        </html:select>
-                    </div>
-                </c:if>
-            </div>
-            <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
-            <div class="volgordeBox">    
-                <b>Volgorde</b><br>
-                Bepaal hieronder de volgorde van de kaarten. Selecteer een kaart en verplaats het met de knoppen.
-                <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
-                <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
-                <div id="orderLayerBox" class="orderLayerBox"></div>
-            </div>
-            Persoonlijke GetMap URL:<BR>
-            <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
-            
-            <div style="clear: both">
+                <div style="clear: both height: 0px;"></div>
                 <html:submit property="getMapUrl">
                     <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
                 </html:submit>
-            </div>
-            
-            <script type="text/javascript">
+                
+                
+                <script type="text/javascript">
                 <c:if test = "${not empty layerList}">
 
                     var root = ${layerList};
@@ -198,7 +196,8 @@
                    
 
                 </c:if>
-            </script>
+                </script>
+            
         </c:when>
         <c:otherwise>
             <div class="containerdiv" style="float: left; clear: none;">

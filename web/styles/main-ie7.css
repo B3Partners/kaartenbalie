@@ -1,11 +1,8 @@
-#content {
-    height: 220px;
-}
-
 #tableContainer {
     width: 760px;
 }
 
 .containerdiv {
+    margin-bottom: 5px;
     width: 760px;
 }

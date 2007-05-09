@@ -11,6 +11,9 @@
         <!--[if IE 6]>
             <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
+        <!--[if IE 7]>
+            <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
+        <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>">
         </script>
     </head>

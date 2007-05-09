@@ -23,10 +23,10 @@
         <!-- END content -->
     </div>
     <div id="footer">
-        <DIV id=footertext>
+        <div id=footertext>
             <!-- BEGIN footer-->
             <tiles:get name='footer'/>
             <!-- END footer-->
-        </DIV>
+        </div>
     </div>
 </div>

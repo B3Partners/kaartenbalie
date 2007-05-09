@@ -28,7 +28,13 @@
             <div style="width: 125px;">Plaats</div>
             <div style="width: 100px;">Telefoon</div>
         </div>
-        <div class="tableContainer" id="tableContainer">          
+        
+        <c:set var="hoogte" value="${(fn:length(organizationlist) * 21)}" />
+        <c:if test="${hoogte > 230}">
+            <c:set var="hoogte" value="230" />
+        </c:if>
+        
+        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
             <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                 <div class="serverRij">
                     <div style="width: 200px;" class="vakSpeciaal" title="<c:out value="${nOrganization.name}"/>">
@@ -108,7 +114,7 @@
                         </table>
                     </td>
                     <td valign="top" rowspan="0">
-                        <b>Layer rechten:</B><br/><br/>
+                        <b>Layer rechten:</b><br/><br/>
                         <div id="treeContainerLarge">
                             <div class="treeHolderLarge">
                                 <div id="tree"></div>
