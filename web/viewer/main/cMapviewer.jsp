@@ -244,6 +244,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         
         function mainMap_onUpdateProgress(){
             setMapInfo();
+            
         }
         function setMapInfo(){
             var e=flamingo.call("mainMap", "getCurrentExtent");
@@ -256,4 +257,4 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         }       
     </c:if>
 </script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
