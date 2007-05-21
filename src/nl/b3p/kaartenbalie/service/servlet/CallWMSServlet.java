@@ -248,12 +248,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         if (user == null) {
-            // niet ingelogd dus, dan checken op token in url
+            // niet ingelogd dus, dan checken op token in url            
             Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();
-            String url = request.getRequestURL().toString();
-            String remote = request.getRemoteAddr();
-            
             try {
                 user = (User)sess.createQuery(
                         "from User u where " +
@@ -272,19 +269,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 }
                 
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-                // Parse with a custom format
-                String personalDate = df.format(date);
-                
-                // bereken token voor deze user
                 String token = calcToken(
                         request.getRemoteAddr(),
                         user.getUsername(),
                         user.getPassword(),
-                        personalDate);
+                        df.format(date));
                 
-                // bereken token in url
-                String pathInfo = request.getPathInfo();
-                String urlToken = pathInfo.substring(1);
+                // vraag het token uit ingegeven url op
+                String urlToken = request.getPathInfo().substring(1);
                 
                 if (!urlToken.equals(token)) {
                     throw new AccessDeniedException("Personal URL not found!");
