@@ -127,106 +127,219 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         /*
          * First we a set with layers which are visible to the user doing the request
          */
-        //try {
-            User dbUser = (User)sess.createQuery("from User u where " +
-                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
-            
-            dbLayers = dbUser.getOrganization().getOrganizationLayer();
-            if (dbLayers == null)
-                return null;
-                        
-            /*
-             * Now we have a set of layers with which we can perform our action.
-             * There can be two types of actions; there can be a combination of all
-             * serviceproviders or return each serviceprovider seperatly in a list.
-             *
-             * Before we can perform the action we need to take some action in order
-             * to be able to perform the action.
-             */
+        User dbUser = (User)sess.createQuery("from User u where " +
+                "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
 
-            /*
-             * Getting the serviceproviders from the database layers.
-             * By walking through all layers, checking if the layer has a parent we can
-             * select only those layers which hang directly under a serviceprovider
-             */ 
-            Set serviceproviders = new HashSet();
-            Iterator it = dbLayers.iterator();
-            while (it.hasNext()) {
-                Layer dbLayer = (Layer)it.next();
-                if(null == dbLayer.getParent()) {
-                    serviceproviders.add( (ServiceProvider)(dbLayer.getServiceProvider()) );
-                    clonedLayers.add((Layer)dbLayer.clone());
-                    
-                    ServiceProvider clonedServiceprovider = (ServiceProvider)(((ServiceProvider)(dbLayer.getServiceProvider())).clone());
-                    clonedServiceprovider.setLayers(null);
-                    
-                    clonedServiceprovider.addLayer((Layer)dbLayer.clone());
-                    clonedsps.add(clonedServiceprovider);
-                }
+        dbLayers = dbUser.getOrganization().getOrganizationLayer();
+        if (dbLayers == null)
+            return null;
+
+        /*
+         * Now we have a set of layers with which we can perform our action.
+         * There can be two types of actions; there can be a combination of all
+         * serviceproviders or return each serviceprovider seperatly in a list.
+         *
+         * Before we can perform the action we need to take some action in order
+         * to be able to perform the action.
+         */
+
+        /*
+         * Getting the serviceproviders from the database layers.
+         * By walking through all layers, checking if the layer has a parent we can
+         * select only those layers which hang directly under a serviceprovider
+         * 
+         * First we need to clone each of the layers we recieved from the database.
+         * Of these clones we need to select only the leaf layers and with those leaf layers
+         * we can build up the tree to the top by calling the getParents method.
+         */
+        Set parents = getParents(getLeafLayers(cloneLayers(dbLayers)));
+
+        Set serviceproviders = new HashSet();
+        Iterator it = parents.iterator();
+        while (it.hasNext()) {
+            Layer parent = (Layer)it.next();
+            ServiceProvider clonedSp = parent.getServiceProvider();
+            clonedSp.setLayers(null);
+            clonedSp.addLayer(parent);
+            serviceproviders.add( clonedSp );
+        }
+
+        if(combine) {
+            /* Now a top layer is available we need a ServiceProviderobject to store
+             * this toplayer in. With the ServiceProvider there are also a couple of
+             * constraints, concerning the DomainResources and their available return
+             * formats. Therefore we have to validate the avaible ServiceProviders to
+             * create a valid one.
+             */
+            ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
+            ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+
+            /* We have still a Set of toplayers.
+             * A ServiceProvider is allowed to have only one toplayer.
+             * Therefore a toplayer has to be created manually.
+             * This toplayer has to have a certain amount of SRS values
+             * which apply to ALL layers which are child of this toplayer.
+             */
+            Layer layer = new Layer();
+            layer.setTitle(TOPLAYERNAME);
+            //layer.setName(TOPLAYERNAME);
+
+            //Standaard LatLonBoundingBox
+            //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
+            //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
+            //elkaar legt en even de minimale en maximale waarden van de verschillende minnen en maxen
+            //er tussen uit pikt en deze vervolgens in een nieuw srs object plaatst en dit object terug
+            //geeft aan de aanroep.
+            //In het srs object moet vervolgens nog een kleine aanpassing gedaan worden mbt de getType
+            //functie om de juiste types te selecteren en in de WMSCapabilityReader moet nog een kleine
+            //aanpassing gedaan worden zodat een LLBB geen SRS meer meekrijgt aangezien een LLBB geen
+            //SRS heeft.
+            LayerValidator lv = new LayerValidator(dbLayers);
+            layer.addSrsbb(lv.validateLatLonBoundingBox());
+            layer.setLayers(parents);
+
+            /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
+             * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
+             * Name, then that layer is only a category title for all the layers nested within. A Map
+             * Server that advertises a Layer containing a Name element shall be able to accept that
+             * Name as the value of LAYERS argument in a GetMap request and return the
+             * corresponding map. A Client shall not attempt to request a layer that has a Title but no
+             * Name.
+             */
+            lv = new LayerValidator(parents);
+            String [] supportedSRS = lv.validateSRS();
+            for (int i=0; i < supportedSRS.length; i++){
+                SrsBoundingBox srsbb= new SrsBoundingBox();
+                srsbb.setSrs(supportedSRS[i]);
+                layer.addSrsbb(srsbb);
             }
-            
-            if(combine) {
-                /* Now a top layer is available we need a ServiceProviderobject to store
-                 * this toplayer in. With the ServiceProvider there are also a couple of
-                 * constraints, concerning the DomainResources and their available return
-                 * formats. Therefore we have to validate the avaible ServiceProviders to
-                 * create a valid one.
-                 */
-                ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
-                ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-                
-                /* We have still a Set of toplayers.
-                 * A ServiceProvider is allowed to have only one toplayer.
-                 * Therefore a toplayer has to be created manually.
-                 * This toplayer has to have a certain amount of SRS values
-                 * which apply to ALL layers which are child of this toplayer.
-                 */
-                Layer layer = new Layer();
-                layer.setTitle(TOPLAYERNAME);
-                //layer.setName(TOPLAYERNAME);
-                
-                //Standaard LatLonBoundingBox
-                //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
-                //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
-                //elkaar legt en even de minimale en maximale waarden van de verschillende minnen en maxen
-                //er tussen uit pikt en deze vervolgens in een nieuw srs object plaatst en dit object terug
-                //geeft aan de aanroep.
-                //In het srs object moet vervolgens nog een kleine aanpassing gedaan worden mbt de getType
-                //functie om de juiste types te selecteren en in de WMSCapabilityReader moet nog een kleine
-                //aanpassing gedaan worden zodat een LLBB geen SRS meer meekrijgt aangezien een LLBB geen
-                //SRS heeft.
-                LayerValidator lv = new LayerValidator(dbLayers);
-                layer.addSrsbb(lv.validateLatLonBoundingBox());
-                layer.setLayers(clonedLayers);
-                
-                /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
-                 * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
-                 * Name, then that layer is only a category title for all the layers nested within. A Map
-                 * Server that advertises a Layer containing a Name element shall be able to accept that
-                 * Name as the value of LAYERS argument in a GetMap request and return the
-                 * corresponding map. A Client shall not attempt to request a layer that has a Title but no
-                 * Name.
-                 */
-                lv = new LayerValidator(clonedLayers);
-                String [] supportedSRS = lv.validateSRS();
-                for (int i=0; i < supportedSRS.length; i++){
-                    SrsBoundingBox srsbb= new SrsBoundingBox();
-                    srsbb.setSrs(supportedSRS[i]);
-                    layer.addSrsbb(srsbb);
-                }
-                
-                validServiceProvider.addLayer(layer);
-                sps.add(validServiceProvider);
-            } else {
-                sps = clonedsps;
-            }
-        //}/* finally {
-            tx.commit();
-        //}*/
+
+            validServiceProvider.addLayer(layer);
+            sps.add(validServiceProvider);
+        } else {
+            sps.addAll(serviceproviders);
+        }
+        tx.commit();
         return sps;
     }
     // </editor-fold>
+    
+    /** Creates a new Set of layers which are an exact clonecopy of the original ones.
+     *
+     * @param originalLayers
+     * 
+     * @return Set with the cloned layers
+     */
+    // <editor-fold defaultstate="" desc="cloneLayers(Set originalLayers) method.">
+    private Set cloneLayers(Set originalLayers) {
+        Set cloneLayers = new HashSet();
+        Iterator orglayerIterator = originalLayers.iterator();
+        while(orglayerIterator.hasNext()) {
+            cloneLayers.add(cloneLayer( (Layer) orglayerIterator.next() ));
+        }
+        return cloneLayers;
+    }
+    // </editor-fold>
+    
+    /** Creates a new layer which is an exact clonecopy of the original one.
+     *
+     * @param original
+     * 
+     * @return Layer exact copy of the original layer
+     */
+    // <editor-fold defaultstate="" desc="cloneLayer(Layer original) method.">
+    private Layer cloneLayer(Layer original) {
+        Layer cloneLayer = (Layer) original.clone();
+        if(original.getParent() != null) {
+            cloneLayer.setParent(cloneLayer(original.getParent()));
+        }
+        cloneLayer.setServiceProvider((ServiceProvider) original.getServiceProvider().clone());
+        return cloneLayer;
+    }
+    // </editor-fold>
+    
+    /** Defines a Set with layers in which only leafs are added. These have no childs.
+     *
+     * @param originalLayers
+     * 
+     * @return Set with only leaf layers
+     */
+    // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
+    private Set getLeafLayers(Set originalLayers) {
+        Set leafLayers = new HashSet();
+        Iterator orglayerIterator = originalLayers.iterator();
+        while(orglayerIterator.hasNext()) {
+            Layer orglayer = (Layer)orglayerIterator.next();
+            if(orglayer.getLayers().isEmpty()) {
+                leafLayers.add(orglayer);
+            }
+        }
+        return leafLayers;
+    }
+    // </editor-fold>
+    
+    /** Builds a new tree from the bottom up with only the leafs as beginning point.
+     *
+     * @param leafLayers
+     * 
+     * @return Set with the top layers which hold all children.
+     */
+    // <editor-fold defaultstate="" desc="getParents(Set leafLayers) method.">
+    private Set getParents(Set leafLayers) {
+        boolean found = false;
+        Set parents = new HashSet();
         
+        Iterator leaflayerIterator = leafLayers.iterator();
+        while(leaflayerIterator.hasNext()) {
+            Layer leafLayer = (Layer)leaflayerIterator.next();
+            Layer parent = leafLayer.getParent();
+            if(parent != null) {
+                //This leafLayer has a parent, this means we need to take this parentlayer and put it
+                //in the list of parent layers and make this leafLayer his child again.
+                Iterator parentsIterator = parents.iterator();
+                while (parentsIterator.hasNext()) {
+                    Layer parentInSet = (Layer) parentsIterator.next();
+                    if (parentInSet.getId().equals(parent.getId())) {
+                        parentInSet.addLayer(leafLayer);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                //Before we are going to add this layer in the Set of parent layers we need to check if
+                //this layer is not already added by a previous child layer. If so the there is no need to
+                //add it again and it was only necessary to add the leaf layer to this parent.
+                if(!found) {
+                    parent.setLayers(null);
+                    parent.addLayer(leafLayer);
+                    parents.add(parent);
+                }
+            } else {
+                //Since this method checks in the end if we have only toplayers, we must make sure that
+                //toplayers are saved each time we get into this loop for a new check.
+                parents.add(leafLayer);
+            }
+            
+            //reset the boolean
+            found = false;
+        }
+        
+        //Here we check if the created list contains only top layers.
+        //If not then we need to go on recursivly untill we have only
+        //toplayers in the list.
+        Iterator parentsIterator = parents.iterator();
+        while(parentsIterator.hasNext()) {
+            Layer parent = (Layer)parentsIterator.next();
+            if(parent.getParent() != null) {
+                return getParents(parents);
+            }
+        }
+        
+        //Once we have a list of only top layers we can return this list.
+        return parents;
+    }
+    // </editor-fold>
+    
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the 
      * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the 
      * DataWrapper, which will sent the data to the client requested for this information.
