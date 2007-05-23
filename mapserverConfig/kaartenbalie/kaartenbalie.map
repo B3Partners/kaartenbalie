@@ -1,0 +1,218 @@
+NAME KaartenbalieMaps
+STATUS ON
+EXTENT 15000 322000 30000 640000
+TRANSPARENT TRUE
+FONTSET "../fonts/fonts.list"
+WEB
+  METADATA
+    "wms_title"				"Kaartenbalie"
+    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie.map&"
+    "wms_srs"				"EPSG:28992"    
+    "ows_schemas_location"		"http://schemas.opengeospatial.net"
+  END
+  IMAGEPATH "temp_images"
+END
+
+PROJECTION
+  "init=epsg:28992"
+END
+CONFIG CPL_DEBUG "ON"
+
+SYMBOL
+	NAME 'circle'
+	TYPE ELLIPSE
+	FILLED TRUE
+	POINTS 1 1 
+	END
+END
+
+SCALEBAR
+	STATUS ON
+	UNITS KILOMETERS
+	INTERVALS 4
+	TRANSPARENT TRUE
+	OUTLINECOLOR 0 0 0
+END
+
+LEGEND
+	STATUS ON
+	POSITION LR
+	TRANSPARENT TRUE
+END
+
+LAYER
+	NAME bebouwdekom_nl
+	METADATA
+	    "wms_title"	   "bebouwdekom_nl"	    
+  	END
+  	SIZEUNITS meters
+	CONNECTIONTYPE postgis
+	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	DATA "the_geom from bebouwdekom"
+	STATUS ON
+	TYPE POLYGON
+	DUMP TRUE
+	TEMPLATE bla
+	TRANSPARENCY 30
+	CLASS
+		NAME "Bebouwdekom"
+		OUTLINECOLOR 100 100 100		
+		COLOR 255 0 0		
+	END
+END
+
+
+LAYER
+  NAME basis_nl
+  METADATA
+    "wms_title" "basis_nl"
+  END
+  SIZEUNITS meters
+  TYPE POLYGON
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from gd_basis_nl"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  TRANSPARENCY 70
+  FILTER "land='Nederland' or length(water)>1"
+  CLASS
+        EXPRESSION (length('[water]') > 1) 
+        NAME "Water"
+        COLOR 112 184 255
+        OUTLINECOLOR 112 184 255
+  END
+  CLASS
+    EXPRESSION (length('[land]') > 1)
+    NAME "Landgrens"
+    OUTLINECOLOR 173 90 0
+  END
+  
+END
+
+LAYER
+  NAME autowegen_nl
+  METADATA
+    "wms_title" "autowegen_nl"
+  END
+  TYPE LINE
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from gd_autowegen_nl"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  TRANSPARENCY 50
+  LABELITEM "an_wegnr"
+  CLASS
+    NAME "Autoweg"
+    COLOR 255 100 0
+    SYMBOL "circle"
+    SIZE 2
+    LABEL
+      ANTIALIAS true
+      FONT arial-bold
+      TYPE TRUETYPE
+      SIZE 8
+      MINFEATURESIZE 40
+      COLOR 255 255 255
+      BACKGROUNDCOLOR 255 0 0
+      BACKGROUNDSHADOWCOLOR  0 0 0
+      # Dezelfde autoweg minimaal 150 pixels van elkaar meerdere keren labelen
+      MINDISTANCE 150
+      BUFFER 1
+    END
+  END
+END
+
+LAYER
+	NAME rivieren_nl
+	METADATA
+	    "wms_title"	   "rivieren_nl"	    
+  	END
+  	CONNECTIONTYPE postgis
+	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	DATA "the_geom from gd_rivieren_nl"
+	STATUS ON
+	TYPE LINE
+	DUMP TRUE
+	TEMPLATE bla
+	TRANSPARENCY 50
+	LABELITEM "naam"
+	CLASS
+		NAME "Rivieren"
+		COLOR 112 184 255
+		SYMBOL "circle"
+		SIZE 2
+		LABEL
+		      ANTIALIAS true
+		      FONT arial-italic
+		      TYPE TRUETYPE
+		      SIZE 9
+		      MINFEATURESIZE 60
+		      COLOR 0 0 0
+		      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
+		      MINDISTANCE 150
+		      # alleen voor type lijn objecten. De label staat in de richting van de lijn geschreven
+		      ANGLE AUTO
+    		END
+	END
+END
+LAYER
+  NAME plaatsnamen_nl
+  GROUP locaties
+  METADATA
+    "wms_title" "plaatsnamen_nl"
+  END
+  TYPE POINT
+  STATUS OFF
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from gemeentenamen"
+  PROJECTION
+    "init=epsg:4326"
+  END
+  TRANSPARENCY 100
+  LABELITEM "plaats"
+  CLASSITEM "soort"
+  CLASS  	      
+      EXPRESSION "B"
+      NAME "Gemeentenaam"
+      COLOR 0 0 0
+      MAXSCALE 500000
+      LABEL
+	ANTIALIAS true
+	FONT arial-bold
+	TYPE TRUETYPE
+	SIZE 9
+	COLOR 0 0 0	  
+      END     
+  END
+  CLASS
+      EXPRESSION "P"
+      NAME "Plaatsnaam"
+      COLOR 0 0 0
+      MAXSCALE 200000
+      LABEL
+        ANTIALIAS true
+        FONT arial-bold
+        TYPE TRUETYPE
+        SIZE 8
+        COLOR 255 0 0
+      END
+  END
+  
+
+END
+  
+
+END
+
+
+
+
+# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,plaatsnamen_nl&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
