@@ -52,6 +52,7 @@ END
 # kaart voor bebouwde kom
 LAYER
 	NAME bebouwdekom_nl
+	GROUP basis
 	METADATA
 	    "wms_title"	   "bebouwdekom_nl"	    
   	END
@@ -74,8 +75,10 @@ END
 # kaart voor nederlandse basis
 LAYER
   NAME basis_nl
+  GROUP basis
   METADATA
     "wms_title" "basis_nl"
+    "group_title" "basis"
   END
   SIZEUNITS meters
   TYPE POLYGON
@@ -91,13 +94,19 @@ LAYER
   CLASS
         EXPRESSION (length('[water]') > 1) 
         NAME "Water"
-        COLOR 112 184 255
-        OUTLINECOLOR 112 184 255
+        STYLE
+		COLOR 112 184 255
+		OUTLINECOLOR 112 184 255
+		ANTIALIAS true
+	END
   END
   CLASS
     EXPRESSION (length('[land]') > 1)
     NAME "Landgrens"
-    OUTLINECOLOR 173 90 0
+    STYLE
+    	OUTLINECOLOR 173 90 0
+    	ANTIALIAS true
+    END
   END
   
 END
@@ -105,8 +114,10 @@ END
 #kaart met de autowegen
 LAYER
   NAME autowegen_nl
+  GROUP wegen
   METADATA
     "wms_title" "autowegen_nl"
+    "group_title" "wegen"
   END
   TYPE LINE
   STATUS ON
@@ -116,13 +127,18 @@ LAYER
   PROJECTION
     "init=epsg:28992"
   END
+  DUMP TRUE
+  TEMPLATE bla
   TRANSPARENCY 50
   LABELITEM "an_wegnr"
   CLASS
     NAME "Autoweg"
-    COLOR 255 100 0
-    SYMBOL "circle"
-    SIZE 2
+    STYLE
+    	COLOR 255 100 0
+	SYMBOL "circle"
+    	SIZE 2
+    	ANTIALIAS true
+    END
     LABEL
       ANTIALIAS true
       FONT arial-bold
@@ -133,7 +149,47 @@ LAYER
       BACKGROUNDCOLOR 255 0 0
       BACKGROUNDSHADOWCOLOR  0 0 0
       # Dezelfde autoweg minimaal 150 pixels van elkaar meerdere keren labelen
-      MINDISTANCE 150
+      MINDISTANCE 100
+      BUFFER 1
+    END
+  END
+END
+# kaart om de E labels te tonen van de wegen
+LAYER
+  NAME autowegen_elabels
+  GROUP wegen
+  METADATA
+    "wms_title" "autowegen_elabels"
+  END
+  TYPE LINE
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from gd_autowegen_nl"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  DUMP TRUE
+  TEMPLATE bla
+  TRANSPARENCY 50
+  LABELITEM "e_wegnr"
+  CLASS
+    NAME "Europese Autoweg"
+    STYLE
+    	COLOR -1 -1 -1
+    	ANTIALIAS true
+    END
+    LABEL
+      ANTIALIAS true
+      FONT arial-bold
+      TYPE TRUETYPE
+      SIZE 8
+      MINFEATURESIZE 40
+      COLOR 255 255 255
+      BACKGROUNDCOLOR 51 153 0
+      BACKGROUNDSHADOWCOLOR  0 0 0
+      # Dezelfde autoweg minimaal 150 pixels van elkaar meerdere keren labelen
+      MINDISTANCE 200
       BUFFER 1
     END
   END
@@ -142,8 +198,10 @@ END
 # kaart met rivieren
 LAYER
 	NAME rivieren_nl
+	GROUP water
 	METADATA
-	    "wms_title"	   "rivieren_nl"	    
+	    "wms_title"	   "rivieren_nl"
+	    "group_title"  "water"
   	END
   	CONNECTIONTYPE postgis
 	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
@@ -156,9 +214,12 @@ LAYER
 	LABELITEM "naam"
 	CLASS
 		NAME "Rivieren"
-		COLOR 112 184 255
-		SYMBOL "circle"
-		SIZE 2
+		STYLE
+			COLOR 112 184 255
+			SYMBOL "circle"
+			SIZE 2
+			ANTIALIAS true
+		END
 		LABEL
 		      ANTIALIAS true
 		      FONT arial-italic
@@ -167,7 +228,7 @@ LAYER
 		      MINFEATURESIZE 60
 		      COLOR 0 0 0
 		      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
-		      MINDISTANCE 150
+		      MINDISTANCE 100
 		      # alleen voor type lijn objecten. De label staat in de richting van de lijn geschreven
 		      ANGLE AUTO
     		END
@@ -177,8 +238,10 @@ END
 #gemeenten volgens CBS bestand 2006
 LAYER
   NAME gemeenten_2006
+  GROUP grenzen
   METADATA
     "wms_title" "gemeenten_2006"
+    "group_title" "grenzen"
   END
   TYPE POLYGON
   STATUS ON
@@ -188,15 +251,20 @@ LAYER
   PROJECTION
     "init=epsg:28992"
   END
+  DUMP TRUE
+  TEMPLATE bla
   MAXSCALE 700000
   TRANSPARENCY 50
   LABELITEM "gm_naam"
   CLASS
   	NAME "Gemeenten"
-        COLOR -1 -1 -1
-        #OUTLINECOLOR 0 0 0
-        OUTLINECOLOR 0 51 102
-        SYMBOL "dashed"
+        STYLE
+        	COLOR -1 -1 -1
+        	#OUTLINECOLOR 0 0 0
+        	OUTLINECOLOR 0 51 102
+        	SYMBOL "dashed"
+        	ANTIALIAS true
+        END
         LABEL
 	      ANTIALIAS true
 	      FONT arial-bold
@@ -214,6 +282,7 @@ END
 #wijken volgens CBS bestand 2006
 LAYER
   NAME wijken_2006
+  GROUP grenzen
   METADATA
     "wms_title" "wijken_2006"
   END
@@ -225,14 +294,18 @@ LAYER
   PROJECTION
     "init=epsg:28992"
   END
-  TRANSPARENCY 40
-  #Geen mooie naam er staat "wijk xx " voor alle wijken.
+  MAXSCALE 100000
+  DUMP TRUE
+  TEMPLATE bla
+  TRANSPARENCY 40  
   LABELITEM "bu_naam_zonder_wijk"
   CLASS
         NAME "Wijken"
-        COLOR -1 -1 -1
-        OUTLINECOLOR 90 90 90
-        MAXSCALE 100000
+        STYLE
+		COLOR -1 -1 -1
+		OUTLINECOLOR 90 90 90
+		ANTIALIAS true
+	END
         LABEL
 	      ANTIALIAS true
 	      FONT arial
@@ -249,6 +322,7 @@ END
 #buurten volgens CBS bestand 2006
 LAYER
   NAME buurten_2006
+  GROUP grenzen
   METADATA
     "wms_title" "buurten_2006"
   END
@@ -260,7 +334,8 @@ LAYER
   PROJECTION
     "init=epsg:28992"
   END
-  
+  DUMP TRUE
+  TEMPLATE bla
   MAXSCALE 70000  
   TRANSPARENCY 40
   LABELITEM "bu_naam"
@@ -269,13 +344,16 @@ LAYER
   	# zorgt er voor
         EXPRESSION /^Verspreide/
         NAME "Buurten"
-        COLOR -1 -1 -1
-        OUTLINECOLOR 180 180 180
+	COLOR -1 -1 -1
+	OUTLINECOLOR 180 180 180
   END
   CLASS
           NAME "Buurten"
-          COLOR -1 -1 -1
-          OUTLINECOLOR 180 180 180
+          STYLE
+          	COLOR -1 -1 -1
+          	OUTLINECOLOR 180 180 180
+          	ANTIALIAS true
+          END
           LABEL
   	      ANTIALIAS true
   	      FONT arial
