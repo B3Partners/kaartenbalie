@@ -6,7 +6,7 @@ FONTSET "../fonts/fonts.list"
 WEB
   METADATA
     "wms_title"				"Kaartenbalie"
-    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie.map&"
+    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
     "wms_srs"				"EPSG:28992"    
     "ows_schemas_location"		"http://schemas.opengeospatial.net"
   END
@@ -18,6 +18,7 @@ PROJECTION
 END
 CONFIG CPL_DEBUG "ON"
 
+#symbols:
 SYMBOL
 	NAME 'circle'
 	TYPE ELLIPSE
@@ -25,6 +26,15 @@ SYMBOL
 	POINTS 1 1 
 	END
 END
+SYMBOL
+  NAME 'dashed'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED true
+  STYLE 6 3 3 6 END
+END
+
+
 
 SCALEBAR
 	STATUS ON
@@ -39,7 +49,7 @@ LEGEND
 	POSITION LR
 	TRANSPARENT TRUE
 END
-
+# kaart voor bebouwde kom
 LAYER
 	NAME bebouwdekom_nl
 	METADATA
@@ -61,7 +71,7 @@ LAYER
 	END
 END
 
-
+# kaart voor nederlandse basis
 LAYER
   NAME basis_nl
   METADATA
@@ -92,6 +102,7 @@ LAYER
   
 END
 
+#kaart met de autowegen
 LAYER
   NAME autowegen_nl
   METADATA
@@ -128,6 +139,7 @@ LAYER
   END
 END
 
+# kaart met rivieren
 LAYER
 	NAME rivieren_nl
 	METADATA
@@ -161,58 +173,171 @@ LAYER
     		END
 	END
 END
+
+#gemeenten volgens CBS bestand 2006
 LAYER
-  NAME plaatsnamen_nl
-  GROUP locaties
+  NAME gemeenten_2006
   METADATA
-    "wms_title" "plaatsnamen_nl"
+    "wms_title" "gemeenten_2006"
   END
-  TYPE POINT
-  STATUS OFF
+  TYPE POLYGON
+  STATUS ON
   CONNECTIONTYPE postgis
   CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
-  DATA "the_geom from gemeentenamen"
+  DATA "the_geom from gem_2006_cbs"
   PROJECTION
-    "init=epsg:4326"
+    "init=epsg:28992"
   END
-  TRANSPARENCY 100
-  LABELITEM "plaats"
-  CLASSITEM "soort"
-  CLASS  	      
-      EXPRESSION "B"
-      NAME "Gemeentenaam"
-      COLOR 0 0 0
-      MAXSCALE 500000
-      LABEL
-	ANTIALIAS true
-	FONT arial-bold
-	TYPE TRUETYPE
-	SIZE 9
-	COLOR 0 0 0	  
-      END     
+  MAXSCALE 700000
+  TRANSPARENCY 50
+  LABELITEM "gm_naam"
+  CLASS
+  	NAME "Gemeenten"
+        COLOR -1 -1 -1
+        #OUTLINECOLOR 0 0 0
+        OUTLINECOLOR 0 51 102
+        SYMBOL "dashed"
+        LABEL
+	      ANTIALIAS true
+	      FONT arial-bold
+	      TYPE TRUETYPE
+	      SIZE 13
+	      MINFEATURESIZE 80
+	      COLOR 0 0 0
+	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
+	      MINDISTANCE 150	      
+	END
+        
+  END    
+END 
+
+#wijken volgens CBS bestand 2006
+LAYER
+  NAME wijken_2006
+  METADATA
+    "wms_title" "wijken_2006"
+  END
+  TYPE POLYGON
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from wijk_2006_cbs"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  TRANSPARENCY 40
+  #Geen mooie naam er staat "wijk xx " voor alle wijken.
+  LABELITEM "bu_naam_zonder_wijk"
+  CLASS
+        NAME "Wijken"
+        COLOR -1 -1 -1
+        OUTLINECOLOR 90 90 90
+        MAXSCALE 100000
+        LABEL
+	      ANTIALIAS true
+	      FONT arial
+	      TYPE TRUETYPE
+	      SIZE 11
+	      MINFEATURESIZE 80
+	      COLOR 0 0 0
+	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
+	      MINDISTANCE 150	      
+	END
+  END    
+END 
+
+#buurten volgens CBS bestand 2006
+LAYER
+  NAME buurten_2006
+  METADATA
+    "wms_title" "buurten_2006"
+  END
+  TYPE POLYGON
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from buurt_2006_cbs"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  
+  MAXSCALE 70000  
+  TRANSPARENCY 40
+  LABELITEM "bu_naam"
+  CLASSITEM "bu_naam"  
+  CLASS
+  	# zorgt er voor
+        EXPRESSION /^Verspreide/
+        NAME "Buurten"
+        COLOR -1 -1 -1
+        OUTLINECOLOR 180 180 180
   END
   CLASS
-      EXPRESSION "P"
-      NAME "Plaatsnaam"
-      COLOR 0 0 0
-      MAXSCALE 200000
-      LABEL
-        ANTIALIAS true
-        FONT arial-bold
-        TYPE TRUETYPE
-        SIZE 8
-        COLOR 255 0 0
-      END
-  END
-  
+          NAME "Buurten"
+          COLOR -1 -1 -1
+          OUTLINECOLOR 180 180 180
+          LABEL
+  	      ANTIALIAS true
+  	      FONT arial
+  	      TYPE TRUETYPE
+  	      SIZE 9
+  	      MINFEATURESIZE 80
+  	      COLOR 0 0 0
+  	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
+  	      MINDISTANCE 150	      
+  	END
+  END 
+END  
 
 END
-  
-
-END
 
 
 
 
-# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
-#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,plaatsnamen_nl&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+
+#LAYER
+#  NAME plaatsnamen_nl
+#  GROUP locaties
+#  METADATA
+#    "wms_title" "plaatsnamen_nl"
+#  END
+#  TYPE POINT
+#  STATUS OFF
+#  CONNECTIONTYPE postgis
+#  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+#  DATA "the_geom from gemeentenamen"
+#  PROJECTION
+#    "init=epsg:4326"
+#  END
+#  TRANSPARENCY 100
+#  LABELITEM "plaats"
+#  CLASSITEM "soort"
+#  CLASS  	      
+#      EXPRESSION "B"
+#      NAME "Gemeentenaam"
+#      COLOR 0 0 0
+#      MAXSCALE 500000
+#      LABEL
+#	ANTIALIAS true
+#	FONT arial-bold
+#	TYPE TRUETYPE
+#	SIZE 10
+#	COLOR 0 0 0	  
+#      END     
+#  END
+#  CLASS
+#      EXPRESSION "P"
+#      NAME "Plaatsnaam"
+#      COLOR 0 0 0
+#      MAXSCALE 200000
+#      LABEL
+#        ANTIALIAS true
+#        FONT arial-bold
+#        TYPE TRUETYPE
+#        SIZE 8
+#        COLOR 0 0 0
+#      END
+#  END
+#END
