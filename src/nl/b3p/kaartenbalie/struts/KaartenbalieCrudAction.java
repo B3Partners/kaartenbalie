@@ -13,6 +13,7 @@ package nl.b3p.kaartenbalie.struts;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
+import nl.b3p.kaartenbalie.service.DemoActivation;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +54,8 @@ public class KaartenbalieCrudAction extends CrudAction{
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws Exception {
+        DemoActivation da = new DemoActivation();
+        request.setAttribute("DemoActive", da.isActive());
         
         Session sess = getHibernateSession();
         Transaction tx = sess.beginTransaction();

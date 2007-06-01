@@ -1,11 +1,4 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<%@ page language="java" %>
-<%@ taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html" %>
-<%@ taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@include file="/templates/taglibs.jsp" %>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
@@ -63,17 +56,20 @@
         // 								END EDITABLE TOOLTIP VARIABLES
 </script>
 
-<% if (getServletConfig().getInitParameter("demoActive").equals("true")) { %>
+<c:choose>
+    <c:when test="${DemoActive == true}">
     <h1>Uw WMS server is met succes toegevoegd</h1>
     Kaartenbalie heeft met succes uw link toegevoegd aan het systeem en de verschillende data die op deze
     WMS service aangeboden wordt op genomen in haar eigen database. Door middel van de interne (of externe)
     viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen.
 
     <P>
-        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/viewer/mapviewer.do' module='' />'">
+        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
     </P>
-<% } else { %>
-    <h1>Pagina niet aanwezig</h1>
-    De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
-    indien u vragen heeft over deze pagina.
-<% } %>
+</c:when>
+    <c:otherwise>
+        <h1>Pagina niet aanwezig</h1>
+        De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
+        indien u vragen heeft over deze pagina.
+    </c:otherwise>
+</c:choose>

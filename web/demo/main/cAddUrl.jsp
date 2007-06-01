@@ -1,15 +1,4 @@
-<%@page contentType="text/html"%>
-<%@page pageEncoding="UTF-8"%>
-<%@ page language="java" %>
-<%@ taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html" %>
-<%@ taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
-
-
-
+<%@include file="/templates/taglibs.jsp" %>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
@@ -67,74 +56,69 @@
         // 								END EDITABLE TOOLTIP VARIABLES
 </script>
 
-
-
-
-
-
-
-<% if (getServletConfig().getInitParameter("demoActive").equals("true")) { %>
-    <h1>Een WMS server toevoegen</h1>
-    <P>
-    Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
-    opgenomen. Echter met deze kaarten zal de kracht van kaartenbalie maar gedeeltelijk tot zijn recht komen en
-    om u er van te kunnen overtuigen dat kaartenbalie meer potentie heeft, bieden wij u geheel gratis aan om ook een
-    eigen mapserver toe te voegen aan het systeem zodat u duidelijk kunt zien dat kaartenbalie over de mogelijkheid
-    beschikt om kaarten van verschillende systemen die op verschillende locaties kunnen staan, kan samenvoegen tot
-    een geheel, zonder dat u hier als gebruiker veel moeite voor hoeft te doen of omslachtige handelingen uit dient
-    te voeren. Dat is precies de kracht van de kaartenbalie.
-    </P>
-    <P>
-        Mocht u echter geen eigen mapserver toe willen voegen, of heeft u geen mapserver tot uw beschikking
-        dan kan altijd gekozen worden voor de standaard url die ook door B3Partners tot uw beschikking gesteld wordt.
-    </P>
-    <P>
-        <%-- <html:javascript formName="voegurltoeForm" staticJavascript="false"/>--%>
-        <html:form action="/voegurltoe"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
-            <c:if test="${not empty message}">
-                <div id="error">
-                    <h3><c:out value="${message}"/></h3>
-                </div>
-            </c:if>
-            <table>
-                <tr>
-                    <td><B><fmt:message key="demo.serverName"/>:</B></td>
-                    <td>
-                        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                        <html:text property="serviceProviderGivenName" />
-                        <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="demo.serverURL"/>:</B></td>
-                    <td>
-                        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                        <html:text property="serviceProviderUrl" />
-                        <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
-                    </td>
-                </tr>
-                <html:hidden property="userid"></html:hidden>
-                <TR>
-                    <TD>&nbsp;</TD>
-                    <TD>&nbsp;</TD>
-                </TR>
-                <tr>
-                    <td colspan="0">
-                        <center>
+<c:choose>
+    <c:when test="${DemoActive == true}">
+        <h1>Een WMS server toevoegen</h1>
+        <P>
+            Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
+            opgenomen. Echter met deze kaarten zal de kracht van kaartenbalie maar gedeeltelijk tot zijn recht komen en
+            om u er van te kunnen overtuigen dat kaartenbalie meer potentie heeft, bieden wij u geheel gratis aan om ook een
+            eigen mapserver toe te voegen aan het systeem zodat u duidelijk kunt zien dat kaartenbalie over de mogelijkheid
+            beschikt om kaarten van verschillende systemen die op verschillende locaties kunnen staan, kan samenvoegen tot
+            een geheel, zonder dat u hier als gebruiker veel moeite voor hoeft te doen of omslachtige handelingen uit dient
+            te voeren. Dat is precies de kracht van de kaartenbalie.
+        </P>
+        <P>
+            Mocht u echter geen eigen mapserver toe willen voegen, of heeft u geen mapserver tot uw beschikking
+            dan kan altijd gekozen worden voor de standaard url die ook door B3Partners tot uw beschikking gesteld wordt.
+        </P>
+        <P>
+            <%-- <html:javascript formName="voegurltoeForm" staticJavascript="false"/>--%>
+            <html:form action="/voegurltoe"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
+                <c:if test="${not empty message}">
+                    <div id="error">
+                        <h3><c:out value="${message}"/></h3>
+                    </div>
+                </c:if>
+                <table>
+                    <tr>
+                        <td><B><fmt:message key="demo.serverName"/>:</B></td>
+                        <td>
+                            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                            <html:text property="givenName" />
+                            <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><B><fmt:message key="demo.serverURL"/>:</B></td>
+                        <td>
+                            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                            <html:text property="url" size="75" />
+                            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                        </td>
+                    </tr>
+                    <html:hidden property="userid"></html:hidden>
+                    <TR>
+                        <TD>&nbsp;</TD>
+                        <TD>&nbsp;</TD>
+                    </TR>
+                    <tr>
+                        <td colspan="0">
                             <html:reset>
                                 <fmt:message key="button.reset"/>
                             </html:reset>
                             <html:submit property="save" >
                                 <fmt:message key="button.ok"/>
                             </html:submit> 
-                        </center>
-                    </td>
-                </tr>
-            </table>
-        </html:form>
-    </P>
-<% } else { %>
-    <h1>Pagina niet aanwezig</h1>
-    De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
-    indien u vragen heeft over deze pagina.
-<% } %>
+                        </td>
+                    </tr>
+                </table>
+            </html:form>
+        </P>
+    </c:when>
+    <c:otherwise>
+        <h1>Pagina niet aanwezig</h1>
+        De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
+        indien u vragen heeft over deze pagina.
+    </c:otherwise>
+</c:choose>

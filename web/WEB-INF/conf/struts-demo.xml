@@ -34,16 +34,14 @@
         
         <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
+            <form-property name="userid" type="java.lang.String"/>
             <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="userid" type="java.lang.String"/>
-            <form-property name="serviceProviderGivenName" type="java.lang.String" initial="Standaard WMS"/>
-            <form-property name="serviceProviderUrl" type="java.lang.String" initial="http://b3p-nando/cgi-bin/mapserv.exe?map=d:/public/aerogrid.map&amp;REQUEST=GetCapabilities&amp;VERSION=1.1.1&amp;SERVICE=WMS"/>
-            <form-property name="serviceProviderUpdatedDate" type="java.lang.String"/>
-            <form-property name="serviceProviderReviewed" type="java.lang.String"/>
-            <form-property name="serviceProviderSelected" type="java.lang.String[]"/>
+            <form-property name="givenName" type="java.lang.String"/>
+            <form-property name="url" type="java.lang.String"/>
+            <form-property name="updatedDate" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="mapviewerForm" type="org.apache.struts.validator.DynaValidatorForm">
@@ -59,6 +57,22 @@
             <form-property name="maxy" type="java.lang.String" initial="625000"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
+        
+        <form-bean name="profileForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="username" type="java.lang.String"/>   
+            <form-property name="password" type="java.lang.String"/>
+            <form-property name="newpassword" type="java.lang.String"/>
+            <form-property name="newpasswordretyped" type="java.lang.String"/>
+            <form-property name="personalURL" type="java.lang.String"/>
+            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="timeout" type="java.lang.String"/>
+            <form-property name="defaultGetMap" type="java.lang.String"/>
+        </form-bean>
     </form-beans>
     
     <global-exceptions>
@@ -70,8 +84,11 @@
     </global-forwards>
 
     <action-mappings>
-        <action path="/index" forward="base.demo.index"/>
-        
+        <!-- action path="/index" forward="base.demo.index"/ -->
+        <action path="/index" type="nl.b3p.kaartenbalie.struts.IndexAction" scope="request" validate="false">  
+            <forward name="success" path="base.demo.index"/>
+            <forward name="failure" path="base.demo.index"/>
+        </action>
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
@@ -87,6 +104,11 @@
         <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
             <forward name="success" path="base.demo.mapviewer"/>
             <forward name="failure" path="base.demo.index"/>
+        </action>
+        
+        <action path="/showProfile" name="profileForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
+            <forward name="success" path="base.demo.profile"/>
+            <forward name="failure" path="base.demo.profile"/>
         </action>
     </action-mappings>
     
