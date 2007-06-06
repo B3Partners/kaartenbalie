@@ -1,7 +1,6 @@
 NAME KaartenbalieMaps
 STATUS ON
 EXTENT 15000 322000 30000 640000
-TRANSPARENT TRUE
 FONTSET "../fonts/fonts.list"
 WEB
   METADATA
@@ -17,6 +16,25 @@ PROJECTION
   "init=epsg:28992"
 END
 CONFIG CPL_DEBUG "ON"
+
+# available outputformats
+OUTPUTFORMAT
+  NAME gif
+  DRIVER "GD/GIF"
+  MIMETYPE "image/gif"
+  IMAGEMODE RGBA
+  EXTENSION "gif"
+  TRANSPARENT ON
+END
+OUTPUTFORMAT
+  NAME png
+  DRIVER "GD/PNG"
+  MIMETYPE "image/png"
+  IMAGEMODE RGBA
+  EXTENSION "png"
+  TRANSPARENT ON
+END
+
 
 #symbols:
 SYMBOL
@@ -145,9 +163,9 @@ LAYER
       TYPE TRUETYPE
       SIZE 8
       MINFEATURESIZE 40
-      COLOR 255 255 255
+      COLOR 254 254 254
       BACKGROUNDCOLOR 255 0 0
-      BACKGROUNDSHADOWCOLOR  0 0 0
+      BACKGROUNDSHADOWCOLOR  -1 -1 -1
       # Dezelfde autoweg minimaal 150 pixels van elkaar meerdere keren labelen
       MINDISTANCE 100
       BUFFER 1
@@ -185,9 +203,9 @@ LAYER
       TYPE TRUETYPE
       SIZE 8
       MINFEATURESIZE 40
-      COLOR 255 255 255
+      COLOR 254 254 254
       BACKGROUNDCOLOR 51 153 0
-      BACKGROUNDSHADOWCOLOR  0 0 0
+      BACKGROUNDSHADOWCOLOR  -1 -1 -1
       # Dezelfde autoweg minimaal 150 pixels van elkaar meerdere keren labelen
       MINDISTANCE 200
       BUFFER 1
@@ -260,7 +278,6 @@ LAYER
   	NAME "Gemeenten"
         STYLE
         	COLOR -1 -1 -1
-        	#OUTLINECOLOR 0 0 0
         	OUTLINECOLOR 0 51 102
         	SYMBOL "dashed"
         	ANTIALIAS true
@@ -272,8 +289,7 @@ LAYER
 	      SIZE 13
 	      MINFEATURESIZE 80
 	      COLOR 0 0 0
-	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
-	      MINDISTANCE 150	      
+	      SHADOWSIZE 0 0
 	END
         
   END    
@@ -308,13 +324,12 @@ LAYER
 	END
         LABEL
 	      ANTIALIAS true
-	      FONT arial
+	      FONT arial-bold
 	      TYPE TRUETYPE
 	      SIZE 11
 	      MINFEATURESIZE 80
-	      COLOR 0 0 0
-	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
-	      MINDISTANCE 150	      
+	      COLOR 0 0 0  
+	      SHADOWSIZE 0 0
 	END
   END    
 END 
@@ -341,7 +356,7 @@ LAYER
   LABELITEM "bu_naam"
   CLASSITEM "bu_naam"  
   CLASS
-  	# zorgt er voor
+  	# zorgt er voor dat labels die beginnen met 'verspreide' niet worden getoond.
         EXPRESSION /^Verspreide/
         NAME "Buurten"
 	COLOR -1 -1 -1
@@ -356,13 +371,12 @@ LAYER
           END
           LABEL
   	      ANTIALIAS true
-  	      FONT arial
+  	      FONT arial-bold
   	      TYPE TRUETYPE
   	      SIZE 9
   	      MINFEATURESIZE 80
-  	      COLOR 0 0 0
-  	      # Dezelfde rivier minimaal 150 pixels van elkaar meerdere keren labelen
-  	      MINDISTANCE 150	      
+  	      COLOR 0 0 0   
+  	      SHADOWSIZE 0 0
   	END
   END 
 END  
