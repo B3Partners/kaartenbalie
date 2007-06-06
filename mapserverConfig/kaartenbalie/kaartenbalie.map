@@ -1,11 +1,11 @@
-NAME KaartenbalieMaps
+NAME demo_kaartenbalie
 STATUS ON
 EXTENT 15000 322000 30000 640000
 FONTSET "../fonts/fonts.list"
 WEB
   METADATA
     "wms_title"				"Kaartenbalie"
-    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
+    "wms_onlineresource"		"http://localhost/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
     "wms_srs"				"EPSG:28992"    
     "ows_schemas_location"		"http://schemas.opengeospatial.net"
   END
@@ -76,7 +76,7 @@ LAYER
   	END
   	SIZEUNITS meters
 	CONNECTIONTYPE postgis
-	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 	DATA "the_geom from bebouwdekom"
 	STATUS ON
 	TYPE POLYGON
@@ -102,7 +102,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_basis_nl"
   PROJECTION
     "init=epsg:28992"
@@ -140,7 +140,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -182,7 +182,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -222,7 +222,7 @@ LAYER
 	    "group_title"  "water"
   	END
   	CONNECTIONTYPE postgis
-	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 	DATA "the_geom from gd_rivieren_nl"
 	STATUS ON
 	TYPE LINE
@@ -264,7 +264,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gem_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -305,7 +305,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from wijk_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -344,7 +344,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from buurt_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -386,8 +386,8 @@ END
 
 
 
-# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
-#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+# test link: http://localhost/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+#http://localhost/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
 
 #LAYER
 #  NAME plaatsnamen_nl
@@ -398,7 +398,7 @@ END
 #  TYPE POINT
 #  STATUS OFF
 #  CONNECTIONTYPE postgis
-#  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+#  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 #  DATA "the_geom from gemeentenamen"
 #  PROJECTION
 #    "init=epsg:4326"
