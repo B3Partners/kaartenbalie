@@ -35,8 +35,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
         //TOOLTIP BODY TEXT
         var bodyArray = new Array();
-        bodyArray[0] = "Tekstuitleg viewer";
-        bodyArray[1] = "Tekstuitleg layers";
+        bodyArray[0] = "De viewer kent een aantal basis functies die hieronder uitgelegd zullen worden. Zo kan met de vier ingezoomd (+) en uitgezoomd (-) worden. Daarnaast kan er met de kaart gesleept worden (handje) en kan de afstand bepaald worden. Als laatst is het mogelijk om informatie bij de kaart op te vragen (i).";
+        bodyArray[1] = "Hieronder vindt u een lijst met Layers. Als u zelf een WMS server toegevoegd heeft dan zullen er twee servers in de lijst staan die u allebei kunt gebruiken om de Kaartenbalie uit te proberen.<BR>Door de boom structuur op verschillende niveau's in en uit te klappen en een of meer kaartlagen te selecteren zullen deze kaartlagen onder in het beeld bij de volgorde verschijnen." + 
+        " Hier kunt u door in deze box de kaarten te selecteren en met behulp van de twee buttons (pijl omhoog en pijl omlaag) de volgorde aan te passen, de volgorde waarop de kaartlagen over elkaar heen geprojecteerd moeten worden, aanpassen.<br>Door vervolgens op de button vernieuwen te klikken zal de viewer de geselecteerde kaarten ophalen en in de viewer tonen.";
         
         //TOOLTIP DISPLAY LINK
         var linkArray = new Array();
@@ -54,11 +55,11 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         xOffsetArray[1] = 10;
 
         var yOffsetArray = new Array();
-        yOffsetArray[0] = 85;
+        yOffsetArray[0] = 125;
         yOffsetArray[1] = 15;
 
         //TOOLTIP BOX DEFAULT WIDTH
-        var toolTipDefaultWidth = 200;
+        var toolTipDefaultWidth = 300;
 
         //TOOLTIP STYLING
         // 	Allows you to adjust the tooltip background color for the 
@@ -106,13 +107,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <div id="tree"></div>
     </div>
     <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
-</div>
-
-<div id="tooltips">
-    <c:if test="${DemoActive == true}">
-        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-        <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-    </c:if>
 </div>
 
 <div class="mapInfo">

@@ -1,6 +1,6 @@
 #error {
     border: 1px solid red;
-    background: #fff5f5 url(../images/siteImages/error.gif) no-repeat;
+    background: #fff5f5 url(../images/siteImages/warning.jpg) no-repeat;
 }
 
 #error h3 {

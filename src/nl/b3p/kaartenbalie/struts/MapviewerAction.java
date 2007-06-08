@@ -59,13 +59,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {        
-        Map requestMap = request.getParameterMap();
-        SecurityRealm sr = new SecurityRealm();
-        boolean helpOn_Off = sr.isUserInRole(request.getUserPrincipal(), "demogebruiker");
-        if(helpOn_Off) {
-            request.setAttribute("helpOn_Off", new Boolean(helpOn_Off));
-        }
+    public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String checkedLayers=request.getParameter("layers");
         String extend=request.getParameter("extent");
         request.setAttribute("checkedLayers",checkedLayers);

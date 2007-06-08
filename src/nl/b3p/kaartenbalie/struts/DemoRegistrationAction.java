@@ -14,25 +14,36 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
+import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class DemoRegistrationAction extends KaartenbalieCrudAction implements KBConstants {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
+    protected static final String PREDEFINED_SERVER = "demo.serverurl";
+    protected static final String PREDEFINED_SERVER_NAME = "demo.servername";
     
     /** Method for saving a new service provider from input of a user.
      *
@@ -120,12 +131,52 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         
         populateRegistrationObject(request, dynaForm, user, organization);
                 
+        /*
+         * Because every new demo user has access to the predefined server which will
+         * be supported by B3Partners we first need to get this WMS server from the database
+         * in order to set the rights to this new user.
+         */
+        MessageResources messages = getResources(request);
+        Locale locale = getLocale(request);
+        String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
+        String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
+        
+        ServiceProvider stdServiceProvider = (ServiceProvider)sess.createQuery(
+                "from ServiceProvider sp where " +
+                "lower(sp.givenName) = lower(:givenName) " +
+                "and lower(sp.url) = lower(:url)")
+            .setParameter("givenName", serverName)
+            .setParameter("url", serverUrl)
+            .uniqueResult();
+        
+        /*
+         * Get all layers supported by this WMS server.
+         */
+        Set standardLayerSet = new HashSet();
+        standardLayerSet = getAllLayers(stdServiceProvider.getLayers(), standardLayerSet);
+        
+        /*
+         * Get the users organization and store the layers into this Organization.
+         */
+        
+        organization.setOrganizationLayer(standardLayerSet);
         sess.saveOrUpdate(organization);
         user.setRole("demogebruiker");
         user.setOrganization(organization);
         sess.saveOrUpdate(user);
         sess.flush();
-        
+                
+        /*
+         * Make sure that the system will accept the user already as logged in.
+         * In order to do this we need to get the SecurityRequestWrapper and set
+         * this user as Principal in the requets.
+         * Be sure that the user set as Principal has an ID, otherwise the program
+         * will crash.
+         */
+        Principal principal = (Principal) user;        
+        SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+        srw.setUserPrincipal(principal);
+                
         dynaForm.set("id", user.getId().toString());
         
         ActionForward action = super.save(mapping,dynaForm,request,response);
@@ -141,6 +192,26 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         request.setAttribute("organizationTelephone", organization.getTelephone());
         
         return action;
+    }
+    // </editor-fold>
+    
+    /** Defines a Set with layers in which only leafs are added. These have no childs.
+     *
+     * @param originalLayers
+     * 
+     * @return Set with only leaf layers
+     */
+    // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
+    private Set getAllLayers(Set layers, Set newLayerSet) {
+        if (layers != null) {
+            Iterator it = layers.iterator();
+            while (it.hasNext()) {
+                Layer layer = (Layer) it.next();
+                newLayerSet.add(layer);
+                getAllLayers(layer.getLayers(), newLayerSet);            
+            }
+        }
+        return newLayerSet;
     }
     // </editor-fold>
     
@@ -179,6 +250,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         user.setEmailAddress(email);
         user.setUsername(username);
         user.setPassword(password);
+        user.setRegisteredIP(registeredIP);
         user.setPersonalURL(personalURL);
         user.setRole("demogebruiker");
         

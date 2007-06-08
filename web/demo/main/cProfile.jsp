@@ -39,7 +39,7 @@
             URL maken indien u er nog geen een aangemaakt had. De URL kunt u vervolgens ook weer gebruiken om een
             GetMap URL aan te maken.
             De URL stelt u in staat om op eenvoudige wijze met andere viewers dan de intern meegeleverde viewer van
-            deze applicatie gebruik te kunnen maken van de Kaartenblia. Hieronder vindt u de huidige gegevens zoals
+            deze applicatie gebruik te kunnen maken van de Kaartenbalie. Hieronder vindt u de huidige gegevens zoals
             deze in de applicatie bekend zijn. Om een nieuwe URL aan te maken of de huidige URL te wijzigen kunt u
             de knop Wijzigen gebruiken.
         </P>        

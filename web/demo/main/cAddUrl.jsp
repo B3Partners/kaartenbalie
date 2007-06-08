@@ -57,68 +57,64 @@
 </script>
 
 <c:choose>
-    <c:when test="${DemoActive == true}">
-        <h1>Een WMS server toevoegen</h1>
-        <P>
-            Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
-            opgenomen. Echter met deze kaarten zal de kracht van kaartenbalie maar gedeeltelijk tot zijn recht komen en
-            om u er van te kunnen overtuigen dat kaartenbalie meer potentie heeft, bieden wij u geheel gratis aan om ook een
-            eigen mapserver toe te voegen aan het systeem zodat u duidelijk kunt zien dat kaartenbalie over de mogelijkheid
-            beschikt om kaarten van verschillende systemen die op verschillende locaties kunnen staan, kan samenvoegen tot
-            een geheel, zonder dat u hier als gebruiker veel moeite voor hoeft te doen of omslachtige handelingen uit dient
-            te voeren. Dat is precies de kracht van de kaartenbalie.
-        </P>
-        <P>
-            Mocht u echter geen eigen mapserver toe willen voegen, of heeft u geen mapserver tot uw beschikking
-            dan kan altijd gekozen worden voor de standaard url die ook door B3Partners tot uw beschikking gesteld wordt.
-        </P>
-        <P>
-            <%-- <html:javascript formName="voegurltoeForm" staticJavascript="false"/>--%>
-            <html:form action="/voegurltoe"> <%-- onsubmit="return validateVoegurltoeForm(this)"> --%>
-                <c:if test="${not empty message}">
-                    <div id="error">
-                        <h3><c:out value="${message}"/></h3>
-                    </div>
-                </c:if>
-                <table>
-                    <tr>
-                        <td><B><fmt:message key="demo.serverName"/>:</B></td>
-                        <td>
-                            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                            <html:text property="givenName" />
-                            <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><B><fmt:message key="demo.serverURL"/>:</B></td>
-                        <td>
-                            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                            <html:text property="url" size="75" />
-                            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
-                        </td>
-                    </tr>
-                    <html:hidden property="userid"></html:hidden>
-                    <TR>
-                        <TD>&nbsp;</TD>
-                        <TD>&nbsp;</TD>
-                    </TR>
-                    <tr>
-                        <td colspan="0">
-                            <html:reset>
-                                <fmt:message key="button.reset"/>
-                            </html:reset>
-                            <html:submit property="save" >
-                                <fmt:message key="button.ok"/>
-                            </html:submit> 
-                        </td>
-                    </tr>
-                </table>
-            </html:form>
-        </P>
-    </c:when>
-    <c:otherwise>
-        <h1>Pagina niet aanwezig</h1>
-        De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
-        indien u vragen heeft over deze pagina.
-    </c:otherwise>
+<c:when test="${DemoActive == true}">
+    <div id='democontent'>
+    <div id="democontentheader">Een WMS server toevoegen</div>
+    <div id="democontenttext">
+    <br>
+    Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
+    opgenomen. Om u te overtuigen van de mogelijkheden van Kaartenbalie, bieden wij u aan om ook een
+    eigen mapserver toe te voegen aan het systeem zodat u duidelijk deze mogelijkheden kunt zien en testen.<br><br>
+    <html:form action="/voegurltoe">
+        <c:if test="${not empty message}">
+            <div id="error">
+                <h3><c:out value="${message}"/></h3>
+            </div>
+        </c:if>
+        <table>
+            <tr>
+                <td><B><fmt:message key="demo.serverName"/>:</B></td>
+                <td>
+                    
+                    <html:text property="givenName" />
+                    
+                </td>
+            </tr>
+            <tr>
+                <td><B><fmt:message key="demo.serverURL"/>:</B></td>
+                <td>
+                    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                    <html:text property="url" size="75" />
+                    <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                </td>
+            </tr>
+            <html:hidden property="userid"></html:hidden>
+            <TR>
+                <TD>&nbsp;</TD>
+                <TD>&nbsp;</TD>
+            </TR>
+            <tr>
+                <td colspan="0">
+                    <html:reset>
+                        <fmt:message key="button.reset"/>
+                    </html:reset>
+                    <html:submit property="save" >
+                        <fmt:message key="button.ok"/>
+                    </html:submit> 
+                </td>
+            </tr>
+        </table>
+    </html:form>
+    </div>
+    </div>
+</c:when>
+<c:otherwise>
+    <div id='democontent'>
+        <div id="democontentheader">Pagina niet aanwezig</div>
+        <div id="democontenttext">
+            De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
+            met de beheerder indien u vragen heeft over deze pagina.
+        </div>
+    </div>
+</c:otherwise>
 </c:choose>

@@ -16,10 +16,13 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
@@ -29,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-import org.apache.struts.util.MessageResources;
+
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -40,9 +43,8 @@ public class ServerActionDemo extends ServerAction {
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
-    protected static final String PREDEFINED_SERVER = "demo.serverurl";
-    protected static final String PREDEFINED_SERVER_NAME = "demo.servername";
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
+    protected static final String MAP_ALREADY_ADDED = "demo.mapalreadyadded";
     
     /** Execute method which handles all executable requests.
      *
@@ -60,13 +62,6 @@ public class ServerActionDemo extends ServerAction {
         String userid = (String) request.getParameter("userid");
         ActionForward action = super.unspecified(mapping, dynaForm, request, response);
         dynaForm.set("userid", userid);
-        
-        MessageResources messages = getResources(request);
-        Locale locale = getLocale(request);
-        String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
-        String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
-        dynaForm.set("givenName", serverName);
-        dynaForm.set("url", serverUrl);
         return action;
     }
     // </editor-fold>
@@ -119,66 +114,33 @@ public class ServerActionDemo extends ServerAction {
         }
         
         /*
-         * No errors occured during validation and token check. Therefore we can get a new
-         * user object if a we are dealing with new input of the user, otherwise we can change
-         * the user object which is already know, because of it's id.
-         */                
-        User user = getUser(dynaForm, request, false);
-        if (user == null) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+         * Let us first check if a map is already added to the system. Otherwise users
+         * could upload a nummerous amount of free maps. This is not what we tend to allow
+         * because it's a demo.
+         */
+        HttpSession session = request.getSession();
+        Boolean mapAdded = (Boolean)session.getAttribute("MapAdded");
+        if(mapAdded != null) {
+            if(mapAdded.booleanValue()) {
+                addMessages(request, errors);
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, MAP_ALREADY_ADDED);
+                return getAlternateForward(mapping, request);
+            }
         }
         
         /*
-         * No errors occured during usercheck. Therefore we can get a new serviceprovider object 
-         * which we can use to connect this provider to the user.
+         * If previous check were completed succesfully, we can start performing the real request which is
+         * saving the user input. This means that we can start checking if we are dealing with a new 
+         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a 
+         * new Serviceprovider into the memory. Before we can take any action we need the users input to read 
+         * the variables.
          */
-        ServiceProvider hibernateSP = getServiceProvider(dynaForm,request,true);
-        ServiceProvider serviceProvider = (ServiceProvider) hibernateSP.clone();
-        if (null == serviceProvider) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        /*
-         * Because every new demo user has access to the predefined server which will
-         * be supported by B3Partners we first need to get this WMS server from the database
-         * in order to set the rights to this new user.
-         */
-        Session sess = getHibernateSession();
-        MessageResources messages = getResources(request);
-        Locale locale = getLocale(request);
-        String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
-        String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
-        
-        ServiceProvider stdServiceProvider = (ServiceProvider)sess.createQuery(
-                "from ServiceProvider sp where " +
-                "lower(sp.givenName) = lower(:givenName) " +
-                "and lower(sp.url) = lower(:url)")
-            .setParameter("givenName", serverName)
-            .setParameter("url", serverUrl)
-            .uniqueResult();
-        
-        /*
-         * Get all layers supported by this WMS server.
-         */
-        Set standardLayerSet = new HashSet();
-        standardLayerSet = getAllLayers(stdServiceProvider.getLayers(), standardLayerSet);
-        
-        /*
-         * Now we need to check if the given wms provider is the same as the provider
-         * in the database. If this provider is the same all we need to do is setting
-         * the rights of the standardLayerSet to this new userand save everything.
-         * Otherwise we need to read the capabilities of the new ServiceProvider, add
-         * this to the database and add these layers also to the rights of the new user.
-         */
+        String url = dynaForm.getString("url");
         
         /*
          * First we need to check if the given url is realy an url.
          */
-        String url = dynaForm.getString("url");
         try {
             URL tempurl = new URL(url);
         } catch (MalformedURLException mue) {
@@ -188,167 +150,176 @@ public class ServerActionDemo extends ServerAction {
         }
         
         /*
-         * The given URL is checked, even though it might be the same URL as
-         * predefined in the Kaartenbalie. Now we can check if the URL is the 
-         * same as predefined.
+         * If the URL is valid we need to check if it complies with the WMS standard
+         * This means that it should have at least an '?' or a '&' at the end of the
+         * URL.
+         * Furthermore if nothing else has been added to the URL, KB needs to add the
+         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
+         * KB to be able to perform the request.
          */
-        Set newLayerSet = new HashSet();        
-        if(!url.equals(serverUrl)) {
-            /*
-             * If we get inside this statement it means that we have a new URL
-             */      
+        int lastAmper = url.lastIndexOf("&");
+        int lastQuest = url.lastIndexOf("?");
+        int length = url.length();
         
-            /*
-             * If the URL is valid we need to check if it complies with the WMS standard
-             * This means that it should have at least an '?' or a '&' at the end of the
-             * URL.
-             * Furthermore if nothing else has been added to the URL, KB needs to add the
-             * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
-             * KB to be able to perform the request.
-             */
-            int lastAmper = url.lastIndexOf("&");
-            int lastQuest = url.lastIndexOf("?");
-            int length = url.length();
-
-            boolean hasLastAmper = (length == (lastAmper + 1));
-            boolean hasLastQuest = (length == (lastQuest + 1));
-
-            if (!hasLastAmper && !hasLastQuest) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
-                return getAlternateForward(mapping, request);
+        boolean hasLastAmper = (length == (lastAmper + 1));
+        boolean hasLastQuest = (length == (lastQuest + 1));
+        
+        if (!hasLastAmper && !hasLastQuest) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        String eventualURL = new String();
+        String [] urls = url.split("\\?");
+        eventualURL += urls[0] + "?";
+        
+        if (hasLastAmper) {
+            //Maybe some parameters have been given. We need to check which params still
+            //need to be added.
+            boolean req = false, version = false, service = false;
+            String [] params = urls[1].split("&");
+            for (int i = 0; i < params.length; i++) {
+                String [] paramValue = params[i].split("=");
+                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            req = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_REQUEST + " gegeven, maar value niet. App voegt waarde zelf toe."); }
+                }
+                else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            version = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_VERSION + " gegeven, maar value niet. App voegt waarde zelf toe."); }
+                }
+                else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
+                    try {
+                        if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
+                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                            service = true;
+                        }
+                    } catch (Exception e){log.debug("Parameter " + WMS_SERVICE + " gegeven, maar value niet. App voegt waarde zelf toe."); }
+                }
+                else {
+                    //An extra parameter which has to be given.
+                    eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
+                }
             }
-
-            String eventualURL = new String();
-            String [] urls = url.split("\\?");
-            eventualURL += urls[0] + "?";
-
-            if (hasLastAmper) {
-                //Maybe some parameters have been given. We need to check which params still
-                //need to be added.
-                boolean req = false, version = false, service = false;
-                String [] params = urls[1].split("&");
-                for (int i = 0; i < params.length; i++) {
-                    String [] paramValue = params[i].split("=");
-                    if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
-                        try {
-                            if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                                eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                                req = true;
-                            }
-                        } catch (Exception e){log.debug("Parameter " + WMS_REQUEST + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                    }
-                    else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
-                        try {
-                            if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
-                                eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                                version = true;
-                            }
-                        } catch (Exception e){log.debug("Parameter " + WMS_VERSION + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                    }
-                    else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
-                        try {
-                            if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
-                                eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                                service = true;
-                            }
-                        } catch (Exception e){log.debug("Parameter " + WMS_SERVICE + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                    }
-                    else {
-                        //An extra parameter which has to be given.
-                        eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                    }
-                }
-                if (!req) {
-                    eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-                }
-                if (!version) {
-                    eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-                }
-                if (!service) {
-                    eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-                }
-            } else {
-                //No parameters have been given at all. We need to add everything
+            if (!req) {
                 eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
+            }
+            if (!version) {
                 eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
+            }
+            if (!service) {
                 eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
             }
-
-            /*
-             * We have now a fully checked URL which can be used to add a new ServiceProvider
-             * or to change an already existing ServiceProvider. Therefore we are first going
-             * to create some objects which we need to change the data if necessary.
-             */
-            WMSCapabilitiesReader wms = new WMSCapabilitiesReader(serviceProvider);
-
-            /*
-             * This request can lead to several problems.
-             * The server can be down or the url given isn't right. This means that the url
-             * is correct according to the specification but is leading to the wrong address.
-             * Or the address is OK, but the Capabilities of the provider do not comply the
-             * specifications. Or there can be an other exception during the process.
-             * Either way we need to inform the user about the error which occured.
-             */
-            try {
-                serviceProvider = wms.getProvider(eventualURL);
-            } catch (IOException e) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
-                return getAlternateForward(mapping, request);
-            } catch (SAXException e) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, MALFORMED_CAPABILITY_ERRORKEY);
-                return getAlternateForward(mapping, request);
-            } catch (Exception e) {
-                log.error("Error saving server", e);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, e.toString());
-                return getAlternateForward(mapping, request);
-            }
-
-            if(!serviceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
-                return getAlternateForward(mapping, request);
-            }
-            
-            /*
-             * Save this new WMS provider in the database.
-             */
-            populateServerObject(dynaForm, serviceProvider);
-            sess.saveOrUpdate(serviceProvider);
-            
-            /*
-             * Get the layers of this new WMS provider.
-             */
-            newLayerSet = getAllLayers(serviceProvider.getLayers(), newLayerSet);
+        } else {
+            //No parameters have been given at all. We need to add everything
+            eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
+            eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
+            eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
         }
         
         /*
-         * If the newLayerSet is filled with new layers then we need to add these layers
-         * to the list with all layers on which the user should have access.
+         * We have now a fully checked URL which can be used to add a new ServiceProvider
+         * or to change an already existing ServiceProvider. Therefore we are first going
+         * to create some objects which we need to change the data if necessary.
+         */        
+        ServiceProvider newServiceProvider = new ServiceProvider();
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader(newServiceProvider);
+
+        /*
+         * This request can lead to several problems.
+         * The server can be down or the url given isn't right. This means that the url
+         * is correct according to the specification but is leading to the wrong address.
+         * Or the address is OK, but the Capabilities of the provider do not comply the
+         * specifications. Or there can be an other exception during the process.
+         * Either way we need to inform the user about the error which occured.
          */
-        if(!newLayerSet.isEmpty()) {
-            Iterator it = newLayerSet.iterator();
-            while (it.hasNext()) {
-                Layer newLayer = (Layer) it.next();
-                standardLayerSet.add(newLayer);
-            }
+        try {
+            newServiceProvider = wms.getProvider(eventualURL);
+        } catch (IOException e) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } catch (SAXException e) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_CAPABILITY_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } catch (Exception e) {
+            log.error("Error saving server", e);
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, e.toString());
+            return getAlternateForward(mapping, request);
+        }
+        
+        if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * Now we first need to save this serviceprovider.
+         */
+        Session sess = getHibernateSession();
+        populateServerObject(dynaForm, newServiceProvider);
+        newServiceProvider.setReviewed(true);
+        sess.saveOrUpdate(newServiceProvider);
+        
+        /*
+         * Now the Serviceprovider is saved, we can add this provider
+         * to the organization of the user. Therefore we need to get 
+         * this User.
+         */        
+        User user = getUser(dynaForm, request, false);
+        if (user == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
+            return getAlternateForward(mapping, request);
         }
         
         /*
          * Get the users organization and store the layers into this Organization.
          */
         Organization org = user.getOrganization();
-        org.setOrganizationLayer(standardLayerSet);
+        Set organizationLayers = new HashSet();
+        Iterator it = org.getOrganizationLayer().iterator();
+        while (it.hasNext()) {
+            organizationLayers.add(((Layer)it.next()).clone());
+        }
+        
+        Set newLayerSet = new HashSet();
+        newLayerSet = getAllLayers(newServiceProvider.getLayers(), newLayerSet);
+        Iterator newLayers = newLayerSet.iterator();
+        while (newLayers.hasNext()) {
+            organizationLayers.add((Layer)newLayers.next());
+        }
+                       
+        org.setOrganizationLayer(organizationLayers);
+        user.setOrganization(org);
+        
         sess.saveOrUpdate(org);
+        sess.saveOrUpdate(user);
         sess.flush();
         
+        /*
+         * Set the boolean that a map is already added to the system. Otherwise users
+         * could upload a nummerous amount of free maps. This is not what we tend to allow
+         * because it's a demo.
+         */
+        mapAdded = new Boolean(true);
+        session.setAttribute("MapAdded", mapAdded);
         return mapping.findForward("nextPage");
     }
     // </editor-fold>
-        
+    
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -394,15 +365,14 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
         User user = null;
         
-        Integer id = getID(dynaForm);
+        Integer id = getID(dynaForm);;
         
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id.intValue()));
+            user = (User)getHibernateSession().load(User.class, new Integer(id.intValue()));
         }
         return user;
     }

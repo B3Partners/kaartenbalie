@@ -58,18 +58,26 @@
 
 <c:choose>
     <c:when test="${DemoActive == true}">
-    <h1>Uw WMS server is met succes toegevoegd</h1>
-    Kaartenbalie heeft met succes uw link toegevoegd aan het systeem en de verschillende data die op deze
-    WMS service aangeboden wordt op genomen in haar eigen database. Door middel van de interne (of externe)
-    viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen.
-
-    <P>
-        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
-    </P>
+    <div id='democontent'>
+    <div id="democontentheader">Uw WMS server is met succes toegevoegd</div>
+    <div id="democontenttext">
+    <br>
+    
+    Kaartenbalie heeft met succes uw kaartmateriaal toegevoegd aan uw profiel. Door middel van de interne (of externe)
+    viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen. Het materiaal dat door u
+    aan Kaartenbalie toegevoegd is kan alleen door u bekeken worden. Kaartenbalie is opgezet met veiligheid in het 
+    achterhoofd.<br><br>
+    <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
+    </div>
+    </div>
 </c:when>
     <c:otherwise>
-        <h1>Pagina niet aanwezig</h1>
-        De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
-        indien u vragen heeft over deze pagina.
+        <div id='democontent'>
+            <div id="democontentheader">Pagina niet aanwezig</div>
+            <div id="democontenttext">
+                De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
+                met de beheerder indien u vragen heeft over deze pagina.
+            </div>
+        </div>
     </c:otherwise>
 </c:choose>

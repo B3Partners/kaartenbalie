@@ -53,7 +53,6 @@ public class DemoActivation extends HttpServlet {
      */
     // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public String isActive() throws ServletException {
-        log.debug("Demo has been actived is: " + active);
         return active;
     }
     // </editor-fold>

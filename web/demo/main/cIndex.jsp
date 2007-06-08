@@ -13,7 +13,7 @@
         var bodyArray = new Array();
         bodyArray[0] = "Een nieuw toe te voegen server dient alleen aan de volgende eisen te voldoen: <ul><li>Het is een WMS server en</li><li>Het is WMS versie 1.1.1</li></ul>";
         bodyArray[1] = "De gegevens die van u verlangt worden zijn: <ul><li>een naam</li><li>een gebruikersnaam</li><li>een wachtwoord</li><li>een email adres</li><li>een naam van de organisatie waar u werkt</li></ul>";
-        bodyArray[2] = "Een persoonlijke URL is een URL die u kunt gebruiken om via een viewer, anders dan de viewer van Kaartenbalie, verbinding te maken met de Kaartenbalie en zo uw kaartmateriaal te gebruiken.";
+        bodyArray[2] = "Een persoonlijke URL is een URL die u kunt gebruiken om via een viewer, anders dan de viewer van Kaartenbalie, verbinding te maken met de Kaartenbalie en zo uw kaartmateriaal op te vragen en te gebruiken.";
         
         //TOOLTIP DISPLAY LINK
         var linkArray = new Array();
@@ -66,59 +66,33 @@
 
 <c:choose>
     <c:when test="${DemoActive == true}">
-        
-        <H1>Welkom bij de demoversie van de Kaartenbalie</H1>
-        
-        <p align="justify">
+        <div id='democontent'>
+            <div id="democontentheader">Welkom bij de demoversie van de Kaartenbalie</div>
+            <div id="democontenttext">
+            
             Welkom bij de demoversie van de Kaartenbalie. Door middel van deze Demo willen wij u laten zien
             wat de mogelijkheden van de Kaartenbalie zijn. Met behulp van een aantal pagina's zal worden uitgelegd
             hoe u gebruik kunt maken van de Kaartenbalie.
-        </p>
-        <p align="justify">
+        
+        
             <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
                  onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
                  style="z-index:5000;position:absolute;cursor:pointer;"></div>
-            <h2>Wat is kaartenbalie</h2>
+            <div id="demoheader3">Wat is kaartenbalie</div>
             Kaartenbalie is een webapplicatie, aangeboden door B3Partners, waarmee u de mogelijkheid heeft 
             om kaartmateriaal dat op verschillende locaties (verschillende webservers) wordt aangeboden, op een
             eenvoudige en snelle manier te combineren <b>&eacute;n te beveiligen tegen ongewenst gebruik</b>. 
-            Dit kaartmateriaal dient aan een paar eisen
-            <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink">
-                <img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="12" height="12">
-            </span>
-            te voldoen en kaartenbalie is eenvoudig in gebruik 
-            om dit materiaal toe te voegen.
-        </p>
-        <p align="justify">
-            <h2>Hoe gaat het in zijn werk?</h2>
-            Via het menu kunt u een keuze maken uit de verschillende mogelijkheden die er zijn om een beeld te krijgen
-            van de kaartenbalie. Als u een nieuwe gebruiker bent van deze demo dan kunt u via de registratie knop links 
-            in het menu op eenvoudige wijze en met een paar simpele stappen uzelf laten registreren.<br>
-            Bij deze registratie zult u ook de mogelijkheid krijgen &eacute;&eacute;n <b>eigen</b> server toe te voegen
-            aan Kaartenbalie om aan te tonen hoe eenvoudig nieuw materiaal aan de Kaartenbalie toegevoegd kan worden,
+            Dit kaartmateriaal dient daartoe wel aangeboden te worden als WMS 1.1.1 service.
+        
+            <div id="demoheader3">Hoe gaat het in zijn werk?</div>
+            Als u een nieuwe gebruiker bent van deze demo dan kunt u via de registratie knop links 
+            in het menu op eenvoudige wijze uzelf registreren om zo gebruik
+            te kunnen maken van Kaartenbalie.
+            Standaard krijgt u een kaart te zien zoals die door B3Partners wordt aangeboden. Om de kracht van Kaartenbalie
+            aan te tonen kunt u daarnaast ook eigen kaartmateriaal toevoegen
             <b>zonder</b> dat anderen van ditzelfde materiaal gebruik kunnen maken.
-        </p>
-        <p  align="justify">
-            <h2>De registratie</h2>
-            Om van de demo gebruik te kunnen maken en om het kaartmateriaal te beveiligen tegen ongewenst
-            gebruik is een registratie vereist om het materiaal aan uw gegevens te kunnen koppelen. Daarom
-            zal er tijdens de registratie wat informatie van u gevraagd worden. 
-            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink">
-                <img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="12" height="12">
-            </span>
-        </p>
-        <p  align="justify">
-            <h2>Na de registratie</h2>
-            Na de registratie kunt u gebruik maken van de verschillende mogelijkheden die Kaartenbalie biedt.
-            In het menu hier links, kunt u via het item Mapviewer gebruik maken van een interne kaartviewer en
-            met behulp van het item Profiel kunt u uw persoonlijke gegevens opgraven evenals een persoonlijke
-            URL die tijdens de registratie voor u is aangemaakt.
-            <span id="link2" onMouseOver="displayAd(2);" onMouseOut="hideAd();" class="intellitextLink">
-                <img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="12" height="12">
-            </span>
-        </p>
-        <p align="justify">
-            <h2>Samenvatting</h2>
+       
+            <div id="demoheader3">Samenvatting</div>
             Als u nieuw bent kunt u met de volgende stappen snel en eenvoudig gebruik maken van deze demo.
             <ul>
                 <li>Stap 1: U dient zich te registreren als gebruiker</li>
@@ -126,12 +100,19 @@
                 <li>Stap 3: U krijgt een samenvatting van uw gegevens</li>
                 <li>Stap 4: U kunt werken met de demoviewer</li>
             </ul>
-        </p>
+            <br>
+      
+        </div>
+        </div>
     </c:when>
     <c:otherwise>
-        <h1>Pagina niet aanwezig</h1>
-        De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op met de beheerder
-        indien u vragen heeft over deze pagina.
+        <div id='democontent'>
+            <div id="democontentheader">Pagina niet aanwezig</div>
+            <div id="democontenttext">
+                De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
+                met de beheerder indien u vragen heeft over deze pagina.
+            </div>
+        </div>
     </c:otherwise>
 </c:choose>
 

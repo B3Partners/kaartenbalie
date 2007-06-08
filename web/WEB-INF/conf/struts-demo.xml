@@ -99,6 +99,7 @@
             <forward name="success" path="base.demo.addUrl"/>
             <forward name="nextPage" path="base.demo.addUrlsuccessfull"/>
             <forward name="failure" path="base.demo.addUrl"/>
+            <forward name="automatic" path="base.demo.mapviewer"/>
         </action>
         
         <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
