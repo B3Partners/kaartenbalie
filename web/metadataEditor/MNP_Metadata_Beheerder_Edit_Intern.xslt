@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet
 				version="1.0"
 				xmlns="http://www.w3.org/1999/xhtml"
@@ -88,8 +88,8 @@
 				<span id="editStylesheetFile">MNP_Metadata_Beheerder_Edit_Intern.xslt</span>
 				<span id="addStylesheetFile">Preprocessors/Add_MNP_Metadata_Beheerder_Edit_Templates.xsl</span>
 				<!-- plus/minus images used for expanding/collapsing sections -->
-				<img id="plus_img" border="0" src="images/xp_plus.gif"></img>
-				<img id="minus_img" border="0" src="images/xp_minus.gif"></img>
+				<img id="plus_img" border="0" src="./images/xp_plus.gif"></img>
+				<img id="minus_img" border="0" src="./images/xp_minus.gif"></img>
 			</div>
 			
 		</div>
@@ -420,25 +420,22 @@
 	<!-- ATTRIBUTEN TAB -->
 
 	<xsl:template match="metadata/dataset_description/data_definition/object_type">
-		<xsl:call-template name="section">
-			<xsl:with-param name="section_Mtitle" select="'Attributen'"/>
-			<xsl:with-param name="section_path" select="'metadata/dataset_description/data_definition/object_type'"/>
-			<xsl:with-param name="optionality" select="'mandatory'"/>
-			<xsl:with-param name="expanding" select="'false'"/>
-			<xsl:with-param name="expanded" select="'true'"/>
-			<xsl:with-param name="repeatable" select="'false'"/>
+		<xsl:call-template name="section-title">
+			<xsl:with-param name="section_Mtitle">Attributen</xsl:with-param>
 		</xsl:call-template>
+		<div class="content">
+			<xsl:apply-templates select="attribute_type"/>
+		</div>
     </xsl:template>
     
 	<xsl:template match="metadata/dataset_description/data_definition/object_type/attribute_type">
-		<xsl:call-template name="section">
-			<xsl:with-param name="section_Mtitle" select="'Attribuut'"/>
-			<xsl:with-param name="section_path" select="'metadata/dataset_description/data_definition/object_type/attribute_type'"/>
-			<xsl:with-param name="optionality" select="'mandatory'"/>
-			<xsl:with-param name="expanding" select="'false'"/>
-			<xsl:with-param name="expanded" select="'true'"/>
-			<xsl:with-param name="repeatable" select="'true'"/>
+		<xsl:call-template name="section-title">
+			<xsl:with-param name="section_Mtitle">Attribuut</xsl:with-param>
 		</xsl:call-template>
+		<div class="content">
+			<xsl:apply-templates select="attribute_type_name"/>
+			<xsl:apply-templates select="attribute_type_definition"/>			
+		</div>
 	</xsl:template>
 	
 	<xsl:template match="metadata/dataset_description/data_definition/object_type/attribute_type/attribute_type_name">
@@ -593,7 +590,11 @@
 	</xsl:template>
 	
 	<xsl:template match="metadata/dataset_description/temporal_extent/period_range_details">
-		<xsl:apply-templates/>
+		<div class="content">
+			<xsl:apply-templates select="period_start_date"/>
+			<xsl:apply-templates select="period_end_date"/>		
+			<xsl:apply-templates select="period_range_date_qualifier"/>				
+		</div>
 	</xsl:template>
 
 	<xsl:template match="period_start_date">
@@ -627,19 +628,7 @@
 	</xsl:template>
 	
 	<xsl:template match="quality_parameters">
-		<xsl:apply-templates/>
-	</xsl:template>
-	
-	<xsl:template match="quality_parameters/quality_indicator_set">
-		<xsl:apply-templates/>
-	</xsl:template>
-	
-	<xsl:template match="quality_parameters/quality_indicator_set/quality_measure_set">
-		<xsl:apply-templates/>
-	</xsl:template>
-	
-	<xsl:template match="quality_parameters/quality_indicator_set/quality_measure_set/measure_result">
-		<xsl:apply-templates/>
+		<xsl:apply-templates select="quality_indicator_set/quality_measure_set/measure_result/value"/>
 	</xsl:template>
 	
 	<xsl:template match="quality_parameters/quality_indicator_set/quality_measure_set/measure_result/value">
@@ -740,7 +729,7 @@
 	<xsl:template match="metadata/ESRI_NL">
 		<xsl:apply-templates select="kwaliteit"/>
 		<xsl:apply-templates select="documentatie"/>
-		<xsl:apply-templates select="@*|node()[not(self::kwaliteit) and not(self::documentatie)]"/>
+		<!--<xsl:apply-templates select="@*|node()[not(self::kwaliteit) and not(self::documentatie)]"/>-->
 	</xsl:template>
 
 	<xsl:template match="metadata/ESRI_NL/kwaliteit">

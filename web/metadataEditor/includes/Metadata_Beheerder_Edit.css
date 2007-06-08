@@ -81,27 +81,27 @@ td {
 
 /* achtergrondplaatjes */
 div.achtergrond-nederland {
-  background-image: url(../images/achtergrond-nederland.jpg);
+  background-image: url(/metadataEditor/images/achtergrond-nederland.jpg);
   background-repeat: no-repeat;
 }
 
 div.achtergrond-europa {
-  background-image: url(../images/achtergrond-europa.jpg);
+  background-image: url(/metadataEditor/images/achtergrond-europa.jpg);
   background-repeat: no-repeat;
 }
 
 div.achtergrond-wereld {
-  background-image: url(../images/achtergrond-wereld.jpg);
+  background-image: url(/metadataEditor/images/achtergrond-wereld.jpg);
   background-repeat: no-repeat;
 }
 
 div.achtergrond-project {
-  background-image: url(../images/achtergrond-project.jpg);
+  background-image: url(/metadataEditor/images/achtergrond-project.jpg);
   background-repeat: no-repeat;
 }
 
 div.achtergrond-webservice {
-  background-image: url(../images/achtergrond-webservice.jpg);
+  background-image: url(/metadataEditor/images/achtergrond-webservice.jpg);
   background-repeat: no-repeat;
 }
 

@@ -6,17 +6,17 @@ function init() {
 	/*
 	var xmlDoc = Sarissa.getDomDocument();
     xmlDoc.async = false;
-	xmlDoc.load("MetadataTestCEN4_beheerder.xml");
+	xmlDoc.load("/metadataEditor/MetadataTestCEN4_beheerder.xml");
 
     var xslDoc = Sarissa.getDomDocument();
 	xslDoc.async = false;
-	xslDoc.load("MNP_Metadata_Beheerder_Edit_Intern.xsl");
+	xslDoc.load("/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl");
 	*/
 	
 	/*var xmlSerializer = new XMLSerializer();
 	
     var xmlhttpXml = new XMLHttpRequest();
-    xmlhttpXml.open("GET", "MetadataTestCEN4_beheerder.xml", false);
+    xmlhttpXml.open("GET", "/metadataEditor/MetadataTestCEN4_beheerder.xml", false);
     // if needed set header information using the setRequestHeader method
     xmlhttpXml.send('');
     //var xmlDoc = xmlhttpXml.responseXML;
@@ -28,7 +28,7 @@ function init() {
 
 	
     /*var xmlhttpXsl = new XMLHttpRequest();
-    xmlhttpXsl.open("GET", "MNP_Metadata_Beheerder_Edit_Intern.xsl", false);
+    xmlhttpXsl.open("GET", "/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl", false);
     // if needed set header information using the setRequestHeader method
     xmlhttpXsl.send('');
     //var xslDoc = xmlhttpXsl.responseXML;
@@ -44,20 +44,20 @@ function init() {
 	var elem = document.getElementById("writeroot");
 	elem.appendChild(fragment);
 
-	//Sarissa.updateContentFromURI("MetadataTestCEN4_beheerder.xml", document.getElementById("writeroot"), processor);	
+	//Sarissa.updateContentFromURI("/metadataEditor/MetadataTestCEN4_beheerder.xml", document.getElementById("writeroot"), processor);	
 
 	xmlDocInit();*/
 	
 	//oud, nu nog beter werkend:
 	var xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
-	xmlDoc.load("MetadataTestCEN4_beheerder.xml");
-	//alert(xmlDoc.xml);
+	xmlDoc.load("file:///c:/dev_erik/kaartenbalie/web/metadataEditor/MetadataTestCEN4_beheerder.xml");
+	alert(xmlDoc.xml);
 	
 	var xslDoc = jsXML.createDOMDocument();
 	xslDoc.async = false;
-	xslDoc.load("MNP_Metadata_Beheerder_Edit_Intern.xslt");
-	//alert(xslDoc.xml);
+	xslDoc.load("file:///c:/dev_erik/kaartenbalie/web/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xslt");
+	alert(xslDoc.xml);
 	
 	//var elem = document.getElementById("writeroot");
 	
