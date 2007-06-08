@@ -54,6 +54,12 @@
             <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
         
+        <form-bean name="metadataForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="name" type="java.lang.String"/>            
+            <form-property name="xml" type="java.lang.String"/>
+        </form-bean>
+        
     </form-beans>
     
     <global-exceptions>
@@ -78,7 +84,11 @@
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
-        </action>        
+        </action> 
+        <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.metadata"/>
+            <forward name="failure" path="base.beheer.metadata"/>
+        </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

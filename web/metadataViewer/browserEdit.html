@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- libs voor editen van xmldoc -->
+		<script type="text/javascript" src="includes/generic_dhtml.js"></script>
+		<script type="text/javascript" src="includes/generic_edit.js"></script>
+		<script type="text/javascript" src="includes/Metadata_Beheerder_Edit.js"></script>
+		
+		<script type="text/javascript" src="includes/browserEdit.js"></script>		
+		
+		
+		<!--  niet al deze libs zijn nodig -->
+		<!--  
+		<script type="text/javascript" src="includes/sarissa/sarissa.js"></script>
+		<script type="text/javascript" src="includes/sarissa/sarissa_dhtml.js"></script>
+		<script type="text/javascript" src="includes/sarissa/sarissa_ieemu_load.js"></script>
+		<script type="text/javascript" src="includes/sarissa/sarissa_ieemu_xpath.js"></script>
+		<script type="text/javascript" src="includes/sarissa/sarissa_ieemu_xslt.js"></script>		
+		-->
+		
+		<!-- Minder complete libs: -->
+		<!-- <script type="text/javascript" src="includes/xmlAsText.js"></script> -->
+		<script type="text/javascript" src="includes/nczXMLDOMWrapper.js"></script>
+		<script type="text/javascript" src="includes/XML.Transformer.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="includes/generic.css" />
+		<link rel="stylesheet" type="text/css" href="includes/Metadata_Beheerder_Edit.css" />
+	</head>
+	<!--
+	Deze tekst kan weg of moet veranderd worden:
+	
+	Het metaEditType attribuut van de body tag wordt gebruikt door NPS om te bepalen op welke manier hij zijn data opslaat.
+	De "fullXML" mode die in deze stylesheet wordt gebruikt, slaat alle "nodes die childnodes hebben" die in html-commentaar staan in de resulterende
+	html-file, op als nieuwe xml file. Gewijzigde nodes worden opgeslagen. Ook kunnen nieuwe nodes worden aangemaakt.
+	In "singleElement" mode worden alle gewijzigde nodes opgeslagen, maar kunnen geen nieuwe nodes aangemaakt worden.
+	-->
+	<body onload="init()" changed="false" metaEditType="fullXML" onmousemove="mouseEvent()">
+	
+		<p>Test</p>
+		
+		<div id="writeroot"></div>
+		
+	</body>
+</html>
