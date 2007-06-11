@@ -198,9 +198,6 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
     }
     // </editor-fold>
     
-    private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
-    }
-    
     /** Defines a Set with layers in which only leafs are added. These have no childs.
      *
      * @param originalLayers
