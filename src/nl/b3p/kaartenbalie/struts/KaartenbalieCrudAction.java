@@ -10,10 +10,10 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
-import nl.b3p.kaartenbalie.service.DemoActivation;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,7 +28,12 @@ import org.hibernate.Transaction;
 public class KaartenbalieCrudAction extends CrudAction{
     
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
-    protected String msg;
+    protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
+    
+    
+    protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
+        return mapping.findForward(FAILURE);
+    }
     
     /** Protected method which returns the current Hibernate session.
      *
@@ -53,26 +58,44 @@ public class KaartenbalieCrudAction extends CrudAction{
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
-        throws Exception {
-        DemoActivation da = new DemoActivation();
-        request.setAttribute("DemoActive", da.isActive());
+    throws Exception {
         
         Session sess = getHibernateSession();
         Transaction tx = sess.beginTransaction();
         
         ActionForward forward = null;
-        String message = null;
+        String msg = null;
         
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
             return forward;
         } catch(Exception e) {
-            request.setAttribute("message", msg);
+            //TODO message van request gehaald, moet via alternate message!
+//            request.setAttribute("message", msg);
+
             tx.rollback();
             log.error("Exception occured, rollback", e);
-            /*melding etc. naar formulier/site*/
-            addAlternateMessage(mapping, request, null, e.toString());
+            MessageResources messages = getResources(request);
+            
+            if (e instanceof org.hibernate.JDBCException) {
+                msg = e.toString();
+                SQLException sqle = ((org.hibernate.JDBCException)e).getSQLException();
+                msg = msg + ": " + sqle;
+                SQLException nextSqlE = sqle.getNextException();
+                if(nextSqlE != null) {
+                    msg = msg + ": " + nextSqlE;
+                }
+            } else if (e instanceof java.sql.SQLException) {
+                msg = e.toString();
+                SQLException nextSqlE = ((java.sql.SQLException)e).getNextException();
+                if(nextSqlE != null) {
+                    msg = msg + ": " + nextSqlE;
+                }
+            } else {
+                msg = e.toString();
+            }
+            addAlternateMessage(mapping, request, null, msg);
         }
         
         // Start tweede sessie om tenminste nog de lijsten op te halen

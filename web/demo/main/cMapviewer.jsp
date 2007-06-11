@@ -6,19 +6,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%--
-The taglib directive below imports the JSTL library. If you uncomment it,
-you must also add the JSTL library to the project. The Add Library... action
-on Libraries node in Projects view can be used to add the JSTL 1.1 library.
---%>
-<%--
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%> 
---%>
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-
-
 
 <%@ page isELIgnored="false"%>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/swfobject.js' module='' />"></script>
@@ -98,12 +85,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <div id="treeContainer">
     <div class="treeHolder">
-        <c:if test="${DemoActive == true}">
-            <div id="tooltips" align="right">
-                <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
-            </div>
-        </c:if>
+        <div id="tooltips" align="right">
+            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+        </div>
         <div id="tree"></div>
     </div>
     <input type="button" value="Vernieuw" onclick="reloadLayers()"/>

@@ -84,7 +84,7 @@
         </action>
         <action path="/changeProfile" name="changeProfileForm" type="nl.b3p.kaartenbalie.struts.ChangeProfileAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.changeprofile"/>
-            <forward name="failure" path="base.viewer.changeprofile"/>
+            <forward name="failure" path="base.viewer.index"/>
         </action>
         <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.createurl"/>

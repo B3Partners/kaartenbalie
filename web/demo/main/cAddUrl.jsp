@@ -56,65 +56,52 @@
         // 								END EDITABLE TOOLTIP VARIABLES
 </script>
 
-<c:choose>
-<c:when test="${DemoActive == true}">
-    <div id='democontent'>
+<div id='democontent'>
     <div id="democontentheader">Een WMS server toevoegen</div>
     <div id="democontenttext">
-    <br>
-    Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
-    opgenomen. Om u te overtuigen van de mogelijkheden van Kaartenbalie, bieden wij u aan om ook een
-    eigen mapserver toe te voegen aan het systeem zodat u duidelijk deze mogelijkheden kunt zien en testen.<br><br>
-    <html:form action="/voegurltoe">
-        <c:if test="${not empty message}">
-            <div id="error">
-                <h3><c:out value="${message}"/></h3>
-            </div>
-        </c:if>
-        <table>
-            <tr>
-                <td><B><fmt:message key="demo.serverName"/>:</B></td>
-                <td>
-                    
-                    <html:text property="givenName" />
-                    
-                </td>
-            </tr>
-            <tr>
-                <td><B><fmt:message key="demo.serverURL"/>:</B></td>
-                <td>
-                    <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-                    <html:text property="url" size="75" />
-                    <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
-                </td>
-            </tr>
-            <html:hidden property="userid"></html:hidden>
-            <TR>
-                <TD>&nbsp;</TD>
-                <TD>&nbsp;</TD>
-            </TR>
-            <tr>
-                <td colspan="0">
-                    <html:reset>
-                        <fmt:message key="button.reset"/>
-                    </html:reset>
-                    <html:submit property="save" >
-                        <fmt:message key="button.ok"/>
-                    </html:submit> 
-                </td>
-            </tr>
-        </table>
-    </html:form>
+        <br>
+        Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
+        opgenomen. Om u te overtuigen van de mogelijkheden van Kaartenbalie, bieden wij u aan om ook een
+        eigen mapserver toe te voegen aan het systeem zodat u duidelijk deze mogelijkheden kunt zien en testen.<br><br>
+        <html:form action="/voegurltoe">
+            <c:if test="${not empty message}">
+                <div id="error">
+                    <h3><c:out value="${message}"/></h3>
+                </div>
+            </c:if>
+            <table>
+                <tr>
+                    <td><B><fmt:message key="demo.serverName"/>:</B></td>
+                    <td>
+                        
+                        <html:text property="givenName" />
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="demo.serverURL"/>:</B></td>
+                    <td>
+                        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
+                        <html:text property="url" size="75" />
+                        <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                    </td>
+                </tr>
+                <html:hidden property="userid"></html:hidden>
+                <TR>
+                    <TD>&nbsp;</TD>
+                    <TD>&nbsp;</TD>
+                </TR>
+                <tr>
+                    <td colspan="0">
+                        <html:reset>
+                            <fmt:message key="button.reset"/>
+                        </html:reset>
+                        <html:submit property="save" >
+                            <fmt:message key="button.ok"/>
+                        </html:submit> 
+                    </td>
+                </tr>
+            </table>
+        </html:form>
     </div>
-    </div>
-</c:when>
-<c:otherwise>
-    <div id='democontent'>
-        <div id="democontentheader">Pagina niet aanwezig</div>
-        <div id="democontenttext">
-            De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
-            met de beheerder indien u vragen heeft over deze pagina.
-        </div>
-    </div>
-</c:otherwise>
-</c:choose>
+</div>

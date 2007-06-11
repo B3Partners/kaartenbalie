@@ -43,7 +43,7 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;

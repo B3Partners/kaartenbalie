@@ -46,7 +46,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     private List layerList = new ArrayList();
     private int id;
     private static final Log log = LogFactory.getLog(MapviewerAction.class);
-        
+    
     /** Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -60,6 +60,14 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        
+        User sessionUser = (User) request.getUserPrincipal();
+        if(sessionUser == null) {
+            addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         String checkedLayers=request.getParameter("layers");
         String extend=request.getParameter("extent");
         request.setAttribute("checkedLayers",checkedLayers);
@@ -78,14 +86,16 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
-        User sesuser = (User) request.getUserPrincipal();
-        User user = (User) getHibernateSession().get(User.class, sesuser.getId());
+        
+        User user = (User) request.getUserPrincipal();
+        if (user==null)
+            return;
         
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         
-        JSONObject root = new JSONObject(); 
-        JSONArray rootArray = new JSONArray(); 
+        JSONObject root = new JSONObject();
+        JSONArray rootArray = new JSONArray();
         
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
@@ -107,7 +117,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
-     * 
+     *
      * @param layers Set of layers from which the part of the tree ahs to be build
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      * @param parent JSONObject which represents the parent object to which this set of layers should be added
@@ -117,7 +127,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its functionality is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure. 
+         * in a tree like array which can be used to build up a menu structure.
          */
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
@@ -142,7 +152,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                 JSONObject layerObj = this.layerToJSON(layer);
                 
                 /* Before we are going to save the present object we can first use our object to recieve and store
-                 * any information which there might be for the child layers. First we check if the set of layers 
+                 * any information which there might be for the child layers. First we check if the set of layers
                  * is not empty, because if it is, no effort has to be taken.
                  * If, on the other hand, this layer does have children then the method is called recursivly to
                  * add these childs to the present layer we are working on.
@@ -157,7 +167,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                  */
                 parentArray.put(layerObj);
                 
-                              
+                
             }
         }
         if (parentArray.length()>0){
@@ -168,7 +178,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Method which checks if a certain layer is allowed to be shown on the screen.
-     * 
+     *
      * @param layer Layer object that has to be checked
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      *
@@ -188,7 +198,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the ServiceProvider with its given name and id.
-     * 
+     *
      * @param serviceProvider The ServiceProvider object which has to be converted
      *
      * @return JSONObject
@@ -206,7 +216,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the Layer with its given name and id.
-     * 
+     *
      * @param layer The Layer object which has to be converted
      *
      * @return JSONObject

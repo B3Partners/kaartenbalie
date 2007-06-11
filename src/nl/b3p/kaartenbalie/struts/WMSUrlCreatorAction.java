@@ -84,8 +84,8 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
         
-        User sessionUser = (User) request.getUserPrincipal();
-        form.set("personalUrl", sessionUser.getPersonalURL());
+        User user = (User) request.getUserPrincipal();
+        form.set("personalUrl", user.getPersonalURL());
         
         String[] formats=new String[5];
         formats[0]="image/gif";
@@ -95,18 +95,15 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         formats[4]="image/tiff";
         request.setAttribute("formatList",formats);
         
-        User sesuser = (User) request.getUserPrincipal();
-        User user = (User) getHibernateSession().get(User.class, sesuser.getId());
-        
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         
         LayerValidator lv = new LayerValidator(organizationLayers);
         String[] alSrsen = lv.validateSRS();
-        request.setAttribute("projectieList",alSrsen);        
+        request.setAttribute("projectieList",alSrsen);
         
-        JSONObject root = new JSONObject(); 
-        JSONArray rootArray = new JSONArray(); 
+        JSONObject root = new JSONObject();
+        JSONArray rootArray = new JSONArray();
         
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
@@ -191,14 +188,14 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         /*
          * Get the URL to start with
          */
-        User sessionUser = (User) request.getUserPrincipal();
-        if(sessionUser == null) {
+        User user = (User) request.getUserPrincipal();
+        if(user == null) {
             prepareMethod(dynaForm, request, LIST, LIST);
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        String getMap = sessionUser.getPersonalURL();
+        String getMap = user.getPersonalURL();
         
         /*
          * Add the rest of the parameters
@@ -215,22 +212,24 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
         
         getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
-                
+        
+        //TODO waarvoor is onderstaand blokje
         Session session = this.getHibernateSession();
-        User dbUser = (User) session.get(User.class, sessionUser.getId());
+        User dbUser = (User) session.get(User.class, user.getId());
         if(dbUser == null) {
             prepareMethod(dynaForm, request, LIST, LIST);
             addAlternateMessage(mapping, request, UNKNOWN_DB_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         dbUser.setDefaultGetMap(getMap);
-        sessionUser.setDefaultGetMap(getMap);
+        
+        
+        user.setDefaultGetMap(getMap);
         getHibernateSession().save(dbUser);
         
         //request.setAttribute("getMapMade", getMap);
         populateForm(getMap, dynaForm, request);
-        return mapping.findForward("success");        
+        return mapping.findForward("success");
     }
     // </editor-fold>
     
@@ -254,17 +253,17 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
         map.put(GETCAPABILITIES, crudProp);
-
+        
         crudProp = new ExtendedMethodProperties(GETMAP);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
         map.put(GETMAP, crudProp);
-
+        
         return map;
     }
-    // </editor-fold>  
+    // </editor-fold>
     
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
@@ -298,11 +297,11 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
         form.set("defaultGetMap", getMap);
     }
-    // </editor-fold>    
+    // </editor-fold>
     
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
-     * 
+     *
      * @param layers Set of layers from which the part of the tree ahs to be build
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      * @param parent JSONObject which represents the parent object to which this set of layers should be added
@@ -312,7 +311,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its functionality is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure. 
+         * in a tree like array which can be used to build up a menu structure.
          */
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
@@ -337,7 +336,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
                 JSONObject layerObj = this.layerToJSON(layer);
                 
                 /* Before we are going to save the present object we can first use our object to recieve and store
-                 * any information which there might be for the child layers. First we check if the set of layers 
+                 * any information which there might be for the child layers. First we check if the set of layers
                  * is not empty, because if it is, no effort has to be taken.
                  * If, on the other hand, this layer does have children then the method is called recursivly to
                  * add these childs to the present layer we are working on.
@@ -352,7 +351,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
                  */
                 parentArray.put(layerObj);
                 
-                              
+                
             }
         }
         if (parentArray.length()>0){
@@ -363,7 +362,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Method which checks if a certain layer is allowed to be shown on the screen.
-     * 
+     *
      * @param layer Layer object that has to be checked
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      *
@@ -383,7 +382,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the ServiceProvider with its given name and id.
-     * 
+     *
      * @param serviceProvider The ServiceProvider object which has to be converted
      *
      * @return JSONObject
@@ -401,7 +400,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the Layer with its given name and id.
-     * 
+     *
      * @param layer The Layer object which has to be converted
      *
      * @return JSONObject

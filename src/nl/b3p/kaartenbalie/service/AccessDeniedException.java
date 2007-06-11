@@ -8,7 +8,7 @@
  *
  */
 
-package nl.b3p.kaartenbalie.core;
+package nl.b3p.kaartenbalie.service;
 
 /**
  * AccessDeniedException definition:

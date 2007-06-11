@@ -64,55 +64,40 @@
        
 </script>
 
-<c:choose>
-    <c:when test="${DemoActive == true}">
-        <div id='democontent'>
-            <div id="democontentheader">Welkom bij de demoversie van de Kaartenbalie</div>
-            <div id="democontenttext">
-            
-            Welkom bij de demoversie van de Kaartenbalie. Door middel van deze Demo willen wij u laten zien
-            wat de mogelijkheden van de Kaartenbalie zijn. Met behulp van een aantal pagina's zal worden uitgelegd
-            hoe u gebruik kunt maken van de Kaartenbalie.
+<div id='democontent'>
+    <div id="democontentheader">Welkom bij de demoversie van de Kaartenbalie</div>
+    <div id="democontenttext">
         
+        Welkom bij de demoversie van de Kaartenbalie. Door middel van deze Demo willen wij u laten zien
+        wat de mogelijkheden van de Kaartenbalie zijn. Met behulp van een aantal pagina's zal worden uitgelegd
+        hoe u gebruik kunt maken van de Kaartenbalie.
         
-            <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
-                 onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
-                 style="z-index:5000;position:absolute;cursor:pointer;"></div>
-            <div id="demoheader3">Wat is kaartenbalie</div>
-            Kaartenbalie is een webapplicatie, aangeboden door B3Partners, waarmee u de mogelijkheid heeft 
-            om kaartmateriaal dat op verschillende locaties (verschillende webservers) wordt aangeboden, op een
-            eenvoudige en snelle manier te combineren <b>&eacute;n te beveiligen tegen ongewenst gebruik</b>. 
-            Dit kaartmateriaal dient daartoe wel aangeboden te worden als WMS 1.1.1 service.
+        <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
+             onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
+             style="z-index:5000;position:absolute;cursor:pointer;"></div>
+        <div id="demoheader3">Wat is kaartenbalie</div>
+        Kaartenbalie is een webapplicatie, aangeboden door B3Partners, waarmee u de mogelijkheid heeft 
+        om kaartmateriaal dat op verschillende locaties (verschillende webservers) wordt aangeboden, op een
+        eenvoudige en snelle manier te combineren <b>&eacute;n te beveiligen tegen ongewenst gebruik</b>. 
+        Dit kaartmateriaal dient daartoe wel aangeboden te worden als WMS 1.1.1 service.
         
-            <div id="demoheader3">Hoe gaat het in zijn werk?</div>
-            Als u een nieuwe gebruiker bent van deze demo dan kunt u via de registratie knop links 
-            in het menu op eenvoudige wijze uzelf registreren om zo gebruik
-            te kunnen maken van Kaartenbalie.
-            Standaard krijgt u een kaart te zien zoals die door B3Partners wordt aangeboden. Om de kracht van Kaartenbalie
-            aan te tonen kunt u daarnaast ook eigen kaartmateriaal toevoegen
-            <b>zonder</b> dat anderen van ditzelfde materiaal gebruik kunnen maken.
-       
-            <div id="demoheader3">Samenvatting</div>
-            Als u nieuw bent kunt u met de volgende stappen snel en eenvoudig gebruik maken van deze demo.
-            <ul>
-                <li>Stap 1: U dient zich te registreren als gebruiker</li>
-                <li>Stap 2: U kunt, indien gewenst eigen kaartmateriaal toevoegen aan Kaartenbalie</li>
-                <li>Stap 3: U krijgt een samenvatting van uw gegevens</li>
-                <li>Stap 4: U kunt werken met de demoviewer</li>
-            </ul>
-            <br>
-      
-        </div>
-        </div>
-    </c:when>
-    <c:otherwise>
-        <div id='democontent'>
-            <div id="democontentheader">Pagina niet aanwezig</div>
-            <div id="democontenttext">
-                De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
-                met de beheerder indien u vragen heeft over deze pagina.
-            </div>
-        </div>
-    </c:otherwise>
-</c:choose>
-
+        <div id="demoheader3">Hoe gaat het in zijn werk?</div>
+        Als u een nieuwe gebruiker bent van deze demo dan kunt u via de registratie knop links 
+        in het menu op eenvoudige wijze uzelf registreren om zo gebruik
+        te kunnen maken van Kaartenbalie.
+        Standaard krijgt u een kaart te zien zoals die door B3Partners wordt aangeboden. Om de kracht van Kaartenbalie
+        aan te tonen kunt u daarnaast ook eigen kaartmateriaal toevoegen
+        <b>zonder</b> dat anderen van ditzelfde materiaal gebruik kunnen maken.
+        
+        <div id="demoheader3">Samenvatting</div>
+        Als u nieuw bent kunt u met de volgende stappen snel en eenvoudig gebruik maken van deze demo.
+        <ul>
+            <li>Stap 1: U dient zich te registreren als gebruiker</li>
+            <li>Stap 2: U kunt, indien gewenst eigen kaartmateriaal toevoegen aan Kaartenbalie</li>
+            <li>Stap 3: U krijgt een samenvatting van uw gegevens</li>
+            <li>Stap 4: U kunt werken met de demoviewer</li>
+        </ul>
+        <br>
+        
+    </div>
+</div>

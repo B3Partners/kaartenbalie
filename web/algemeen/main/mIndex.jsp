@@ -8,7 +8,7 @@
                 <li><a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a></li>
                 <li><a href="<html:rewrite page='/beheer/index.do' module='' />"><fmt:message key="algemeen.beheer"/></a></li>
                 <li><a href="<html:rewrite page='/viewer/index.do' module='' />"><fmt:message key="algemeen.viewer"/></a></li>
-                <c:if test="${DemoActive == true}">
+                <c:if test="${true}">
                     <li><a href="<html:rewrite page='/demo/index.do' module='' />"><fmt:message key="algemeen.demo"/></a></li>
                 </c:if>
             </ul>

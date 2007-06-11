@@ -21,7 +21,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
@@ -51,7 +51,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-        
+    
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -139,9 +139,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
-         * saving the user input. This means that we can start checking if we are dealing with a new 
-         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a 
-         * new Serviceprovider into the memory. Before we can take any action we need the users input to read 
+         * saving the user input. This means that we can start checking if we are dealing with a new
+         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a
+         * new Serviceprovider into the memory. Before we can take any action we need the users input to read
          * the variables.
          */
         Session sess = getHibernateSession();
@@ -159,93 +159,23 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * If the URL is valid we need to check if it complies with the WMS standard
-         * This means that it should have at least an '?' or a '&' at the end of the
-         * URL.
-         * Furthermore if nothing else has been added to the URL, KB needs to add the
-         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
-         * KB to be able to perform the request.
-         */
-        int lastAmper = url.lastIndexOf("&");
-        int lastQuest = url.lastIndexOf("?");
-        int length = url.length();
-        
-        boolean hasLastAmper = (length == (lastAmper + 1));
-        boolean hasLastQuest = (length == (lastQuest + 1));
-        
-        if (!hasLastAmper && !hasLastQuest) {
+        try {
+            url = checkWmsUrl(url);
+        } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
         
-        String eventualURL = new String();
-        String [] urls = url.split("\\?");
-        eventualURL += urls[0] + "?";
-        
-        if (hasLastAmper) {
-            //Maybe some parameters have been given. We need to check which params still
-            //need to be added.
-            boolean req = false, version = false, service = false;
-            String [] params = urls[1].split("&");
-            for (int i = 0; i < params.length; i++) {
-                String [] paramValue = params[i].split("=");
-                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            req = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_REQUEST + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            version = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_VERSION + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            service = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_SERVICE + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else {
-                    //An extra parameter which has to be given.
-                    eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                }
-            }
-            if (!req) {
-                eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-            }
-            if (!version) {
-                eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-            }
-            if (!service) {
-                eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-            }
-        } else {
-            //No parameters have been given at all. We need to add everything
-            eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-            eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-            eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-        }
-        //eventualURL += "&";
-        
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
          * to create some objects which we need to change the data if necessary.
-         */        
+         */
         ServiceProvider newServiceProvider = new ServiceProvider();
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader(newServiceProvider);
-
+        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -255,7 +185,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wms.getProvider(eventualURL);
+            newServiceProvider = wms.getProvider(url);
         } catch (IOException e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
@@ -290,12 +220,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          */
         if(oldServiceProvider != null) {
             /* Before we can start, we need to save the new serviceprovider.
-             * 
-             * Then we need to call for a list with organizations. 
+             *
+             * Then we need to call for a list with organizations.
              * We walk through this list and for each organization in the
              * list we need to check if this organization has connections
              * with the old serviceprovider.
-             * 
+             *
              * The following steps have to be made:
              * With each layer belonging to a certain organization check if this
              * layer belongs to the old serviceprovider.
@@ -305,7 +235,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
              *          if not -> don't do anything. Just skip this layer, it will not be saved into the new set.
              *          if yes -> add the new layer in the new set of layers for this organization.
              * When all is done save the organization and go on with the next one.
-             * 
+             *
              * After completing all organizations, we can delete the old serviceprovider.
              */
             List orgList = sess.createQuery("from Organization").list();
@@ -316,7 +246,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 Set orgLayers = org.getOrganizationLayer();
                 Iterator layerit = orgLayers.iterator();
                 while (layerit.hasNext()) {
-                    /* 
+                    /*
                      * We are now iterating over a set of layers which belong to one organization.
                      * Each of these layers have specified which serviceprovider they belong to.
                      * So we can check if the id of the layer serviceprovider is the same as the
@@ -326,8 +256,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                     ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
                     if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
                         /* It is for sure that the layer belongs to the old servideprovider.
-                         * So now we need to check if this same layer is still available in 
-                         * the new serviceprovider. If this is true then we need to add this 
+                         * So now we need to check if this same layer is still available in
+                         * the new serviceprovider. If this is true then we need to add this
                          * layer again to the new list with layer rights for  this organization.
                          * Otherwise we don't have to do anything.
                          * Since this layer belongs to the old serviceprovider we don't have to
@@ -340,7 +270,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                             newOrganizationLayer.add(newLayer);
                     } else {
                         /* The layer doesn't belong to the old serviceprovider.
-                         * Therefore not much has to be done. We only need to 
+                         * Therefore not much has to be done. We only need to
                          * add this layer again back to the list with layer-
                          * rights.
                          */
@@ -402,7 +332,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        /* 
+        /*
          * Get the serviceprovider which is given in the form. If for some reason this
          * ServiceProvider doesn't exist anymore in the database then we need to catch
          * this error and show it to the user.
@@ -423,7 +353,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * do is getting the most upper layer and compare this one with the toplayer in the
          * servicerpovider.
          * Therefore we only need to create a loop with all the organizationlayers, ask each
-         * one of them for it's toplayer and compare it. If we find one single equality it is 
+         * one of them for it's toplayer and compare it. If we find one single equality it is
          * enough to stop the search and give an error.
          */
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
@@ -450,7 +380,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * we can assume that all is good and we can safely delete this serviceproiver.
          * Any other exception that might occur is in the form of an unknown or unsuspected
          * form and will be thrown in the super class.
-         * 
+         *
          */
         sess.delete(serviceProvider);
         sess.flush();
@@ -470,7 +400,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         super.createLists(form, request);
         
         List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
-        request.setAttribute("serviceproviderlist", serviceproviderlist);        
+        request.setAttribute("serviceproviderlist", serviceproviderlist);
     }
     // </editor-fold>
     
@@ -552,7 +482,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
     }
     // </editor-fold>
-        
+    
     /* Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
@@ -579,4 +509,66 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return null;
     }
     // </editor-fold>
+    
+    private String checkWmsUrl(String url) throws Exception {
+        
+        /*
+         * If the URL is valid we need to check if it complies with the WMS standard
+         * This means that it should have at least an '?' or a '&' at the end of the
+         * URL.
+         * Furthermore if nothing else has been added to the URL, KB needs to add the
+         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
+         * KB to be able to perform the request.
+         */
+        
+        int length = url.length();
+        
+        boolean hasLastQuest = false;
+        int lastQuest = url.lastIndexOf("?");
+        if (lastQuest >= 0 && length != lastQuest + 1) {
+            hasLastQuest = true;
+        }
+        
+        boolean hasLastAmper = false;
+        int lastAmper = url.lastIndexOf("&");
+        if (lastAmper >= 0 && length != lastAmper + 1) {
+            hasLastAmper = true;
+        }
+        
+        if (!hasLastAmper && !hasLastQuest)
+            throw new Exception(MISSING_SEPARATOR_ERRORKEY);
+        
+        //Maybe some parameters have been given. We need to check which params still
+        //need to be added.
+        boolean req = false;
+        boolean version = false;
+        boolean service = false;
+        
+        String paramURL = url.substring(lastQuest);
+        String [] params = paramURL.split("&");
+        for (int i = 0; i < params.length; i++) {
+            String [] paramValue = params[i].split("=");
+            if (paramValue.length == 2) {
+                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST) && paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+                    req = true;
+                } else if (paramValue[0].equalsIgnoreCase(WMS_VERSION) && paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
+                    version = true;
+                } else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE) && paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
+                    service = true;
+                }
+            }
+        }
+        
+        if (!req) {
+            url += WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
+        }
+        if (!version) {
+            url += WMS_VERSION + "=" + WMS_VERSION_111 + "&";
+        }
+        if (!service) {
+            url += WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
+        }
+        
+        return url;
+    }
 }

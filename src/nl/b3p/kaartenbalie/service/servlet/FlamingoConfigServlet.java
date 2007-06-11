@@ -17,7 +17,7 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.FlamingoMap;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;

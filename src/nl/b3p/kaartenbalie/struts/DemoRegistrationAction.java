@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
@@ -37,6 +37,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
+//TODO: overweeg userAction te overklassen ipv KaartenbalieCrudAction en save op te splisten in keinere delen
 public class DemoRegistrationAction extends KaartenbalieCrudAction implements KBConstants {
     
     /* forward name="success" path="" */
@@ -96,7 +97,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
          * No errors occured during validation and token check. Therefore we can get a new
          * user object if a we are dealing with new input of the user, otherwise we can change
          * the user object which is already know, because of it's id.
-         */                
+         */
         User user = getUser(dynaForm, request, true);
         if (user == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -104,6 +105,8 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
             return getAlternateForward(mapping, request);
         }
         
+        
+        //TODO dubbelop
         /*
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
@@ -130,7 +133,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         }
         
         populateRegistrationObject(request, dynaForm, user, organization);
-                
+        
         /*
          * Because every new demo user has access to the predefined server which will
          * be supported by B3Partners we first need to get this WMS server from the database
@@ -145,9 +148,9 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
                 "from ServiceProvider sp where " +
                 "lower(sp.givenName) = lower(:givenName) " +
                 "and lower(sp.url) = lower(:url)")
-            .setParameter("givenName", serverName)
-            .setParameter("url", serverUrl)
-            .uniqueResult();
+                .setParameter("givenName", serverName)
+                .setParameter("url", serverUrl)
+                .uniqueResult();
         
         /*
          * Get all layers supported by this WMS server.
@@ -165,7 +168,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         user.setOrganization(organization);
         sess.saveOrUpdate(user);
         sess.flush();
-                
+        
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
@@ -173,32 +176,35 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
          * Be sure that the user set as Principal has an ID, otherwise the program
          * will crash.
          */
-        Principal principal = (Principal) user;        
-        SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
-        srw.setUserPrincipal(principal);
-                
+        Principal principal = (Principal) user;
+        if (request instanceof SecurityRequestWrapper) {
+            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            srw.setUserPrincipal(principal);
+        }
+        
         dynaForm.set("id", user.getId().toString());
+        dynaForm.set("firstname", user.getFirstName());
+        dynaForm.set("lastname", user.getLastName());
+        dynaForm.set("emailAddress", user.getEmailAddress());
+        dynaForm.set("username", user.getUsername());
+        dynaForm.set("password", user.getPassword());
+        dynaForm.set("personalURL", user.getPersonalURL());
+        dynaForm.set("name", user.getOrganization().getName());
+        dynaForm.set("organizationTelephone", user.getOrganization().getTelephone());
         
         ActionForward action = super.save(mapping,dynaForm,request,response);
-        
-        request.setAttribute("id", user.getId().toString());
-        request.setAttribute("firstname", user.getFirstName());
-        request.setAttribute("lastname", user.getLastName());
-        request.setAttribute("emailAddress", user.getEmailAddress());
-        request.setAttribute("username", user.getUsername());
-        request.setAttribute("password", user.getPassword());
-        request.setAttribute("personalURL", user.getPersonalURL());
-        request.setAttribute("name", organization.getName());
-        request.setAttribute("organizationTelephone", organization.getTelephone());
         
         return action;
     }
     // </editor-fold>
     
+    private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+    }
+    
     /** Defines a Set with layers in which only leafs are added. These have no childs.
      *
      * @param originalLayers
-     * 
+     *
      * @return Set with only leaf layers
      */
     // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
@@ -208,7 +214,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
             while (it.hasNext()) {
                 Layer layer = (Layer) it.next();
                 newLayerSet.add(layer);
-                getAllLayers(layer.getLayers(), newLayerSet);            
+                getAllLayers(layer.getLayers(), newLayerSet);
             }
         }
         return newLayerSet;
@@ -242,7 +248,9 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
-        String personalURL = "http://" + requestServerName + ":" + port + 
+        
+        //TODO: http protocol ophalen ipv vast
+        String personalURL = "http://" + requestServerName + ":" + port +
                 contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
         user.setFirstName(firstname);

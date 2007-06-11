@@ -67,24 +67,11 @@
             <param-name>cache</param-name>
             <param-value/>
         </init-param>
-        <load-on-startup>1</load-on-startup>
+         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
-    </servlet>
-    
-    <!-- The part below are the initial variables to turn on or off the demo part. 
-         When all of the param value attributes are set to false the whole demo is deactivated
-    -->
-    <servlet>
-        <servlet-name>demoactivation</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.DemoActivation</servlet-class>
-        <init-param>
-            <param-name>demoActive</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
     </servlet>
     
     <!-- BEGIN Select CSS Servlet -->

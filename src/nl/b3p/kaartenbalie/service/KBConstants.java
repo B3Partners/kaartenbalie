@@ -6,7 +6,7 @@
  *
  */
 
-package nl.b3p.kaartenbalie.core;
+package nl.b3p.kaartenbalie.service;
 
 import java.util.Arrays;
 import java.util.List;

@@ -133,6 +133,7 @@ public class UserAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
+        //TODO onderstaand is dubbel, user object is al opgehaald
         /*
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with

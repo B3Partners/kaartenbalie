@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.SecurityRealm;
@@ -229,6 +229,7 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
             return getAlternateForward(mapping, request);
         }
         
+        //TODO waarom??
         Session session = this.getHibernateSession();
         User dbUser = (User) session.get(User.class, sessionUser.getId());
         if(dbUser == null) {
@@ -237,9 +238,7 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
             return getAlternateForward(mapping, request);
         }
                 
-        //Als er geen fout opgetreden is, moeten de gebruikers gegevens op het request en de dynaform gezet worden.
-        request.setAttribute("user", sessionUser);
-        populateProfileForm(sessionUser, dynaForm, request);
+         populateProfileForm(sessionUser, dynaForm, request);
                 
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);

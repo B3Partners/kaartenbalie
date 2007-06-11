@@ -11,7 +11,7 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.util.Iterator;
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;

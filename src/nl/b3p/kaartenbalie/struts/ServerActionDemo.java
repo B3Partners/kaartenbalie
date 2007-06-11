@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.xml.sax.SAXException;
 
+//TODO: welke methodes kunne weg?
 public class ServerActionDemo extends ServerAction {
 
     /* forward name="success" path="" */

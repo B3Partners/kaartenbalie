@@ -84,11 +84,7 @@
     </global-forwards>
 
     <action-mappings>
-        <!-- action path="/index" forward="base.demo.index"/ -->
-        <action path="/index" type="nl.b3p.kaartenbalie.struts.IndexAction" scope="request" validate="false">  
-            <forward name="success" path="base.demo.index"/>
-            <forward name="failure" path="base.demo.index"/>
-        </action>
+        <action path="/index" forward="base.demo.index"/>
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
@@ -109,7 +105,7 @@
         
         <action path="/showProfile" name="profileForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.demo.profile"/>
-            <forward name="failure" path="base.demo.profile"/>
+            <forward name="failure" path="base.demo.index"/>
         </action>
     </action-mappings>
     

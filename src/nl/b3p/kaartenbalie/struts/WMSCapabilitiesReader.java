@@ -40,7 +40,7 @@ filter out the different kind of errors:
 package nl.b3p.kaartenbalie.struts;
 
 
-import nl.b3p.kaartenbalie.core.KBConstants;
+import nl.b3p.kaartenbalie.service.KBConstants;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import java.util.Stack;

@@ -56,28 +56,15 @@
         // 								END EDITABLE TOOLTIP VARIABLES
 </script>
 
-<c:choose>
-    <c:when test="${DemoActive == true}">
-    <div id='democontent'>
+<div id='democontent'>
     <div id="democontentheader">Uw WMS server is met succes toegevoegd</div>
     <div id="democontenttext">
-    <br>
-    
-    Kaartenbalie heeft met succes uw kaartmateriaal toegevoegd aan uw profiel. Door middel van de interne (of externe)
-    viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen. Het materiaal dat door u
-    aan Kaartenbalie toegevoegd is kan alleen door u bekeken worden. Kaartenbalie is opgezet met veiligheid in het 
-    achterhoofd.<br><br>
-    <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
+        <br>
+        
+        Kaartenbalie heeft met succes uw kaartmateriaal toegevoegd aan uw profiel. Door middel van de interne (of externe)
+        viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen. Het materiaal dat door u
+        aan Kaartenbalie toegevoegd is kan alleen door u bekeken worden. Kaartenbalie is opgezet met veiligheid in het 
+        achterhoofd.<br><br>
+        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
     </div>
-    </div>
-</c:when>
-    <c:otherwise>
-        <div id='democontent'>
-            <div id="democontentheader">Pagina niet aanwezig</div>
-            <div id="democontenttext">
-                De pagina die u heeft opgevraagd is niet (meer) toegankelijk in het systeem. Neemt u contact op 
-                met de beheerder indien u vragen heeft over deze pagina.
-            </div>
-        </div>
-    </c:otherwise>
-</c:choose>
+</div>
