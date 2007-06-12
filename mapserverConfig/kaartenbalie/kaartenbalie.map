@@ -1,11 +1,11 @@
-NAME KaartenbalieMaps
+NAME demo_kaartenbalie
 STATUS ON
 #EXTENT 15000 322000 30000 640000
 FONTSET "../fonts/fonts.list"
 WEB
   METADATA
     "wms_title"				"Kaartenbalie"
-    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
+    "wms_onlineresource"		"http://x5.b3p.nl/cgi-bin/mapserv_fwtools?map=/srv/maps/kaartenbalie.map&"
     "wms_srs"				"EPSG:28992"    
     "ows_schemas_location"		"http://schemas.opengeospatial.net"
   END
@@ -90,7 +90,7 @@ LAYER
   	END
   	SIZEUNITS meters
 	CONNECTIONTYPE postgis
-	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 	DATA "the_geom from bebouwdekom"
 	STATUS ON
 	TYPE POLYGON
@@ -116,7 +116,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_basis_nl"
   PROJECTION
     "init=epsg:28992"
@@ -159,7 +159,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -201,7 +201,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -241,7 +241,7 @@ LAYER
 	    "group_title"  "water"
   	END
   	CONNECTIONTYPE postgis
-	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 	DATA "the_geom from gd_rivieren_nl"
 	STATUS ON
 	TYPE LINE
@@ -283,7 +283,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from gem_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -324,7 +324,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from wijk_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -363,7 +363,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from buurt_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -410,7 +410,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from nieuwekaart_line USING UNIQUE gid USING SRID =28992"
   PROJECTION
     "init=epsg:28992"
@@ -615,7 +615,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
   DATA "the_geom from nieuwekaart_polygon USING UNIQUE gid USING SRID =28992"
   PROJECTION
     "init=epsg:28992"
@@ -892,7 +892,7 @@ END
 #  TYPE POINT
 #  STATUS OFF
 #  CONNECTIONTYPE postgis
-#  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+#  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
 #  DATA "the_geom from gemeentenamen"
 #  PROJECTION
 #    "init=epsg:4326"
