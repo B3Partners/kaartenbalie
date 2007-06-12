@@ -418,7 +418,8 @@ LAYER
   DUMP TRUE
   TEMPLATE bla
   TRANSPARENCY 40
-  LABELITEM "plannaam"
+  MAXSCALE 190000
+  #LABELITEM "plannaam"
   CLASS
   	EXPRESSION ('[bestemming]'="bedrijventerrein")
         NAME "Bedrijventerrein"
@@ -427,17 +428,6 @@ LAYER
 		SYMBOL "circle"
 		SIZE 2
     	END
-    	LABEL
-		ANTIALIAS true
-		FONT arial-bold
-		TYPE TRUETYPE
-		SIZE 9
-		MINFEATURESIZE 300
-		COLOR 0 0 0
-		OUTLINECOLOR 254 254 254
-		SHADOWSIZE 0 0
-		BUFFER 1
-	END
   END
   CLASS
   	EXPRESSION ('[bestemming]'="gemengd: landelijk")
@@ -446,17 +436,6 @@ LAYER
 		COLOR 153 102 0
 		SYMBOL "circle"
 		SIZE 2
-	END
-	LABEL
-		ANTIALIAS true
-		FONT arial-bold
-		TYPE TRUETYPE
-		SIZE 9
-		MINFEATURESIZE 300
-		COLOR 0 0 0
-		OUTLINECOLOR 254 254 254
-		SHADOWSIZE 0 0
-		BUFFER 1
 	END
   END
   CLASS
@@ -467,17 +446,6 @@ LAYER
   		SYMBOL "circle"
 		SIZE 2
   	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END
   CLASS
     	EXPRESSION ('[bestemming]'="nutsvoorziening")
@@ -487,17 +455,6 @@ LAYER
   		SYMBOL "circle"
   		SIZE 2
   	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END
   CLASS
       	EXPRESSION ('[bestemming]'="recreatie" OR '[bestemming]'="sport")
@@ -506,17 +463,6 @@ LAYER
     		COLOR 162 122 255
     		SYMBOL "circle"
     		SIZE 2
-    	END
-    	LABEL
-    		ANTIALIAS true
-    		FONT arial-bold
-    		TYPE TRUETYPE
-    		SIZE 9
-    		MINFEATURESIZE 300
-    		COLOR 0 0 0
-    		OUTLINECOLOR 254 254 254
-    		SHADOWSIZE 0 0
-    		BUFFER 1
     	END
   END
   CLASS
@@ -532,17 +478,6 @@ LAYER
 		SYMBOL 'rectangle-train'
 		SIZE 2
 	END
-      	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
-      	END
   END
   CLASS
         EXPRESSION ('[bestemming]'="verkeer: weg")
@@ -551,17 +486,6 @@ LAYER
       		COLOR 80 80 80
       		SYMBOL "circle"
       		SIZE 2
-      	END
-      	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
       	END
   END
   CLASS
@@ -572,17 +496,6 @@ LAYER
       		SYMBOL "circle"
       		SIZE 2
       	END
-      	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
-      	END
   END  
   CLASS
   	EXPRESSION ('[bestemming]'="wonen")
@@ -592,17 +505,6 @@ LAYER
   		SYMBOL "circle"
   		SIZE 2
   	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END 
   
 END 
@@ -611,6 +513,7 @@ LAYER
   GROUP plannen
   METADATA
     "wms_title" "Plan polygonen"
+    "group_title" "Plannen"
   END
   TYPE POLYGON
   STATUS ON
@@ -624,24 +527,14 @@ LAYER
   TEMPLATE bla
   TOLERANCE 100
   TRANSPARENCY 40
-  LABELITEM "plannaam"
+  MAXSCALE 190000
+  #LABELITEM "plannaam"
   CLASS
   	EXPRESSION ('[bestemming]'="agrarisch" OR '[bestemming]'="gemengd: landelijk")
 	NAME "Agrarisch & Landelijk"
 	STYLE
 		COLOR 153 102 0
 		OUTLINECOLOR 230 153 0
-	END
-	LABEL
-		ANTIALIAS true
-		FONT arial-bold
-		TYPE TRUETYPE
-		SIZE 9
-		MINFEATURESIZE 300
-		COLOR 0 0 0
-		OUTLINECOLOR 254 254 254
-		SHADOWSIZE 0 0
-		BUFFER 1
 	END
   END
   CLASS
@@ -651,17 +544,6 @@ LAYER
 		COLOR 199 199 199
 		OUTLINECOLOR 160 160 160
     	END
-    	LABEL
-		ANTIALIAS true
-		FONT arial-bold
-		TYPE TRUETYPE
-		SIZE 9
-		MINFEATURESIZE 300
-		COLOR 0 0 0
-		OUTLINECOLOR 254 254 254
-		SHADOWSIZE 0 0
-		BUFFER 1
-	END
   END
   CLASS
     	EXPRESSION ('[bestemming]'="detailhandel")
@@ -670,17 +552,6 @@ LAYER
   		COLOR 255 102 0
   		OUTLINECOLOR 204 82 0
       	END
-      	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END
   CLASS
     	EXPRESSION ('[bestemming]'="gemengd: stedelijk")
@@ -689,17 +560,6 @@ LAYER
   		COLOR 210 210 210
   		OUTLINECOLOR 190 190 190
       	END
-      	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END
   CLASS
       	EXPRESSION ('[bestemming]'="glastuinbouw")
@@ -708,17 +568,6 @@ LAYER
     		COLOR 71 255 209
     		OUTLINECOLOR 0 224 168
         END
-        LABEL
-    		ANTIALIAS true
-    		FONT arial-bold
-    		TYPE TRUETYPE
-    		SIZE 9
-    		MINFEATURESIZE 300
-    		COLOR 0 0 0
-    		OUTLINECOLOR 254 254 254
-    		SHADOWSIZE 0 0
-    		BUFFER 1
-    	END
   END
   CLASS
     	EXPRESSION ('[bestemming]'="groen" OR  '[bestemming]'="natuur")
@@ -726,17 +575,6 @@ LAYER
   	STYLE
   		COLOR 68 204 0
   		OUTLINECOLOR 51 153 0
-  	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
   	END
   END
   CLASS
@@ -746,17 +584,6 @@ LAYER
   		COLOR 255 204 0
   		OUTLINECOLOR 216 199 255
   	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
-  	END
   END
   CLASS
       	EXPRESSION ('[bestemming]'="recreatie" OR '[bestemming]'="sport" OR '[bestemming]'="verblijfsrecreatie")
@@ -764,17 +591,6 @@ LAYER
     	STYLE
     		COLOR 216 199 255
     		OUTLINECOLOR 162 122 255
-    	END
-    	LABEL
-    		ANTIALIAS true
-    		FONT arial-bold
-    		TYPE TRUETYPE
-    		SIZE 9
-    		MINFEATURESIZE 300
-    		COLOR 0 0 0
-    		OUTLINECOLOR 254 254 254
-    		SHADOWSIZE 0 0
-    		BUFFER 1
     	END
   END
   CLASS
@@ -785,17 +601,6 @@ LAYER
 		OUTLINECOLOR 102 102 102
 		
 	END
-	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
-      	END
   END
   CLASS
         EXPRESSION ('[bestemming]'="verkeer: weg")
@@ -803,17 +608,6 @@ LAYER
       	STYLE
       		COLOR 118 118 118
       		OUTLINECOLOR 80 80 80
-      	END
-      	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
       	END
   END
   CLASS
@@ -823,17 +617,6 @@ LAYER
 		COLOR 255 0 191
 		OUTLINECOLOR 204 0 153
 	END
-	LABEL
-		ANTIALIAS true
-		FONT arial-bold
-		TYPE TRUETYPE
-		SIZE 9
-		MINFEATURESIZE 300
-		COLOR 0 0 0
-		OUTLINECOLOR 254 254 254
-		SHADOWSIZE 0 0
-		BUFFER 1
-	END
   END
   CLASS
         EXPRESSION ('[bestemming]'="water" OR '[bestemming]'="waterberging")
@@ -842,17 +625,6 @@ LAYER
       		OUTLINECOLOR 112 184 255
       		COLOR 189 222 255
       	END
-      	LABEL
-      		ANTIALIAS true
-      		FONT arial-bold
-      		TYPE TRUETYPE
-      		SIZE 9
-      		MINFEATURESIZE 300
-      		COLOR 0 0 0
-      		OUTLINECOLOR 254 254 254
-      		SHADOWSIZE 0 0
-      		BUFFER 1
-      	END
   END
   CLASS
   	EXPRESSION ('[bestemming]'="wonen")
@@ -860,17 +632,6 @@ LAYER
   	STYLE
   		OUTLINECOLOR 255 0 0
   		COLOR 255 153 153
-  	END
-  	LABEL
-  		ANTIALIAS true
-  		FONT arial-bold
-  		TYPE TRUETYPE
-  		SIZE 9
-  		MINFEATURESIZE 300
-  		COLOR 0 0 0
-  		OUTLINECOLOR 254 254 254
-  		SHADOWSIZE 0 0
-  		BUFFER 1
   	END
   END 
   
