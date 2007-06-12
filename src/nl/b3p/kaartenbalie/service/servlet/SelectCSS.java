@@ -22,7 +22,9 @@ public class SelectCSS extends HttpServlet {
     private String server_default;
     private String csspath_default;
     private String server1;
-    private String csspath1;    
+    private String csspath1;
+    private String server2;
+    private String csspath2;  
     
     /** Initializes the servlet.
      *
@@ -36,7 +38,9 @@ public class SelectCSS extends HttpServlet {
         server_default = config.getInitParameter("server_default");
         csspath_default = config.getInitParameter("csspath_default");
         server1 = config.getInitParameter("server1");
-        csspath1 = config.getInitParameter("csspath1");        
+        csspath1 = config.getInitParameter("csspath1");
+        server2 = config.getInitParameter("server2");
+        csspath2 = config.getInitParameter("csspath2");
     }
     // </editor-fold>
     
@@ -66,8 +70,15 @@ public class SelectCSS extends HttpServlet {
             }
             url += contextPath + "/";
             cssUrl = url + csspath1;
+        } else if (requestServerName.equalsIgnoreCase(server2)) {
+            url = "http://" + server2;
+            if (port != 80) {
+                url += ":" + port;
+            }
+            url += contextPath + "/";
+            cssUrl = url + csspath2;
         } else {
-            url = "http://" + server1;
+            url = "http://" + server_default;
             if (port != 80) {
                 url += ":" + port;
             }
