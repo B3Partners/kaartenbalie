@@ -1,11 +1,11 @@
-NAME demo_kaartenbalie
+NAME KaartenbalieMaps
 STATUS ON
-EXTENT 15000 322000 30000 640000
+#EXTENT 15000 322000 30000 640000
 FONTSET "../fonts/fonts.list"
 WEB
   METADATA
     "wms_title"				"Kaartenbalie"
-    "wms_onlineresource"		"http://localhost/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
+    "wms_onlineresource"		"http://b3p-roy/cgi-bin/mapserv.exe?map=C:/mapserver/map/kaartenbalie/kaartenbalie.map&"
     "wms_srs"				"EPSG:28992"    
     "ows_schemas_location"		"http://schemas.opengeospatial.net"
   END
@@ -51,7 +51,21 @@ SYMBOL
   FILLED true
   STYLE 6 3 3 6 END
 END
-
+SYMBOL
+  NAME 'rectangle-train'
+  TYPE VECTOR
+  POINTS
+    0 0
+    0 0.6
+    1 0.6
+    1 0
+    0 0
+  END
+  FILLED TRUE
+  STYLE
+    8 12 8 12
+  END
+END
 
 
 SCALEBAR
@@ -76,7 +90,7 @@ LAYER
   	END
   	SIZEUNITS meters
 	CONNECTIONTYPE postgis
-	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
 	DATA "the_geom from bebouwdekom"
 	STATUS ON
 	TYPE POLYGON
@@ -102,11 +116,15 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from gd_basis_nl"
   PROJECTION
     "init=epsg:28992"
   END
+  
+  DUMP TRUE
+  TEMPLATE bla
+  
   TRANSPARENCY 70
   FILTER "land='Nederland' or length(water)>1"
   CLASS
@@ -123,6 +141,7 @@ LAYER
     NAME "Landgrens"
     STYLE
     	OUTLINECOLOR 173 90 0
+    	#COLOR 240 240 240
     	ANTIALIAS true
     END
   END
@@ -140,7 +159,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -182,7 +201,7 @@ LAYER
   TYPE LINE
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from gd_autowegen_nl"
   PROJECTION
     "init=epsg:28992"
@@ -222,7 +241,7 @@ LAYER
 	    "group_title"  "water"
   	END
   	CONNECTIONTYPE postgis
-	CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+	CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
 	DATA "the_geom from gd_rivieren_nl"
 	STATUS ON
 	TYPE LINE
@@ -264,7 +283,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from gem_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -305,7 +324,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from wijk_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -344,7 +363,7 @@ LAYER
   TYPE POLYGON
   STATUS ON
   CONNECTIONTYPE postgis
-  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
   DATA "the_geom from buurt_2006_cbs"
   PROJECTION
     "init=epsg:28992"
@@ -381,13 +400,488 @@ LAYER
   END 
 END  
 
+LAYER
+  NAME plan_lijnen
+  GROUP plannen
+  METADATA
+    "wms_title" "Plan lijnen"
+    "group_title" "Plannen"
+  END
+  TYPE LINE
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from nieuwekaart_line USING UNIQUE gid USING SRID =28992"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  DUMP TRUE
+  TEMPLATE bla
+  TRANSPARENCY 40
+  LABELITEM "plannaam"
+  CLASS
+  	EXPRESSION ('[bestemming]'="bedrijventerrein")
+        NAME "Bedrijventerrein"
+	STYLE
+		COLOR 160 160 160
+		SYMBOL "circle"
+		SIZE 2
+    	END
+    	LABEL
+		ANTIALIAS true
+		FONT arial-bold
+		TYPE TRUETYPE
+		SIZE 9
+		MINFEATURESIZE 300
+		COLOR 0 0 0
+		OUTLINECOLOR 254 254 254
+		SHADOWSIZE 0 0
+		BUFFER 1
+	END
+  END
+  CLASS
+  	EXPRESSION ('[bestemming]'="gemengd: landelijk")
+	NAME "Gemengd: Landelijk"
+	STYLE
+		COLOR 153 102 0
+		SYMBOL "circle"
+		SIZE 2
+	END
+	LABEL
+		ANTIALIAS true
+		FONT arial-bold
+		TYPE TRUETYPE
+		SIZE 9
+		MINFEATURESIZE 300
+		COLOR 0 0 0
+		OUTLINECOLOR 254 254 254
+		SHADOWSIZE 0 0
+		BUFFER 1
+	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="groen" OR  '[bestemming]'="natuur")
+  	NAME "Groen & Natuur"
+  	STYLE
+  		COLOR 51 153 0
+  		SYMBOL "circle"
+		SIZE 2
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="nutsvoorziening")
+  	NAME "Nutsvoorziening"
+  	STYLE
+  		COLOR 255 204 0
+  		SYMBOL "circle"
+  		SIZE 2
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+      	EXPRESSION ('[bestemming]'="recreatie" OR '[bestemming]'="sport")
+    	NAME "Recreatie & Sport"
+    	STYLE
+    		COLOR 162 122 255
+    		SYMBOL "circle"
+    		SIZE 2
+    	END
+    	LABEL
+    		ANTIALIAS true
+    		FONT arial-bold
+    		TYPE TRUETYPE
+    		SIZE 9
+    		MINFEATURESIZE 300
+    		COLOR 0 0 0
+    		OUTLINECOLOR 254 254 254
+    		SHADOWSIZE 0 0
+    		BUFFER 1
+    	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="verkeer: spoor")
+      	NAME "verkeer: spoor"
+      	STYLE
+		COLOR 102 102 102
+		SYMBOL 'circle'
+		SIZE 4
+	END
+	STYLE
+		COLOR 255 255 255
+		SYMBOL 'rectangle-train'
+		SIZE 2
+	END
+      	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="verkeer: weg")
+      	NAME "Recreatie"
+      	STYLE
+      		COLOR 80 80 80
+      		SYMBOL "circle"
+      		SIZE 2
+      	END
+      	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="water" OR '[bestemming]'="waterberging")
+      	NAME "Water & Waterberging"
+      	STYLE
+      		OUTLINECOLOR 112 184 255
+      		SYMBOL "circle"
+      		SIZE 2
+      	END
+      	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END  
+  CLASS
+  	EXPRESSION ('[bestemming]'="wonen")
+  	NAME "Wonen"
+  	STYLE
+  		OUTLINECOLOR 255 0 0
+  		SYMBOL "circle"
+  		SIZE 2
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END 
+  
+END 
+LAYER
+  NAME plan_polygonen
+  GROUP plannen
+  METADATA
+    "wms_title" "Plan polygonen"
+  END
+  TYPE POLYGON
+  STATUS ON
+  CONNECTIONTYPE postgis
+  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
+  DATA "the_geom from nieuwekaart_polygon USING UNIQUE gid USING SRID =28992"
+  PROJECTION
+    "init=epsg:28992"
+  END
+  DUMP TRUE
+  TEMPLATE bla
+  TOLERANCE 100
+  TRANSPARENCY 40
+  LABELITEM "plannaam"
+  CLASS
+  	EXPRESSION ('[bestemming]'="agrarisch" OR '[bestemming]'="gemengd: landelijk")
+	NAME "Agrarisch & Landelijk"
+	STYLE
+		COLOR 153 102 0
+		OUTLINECOLOR 230 153 0
+	END
+	LABEL
+		ANTIALIAS true
+		FONT arial-bold
+		TYPE TRUETYPE
+		SIZE 9
+		MINFEATURESIZE 300
+		COLOR 0 0 0
+		OUTLINECOLOR 254 254 254
+		SHADOWSIZE 0 0
+		BUFFER 1
+	END
+  END
+  CLASS
+  	EXPRESSION ('[bestemming]'="bedrijventerrein" OR '[bestemming]'="kantoor")
+        NAME "Bedrijventerrein & Kantoor"
+	STYLE
+		COLOR 199 199 199
+		OUTLINECOLOR 160 160 160
+    	END
+    	LABEL
+		ANTIALIAS true
+		FONT arial-bold
+		TYPE TRUETYPE
+		SIZE 9
+		MINFEATURESIZE 300
+		COLOR 0 0 0
+		OUTLINECOLOR 254 254 254
+		SHADOWSIZE 0 0
+		BUFFER 1
+	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="detailhandel")
+          NAME "Detailhandel"
+  	STYLE
+  		COLOR 255 102 0
+  		OUTLINECOLOR 204 82 0
+      	END
+      	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="gemengd: stedelijk")
+          NAME "Gemengd: Stedelijk"
+  	STYLE
+  		COLOR 210 210 210
+  		OUTLINECOLOR 190 190 190
+      	END
+      	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+      	EXPRESSION ('[bestemming]'="glastuinbouw")
+        NAME "Gemengd: Stedelijk"
+    	STYLE
+    		COLOR 71 255 209
+    		OUTLINECOLOR 0 224 168
+        END
+        LABEL
+    		ANTIALIAS true
+    		FONT arial-bold
+    		TYPE TRUETYPE
+    		SIZE 9
+    		MINFEATURESIZE 300
+    		COLOR 0 0 0
+    		OUTLINECOLOR 254 254 254
+    		SHADOWSIZE 0 0
+    		BUFFER 1
+    	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="groen" OR  '[bestemming]'="natuur")
+  	NAME "Groen & Natuur"
+  	STYLE
+  		COLOR 68 204 0
+  		OUTLINECOLOR 51 153 0
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+    	EXPRESSION ('[bestemming]'="nutsvoorziening")
+  	NAME "Nutsvoorziening"
+  	STYLE
+  		COLOR 255 204 0
+  		OUTLINECOLOR 216 199 255
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END
+  CLASS
+      	EXPRESSION ('[bestemming]'="recreatie" OR '[bestemming]'="sport" OR '[bestemming]'="verblijfsrecreatie")
+    	NAME "(Verblijfs)Recreatie & Sport"
+    	STYLE
+    		COLOR 216 199 255
+    		OUTLINECOLOR 162 122 255
+    	END
+    	LABEL
+    		ANTIALIAS true
+    		FONT arial-bold
+    		TYPE TRUETYPE
+    		SIZE 9
+    		MINFEATURESIZE 300
+    		COLOR 0 0 0
+    		OUTLINECOLOR 254 254 254
+    		SHADOWSIZE 0 0
+    		BUFFER 1
+    	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="verkeer: spoor")
+      	NAME "verkeer: spoor"
+      	STYLE
+		COLOR 140 140 140
+		OUTLINECOLOR 102 102 102
+		
+	END
+	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="verkeer: weg")
+      	NAME "Recreatie"
+      	STYLE
+      		COLOR 118 118 118
+      		OUTLINECOLOR 80 80 80
+      	END
+      	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="voorziening")
+	NAME "Recreatie"
+	STYLE
+		COLOR 255 0 191
+		OUTLINECOLOR 204 0 153
+	END
+	LABEL
+		ANTIALIAS true
+		FONT arial-bold
+		TYPE TRUETYPE
+		SIZE 9
+		MINFEATURESIZE 300
+		COLOR 0 0 0
+		OUTLINECOLOR 254 254 254
+		SHADOWSIZE 0 0
+		BUFFER 1
+	END
+  END
+  CLASS
+        EXPRESSION ('[bestemming]'="water" OR '[bestemming]'="waterberging")
+      	NAME "Water & Waterberging"
+      	STYLE
+      		OUTLINECOLOR 112 184 255
+      		COLOR 189 222 255
+      	END
+      	LABEL
+      		ANTIALIAS true
+      		FONT arial-bold
+      		TYPE TRUETYPE
+      		SIZE 9
+      		MINFEATURESIZE 300
+      		COLOR 0 0 0
+      		OUTLINECOLOR 254 254 254
+      		SHADOWSIZE 0 0
+      		BUFFER 1
+      	END
+  END
+  CLASS
+  	EXPRESSION ('[bestemming]'="wonen")
+  	NAME "Wonen"
+  	STYLE
+  		OUTLINECOLOR 255 0 0
+  		COLOR 255 153 153
+  	END
+  	LABEL
+  		ANTIALIAS true
+  		FONT arial-bold
+  		TYPE TRUETYPE
+  		SIZE 9
+  		MINFEATURESIZE 300
+  		COLOR 0 0 0
+  		OUTLINECOLOR 254 254 254
+  		SHADOWSIZE 0 0
+  		BUFFER 1
+  	END
+  END 
+  
+END
 END
 
 
 
 
-# test link: http://localhost/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
-#http://localhost/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
+#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
 
 #LAYER
 #  NAME plaatsnamen_nl
@@ -398,7 +892,7 @@ END
 #  TYPE POINT
 #  STATUS OFF
 #  CONNECTIONTYPE postgis
-#  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
+#  CONNECTION "user=postgres password=***REMOVED*** dbname=kaartenbalieMaps host=b3p-roy"
 #  DATA "the_geom from gemeentenamen"
 #  PROJECTION
 #    "init=epsg:4326"
