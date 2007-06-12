@@ -48,6 +48,7 @@ public class Layer implements XMLElement {
     private Set organizationLayers;
     private Set srsbb;
     private Set layers;
+    private String metaData;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -303,6 +304,14 @@ public class Layer implements XMLElement {
     public String getUniqueName(){
         return ""+this.getId()+"_"+this.getName();
     }
+    
+    public String getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(String metaData) {
+        this.metaData = metaData;
+    }
     // </editor-fold>
     
     /** Method that will perfom a shallow clone of the given object into this object.
@@ -461,6 +470,10 @@ public class Layer implements XMLElement {
                 layer.setParent(cloneLayer);
                 cloneLayer.layers.add(layer);
             }
+        }
+        
+        if (this.metaData != null) {
+            cloneLayer.metaData = new String(this.metaData);
         }
         return cloneLayer;
     }
