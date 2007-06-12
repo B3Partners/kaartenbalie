@@ -81,12 +81,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     }
     // </editor-fold>
     
-    //TODO:
-    // De foutafhandeling in processRequest moet nog verbeterd worden.
-    // De wms client kan vragen om een image of een xml bestand als return voor een foutmelding.
-    // Daartoe dient ook de response.setContentType(CHARSET); aangepast te worden,
-    // zodat deze de response op de juiste wijze terug kan sturen naar de client.
-    
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *
      * @param request servlet request

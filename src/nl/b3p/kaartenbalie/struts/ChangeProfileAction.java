@@ -229,15 +229,6 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
             return getAlternateForward(mapping, request);
         }
         
-        //TODO waarom??
-        Session session = this.getHibernateSession();
-        User dbUser = (User) session.get(User.class, sessionUser.getId());
-        if(dbUser == null) {
-            prepareMethod(dynaForm, request, def, alt);
-            addAlternateMessage(mapping, request, UNKNOWN_DB_USER_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
         populateProfileForm(sessionUser, dynaForm, request);        
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);

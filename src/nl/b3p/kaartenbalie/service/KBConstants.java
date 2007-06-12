@@ -81,16 +81,11 @@ public interface KBConstants {
     public static final String WMS_PARAM_INFO_FORMAT = "INFO_FORMAT";
     public static final String WMS_PARAM_FEATURECOUNT = "FEATURECOUNT";
     public static final String WMS_PARAM_EXCEPTION_FORMAT = "EXCEPTIONS";
-    
     public static final String WMS_PARAM_TRANSPARENT = "TRANSPARENT";
     public static final String WMS_PARAM_TRANSPARENT_TRUE = "TRUE";
-    
-    // TODO dit klopt niet, andere mimi types!
     public static final String WMS_PARAM_WMS_XML = "application/vnd.ogc.wms_xml";
     public static final String WMS_PARAM_EXCEPTION_XML = "application/vnd.ogc.se_xml";
-    public static final String FEATURE_INFO_FORMAT = "application/vnd.ogc.gml";
-    //public static final boolean WMS_GETFEATUREINFO_RETURN_EXCEPTION = true;    
-    
+    public static final String FEATURE_INFO_FORMAT = "application/vnd.ogc.gml";    
     public static final String CHARSET = "UTF-8";
     public static final String MD_ALGORITHM= "MD5";
     // </editor-fold>

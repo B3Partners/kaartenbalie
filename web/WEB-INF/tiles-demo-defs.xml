@@ -21,6 +21,9 @@
     <definition name="base.demo.registration" extends="base.demo">
         <put name="content" value="/demo/main/cRegistratie.jsp"/>
     </definition>
+    <definition name="base.demo.registrationsuccessfull" extends="base.demo">
+        <put name="content" value="/demo/main/cRegistratiesuccess.jsp"/>
+    </definition>
     <definition name="base.demo.addUrl" extends="base.demo">
         <put name="content" value="/demo/main/cAddUrl.jsp"/>
     </definition>

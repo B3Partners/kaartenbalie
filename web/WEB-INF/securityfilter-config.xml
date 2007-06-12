@@ -71,6 +71,24 @@
         </auth-constraint>
     </security-constraint>
     -->
+    <!-- en deze uitzetten indien geen demo -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>
+                kaartenbalie Collection 2
+            </web-resource-name>
+            <url-pattern>/demo/mapviewer.do</url-pattern>
+            <url-pattern>/demo/showProfile.do</url-pattern>
+            <http-method>POST</http-method>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>beheerder</role-name>
+            <role-name>gebruiker</role-name>
+            <role-name>demogebruiker</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
     
     <login-config>
         <auth-method>FORM</auth-method>

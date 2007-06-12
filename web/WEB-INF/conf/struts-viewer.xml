@@ -84,11 +84,11 @@
         <action path="/index" forward="base.viewer.index"/>
         <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.mapviewer"/>
-            <forward name="failure" path="base.viewer.index"/>
+            <forward name="failure" path="base.viewer.mapviewer"/>
         </action>
         <action path="/changeProfile" name="changeProfileForm" type="nl.b3p.kaartenbalie.struts.ChangeProfileAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.changeprofile"/>
-            <forward name="failure" path="base.viewer.index"/>
+            <forward name="failure" path="base.viewer.changeprofile"/>
         </action>
         <action path="/createPersonalURL" name="createPersonalURLForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
             <forward name="success" path="base.viewer.createurl"/>

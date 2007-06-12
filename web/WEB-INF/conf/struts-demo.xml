@@ -14,22 +14,13 @@
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
             <form-property name="firstname" type="java.lang.String"/>
-            <form-property name="lastname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
             <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
-            <form-property name="personalURL" type="java.lang.String"/>           
-
-            <form-property name="name" type="java.lang.String"/>
-            <form-property name="organizationStreet" type="java.lang.String"/>
-            <form-property name="organizationNumber" type="java.lang.String"/>
-            <form-property name="organizationAddition" type="java.lang.String"/>
-            <form-property name="organizationPostalcode" type="java.lang.String"/>
-            <form-property name="organizationProvince" type="java.lang.String"/>
-            <form-property name="organizationCountry" type="java.lang.String"/>
-            <form-property name="organizationPostbox" type="java.lang.String"/>
+            <form-property name="personalURL" type="java.lang.String"/>
+            <form-property name="organizationName" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
-            <form-property name="organizationFax" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
@@ -64,14 +55,14 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="username" type="java.lang.String"/>   
-            <form-property name="password" type="java.lang.String"/>
-            <form-property name="newpassword" type="java.lang.String"/>
-            <form-property name="newpasswordretyped" type="java.lang.String"/>
+            <form-property name="firstname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="emailaddress" type="java.lang.String"/>
+            <form-property name="role" type="java.lang.String"/>
             <form-property name="personalURL" type="java.lang.String"/>
             <form-property name="registeredIP" type="java.lang.String"/>
             <form-property name="timeout" type="java.lang.String"/>
-            <form-property name="defaultGetMap" type="java.lang.String"/>
         </form-bean>
     </form-beans>
     
@@ -88,6 +79,7 @@
         
         <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
+            <forward name="savesucceeded" path="base.demo.registrationsuccessfull"/>
             <forward name="failure" path="base.demo.registration"/>
         </action>
         

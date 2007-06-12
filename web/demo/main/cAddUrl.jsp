@@ -4,32 +4,26 @@
 
 <script language="JavaScript" type="text/javascript">
         var titleArray = new Array();
-        titleArray[0] = "Naamgeving";
-        titleArray[1] = "URL notitie";
+        titleArray[0] = "URL notitie";
         
         //TOOLTIP BODY TEXT
         var bodyArray = new Array();
-        bodyArray[0] = "Een zelf gekozen WMS server kan het beste een naam gegeven worden die het best deze WMS server omschrijft. Natuurlijk mag hier iedere willekeurige naam opgegeven worden die u prettig vindt.";
-        bodyArray[1] = "Let op dat Kaartenbalie op dit moment alleen geschikt is om met WMS versie 1.1.1. te communiceren. In de nabije toekomst zal dit hoogstwaarschijnlijk uitgebreid worden, maar op dit moment is het in het belang van de demostratie wel belangrijk dat u een WMS server toevoegd die versie 1.1.1. ondersteunt.";
+        bodyArray[0] = "Let op dat Kaartenbalie op dit moment alleen geschikt is om met WMS versie 1.1.1. te communiceren. In de nabije toekomst zal dit hoogstwaarschijnlijk uitgebreid worden, maar op dit moment is het in het belang van de demostratie wel belangrijk dat u een WMS server toevoegd die versie 1.1.1. ondersteunt.";
         
         //TOOLTIP DISPLAY LINK
         var linkArray = new Array();
         linkArray[0] = "http://www.b3p.nl/";
-        linkArray[1] = "http://www.b3p.nl/";
         
         //TOOLTIP URL
         var urlArray = new Array();
         urlArray[0] = "http://www.b3p.nl/";
-        urlArray[1] = "http://www.b3p.nl/";
         
         //TOOLTIP OFFSET
         var xOffsetArray = new Array();
         xOffsetArray[0] = 0;
-        xOffsetArray[1] = 0;
         
         var yOffsetArray = new Array();
         yOffsetArray[0] = 0;
-        yOffsetArray[1] = 0;
         
         //TOOLTIP BOX DEFAULT WIDTH
         var toolTipDefaultWidth = 220;
@@ -83,7 +77,7 @@
                     <td>
                         <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
                         <html:text property="url" size="75" />
-                        <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
+                        <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
                     </td>
                 </tr>
                 <html:hidden property="userid"></html:hidden>

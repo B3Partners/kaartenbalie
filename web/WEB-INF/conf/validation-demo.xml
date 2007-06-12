@@ -17,7 +17,7 @@
             <field property="firstname" depends="required"> <!-- required -->
                 <arg0 key="beheer.firstname"/>
             </field>
-            <field property="lastname" depends="required"> <!-- required -->
+            <field property="surname" depends="required"> <!-- required -->
                 <arg0 key="beheer.lastname"/>
             </field>
             <field property="emailAddress" depends="required"> <!-- required -->
@@ -29,7 +29,7 @@
             <field property="password" depends="required"> <!-- required -->
                 <arg0 key="beheer.password"/>
             </field>
-            <field property="name" depends="required"> <!-- required -->
+            <field property="organizationName" depends="required"> <!-- required -->
                 <arg0 key="beheer.name"/>
             </field>
             <field property="organizationTelephone" depends="required"> <!-- required -->

@@ -45,6 +45,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
     protected static final String PREDEFINED_SERVER = "demo.serverurl";
     protected static final String PREDEFINED_SERVER_NAME = "demo.servername";
+    protected static final String SAVESUCCES = "savesucceeded";
     
     /** Method for saving a new service provider from input of a user.
      *
@@ -105,13 +106,11 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
             return getAlternateForward(mapping, request);
         }
         
-        
-        //TODO dubbelop
-        /*
+        /* CHECKING FOR UNIQUE USERNAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
          * the given username. If such a user exists we need to inform the user that
-         * this is not allowed.
+         * this is not allowed. 
          */
         Session sess = getHibernateSession();
         User dbUser = (User)sess.createQuery(
@@ -184,17 +183,17 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         
         dynaForm.set("id", user.getId().toString());
         dynaForm.set("firstname", user.getFirstName());
-        dynaForm.set("lastname", user.getLastName());
+        dynaForm.set("surname", user.getLastName());
         dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
         dynaForm.set("personalURL", user.getPersonalURL());
-        dynaForm.set("name", user.getOrganization().getName());
+        dynaForm.set("organizationName", user.getOrganization().getName());
         dynaForm.set("organizationTelephone", user.getOrganization().getTelephone());
         
         ActionForward action = super.save(mapping,dynaForm,request,response);
         
-        return action;
+        return mapping.findForward(SAVESUCCES);
     }
     // </editor-fold>
     
@@ -226,7 +225,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     private void populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String firstname        = FormUtils.nullIfEmpty(dynaForm.getString("firstname"));
-        String surname          = FormUtils.nullIfEmpty(dynaForm.getString("lastname"));
+        String surname          = FormUtils.nullIfEmpty(dynaForm.getString("surname"));
         String email            = FormUtils.nullIfEmpty(dynaForm.getString("emailAddress"));
         String username         = FormUtils.nullIfEmpty(dynaForm.getString("username"));
         String password         = FormUtils.nullIfEmpty(dynaForm.getString("password"));
@@ -237,9 +236,11 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
          * Everything seems to be ok, so it's alright to save the information
          * First we need to create a personal URL based on the information from the user
          */
+        String protocolAndVersion   = request.getProtocol();
         String requestServerName    = request.getServerName();
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
+        String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("//"));
         
         String toBeHashedString = registeredIP + username + password + df.format(new Date());
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
@@ -247,7 +248,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         BigInteger hash = new BigInteger(1, md.digest());
         
         //TODO: http protocol ophalen ipv vast
-        String personalURL = "http://" + requestServerName + ":" + port +
+        String personalURL = protocol + "://" + requestServerName + ":" + port +
                 contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
         user.setFirstName(firstname);
@@ -259,7 +260,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         user.setPersonalURL(personalURL);
         user.setRole("demogebruiker");
         
-        organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
+        organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
     }
     // </editor-fold>

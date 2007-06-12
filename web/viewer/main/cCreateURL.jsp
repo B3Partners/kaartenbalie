@@ -48,10 +48,6 @@
         <table>
             <tr>
                 <td>Naam:</td>
-                
-            
-                
-                
                 <td><c:out value="${form.map.firstname}"/>&nbsp;<c:out value="${form.map.surname}"/></td>
             </tr>
             <tr>
