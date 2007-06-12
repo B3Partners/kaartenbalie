@@ -25,6 +25,11 @@
     <definition name="base.beheer.organization" extends="base.beheer">
         <put name="content" value="/beheer/main/cOrganization.jsp"/>
     </definition>
-
-    <definition name="metadata" path="/beheer/metadata.jsp"/>
+    <definition name="base.beheer.metadata" extends="base.beheer">
+        <put name="content" value="/beheer/main/cMetadata.jsp"/>
+    </definition>
+    <definition name="base.beheer.editmetadata" extends="base.beheer">
+        <put name="content" value="/beheer/main/cEditMetadata.jsp"/>
+        <put name="menu" value=""/>
+    </definition>
 </tiles-definitions>

@@ -28,11 +28,11 @@
         <table>
             <tr>
                 <td>Naam:</td>
-                <td><c:out value="${user.firstName}"/>&nbsp;<c:out value="${user.lastName}"/></td>
+                <td><c:out value="${form.map.firstname}"/>&nbsp;<c:out value="${form.map.surname}"/></td>
             </tr>
             <tr>
                 <td>Gebruikersnaam:</td>
-                <td><c:out value="${user.username}"/></td>
+                <td><c:out value="${form.map.username}"/></td>
             </tr>
             <tr>
                 <td>Wachtwoord:</td>
@@ -40,11 +40,11 @@
             </tr>
             <tr>
                 <td>Email adres:</td>
-                <td><c:out value="${user.emailAddress}"/></td>
+                <td><c:out value="${form.map.emailaddress}"/></td>
             </tr>
             <tr>
                 <td>Role:</td>
-                <td><c:out value="${user.role}"/></td>
+                <td><c:out value="${form.map.role}"/></td>
             </tr>
         </table>
     </div>   

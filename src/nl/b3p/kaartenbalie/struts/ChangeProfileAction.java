@@ -237,9 +237,8 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
             addAlternateMessage(mapping, request, UNKNOWN_DB_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-                
-         populateProfileForm(sessionUser, dynaForm, request);
-                
+        
+        populateProfileForm(sessionUser, dynaForm, request);        
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);
     }
@@ -253,9 +252,13 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateProfileForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("firstname", user.getFirstName());
+        dynaForm.set("surname", user.getLastName());
+        dynaForm.set("username", user.getUsername());
+        dynaForm.set("role", user.getRole());
         dynaForm.set("newpassword", user.getPassword());
         dynaForm.set("newpasswordretyped", user.getPassword());
-        dynaForm.set("emailaddress", user.getEmailAddress());
+        dynaForm.set("emailaddress", user.getEmailAddress());        
     }
     // </editor-fold>
 }

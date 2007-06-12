@@ -481,8 +481,6 @@
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
     <target name="library-inclusion-in-archive" depends="init" unless="dist.ear.dir">
-        <copy file="${libs.struts.classpath.libfile.8}" todir="${build.web.dir.real}/WEB-INF/lib"/>
-        <copy file="${libs.struts.classpath.libfile.7}" todir="${build.web.dir.real}/WEB-INF/lib"/>
         <copy file="${libs.struts.classpath.libfile.6}" todir="${build.web.dir.real}/WEB-INF/lib"/>
         <copy file="${libs.struts.classpath.libfile.5}" todir="${build.web.dir.real}/WEB-INF/lib"/>
         <copy file="${libs.struts.classpath.libfile.4}" todir="${build.web.dir.real}/WEB-INF/lib"/>

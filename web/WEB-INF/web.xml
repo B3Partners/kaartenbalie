@@ -94,6 +94,14 @@
             <param-name>csspath1</param-name>
             <param-value>styles/mnp.css</param-value>
         </init-param>
+        <init-param>
+            <param-name>server2</param-name>
+            <param-value>localhost</param-value>
+        </init-param>
+        <init-param>
+            <param-name>csspath2</param-name>
+            <param-value>styles/b3p.css</param-value>
+        </init-param>
     </servlet>
     
     <servlet-mapping>

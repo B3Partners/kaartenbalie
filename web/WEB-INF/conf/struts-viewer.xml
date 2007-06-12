@@ -30,6 +30,10 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->  
+            <form-property name="firstname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="role" type="java.lang.String"/>            
             <form-property name="newpassword" type="java.lang.String"/>
             <form-property name="newpasswordretyped" type="java.lang.String"/>
             <form-property name="emailaddress" type="java.lang.String"/>
@@ -41,14 +45,14 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="username" type="java.lang.String"/>   
-            <form-property name="password" type="java.lang.String"/>
-            <form-property name="newpassword" type="java.lang.String"/>
-            <form-property name="newpasswordretyped" type="java.lang.String"/>
+            <form-property name="firstname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="emailaddress" type="java.lang.String"/>
+            <form-property name="role" type="java.lang.String"/>
             <form-property name="personalURL" type="java.lang.String"/>
             <form-property name="registeredIP" type="java.lang.String"/>
             <form-property name="timeout" type="java.lang.String"/>
-            <form-property name="defaultGetMap" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="wmsUrlCreatorForm" type="org.apache.struts.validator.DynaValidatorForm">

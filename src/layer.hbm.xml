@@ -137,5 +137,8 @@
         <property name="scaleHintMax">
             <column name="SCALEHINTMAX"/>
         </property>
+        <property name="metaData">
+            <column name="METADATA"/>
+        </property>
     </class>
 </hibernate-mapping>
