@@ -398,8 +398,32 @@ LAYER
   	      SHADOWSIZE 0 0
   	END
   END 
-END  
+END
 
+LAYER
+  NAME bron_nieuwekaart
+  GROUP plannen
+  TYPE annotation
+  TRANSFORM false
+  FEATURE
+    POINTS
+      10 10
+    END
+    TEXT "Bron: De Nieuwe Kaart van Nederland, Nirov, Den Haag"
+  END   
+  CLASS
+    LABEL 
+      TYPE TRUETYPE
+      FONT arial-bold
+      POSITION cr
+      SIZE 8
+      BUFFER 1
+      COLOR 0 0 0
+      BACKGROUNDCOLOR 255 255 255
+      FORCE TRUE
+    END
+  END 
+END
 LAYER
   NAME plan_lijnen
   GROUP plannen
