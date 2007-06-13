@@ -71,9 +71,9 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
             Node node = getElementBy(returnConfig,"id","map");
             for (int i = 0; i < node.getAttributes().getLength(); i++){
                 if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("layers")){
-                    node.getAttributes().item(i).setNodeValue(layers);
+                    node.getAttributes().item(i).setNodeValue(layers.replace("*",","));
                 }else if(node.getAttributes().item(i).getNodeName().equalsIgnoreCase("query_layers")){
-                    node.getAttributes().item(i).setNodeValue(layers);
+                    node.getAttributes().item(i).setNodeValue(layers.replace("*",","));
                 }
             }
         }
@@ -81,11 +81,10 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
             Node node = getElementBy(returnConfig,"id","mainMap");
             for (int i = 0; i < node.getAttributes().getLength(); i++){
                 if (node.getAttributes().item(i).getNodeName().equalsIgnoreCase("extent")){
-                    node.getAttributes().item(i).setNodeValue(extent);
+                    node.getAttributes().item(i).setNodeValue(extent.replace("*",","));
                 }
             }
         }
-        
         write(response,returnConfig);
     }
     
@@ -97,6 +96,7 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(doc);
         OutputStream os = response.getOutputStream();
+        String s= output.toString();
         os.write(output.toString().getBytes(CHARSET));
     }
     

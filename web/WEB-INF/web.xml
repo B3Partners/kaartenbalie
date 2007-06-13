@@ -115,7 +115,7 @@
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>
         <init-param>
             <param-name>defaultConfigLocation</param-name>
-            <param-value>/viewer/flamingo/config.xml</param-value>
+            <param-value>flamingo/config.xml</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
@@ -128,7 +128,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>FlamingoConfigServlet</servlet-name>
-        <url-pattern>/servlet/FlamingoConfigServlet/*</url-pattern>
+        <url-pattern>/flamingo/servlet/FlamingoConfigServlet/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -10,7 +10,7 @@
     <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
 </div>
 <script type="text/javascript">
-    var so = new SWFObject('flamingo/flamingo.swf?config=../servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
+    var so = new SWFObject('../flamingo/flamingo.swf?config=servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
     so.write("flashcontent");
 </script>
 
@@ -95,12 +95,12 @@
                 if(layersString.length==0){
                     layersString+=orderLayers[i].name;
                 }else{
-                    layersString+=","+orderLayers[i].name;
+                    layersString+="*"+orderLayers[i].name;
                 }
             }                
             //haal de extent op van de mainmap en plaats die in de request
             var e=flamingo.call("mainMap", "getCurrentExtent");
-            window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
+            window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "*" + e.miny + "*" + e.maxx + "*" + e.maxy;
         } 
         
         function setAllTrue(element){
@@ -141,7 +141,7 @@
         //check the selected layers
         <c:if test="${not empty checkedLayers}">
             var layerstring="${checkedLayers}";
-            var layers=layerstring.split(",");
+            var layers=layerstring.split("*");
             for (var i=0; i < layers.length; i++){
                 var element=document.getElementById(layers[i]);
                 if (element){
