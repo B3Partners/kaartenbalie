@@ -9,48 +9,19 @@
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <div class="containerdiv" style="float: left; clear: none;">
-    <H1>Beheer Metadata</H1>
-    
-    <b>Lijst met beschikbare layers:</b>
-    
-    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-        <div id="treeContainerLarge">
-            <div class="treeHolderLarge">
-                <div id="tree"></div>
-            </div>
+<H1>Beheer Metadata</H1>
+
+<b>Lijst met beschikbare layers:</b>
+
+<div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+    <div id="treeContainerLarge">
+        <div class="treeHolderLarge">
+            <div id="tree"></div>
         </div>
     </div>
-    <html:link href='#' onclick="javascript:popUp('editmetadata.do?edit=submit&id=1_blaat');">
-        klik mij
-    </html:link>  
-    
-    <script>
-        function openWMSHelp() {
-            var elementGetMap= document.getElementById("defaultGetMap");
-            var elementPUrl= document.getElementById("personalURL");
-            var value="wmsUrlCreator.do";
-            
-            if (elementGetMap && elementGetMap.value.length > 0) {
-                value += "?getMap=" + encodeURIComponent(elementGetMap.value);
-            }
-            
-            if (elementPUrl && elementPUrl.value.length > 0) {
-                if (value.indexOf('?')<0) {
-                    value += "?";
-                } else {
-                    value += "&";
-                }
-                value += "pUrl=" + encodeURIComponent(elementPUrl.value);
-            }
-            window.open(value, "Metadata Editor", "width=700, height=600, resizable=yes, scrollbars=yes");
-        }
-        
-        function putWmsGetMap(value) {
-            document.getElementById("defaultGetMap").value = value;
-        }
-    </script>
-    
-    <script type="text/javascript">
+</div>
+
+<script type="text/javascript">
     <c:if test = "${not empty layerList}">
         
         var root = ${layerList};
@@ -168,4 +139,4 @@
         }
         
     </c:if>
-    </script>    
+</script>    
