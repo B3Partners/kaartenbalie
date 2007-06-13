@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 

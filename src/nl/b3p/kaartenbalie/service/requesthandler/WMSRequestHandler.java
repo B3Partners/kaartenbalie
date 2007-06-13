@@ -16,15 +16,10 @@
 
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,23 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.service.KBConstants;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
-import nl.b3p.kaartenbalie.core.server.Style;
-import nl.b3p.kaartenbalie.core.server.StyleDomainResource;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
@@ -57,10 +42,6 @@ import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.kaartenbalie.struts.ElementHandler;
 import nl.b3p.kaartenbalie.struts.Switcher;
 import nl.b3p.kaartenbalie.service.KBImageTool;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HeaderElement;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,22 +55,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-
-
-
-
-
-
-
-
-//Even uitproberen hoe dit werkt en toepassen voor alle URL functies.
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
@@ -129,11 +98,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         User dbUser = (User)sess.createQuery("from User u where " +
                 "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
-
+        
         dbLayers = dbUser.getOrganization().getOrganizationLayer();
         if (dbLayers == null)
             return null;
-
+        
         /*
          * Now we have a set of layers with which we can perform our action.
          * There can be two types of actions; there can be a combination of all
@@ -142,18 +111,18 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * Before we can perform the action we need to take some action in order
          * to be able to perform the action.
          */
-
+        
         /*
          * Getting the serviceproviders from the database layers.
          * By walking through all layers, checking if the layer has a parent we can
          * select only those layers which hang directly under a serviceprovider
-         * 
+         *
          * First we need to clone each of the layers we recieved from the database.
          * Of these clones we need to select only the leaf layers and with those leaf layers
          * we can build up the tree to the top by calling the getParents method.
          */
         Set parents = getParents(getLeafLayers(cloneLayers(dbLayers)));
-
+        
         Set serviceproviders = new HashSet();
         Iterator it = parents.iterator();
         while (it.hasNext()) {
@@ -163,7 +132,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             clonedSp.addLayer(parent);
             serviceproviders.add( clonedSp );
         }
-
+        
         if(combine) {
             /* Now a top layer is available we need a ServiceProviderobject to store
              * this toplayer in. With the ServiceProvider there are also a couple of
@@ -173,7 +142,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
              */
             ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
             ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-
+            
             /* We have still a Set of toplayers.
              * A ServiceProvider is allowed to have only one toplayer.
              * Therefore a toplayer has to be created manually.
@@ -183,7 +152,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             Layer layer = new Layer();
             layer.setTitle(TOPLAYERNAME);
             //layer.setName(TOPLAYERNAME);
-
+            
             //Standaard LatLonBoundingBox
             //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
             //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
@@ -197,7 +166,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             LayerValidator lv = new LayerValidator(dbLayers);
             layer.addSrsbb(lv.validateLatLonBoundingBox());
             layer.setLayers(parents);
-
+            
             /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
              * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
              * Name, then that layer is only a category title for all the layers nested within. A Map
@@ -213,7 +182,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 srsbb.setSrs(supportedSRS[i]);
                 layer.addSrsbb(srsbb);
             }
-
+            
             validServiceProvider.addLayer(layer);
             sps.add(validServiceProvider);
         } else {
@@ -227,7 +196,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     /** Creates a new Set of layers which are an exact clonecopy of the original ones.
      *
      * @param originalLayers
-     * 
+     *
      * @return Set with the cloned layers
      */
     // <editor-fold defaultstate="" desc="cloneLayers(Set originalLayers) method.">
@@ -244,7 +213,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     /** Creates a new layer which is an exact clonecopy of the original one.
      *
      * @param original
-     * 
+     *
      * @return Layer exact copy of the original layer
      */
     // <editor-fold defaultstate="" desc="cloneLayer(Layer original) method.">
@@ -261,7 +230,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     /** Defines a Set with layers in which only leafs are added. These have no childs.
      *
      * @param originalLayers
-     * 
+     *
      * @return Set with only leaf layers
      */
     // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
@@ -281,7 +250,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     /** Builds a new tree from the bottom up with only the leafs as beginning point.
      *
      * @param leafLayers
-     * 
+     *
      * @return Set with the top layers which hold all children.
      */
     // <editor-fold defaultstate="" desc="getParents(Set leafLayers) method.">
@@ -340,8 +309,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     }
     // </editor-fold>
     
-    /** Gets the data from a specific set of URL's and converts the information to the format usefull to the 
-     * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the 
+    /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
+     * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the
      * DataWrapper, which will sent the data to the client requested for this information.
      *
      * @param dw DataWrapper object containing the clients request information
@@ -367,8 +336,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 /* Read each of the strings and create an URL for each one of them
                  * With the defined URL create a BufferedImage which will contain the
                  * image the URL was loacting to.
-                 * Before we can combine each of the read images, we first need to 
-                 * check for for each image we read if an error occurs during reading 
+                 * Before we can combine each of the read images, we first need to
+                 * check for for each image we read if an error occurs during reading
                  * or if we get an error message from the server without even reading
                  * an image. It could be that the reading of any input could go right
                  * but that the information we get during reading is not the information
@@ -394,14 +363,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 for (int i = 0; i < urls.size(); i++) {
                     String url = ((StringBuffer)urls.get(i)).toString();
                     URL u = new URL(url);
-                                        
+                    
                     HttpClient client = new HttpClient();
                     GetMethod method = new GetMethod(url);
                     checkHttpMethodConnection(client, method);
                     client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
                     
                     contentType = method.getResponseHeader("Content-Type").getValue();
-                        
+                    
                     if (contentType.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                         InputStream is = method.getResponseBodyAsStream();
                         String body = getServiceException(is);
@@ -485,21 +454,21 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
         
         String rhValue = "";
-
+        
         try {
             int statusCode = client.executeMethod(method);
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
-
+            
             rhValue = method.getResponseHeader("Content-Type").getValue();
-
+            
             if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                 InputStream is = method.getResponseBodyAsStream();
                 String body = getServiceException(is);
                 throw new Exception(body);
             }
-
+            
             dw.setContentType(rhValue);
             dw.write(method.getResponseBodyAsStream());
         } catch (HttpException e) {

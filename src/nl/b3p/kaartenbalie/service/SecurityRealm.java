@@ -12,7 +12,6 @@ package nl.b3p.kaartenbalie.service;
 
 import java.security.Principal;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;

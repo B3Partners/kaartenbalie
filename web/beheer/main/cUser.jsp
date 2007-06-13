@@ -38,8 +38,8 @@
                     <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>">
                         <c:out value="${nUser.firstName}"/>
                     </div>
-                    <div style="width: 160px;" title="<c:out value="${nUser.lastName}"/>">
-                        <c:out value="${nUser.lastName}"/>
+                    <div style="width: 160px;" title="<c:out value="${nUser.surname}"/>">
+                        <c:out value="${nUser.surname}"/>
                     </div>
                     <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>">
                         <html:link page="/user.do?edit=submit&id=${nUser.id}">
@@ -63,7 +63,7 @@
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
-                    <td><html:text property="lastname"/></td>
+                    <td><html:text property="surname"/></td>
                 </tr>
                 <tr>
                     <td><B><fmt:message key="beheer.userEmail"/>:</B></td>

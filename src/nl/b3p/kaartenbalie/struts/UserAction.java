@@ -10,17 +10,13 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.util.HashSet;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-
-import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
@@ -133,8 +129,7 @@ public class UserAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        //TODO onderstaand is dubbel, user object is al opgehaald
-        /*
+        /* CHECKING FOR UNIQUE USERNAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
          * the given username. If such a user exists we need to inform the user that
@@ -265,7 +260,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
-    private Integer getID(DynaValidatorForm dynaForm) {
+    protected Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
@@ -280,7 +275,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a User object.
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
         Session session = getHibernateSession();
         User user = null;
         
@@ -319,14 +314,16 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
-    private void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+    protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", user.getId().toString());
         dynaForm.set("firstname", user.getFirstName());
-        dynaForm.set("lastname", user.getLastName());
+        dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
-        dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
+        if(user.getOrganization() != null) {
+            dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
+        }
         dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
@@ -338,14 +335,21 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
-    private void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
+    protected void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
-        user.setLastName(FormUtils.nullIfEmpty(dynaForm.getString("lastname")));
+        user.setSurname(FormUtils.nullIfEmpty(dynaForm.getString("surname")));
         user.setEmailAddress(FormUtils.nullIfEmpty(dynaForm.getString("emailAddress")));
         user.setUsername(FormUtils.nullIfEmpty(dynaForm.getString("username")));
         user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
-        user.setOrganization(this.getOrganization(FormUtils.StringToInteger(dynaForm.getString("selectedOrganization"))));
-        user.setRole(dynaForm.getString("selectedRole"));
+        
+        String selectedOrg = dynaForm.getString("selectedOrganization");
+        if(selectedOrg != null) {
+            user.setOrganization(this.getOrganization(FormUtils.StringToInteger(selectedOrg)));
+        }
+        String selectedRole = dynaForm.getString("selectedRole");
+        if(selectedRole != null) {
+            user.setRole(selectedRole);
+        }
     }
     // </editor-fold>
 }

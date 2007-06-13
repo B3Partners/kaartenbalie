@@ -10,7 +10,6 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -137,7 +136,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         /*
-         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
+         * Before we can start checking for changes or adding a new GetMap URL, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
          * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
          * checked when an action will be performed.
@@ -213,21 +212,9 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         
         getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
         
-        //TODO waarvoor is onderstaand blokje
         Session session = this.getHibernateSession();
-        User dbUser = (User) session.get(User.class, user.getId());
-        if(dbUser == null) {
-            prepareMethod(dynaForm, request, LIST, LIST);
-            addAlternateMessage(mapping, request, UNKNOWN_DB_USER_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        dbUser.setDefaultGetMap(getMap);
-        
-        
         user.setDefaultGetMap(getMap);
-        getHibernateSession().save(dbUser);
-        
-        //request.setAttribute("getMapMade", getMap);
+        getHibernateSession().saveOrUpdate(user);
         populateForm(getMap, dynaForm, request);
         return mapping.findForward("success");
     }

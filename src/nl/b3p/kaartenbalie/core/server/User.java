@@ -17,7 +17,7 @@ public class User implements Principal {
     
     private Integer id;
     private String firstName;
-    private String lastName;
+    private String surname;
     private String emailAddress;
     private String username;
     private String password;
@@ -45,12 +45,12 @@ public class User implements Principal {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public String getEmailAddress() {

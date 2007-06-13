@@ -11,36 +11,19 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.SecurityRealm;
-import nl.b3p.kaartenbalie.service.WMSParamUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
-        
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.math.BigInteger;
 
 public class ChangeProfileAction extends KaartenbalieCrudAction implements KBConstants  {
     
@@ -244,7 +227,7 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
     // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateProfileForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("firstname", user.getFirstName());
-        dynaForm.set("surname", user.getLastName());
+        dynaForm.set("surname", user.getSurname());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("role", user.getRole());
         dynaForm.set("newpassword", user.getPassword());

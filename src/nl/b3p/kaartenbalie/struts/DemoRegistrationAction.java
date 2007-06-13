@@ -37,8 +37,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
-//TODO: overweeg userAction te overklassen ipv KaartenbalieCrudAction en save op te splisten in keinere delen
-public class DemoRegistrationAction extends KaartenbalieCrudAction implements KBConstants {
+public class DemoRegistrationAction extends UserAction implements KBConstants {
     
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
@@ -125,14 +124,48 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
             return getAlternateForward(mapping, request);
         }
         
-        //Nu kunnen we verder...
+        
+        /*
+         * All checks have been performed. Now we can save the user and his organization.
+         */
         Organization organization = user.getOrganization();
         if (organization == null) {
             organization = new Organization();
         }
-        
         populateRegistrationObject(request, dynaForm, user, organization);
+        organization.setOrganizationLayer(getLayerSet(request, sess));
+        sess.saveOrUpdate(organization);
+        user.setOrganization(organization);
+        sess.saveOrUpdate(user);
+        sess.flush();
         
+        /*
+         * Make sure that the system will accept the user already as logged in.
+         * In order to do this we need to get the SecurityRequestWrapper and set
+         * this user as Principal in the requets.
+         *
+         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise 
+         * the program will crash.
+         */
+        Principal principal = (Principal) user;
+        if (request instanceof SecurityRequestWrapper) {
+            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            srw.setUserPrincipal(principal);
+        }
+        
+        this.populateForm(user, dynaForm, request);        
+        ActionForward action = super.save(mapping,dynaForm,request,response);        
+        return mapping.findForward(SAVESUCCES);
+    }
+    // </editor-fold>
+    
+    /* Method which will fill-in the JSP form with the data of a given user.
+     *
+     * @param request The HTTP Request we are processing.
+     * @param session Session object for the database.
+     */
+    // <editor-fold defaultstate="" desc="getLayerSet(HttpServletRequest request, Session session) method.">
+    private Set getLayerSet(HttpServletRequest request, Session session) {
         /*
          * Because every new demo user has access to the predefined server which will
          * be supported by B3Partners we first need to get this WMS server from the database
@@ -143,7 +176,7 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
         String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
         String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
         
-        ServiceProvider stdServiceProvider = (ServiceProvider)sess.createQuery(
+        ServiceProvider stdServiceProvider = (ServiceProvider)session.createQuery(
                 "from ServiceProvider sp where " +
                 "lower(sp.givenName) = lower(:givenName) " +
                 "and lower(sp.url) = lower(:url)")
@@ -156,54 +189,18 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
          */
         Set standardLayerSet = new HashSet();
         standardLayerSet = getAllLayers(stdServiceProvider.getLayers(), standardLayerSet);
-        
-        /*
-         * Get the users organization and store the layers into this Organization.
-         */
-        
-        organization.setOrganizationLayer(standardLayerSet);
-        sess.saveOrUpdate(organization);
-        user.setRole("demogebruiker");
-        user.setOrganization(organization);
-        sess.saveOrUpdate(user);
-        sess.flush();
-        
-        /*
-         * Make sure that the system will accept the user already as logged in.
-         * In order to do this we need to get the SecurityRequestWrapper and set
-         * this user as Principal in the requets.
-         * Be sure that the user set as Principal has an ID, otherwise the program
-         * will crash.
-         */
-        Principal principal = (Principal) user;
-        if (request instanceof SecurityRequestWrapper) {
-            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
-            srw.setUserPrincipal(principal);
-        }
-        
-        dynaForm.set("id", user.getId().toString());
-        dynaForm.set("firstname", user.getFirstName());
-        dynaForm.set("surname", user.getLastName());
-        dynaForm.set("emailAddress", user.getEmailAddress());
-        dynaForm.set("username", user.getUsername());
-        dynaForm.set("password", user.getPassword());
-        dynaForm.set("personalURL", user.getPersonalURL());
-        dynaForm.set("organizationName", user.getOrganization().getName());
-        dynaForm.set("organizationTelephone", user.getOrganization().getTelephone());
-        
-        ActionForward action = super.save(mapping,dynaForm,request,response);
-        
-        return mapping.findForward(SAVESUCCES);
+        return standardLayerSet;
     }
     // </editor-fold>
     
     /** Defines a Set with layers in which only leafs are added. These have no childs.
      *
-     * @param originalLayers
+     * @param layers Set with main layers.
+     * @param newLayerSet Set with all layers in the previous set plus those which were found as a leaf of the layers processed.
      *
-     * @return Set with only leaf layers
+     * @return Set with all layers.
      */
-    // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
+    // <editor-fold defaultstate="" desc="getAllLayers(Set layers, Set newLayerSet) method.">
     private Set getAllLayers(Set layers, Set newLayerSet) {
         if (layers != null) {
             Iterator it = layers.iterator();
@@ -217,93 +214,54 @@ public class DemoRegistrationAction extends KaartenbalieCrudAction implements KB
     }
     // </editor-fold>
     
-    /** Method that fills a serive provider object with the user input from the forms.
+    /* Method which will fill-in the JSP form with the data of a given user.
      *
+     * @param user User object from which the information has to be printed.
      * @param form The DynaValidatorForm bean for this request.
-     * @param serviceProvider ServiceProvider object that to be filled
+     * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+    // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+    private void populateForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        super.populateUserForm(user, dynaForm, request);
+        dynaForm.set("organizationName", user.getOrganization().getId().toString());
+        dynaForm.set("selectedRole", user.getRole());
+    }
+    // </editor-fold>
+    
+    
+    /** Method that fills a user and organization object with the user input from the forms.
+     *
+     * @param request The HTTP Request we are processing.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param user User object that to be filled
+     * @param organization Organization object that to be filled
+     */
+    // <editor-fold defaultstate="" desc="populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) method.">
     private void populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String firstname        = FormUtils.nullIfEmpty(dynaForm.getString("firstname"));
-        String surname          = FormUtils.nullIfEmpty(dynaForm.getString("surname"));
-        String email            = FormUtils.nullIfEmpty(dynaForm.getString("emailAddress"));
-        String username         = FormUtils.nullIfEmpty(dynaForm.getString("username"));
-        String password         = FormUtils.nullIfEmpty(dynaForm.getString("password"));
-        SimpleDateFormat df     = new SimpleDateFormat("yyyy/MM/dd");
-        String registeredIP     = request.getRemoteAddr();
+        populateUserObject(dynaForm, user, request);
         
-        /*
-         * Everything seems to be ok, so it's alright to save the information
-         * First we need to create a personal URL based on the information from the user
-         */
+        SimpleDateFormat df         = new SimpleDateFormat("yyyy/MM/dd");
+        String registeredIP         = request.getRemoteAddr();
         String protocolAndVersion   = request.getProtocol();
         String requestServerName    = request.getServerName();
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
-        String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("//"));
+        String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
-        String toBeHashedString = registeredIP + username + password + df.format(new Date());
+        String toBeHashedString = registeredIP + user.getUsername() + user.getPassword() + df.format(new Date());
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
         
-        //TODO: http protocol ophalen ipv vast
         String personalURL = protocol + "://" + requestServerName + ":" + port +
                 contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
-        user.setFirstName(firstname);
-        user.setLastName(surname);
-        user.setEmailAddress(email);
-        user.setUsername(username);
-        user.setPassword(password);
         user.setRegisteredIP(registeredIP);
         user.setPersonalURL(personalURL);
         user.setRole("demogebruiker");
         
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-    }
-    // </editor-fold>
-    
-    /* Private method which gets the hidden id in a form.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
-    private Integer getID(DynaValidatorForm dynaForm) {
-        return FormUtils.StringToInteger(dynaForm.getString("id"));
-    }
-    // </editor-fold>
-    
-    /* Method which returns the user with a specified id or a new user if no id is given.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param createNew A boolean which indicates if a new object has to be created.
-     * @param id An Integer indicating which organization id has to be searched for.
-     *
-     * @return a User object.
-     */
-    // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
-        User user = null;
-        
-        Integer id = getID(dynaForm);
-        
-        if(null == id && createNew) {
-            user = new User();
-        } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id.intValue()));
-        }
-        return user;
     }
     // </editor-fold>
 }

@@ -10,10 +10,8 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class Dimensions implements XMLElement {
     

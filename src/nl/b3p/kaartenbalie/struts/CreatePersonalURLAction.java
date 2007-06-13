@@ -15,29 +15,20 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.SecurityRealm;
-import nl.b3p.kaartenbalie.service.WMSParamUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Session;
-        
+import org.hibernate.Session; 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
@@ -224,15 +215,17 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          * Everything seems to be ok, so it's alright to save the information
          * First we need to create a personal URL based on the information from the user
          */
+        String protocolAndVersion   = request.getProtocol();
         String requestServerName    = request.getServerName();
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
+        String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
         String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
-        personalURL = "http://" + requestServerName + ":" + port + 
+        personalURL = protocol + "://" + requestServerName + ":" + port +
                 contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
         /*
@@ -301,11 +294,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         }
         
         dynaForm.set("username", user.getUsername());
-        dynaForm.set("firstname", user.getUsername());
-        dynaForm.set("surname", user.getUsername());
-        dynaForm.set("emailaddress", user.getUsername());
-        dynaForm.set("role", user.getUsername());
-        dynaForm.set("personalURL", user.getUsername());        
+        dynaForm.set("firstname", user.getFirstName());
+        dynaForm.set("surname", user.getSurname());
+        dynaForm.set("emailaddress", user.getEmailAddress());
+        dynaForm.set("role", user.getRole());
+        dynaForm.set("personalURL", user.getPersonalURL());        
         
         String ipaddress = user.getRegisteredIP();
         if (ipaddress == null || ipaddress.equals("")) {

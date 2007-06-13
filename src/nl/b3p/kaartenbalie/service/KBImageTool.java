@@ -10,14 +10,11 @@
 
 package nl.b3p.kaartenbalie.service;
 
-import com.sun.imageio.plugins.png.PNGImageReader;
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;

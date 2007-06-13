@@ -22,7 +22,7 @@
         <property name="firstName">
             <column name="FIRSTNAME"/>
         </property>
-        <property name="lastName">
+        <property name="surname">
             <column name="LASTNAME"/>
         </property>
         <property name="emailAddress">

@@ -18,7 +18,7 @@
                 <arg0 key="beheer.firstname"/>
             </field>
             <field property="surname" depends="required"> <!-- required -->
-                <arg0 key="beheer.lastname"/>
+                <arg0 key="beheer.surname"/>
             </field>
             <field property="emailAddress" depends="required"> <!-- required -->
                 <arg0 key="beheer.emailAddress"/>

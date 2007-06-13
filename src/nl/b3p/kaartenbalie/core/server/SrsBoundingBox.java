@@ -10,12 +10,8 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 public class SrsBoundingBox implements XMLElement {

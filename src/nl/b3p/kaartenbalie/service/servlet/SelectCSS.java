@@ -55,30 +55,32 @@ public class SelectCSS extends HttpServlet {
      */
     // <editor-fold defaultstate="" desc="doGet(HttpServletRequest request, HttpServletResponse response) method.">
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, MalformedURLException, IOException {
+        String protocolAndVersion   = request.getProtocol();
         String requestServerName    = request.getServerName();
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
+        String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
         String url      = "";
         String cssUrl   = "";
         
         //Create an url where we can find the specific css.
         if (requestServerName.equalsIgnoreCase(server1)) {
-            url = "http://" + server1;
+            url = protocol + "://" + server1;
             if (port != 80) {
                 url += ":" + port;
             }
             url += contextPath + "/";
             cssUrl = url + csspath1;
         } else if (requestServerName.equalsIgnoreCase(server2)) {
-            url = "http://" + server2;
+            url = protocol + "://" + server2;
             if (port != 80) {
                 url += ":" + port;
             }
             url += contextPath + "/";
             cssUrl = url + csspath2;
         } else {
-            url = "http://" + server_default;
+            url = protocol + "://" + server_default;
             if (port != 80) {
                 url += ":" + port;
             }
@@ -102,4 +104,13 @@ public class SelectCSS extends HttpServlet {
         reader.close();
     }
     // </editor-fold>
+    
+    /** Handles the HTTP <code>POST</code> method.
+     * @param request servlet request
+     * @param response servlet response
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+        doGet(request, response);
+    }
 }

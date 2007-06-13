@@ -105,12 +105,10 @@ public class WMSCapabilitiesReader implements KBConstants {
     public ServiceProvider getProvider(String location) throws IOException, SAXException {
         //call a validator for the file
         //this.validate(location);
-        
         //if no error on validation, start parsing process
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
         reader.setFeature(VALIDATION_FEATURE, true);
         reader.setFeature(SCHEMA_FEATURE,true);
-        //TODO DTD en error handlers
         reader.setContentHandler(s);
         InputSource is = new InputSource(location);
         is.setEncoding(CHARSET);

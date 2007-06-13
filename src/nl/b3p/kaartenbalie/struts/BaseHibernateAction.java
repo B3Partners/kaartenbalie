@@ -5,19 +5,16 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodAction;
 import nl.b3p.kaartenbalie.service.MyDatabase;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 

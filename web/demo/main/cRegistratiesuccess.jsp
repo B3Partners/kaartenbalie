@@ -4,6 +4,8 @@
 <html:javascript formName="registrationForm" staticJavascript="false"/>
 
 <html:form action="/voegurltoe">
+    <html:hidden property="id" />
+    
     <div id='democontent'>
     <div id="democontentheader">Registratie pagina</div>
     <div id="democontenttext">
@@ -47,7 +49,7 @@
     <b>Naar de viewer</b> te klikken. Anders kunt u met de button <b>Voeg kaart toe</b> zelf een WMS server toevoegen
     met eigen kaartmateriaal.<br><br>
     
-    <input type="button" onclick="javascript:window.location.href='voegurltoe.do?userid=${id}'" value="<fmt:message key="button.addmap"/>">
+    <input type="button" onclick="javascript:window.location.href='voegurltoe.do?userid=${form.map.id}'" value="<fmt:message key="button.addmap"/>">
     <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'" value="<fmt:message key="button.toviewer"/>" >
     <br>
 </html:form>

@@ -13,16 +13,13 @@ package nl.b3p.kaartenbalie.struts;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import nl.b3p.commons.services.FormUtils;
-import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
@@ -34,11 +31,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
-//TODO: welke methodes kunne weg?
 public class ServerActionDemo extends ServerAction {
 
     /* forward name="success" path="" */
@@ -62,7 +58,7 @@ public class ServerActionDemo extends ServerAction {
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userid = (String) request.getParameter("userid");
         ActionForward action = super.unspecified(mapping, dynaForm, request, response);
-        dynaForm.set("userid", userid);
+        dynaForm.set("id", userid);
         return action;
     }
     // </editor-fold>
@@ -137,11 +133,11 @@ public class ServerActionDemo extends ServerAction {
          * new Serviceprovider into the memory. Before we can take any action we need the users input to read 
          * the variables.
          */
-        String url = dynaForm.getString("url");
         
         /*
-         * First we need to check if the given url is realy an url.
+         * First we need to check if the given url is conform the url standard.
          */
+        String url = dynaForm.getString("url");
         try {
             URL tempurl = new URL(url);
         } catch (MalformedURLException mue) {
@@ -150,83 +146,14 @@ public class ServerActionDemo extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * If the URL is valid we need to check if it complies with the WMS standard
-         * This means that it should have at least an '?' or a '&' at the end of the
-         * URL.
-         * Furthermore if nothing else has been added to the URL, KB needs to add the
-         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
-         * KB to be able to perform the request.
-         */
-        int lastAmper = url.lastIndexOf("&");
-        int lastQuest = url.lastIndexOf("?");
-        int length = url.length();
-        
-        boolean hasLastAmper = (length == (lastAmper + 1));
-        boolean hasLastQuest = (length == (lastQuest + 1));
-        
-        if (!hasLastAmper && !hasLastQuest) {
+        try {
+            url = checkWmsUrl(url);
+        } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
-        String eventualURL = new String();
-        String [] urls = url.split("\\?");
-        eventualURL += urls[0] + "?";
-        
-        if (hasLastAmper) {
-            //Maybe some parameters have been given. We need to check which params still
-            //need to be added.
-            boolean req = false, version = false, service = false;
-            String [] params = urls[1].split("&");
-            for (int i = 0; i < params.length; i++) {
-                String [] paramValue = params[i].split("=");
-                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            req = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_REQUEST + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else if (paramValue[0].equalsIgnoreCase(WMS_VERSION)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            version = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_VERSION + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE)) {
-                    try {
-                        if (paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
-                            eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                            service = true;
-                        }
-                    } catch (Exception e){log.debug("Parameter " + WMS_SERVICE + " gegeven, maar value niet. App voegt waarde zelf toe."); }
-                }
-                else {
-                    //An extra parameter which has to be given.
-                    eventualURL = eventualURL + paramValue[0] + "=" + paramValue[1] + "&";
-                }
-            }
-            if (!req) {
-                eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-            }
-            if (!version) {
-                eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-            }
-            if (!service) {
-                eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-            }
-        } else {
-            //No parameters have been given at all. We need to add everything
-            eventualURL = eventualURL + WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-            eventualURL = eventualURL + WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-            eventualURL = eventualURL + WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-        }
-        
+                
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
@@ -244,7 +171,7 @@ public class ServerActionDemo extends ServerAction {
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wms.getProvider(eventualURL);
+            newServiceProvider = wms.getProvider(url);
         } catch (IOException e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
@@ -317,44 +244,25 @@ public class ServerActionDemo extends ServerAction {
          */
         mapAdded = new Boolean(true);
         session.setAttribute("MapAdded", mapAdded);
+        
+        /*
+         * Make sure that the system will accept the user already as logged in.
+         * In order to do this we need to get the SecurityRequestWrapper and set
+         * this user as Principal in the requets.
+         *
+         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise 
+         * the program will crash.
+         */
+        Principal principal = (Principal) user;
+        if (request instanceof SecurityRequestWrapper) {
+            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            srw.setUserPrincipal(principal);
+        }
+        
         return mapping.findForward("nextPage");
     }
     // </editor-fold>
-    
-    /** Method for saving a new service provider from input of a user.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return null;
-    }
-    // </editor-fold>
-    
-    /* Private method which gets the hidden id in a form.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
-    private Integer getID(DynaValidatorForm dynaForm) {
-        return FormUtils.StringToInteger(dynaForm.getString("userid"));
-    }
-    // </editor-fold>
-    
+        
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.

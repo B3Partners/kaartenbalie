@@ -100,8 +100,9 @@
         </init-param>
         <init-param>
             <param-name>csspath2</param-name>
-            <param-value>styles/b3p.css</param-value>
+            <param-value>styles/mnp.css</param-value>
         </init-param>
+        <load-on-startup>3</load-on-startup>
     </servlet>
     
     <servlet-mapping>

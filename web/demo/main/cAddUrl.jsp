@@ -80,7 +80,7 @@
                         <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="15" height="15"></span>
                     </td>
                 </tr>
-                <html:hidden property="userid"></html:hidden>
+                <html:hidden property="id"></html:hidden>
                 <TR>
                     <TD>&nbsp;</TD>
                     <TD>&nbsp;</TD>

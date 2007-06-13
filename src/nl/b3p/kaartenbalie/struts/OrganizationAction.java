@@ -10,20 +10,16 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
-import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
-import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;

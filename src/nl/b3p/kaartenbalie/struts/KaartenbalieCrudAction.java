@@ -71,9 +71,6 @@ public class KaartenbalieCrudAction extends CrudAction{
             tx.commit();
             return forward;
         } catch(Exception e) {
-            //TODO message van request gehaald, moet via alternate message!
-//            request.setAttribute("message", msg);
-
             tx.rollback();
             log.error("Exception occured, rollback", e);
             MessageResources messages = getResources(request);

@@ -14,7 +14,7 @@
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
             <form-property name="firstname" type="java.lang.String"/>
-            <form-property name="lastname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
             <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
             <form-property name="selectedRole" type="java.lang.String"/>

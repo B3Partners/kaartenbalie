@@ -13,18 +13,13 @@ package nl.b3p.kaartenbalie.service.servlet;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import java.io.*;
-
 import javax.servlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.FlamingoMap;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.parsers.DOMParser;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

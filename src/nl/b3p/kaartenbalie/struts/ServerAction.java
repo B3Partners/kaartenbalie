@@ -463,7 +463,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
-    private Integer getID(DynaValidatorForm dynaForm) {
+    protected Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
@@ -510,7 +510,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
-    private String checkWmsUrl(String url) throws Exception {
+    protected String checkWmsUrl(String url) throws Exception {
         
         /*
          * If the URL is valid we need to check if it complies with the WMS standard
