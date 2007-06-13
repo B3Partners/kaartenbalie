@@ -51,12 +51,12 @@ function init() {
 	//oud, nu nog beter werkend:
 	var xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
-	xmlDoc.load("file:///c:/dev_erik/kaartenbalie/web/metadataEditor/MetadataTestCEN4_beheerder.xml");
+	xmlDoc.load("file://../MetadataTestCEN4_beheerder.xml");
 	alert(xmlDoc.xml);
 	
 	var xslDoc = jsXML.createDOMDocument();
 	xslDoc.async = false;
-	xslDoc.load("file:///c:/dev_erik/kaartenbalie/web/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xslt");
+	xslDoc.load("file://../MNP_Metadata_Beheerder_Edit_Intern.xslt");	
 	alert(xslDoc.xml);
 	
 	//var elem = document.getElementById("writeroot");
@@ -66,6 +66,27 @@ function init() {
 	//alert(result);
 	//alert(htmlAsText);
 	//alert(new XMLSerializer().serializeToString(xmlDoc.documentElement));
+	XML.transform(xmlDoc, xslDoc, "writeroot");
+	
+	xmlDocInit();
+	
+}
+
+function initWithXmlString(xmlString) {
+	// TODO:
+	//zet speciale tekens uit xmlstring om met RegEx Object (&lt; &gt; etc...)
+	
+	alert(xmlString);
+	var xmlDoc = jsXML.createDOMDocument();
+	xmlDoc.async = false;
+	xmlDoc.loadXML(xmlString);
+	alert(xmlDoc.xml);
+	
+	var xslDoc = jsXML.createDOMDocument();
+	xslDoc.async = false;
+	xslDoc.loadXML(xmlString);	
+	alert(xslDoc.xml);
+	
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	
 	xmlDocInit();

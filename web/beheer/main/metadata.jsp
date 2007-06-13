@@ -21,25 +21,27 @@
         <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.css' module='' />" />
     </head>
     
-    <body onload="init()" changed="false" metaEditType="fullXML" onmousemove="mouseEvent()">
+    <!--<body onload="init()" changed="false" metaEditType="fullXML" onmousemove="mouseEvent()">-->
+    <body>
         <c:set var="form" value="${metadataForm}"/>
-        <c:set var="mainid" value="${form.map.id}"/>
+        <c:set var="xml" value="${form.map.xml}"/>
         
         <html:form action="/metadata">
             <html:hidden property="id" />
             <html:hidden property="name" />
-            <html:hidden property="xml" /> 
-            ID: <c:out value="${mainid}"/>
-            ID: <c:out value="${form.map.name}"/>
-            ID: <c:out value="${form.map.xml}"/>
+            <html:hidden property="xml" /><!-- dynamisch met javascript doen bij submit (theform.appendChild)-->
             
+            <script type="text/javascript">initWithXmlString("<c:out value="${xml}" escapeXml="true"/>");</script>			
+			
             
-            <p>Test 2222</p>
+            <p>Test 1111222</p>
+			
+			<p>
+				<c:out value="${metadataForm}"/><br/>	
+			</p>
             
-            
-            <!--
             <div id="writeroot"></div>
-            -->
+            
             
         </html:form>
     </body>

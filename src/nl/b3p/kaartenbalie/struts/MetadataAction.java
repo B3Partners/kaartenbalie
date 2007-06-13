@@ -59,7 +59,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                     "(l.id) = lower(:id) ")
                 .setParameter("id", id)
                 .uniqueResult();
-        
+
         populateMetadataEditorForm(layer, dynaForm, request);
         return mapping.findForward(SUCCESSFULL);
     }
@@ -76,7 +76,9 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getName());
-        dynaForm.set("xml", layer.getMetaData());
+	String xml = layer.getMetaData();
+	String xml2 = ((xml.replace('\n', ' ')).replace('\r', ' ')).replace('\t', ' ');
+        dynaForm.set("xml", xml2);
     }
     // </editor-fold>
     
