@@ -1,6 +1,11 @@
 <%@include file="/templates/taglibs.jsp" %>
 
-
+<script type="text/javascript">
+    function popUp(url) {
+        window.open(url, 'Metadata Editor', 'width=700, height=600, resizable=yes, scrollbars=yes, location=yes');
+        return false;
+    }
+</script>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <div class="containerdiv" style="float: left; clear: none;">
@@ -15,7 +20,7 @@
             </div>
         </div>
     </div>
-    <html:link href='#' onclick="javascript:window.open('editmetadata.do?edit=submit&id=1_blaat', 'Metadata Editor', 'width=700, height=600, resizable=yes, scrollbars=yes, location=yes')">
+    <html:link href='#' onclick="javascript:popUp('editmetadata.do?edit=submit&id=1_blaat');">
         klik mij
     </html:link>  
     
@@ -56,35 +61,20 @@
 
         function createLabel(container, item) {
             var div = document.createElement("div");
-            var vink= document.createElement("input");
-            //var vink= document.createElement("html:multibox");
-            //als het item kinderen heeft dan geen vink toevoegen.
-            if (!item.children){
-                vink.type="checkbox";
-                
-                vink.value=item.id;
-                //vink.name=item.id;
-                vink.name="selectedLayers";
-                //vink.property="selectedLayers";
-                vink.id=item.id;
-                vink.layerType=item.type;
-                vink.className="layerVink";
-                container.appendChild(vink);
-            }
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
-            div.onclick = function() {
-                itemClick(item);
-            };
-            div.appendChild(document.createTextNode(item.name));
-            container.appendChild(div);
-            if (item.children){
-                var d=document.createElement("a");
-                d.href="#";
-                d.onclick= function(){setAllTrue(this);};
-                d.selecteditem=item;
-                d.innerHTML=" Selecteer alles";
-                container.appendChild(d);
+            div.style.height = '18px';
+            if(item.type != "serviceprovider") {
+                var popupLink = document.createElement("a");
+                popupLink.onclick = function() {
+                    popUp('editmetadata.do?edit=submit&id=' + item.id);
+                }
+                popupLink.innerHTML = item.name;
+                popupLink.href='#';
+                div.appendChild(popupLink);
+            } else {
+                div.appendChild(document.createTextNode(item.name));
             }
+            container.appendChild(div);
         }
 
         treeview_create({
