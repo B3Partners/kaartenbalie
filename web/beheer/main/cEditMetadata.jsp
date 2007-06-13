@@ -22,7 +22,7 @@
         <c:set var="form" value="${metadataForm}"/>
         <c:set var="mainid" value="${form.map.id}"/>
         
-        <html:form action="/metadata">
+        <html:form action="/metadata?edit=submit&id=1_blaat">
             <html:hidden property="id" />
             <html:hidden property="name" />
             <html:hidden property="xml" /> 
@@ -30,9 +30,9 @@
             <p>Test 2222</p>
             <c:out value="${testvalue}"/>
             
-            <c:out value="${map.form.id}"/>
-            <c:out value="${map.form.name}"/>
-            <c:out value="${map.form.xml}"/>
+            <c:out value="${form.map.id}"/>
+            <c:out value="${form.map.name}"/>
+            <c:out value="${form.map.xml}"/>
             <div id="writeroot"></div>
             
             

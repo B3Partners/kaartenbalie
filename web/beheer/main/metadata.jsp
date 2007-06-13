@@ -29,11 +29,17 @@
             <html:hidden property="id" />
             <html:hidden property="name" />
             <html:hidden property="xml" /> 
+            ID: <c:out value="${mainid}"/>
+            ID: <c:out value="${form.map.name}"/>
+            ID: <c:out value="${form.map.xml}"/>
+            
             
             <p>Test 2222</p>
             
-            <div id="writeroot"></div>
             
+            <!--
+            <div id="writeroot"></div>
+            -->
             
         </html:form>
     </body>

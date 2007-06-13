@@ -3,13 +3,7 @@
 
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
-
-<html:form action="/metadata">
-    <html:hidden property="action"/>
-    <html:hidden property="alt_action"/>
-    <html:hidden property="id" />
-    
-    <div class="containerdiv" style="float: left; clear: none;">
+<div class="containerdiv" style="float: left; clear: none;">
     <H1>Beheer Metadata</H1>
     
     <b>Lijst met beschikbare layers:</b>
@@ -21,10 +15,9 @@
             </div>
         </div>
     </div>
-    
-    <html:submit accesskey="s" styleClass="knop" onclick="javascript:window.open('editmetadata.do?edit=submit&id=1', 'Metadata Editor', 'width=700, height=600, resizable=yes, scrollbars=yes, location=yes')">
-        <fmt:message key="button.update"/>
-    </html:submit>   
+    <html:link href='#' onclick="javascript:window.open('editmetadata.do?edit=submit&id=1_blaat', 'Metadata Editor', 'width=700, height=600, resizable=yes, scrollbars=yes, location=yes')">
+        klik mij
+    </html:link>  
     
     <script>
         function openWMSHelp() {
@@ -186,4 +179,3 @@
         
     </c:if>
     </script>    
-</html:form>

@@ -31,6 +31,7 @@ import org.json.JSONObject;
 public class MetadataAction extends KaartenbalieCrudAction {
     
     private final static String SUCCESS = "success";
+    private final static String SUCCESSFULL = "successfull";
     private static final Log log = LogFactory.getLog(MetadataAction.class);
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -60,7 +61,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 .uniqueResult();
         
         populateMetadataEditorForm(layer, dynaForm, request);
-        return getDefaultForward(mapping, request);
+        return mapping.findForward(SUCCESSFULL);
     }
     // </editor-fold>
     
