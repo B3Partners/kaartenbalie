@@ -41,6 +41,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
+    protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -79,7 +80,14 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        populateOrganizationForm(getOrganization(dynaForm, request, false), dynaForm, request);
+        Organization organization = getOrganization(dynaForm, request, false);
+        if (organization == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, ORG_NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        populateOrganizationForm(organization, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -297,6 +305,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             organization = (Organization)session.createQuery(
                     "from Organization o where " +
                     "lower(o.id) = lower(:id)").setParameter("id", id).uniqueResult();
+            
+            if(organization == null) {
+                return null;
+            }
             
             List us = session.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).list();
             Set users = new HashSet();

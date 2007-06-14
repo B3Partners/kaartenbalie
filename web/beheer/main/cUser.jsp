@@ -78,6 +78,10 @@
                     <td><html:password property="password"/></td>
                 </tr>
                 <tr>
+                    <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
+                    <td><html:password property="repeatpassword"/></td>
+                </tr>
+                <tr>
                     <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>
                     <td>
                         <html:select property="selectedOrganization">

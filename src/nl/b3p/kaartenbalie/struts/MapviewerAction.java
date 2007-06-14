@@ -77,11 +77,20 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
+        User sesuser = (User) request.getUserPrincipal();
         
-        User user = (User) request.getUserPrincipal();
-        if (user==null)
+        /*
+         * THIS LINE CAN NOT BE REMOVED. THIS IS NOT REDUNDANT!!!!
+         * IF A ADMINISTRATOR CHANGES THE RIGHTS AND WE WORK WITH A SESSION USER
+         * THIS USER HAS STILL THE OLD RIGHT UNTILL HIS SESSION IS OVER!!!!
+         * THERFORE THERE MUST BE ALWAYS CHECKED AGAINST THE DATABE.
+         * RE-LOGIN OF THE USER IS NOT USEFULL HERE SINCE THE USER DID NOT MAKE
+         * ANY CHANGES, THE ADMINISTRATOR DID!!!!
+         */
+        User user = (User)getHibernateSession().get(User.class, sesuser.getId());
+        if (sesuser==null)
             return;
-        
+                
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         

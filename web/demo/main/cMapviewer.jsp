@@ -15,39 +15,38 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
 <script language="JavaScript" type="text/javascript">
-    
         var titleArray = new Array();
-        titleArray[0] = "De Viewer";
-        titleArray[1] = "De Layers";
-
+        titleArray[0] = "De Layers";
+        
         //TOOLTIP BODY TEXT
         var bodyArray = new Array();
-        bodyArray[0] = "De viewer kent een aantal basis functies die hieronder uitgelegd zullen worden. Zo kan met de vier ingezoomd (+) en uitgezoomd (-) worden. Daarnaast kan er met de kaart gesleept worden (handje) en kan de afstand bepaald worden. Als laatst is het mogelijk om informatie bij de kaart op te vragen (i).";
-        bodyArray[1] = "Hieronder vindt u een lijst met Layers. Als u zelf een WMS server toegevoegd heeft dan zullen er twee servers in de lijst staan die u allebei kunt gebruiken om de Kaartenbalie uit te proberen.<BR>Door de boom structuur op verschillende niveau's in en uit te klappen en een of meer kaartlagen te selecteren zullen deze kaartlagen onder in het beeld bij de volgorde verschijnen." + 
-        " Hier kunt u door in deze box de kaarten te selecteren en met behulp van de twee buttons (pijl omhoog en pijl omlaag) de volgorde aan te passen, de volgorde waarop de kaartlagen over elkaar heen geprojecteerd moeten worden, aanpassen.<br>Door vervolgens op de button vernieuwen te klikken zal de viewer de geselecteerde kaarten ophalen en in de viewer tonen.";
+        bodyArray[0] = "Hieronder vindt u een lijst met Layers. Als u zelf een WMS server toegevoegd heeft dan " +
+                       "zullen er meer dan een server in de lijst staan die u kunt gebruiken om de Kaartenbalie " + 
+                       "uit te proberen.<BR>Door de boom structuur op verschillende niveau's in en uit te klappen " + 
+                       "en een of meer kaartlagen te selecteren zullen deze kaartlagen onder in het beeld bij " + 
+                       "<b>volgorde</b> verschijnen. Hier kunt u de volgorde waarin de kaartlagen over elkaar heen geprojecteerd " + 
+                       "moeten worden aanpassen, door in deze box de kaarten te selecteren en met behulp " + 
+                       "van de twee buttons (pijl omhoog en pijl omlaag) de volgorde aan te passen. <br>Door vervolgens " + 
+                       "op de button vernieuwen te klikken zal de viewer de geselecteerde kaarten ophalen en in de " + 
+                       "viewer tonen.";
         
         //TOOLTIP DISPLAY LINK
         var linkArray = new Array();
         linkArray[0] = "http://www.b3p.nl/";
-        linkArray[1] = "http://www.b3p.nl/";
-
+        
         //TOOLTIP URL
         var urlArray = new Array();
         urlArray[0] = "http://www.b3p.nl/";
-        urlArray[1] = "http://www.b3p.nl/";
         
         //TOOLTIP OFFSET
         var xOffsetArray = new Array();
         xOffsetArray[0] = 10;
-        xOffsetArray[1] = 10;
-
         var yOffsetArray = new Array();
-        yOffsetArray[0] = 125;
-        yOffsetArray[1] = 15;
-
+        yOffsetArray[0] = 15;
+        
         //TOOLTIP BOX DEFAULT WIDTH
         var toolTipDefaultWidth = 300;
-
+        
         //TOOLTIP STYLING
         // 	Allows you to adjust the tooltip background color for the 
         //	roll-over and roll-off states, the font used for the tooltip,
@@ -63,12 +62,11 @@
         var tooltipURLColorOff = "#008000";
         var tooltipURLColorOn = "#008000";
         var tooltipTitleDecorationOff = "none";
-        var tooltipTitleDecorationOn = "underline";
+        var tooltipTitleDecorationOn = "none";
         var tooltipURLDecorationOff = "none";
-        var tooltipURLDecorationOn = "underline";
+        var tooltipURLDecorationOn = "none";
         //............................................................
-        // 								END EDITABLE TOOLTIP VARIABLES
-       
+        //END EDITABLE TOOLTIP VARIABLES
 </script>
 
 
@@ -87,7 +85,7 @@
     <div class="treeHolder">
         <div id="tooltips" align="right">
             <div id="tooltipBox" onMouseOver="clearAdInterval();highlightAd('itxtTbl');" onMouseOut="hideAd();unHighlightAd('itxtTbl');" style="z-index:5000;position:absolute;cursor:pointer;"></div>
-            <span id="link1" onMouseOver="displayAd(1);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
+            <span id="link0" onMouseOver="displayAd(0);" onMouseOut="hideAd();" class="intellitextLink"><img src="<html:rewrite page='/images/siteImages/help.png' module='' />" width="20" height="20"></span>
         </div>
         <div id="tree"></div>
     </div>

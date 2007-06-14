@@ -45,6 +45,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
     protected static final String PREDEFINED_SERVER = "demo.serverurl";
     protected static final String PREDEFINED_SERVER_NAME = "demo.servername";
     protected static final String SAVESUCCES = "savesucceeded";
+    protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
     
     /** Method for saving a new service provider from input of a user.
      *
@@ -124,6 +125,21 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             return getAlternateForward(mapping, request);
         }
         
+        /*
+         * First get all the user input which need to be saved.
+         */
+        String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
+        String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
+        
+        if(password != null && repeatpassword != null) {
+            if(!password.equals(repeatpassword)) {
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NONMATCHING_PASSWORDS_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            } else {
+                user.setPassword(password);
+            }
+        }
         
         /*
          * All checks have been performed. Now we can save the user and his organization.
@@ -223,7 +239,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
         super.populateUserForm(user, dynaForm, request);
-        dynaForm.set("organizationName", user.getOrganization().getId().toString());
+        dynaForm.set("personalURL", user.getPersonalURL());
+        dynaForm.set("organizationName", user.getOrganization().getName());
         dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>

@@ -46,7 +46,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
-    
+    protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";    
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -85,7 +85,14 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        populateServiceProviderForm(getServiceProvider(dynaForm, request, false), dynaForm, request);
+        ServiceProvider serviceprovider = getServiceProvider(dynaForm, request, false);
+        if (serviceprovider == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, SP_NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        populateServiceProviderForm(serviceprovider, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -426,7 +433,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
-            serviceProvider = (ServiceProvider)session.load(ServiceProvider.class, new Integer(id.intValue()));
+            serviceProvider = (ServiceProvider)session.get(ServiceProvider.class, new Integer(id.intValue()));            
         }
         return serviceProvider;
     }

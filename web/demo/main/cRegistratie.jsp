@@ -36,6 +36,10 @@
             <td><html:password property="password"/></td>
         </tr>
         <tr>
+            <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
+            <td><html:password property="repeatpassword"/></td>
+        </tr>
+        <tr>
             <td><B><fmt:message key="beheer.name"/>:</B></td>
             <td><html:text property="organizationName"/></td>
         </tr>

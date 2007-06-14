@@ -26,8 +26,8 @@
     var cal = new CalendarPopup("calDiv");
     cal.setCssPrefix("calcss_");
 </script>
-
-<html:form action="/showProfile">
+<html:javascript formName="profileForm" staticJavascript="false"/>
+<html:form action="/showProfile" onsubmit="return validateProfileForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />

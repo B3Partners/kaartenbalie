@@ -89,6 +89,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //of the user can be logged.
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             
+            //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
+            
             //Create a map with parameters of of request parameters given
             //with the request of this user and transforms each of these 
             //parameters and their keys into uppercase values.

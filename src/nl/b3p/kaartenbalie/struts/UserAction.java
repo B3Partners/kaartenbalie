@@ -27,7 +27,9 @@ public class UserAction extends KaartenbalieCrudAction {
     
     private final static String SUCCESS = "success";
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
-    
+    protected static final String USER_NOTFOUND_ERROR_KEY = "error.usernotfound";
+    protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
+    protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
@@ -65,7 +67,14 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        populateUserForm(getUser(dynaForm, request, false), dynaForm, request);
+        User user = getUser(dynaForm, request, false);
+        if (user == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, USER_NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        populateUserForm(user, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -149,6 +158,22 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         
         /*
+         * First get all the user input which need to be saved.
+         */
+        String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
+        String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
+        
+        if(password != null && repeatpassword != null) {
+            if(!password.equals(repeatpassword)) {
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NONMATCHING_PASSWORDS_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            } else {
+                user.setPassword(password);
+            }
+        }
+        
+        /*
          * Once we have a (new or existing) user object we can fill this object with
          * the user input.
          */
@@ -208,6 +233,19 @@ public class UserAction extends KaartenbalieCrudAction {
         if (user == null) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        /*
+         * Before we start deleting, one last check is necessary. If a Administrator is going 
+         * to be deleted, we need to check if there is this object is not the administrator 
+         * which is currecntly logged in, because otherwise it could happen that the administrator 
+         * locks himself out of the system.
+         */
+        User sessionUser = (User) request.getUserPrincipal();
+        if(sessionUser.getId().equals(user.getId())) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
@@ -284,7 +322,7 @@ public class UserAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.load(User.class, new Integer(id.intValue()));
+            user = (User)session.get(User.class, new Integer(id.intValue()));
         }
         return user;
     }
@@ -321,6 +359,7 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
+        dynaForm.set("repeatpassword", user.getPassword());
         if(user.getOrganization() != null) {
             dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
         }
