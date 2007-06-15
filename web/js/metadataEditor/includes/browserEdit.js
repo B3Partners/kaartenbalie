@@ -69,23 +69,22 @@ function init() {
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	
 	xmlDocInit();
-	
 }
 
-function initWithXmlString(xmlString) {
-	// TODO:
-	//zet speciale tekens uit xmlstring om met RegEx Object (&lt; &gt; etc...)
-	
+function initWithXmlString(xmlString, xslString) {
+	alert("escaped:\n\n" + xmlString);
+	xmlString = xmlString.unescapeHTML();
+	xslString = xslString.unescapeHTML();
+
 	alert(xmlString);
 	var xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
 	xmlDoc.loadXML(xmlString);
-	alert(xmlDoc.xml);
-	
+
+	alert(xslString);
 	var xslDoc = jsXML.createDOMDocument();
 	xslDoc.async = false;
-	xslDoc.loadXML(xmlString);	
-	alert(xslDoc.xml);
+	xslDoc.loadXML(xslString);
 	
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	

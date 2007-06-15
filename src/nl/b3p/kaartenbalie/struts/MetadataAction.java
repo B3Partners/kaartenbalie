@@ -10,6 +10,10 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +24,6 @@ import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.Form;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
@@ -76,12 +79,51 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getName());
-	String xml = layer.getMetaData();
-	String xml2 = ((xml.replace('\n', ' ')).replace('\r', ' ')).replace('\t', ' ');
-        dynaForm.set("xml", xml2);
+		//String xml = layer.getMetaData();
+		String xml = getTestMetadata();		
+        dynaForm.set("xml", xml);
+		String xsl = getTestXslt();
+        dynaForm.set("xsl", xsl);	
     }
     // </editor-fold>
+	
+	//tijdelijke test methodes:
+	private String getTestMetadata() {
+		String metadata = "";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/MetadataTestCEN4_beheerder.xml"));
+			String line;
+			while ((line = br.readLine()) != null) {
+				metadata += line;
+			}
+		}
+		catch (FileNotFoundException ex) {
+			ex.printStackTrace();
+		}
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return metadata;
+	}
     
+	private String getTestXslt() {
+		String metadata = "";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xslt"));
+			String line;
+			while ((line = br.readLine()) != null) {
+				metadata += line;
+			}
+		}
+		catch (FileNotFoundException ex) {
+			ex.printStackTrace();
+		}
+		catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return metadata;
+	}
+    	
     
     
     
