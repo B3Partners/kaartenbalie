@@ -404,10 +404,10 @@ LAYER
   NAME bron_nieuwekaart
   GROUP plannen
   TYPE annotation
-  TRANSFORM false
+  TRANSFORM ll
   FEATURE
     POINTS
-      10 10
+      150 -30
     END
     TEXT "Bron: De Nieuwe Kaart van Nederland, Nirov, Den Haag"
   END   
@@ -415,7 +415,6 @@ LAYER
     LABEL 
       TYPE TRUETYPE
       FONT arial-bold
-      POSITION cr
       SIZE 8
       BUFFER 1
       COLOR 0 0 0
