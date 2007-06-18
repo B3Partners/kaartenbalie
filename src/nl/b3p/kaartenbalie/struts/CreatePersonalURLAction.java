@@ -225,8 +225,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         BigInteger hash = new BigInteger(1, md.digest());
-        personalURL = protocol + "://" + requestServerName + ":" + port +
-                contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
+        
+        
+        personalURL = protocol + "://" + requestServerName;
+        if(port != 80) {
+            personalURL += ":" + port;
+        }
+        personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
         /*
          * Set the new information in the userobject
