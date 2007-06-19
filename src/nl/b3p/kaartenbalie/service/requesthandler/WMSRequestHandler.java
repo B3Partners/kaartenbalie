@@ -447,7 +447,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
 			long startTime = System.currentTimeMillis();
             int statusCode = client.executeMethod(method);
             long time = System.currentTimeMillis() - startTime;
-            dw.setHeader("X-Kaartenbalie-debug1", time);
+            dw.setHeader("X-Kaartenbalie-debug1", String.valueOf(time));
 
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
