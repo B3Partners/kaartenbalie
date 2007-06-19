@@ -91,8 +91,9 @@
                             <fmt:message key="button.reset"/>
                         </html:reset>
                         <html:submit property="save" >
-                            <fmt:message key="button.ok"/>
-                        </html:submit> 
+                            <fmt:message key="button.add"/>
+                        </html:submit>
+                        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'" value="<fmt:message key="button.toviewer"/>" >
                     </td>
                 </tr>
             </table>

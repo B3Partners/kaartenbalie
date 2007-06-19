@@ -1,7 +1,7 @@
 <%@include file="/templates/taglibs.jsp" %>           
 
 <div id="nav">
-    <center><B>Menu beheerder</B></center>
+    <center><B>Menu beheerder</B></center><br>
     <p>
         <div id="nav-menu">
             <ul>
