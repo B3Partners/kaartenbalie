@@ -69,7 +69,19 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
                     node.getAttributes().item(i).setNodeValue(layers.replace("*",","));
                 }else if(node.getAttributes().item(i).getNodeName().equalsIgnoreCase("query_layers")){
                     node.getAttributes().item(i).setNodeValue(layers.replace("*",","));
-                }
+                }else if(node.getAttributes().item(i).getNodeName().equalsIgnoreCase("url")){
+                    String appRoot="";
+                    appRoot = request.getProtocol().substring(0, request.getProtocol().indexOf("/")).toLowerCase();
+                    appRoot += "://" + request.getServerName();
+                    if (request.getServerPort() != 80) {
+                        appRoot += ":" + request.getServerPort();
+                    }
+                    appRoot += request.getContextPath();
+                    
+                    String s= node.getAttributes().item(i).getNodeValue();
+                    s=s.replace("[app_root]",appRoot);
+                    node.getAttributes().item(i).setNodeValue(s);
+                }                
             }
         }
         if (extent!=null && extent.length()>1){

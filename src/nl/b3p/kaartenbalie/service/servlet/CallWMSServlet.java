@@ -80,6 +80,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         DataWrapper data = new DataWrapper(response);
         User user = null;
         
+        String s="";
+        s+=request.getServletPath();
+        s+=request.getPathInfo()+request.getQueryString();
+        log.info("Request: "+s);        
         try {
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
