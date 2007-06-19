@@ -28,7 +28,7 @@
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
         <fmc:LayerOGWMS id="map" url="[app_root]/wms/?SERVICE=WMS&amp;FORMAT=image/png" version="1.1.1" SERVICE="WMS" LAYERS="" QUERY_LAYERS="" exceptions="inimage" srs="EPSG:28992" showerrors="false" info_format="text/html"/>
     </fmc:Map>
-    <fmc:Window  title="info" visible="false" canclose="true" canresize="true" defocusalpha="10" width="50%" height="50%" left="50%" top="0">
+    <fmc:Window  title="info" visible="false" canclose="true" canresize="true" defocusalpha="70" width="50%" height="50%" left="50%" top="0">
         <string id="title" nl="Informatie"  en="Information"/>
         <fmc:IdentifyResults  width="100%" height="100%" visible="true" listento="mainMap">
             <string id="startidentify"  en="Loading" nl="Info wordt opgehaald"/>
