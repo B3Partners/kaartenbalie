@@ -141,7 +141,8 @@
                 d.href="#";
                 d.onclick= function(){setAllTrue(this);};
                 d.selecteditem=item;
-                d.innerHTML=" Selecteer alles";
+                d.innerHTML=" <img src='../images/siteImages/selectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+                d.style.marginLeft="5px";
                 container.appendChild(d);
             }
         }
@@ -179,12 +180,12 @@
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
-            element.innerHTML=" Deselecteer alles";
+            element.innerHTML=" <img src='../images/siteImages/selectall.jpg' title='Deselecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" Selecteer alles";
+            element.innerHTML=" <img src='../images/siteImages/selectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         
         function setAll(element,checked){
