@@ -34,6 +34,7 @@
             <string id="startidentify"  en="Loading" nl="Info wordt opgehaald"/>
             <string id="identify"  en="[progress]%" nl="[progress]%"/>
             <string id="finishidentify"  en="Information" nl="Informatie"/>
+            <string id="seperator" en=":" nl=":"/>
         </fmc:IdentifyResults>
     </fmc:Window>    
 </FLAMINGO>

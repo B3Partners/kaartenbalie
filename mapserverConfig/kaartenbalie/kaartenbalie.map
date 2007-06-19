@@ -279,6 +279,8 @@ LAYER
   METADATA
     "wms_title" "gemeenten_2006"
     "group_title" "grenzen"
+    "gml_include_items" "all"
+    "gml_exclude_items" "recsrt,postcode,dek_perc,oid,the_geom"
   END
   TYPE POLYGON
   STATUS ON
@@ -320,6 +322,8 @@ LAYER
   GROUP grenzen
   METADATA
     "wms_title" "wijken_2006"
+    "gml_include_items" "all"
+    "gml_exclude_items" "recsrt,gm_code,bu_code,oid,postcode,dek_perc,the_geom,bu_naam_zonder_wijk"
   END
   TYPE POLYGON
   STATUS ON
@@ -359,6 +363,8 @@ LAYER
   GROUP grenzen
   METADATA
     "wms_title" "buurten_2006"
+    "gml_include_items" "all"
+    "gml_exclude_items" "recsrt,oid,the_geom"
   END
   TYPE POLYGON
   STATUS ON
@@ -428,7 +434,9 @@ LAYER
   GROUP plannen
   METADATA
     "wms_title" "Plan lijnen"
-    "group_title" "Plannen"
+    "group_title" "Plannen"    
+    "gml_include_items" "all"
+    "gml_exclude_items" "gid,the_geom"
   END
   TYPE LINE
   STATUS ON
@@ -440,6 +448,7 @@ LAYER
   END
   DUMP TRUE
   TEMPLATE bla
+  TOLERANCE 10
   TRANSPARENCY 40
   MAXSCALE 190000
   #LABELITEM "plannaam"
@@ -537,6 +546,8 @@ LAYER
   METADATA
     "wms_title" "Plan polygonen"
     "group_title" "Plannen"
+    "gml_include_items" "all"
+    "gml_exclude_items" "gid,the_geom"
   END
   TYPE POLYGON
   STATUS ON
@@ -548,7 +559,6 @@ LAYER
   END
   DUMP TRUE
   TEMPLATE bla
-  TOLERANCE 100
   TRANSPARENCY 40
   MAXSCALE 190000
   #LABELITEM "plannaam"
@@ -660,54 +670,3 @@ LAYER
   
 END
 END
-
-
-
-
-# test link: http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=autowegen_nl,basis_nl,bebouwdekom_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=-142800.14978943905,287251.60850806814,458577.58910722355,634742.79665518&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
-#http://b3p-roy/cgi-bin/mapserv.exe?SERVICE=WMS&LAYERS=bebouwdekom_nl,autowegen_nl,basis_nl,rivieren_nl,buurten_2006,gemeenten_2006,wijken_2006&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&HEIGHT=542&TRANSPARENT=TRUE&DACS_ACS=-check_fail%20-format%20XMLSCHEMA&MAP=C:/mapserver/map/kaartenbalie/kaartenbalie.map&REQUEST=GetMap&BBOX=110214.86384947569,427618.91555204464,198904.72505359846,479276.5408411267&WIDTH=938&STYLES=&SRS=EPSG:28992&VERSION=1.1.1
-
-#LAYER
-#  NAME plaatsnamen_nl
-#  GROUP locaties
-#  METADATA
-#    "wms_title" "plaatsnamen_nl"
-#  END
-#  TYPE POINT
-#  STATUS OFF
-#  CONNECTIONTYPE postgis
-#  CONNECTION "user=demo password=demo dbname=demo_kaartenbalie host=localhost"
-#  DATA "the_geom from gemeentenamen"
-#  PROJECTION
-#    "init=epsg:4326"
-#  END
-#  TRANSPARENCY 100
-#  LABELITEM "plaats"
-#  CLASSITEM "soort"
-#  CLASS  	      
-#      EXPRESSION "B"
-#      NAME "Gemeentenaam"
-#      COLOR 0 0 0
-#      MAXSCALE 500000
-#      LABEL
-#	ANTIALIAS true
-#	FONT arial-bold
-#	TYPE TRUETYPE
-#	SIZE 10
-#	COLOR 0 0 0	  
-#      END     
-#  END
-#  CLASS
-#      EXPRESSION "P"
-#      NAME "Plaatsnaam"
-#      COLOR 0 0 0
-#      MAXSCALE 200000
-#      LABEL
-#        ANTIALIAS true
-#        FONT arial-bold
-#        TYPE TRUETYPE
-#        SIZE 8
-#        COLOR 0 0 0
-#      END
-#  END
-#END
