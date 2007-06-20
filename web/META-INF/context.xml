@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/kaartenbalie_demo">
+<Context path="/kaartenbalie_mnp">
     <!-- Voor Tomcat 5.5
     <Resource
             name="jdbc/kaartenbalie"
@@ -30,7 +30,7 @@
     />
     -->
     
-    <!-- Config voor MNP productie, Tomcat 5.0 
+    <!-- Config voor MNP productie, Tomcat 5.0 -->
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
     <ResourceParams name="jdbc/kaartenbalie">
     <parameter>
@@ -78,9 +78,9 @@
             <value>SELECT 1</value>
     </parameter>
     </ResourceParams>
-    -->
     
-    <!-- Config voor B3Partners productie, Tomcat 5.0 -->
+    
+    <!-- Config voor B3Partners productie, Tomcat 5.0 
 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
@@ -127,5 +127,5 @@
 		<name>validationQuery</name>
 		<value>SELECT 1</value>
 	</parameter>
-	</ResourceParams>
+	</ResourceParams>-->
 </Context>

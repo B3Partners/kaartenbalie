@@ -86,17 +86,20 @@
                     <TD>&nbsp;</TD>
                 </TR>
                 <tr>
-                    <td colspan="0">
+                    <td colspan="2">
                         <html:reset>
                             <fmt:message key="button.reset"/>
                         </html:reset>
                         <html:submit property="save" >
                             <fmt:message key="button.add"/>
                         </html:submit>
-                        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'" value="<fmt:message key="button.toviewer"/>" >
+                        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do?layers=17_basis_nl*16_bebouwdekom_nl' module='' />'" value="<fmt:message key="button.toviewer"/>" > 
                     </td>
+                    <td align="left"></td>
                 </tr>
             </table>
         </html:form>
     </div>
 </div>
+
+

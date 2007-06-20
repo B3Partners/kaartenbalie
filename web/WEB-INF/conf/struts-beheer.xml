@@ -90,7 +90,8 @@
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
-        </action> 
+        </action>
+        <!--
         <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.metadata"/>
             <forward name="failure" path="base.beheer.metadata"/>
@@ -99,6 +100,7 @@
             <forward name="successfull" path="base.beheer.editmetadata"/>
             <forward name="failure" path="base.beheer.editmetadata"/>
         </action>
+        -->
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

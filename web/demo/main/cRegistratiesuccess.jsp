@@ -50,6 +50,6 @@
     met eigen kaartmateriaal.<br><br>
     
     <input type="button" onclick="javascript:window.location.href='voegurltoe.do?userid=${form.map.id}'" value="<fmt:message key="button.addmap"/>">
-    <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'" value="<fmt:message key="button.toviewer"/>" >
+    <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do?layers=17_basis_nl*16_bebouwdekom_nl' module='' />'" value="<fmt:message key="button.toviewer"/>" >
     <br>
 </html:form>

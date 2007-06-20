@@ -141,7 +141,7 @@
                 d.href="#";
                 d.onclick= function(){setAllTrue(this);};
                 d.selecteditem=item;
-                d.innerHTML=" <img src='../images/siteImages/selectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+                d.innerHTML=" <img src='../images/siteImages/deselectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
                 d.style.marginLeft="5px";
                 container.appendChild(d);
             }
@@ -185,7 +185,7 @@
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" <img src='../images/siteImages/selectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+            element.innerHTML=" <img src='../images/siteImages/deselectall.jpg' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         
         function setAll(element,checked){

@@ -67,6 +67,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected User user;
     protected String url;
     protected static long maxResponseTime = 100000;
+    protected static final String FEATUREINFO_EXCEPTION = "msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.";
 
     private XMLReader parser;
     private static Stack stack = new Stack();
@@ -417,7 +418,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 dw.write(baos);
             }
         } else {
-            getOnlineData(dw, ((StringBuffer)urls.get(0)).toString());
+            if(!urls.isEmpty()) {
+                getOnlineData(dw, ((StringBuffer)urls.get(0)).toString());
+            } else {
+                throw new Exception(FEATUREINFO_EXCEPTION);
+            }
         }
     }
     // </editor-fold>
