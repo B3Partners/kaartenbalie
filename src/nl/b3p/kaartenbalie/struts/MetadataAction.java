@@ -82,8 +82,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		//String xml = layer.getMetaData();
 		String xml = getTestMetadata();		
         dynaForm.set("xml", xml);
-		String xsl = getTestXslt();
-        dynaForm.set("xsl", xsl);	
+		//String xsl = getTestXslt();
+        //dynaForm.set("xsl", xsl);	
     }
     // </editor-fold>
 	
@@ -106,10 +106,11 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		return metadata;
 	}
     
-	private String getTestXslt() {
+	/*private String getTestXslt() {
 		String metadata = "";
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xslt"));
+			//BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl"));
+			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/test.xsl"));			
 			String line;
 			while ((line = br.readLine()) != null) {
 				metadata += line;
@@ -122,7 +123,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
 			ex.printStackTrace();
 		}
 		return metadata;
-	}
+	}*/
     	
     
     

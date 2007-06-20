@@ -8,7 +8,7 @@ function XML() { }
  */
 XML.Transformer = function(stylesheet) {
     // Load the stylesheet if necessary.
-    if (typeof stylesheet == "string") stylesheet = XML.load(stylesheet);
+    //if (typeof stylesheet == "string") stylesheet = XML.load(stylesheet);
     this.stylesheet = stylesheet;
     // In Mozilla-based browsers, create an XSLTProcessor object and
     // tell it about the stylesheet.
@@ -27,22 +27,29 @@ XML.Transformer = function(stylesheet) {
  */
 XML.Transformer.prototype.transform = function(node, element) {
     // If element is specified by id, look it up.
-    if (typeof element == "string") element = document.getElementById(element);
+    if (typeof element == "string") {
+		alert("voor: " + element);
+		element = document.getElementById(element);
+		alert("na: " + element);
+	}
+	alert(element);
     if (this.processor) {
         // If we've created an XSLTProcessor (i.e., we're in Mozilla) use it.
         // Transform the node into a DOM DocumentFragment.
         var fragment = this.processor.transformToFragment(node, document);
         alert(fragment.xml);
         // Erase the existing content of element.
-        element.innerHTML = "";
+        //element.innerHTML = "";
+		//element.removeChild(0);//???
         // And insert the transformed nodes.
         element.appendChild(fragment);
     }
     else if ("transformNode" in node) {
         // If the node has a transformNode() function (in IE), use that.
         // Note that transformNode() returns a string.
+		alert(node);
         fragmentText = node.transformNode(this.stylesheet);
-        //alert(fragmentText);
+        alert(fragmentText);
         element.innerHTML = fragmentText;
     }
     else {

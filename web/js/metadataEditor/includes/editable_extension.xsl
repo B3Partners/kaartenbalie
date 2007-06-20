@@ -18,7 +18,8 @@
 	-->
 	
 	<!-- XSL script and function library -->
-	<xsl:import href="functions.xsl"/>
+	<!--<xsl:import href="functions.xsl"/>-->
+	<xsl:include href="functions.xsl"/>	
 	
 	<!-- self reference text ('this' for JavaScript, 'me' for VBScript -->
 	<xsl:variable name="SELF_REF">this</xsl:variable>

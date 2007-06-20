@@ -2,7 +2,9 @@
 
 <script type="text/javascript">
     function popUp(url) {
-        window.open(url, 'Metadata Editor', 'width=700, height=600, resizable=yes, scrollbars=yes, location=yes');
+	window.location = url;
+	//dit wil IE7 niet:
+        //window.open(url, 'Metadata Editor');
         return false;
     }
 </script>
@@ -37,7 +39,9 @@
             if(item.type != "serviceprovider") {
                 var popupLink = document.createElement("a");
                 popupLink.onclick = function() {
-                    popUp('editmetadata.do?edit=submit&id=' + item.id);
+		    newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
+		    alert(newUrl);
+                    popUp(newUrl);		    
                 }
                 popupLink.innerHTML = item.name;
                 popupLink.href='#';

@@ -30,7 +30,7 @@
 	<!-- template library to use for making element editable -->
 	<xsl:include href="includes/editable_extension.xsl"/>
 	<!-- picklists -->
-	<xsl:include href="picklists/Metadata_Beheerder_Picklists.xsl"/>
+	<xsl:include href="Picklists/Metadata_Beheerder_Picklists.xsl"/>
 	
 <!-- 
 	<xsl:template match="/">
@@ -85,7 +85,7 @@
 			
 			<div class="hidden">
 				<!-- location of the edit and add templates stylesheets (used by Add Section code) -->
-				<span id="editStylesheetFile">MNP_Metadata_Beheerder_Edit_Intern.xslt</span>
+				<span id="editStylesheetFile">MNP_Metadata_Beheerder_Edit_Intern.xsl</span>
 				<span id="addStylesheetFile">Preprocessors/Add_MNP_Metadata_Beheerder_Edit_Templates.xsl</span>
 				<!-- plus/minus images used for expanding/collapsing sections -->
 				<img id="plus_img" border="0" src="./images/xp_plus.gif"></img>

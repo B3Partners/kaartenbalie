@@ -1,11 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 <%@include file="/templates/taglibs.jsp" %>
 <tiles:importAttribute/>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html:html>
     <head>
         <title>Metadata Editor</title>
+	<base href="<html:rewrite page='/js/metadataEditor'/>" />
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
@@ -14,7 +16,7 @@
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/browserEdit.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/browserEdit.jsp' module='' />"></script>
 		
 		<%-- hier hebben we unescapeHTML uit nodig --%>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
@@ -39,18 +41,15 @@
 			<html:hidden property="xsl" />
 			--%>
             
-            <script type="text/javascript">initWithXmlString("<c:out value="${xml}" escapeXml="true"/>", "<c:out value="${xsl}" escapeXml="true"/>");</script>			
+
             
             <p>Test 1111222</p>
 			
-			<p>
-				<%--<c:out value="${metadataForm}"/>	--%>
-			</p>
-            
             <div id="writeroot"></div>
             
-            
+	    <script type="text/javascript">initWithXmlString("<c:out value="${xml}" escapeXml="true"/>");</script>			            
         </html:form>
+
     </body>
 </html:html>
 
