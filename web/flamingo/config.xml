@@ -28,13 +28,20 @@
         <!--De onderstaande layer wordt steeds aangepast door de servlet zodat verschillende mappen kunnen worden getoond.-->
         <fmc:LayerOGWMS id="map" url="[app_root]/wms/?SERVICE=WMS&amp;FORMAT=image/png" version="1.1.1" SERVICE="WMS" LAYERS="" QUERY_LAYERS="" exceptions="inimage" srs="EPSG:28992" showerrors="false" info_format="text/html"/>
     </fmc:Map>
-    <fmc:Window  title="info" visible="false" canclose="true" canresize="true" defocusalpha="70" width="50%" height="50%" left="50%" top="0">
+    <fmc:Window  title="info" visible="false" canclose="true" canresize="true" defocusalpha="10" width="100%" height="90%" left="0" top="10%">
         <string id="title" nl="Informatie"  en="Information"/>
-        <fmc:IdentifyResults  width="100%" height="100%" visible="true" listento="mainMap">
-            <string id="startidentify"  en="Loading" nl="Info wordt opgehaald"/>
-            <string id="identify"  en="[progress]%" nl="[progress]%"/>
-            <string id="finishidentify"  en="Information" nl="Informatie"/>
-            <string id="seperator" en=":" nl=":"/>
-        </fmc:IdentifyResults>
+        <fmc:Container width="100%" height="100%" backgroundcolor="#00ACE6" alpha="85">
+            <fmc:IdentifyResults  width="100%" height="100%" visible="true" listento="mainMap">
+                <style id=".field" font-family="verdana" font-size="11px" color="#000000" display="block" font-weight="bold"/>
+                <style id=".value" font-family="verdana" font-size="11px" color="#000000" display="block" font-weight="normal"/>
+                <style id=".maplayer" font-family="verdana" font-size="13px" color="#000000" display="block" font-weight="normal"/>
+                <style id=".layer" font-family="verdana" font-size="12px" color="#000000" display="block" font-weight="normal"/>
+
+                <string id="startidentify"  en="Loading" nl="Info wordt opgehaald"/>
+                <string id="identify"  en="[progress]%" nl="[progress]%"/>
+                <string id="finishidentify"  en="Information" nl="Informatie"/>
+                <string id="seperator" en=":" nl=":"/>
+            </fmc:IdentifyResults>
+        </fmc:Container>
     </fmc:Window>    
 </FLAMINGO>
