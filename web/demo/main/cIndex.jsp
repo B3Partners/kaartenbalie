@@ -68,7 +68,7 @@
     <div id="democontentheader">Welkom bij de demoversie van de Kaartenbalie</div>
     <div id="democontenttext">
         
-        Welkom bij de demoversie van de Kaartenbalie. Door middel van deze Demo willen wij u laten zien
+        Door middel van deze Demo willen wij u laten zien
         wat de mogelijkheden van de Kaartenbalie zijn. Met behulp van een aantal pagina's zal worden uitgelegd
         hoe u gebruik kunt maken van de Kaartenbalie.
         
