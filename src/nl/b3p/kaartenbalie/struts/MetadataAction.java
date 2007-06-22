@@ -17,9 +17,11 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
 import org.apache.commons.logging.Log;
@@ -36,6 +38,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private final static String SUCCESS = "success";
     private final static String SUCCESSFULL = "successfull";
     private static final Log log = LogFactory.getLog(MetadataAction.class);
+    
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
@@ -82,8 +85,6 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		//String xml = layer.getMetaData();
 		String xml = getTestMetadata();		
         dynaForm.set("xml", xml);
-		//String xsl = getTestXslt();
-        //dynaForm.set("xsl", xsl);	
     }
     // </editor-fold>
 	
@@ -105,27 +106,6 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		}
 		return metadata;
 	}
-    
-	/*private String getTestXslt() {
-		String metadata = "";
-		try {
-			//BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl"));
-			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/test.xsl"));			
-			String line;
-			while ((line = br.readLine()) != null) {
-				metadata += line;
-			}
-		}
-		catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		}
-		catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return metadata;
-	}*/
-    	
-    
     
     
     

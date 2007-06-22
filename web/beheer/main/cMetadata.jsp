@@ -1,29 +1,32 @@
 <%@include file="/templates/taglibs.jsp" %>
 
+<script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
+
+<div class="containerdiv" style="float: left; clear: none;">
+    <h1>Beheer Metadata</h1>
+    
+    <b>Lijst met beschikbare layers:</b>
+    
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+	<div id="treeContainerLarge">
+	    <div class="treeHolderLarge">
+		<div id="tree"></div>
+	    </div>
+	</div>
+    </div>
+    
+
+
 <script type="text/javascript">
-    function popUp(url) {
-	window.location = url;
+    //function popUp(url) {
+    function popUp() {
+	window.location = 'editmetadata.do?edit=submit&id=17_iets';
+	//window.location = url;
 	//dit wil IE7 niet:
         //window.open(url, 'Metadata Editor');
         return false;
-    }
-</script>
-
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
-<div class="containerdiv" style="float: left; clear: none;">
-<H1>Beheer Metadata</H1>
-
-<b>Lijst met beschikbare layers:</b>
-
-<div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-    <div id="treeContainerLarge">
-        <div class="treeHolderLarge">
-            <div id="tree"></div>
-        </div>
-    </div>
-</div>
-
-<script type="text/javascript">
+    }    
+    
     <c:if test = "${not empty layerList}">
         
         var root = ${layerList};
@@ -41,7 +44,8 @@
                 popupLink.onclick = function() {
 		    newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
 		    alert(newUrl);
-                    popUp(newUrl);		    
+                    //popUp(newUrl);
+		    popUp();
                 }
                 popupLink.innerHTML = item.name;
                 popupLink.href='#';

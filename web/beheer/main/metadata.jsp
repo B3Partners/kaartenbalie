@@ -4,7 +4,7 @@
 <%@include file="/templates/taglibs.jsp" %>
 <tiles:importAttribute/>
 
-<html:html>
+<html:html xhtml="true">
     <head>
         <title>Metadata Editor</title>
 	<base href="<html:rewrite page='/js/metadataEditor'/>" />
@@ -15,25 +15,23 @@
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
         
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.js' module='' />"></script>	
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/browserEdit.jsp' module='' />"></script>
 		
 		<%-- hier hebben we unescapeHTML uit nodig --%>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
         
-        
-        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/generic.css' module='' />" />
-        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.css' module='' />" />
+        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.jsp' module='' />" />
     </head>
     
-    <!--<body onload="init()" changed="false" metaEditType="fullXML" onmousemove="mouseEvent()">-->
     <body>
 		<c:set var="form" value="${metadataForm}"/>
         <c:set var="xml" value="${form.map.xml}"/>
         <c:set var="xsl" value="${form.map.xsl}"/>	
 	
         
-        <html:form action="/metadata">
+        <html:form action="/metadata" onsubmit="checkForm(); return false;">
             <html:hidden property="id" />
             <html:hidden property="name" />
             <%--
@@ -41,9 +39,7 @@
 			<html:hidden property="xsl" />
 			--%>
             
-
-            
-            <p>Test 1111222</p>
+	    <html:button property="save" value="Save" onclick="checkForm();"/> 
 			
             <div id="writeroot"></div>
             

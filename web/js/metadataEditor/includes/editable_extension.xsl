@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<!-- 	
@@ -50,7 +50,7 @@
 	<!-- ============================================ -->
 
 
-	<!-- TEMPLATE: voor een element dat verandert kan worden door de gebruiker. Het kiest per default het huidige pad als element dat geëdit kan worden -->
+	<!-- TEMPLATE: voor een element dat verandert kan worden door de gebruiker. Het kiest per default het huidige pad als element dat geÃ«dit kan worden -->
 	<xsl:template name="edit_element">
 		<xsl:param name="element_title"/>
 		<xsl:param name="element_path" select="."/>
@@ -71,7 +71,7 @@
 			</xsl:choose>
 		</xsl:variable>
 		
-		<p class="{$class}">
+		<div class="{$class}" xmlns="http://www.w3.org/1999/xhtml">
 			<xsl:if test="$element_title != ''">
 				<xsl:value-of select="$element_title"/>:
 			</xsl:if>
@@ -111,7 +111,7 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:element>
-		</p>
+		</div>
 
 	</xsl:template>
 	
@@ -276,6 +276,7 @@
 		<xsl:param name="target">viewer</xsl:param>
 
 		<xsl:element name="a">
+			<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
 			<xsl:attribute name="href"><xsl:value-of select="$href"/></xsl:attribute>
 			<xsl:attribute name="target"><xsl:value-of select="$target"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
@@ -289,6 +290,7 @@
 		<xsl:param name="name-shown">no name</xsl:param>
 
 		<xsl:element name="a">
+			<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
 			<xsl:attribute name="href">mailto:<xsl:value-of select="$email"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
 		</xsl:element>

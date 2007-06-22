@@ -97,6 +97,13 @@ function initWithXmlString(xmlString) {
 	xmlDocInit();
 }
 
+// TODO: nog uitwerken:
+function checkForm() {
+    if (true == false) {
+	document.getElementById("metadataForm").submit();
+    }
+}
+
 function putXMLinHiddenNode() {
 	document.getElementById('xml').setAttribute("value", xmlDoc.xml);
 	return true;

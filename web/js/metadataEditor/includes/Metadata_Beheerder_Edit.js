@@ -8,20 +8,6 @@ function xmlDocInit() {
   setInitialTab(visibleTab);
 }
 
-//event getter. Werkt voor zowel firefox als ie6+
-function getWindowEvent(e) {
-  if (!e)
-    e = window.event;
-  return e;
-}
-
-//markeert het event als afgehandeld. Werkt voor zowel firefox als ie6+
-function stopPropagation(e) {
-  e.cancelBubble = true;
-  if (e.stopPropagation)
-    e.stopPropagation();
-}
-
 //selecteert de aangeklikte tab
 function changeTab(eTD)  {
   var eTD = getWindowEvent(eTD);            

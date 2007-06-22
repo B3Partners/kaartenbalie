@@ -44,7 +44,7 @@
 	
 	
 	<xsl:template name="metadataStart">
-		<div>
+		<div id="editDocRoot" changed="false" metaEditType="fullXML" onmousemove="mouseEvent()">
 		
 			<div>
 				<table id="main-menu" width="300" height="30" cellspacing="0" cellpadding="0">
@@ -66,7 +66,7 @@
 				<xsl:call-template name="specificaties-tab"/>
 			</div>
 			
-			<div class="hidden" id="picklists">
+			<div class="hidden" id="picklists" xmlns="http://www.w3.org/1999/xhtml">
 				<!-- hide picklists for use by picklist Javascript code-->
 				<xsl:call-template name="intented_application_scale"/>
 				<xsl:call-template name="language"/>

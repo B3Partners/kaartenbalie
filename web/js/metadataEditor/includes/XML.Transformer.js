@@ -39,7 +39,7 @@ XML.Transformer.prototype.transform = function(node, element) {
         var fragment = this.processor.transformToFragment(node, document);
         alert(fragment.xml);
         // Erase the existing content of element.
-        //element.innerHTML = "";
+        element.innerHTML = "";
 		//element.removeChild(0);//???
         // And insert the transformed nodes.
         element.appendChild(fragment);

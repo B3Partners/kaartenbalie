@@ -113,16 +113,6 @@ function HideMenu(pElem) {
 	}
 }
 
-//TODO: delete references to these functions
-//Do nothing
-function ShowBox(pElem) {
-}
-
-//Do nothing
-function HideBox(pElem) {
-}
-
-
 // 12/8/2004 Eric Compas
 //
 // Description:
@@ -252,11 +242,3 @@ function expandAll(bExpand) {
 	}
 	//Next;
 }
-
-
-
-// ============================================================================
-// This code converted from VBScript to Javascript by the ScriptConverter tool.
-// Use freely.  Please do not redistribute without permission.
-// Copyright 2003 Rob Eberhardt - scriptConverter@slingfive.com.
-// ============================================================================

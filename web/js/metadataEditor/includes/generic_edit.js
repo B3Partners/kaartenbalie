@@ -58,9 +58,37 @@ function trim(value) {
 }
 
 
+
 // =============
 // Edit Routines
 // =============
+
+function mouseEvent() {
+	//function mouseEvent(pElem){
+	//var pActiveElem;
+	//Set pActiveElem = document.activeElement;
+
+	//window.event.cancelBubble=false;
+
+	/*var xPos;
+	var yPos;
+
+	xPos = window.event.x;
+	yPos = window.event.y;
+
+	//stopEdit(pElem);
+
+	//alert(xPos + "   "+ yPos);
+	if (xPos < 50 || yPos < 50) {
+		//stopEdit(Null);
+		//alert(xPos + " -- " +yPos);
+		//window.event.cancelBubble=false;
+		//window.event.SendKeys "{ENTER}";
+		//stopEdit(pElem);
+	}*/
+
+}
+
 
 // Description:
 //   Track state of editable page. When user edits
@@ -70,32 +98,32 @@ function trim(value) {
 //   bChange = 'true' somethings been edited
 //   bChange = 'false' changes have been saved (almost never called)
 function changeFlag(bChange) {
+	var root = document.getElementById("editDocRoot");
 	if (bChange) {
 		//the body's 'changed' attribute to 'true'
-		document.body.changed = "true";
+		root.changed = "true";
 		//document.all.changeFlag.innerHTML = "<font color='red'>Unsaved changes</font>"
 	}
 	else {
 		//the body's 'changed' attribute to 'false'
-		document.body.changed = "false";
+		root.changed = "false";
 		//document.all.changeFlag.innerHTML = "No unsaved changes"
 	}
 }
 
 // determine what the shell is from <body> attribute
 // returns:
-//    "arccatalog" if(ArcCatalog is shell
-//    "standalone" if(Stand-alond app is shell (default if(error)
-function getShellType() {
+//    "arccatalog" if ArcCatalog is shell
+//    "standalone" if Stand-alond app is shell (default if error)
+/*function getShellType() {
 	// get body attribute
-	var strShell = document.body.getAttribute("shell");
-	if (strShell == "arccatalog") {
-		getShellType = "arccatalog";
-	}
-	else {
-		getShellType = "standalone";
-	}
-}
+	var root = document.getElementById("editDocRoot");
+	var strShell = root.getAttribute("shell");
+	if (strShell == "arccatalog")
+		return "arccatalog";
+	else
+		return "standalone";
+}*/
 
 // Description:
 //   Change element value into a text input || text area to be edited.
@@ -113,19 +141,23 @@ function startEdit(pElem) {
 	//alert("Open element for editing: " + pElem.name);
 
 	// get current value (for checking if(changed later)
-	strPreEditText = pElem.innerText;
+	var event = getWindowEvent(pElem);
+	
+	strPreEditText = getObjInnerText(pElem);
 	//alert("pElem.innerText" + pElem.innerText);
+	
+	var strCurEditText = strPreEditText;
 
 	// get size from current text
 	var iCol, iRow;
-	if (pElem.innerText.length > MIN_TEXTINPUT_SIZE) {
-		if (pElem.innerText.length < MAX_TEXTINPUT_SIZE) {
-			iCol = pElem.innerText.length;
+	if (strCurEditText.length > MIN_TEXTINPUT_SIZE) {
+		if (strCurEditText.length < MAX_TEXTINPUT_SIZE) {
+			iCol = strCurEditText.length;
 			iRow = 1;
 		}
 		else {
 			iCol = MAX_TEXTINPUT_SIZE;
-			iRow = Math.floor(pElem.innerText.length / MAX_TEXTINPUT_SIZE) + 1;
+			iRow = Math.floor(strCurEditText.length / MAX_TEXTINPUT_SIZE) + 1;
 		}
 	}
 	else {
@@ -155,7 +187,7 @@ function startEdit(pElem) {
 				if (node.nodeType == 1) {
 					//*********************************************
 					//kent geen innerText???
-					node.value = pElem.innerText;
+					node.value = getObjInnerText(pElem);
 					break;
 				}
 			}
@@ -171,41 +203,37 @@ function startEdit(pElem) {
 	}
 
 	// which key event to use (depends on shell)
-	var strKeyEvent;
-	if (getShellType == "arccatalog") {
-		strKeyEvent = "onkeypress";
-	}
-	else {
-		strKeyEvent = "onkeydown";
-	}
+	var strKeyEvent = "onkeypress";
 
 	// alt-clicked? if so, force use of textarea
 	//**************************************************
-	if (window.event.altKey) {
+	if (event.altKey) {
 		iRow = 4;
 		iCol = MAX_TEXTINPUT_SIZE;
 		//alert("Alt-clicked.");
 	}
 
 
-	pElem.innerText = checkText(pElem.innerText);
+	setObjInnerText(pElem, checkText(getObjInnerText(pElem)));
 
 	//alert("After Replace "+ pElem.innerText);
 	//alert(pElem.innerHTML);
 
 	// change span into text input or textarea for editing
+	var newInnerText = getObjInnerText(pElem);
+	pElem.innerHTML = "";
 	if (iRow > 1) {
 		// use textarea
-		pElem.innerHTML = "<textarea cols='" + iCol + "' rows='" + iRow +  "'onclick='window.event.cancelBubble=true' " +  "onBlur='stopEdit(this)' " + strKeyEvent + "='checkKey(this)'>" +  pElem.innerText + "</textarea>" ;
+		pElem.innerHTML = "<textarea cols='" + iCol + "' rows='" + iRow +  "'onclick='stopPropagation(this);' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'>" +  newInnerText + "</textarea>";
 	}
 	else {
 		// use text input
-		pElem.innerHTML = "<input type='text' class='input' value='" +  pElem.innerText + "' size='" + iCol +  "' onclick='window.event.cancelBubble=true' " +  "onBlur='stopEdit(this)' " + strKeyEvent + "='checkKey(this)'/> ";
+		pElem.innerHTML = "<input type='text' class='input' value='" +  newInnerText + "' size='" + iCol +  "' onclick='' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'/> ";
 	}
 
 	//alert(pElem.innerHTML);
 
-	//alert("pElem.innerHTML" + pElem.innerHTML);
+	alert("pElem.innerHTML: " + pElem.innerHTML);
 
 	//focus to text input
 	pElem.childNodes[0].focus();
@@ -217,52 +245,28 @@ function startEdit(pElem) {
 
 }
 
-function mouseEvent() {
-	//function mouseEvent(pElem){
-	//var pActiveElem;
-	//Set pActiveElem = document.activeElement;
 
-	//window.event.cancelBubble=false;
 
-	/*var xPos;
-	var yPos;
-
-	xPos = window.event.x;
-	yPos = window.event.y;
-
-	//stopEdit(pElem);
-
-	//alert(xPos + "   "+ yPos);
-	if (xPos < 50 || yPos < 50) {
-		//stopEdit(Null);
-		//alert(xPos + " -- " +yPos);
-		//window.event.cancelBubble=false;
-		//window.event.SendKeys "{ENTER}";
-		//stopEdit(pElem);
-	}*/
-
-}
-
+// Description:
+//   Change text input or area element value back into displayed text.
+//   Assumes that text to be edited is in particular format.
+//
+// Argument:
+//   objElem = the <span> element containing text to be edited.
 function stopEdit(pElem) {
-	// Description:
-	//   Change text input or area element value back into displayed text.
-	//   Assumes that text to be edited is in particular format.
-	//
-	// Argument:
-	//   objElem = the <span> element containing text to be edited.
-
 	// check if picklist has focus, if so don't stop editing
-	var pActiveElem = document.activeElement;
+	/*var pActiveElem = document.activeElement;
 	if (pActiveElem.tagName == "SELECT") {
 		return;
-	}
+	}*/
 
+	stopPropagation(pElem);
 
 	// change text input back to displayed text
 	//alert("innerText=" + pElem.innerText + " outerHTML=" + pElem.outerHTML + " value=" + pElem.value);
 
 	// get parent <span> element
-	var pParentElem = pElem.parentElement;
+	var pParentElem = getParentElement(pElem);
 	//alert("pParentElem.innerHTML = " + pParentElem.innerHTML);
 
 	// check for changed value (from original)
@@ -275,7 +279,6 @@ function stopEdit(pElem) {
 		pParentElem.changed = "true";
 
 		//page changed attribute;
-		//******************************************
 		changeFlag(true);
 
 		//alert("User changed text");
@@ -315,7 +318,7 @@ function stopEdit(pElem) {
 		if (pPicklist == null) {
 			alert("Error locating picklist in stylesheet to remove.");
 		}
-		else if (pPicklist.tagName != "SELECT") {
+		else if (pPicklist.tagName != "select") {
 			alert("Error locating picklist in stylesheet to remove.");
 		}
 		else {
@@ -327,11 +330,15 @@ function stopEdit(pElem) {
 
 	// change span value to text alone
 	//alert(pElem.outerHTML);
-	pElem.outerHTML = checkText(pElem.value);
+	//var elemValue = pElem.value;
+	//pParentElem.innerHTML = "";
+	pParentElem.innerHTML = checkText(pElem.value);
+	//pElem.outerHTML = checkText(pElem.value);
 
 	//*********************************************************
 	// turn click event back on
-	window.event.cancelBubble = false;
+	//window.event.cancelBubble = false;
+	//stopPropagation(pElem);
 }
 
 // 1/27/2005 Eric Compas;
@@ -374,7 +381,7 @@ function pickList(pElem) {
 	var pTextInput = pElem.previousSibling.childNodes[0];
 	//Set pTextInput = pElem.parentElement.previousSibling.childNodes(0);
 	
-	if (pTextInput.tagName != "TEXTAREA" && pTextInput.tagName != "INPUT") {
+	if (pTextInput.tagName != "textarea" && pTextInput.tagName != "input") {
 		alert("Error locating text input for picklist.");
 		return;
 	}
@@ -392,13 +399,14 @@ function pickList(pElem) {
 // Catch "tab" key press when picklist is open (will leave editing field open)
 //***********************************************
 function pickListKeyPress(pElem) {
-	var iKey = window.event.keyCode;
-	alert("Key pressed = " + iKey);
+	var iKey = getKeyCode(pElem);
+	//alert("Key pressed = " + iKey);
 
 	// was 'tab' pressed?
 	if (iKey == 9) {
 		// cancel default IE tab handler
-		window.event.returnValue = false;
+		//window.event.returnValue = false;
+		return false;
 	}
 }
 
@@ -409,13 +417,17 @@ function pickListKeyPress(pElem) {
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
 function checkKey(objElem) {
-	var iKey = window.event.keyCode;
-	//alert("Key pressed = " + iKey);
+	var iKey = getKeyCode(objElem);
+	if (iKey != null)
+		alert("Key pressed = " + iKey);
 
-	// was enter pressed? (don't trigger in TEXTAREA)
-	if (iKey == 13 && objElem.tagName == "INPUT") {
+	// was enter pressed? (don't trigger in textarea)
+	if (iKey == 13 && objElem.tagName == "input") {
+		stopPropagation(objElem);
+		
 		// trigger onBlur event - stop editing
 		objElem.blur();
+		return false;
 	}
 
 	// was 'tab' or down-arrow pressed?
@@ -423,10 +435,12 @@ function checkKey(objElem) {
 	//if(iKey = 9 || iKey = 40){
 	if (iKey == 9) {
 		// cancel default IE tab handler
-		window.event.returnValue = false;
-
+		//window.event.returnValue = false;
+		
+		stopPropagation(objElem);
 		// trigger blur event - stop editing
 		objElem.blur();
+		return false;
 
 		// open editing for next field?
 	}
@@ -434,10 +448,12 @@ function checkKey(objElem) {
 	// was 'shift-tab' or up-arrow pressed?
 	if (iKey == 38) {
 		// cancel default IE tab handler
-		window.event.returnValue = false;
+		//window.event.returnValue = false;
 
+		stopPropagation(objElem);
 		// trigger blur event - stop editing
 		objElem.blur();
+		return false;
 
 		// open editing for previous field?
 	}
@@ -447,6 +463,7 @@ function checkKey(objElem) {
 		//text to original value
 		objElem.value = strPreEditText;
 
+		stopPropagation(objElem);
 		// trigger blur event - stop editing
 		objElem.blur();
 	}
@@ -1108,10 +1125,3 @@ function showHTML(textAreaID){
 	var strData = document.documentElement.innerHTML;
 	textAreaID.value = strData;
 }
-
-
-// ============================================================================
-// This code converted from VBScript to Javascript by the ScriptConverter tool.
-// Use freely.  Please do not redistribute without permission.
-// Copyright 2003 Rob Eberhardt - scriptConverter@slingfive.com.
-// ============================================================================
