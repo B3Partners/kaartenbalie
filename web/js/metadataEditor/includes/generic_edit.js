@@ -224,7 +224,8 @@ function startEdit(pElem) {
 	pElem.innerHTML = "";
 	if (iRow > 1) {
 		// use textarea
-		pElem.innerHTML = "<textarea cols='" + iCol + "' rows='" + iRow +  "'onclick='stopPropagation(this);' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'>" +  newInnerText + "</textarea>";
+		// stopPropagation(this);
+		pElem.innerHTML = "<textarea cols='" + iCol + "' rows='" + iRow +  "'onclick='' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'>" +  newInnerText + "</textarea>";
 	}
 	else {
 		// use text input
@@ -478,6 +479,7 @@ function getNextPreEditSpan(objElem, bNext) {
 	var pSPANElements = document.getElementsByTagName("span");
 
 	// find current one in collection
+	// ************************************
 }
 
 // 1/30/04 Eric Compas;
@@ -525,7 +527,7 @@ function addListItem(objElem, strName, strSize, strDefaultValue, strPicklist, bA
 	//var objMenuCopy;
 	//Set objMenuCopy = objMenuSpan.cloneNode(true);
 	//objMenuCopy.childNodes(1).style.display = "none"
-	var strMenu = "<span onclick=\"ShowMenu(this)\"><IMG title=\"Click for options\" src=\"" + MENU_IMAGE + "\">" +  "<ul class=\"menu\" onmouseleave=\"HideMenu(this)\">" +  "<li class=\"menuaddabove\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', true)\">" + ADD_ELEMENT_ABOVE_TEXT + "</a></li>" +  "<li class=\"menuaddbelow\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', false)\">" + ADD_ELEMENT_BELOW_TEXT + "</a></li>" +  "<li class=\"menudelete\"><a href=\"javascript:void(0)\" onclick=\"deleteListItem(this)\">" + DELETE_ELEMENT_TEXT + "</a></li>" +  "</ul></span>";
+	var strMenu = "<span onclick=\"ShowMenu(this)\"><img title=\"Click for options\" src=\"" + MENU_IMAGE + "\">" +  "<ul class=\"menu\" onmouseleave=\"HideMenu(this)\">" +  "<li class=\"menuaddabove\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', true)\">" + ADD_ELEMENT_ABOVE_TEXT + "</a></li>" +  "<li class=\"menuaddbelow\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', false)\">" + ADD_ELEMENT_BELOW_TEXT + "</a></li>" +  "<li class=\"menudelete\"><a href=\"javascript:void(0)\" onclick=\"deleteListItem(this)\">" + DELETE_ELEMENT_TEXT + "</a></li>" +  "</ul></span>";
 	//alert("strMenu = " + strMenu);
 	strNewSpan = strNewSpan + strMenu;
 	//htmlText.value = strMenu;

@@ -3,6 +3,8 @@
 
 xslFullPath = "<html:rewrite page='/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl'/>";
 
+
+
 function init() {
 	
 	
@@ -95,6 +97,10 @@ function initWithXmlString(xmlString) {
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	
 	xmlDocInit();
+}
+
+function test() {
+    //niets
 }
 
 // TODO: nog uitwerken:

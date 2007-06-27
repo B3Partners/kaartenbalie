@@ -4,6 +4,10 @@
 <%@include file="/templates/taglibs.jsp" %>
 <tiles:importAttribute/>
 
+<c:set var="form" value="${metadataForm}"/>
+<c:set var="xml" value="${form.map.xml}"/>
+<c:set var="xsl" value="${form.map.xsl}"/>
+
 <html:html xhtml="true">
     <head>
         <title>Metadata Editor</title>
@@ -21,16 +25,24 @@
 		
 		<%-- hier hebben we unescapeHTML uit nodig --%>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
-        
+	
+	<script type="text/javascript">
+	/* <![CDATA[ */
+	    //var testVar = "test";
+	    //test2();
+	    xmlJs = "<c:out value="${xml}" escapeXml="true"/>";
+	    //initWithXmlString(xmlJs);
+	    //alert('dit kan');
+	/* ]]> */
+	</script>
+	
+
+	
         <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.jsp' module='' />" />
     </head>
     
-    <body>
-		<c:set var="form" value="${metadataForm}"/>
-        <c:set var="xml" value="${form.map.xml}"/>
-        <c:set var="xsl" value="${form.map.xsl}"/>	
-	
-        
+    <body onload='initWithXmlString(xmlJs);'>
+
         <html:form action="/metadata" onsubmit="checkForm(); return false;">
             <html:hidden property="id" />
             <html:hidden property="name" />
@@ -42,9 +54,14 @@
 	    <html:button property="save" value="Save" onclick="checkForm();"/> 
 			
             <div id="writeroot"></div>
+	    
+
+	    
+	    
             
-	    <script type="text/javascript">initWithXmlString("<c:out value="${xml}" escapeXml="true"/>");</script>			            
+	            
         </html:form>
+	
 
     </body>
 </html:html>

@@ -47,21 +47,21 @@ function getKeyCode(e) {
 		//alert("window.event.keyCode");
 		return window.event.keyCode;
 	}
-	//else {//if (e.keyCode) {
+	else if (e.keyCode) {
 		//alert("e.keyCode");
-		//return e.keyCode;
-	//}
-	else {// if (e.which) {
+		return e.keyCode;
+	}
+	else if (e.which) {
 		//alert("e.which");
 		return e.which;
 	}
-	/*else if (e.charCode) {
-		alert("e.charCode");
+	else if (e.charCode) {
+		//alert("e.charCode");
 		return e.charCode;
 	}
 	else {
 		alert("debug: key niet te capturen van: " + e);
-	}*/
+	}
 }
 
 function stopPropagation(e) {
@@ -77,4 +77,8 @@ function stopPropagation(e) {
 	e.preventDefault();
   }
   //return false;
+}
+
+function test2() {
+	//niets
 }
