@@ -66,7 +66,7 @@
 				<xsl:call-template name="specificaties-tab"/>
 			</div>
 			
-			<div class="hidden" id="picklists" xmlns="http://www.w3.org/1999/xhtml">
+			<div class="hidden" id="picklists">
 				<!-- hide picklists for use by picklist Javascript code-->
 				<xsl:call-template name="intented_application_scale"/>
 				<xsl:call-template name="language"/>
@@ -83,14 +83,7 @@
 				<xsl:call-template name="background"/>
 			</div>
 			
-			<div class="hidden">
-				<!-- location of the edit and add templates stylesheets (used by Add Section code) -->
-				<span id="editStylesheetFile">MNP_Metadata_Beheerder_Edit_Intern.xsl</span>
-				<span id="addStylesheetFile">Preprocessors/Add_MNP_Metadata_Beheerder_Edit_Templates.xsl</span>
-				<!-- plus/minus images used for expanding/collapsing sections -->
-				<img id="plus_img" border="0" src="./images/xp_plus.gif"></img>
-				<img id="minus_img" border="0" src="./images/xp_minus.gif"></img>
-			</div>
+			<!-- images en pad naar sheet verplaatst naar omringende jsp -->
 			
 		</div>
 	</xsl:template>

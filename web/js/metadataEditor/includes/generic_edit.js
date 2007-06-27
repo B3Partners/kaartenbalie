@@ -33,9 +33,9 @@ var DELETE_SECTION_TEXT = "Verwijder deze sectie";
 var ADD_CHILD_TEXT = "Voeg nieuw kind toe";
 
 // expand/collapse section && menu image paths 
-var PLUS_IMAGE = "images/xp_plus.gif";
-var MINUS_IMAGE = "images/xp_minus.gif";
-var MENU_IMAGE = "images/arrow.gif";
+//var PLUS_IMAGE = "images/xp_plus.gif";
+//var MINUS_IMAGE = "images/xp_minus.gif";
+//var MENU_IMAGE = "images/arrow.gif";
 var MENU_TOOLTIP = "Klik hier om opties weer te geven";
 
 // message titles

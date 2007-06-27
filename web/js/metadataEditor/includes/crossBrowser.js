@@ -1,5 +1,7 @@
 //Auteur: Erik van de Pol
 
+alert("hier !!!!!!!!!!!!!!!!!!");
+
 //Deze functies werken zowel in firefox als in ie6+
 
 function getObjInnerText(obj) {
@@ -43,6 +45,10 @@ function getWindowEvent(e) {
 }
 
 function getKeyCode(e) {
+	if (!e) var e = window.event
+	if (e.keyCode) code = e.keyCode;
+	else if (e.which) code = e.which;
+	/*
 	if (window.event) {
 		//alert("window.event.keyCode");
 		return window.event.keyCode;
@@ -58,7 +64,7 @@ function getKeyCode(e) {
 	else if (e.charCode) {
 		//alert("e.charCode");
 		return e.charCode;
-	}
+	}*/
 	else {
 		alert("debug: key niet te capturen van: " + e);
 	}

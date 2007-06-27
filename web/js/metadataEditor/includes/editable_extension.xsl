@@ -71,7 +71,7 @@
 			</xsl:choose>
 		</xsl:variable>
 		
-		<div class="{$class}" xmlns="http://www.w3.org/1999/xhtml">
+		<div class="{$class}">
 			<xsl:if test="$element_title != ''">
 				<xsl:value-of select="$element_title"/>:
 			</xsl:if>
@@ -276,7 +276,7 @@
 		<xsl:param name="target">viewer</xsl:param>
 
 		<xsl:element name="a">
-			<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
+			<!--<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>-->
 			<xsl:attribute name="href"><xsl:value-of select="$href"/></xsl:attribute>
 			<xsl:attribute name="target"><xsl:value-of select="$target"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
@@ -290,7 +290,7 @@
 		<xsl:param name="name-shown">no name</xsl:param>
 
 		<xsl:element name="a">
-			<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>
+			<!--<xsl:attribute name="xmlns">http://www.w3.org/1999/xhtml</xsl:attribute>-->
 			<xsl:attribute name="href">mailto:<xsl:value-of select="$email"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
 		</xsl:element>

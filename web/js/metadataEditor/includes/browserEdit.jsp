@@ -1,13 +1,35 @@
 <%@page contentType="text/javascript"%>
 <%@include file="/templates/taglibs.jsp" %>
 
-xslFullPath = "<html:rewrite page='/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl'/>";
 
-
+//alert("hij doet iets in deze file: browserEdit.jsp!");
+init();
 
 function init() {
-	
-	
+    xslFullPath = "<html:rewrite page='/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl' module='' />";
+    addLoadEvent(initWithXmlString);
+    
+    PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
+    MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
+    MENU_IMAGE = "<html:rewrite page='/js/metadataEditor/images/arrow.gif' module='' />";
+    //alert("hij is in init!");
+}
+
+function addLoadEvent(func) {
+  var oldonload = window.onload;
+  if (typeof window.onload != 'function') {
+    window.onload = func;
+  } else {
+    window.onload = function() {
+      if (oldonload) {
+        oldonload();
+      }
+      func();
+    }
+  }
+}
+
+function sarissaTest() {
 	//sarissa:
 	/*
 	var xmlDoc = Sarissa.getDomDocument();
@@ -77,7 +99,10 @@ function init() {
 	xmlDocInit();
 }
 
-function initWithXmlString(xmlString) {
+function initWithXmlString() {
+	alert("hij is in initWithXmlString!");
+	var xmlString = xmlJs;
+	
 	alert("escaped:\n\n" + xmlString);
 	xmlString = xmlString.unescapeHTML();
 	//xslString = xslString.unescapeHTML();
