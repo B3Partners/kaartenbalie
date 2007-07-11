@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<!-- 	
@@ -95,8 +95,9 @@
 						<xsl:attribute name="class">unchanged_value</xsl:attribute>
 						<xsl:attribute name="changed">false</xsl:attribute>
 						
-						<xsl:value-of select="$element_path"/>
-
+						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
+						<!-- oud: <xsl:value-of select="$element_path"/> -->
+						<xsl:apply-templates select="$element_path"/>						
 						
 						
 						
