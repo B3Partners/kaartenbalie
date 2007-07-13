@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet 					
+					version="1.0"
+					xmlns="http://www.w3.org/1999/xhtml"
+					xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+					>
+
+
 
 	<!-- 	
 		Auteur: Erik van de Pol. B3Partners.
-
-		Deze file bevat de core templates voor fullXML mode editing. Maar met meer vrijheid en diversiteit dan in
-		"editable.xsl". Geschikt voor het invoeren van extra (niet editable) tekst en bijvoorbeeld een tab-layout.
-		Gedeeltes van de code zijn gebaseerd op "editable.xsl" van NPS Metadata Editor 1.1
 
 		Dependencies (for this XSL):
 			functions.xsl = some basic XML functions
 	
 		 Dependencies (of resulting HTML page):
 			(These dependencies should all be handled by the calling stylesheet)
-			* several images (plus, minus, images)
-			* VBScript code for handling dhtml
+			* Javascript code for handling dhtml
 	-->
 	
 	<!-- XSL script and function library -->
@@ -59,7 +60,7 @@
 		<xsl:param name="help_text"/>
 		<xsl:param name="picklist"/>
 		<xsl:param name="trailing_text"/>
-
+		
 		<xsl:variable name="class">
 			<xsl:choose>
 				<xsl:when test="$optionality = 'mandatory'">
@@ -96,8 +97,8 @@
 						<xsl:attribute name="changed">false</xsl:attribute>
 						
 						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
-						<!-- oud: <xsl:value-of select="$element_path"/> -->
-						<xsl:apply-templates select="$element_path"/>						
+						<!--<xsl:value-of select="$element_path"/>-->
+						<xsl:apply-templates/>
 						
 						
 						
@@ -125,7 +126,7 @@
 	
 	<!-- TEMPLATE: for (repeating) section -->
 	<xsl:template name="section">
-		<xsl:param name="section_Mtitle"/>
+		<xsl:param name="title"/>
 		<xsl:param name="section_path" select="."/>
 		<xsl:param name="expanding" select="'true'"/>
 		<xsl:param name="expanded" select="'true'"/>
@@ -138,7 +139,7 @@
 
 
 			<xsl:call-template name="section-title">
-				<xsl:with-param name="section_Mtitle" select="$section_Mtitle"/>
+				<xsl:with-param name="title" select="$title"/>
 				<xsl:with-param name="expanding" select="$expanding"/>
 				<xsl:with-param name="expanded" select="$expanded"/>
 			</xsl:call-template>
@@ -238,7 +239,7 @@
 	Template "section" verkrijgt zijn content door <xsl:apply-templates/> aan te roepen.
 	-->
 	<xsl:template name="section-title">
-		<xsl:param name="section_Mtitle"/>
+		<xsl:param name="title"/>
 		<xsl:param name="expanding" select="'true'"/>
 		<xsl:param name="expanded" select="'true'"/>
 		
@@ -255,11 +256,11 @@
 						</xsl:otherwise>
 					</xsl:choose>
 
-					<span class="section_Mtitle" onmouseover="section_MtitleHover(this)"><xsl:value-of select="$section_Mtitle"/></span>
+					<span class="section_Mtitle" onmouseover="section_MtitleHover(this)"><xsl:value-of select="$title"/></span>
 				</a>
 			</xsl:when>
 			<xsl:otherwise>
-				<span class="section_Mtitle"><xsl:value-of select="$section_Mtitle"/></span>
+				<span class="section_Mtitle"><xsl:value-of select="$title"/></span>
 			</xsl:otherwise>
 		</xsl:choose>
 

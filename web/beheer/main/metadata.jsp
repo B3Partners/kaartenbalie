@@ -26,13 +26,13 @@
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.js' module='' />"></script>	
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/browserEdit.jsp' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>	
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js.jsp' module='' />"></script>
 		
 	<%-- hier hebben we unescapeHTML uit nodig --%>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
 	
-        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/Metadata_Beheerder_Edit.jsp' module='' />" />
+        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css.jsp' module='' />" />
     </head>
     
     <body>
