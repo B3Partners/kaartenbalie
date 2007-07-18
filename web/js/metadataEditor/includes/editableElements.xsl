@@ -97,8 +97,8 @@
 						<xsl:attribute name="changed">false</xsl:attribute>
 						
 						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
-						<!--<xsl:value-of select="$element_path"/>-->
-						<xsl:apply-templates/>
+						<xsl:value-of select="$element_path"/>
+						<!--<xsl:apply-templates select=".//"/> -->
 						
 						
 						

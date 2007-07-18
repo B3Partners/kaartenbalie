@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.0" xml:lang="en">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:coordinateReferenceSystems:3.2.0">coordinateReferenceSystems.xsd</appinfo>
+		<documentation>see GML 12.3</documentation>
+	</annotation>
+	<include schemaLocation="coordinateSystems.xsd"/>
+	<include schemaLocation="datums.xsd"/>
+	<include schemaLocation="coordinateOperations.xsd"/>
+	<element name="AbstractSingleCRS" type="gml:AbstractCRSType" abstract="true" substitutionGroup="gml:AbstractCRS"/>
+	<complexType name="SingleCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractSingleCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="singleCRSRef" type="gml:SingleCRSPropertyType"/>
+	<element name="AbstractGeneralDerivedCRS" type="gml:AbstractGeneralDerivedCRSType" abstract="true" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="AbstractGeneralDerivedCRSType" abstract="true">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<element ref="gml:definedByConversion"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="definedByConversion" type="gml:GeneralConversionPropertyType"/>
+	<element name="CompoundCRS" type="gml:CompoundCRSType" substitutionGroup="gml:AbstractCRS"/>
+	<complexType name="CompoundCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<element ref="gml:includesSingleCRS" minOccurs="2" maxOccurs="unbounded"/>
+				</sequence>
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="includesSingleCRS" type="gml:SingleCRSPropertyType"/>
+	<complexType name="CompoundCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:CompoundCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="compoundCRSRef" type="gml:CompoundCRSPropertyType"/>
+	<element name="GeographicCRS" type="gml:GeographicCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="GeographicCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<element ref="gml:usesEllipsoidalCS"/>
+					<element ref="gml:usesGeodeticDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesEllipsoidalCS" type="gml:EllipsoidalCSPropertyType"/>
+	<element name="usesGeodeticDatum" type="gml:GeodeticDatumPropertyType"/>
+	<complexType name="GeographicCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:GeographicCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="geographicCRSRef" type="gml:GeographicCRSPropertyType"/>
+	<element name="VerticalCRS" type="gml:VerticalCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="VerticalCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<element ref="gml:usesVerticalCS"/>
+					<element ref="gml:usesVerticalDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesVerticalCS" type="gml:VerticalCSPropertyType"/>
+	<element name="usesVerticalDatum" type="gml:VerticalDatumPropertyType"/>
+	<complexType name="VerticalCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:VerticalCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="verticalCRSRef" type="gml:VerticalCRSPropertyType"/>
+	<element name="GeocentricCRS" type="gml:GeocentricCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="GeocentricCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<choice>
+						<element ref="gml:usesCartesianCS"/>
+						<element ref="gml:usesSphericalCS"/>
+					</choice>
+					<element ref="gml:usesGeodeticDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesCartesianCS" type="gml:CartesianCSPropertyType"/>
+	<element name="usesSphericalCS" type="gml:SphericalCSPropertyType"/>
+	<complexType name="GeocentricCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:GeocentricCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="geocentricCRSRef" type="gml:GeocentricCRSPropertyType"/>
+	<element name="ProjectedCRS" type="gml:ProjectedCRSType" substitutionGroup="gml:AbstractGeneralDerivedCRS"/>
+	<complexType name="ProjectedCRSType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralDerivedCRSType">
+				<sequence>
+					<element ref="gml:baseGeographicCRS"/>
+					<element ref="gml:usesCartesianCS"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="baseGeographicCRS" type="gml:GeographicCRSPropertyType"/>
+	<complexType name="ProjectedCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:ProjectedCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="projectedCRSRef" type="gml:ProjectedCRSPropertyType"/>
+	<element name="DerivedCRS" type="gml:DerivedCRSType" substitutionGroup="gml:AbstractGeneralDerivedCRS"/>
+	<complexType name="DerivedCRSType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralDerivedCRSType">
+				<sequence>
+					<element ref="gml:baseCRS"/>
+					<element ref="gml:derivedCRSType"/>
+					<element ref="gml:usesCS"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="baseCRS" type="gml:SingleCRSPropertyType"/>
+	<element name="derivedCRSType" type="gml:CodeWithAuthorityType"/>
+	<element name="usesCS" type="gml:CoordinateSystemPropertyType"/>
+	<complexType name="DerivedCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:DerivedCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="derivedCRSRef" type="gml:DerivedCRSPropertyType"/>
+	<element name="EngineeringCRS" type="gml:EngineeringCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="EngineeringCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<element ref="gml:usesCS"/>
+					<element ref="gml:usesEngineeringDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesEngineeringDatum" type="gml:EngineeringDatumPropertyType"/>
+	<complexType name="EngineeringCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:EngineeringCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="engineeringCRSRef" type="gml:EngineeringCRSPropertyType"/>
+	<element name="ImageCRS" type="gml:ImageCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="ImageCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<choice>
+						<element ref="gml:usesCartesianCS"/>
+						<element ref="gml:usesAffineCS"/>
+						<element ref="gml:usesObliqueCartesianCS"/>
+					</choice>
+					<element ref="gml:usesImageDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesAffineCS" type="gml:AffineCSPropertyType"/>
+	<element name="usesImageDatum" type="gml:ImageDatumPropertyType"/>
+	<element name="usesObliqueCartesianCS" type="gml:ObliqueCartesianCSPropertyType"/>
+	<complexType name="ImageCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:ImageCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="imageCRSRef" type="gml:ImageCRSPropertyType"/>
+	<element name="TemporalCRS" type="gml:TemporalCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<complexType name="TemporalCRSType">
+		<complexContent>
+			<extension base="gml:AbstractCRSType">
+				<sequence>
+					<choice>
+						<element ref="gml:usesTimeCS"/>
+						<element ref="gml:usesTemporalCS"/>
+					</choice>
+					<element ref="gml:usesTemporalDatum"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesTimeCS" type="gml:TimeCSPropertyType"/>
+	<element name="usesTemporalCS" type="gml:TemporalCSPropertyType"/>
+	<element name="usesTemporalDatum" type="gml:TemporalDatumPropertyType"/>
+	<complexType name="TemporalCRSPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:TemporalCRS"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="temporalCRSRef" type="gml:TemporalCRSPropertyType"/>
+</schema>

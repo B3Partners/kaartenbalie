@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sch="http://www.ascc.net/xml/schematron" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.2.0">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:valueObjects:v3.2.0">valueObjects.xsd</appinfo>
+		<documentation>see GML 16.5</documentation>
+	</annotation>
+	<include schemaLocation="geometryBasic0d1d.xsd"/>
+	<include schemaLocation="temporal.xsd"/>
+	<element name="Boolean" substitutionGroup="gml:AbstractScalarValue" nillable="true">
+		<complexType>
+			<simpleContent>
+				<extension base="boolean">
+					<attribute name="nilReason" type="gml:NilReasonType"/>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+	<element name="BooleanList" type="gml:booleanOrNilReasonList" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="Category" substitutionGroup="gml:AbstractScalarValue" nillable="true">
+		<complexType>
+			<simpleContent>
+				<extension base="gml:CodeType">
+					<attribute name="nilReason" type="gml:NilReasonType"/>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+	<element name="CategoryList" type="gml:CodeOrNilReasonListType" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="Count" substitutionGroup="gml:AbstractScalarValue" nillable="true">
+		<complexType>
+			<simpleContent>
+				<extension base="integer">
+					<attribute name="nilReason" type="gml:NilReasonType"/>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+	<element name="CountList" type="gml:integerOrNilReasonList" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="Quantity" substitutionGroup="gml:AbstractScalarValue" nillable="true">
+		<complexType>
+			<simpleContent>
+				<extension base="gml:MeasureType">
+					<attribute name="nilReason" type="gml:NilReasonType"/>
+				</extension>
+			</simpleContent>
+		</complexType>
+	</element>
+	<element name="QuantityList" type="gml:MeasureOrNilReasonListType" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="AbstractValue" type="anyType" abstract="true" substitutionGroup="gml:AbstractObject"/>
+	<element name="AbstractScalarValue" type="anyType" abstract="true" substitutionGroup="gml:AbstractValue"/>
+	<element name="AbstractScalarValueList" type="anyType" abstract="true" substitutionGroup="gml:AbstractValue"/>
+	<group name="Value">
+		<choice>
+			<element ref="gml:AbstractValue"/>
+			<element ref="gml:AbstractGeometry"/>
+			<element ref="gml:AbstractTimeObject"/>
+			<element ref="gml:Null"/>
+		</choice>
+	</group>
+	<element name="valueProperty" type="gml:ValuePropertyType"/>
+	<element name="valueComponent" type="gml:ValuePropertyType"/>
+	<complexType name="ValuePropertyType">
+		<sequence minOccurs="0">
+			<group ref="gml:Value"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+	</complexType>
+	<element name="valueComponents" type="gml:ValueArrayPropertyType"/>
+	<complexType name="ValueArrayPropertyType">
+		<sequence maxOccurs="unbounded">
+			<group ref="gml:Value"/>
+		</sequence>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+	</complexType>
+	<element name="CompositeValue" type="gml:CompositeValueType" substitutionGroup="gml:AbstractValue"/>
+	<complexType name="CompositeValueType">
+		<complexContent>
+			<extension base="gml:AbstractGMLType">
+				<sequence>
+					<element ref="gml:valueComponent" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:valueComponents" minOccurs="0"/>
+				</sequence>
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="ValueArray" type="gml:ValueArrayType" substitutionGroup="gml:CompositeValue">
+		<annotation>
+			<appinfo>
+				<sch:ns prefix="gml" uri="http://www.opengis.net/gml"/>
+				<sch:pattern name="Check either codeSpace or uom not both">
+					<sch:rule context="gml:ValueArray">
+						<sch:report test="@codeSpace and @uom">ValueArray may not carry both a reference to a codeSpace and a uom</sch:report>
+					</sch:rule>
+				</sch:pattern>
+				<sch:pattern name="Check components are homogeneous">
+					<sch:rule context="gml:ValueArray">
+						<sch:assert test="count(gml:valueComponent/*) = count(gml:valueComponent/*[name() = name(../../gml:valueComponent[1]/*[1])])">All components of <sch:name/> shall be of the same type</sch:assert>
+						<sch:assert test="count(gml:valueComponents/*) = count(gml:valueComponents/*[name() = name(../*[1])])">All components of <sch:name/> shall be of the same type</sch:assert>
+					</sch:rule>
+				</sch:pattern>
+			</appinfo>
+		</annotation>
+	</element>
+	<complexType name="ValueArrayType">
+		<complexContent>
+			<extension base="gml:CompositeValueType">
+				<attributeGroup ref="gml:referenceSystem"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<attributeGroup name="referenceSystem">
+		<attribute name="codeSpace" type="anyURI"/>
+		<attribute name="uom" type="gml:UomIdentifier"/>
+	</attributeGroup>
+	<element name="CategoryExtent" type="gml:CategoryExtentType" substitutionGroup="gml:AbstractValue"/>
+	<complexType name="CategoryExtentType">
+		<simpleContent>
+			<restriction base="gml:CodeOrNilReasonListType">
+				<length value="2"/>
+			</restriction>
+		</simpleContent>
+	</complexType>
+	<element name="CountExtent" type="gml:CountExtentType" substitutionGroup="gml:AbstractValue"/>
+	<simpleType name="CountExtentType">
+		<restriction base="gml:integerOrNilReasonList">
+			<length value="2"/>
+		</restriction>
+	</simpleType>
+	<element name="QuantityExtent" type="gml:QuantityExtentType" substitutionGroup="gml:AbstractValue"/>
+	<complexType name="QuantityExtentType">
+		<simpleContent>
+			<restriction base="gml:MeasureOrNilReasonListType">
+				<length value="2"/>
+			</restriction>
+		</simpleContent>
+	</complexType>
+	<complexType name="BooleanPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Boolean"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<complexType name="CategoryPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Category"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<complexType name="QuantityPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Quantity"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<complexType name="CountPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Count"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+</schema>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.2.0">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:direction:v3.2.0">direction.xsd</appinfo>
+		<documentation>see GML Clause 17</documentation>
+	</annotation>
+	<include schemaLocation="geometryBasic0d1d.xsd"/>
+	<element name="direction" type="gml:DirectionPropertyType"/>
+	<complexType name="DirectionPropertyType">
+		<sequence minOccurs="0">
+			<choice>
+				<element name="DirectionVector" type="gml:DirectionVectorType"/>
+				<element name="DirectionDescription" type="gml:DirectionDescriptionType"/>
+				<element name="CompassPoint" type="gml:CompassPointEnumeration"/>
+				<element name="DirectionKeyword" type="gml:CodeType"/>
+				<element name="DirectionString" type="gml:StringOrRefType"/>
+			</choice>
+		</sequence>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<complexType name="DirectionVectorType">
+		<choice>
+			<element ref="gml:vector"/>
+			<sequence>
+				<element name="horizontalAngle" type="gml:AngleType"/>
+				<element name="verticalAngle" type="gml:AngleType"/>
+			</sequence>
+		</choice>
+	</complexType>
+	<complexType name="DirectionDescriptionType">
+		<choice>
+			<element name="compassPoint" type="gml:CompassPointEnumeration"/>
+			<element name="keyword" type="gml:CodeType"/>
+			<element name="description" type="string"/>
+			<element name="reference" type="gml:ReferenceType"/>
+		</choice>
+	</complexType>
+	<simpleType name="CompassPointEnumeration">
+		<restriction base="string">
+			<enumeration value="N"/>
+			<enumeration value="NNE"/>
+			<enumeration value="NE"/>
+			<enumeration value="ENE"/>
+			<enumeration value="E"/>
+			<enumeration value="ESE"/>
+			<enumeration value="SE"/>
+			<enumeration value="SSE"/>
+			<enumeration value="S"/>
+			<enumeration value="SSW"/>
+			<enumeration value="SW"/>
+			<enumeration value="WSW"/>
+			<enumeration value="W"/>
+			<enumeration value="WNW"/>
+			<enumeration value="NW"/>
+			<enumeration value="NNW"/>
+		</restriction>
+	</simpleType>
+</schema>

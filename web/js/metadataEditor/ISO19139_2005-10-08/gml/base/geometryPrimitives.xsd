@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sch="http://www.ascc.net/xml/schematron" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" version="3.2.0">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:geometryPrimitives:v3.2.0">geometryPrimitives.xsd</appinfo>
+		<documentation>see GML Clause 10</documentation>
+	</annotation>
+	<include schemaLocation="geometryBasic2d.xsd"/>
+	<complexType name="CurveType">
+		<complexContent>
+			<extension base="gml:AbstractCurveType">
+				<sequence>
+					<element ref="gml:segments"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Curve" type="gml:CurveType" substitutionGroup="gml:AbstractCurve"/>
+	<complexType name="OrientableCurveType">
+		<complexContent>
+			<extension base="gml:AbstractCurveType">
+				<sequence>
+					<element ref="gml:baseCurve"/>
+				</sequence>
+				<attribute name="orientation" type="gml:SignType" default="+"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="baseCurve" type="gml:CurvePropertyType"/>
+	<element name="OrientableCurve" type="gml:OrientableCurveType" substitutionGroup="gml:AbstractCurve"/>
+	<complexType name="AbstractCurveSegmentType" abstract="true">
+		<attribute name="numDerivativesAtStart" type="integer" default="0"/>
+		<attribute name="numDerivativesAtEnd" type="integer" default="0"/>
+		<attribute name="numDerivativeInterior" type="integer" default="0"/>
+	</complexType>
+	<element name="AbstractCurveSegment" type="gml:AbstractCurveSegmentType" abstract="true" substitutionGroup="gml:AbstractObject"/>
+	<complexType name="CurveSegmentArrayPropertyType">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element ref="gml:AbstractCurveSegment"/>
+		</sequence>
+	</complexType>
+	<element name="segments" type="gml:CurveSegmentArrayPropertyType"/>
+	<simpleType name="CurveInterpolationType">
+		<restriction base="string">
+			<enumeration value="linear"/>
+			<enumeration value="geodesic"/>
+			<enumeration value="circularArc3Points"/>
+			<enumeration value="circularArc2PointWithBulge"/>
+			<enumeration value="circularArcCenterPointWithRadius"/>
+			<enumeration value="elliptical"/>
+			<enumeration value="clothoid"/>
+			<enumeration value="conic"/>
+			<enumeration value="polynomialSpline"/>
+			<enumeration value="cubicSpline"/>
+			<enumeration value="rationalSpline"/>
+		</restriction>
+	</simpleType>
+	<complexType name="LineStringSegmentType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice minOccurs="2" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="linear"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="LineStringSegment" type="gml:LineStringSegmentType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="ArcStringType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice minOccurs="3" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="numArc" type="integer"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="ArcString" type="gml:ArcStringType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="ArcType">
+		<complexContent>
+			<restriction base="gml:ArcStringType">
+				<sequence>
+					<choice>
+						<choice minOccurs="3" maxOccurs="3">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+				</sequence>
+				<attribute name="numArc" type="integer" fixed="1"/>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="Arc" type="gml:ArcType" substitutionGroup="gml:ArcString"/>
+	<complexType name="CircleType">
+		<complexContent>
+			<extension base="gml:ArcType"/>
+		</complexContent>
+	</complexType>
+	<element name="Circle" type="gml:CircleType" substitutionGroup="gml:Arc"/>
+	<complexType name="ArcStringByBulgeType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice minOccurs="2" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="bulge" type="double" maxOccurs="unbounded"/>
+					<element name="normal" type="gml:VectorType" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArc2PointWithBulge"/>
+				<attribute name="numArc" type="integer"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="ArcStringByBulge" type="gml:ArcStringByBulgeType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="ArcByBulgeType">
+		<complexContent>
+			<restriction base="gml:ArcStringByBulgeType">
+				<sequence>
+					<choice>
+						<choice minOccurs="2" maxOccurs="2">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="bulge" type="double"/>
+					<element name="normal" type="gml:VectorType"/>
+				</sequence>
+				<attribute name="numArc" type="integer" fixed="1"/>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="ArcByBulge" type="gml:ArcByBulgeType" substitutionGroup="gml:ArcStringByBulge"/>
+	<complexType name="ArcByCenterPointType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice>
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="radius" type="gml:LengthType"/>
+					<element name="startAngle" type="gml:AngleType" minOccurs="0"/>
+					<element name="endAngle" type="gml:AngleType" minOccurs="0"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="circularArcCenterPointWithRadius"/>
+				<attribute name="numArc" type="integer" use="required" fixed="1"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="ArcByCenterPoint" type="gml:ArcByCenterPointType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="CircleByCenterPointType">
+		<complexContent>
+			<restriction base="gml:ArcByCenterPointType">
+				<sequence>
+					<choice>
+						<choice>
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="radius" type="gml:LengthType"/>
+				</sequence>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="CircleByCenterPoint" type="gml:CircleByCenterPointType" substitutionGroup="gml:ArcByCenterPoint"/>
+	<complexType name="CubicSplineType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice minOccurs="2" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="vectorAtStart" type="gml:VectorType"/>
+					<element name="vectorAtEnd" type="gml:VectorType"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="cubicSpline"/>
+				<attribute name="degree" type="integer" fixed="3"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="CubicSpline" type="gml:CubicSplineType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="BSplineType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<choice>
+						<choice minOccurs="0" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="degree" type="nonNegativeInteger"/>
+					<element name="knot" type="gml:KnotPropertyType" minOccurs="2" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" default="polynomialSpline"/>
+				<attribute name="isPolynomial" type="boolean"/>
+				<attribute name="knotType" type="gml:KnotTypesType"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="BSpline" type="gml:BSplineType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="KnotType">
+		<sequence>
+			<element name="value" type="double"/>
+			<element name="multiplicity" type="nonNegativeInteger"/>
+			<element name="weight" type="double"/>
+		</sequence>
+	</complexType>
+	<complexType name="KnotPropertyType">
+		<sequence>
+			<element name="Knot" type="gml:KnotType"/>
+		</sequence>
+	</complexType>
+	<simpleType name="KnotTypesType">
+		<restriction base="string">
+			<enumeration value="uniform"/>
+			<enumeration value="quasiUniform"/>
+			<enumeration value="piecewiseBezier"/>
+		</restriction>
+	</simpleType>
+	<complexType name="BezierType">
+		<complexContent>
+			<restriction base="gml:BSplineType">
+				<sequence>
+					<choice>
+						<choice minOccurs="0" maxOccurs="unbounded">
+							<element ref="gml:pos"/>
+							<element ref="gml:pointProperty"/>
+							<element ref="gml:pointRep"/>
+						</choice>
+						<element ref="gml:posList"/>
+						<element ref="gml:coordinates"/>
+					</choice>
+					<element name="degree" type="nonNegativeInteger"/>
+					<element name="knot" type="gml:KnotPropertyType" minOccurs="2" maxOccurs="2"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="polynomialSpline"/>
+				<attribute name="isPolynomial" type="boolean" fixed="true"/>
+				<attribute name="knotType" type="gml:KnotTypesType" use="prohibited"/>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="Bezier" type="gml:BezierType" substitutionGroup="gml:BSpline"/>
+	<complexType name="OffsetCurveType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<element name="offsetBase" type="gml:CurvePropertyType"/>
+					<element name="distance" type="gml:LengthType"/>
+					<element name="refDirection" type="gml:VectorType" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="OffsetCurve" type="gml:OffsetCurveType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="AffinePlacementType">
+		<sequence>
+			<element name="location" type="gml:DirectPositionType"/>
+			<element name="refDirection" type="gml:VectorType" maxOccurs="unbounded"/>
+			<element name="inDimension" type="positiveInteger"/>
+			<element name="outDimension" type="positiveInteger"/>
+		</sequence>
+	</complexType>
+	<element name="AffinePlacement" type="gml:AffinePlacementType" substitutionGroup="gml:AbstractObject"/>
+	<complexType name="ClothoidType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<sequence>
+					<element name="refLocation">
+						<complexType>
+							<sequence>
+								<element ref="gml:AffinePlacement"/>
+							</sequence>
+						</complexType>
+					</element>
+					<element name="scaleFactor" type="decimal"/>
+					<element name="startParameter" type="double"/>
+					<element name="endParameter" type="double"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="clothoid"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Clothoid" type="gml:ClothoidType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="GeodesicStringType">
+		<complexContent>
+			<extension base="gml:AbstractCurveSegmentType">
+				<choice>
+					<element ref="gml:posList"/>
+					<group ref="gml:geometricPositionGroup" minOccurs="2" maxOccurs="unbounded"/>
+				</choice>
+				<attribute name="interpolation" type="gml:CurveInterpolationType" fixed="geodesic"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="GeodesicString" type="gml:GeodesicStringType" substitutionGroup="gml:AbstractCurveSegment"/>
+	<complexType name="GeodesicType">
+		<complexContent>
+			<extension base="gml:GeodesicStringType"/>
+		</complexContent>
+	</complexType>
+	<element name="Geodesic" type="gml:GeodesicType" substitutionGroup="gml:GeodesicString"/>
+	<complexType name="SurfaceType">
+		<complexContent>
+			<extension base="gml:AbstractSurfaceType">
+				<sequence>
+					<element ref="gml:patches"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Surface" type="gml:SurfaceType" substitutionGroup="gml:AbstractSurface"/>
+	<complexType name="OrientableSurfaceType">
+		<complexContent>
+			<extension base="gml:AbstractSurfaceType">
+				<sequence>
+					<element ref="gml:baseSurface"/>
+				</sequence>
+				<attribute name="orientation" type="gml:SignType" default="+"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="baseSurface" type="gml:SurfacePropertyType"/>
+	<element name="OrientableSurface" type="gml:OrientableSurfaceType" substitutionGroup="gml:AbstractSurface"/>
+	<complexType name="AbstractSurfacePatchType" abstract="true"/>
+	<element name="AbstractSurfacePatch" type="gml:AbstractSurfacePatchType" abstract="true"/>
+	<complexType name="SurfacePatchArrayPropertyType">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element ref="gml:AbstractSurfacePatch"/>
+		</sequence>
+	</complexType>
+	<element name="patches" type="gml:SurfacePatchArrayPropertyType"/>
+	<simpleType name="SurfaceInterpolationType">
+		<restriction base="string">
+			<enumeration value="none"/>
+			<enumeration value="planar"/>
+			<enumeration value="spherical"/>
+			<enumeration value="elliptical"/>
+			<enumeration value="conic"/>
+			<enumeration value="tin"/>
+			<enumeration value="parametricCurve"/>
+			<enumeration value="polynomialSpline"/>
+			<enumeration value="rationalSpline"/>
+			<enumeration value="triangulatedSpline"/>
+		</restriction>
+	</simpleType>
+	<complexType name="PolygonPatchType">
+		<complexContent>
+			<extension base="gml:AbstractSurfacePatchType">
+				<sequence>
+					<element ref="gml:exterior" minOccurs="0"/>
+					<element ref="gml:interior" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:SurfaceInterpolationType" fixed="planar"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="PolygonPatch" type="gml:PolygonPatchType" substitutionGroup="gml:AbstractSurfacePatch"/>
+	<complexType name="TriangleType">
+		<complexContent>
+			<extension base="gml:AbstractSurfacePatchType">
+				<sequence>
+					<element ref="gml:exterior"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:SurfaceInterpolationType" fixed="planar"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Triangle" type="gml:TriangleType" substitutionGroup="gml:AbstractSurfacePatch"/>
+	<complexType name="RectangleType">
+		<complexContent>
+			<extension base="gml:AbstractSurfacePatchType">
+				<sequence>
+					<element ref="gml:exterior"/>
+				</sequence>
+				<attribute name="interpolation" type="gml:SurfaceInterpolationType" fixed="planar"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Rectangle" type="gml:RectangleType" substitutionGroup="gml:AbstractSurfacePatch"/>
+	<complexType name="RingType">
+		<complexContent>
+			<extension base="gml:AbstractRingType">
+				<sequence>
+					<element ref="gml:curveMember" maxOccurs="unbounded"/>
+				</sequence>
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Ring" type="gml:RingType" substitutionGroup="gml:AbstractRing"/>
+	<element name="curveMember" type="gml:CurvePropertyType"/>
+	<complexType name="RingPropertyType">
+		<sequence>
+			<element ref="gml:Ring"/>
+		</sequence>
+	</complexType>
+	<group name="PointGrid">
+		<sequence>
+			<element name="rows">
+				<complexType>
+					<sequence>
+						<element name="Row" maxOccurs="unbounded">
+							<complexType>
+								<group ref="gml:geometricPositionListGroup"/>
+							</complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</group>
+	<complexType name="AbstractParametricCurveSurfaceType" abstract="true">
+		<complexContent>
+			<extension base="gml:AbstractSurfacePatchType">
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="AbstractParametricCurveSurface" type="gml:AbstractParametricCurveSurfaceType" abstract="true" substitutionGroup="gml:AbstractSurfacePatch"/>
+	<complexType name="AbstractGriddedSurfaceType" abstract="true">
+		<complexContent>
+			<extension base="gml:AbstractParametricCurveSurfaceType">
+				<sequence>
+					<group ref="gml:PointGrid"/>
+				</sequence>
+				<attribute name="rows" type="integer"/>
+				<attribute name="columns" type="integer"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="AbstractGriddedSurface" type="gml:AbstractGriddedSurfaceType" abstract="true" substitutionGroup="gml:AbstractParametricCurveSurface"/>
+	<complexType name="ConeType">
+		<complexContent>
+			<extension base="gml:AbstractGriddedSurfaceType">
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="linear"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Cone" type="gml:ConeType" substitutionGroup="gml:AbstractGriddedSurface"/>
+	<complexType name="CylinderType">
+		<complexContent>
+			<extension base="gml:AbstractGriddedSurfaceType">
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="linear"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Cylinder" type="gml:CylinderType" substitutionGroup="gml:AbstractGriddedSurface"/>
+	<complexType name="SphereType">
+		<complexContent>
+			<extension base="gml:AbstractGriddedSurfaceType">
+				<attribute name="horizontalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+				<attribute name="verticalCurveType" type="gml:CurveInterpolationType" fixed="circularArc3Points"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Sphere" type="gml:SphereType" substitutionGroup="gml:AbstractGriddedSurface"/>
+	<complexType name="PolyhedralSurfaceType">
+		<complexContent>
+			<restriction base="gml:SurfaceType">
+				<sequence>
+					<group ref="gml:StandardObjectProperties"/>
+					<element ref="gml:polygonPatches"/>
+				</sequence>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="polygonPatches" type="gml:PolygonPatchArrayPropertyType" substitutionGroup="gml:patches"/>
+	<element name="PolyhedralSurface" type="gml:PolyhedralSurfaceType" substitutionGroup="gml:Surface"/>
+	<complexType name="PolygonPatchArrayPropertyType">
+		<complexContent>
+			<restriction base="gml:SurfacePatchArrayPropertyType">
+				<sequence minOccurs="0" maxOccurs="unbounded">
+					<element ref="gml:PolygonPatch"/>
+				</sequence>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<complexType name="TriangulatedSurfaceType">
+		<complexContent>
+			<restriction base="gml:SurfaceType">
+				<sequence>
+					<group ref="gml:StandardObjectProperties"/>
+					<element ref="gml:trianglePatches"/>
+				</sequence>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<element name="trianglePatches" type="gml:TrianglePatchArrayPropertyType" substitutionGroup="gml:patches"/>
+	<element name="TriangulatedSurface" type="gml:TriangulatedSurfaceType" substitutionGroup="gml:Surface"/>
+	<complexType name="TrianglePatchArrayPropertyType">
+		<complexContent>
+			<restriction base="gml:SurfacePatchArrayPropertyType">
+				<sequence minOccurs="0" maxOccurs="unbounded">
+					<element ref="gml:Triangle"/>
+				</sequence>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<complexType name="TinType">
+		<complexContent>
+			<extension base="gml:TriangulatedSurfaceType">
+				<sequence>
+					<element name="stopLines" type="gml:LineStringSegmentArrayPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="breakLines" type="gml:LineStringSegmentArrayPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="maxLength" type="gml:LengthType"/>
+					<element name="controlPoint">
+						<complexType>
+							<choice>
+								<element ref="gml:posList"/>
+								<group ref="gml:geometricPositionGroup" minOccurs="3" maxOccurs="unbounded"/>
+							</choice>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Tin" type="gml:TinType" substitutionGroup="gml:TriangulatedSurface"/>
+	<complexType name="LineStringSegmentArrayPropertyType">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element ref="gml:LineStringSegment"/>
+		</sequence>
+	</complexType>
+	<complexType name="AbstractSolidType">
+		<complexContent>
+			<extension base="gml:AbstractGeometricPrimitiveType"/>
+		</complexContent>
+	</complexType>
+	<element name="AbstractSolid" type="gml:AbstractSolidType" abstract="true" substitutionGroup="gml:AbstractGeometricPrimitive"/>
+	<complexType name="SolidPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractSolid"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+	</complexType>
+	<element name="solidProperty" type="gml:SolidPropertyType"/>
+	<complexType name="SolidArrayPropertyType">
+		<sequence minOccurs="0" maxOccurs="unbounded">
+			<element ref="gml:AbstractSolid"/>
+		</sequence>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+	</complexType>
+	<element name="solidArrayProperty" type="gml:SolidArrayPropertyType"/>
+	<complexType name="SolidType">
+		<complexContent>
+			<extension base="gml:AbstractSolidType">
+				<sequence>
+					<element name="exterior" type="gml:ShellPropertyType" minOccurs="0"/>
+					<element name="interior" type="gml:ShellPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="Solid" type="gml:SolidType" substitutionGroup="gml:AbstractSolid"/>
+	<complexType name="ShellType">
+		<sequence>
+			<element ref="gml:surfaceMember" maxOccurs="unbounded"/>
+		</sequence>
+		<attributeGroup ref="gml:AggregationAttributeGroup"/>
+	</complexType>
+	<element name="Shell" type="gml:ShellType" substitutionGroup="gml:AbstractObject"/>
+	<element name="surfaceMember" type="gml:SurfacePropertyType"/>
+	<complexType name="ShellPropertyType">
+		<sequence>
+			<element ref="gml:Shell"/>
+		</sequence>
+	</complexType>
+</schema>

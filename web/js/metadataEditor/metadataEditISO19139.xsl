@@ -67,13 +67,27 @@
 			
 			<xsl:call-template name="metadataVerantwoordelijkeOrganisatie"/>
 
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:MD_Identification/gmd:pointOfContact/gmd:contactInfo/gmd:CI_OnlineResource/gmd:linkage"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact//gmd:CI_OnlineResource//gmd:linkage"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dateStamp"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardName"/>			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardVersion"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:MD_Identification/gmd:citation/gmd:Title"/>
 			
+			<xsl:call-template name="referentieSysteem"/>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:title"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:date"/>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:abstract"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:status"/>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:descriptiveKeywords//gmd:keyword"/>			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:useLimitation"/>
+			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:accessConstraints"/>-->
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:language"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:characterSet"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:topicCategory"/>
 		</div>
 	</xsl:template>
 	
@@ -101,26 +115,26 @@
 
 	<!-- 
 			Overweging: ISO nummers zijn in principe algemeen en kunnen worden hergebruikt. 
-			In de huidige implementatie ga ik er van uit dat de de ISO n ummers niet worden hergebruikt.
+			In de huidige implementatie ga ik er van uit dat de de ISO nummers niet worden hergebruikt.
 			De titel is namelijk specifiek.
 	-->
 	
 	<!-- ISO nr. 3 -->
-	<xsl:template match="gmd:language">
+	<xsl:template match="gmd:MD_Metadata/gmd:language">
 		<xsl:call-template name="edit_element">
 			<xsl:with-param name="element_title">Metadata taal</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 4 -->
-	<xsl:template match="gmd:characterSet">
+	<xsl:template match="gmd:MD_Metadata/gmd:characterSet">
 		<xsl:call-template name="edit_element">
 			<xsl:with-param name="element_title">Metadata karakterset</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 9 -->
-	<xsl:template match="gmd:dateStamp">
+	<xsl:template match="gmd:MD_Metadata/gmd:dateStamp">
 		<xsl:call-template name="edit_element">
 			<xsl:with-param name="element_title">Metadata wijzigingsdatum</xsl:with-param>
 		</xsl:call-template>
@@ -140,12 +154,94 @@
 		</xsl:call-template>
 	</xsl:template>
 	
-	<!-- ISO nr. 360 -->
-	<xsl:template match="gmd:Title">
+	<!-- ISO nr. 25 -->
+	<xsl:template match="gmd:abstract">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Samenvatting</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 28 -->
+	<xsl:template match="gmd:status">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Status</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<!-- ISO nr.37 -->
+	<xsl:template match="gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Ruimtelijk schema</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 39 -->
+	<xsl:template match="gmd:identificationInfo//gmd:language">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Dataset taal</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 40 -->
+	<xsl:template match="gmd:identificationInfo//gmd:characterSet">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Dataset karakterset</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 41 -->
+	<xsl:template match="gmd:identificationInfo//gmd:topicCategory">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Thema's</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 53 -->
+	<!-- TODO: meerdere trefwoorden netjes weergeven -->
+	<xsl:template match="gmd:keyword">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Trefwoorden</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 68 -->
+	<xsl:template match="gmd:useLimitation">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Gebruiksbeperkingen</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 70  bestaat niet??????-->
+	<xsl:template match="gmd:accessConstraints">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">(Juridische) toegangsrestricties</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+		<!-- (Niet helemaal ISO nr. 13/186referentieSysteem) -->
+	<xsl:template name="referentieSysteem">
+		<xsl:call-template name="section-title">
+			<xsl:with-param name="title">Referentie systeem</xsl:with-param>
+		</xsl:call-template>
+		<div>
+			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier//gmd:code"/>
+			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>-->
+		</div>
+	</xsl:template>
+
+	<!-- ISO nr. 207 -->
+	<xsl:template match="gmd:code">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Code referentiesysteem</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	
+	<!-- ISO nr. 208.1 ????? Onvindbaar -->
+	<!--<xsl:template match="gmd:Title">
 		<xsl:call-template name="edit_element">
 			<xsl:with-param name="element_title">Dataset titel</xsl:with-param>
 		</xsl:call-template>
-	</xsl:template>
+	</xsl:template>-->
 	
 	<!-- (Niet helemaal ISO nr. 8) -->
 	<xsl:template name="metadataVerantwoordelijkeOrganisatie">
@@ -153,9 +249,16 @@
 			<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
 		</xsl:call-template>
 		<div>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:organisationName"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>		
+			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:organisationName"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:role"/>		
 		</div>
+	</xsl:template>
+
+	<!-- ISO nr. 360 -->
+	<xsl:template match="gmd:title">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Dataset titel</xsl:with-param>
+		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 376 -->
@@ -169,6 +272,13 @@
 	<xsl:template match="gmd:role">
 		<xsl:call-template name="edit_element">
 			<xsl:with-param name="element_title">Rol organisatie metadata</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<!-- ISO nr. 362/394 -->
+	<xsl:template match="gmd:date">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Dataset referentie datum</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 

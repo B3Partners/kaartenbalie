@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.0" xml:lang="en">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:coordinateOperations:3.2.0">coordinateOperations.xsd</appinfo>
+		<documentation>see GML 12.6</documentation>
+	</annotation>
+	<include schemaLocation="referenceSystems.xsd"/>
+	<include schemaLocation="measures.xsd"/>
+	<import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="../../gmd/metadataEntity.xsd"/>
+	<element name="AbstractCoordinateOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:Definition"/>
+	<complexType name="AbstractCoordinateOperationType" abstract="true">
+		<complexContent>
+			<extension base="gml:IdentifiedObjectType">
+				<sequence>
+					<element ref="gml:domainOfValidity" minOccurs="0"/>
+					<element ref="gml:scope" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:operationVersion" minOccurs="0"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:sourceCRS" minOccurs="0"/>
+					<element ref="gml:targetCRS" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="operationVersion" type="string"/>
+	<element name="coordinateOperationAccuracy">
+		<complexType>
+			<sequence minOccurs="0">
+				<element ref="gmd:AbstractDQ_PositionalAccuracy"/>
+			</sequence>
+			<attributeGroup ref="gml:AssociationAttributeGroup"/>
+		</complexType>
+	</element>
+	<element name="sourceCRS" type="gml:CRSPropertyType"/>
+	<element name="targetCRS" type="gml:CRSPropertyType"/>
+	<complexType name="CoordinateOperationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractCoordinateOperation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="coordinateOperationRef" type="gml:CoordinateOperationPropertyType"/>
+	<element name="AbstractSingleOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:AbstractCoordinateOperation"/>
+	<complexType name="SingleOperationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractSingleOperation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="singleOperationRef" type="gml:SingleOperationPropertyType"/>
+	<element name="AbstractOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:AbstractSingleOperation"/>
+	<complexType name="OperationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractOperation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="operationRef" type="gml:OperationPropertyType"/>
+	<element name="AbstractGeneralConversion" type="gml:AbstractGeneralConversionType" abstract="true" substitutionGroup="gml:AbstractOperation"/>
+	<complexType name="AbstractGeneralConversionType" abstract="true">
+		<complexContent>
+			<restriction base="gml:AbstractCoordinateOperationType">
+				<sequence>
+					<element ref="gml:metaDataProperty" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:description" minOccurs="0"/>
+					<element ref="gml:descriptionReference" minOccurs="0"/>
+					<element ref="gml:identifier"/>
+					<element ref="gml:name" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:remarks" minOccurs="0"/>
+					<element ref="gml:domainOfValidity" minOccurs="0"/>
+					<element ref="gml:scope" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute ref="gml:id" use="required"/>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<complexType name="GeneralConversionPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractGeneralConversion"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="generalConversionRef" type="gml:GeneralConversionPropertyType"/>
+	<element name="AbstractGeneralTransformation" type="gml:AbstractGeneralTransformationType" abstract="true" substitutionGroup="gml:AbstractOperation"/>
+	<complexType name="AbstractGeneralTransformationType" abstract="true">
+		<complexContent>
+			<restriction base="gml:AbstractCoordinateOperationType">
+				<sequence>
+					<element ref="gml:metaDataProperty" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:description" minOccurs="0"/>
+					<element ref="gml:descriptionReference" minOccurs="0"/>
+					<element ref="gml:identifier"/>
+					<element ref="gml:name" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:remarks" minOccurs="0"/>
+					<element ref="gml:domainOfValidity" minOccurs="0"/>
+					<element ref="gml:scope" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:operationVersion"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:sourceCRS"/>
+					<element ref="gml:targetCRS"/>
+				</sequence>
+				<attribute ref="gml:id" use="required"/>
+			</restriction>
+		</complexContent>
+	</complexType>
+	<complexType name="GeneralTransformationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractGeneralTransformation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="generalTransformationRef" type="gml:GeneralTransformationPropertyType"/>
+	<element name="ConcatenatedOperation" type="gml:ConcatenatedOperationType" substitutionGroup="gml:AbstractCoordinateOperation"/>
+	<complexType name="ConcatenatedOperationType">
+		<complexContent>
+			<extension base="gml:AbstractCoordinateOperationType">
+				<sequence>
+					<element ref="gml:usesSingleOperation" minOccurs="2" maxOccurs="unbounded"/>
+				</sequence>
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesSingleOperation" type="gml:SingleOperationPropertyType"/>
+	<complexType name="ConcatenatedOperationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:ConcatenatedOperation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="concatenatedOperationRef" type="gml:ConcatenatedOperationPropertyType"/>
+	<element name="PassThroughOperation" type="gml:PassThroughOperationType" substitutionGroup="gml:AbstractSingleOperation"/>
+	<complexType name="PassThroughOperationType">
+		<complexContent>
+			<extension base="gml:AbstractCoordinateOperationType">
+				<sequence>
+					<element ref="gml:modifiedCoordinate" maxOccurs="unbounded"/>
+					<element ref="gml:usesOperation"/>
+				</sequence>
+				<attributeGroup ref="gml:AggregationAttributeGroup"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="modifiedCoordinate" type="positiveInteger"/>
+	<element name="usesOperation" type="gml:OperationPropertyType"/>
+	<complexType name="PassThroughOperationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:PassThroughOperation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="passThroughOperationRef" type="gml:PassThroughOperationPropertyType"/>
+	<element name="Conversion" type="gml:ConversionType" substitutionGroup="gml:AbstractGeneralConversion"/>
+	<complexType name="ConversionType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralConversionType">
+				<sequence>
+					<element ref="gml:usesMethod"/>
+					<element ref="gml:usesValue" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="usesMethod" type="gml:OperationMethodPropertyType"/>
+	<element name="usesValue" type="gml:AbstractGeneralParameterValuePropertyType"/>
+	<complexType name="ConversionPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Conversion"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="conversionRef" type="gml:ConversionPropertyType"/>
+	<element name="Transformation" type="gml:TransformationType" substitutionGroup="gml:AbstractGeneralTransformation"/>
+	<complexType name="TransformationType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralTransformationType">
+				<sequence>
+					<element ref="gml:usesMethod"/>
+					<element ref="gml:usesValue" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TransformationPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:Transformation"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="transformationRef" type="gml:TransformationPropertyType"/>
+	<element name="AbstractGeneralParameterValue" type="gml:AbstractGeneralParameterValueType" abstract="true" substitutionGroup="gml:AbstractObject"/>
+	<complexType name="AbstractGeneralParameterValueType" abstract="true">
+		<sequence/>
+	</complexType>
+	<complexType name="AbstractGeneralParameterValuePropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractGeneralParameterValue"/>
+		</sequence>
+	</complexType>
+	<element name="ParameterValue" type="gml:ParameterValueType" substitutionGroup="gml:AbstractGeneralParameterValue"/>
+	<complexType name="ParameterValueType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralParameterValueType">
+				<sequence>
+					<choice>
+						<element ref="gml:value"/>
+						<element ref="gml:dmsAngleValue"/>
+						<element ref="gml:stringValue"/>
+						<element ref="gml:integerValue"/>
+						<element ref="gml:booleanValue"/>
+						<element ref="gml:valueList"/>
+						<element ref="gml:integerValueList"/>
+						<element ref="gml:valueFile"/>
+					</choice>
+					<element ref="gml:valueOfParameter"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="value" type="gml:MeasureType"/>
+	<element name="dmsAngleValue" type="gml:DMSAngleType"/>
+	<element name="stringValue" type="string"/>
+	<element name="integerValue" type="positiveInteger"/>
+	<element name="booleanValue" type="boolean"/>
+	<element name="valueList" type="gml:MeasureListType"/>
+	<element name="integerValueList" type="gml:integerList"/>
+	<element name="valueFile" type="anyURI"/>
+	<element name="valueOfParameter" type="gml:OperationParameterPropertyType"/>
+	<element name="ParameterValueGroup" type="gml:ParameterValueGroupType" substitutionGroup="gml:AbstractGeneralParameterValue"/>
+	<complexType name="ParameterValueGroupType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralParameterValueType">
+				<sequence>
+					<element ref="gml:includesValue" minOccurs="2" maxOccurs="unbounded"/>
+					<element ref="gml:valuesOfGroup"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="includesValue" type="gml:AbstractGeneralParameterValueType" substitutionGroup="gml:AbstractGeneralParameterValue"/>
+	<element name="valuesOfGroup" type="gml:OperationParameterGroupPropertyType"/>
+	<element name="OperationMethod" type="gml:OperationMethodType" substitutionGroup="gml:Definition"/>
+	<complexType name="OperationMethodType">
+		<complexContent>
+			<extension base="gml:IdentifiedObjectType">
+				<sequence>
+					<element ref="gml:methodFormula"/>
+					<element ref="gml:sourceDimensions"/>
+					<element ref="gml:targetDimensions"/>
+					<element ref="gml:usesParameter" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="methodFormula" type="gml:CodeType"/>
+	<element name="sourceDimensions" type="positiveInteger"/>
+	<element name="targetDimensions" type="positiveInteger"/>
+	<element name="usesParameter" type="gml:AbstractGeneralOperationParameterPropertyType"/>
+	<complexType name="OperationMethodPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:OperationMethod"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="operationMethodRef" type="gml:OperationMethodPropertyType"/>
+	<element name="AbstractGeneralOperationParameter" type="gml:AbstractGeneralOperationParameterType" abstract="true" substitutionGroup="gml:Definition"/>
+	<complexType name="AbstractGeneralOperationParameterType" abstract="true">
+		<complexContent>
+			<extension base="gml:IdentifiedObjectType">
+				<sequence>
+					<element ref="gml:minimumOccurs" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="minimumOccurs" type="nonNegativeInteger"/>
+	<complexType name="AbstractGeneralOperationParameterPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractGeneralOperationParameter"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="abstractGeneralOperationParameterRef" type="gml:AbstractGeneralOperationParameterPropertyType"/>
+	<element name="OperationParameter" type="gml:OperationParameterType" substitutionGroup="gml:AbstractGeneralOperationParameter"/>
+	<complexType name="OperationParameterType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralOperationParameterType">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="OperationParameterPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:OperationParameter"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="operationParameterRef" type="gml:OperationParameterPropertyType"/>
+	<element name="OperationParameterGroup" type="gml:OperationParameterGroupType" substitutionGroup="gml:AbstractGeneralOperationParameter"/>
+	<complexType name="OperationParameterGroupType">
+		<complexContent>
+			<extension base="gml:AbstractGeneralOperationParameterType">
+				<sequence>
+					<element ref="gml:maximumOccurs" minOccurs="0"/>
+					<element ref="gml:includesParameter" minOccurs="2" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="maximumOccurs" type="positiveInteger"/>
+	<element name="includesParameter" type="gml:AbstractGeneralOperationParameterPropertyType"/>
+	<complexType name="OperationParameterGroupPropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:OperationParameterGroup"/>
+		</sequence>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="operationParameterGroupRef" type="gml:OperationParameterPropertyType"/>
+</schema>

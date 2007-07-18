@@ -4,9 +4,9 @@
 						xmlns:gco="http://www.isotc211.org/2005/gco"
 						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 						xsi:schemaLocation="http://www.isotc211.org/2005/gmd
-															http://www.isotc211.org/2005/gmd/gmd.xsd
+															./ISO19139_2005-10-08/gmd/gmd.xsd
 															http://www.isotc211.org/2005/gco
-															http://www.isotc211.org/2005/gco/gco.xsd"
+															./ISO19139_2005-10-08/gco/gco.xsd"
 						>
 	<fileIdentifier>
 		<gco:CharacterString>ANZSA1000001233</gco:CharacterString>

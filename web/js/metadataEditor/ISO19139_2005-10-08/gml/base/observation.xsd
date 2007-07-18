@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.0">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:observation:v3.2.0">observation.xsd</appinfo>
+		<documentation>see GML Clause 18</documentation>
+	</annotation>
+	<include schemaLocation="feature.xsd"/>
+	<include schemaLocation="direction.xsd"/>
+	<include schemaLocation="valueObjects.xsd"/>
+	<element name="Observation" type="gml:ObservationType" substitutionGroup="gml:AbstractFeature"/>
+	<complexType name="ObservationType">
+		<complexContent>
+			<extension base="gml:AbstractFeatureType">
+				<sequence>
+					<element ref="gml:validTime"/>
+					<element ref="gml:using" minOccurs="0"/>
+					<element ref="gml:target" minOccurs="0"/>
+					<element ref="gml:resultOf"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="using" type="gml:ProcedurePropertyType"/>
+	<complexType name="ProcedurePropertyType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractFeature"/>
+		</sequence>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="target" type="gml:TargetPropertyType"/>
+	<element name="subject" type="gml:TargetPropertyType" substitutionGroup="gml:target"/>
+	<complexType name="TargetPropertyType">
+		<choice minOccurs="0">
+			<element ref="gml:AbstractFeature"/>
+			<element ref="gml:AbstractGeometry"/>
+		</choice>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="resultOf" type="gml:ResultType"/>
+	<complexType name="ResultType">
+		<sequence minOccurs="0">
+			<element ref="gml:AbstractObject"/>
+		</sequence>
+		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
+		<attributeGroup ref="gml:AssociationAttributeGroup"/>
+	</complexType>
+	<element name="DirectedObservation" type="gml:DirectedObservationType" substitutionGroup="gml:Observation"/>
+	<complexType name="DirectedObservationType">
+		<complexContent>
+			<extension base="gml:ObservationType">
+				<sequence>
+					<element ref="gml:direction"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="DirectedObservationAtDistance" type="gml:DirectedObservationAtDistanceType" substitutionGroup="gml:DirectedObservation"/>
+	<complexType name="DirectedObservationAtDistanceType">
+		<complexContent>
+			<extension base="gml:DirectedObservationType">
+				<sequence>
+					<element name="distance" type="gml:MeasureType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

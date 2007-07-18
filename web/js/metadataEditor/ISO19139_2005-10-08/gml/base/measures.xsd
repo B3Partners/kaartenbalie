@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" attributeFormDefault="unqualified" version="3.2.0" xml:lang="en">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-measures:v3.2.0">measures.xsd</appinfo>
+		<documentation>see GML 16.3</documentation>
+	</annotation>
+	<include schemaLocation="units.xsd"/>
+	<element name="measure" type="gml:MeasureType"/>
+	<complexType name="LengthType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="ScaleType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="TimeType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="GridLengthType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="AreaType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="VolumeType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="SpeedType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<complexType name="AngleType">
+		<simpleContent>
+			<extension base="gml:MeasureType"/>
+		</simpleContent>
+	</complexType>
+	<element name="angle" type="gml:AngleType"/>
+	<element name="dmsAngle" type="gml:DMSAngleType"/>
+	<complexType name="DMSAngleType">
+		<sequence>
+			<element ref="gml:degrees"/>
+			<choice minOccurs="0">
+				<element ref="gml:decimalMinutes"/>
+				<sequence>
+					<element ref="gml:minutes"/>
+					<element ref="gml:seconds" minOccurs="0"/>
+				</sequence>
+			</choice>
+		</sequence>
+	</complexType>
+	<element name="degrees" type="gml:DegreesType"/>
+	<complexType name="DegreesType">
+		<simpleContent>
+			<extension base="gml:DegreeValueType">
+				<attribute name="direction">
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="N"/>
+							<enumeration value="E"/>
+							<enumeration value="S"/>
+							<enumeration value="W"/>
+							<enumeration value="+"/>
+							<enumeration value="-"/>
+						</restriction>
+					</simpleType>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<simpleType name="DegreeValueType">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="359"/>
+		</restriction>
+	</simpleType>
+	<element name="decimalMinutes" type="gml:DecimalMinutesType"/>
+	<simpleType name="DecimalMinutesType">
+		<restriction base="decimal">
+			<minInclusive value="0.00"/>
+			<maxExclusive value="60.00"/>
+		</restriction>
+	</simpleType>
+	<element name="minutes" type="gml:ArcMinutesType"/>
+	<simpleType name="ArcMinutesType">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="59"/>
+		</restriction>
+	</simpleType>
+	<element name="seconds" type="gml:ArcSecondsType"/>
+	<simpleType name="ArcSecondsType">
+		<restriction base="decimal">
+			<minInclusive value="0.00"/>
+			<maxExclusive value="60.00"/>
+		</restriction>
+	</simpleType>
+	<complexType name="AngleChoiceType">
+		<choice>
+			<element ref="gml:angle"/>
+			<element ref="gml:dmsAngle"/>
+		</choice>
+	</complexType>
+</schema>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.2.0">
+	<annotation>
+		<appinfo source="urn:opengis:specification:gml:schema-xsd:basicTypes:v3.2.0">basicTypes.xsd</appinfo>
+		<documentation>see GML 7.3</documentation>
+	</annotation>
+	<simpleType name="NilReasonEnumeration">
+		<union>
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="inapplicable"/>
+					<enumeration value="missing"/>
+					<enumeration value="template"/>
+					<enumeration value="unknown"/>
+					<enumeration value="withheld"/>
+				</restriction>
+			</simpleType>
+			<simpleType>
+				<restriction base="string">
+					<pattern value="other:\w{2,}"/>
+				</restriction>
+			</simpleType>
+		</union>
+	</simpleType>
+	<simpleType name="NilReasonType">
+		<union memberTypes="gml:NilReasonEnumeration anyURI"/>
+	</simpleType>
+	<element name="Null" type="gml:NilReasonType">
+		<annotation>
+			<appinfo>deprecated</appinfo>
+		</annotation>
+	</element>
+	<simpleType name="SignType">
+		<restriction base="string">
+			<enumeration value="-"/>
+			<enumeration value="+"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="booleanOrNilReason">
+		<union memberTypes="gml:NilReasonEnumeration boolean anyURI"/>
+	</simpleType>
+	<simpleType name="doubleOrNilReason">
+		<union memberTypes="gml:NilReasonEnumeration double anyURI"/>
+	</simpleType>
+	<simpleType name="integerOrNilReason">
+		<union memberTypes="gml:NilReasonEnumeration integer anyURI"/>
+	</simpleType>
+	<simpleType name="NameOrNilReason">
+		<union memberTypes="gml:NilReasonEnumeration Name anyURI"/>
+	</simpleType>
+	<simpleType name="stringOrNilReason">
+		<union memberTypes="gml:NilReasonEnumeration string anyURI"/>
+	</simpleType>
+	<complexType name="CodeType">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="codeSpace" type="anyURI"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<complexType name="CodeWithAuthorityType">
+		<simpleContent>
+			<restriction base="gml:CodeType">
+				<attribute name="codeSpace" type="anyURI" use="required"/>
+			</restriction>
+		</simpleContent>
+	</complexType>
+	<complexType name="MeasureType">
+		<simpleContent>
+			<extension base="double">
+				<attribute name="uom" type="gml:UomIdentifier" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<simpleType name="UomIdentifier">
+		<union memberTypes="gml:UomSymbol gml:UomURI"/>
+	</simpleType>
+	<simpleType name="UomSymbol">
+		<restriction base="string">
+			<pattern value="[^: \n\r\t]+"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="UomURI">
+		<restriction base="anyURI">
+			<pattern value="([a-zA-Z][a-zA-Z0-9\-\+\.]*:|\.\./|\./|#).*"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="booleanList">
+		<list itemType="boolean"/>
+	</simpleType>
+	<simpleType name="doubleList">
+		<list itemType="double"/>
+	</simpleType>
+	<simpleType name="integerList">
+		<list itemType="integer"/>
+	</simpleType>
+	<simpleType name="NameList">
+		<list itemType="Name"/>
+	</simpleType>
+	<simpleType name="NCNameList">
+		<list itemType="NCName"/>
+	</simpleType>
+	<simpleType name="QNameList">
+		<list itemType="QName"/>
+	</simpleType>
+	<simpleType name="booleanOrNilReasonList">
+		<list itemType="gml:booleanOrNilReason"/>
+	</simpleType>
+	<simpleType name="NameOrNilReasonList">
+		<list itemType="gml:NameOrNilReason"/>
+	</simpleType>
+	<simpleType name="doubleOrNilReasonList">
+		<list itemType="gml:doubleOrNilReason"/>
+	</simpleType>
+	<simpleType name="integerOrNilReasonList">
+		<list itemType="gml:integerOrNilReason"/>
+	</simpleType>
+	<complexType name="CodeListType">
+		<simpleContent>
+			<extension base="gml:NameList">
+				<attribute name="codeSpace" type="anyURI"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<complexType name="CodeOrNilReasonListType">
+		<simpleContent>
+			<extension base="gml:NameOrNilReasonList">
+				<attribute name="codeSpace" type="anyURI"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<complexType name="MeasureListType">
+		<simpleContent>
+			<extension base="gml:doubleList">
+				<attribute name="uom" type="gml:UomIdentifier" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<complexType name="MeasureOrNilReasonListType">
+		<simpleContent>
+			<extension base="gml:doubleOrNilReasonList">
+				<attribute name="uom" type="gml:UomIdentifier" use="required"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+	<complexType name="CoordinatesType">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="decimal" type="string" default="."/>
+				<attribute name="cs" type="string" default=","/>
+				<attribute name="ts" type="string" default="&#x20;"/>
+			</extension>
+		</simpleContent>
+	</complexType>
+</schema>
