@@ -105,6 +105,7 @@ ul.menu li {
 }
 	
 /* span classes */
+/*
 .plus_minus	{
 		color: #11b;
 		font-family: monospace;
@@ -113,7 +114,7 @@ ul.menu li {
 		text-decoration: none;
 		margin: 0px 2px 0px 0px;
 		}	
-
+*/
 .instruction {
 		color: #000000;
 		font-size: 12px;
@@ -393,6 +394,9 @@ input.element {
   margin-bottom: 10pt;
 }
 
+img.plus-minus {
+  border: 0px solid #fff;
+}
 
 /* achtergrondplaatjes */
 div.achtergrond-nederland {

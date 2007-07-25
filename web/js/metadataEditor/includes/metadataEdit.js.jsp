@@ -100,14 +100,14 @@ function sarissaTest() {
 }
 
 function initWithXmlString() {
-	alert("hij is in initWithXmlString!");
+	//alert("hij is in initWithXmlString!");
 	var xmlString = xmlJs;
 	
-	alert("escaped:\n\n" + xmlString);
+	//alert("escaped:\n\n" + xmlString);
 	xmlString = xmlString.unescapeHTML();
 	//xslString = xslString.unescapeHTML();
 
-	alert(xmlString);
+	//alert(xmlString);
 	var xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
 	xmlDoc.loadXML(xmlString);
@@ -117,7 +117,7 @@ function initWithXmlString() {
 	xslDoc.async = false;
 	//xslDoc.loadXML(xslString);
 	xslDoc.load(xslFullPath);	
-	alert(xslDoc.xml);
+	//alert(xslDoc.xml);
 	
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	

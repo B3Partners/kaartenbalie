@@ -249,10 +249,10 @@
 					<!-- start expanded or collapsed? -->
 					<xsl:choose>
 						<xsl:when test="$expanded = 'true'">
-							<img src="{$MINUS_IMAGE}" border="0px"/>
+							<img class="plus-minus" src="{$MINUS_IMAGE}"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<img src="{$PLUS_IMAGE}" border="0px"/>
+							<img class="plus-minus" src="{$PLUS_IMAGE}"/>
 						</xsl:otherwise>
 					</xsl:choose>
 

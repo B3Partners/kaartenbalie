@@ -227,13 +227,16 @@
 	
 		<!-- (Niet helemaal ISO nr. 13/186referentieSysteem) -->
 	<xsl:template name="referentieSysteem">
-		<xsl:call-template name="section-title">
-			<xsl:with-param name="title">Referentie systeem</xsl:with-param>
-		</xsl:call-template>
-		<div>
-			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier//gmd:code"/>
-			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>-->
+		<div class="section">
+			<xsl:call-template name="section-title">
+				<xsl:with-param name="title">Referentie systeem</xsl:with-param>
+			</xsl:call-template>
+			<div class="content">
+				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier//gmd:code"/>
+				<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>-->
+			</div>
 		</div>
+		<xsl:call-template name="get-br"/>		
 	</xsl:template>
 
 	<!-- ISO nr. 207 -->
@@ -252,13 +255,16 @@
 	
 	<!-- (Niet helemaal ISO nr. 8) -->
 	<xsl:template name="metadataVerantwoordelijkeOrganisatie">
-		<xsl:call-template name="section-title">
-			<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
-		</xsl:call-template>
-		<div>
-			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:organisationName"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:role"/>		
+		<div class="section">
+			<xsl:call-template name="section-title">
+				<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
+			</xsl:call-template>
+			<div class="content">
+				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:organisationName"/>
+				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:role"/>		
+			</div>
 		</div>
+		<xsl:call-template name="get-br"/>		
 	</xsl:template>
 
 	<!-- ISO nr. 360 -->
@@ -296,13 +302,17 @@
 		</xsl:call-template>
 	</xsl:template>
 
-	<!-- Omgrenzende rechthoek -->
+	<!-- Omgrenzende rechthoek (is vervangen door polygon in ISO19139 !?!)-->
 	<xsl:template name="omgrenzendeRechthoek">
-		<xsl:call-template name="section-title">
-			<xsl:with-param name="title">Omgrenzende rechthoek</xsl:with-param>
-		</xsl:call-template>
-		<div>
+		<div class="section">
+			<xsl:call-template name="section-title">
+				<xsl:with-param name="title">Omgrenzende rechthoek</xsl:with-param>
+			</xsl:call-template>
+			<div class="content">
+			
+			</div>
 		</div>
+		<xsl:call-template name="get-br"/>
 	</xsl:template>
 
 	<!-- ISO nr. 139 -->

@@ -43,7 +43,7 @@
                 var popupLink = document.createElement("a");
                 popupLink.onclick = function() {
 		    newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
-		    alert(newUrl);
+		    //alert(newUrl);
                     //popUp(newUrl);
 		    popUp();
                 }
