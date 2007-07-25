@@ -92,7 +92,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
 	private String getTestMetadata() {
 		String metadata = "";
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/ex1.xml"));
+			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/ex3.xml"));
 			String line;
 			while ((line = br.readLine()) != null) {
 				metadata += line;

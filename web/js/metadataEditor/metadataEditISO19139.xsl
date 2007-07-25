@@ -88,6 +88,13 @@
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:language"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:characterSet"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:topicCategory"/>
+
+			<xsl:call-template name="omgrenzendeRechthoek"/>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:scope//gmd:level"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:DQ_QuantitativeResult//gmd:value"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:lineage//gmd:statement"/>
+
 		</div>
 	</xsl:template>
 	
@@ -289,6 +296,35 @@
 		</xsl:call-template>
 	</xsl:template>
 
-	
-	
+	<!-- Omgrenzende rechthoek -->
+	<xsl:template name="omgrenzendeRechthoek">
+		<xsl:call-template name="section-title">
+			<xsl:with-param name="title">Omgrenzende rechthoek</xsl:with-param>
+		</xsl:call-template>
+		<div>
+		</div>
+	</xsl:template>
+
+	<!-- ISO nr. 139 -->
+	<xsl:template match="gmd:level">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Data kwaliteitsniveau</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<!-- ISO nr. 137 -->
+	<xsl:template match="gmd:DQ_QuantitativeResult//gmd:value">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Geometrische nauwkeurigheid</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+	<!-- ISO nr. 83 -->
+	<xsl:template match="gmd:lineage//gmd:statement">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title">Geometrische nauwkeurigheid</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+
+
 </xsl:stylesheet>

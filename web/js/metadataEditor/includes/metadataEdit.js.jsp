@@ -2,7 +2,7 @@
 <%@include file="/templates/taglibs.jsp" %>
 
 
-//alert("hij doet iets in deze file: browserEdit.jsp!");
+//alert("hij doet iets in deze file: metadataEdit.jsp!");
 init();
 
 function init() {

@@ -52,8 +52,9 @@
 	
 	<div class="hidden">
 		<!-- location of the edit and add templates stylesheets (used by Add Section code) -->
-		<span id="editStylesheetFile"><html:rewrite page='/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl' module='' /></span>
-		<span id="addStylesheetFile"><html:rewrite page='/js/metadataEditor/Preprocessors/Add_MNP_Metadata_Beheerder_Edit_Templates.xsl' module='' /></span>
+		<%--<span id="editStylesheetFile"><html:rewrite page='/js/metadataEditor/MNP_Metadata_Beheerder_Edit_Intern.xsl' module='' /></span>
+		<span id="addStylesheetFile"><html:rewrite page='/js/metadataEditor/Preprocessors/Add_MNP_Metadata_Beheerder_Edit_Templates.xsl' module='' /></span>--%>
+		
 		<!-- plus/minus images used for expanding/collapsing sections -->
 		<%--<img xmlns="http://www.w3.org/1999/xhtml" id="plus_img" border="0" src="<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />"></img>
 		<img xmlns="http://www.w3.org/1999/xhtml" id="minus_img" border="0" src="<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />"></img>--%>
