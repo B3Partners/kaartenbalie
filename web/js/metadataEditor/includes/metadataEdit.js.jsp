@@ -2,17 +2,16 @@
 <%@include file="/templates/taglibs.jsp" %>
 
 
-//alert("hij doet iets in deze file: metadataEdit.jsp!");
 init();
 
 function init() {
     xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
     addLoadEvent(initWithXmlString);
+    addLoadEvent(addImgTest);    
     
     PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
     MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
     MENU_IMAGE = "<html:rewrite page='/js/metadataEditor/images/arrow.gif' module='' />";
-    //alert("hij is in init!");
 }
 
 function addLoadEvent(func) {
@@ -122,10 +121,16 @@ function initWithXmlString() {
 	XML.transform(xmlDoc, xslDoc, "writeroot");
 	
 	xmlDocInit();
+
 }
 
-function test() {
-    //niets
+function addImgTest() {
+	var fragment = document.createDocumentFragment();
+	var imgElem = document.createElement("img");
+	imgElem.setAttribute("src", "images/xp_minus.gif");
+	fragment.appendChild(imgElem);
+	//document.body.appendChild(fragment);
+	document.body.appendChild(imgElem);	
 }
 
 // TODO: nog uitwerken:
