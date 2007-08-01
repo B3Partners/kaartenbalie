@@ -12,6 +12,8 @@ function init() {
     PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
     MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
     MENU_IMAGE = "<html:rewrite page='/js/metadataEditor/images/arrow.gif' module='' />";
+    
+    basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";
 }
 
 function addLoadEvent(func) {

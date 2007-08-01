@@ -40,14 +40,14 @@ XML.Transformer.prototype.transform = function(node, element) {
         debug(fragment.xml);
         // Erase the existing content of element.
         element.innerHTML = "";
-		//element.removeChild(0);//???
+	//element.removeChild(0);//???
         // And insert the transformed nodes.
         element.appendChild(fragment);
     }
     else if ("transformNode" in node) {
         // If the node has a transformNode() function (in IE), use that.
         // Note that transformNode() returns a string.
-		debug(node);
+	debug(node);
         fragmentText = node.transformNode(this.stylesheet);
         debug(fragmentText);
         element.innerHTML = fragmentText;

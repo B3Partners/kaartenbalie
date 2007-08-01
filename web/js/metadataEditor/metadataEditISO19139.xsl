@@ -16,7 +16,7 @@
 				
 				
 	<!-- template library to use for making element editable -->
-	<xsl:include href="includes/editableElements.xsl.jsp"/>
+	<xsl:include href="includes/editableElements.xsl"/>
 	<!-- template library to use for showing basic types of ISO 19139 -->
 	<xsl:include href="includes/editableBasicTypes.xsl"/>
 				

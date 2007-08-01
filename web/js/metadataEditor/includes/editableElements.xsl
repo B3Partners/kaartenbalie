@@ -1,5 +1,3 @@
-<%@include file="/templates/taglibs.jsp" %>
-
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet 					
 					version="1.0"
@@ -40,9 +38,17 @@
 	<xsl:variable name="ADD_CHILD_TEXT">Voeg nieuw kind toe</xsl:variable>
 	
 	<!-- expand/collapse section and menu image paths -->
-	<xsl:variable name="PLUS_IMAGE"><html:rewrite page="js/metadataEditor/images/xp_plus.gif" module=""/></xsl:variable>
-	<xsl:variable name="MINUS_IMAGE"><html:rewrite page="js/metadataEditor/images/xp_minus.gif" module=""/></xsl:variable>
-	<xsl:variable name="MENU_IMAGE"><html:rewrite page="js/metadataEditor/images/arrow.gif" module=""/></xsl:variable>
+	<!-- TODO: !!!!!!!!!!!!!! Tijdelijke oplossing !!!!!!!!!!!!!!!!! -->
+	<xsl:variable name="PLUS_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/xp_plus.gif</xsl:variable>
+	<xsl:variable name="MINUS_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/xp_minus.gif</xsl:variable>
+	<xsl:variable name="MENU_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/arrow.gif</xsl:variable>
+	
+	<!--
+	<xsl:variable name="PLUS_IMAGE">images/xp_plus.gif</xsl:variable>
+	<xsl:variable name="MINUS_IMAGE">images/xp_minus.gif</xsl:variable>
+	<xsl:variable name="MENU_IMAGE">images/arrow.gif</xsl:variable>
+	-->
+	
 	<xsl:variable name="MENU_TOOLTIP">Klik om opties te zien</xsl:variable>
 	
 	
