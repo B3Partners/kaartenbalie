@@ -1,3 +1,5 @@
+<%@include file="/templates/taglibs.jsp" %>
+
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet 					
 					version="1.0"
@@ -38,9 +40,9 @@
 	<xsl:variable name="ADD_CHILD_TEXT">Voeg nieuw kind toe</xsl:variable>
 	
 	<!-- expand/collapse section and menu image paths -->
-	<xsl:variable name="PLUS_IMAGE">images/xp_plus.gif</xsl:variable>
-	<xsl:variable name="MINUS_IMAGE">images/xp_minus.gif</xsl:variable>
-	<xsl:variable name="MENU_IMAGE">images/arrow.gif</xsl:variable>
+	<xsl:variable name="PLUS_IMAGE"><html:rewrite page="js/metadataEditor/images/xp_plus.gif" module=""/></xsl:variable>
+	<xsl:variable name="MINUS_IMAGE"><html:rewrite page="js/metadataEditor/images/xp_minus.gif" module=""/></xsl:variable>
+	<xsl:variable name="MENU_IMAGE"><html:rewrite page="js/metadataEditor/images/arrow.gif" module=""/></xsl:variable>
 	<xsl:variable name="MENU_TOOLTIP">Klik om opties te zien</xsl:variable>
 	
 	
@@ -234,7 +236,7 @@
 
 	<!-- TEMPLATE: for section-title -->
 	<!-- 
-	Gebruik in plaats van "section" "section-title" in combinatie met de twee templates daaronder ("section-content-open" en "section-content-close")
+	Gebruik in plaats van "section" "section-title" in combinatie met een <div class="content"/> met daarin de content van de section
 	om custom content toe te voegen aan de sectie (of in de praktijk vaak om de volgorde van de content-tags te veranderen).
 	Template "section" verkrijgt zijn content door <xsl:apply-templates/> aan te roepen.
 	-->
