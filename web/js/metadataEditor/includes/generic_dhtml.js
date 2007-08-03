@@ -1,17 +1,7 @@
-// =================
-// generic_dhtml.vbs
-// =================
-//
-// 2/3/05 Eric Compas
-//
-// Description:
-//   VBScript code that handles most of the non-edit
-//   dynamic behaviour of stylesheets including
-//   expanding/collapsing sections, section border
-//   highlighting, && popup menus.
-//
-// Written for IE6+ browsers. Not tested on anything else.
-// Actually, it's guarenteed not to work on other browsers.
+// 3/8/07 Erik van de Pol
+
+// Rewritten variant of "generic_dhtml.vbs" by Eric Compas (2/3/05).
+// Rewritten in javascript and working in most W3C compliant browsers.
 
 
 // some global settings
@@ -29,12 +19,11 @@ var MENU_X_OFFSET = 3;
 var MENU_Y_OFFSET = 3;
 
 
-// 2/05 Eric Compas
 // Show popup window that's embedded in code
 function ShowMenu(pElem) {
 	// is SPAN
-	if (pElem.tagName != "SPAN") {
-		alert("This element isn't a SPAN. It's a " + pElem.tagName);
+	if (pElem.tagName.toLowerCase() != "span") {
+		alert("This element isn't a \"span\". It's a " + pElem.tagName);
 		return;
 	}
 	//alert("Span found. # child nodes = " + pElem.childNodes.length + " innerHTML=" + pElem.innerHTML);
@@ -44,7 +33,7 @@ function ShowMenu(pElem) {
 	for (var childIndex in pElem.childNodes) {
 		pList = pElem.childNodes[childIndex];
 		if (pList.nodeType == 1) {
-			if (pList.tagName == "UL") {
+			if (pList.tagName.toLowerCase() == "ul") {
 				break;
 			}
 		}
@@ -59,7 +48,7 @@ function ShowMenu(pElem) {
 		}
 	Next;*/
 
-	if (pList.nodeType != 1 || pList.tagName != "UL") {
+	if (pList.nodeType != 1 || pList.tagName.toLowerCase() != "ul") {
 		alert("Cannot locate menu to display.");
 		return;
 	}
@@ -90,7 +79,7 @@ function ShowMenu(pElem) {
 		}
 	Next;*/
 
-	if (pImg.nodeType != 1 || pImg.tagName != "IMG") {
+	if (pImg.nodeType != 1 || pImg.tagName.toLowerCase() != "img") {
 		alert("Cannot locate menu image.");
 		return;
 	}
@@ -105,11 +94,11 @@ function ShowMenu(pElem) {
 // 2/05 Eric Compas;
 // Hide popup menu;
 function HideMenu(pElem) {
-	if (pElem.tagName == "UL") {
+	if (pElem.tagName.toLowerCase() == "ul") {
 		pElem.style.display = "none";
 	}
 	else {
-		alert("Cannot locate menu list (UL). Found tag = " + pList.tagName);
+		alert("Cannot locate menu list (ul). Found tag = " + pList.tagName);
 	}
 }
 
@@ -148,34 +137,28 @@ function expandNode(pElem) {
 
 	// switch plus/minus text or plus/minus images
 
-	// image first child?
-	if (pFolderAnchor.childNodes[0].tagName == "IMG") {
-		pCurrentIMG = pFolderAnchor.getElementsByTagName("img")[0];
-		
-		// switch images
-		if (sDisplay == "none") {
-			pNewIMG = document.getElementById("minus_img").cloneNode(true);
+	// get first img child (must be + or - image)
+	for (var childIndex in pFolderAnchor.childNodes) {
+		var pCurrentIMG = pFolderAnchor.childNodes[childIndex];
+		if (pCurrentIMG.nodeType == 1 && pCurrentIMG.tagName.toLowerCase() == "img") {
+			// switch images
+			var pNewIMG;			
+			if (sDisplay == "none") {
+				pNewIMG = document.getElementById("minus_img").cloneNode(true);
+			}
+			else {
+				pNewIMG = document.getElementById("plus_img").cloneNode(true);
+			}
+
+			if (pNewIMG == null) {
+				alert("No image to switch found");
+				return;
+			}
+			pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
+			break;
 		}
-		else {
-			pNewIMG = document.getElementById("plus_img").cloneNode(true);
-		}
-		
-		if (pNewIMG == null) {
-			alert("No image to switch found");
-			return;
-		}
-		pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
 	}
-	else {
-		// switch text
-		if (sDisplay == "none") {
-			sSymbol = "-";
-		}
-		else {
-			sSymbol = "+";
-		}
-		pFolderAnchor.childNodes[0].innerText = sSymbol;
-	}
+
 }
 
 
@@ -188,6 +171,7 @@ function expandNode(pElem) {
 // Arguments:
 //   expand = true, expands all
 //          = false, collapses all
+/*
 function expandAll(bExpand) {
 	//On Error Resume Next; //EvdP: ??
 
@@ -241,4 +225,4 @@ function expandAll(bExpand) {
 		}
 	}
 	//Next;
-}
+}*/

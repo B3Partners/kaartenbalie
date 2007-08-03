@@ -1,10 +1,7 @@
-// 1/20/2005 Eric Compas
-// 
-// VBScipts written for generic metadata editor.
-// Contain the routines that handle editing text, 
-// creating or removing new sections and elements.
-//
-// Designed && written for IE 6.x
+// 3/8/07 Erik van de Pol
+
+// Rewritten variant of "generic_dhtml.vbs" by Eric Compas (2/3/05).
+// Rewritten in javascript and working in most W3C compliant browsers.
 
 
 // ==============
@@ -136,16 +133,13 @@ function changeFlag(bChange) {
 //             'me'   if(language of HTML page is VBScript
 //             'this' if(language of HTML page is JavaScript
 
-function startEdit(pElem) {
-	// change element value into a text input to be edited
-	//alert("Open element for editing: " + pElem.name);
-
-	// get current value (for checking if(changed later)
-	var event = getWindowEvent(pElem);
+function startEdit(pElem, event) {
+	// return if already editing
+	if (pElem.childNodes[0].nodeType == 1)
+		return;
 	
-	strPreEditText = getObjInnerText(pElem);
-	//alert("pElem.innerText" + pElem.innerText);
-	
+	// get current value (for checking if changed later)
+	strPreEditText = getElementInnerText(pElem);
 	var strCurEditText = strPreEditText;
 
 	// get size from current text
@@ -185,9 +179,7 @@ function startEdit(pElem) {
 			for (var childIndex in pPicklist.childNodes) {
 				node = pPicklist.childNodes[childIndex];
 				if (node.nodeType == 1) {
-					//*********************************************
-					//kent geen innerText???
-					node.value = getObjInnerText(pElem);
+					node.value = getElementInnerText(pElem);
 					break;
 				}
 			}
@@ -202,48 +194,59 @@ function startEdit(pElem) {
 		}
 	}
 
-	// which key event to use (depends on shell)
-	var strKeyEvent = "onkeypress";
-
 	// alt-clicked? if so, force use of textarea
-	//**************************************************
+	var event = getWindowEvent(event);
 	if (event.altKey) {
 		iRow = 4;
 		iCol = MAX_TEXTINPUT_SIZE;
-		//alert("Alt-clicked.");
+		//debug("Alt-clicked.");
 	}
 
 
-	setObjInnerText(pElem, checkText(getObjInnerText(pElem)));
+	//setElementInnerText(pElem, checkText(getElementInnerText(pElem)));
 
-	//alert("After Replace "+ pElem.innerText);
-	//alert(pElem.innerHTML);
+	// which key event to use (depends on shell)
+	//var strKeyEvent = "onkeypress";
 
 	// change span into text input or textarea for editing
-	var newInnerText = getObjInnerText(pElem);
-	pElem.innerHTML = "";
+	var newInnerText = checkText(getElementInnerText(pElem));//getElementInnerText(pElem);
+	var editElem;
+	
 	if (iRow > 1) {
 		// use textarea
-		// stopPropagation(this);
-		pElem.innerHTML = "<textarea cols='" + iCol + "' rows='" + iRow +  "'onclick='' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'>" +  newInnerText + "</textarea>";
+		editElem = document.createElement("textarea");
+		editElem.setAttribute("cols", iCol);
+		editElem.setAttribute("rows", iRow);
+		
+		var text = document.createTextNode(newInnerText);
+		editElem.appendChild(text);
 	}
 	else {
 		// use text input
-		pElem.innerHTML = "<input type='text' class='input' value='" +  newInnerText + "' size='" + iCol +  "' onclick='' " +  "onBlur='stopEdit(this);' " + strKeyEvent + "='return checkKey(this);'/> ";
+		editElem = document.createElement("input");
+		editElem.setAttribute("type", "text");
+		editElem.setAttribute("class", "input");
+		editElem.setAttribute("value", newInnerText);
+		editElem.setAttribute("size", iCol);		
 	}
+	
+	editElem.setAttribute("onkeypress", "return checkKey(this, event);");
+	editElem.setAttribute("onclick", "return false;");
+	editElem.setAttribute("onBlur", "stopEdit(this);");
 
-	//alert(pElem.innerHTML);
-
-	alert("pElem.innerHTML: " + pElem.innerHTML);
+	pElem.innerHTML = "";
+	pElem.appendChild(editElem);
+	
+	//debug("pElem.innerHTML: " + pElem.innerHTML);
 
 	//focus to text input
-	pElem.childNodes[0].focus();
+	editElem.focus();
 
 	// if default value, select it (makes it easier to replace);
 	if (pElem.className == "default_value") {
-		pElem.childNodes[0].select();
+		editElem.select();
 	}
-
+	
 }
 
 
@@ -255,6 +258,8 @@ function startEdit(pElem) {
 // Argument:
 //   objElem = the <span> element containing text to be edited.
 function stopEdit(pElem) {
+	//debug("stopEdit");
+	
 	// check if picklist has focus, if so don't stop editing
 	/*var pActiveElem = document.activeElement;
 	if (pActiveElem.tagName == "SELECT") {
@@ -291,18 +296,17 @@ function stopEdit(pElem) {
 	// is blank? user deleted value? to span default (default value)
 	// gebruikt trim() helper-functie
 	if (trim(pElem.value) == "") {
-		alert("Cannot leave value blank - replacing with default value. " + '\r\n' +  "Note: This value will not be saved unless changed or element is mandatory.");
+		//alert("Cannot leave value blank - replacing with default value. " + '\r\n' +  "Note: This value will not be saved unless changed or element is mandatory.");
 		if (pParentElem.getAttribute("default") != "") {
 			pElem.value = pParentElem.getAttribute("default");
 		}
 		else {
-			pElem.value = DEFAULT_VALUE;
+			pElem.value = GLOBAL_DEFAULT;//DEFAULT_VALUE;
 		}
 
 		//class of value to default (won't be saved unless 'mandatory')
-		//***************************************
-		//kent geen setAttribute??
-		pParentElem.setAttribute("className", "default_value");
+		//pParentElem.setAttribute("className", "default_value");
+		pParentElem.setAttribute("class", "default_value");		
 
 		//element changed attribute
 		pParentElem.changed = "false";
@@ -319,7 +323,7 @@ function stopEdit(pElem) {
 		if (pPicklist == null) {
 			alert("Error locating picklist in stylesheet to remove.");
 		}
-		else if (pPicklist.tagName != "select") {
+		else if (pPicklist.tagName.toLowerCase() != "select") {
 			alert("Error locating picklist in stylesheet to remove.");
 		}
 		else {
@@ -417,13 +421,15 @@ function pickListKeyPress(pElem) {
 //   For "enter" key, stop editing if(in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
-function checkKey(objElem) {
-	var iKey = getKeyCode(objElem);
+function checkKey(objElem, keyEvent) {
+	var iKey = getKeyCode(keyEvent);
 	if (iKey != null)
-		alert("Key pressed = " + iKey);
+		debug("Key pressed = " + iKey);
+	
+	debug(objElem);
 
 	// was enter pressed? (don't trigger in textarea)
-	if (iKey == 13 && objElem.tagName == "input") {
+	if (iKey == 13 && objElem.tagName.toLowerCase() == "input") {
 		stopPropagation(objElem);
 		
 		// trigger onBlur event - stop editing

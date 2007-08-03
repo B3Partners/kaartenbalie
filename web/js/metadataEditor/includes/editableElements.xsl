@@ -39,9 +39,9 @@
 	
 	<!-- expand/collapse section and menu image paths -->
 	<!-- TODO: !!!!!!!!!!!!!! Tijdelijke oplossing !!!!!!!!!!!!!!!!! -->
-	<xsl:variable name="PLUS_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/xp_plus.gif</xsl:variable>
-	<xsl:variable name="MINUS_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/xp_minus.gif</xsl:variable>
-	<xsl:variable name="MENU_IMAGE">file:///c:/dev_erik/Kaartenbalie/web/js/metadataEditor/images/arrow.gif</xsl:variable>
+	<xsl:variable name="PLUS_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/xp_plus.gif</xsl:variable>
+	<xsl:variable name="MINUS_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/xp_minus.gif</xsl:variable>
+	<xsl:variable name="MENU_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/arrow.gif</xsl:variable>
 	
 	<!--
 	<xsl:variable name="PLUS_IMAGE">images/xp_plus.gif</xsl:variable>
@@ -95,7 +95,7 @@
 				<xsl:attribute name="default"><xsl:value-of select="$default_value"/></xsl:attribute>
 				<xsl:attribute name="optionality"><xsl:value-of select="$optionality" /></xsl:attribute>
 				<xsl:attribute name="Sync"><xsl:value-of select="@Sync"/></xsl:attribute>
-				<xsl:attribute name="onclick">startEdit(this)</xsl:attribute>
+				<xsl:attribute name="onclick">startEdit(this, event)</xsl:attribute>
 				<xsl:if test="$picklist != ''">
 					<xsl:attribute name="picklist"><xsl:value-of select="$picklist"/></xsl:attribute>
 				</xsl:if>

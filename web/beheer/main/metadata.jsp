@@ -1,15 +1,6 @@
-<!--
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
--->
 
-<%--
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
---%>
-
-<!--
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
--->
 
 <%@include file="/templates/taglibs.jsp" %>
 <tiles:importAttribute/>
@@ -17,23 +8,18 @@
 <c:set var="form" value="${metadataForm}"/>
 <c:set var="xml" value="${form.map.xml}"/>
 
-<!-- O.a. "img" tags worden totaal niet gerenderd onder xhtml strict en transitional. Wel in quirksmode (geen DTD) -->
 
-<html:html>
-<%--<html:html xhtml="true">--%>
+<html:html xhtml="true">
     <head>
 	
 	<title>Metadata Editor</title>
 
-	<base href="<html:rewrite page='/js/metadataEditor/' module='' />"/>
-	
 	<script type="text/javascript">
 	/* <![CDATA[ */
 	    xmlJs = "<c:out value="${xml}" escapeXml="true"/>";
 	/* ]]> */
 	</script>	
 	
-        
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
         
@@ -45,7 +31,6 @@
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js.jsp' module='' />"></script>
 		
 	<%-- hier hebben we unescapeHTML uit nodig --%>
-        
 	<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
 	
         <link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css.jsp' module='' />" />
@@ -62,10 +47,11 @@
             
 	    <html:button property="save" value="Save" onclick="checkForm();"/> 
 			
-            <div id="writeroot"></div>
+
 	    
         </html:form>
 	
+        <div id="writeroot"></div>
 	
 	<div class="hidden">
 		<!-- location of the edit and add templates stylesheets (used by Add Section code) -->

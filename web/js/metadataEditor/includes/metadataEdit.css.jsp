@@ -124,20 +124,7 @@ ul.menu li {
 		margin-left: 20px;
 		}
 
-.default_value {
-		color: #2D7D32;
-		cursor: hand;
-		font-size: 12px;
-		font-weight: normal;
-		font-style: normal;
-		}
-.mandatory_value {
-		color: #2D0000;
-		cursor: hand;
-		font-size: 12px;
-		font-weight: bold;
-		font-style: normal;
-		}		
+		
 
 .repeat_element {
 		font-weight: normal;
@@ -166,9 +153,9 @@ ul.menu li {
 }
 
 .unchanged_value {
+  color: #000099;
   cursor: pointer;
   cursor: hand;
-  color: #000099;
   font-size: 12px;
   font-weight: normal;
   font-style: normal;
@@ -177,6 +164,26 @@ ul.menu li {
 
 .changed_value {
   color: purple;
+  cursor: pointer;
+  cursor: hand;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  padding-right: 2px;
+}
+
+.default_value {
+  color: #2D7D32;
+  cursor: pointer;
+  cursor: hand;
+  font-size: 12px;
+  font-weight: normal;
+  font-style: normal;
+  padding-right: 2px;
+}
+
+.mandatory_value {
+  color: #2D0000;
   cursor: pointer;
   cursor: hand;
   font-size: 12px;
