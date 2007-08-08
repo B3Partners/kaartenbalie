@@ -28,16 +28,16 @@ XML.Transformer = function(stylesheet) {
 XML.Transformer.prototype.transform = function(node, element) {
     // If element is specified by id, look it up.
     if (typeof element == "string") {
-		debug("voor: " + element);
+		//debug("voor: " + element);
 		element = document.getElementById(element);
-		debug("na: " + element);
+		//debug("na: " + element);
 	}
-	debug(element);
+	//debug(element);
     if (this.processor) {
         // If we've created an XSLTProcessor (i.e., we're in Mozilla) use it.
         // Transform the node into a DOM DocumentFragment.
         var fragment = this.processor.transformToFragment(node, document);
-        debug(fragment.xml);
+        //debug(fragment.xml);
         // Erase the existing content of element.
         element.innerHTML = "";
 	//element.removeChild(0);//???
@@ -47,9 +47,9 @@ XML.Transformer.prototype.transform = function(node, element) {
     else if ("transformNode" in node) {
         // If the node has a transformNode() function (in IE), use that.
         // Note that transformNode() returns a string.
-	debug(node);
+	//debug(node);
         fragmentText = node.transformNode(this.stylesheet);
-        debug(fragmentText);
+        //debug(fragmentText);
         element.innerHTML = fragmentText;
     }
     else {

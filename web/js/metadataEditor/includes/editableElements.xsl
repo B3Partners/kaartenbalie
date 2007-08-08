@@ -85,7 +85,7 @@
 				<xsl:value-of select="$element_title"/>:
 			</xsl:if>
 			<xsl:element name="span">
-				<xsl:attribute name="name">
+				<xsl:attribute name="fullPath">
 					<!-- <xsl:call-template name="dynamic_path"> -->
 					<xsl:call-template name="full_path">					
 						<xsl:with-param name="theParmNodes" select="$element_path"/>
@@ -100,6 +100,7 @@
 					<xsl:attribute name="picklist"><xsl:value-of select="$picklist"/></xsl:attribute>
 				</xsl:if>
 				<xsl:choose>
+					<!-- check of de inhoud van $element_path leeg is -->
 					<xsl:when test="normalize-space($element_path)">
 						<xsl:attribute name="class">unchanged_value</xsl:attribute>
 						<xsl:attribute name="changed">false</xsl:attribute>

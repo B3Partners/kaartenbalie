@@ -49,8 +49,8 @@ var strPreEditText; // text held by SPAN before editing
 // Helper functions
 // ================
 function trim(value) {
-	value = value.replace(/^\s+/,'');
-	value = value.replace(/\s+$/,'');
+	value = value.replace(/^\s+/, "");
+	value = value.replace(/\s+$/, "");
 	return value;
 }
 
@@ -59,33 +59,6 @@ function trim(value) {
 // =============
 // Edit Routines
 // =============
-
-function mouseEvent() {
-	//function mouseEvent(pElem){
-	//var pActiveElem;
-	//Set pActiveElem = document.activeElement;
-
-	//window.event.cancelBubble=false;
-
-	/*var xPos;
-	var yPos;
-
-	xPos = window.event.x;
-	yPos = window.event.y;
-
-	//stopEdit(pElem);
-
-	//alert(xPos + "   "+ yPos);
-	if (xPos < 50 || yPos < 50) {
-		//stopEdit(Null);
-		//alert(xPos + " -- " +yPos);
-		//window.event.cancelBubble=false;
-		//window.event.SendKeys "{ENTER}";
-		//stopEdit(pElem);
-	}*/
-
-}
-
 
 // Description:
 //   Track state of editable page. When user edits
@@ -108,38 +81,24 @@ function changeFlag(bChange) {
 	}
 }
 
-// determine what the shell is from <body> attribute
-// returns:
-//    "arccatalog" if ArcCatalog is shell
-//    "standalone" if Stand-alond app is shell (default if error)
-/*function getShellType() {
-	// get body attribute
-	var root = document.getElementById("editDocRoot");
-	var strShell = root.getAttribute("shell");
-	if (strShell == "arccatalog")
-		return "arccatalog";
-	else
-		return "standalone";
-}*/
-
 // Description:
 //   Change element value into a text input || text area to be edited.
 //   Which is determined by size of text to be edited. Assumes that
 //   text to be edited is in particular format.
 //
 // Arguement:
-//   objElem = the <span> element containing text to be edited.
+//   element = the <span> element containing text to be edited.
 //   selfRef = the token to use for self-reference for an object, use
 //             'me'   if(language of HTML page is VBScript
 //             'this' if(language of HTML page is JavaScript
 
-function startEdit(pElem, event) {
+function startEdit(element, event) {
 	// return if already editing
-	if (pElem.childNodes[0].nodeType == 1)
+	if (element.childNodes[0].nodeType == 1)
 		return;
 	
 	// get current value (for checking if changed later)
-	strPreEditText = getElementInnerText(pElem);
+	strPreEditText = trim(getElementInnerText(element));
 	var strCurEditText = strPreEditText;
 
 	// get size from current text
@@ -158,28 +117,28 @@ function startEdit(pElem, event) {
 		iCol = MIN_TEXTINPUT_SIZE;
 		iRow = 1;
 	}
-	//alert("col=" + iCol + " row=" + iRow + " len(PElem.innerText) = " + len(pElem.innerText));
+	//alert("col=" + iCol + " row=" + iRow + " len(element.innerText) = " + len(element.innerText));
 
 	// has picklist?
-	if (pElem.getAttribute("picklist") != "" && pElem.getAttribute("picklist") != null) {
+	if (element.getAttribute("picklist") != "" && element.getAttribute("picklist") != null) {
 		// get picklist
-		var pPicklist = GetPicklist(pElem.getAttribute("picklist"));
+		var pPicklist = GetPicklist(element.getAttribute("picklist"));
 		if (pPicklist == null) {
-			alert("Error locating picklist '" + pElem.getAttribute("picklist") + "' in stylesheet.");
+			alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
 		}
 		else {
 			// add to code and display it
 			//*************************************************
-			pElem.insertAdjacentElement("afterEnd", pPicklist);
+			element.insertAdjacentElement("afterEnd", pPicklist);
 
 			//current value
-			//pPicklist.childNodes[0].value = pElem.innerText;
+			//pPicklist.childNodes[0].value = element.innerText;
 			
 			//for (i=0; i<pPicklist.childNodes.length; i++) {
 			for (var childIndex in pPicklist.childNodes) {
 				node = pPicklist.childNodes[childIndex];
 				if (node.nodeType == 1) {
-					node.value = getElementInnerText(pElem);
+					node.value = getElementInnerText(element);
 					break;
 				}
 			}
@@ -187,7 +146,7 @@ function startEdit(pElem, event) {
 			For Each node in pPicklist.childNodes;
 				//alert("node.nodeType = " + node.nodeType);
 				if(node.nodeType == 1){
-				node.value = pElem.innerText;
+				node.value = element.innerText;
 				Exit For;
 				}
 			Next*/
@@ -203,48 +162,47 @@ function startEdit(pElem, event) {
 	}
 
 
-	//setElementInnerText(pElem, checkText(getElementInnerText(pElem)));
+	//setElementInnerText(element, checkText(getElementInnerText(element)));
 
 	// which key event to use (depends on shell)
 	//var strKeyEvent = "onkeypress";
 
 	// change span into text input or textarea for editing
-	var newInnerText = checkText(getElementInnerText(pElem));//getElementInnerText(pElem);
-	var editElem;
+	var newInnerText = checkText(getElementInnerText(element));//getElementInnerText(element);
+	var inputElement;
 	
 	if (iRow > 1) {
 		// use textarea
-		editElem = document.createElement("textarea");
-		editElem.setAttribute("cols", iCol);
-		editElem.setAttribute("rows", iRow);
+		inputElement = document.createElement("textarea");
+		inputElement.setAttribute("cols", iCol);
+		inputElement.setAttribute("rows", iRow);
 		
 		var text = document.createTextNode(newInnerText);
-		editElem.appendChild(text);
+		inputElement.appendChild(text);
 	}
 	else {
 		// use text input
-		editElem = document.createElement("input");
-		editElem.setAttribute("type", "text");
-		editElem.setAttribute("class", "input");
-		editElem.setAttribute("value", newInnerText);
-		editElem.setAttribute("size", iCol);		
+		inputElement = document.createElement("input");
+		inputElement.setAttribute("type", "text");
+		inputElement.setAttribute("class", "input");
+		inputElement.setAttribute("value", newInnerText);
+		inputElement.setAttribute("size", iCol);		
 	}
 	
-	editElem.setAttribute("onkeypress", "return checkKey(this, event);");
-	editElem.setAttribute("onclick", "return false;");
-	editElem.setAttribute("onBlur", "stopEdit(this);");
+	inputElement.setAttribute("onkeypress", "return checkKey(this, event);");
+	inputElement.setAttribute("onclick", "return false;");
+	inputElement.setAttribute("onBlur", "stopEdit(this);");
 
-	pElem.innerHTML = "";
-	pElem.appendChild(editElem);
+	element.innerHTML = "";
+	element.appendChild(inputElement);
 	
-	//debug("pElem.innerHTML: " + pElem.innerHTML);
+	//debug("element.innerHTML: " + element.innerHTML);
 
-	//focus to text input
-	editElem.focus();
+	inputElement.focus();
 
 	// if default value, select it (makes it easier to replace);
-	if (pElem.className == "default_value") {
-		editElem.select();
+	if (element.className == "default_value") {
+		inputElement.select();
 	}
 	
 }
@@ -256,68 +214,65 @@ function startEdit(pElem, event) {
 //   Assumes that text to be edited is in particular format.
 //
 // Argument:
-//   objElem = the <span> element containing text to be edited.
-function stopEdit(pElem) {
-	//debug("stopEdit");
-	
+//   element = the <span> element containing text to be edited.
+function stopEdit(element) {
 	// check if picklist has focus, if so don't stop editing
 	/*var pActiveElem = document.activeElement;
 	if (pActiveElem.tagName == "SELECT") {
 		return;
 	}*/
 
-	stopPropagation(pElem);
-
-	// change text input back to displayed text
-	//alert("innerText=" + pElem.innerText + " outerHTML=" + pElem.outerHTML + " value=" + pElem.value);
+	stopPropagation(element);
 
 	// get parent <span> element
-	var pParentElem = getParentElement(pElem);
-	//alert("pParentElem.innerHTML = " + pParentElem.innerHTML);
+	var parentElement = getParentElement(element);
 
+	var newValue = trim(element.value);
 	// check for changed value (from original)
-	if (strPreEditText != pElem.value) {
-		// user changed value,attributes
+	if (strPreEditText != newValue) {
+		debug("parentElement.nodeType: " + parentElement.nodeType);
+		debug("parentElement.tagName: " + parentElement.tagName);		
+		debug("parentElement.innerHTML: " + parentElement.innerHTML);
+		debug("parentElement.outerHTML: " + parentElement.outerHTML);		
+		debug("parentElement.fullPath: " + parentElement.fullPath);
+		debug("parentElement.changed: " + parentElement.changed);		
+		
+		// user changed value attributes
 		// change class of span to 'changed_value'
-		pParentElem.setAttribute("className", "changed_value");
-
+		parentElement.className = "changed_value";
 		//element changed attribute
-		pParentElem.changed = "true";
-
+		parentElement.changed = "true";
 		//page changed attribute;
 		changeFlag(true);
+		
 
-		//alert("User changed text");
-	}
-	else {
-		//alert("User didn't change text");
+		//debug("parentElement.getAttribute(fullPath): " + parentElement.getAttribute(fullPath));		
+		saveChangesInXMLDom(newValue, parentElement.getAttribute(name));		
 	}
 
 	// is blank? user deleted value? to span default (default value)
-	// gebruikt trim() helper-functie
-	if (trim(pElem.value) == "") {
+	if (newValue == "") {
 		//alert("Cannot leave value blank - replacing with default value. " + '\r\n' +  "Note: This value will not be saved unless changed or element is mandatory.");
-		if (pParentElem.getAttribute("default") != "") {
-			pElem.value = pParentElem.getAttribute("default");
+		if (parentElement.getAttribute("default") != "") {
+			newValue = parentElement.getAttribute("default");
 		}
 		else {
-			pElem.value = GLOBAL_DEFAULT;//DEFAULT_VALUE;
+			newValue = GLOBAL_DEFAULT;//DEFAULT_VALUE;
 		}
-
 		//class of value to default (won't be saved unless 'mandatory')
-		//pParentElem.setAttribute("className", "default_value");
-		pParentElem.setAttribute("class", "default_value");		
-
+		parentElement.className = "default_value";
 		//element changed attribute
-		pParentElem.changed = "false";
+		parentElement.changed = "false";
 	}
+	
+	// change span value to text alone
+	parentElement.innerHTML = checkText(newValue);
 
 	// has picklist? if so, delete it
-	if (pParentElem.getAttribute("picklist") != "" && pParentElem.getAttribute("picklist") != null) {
-		//alert("Has picklist=" + pElem.parentElement.getAttribute("picklist"));
-
+	if (parentElement.getAttribute("picklist") != "" && parentElement.getAttribute("picklist") != null) {
+		//alert("Has picklist=" + element.parentElement.getAttribute("picklist"));
 		// get picklist
-		var pPicklist = pParentElem.nextSibling;
+		var pPicklist = parentElement.nextSibling;
 		//alert("pPicklist.tagName=" + pPicklist.tagName);
 		//*******************************************************
 		if (pPicklist == null) {
@@ -331,19 +286,8 @@ function stopEdit(pElem) {
 			pPicklist.removeNode(true);
 		}
 	}
-	//alert("Has picklist? =" + pElem.parentElement.getAttribute("picklist"));
+	//alert("Has picklist? =" + element.parentElement.getAttribute("picklist"));
 
-	// change span value to text alone
-	//alert(pElem.outerHTML);
-	//var elemValue = pElem.value;
-	//pParentElem.innerHTML = "";
-	pParentElem.innerHTML = checkText(pElem.value);
-	//pElem.outerHTML = checkText(pElem.value);
-
-	//*********************************************************
-	// turn click event back on
-	//window.event.cancelBubble = false;
-	//stopPropagation(pElem);
 }
 
 // 1/27/2005 Eric Compas;
@@ -360,17 +304,17 @@ function stopEdit(pElem) {
 //   picklist = copy of <select> object containing picklist
 //   -or-
 //   null = if no picklist found
-function GetPicklist(sName) {
+function GetPicklist(name) {
 	// copy picklist source
-	var pPicklist = document.getElementById(sName);
+	var picklist = document.getElementById(name);
 	/*if (pPicklist == null) {
 	GetPicklist = null;
 	Exit Function;
 	}
 	// return found picklist;
 	return pPicklist.cloneNode(true);*/
-	if (pPicklist != null)
-		return pPicklist.cloneNode(true);
+	if (picklist != null)
+		return picklist.cloneNode(true);
 	else
 		return null;
 }
@@ -378,33 +322,33 @@ function GetPicklist(sName) {
 // 2/05 Eric Compas
 //
 // Description: code called by picklists when selection changed (onchange)
-function pickList(pElem) {
-	//alert("pElem.tagName=" + pElem.tagName);
-	//htmlText.value = pElem.parentElement.outerHTML;
+function pickList(element) {
+	//alert("element.tagName=" + element.tagName);
+	//htmlText.value = element.parentElement.outerHTML;
 
 	// get adjacent text box;
-	var pTextInput = pElem.previousSibling.childNodes[0];
-	//Set pTextInput = pElem.parentElement.previousSibling.childNodes(0);
+	var textInput = element.previousSibling.childNodes[0];
+	//Set textInput = element.parentElement.previousSibling.childNodes(0);
 	
-	if (pTextInput.tagName != "textarea" && pTextInput.tagName != "input") {
+	if (textInput.tagName != "textarea" && textInput.tagName != "input") {
 		alert("Error locating text input for picklist.");
 		return;
 	}
-	//alert("pTextInput.tagName=" + pTextInput.tagName + " value=" + pTextInput.value +  '\r\n' + " pElem.value=" + pElem.value );
+	//alert("textInput.tagName=" + textInput.tagName + " value=" + textInput.value +  '\r\n' + " element.value=" + element.value );
 
 	// update value;
-	pTextInput.value = pElem.value;
+	textInput.value = element.value;
 
 	//focus back to text input
 	// (need to do this to make sure text input onBlur event is triggered correctly)
-	pTextInput.focus();
+	textInput.focus();
 }
 
 // 2/05 Eric Compas;
 // Catch "tab" key press when picklist is open (will leave editing field open)
 //***********************************************
-function pickListKeyPress(pElem) {
-	var iKey = getKeyCode(pElem);
+function pickListKeyPress(element) {
+	var iKey = getKeyCode(element);
 	//alert("Key pressed = " + iKey);
 
 	// was 'tab' pressed?
@@ -421,19 +365,19 @@ function pickListKeyPress(pElem) {
 //   For "enter" key, stop editing if(in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
-function checkKey(objElem, keyEvent) {
+function checkKey(element, keyEvent) {
 	var iKey = getKeyCode(keyEvent);
-	if (iKey != null)
-		debug("Key pressed = " + iKey);
+	//if (iKey != null)
+	//	debug("Key pressed = " + iKey);
 	
-	debug(objElem);
+	//debug(element);
 
 	// was enter pressed? (don't trigger in textarea)
-	if (iKey == 13 && objElem.tagName.toLowerCase() == "input") {
-		stopPropagation(objElem);
+	if (iKey == 13 && element.tagName.toLowerCase() == "input") {
+		stopPropagation(element);
 		
 		// trigger onBlur event - stop editing
-		objElem.blur();
+		element.blur();
 		return false;
 	}
 
@@ -444,9 +388,9 @@ function checkKey(objElem, keyEvent) {
 		// cancel default IE tab handler
 		//window.event.returnValue = false;
 		
-		stopPropagation(objElem);
+		stopPropagation(element);
 		// trigger blur event - stop editing
-		objElem.blur();
+		element.blur();
 		return false;
 
 		// open editing for next field?
@@ -457,9 +401,9 @@ function checkKey(objElem, keyEvent) {
 		// cancel default IE tab handler
 		//window.event.returnValue = false;
 
-		stopPropagation(objElem);
+		stopPropagation(element);
 		// trigger blur event - stop editing
-		objElem.blur();
+		element.blur();
 		return false;
 
 		// open editing for previous field?
@@ -468,19 +412,19 @@ function checkKey(objElem, keyEvent) {
 	// was 'escape' pressed?
 	if (iKey == 27) {
 		//text to original value
-		objElem.value = strPreEditText;
+		element.value = strPreEditText;
 
-		stopPropagation(objElem);
+		stopPropagation(element);
 		// trigger blur event - stop editing
-		objElem.blur();
+		element.blur();
 	}
 }
 
 // Description:
-//   Get next (bNext = true) || previous (bNext = false) editable
-//   SPAN tag in document from current one (objElem). if none found,
+//   Get next (getNext = true) or previous (getNext = false) editable
+//   SPAN tag in document from current one (element). if none found,
 //   returns null;
-function getNextPreEditSpan(objElem, bNext) {
+function getNextPreEditSpan(element, getNext) {
 	// get all SPANs
 	var pSPANElements = document.getElementsByTagName("span");
 
@@ -496,7 +440,7 @@ function getNextPreEditSpan(objElem, bNext) {
 //   Add new input box to input box list in the specified location.
 //
 // Arguments:
-//   objElem = anchor element (in popup menu) that called this routine
+//   element = anchor element (in popup menu) that called this routine
 //             (use to get reference to its list item)
 //   iListItem = item number (1 based) to add new input after
 //   strName = name of element, usually its full path, e.g. /metadata/idinfo/keywords/theme
@@ -504,9 +448,9 @@ function getNextPreEditSpan(objElem, bNext) {
 //   strDefaultValue = the default value of the element to be assigned
 //   strPicklist = name of picklist to use ('' if none)
 //   bAbove = whether to add new element above (true) or below (false)
-function addListItem(objElem, strName, strSize, strDefaultValue, strPicklist, bAbove) {
+function addListItem(element, strName, strSize, strDefaultValue, strPicklist, bAbove) {
 	// get calling menu and test for problems;
-	var objMenuSpan = objElem.parentElement.parentElement.parentElement;
+	var objMenuSpan = element.parentElement.parentElement.parentElement;
 	if (objMenuSpan.tagName != "SPAN") {
 		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
 		return;
@@ -569,9 +513,9 @@ function addListItem(objElem, strName, strSize, strDefaultValue, strPicklist, bA
 // Arguments:
 //   strListId = Id of list to delete from. Needs to be unique in document
 //   iListItem = number of list item to delete (1 based)
-function deleteListItem(objElem) {
+function deleteListItem(element) {
 	// get calling menu and test for problems
-	var objMenuSpan = objElem.parentElement.parentElement.parentElement;
+	var objMenuSpan = element.parentElement.parentElement.parentElement;
 	if (objMenuSpan.tagName != "SPAN") {
 		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
 		return;
@@ -622,11 +566,11 @@ function deleteListItem(objElem) {
 //   Add a new section (node tree) using existing one as template
 //
 // Arguments:
-//  objElem = the calling element, the anchor tag in popup menu
+//  element = the calling element, the anchor tag in popup menu
 //   strAddName = the name of the section to add, e.g. "theme"
 //   bAbove = whether to add new element above (true) or below (false)
-function addSection(objElem, strAddName, bAbove) {
-	//alert(objElem)
+function addSection(element, strAddName, bAbove) {
+	//alert(element)
 	//alert(strAddName)
 	//alert(bAbove)
 
@@ -640,7 +584,7 @@ function addSection(objElem, strAddName, bAbove) {
 	// insert new section into document
 
 	// get calling menu and test for problems
-	var objMenuSpan = objElem.parentElement.parentElement.parentElement;
+	var objMenuSpan = element.parentElement.parentElement.parentElement;
 	if (objMenuSpan.tagName != "SPAN") {
 		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
 		return;
@@ -672,11 +616,11 @@ function addSection(objElem, strAddName, bAbove) {
 //   Delete section (node tree).
 //
 // Arguments:
-//   objElem = the input button calling routine, used to get reference to
+//   element = the input button calling routine, used to get reference to
 //             other objects to delete
-function deleteSection(objElem, strSectPath) {
+function deleteSection(element, strSectPath) {
 	// get calling menu and test for problems
-	var objMenuSpan = objElem.parentElement.parentElement.parentElement;
+	var objMenuSpan = element.parentElement.parentElement.parentElement;
 	if (objMenuSpan.tagName != "SPAN") {
 		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
 		return;
@@ -736,7 +680,7 @@ function deleteSection(objElem, strSectPath) {
 //   Add a child section (compound element) below the current
 //   parent. Similar to AddSection code except adding as
 //   child instead of sibling.
-function addChild(objElem, strAddName) {
+function addChild(element, strAddName) {
 	// create new section (compound element)
 	var objNewDIV = createSection(strAddName);
 	if (objNewDIV == null) {
@@ -749,7 +693,7 @@ function addChild(objElem, strAddName) {
 	//  closing out the parent XML element)
 
 	// get calling menu and test for problems
-	var objMenuSpan = objElem.parentElement.parentElement.parentElement;
+	var objMenuSpan = element.parentElement.parentElement.parentElement;
 	if(objMenuSpan.tagName != "SPAN"){
 		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
 		return;
@@ -1101,35 +1045,29 @@ function createSection(strAddName) {
 //  '   &apos;   ' ! required? won't display correctly in IE
 //
 // Arguments:
-//   strText = text string to check && reformat
-function checkText(strText){
+//   text = text string to check && reformat
+function checkText(text){
 	// do replacements
 
-	//strText = replace(strText,"+","&#38");
-	//strText = replace(strText,"'","&#39");
-	//strText = replace(strText,"""","&#34");
-	//strText = replace(strText,"<","&#60");
-	//strText = replace(strText,">","&#62");
+	//text = replace(text,"+","&#38");
+	//text = replace(text,"'","&#39");
+	//text = replace(text,"""","&#34");
+	//text = replace(text,"<","&#60");
+	//text = replace(text,">","&#62");
 
-	strText = strText.replace("+", "&amp;");
-	strText = strText.replace("<", "&lt;");
-	strText = strText.replace(">", "&gt;");
-	strText = strText.replace("\"", "&quot;");
-	//strText = strText.replace("'", "&apos;"); // not required?
-	strText = strText.replace("'", "&#39");
+	text = text.replace("+", "&amp;");
+	text = text.replace("<", "&lt;");
+	text = text.replace(">", "&gt;");
+	text = text.replace("\"", "&quot;");
+	//text = text.replace("'", "&apos;"); // not required?
+	text = text.replace("'", "&#39");
 
 	// more complex search for ampersand (since it's in all of the replacements)
 	// TODO: write this example &nbsp;
 
 	//debug
-	//alert("return " + strText);
+	//alert("return " + text);
 
 	//return value
-	return strText;
-}
-
-function showHTML(textAreaID){
-	// show page's html in debug window
-	var strData = document.documentElement.innerHTML;
-	textAreaID.value = strData;
+	return text;
 }

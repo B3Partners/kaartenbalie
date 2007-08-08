@@ -1,13 +1,11 @@
 <%@page contentType="text/javascript"%>
 <%@include file="/templates/taglibs.jsp" %>
 
-
 init();
 
 function init() {
     xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
     addLoadEvent(initWithXmlString);
-    addLoadEvent(addImgTest);    
     
     PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
     MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
@@ -126,23 +124,47 @@ function initWithXmlString() {
 
 }
 
-function addImgTest() {
-	var fragment = document.createDocumentFragment();
-	var imgElem = document.createElement("img");
-	imgElem.setAttribute("src", "images/xp_minus.gif");
-	fragment.appendChild(imgElem);
-	//document.body.appendChild(fragment);
-	document.body.appendChild(imgElem);	
-}
-
-// TODO: nog uitwerken:
-function checkForm() {
-    if (true == false) {
-	document.getElementById("metadataForm").submit();
+function saveChangesInXMLDom(newValue, path) {
+    var pathArray = path.split("/");
+    var targetNode;
+    for (var i in pathArray) {
+	targetNode = getChildNode(targetNode, pathArray[i]);
+    }
+    
+    if (targetNode) {
+	setElementInnerText(targetNode, newValue);
+	debug("Saved changes in xml dom succesfully.");
+    }
+    else {
+	debug("Path not found.");
     }
 }
 
-function putXMLinHiddenNode() {
-	document.getElementById('xml').setAttribute("value", xmlDoc.xml);
-	return true;
+function getChildNode(parent, childTag) {
+	var children = parent.childNodes;
+	if (children == null)
+		return null;
+	    
+	var child;
+	for (var i in children) {
+		child = children[i];
+		if (child.tagName == childTag) {
+			return child;
+		}
+	}
+	return null;
+}
+
+function checkForm(source) {
+    var sourceName = source.getAttribute("name");
+    if (sourceName != "" && sourceName == "save") {
+	//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
+	var xmlHiddenInput = document.createElement("input");
+	xmlHiddenInput.setAttribute("type", "hidden");
+	xmlHiddenInput.setAttribute("name", "xml");
+	xmlHiddenInput.setAttribute("value", xmlDoc.xml);	
+	var form = document.getElementById("metadataForm");
+	form.appendChild(xmlHiddenInput);
+	form.submit();
+    }
 }

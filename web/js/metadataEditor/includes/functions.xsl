@@ -7,10 +7,6 @@
 	 	Various functions for getting full XML paths, etc.
 	-->
 	
-	<!-- Voor FF compatibiliteit: 
-		- Dynamic path functie gedelete: had msxml:nodeset() nodig 
-		- ms:xml vbscriptje weg 
-	-->
 	
 	<!-- Description: returns the portion of a 'string' after the last occurence of 'char' -->
 	<!-- from Jeni Tennison at URL http://sources.redhat.com/ml/xsl-list/2001-02/msg00831.html -->

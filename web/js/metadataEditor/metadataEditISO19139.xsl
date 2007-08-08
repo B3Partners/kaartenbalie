@@ -35,7 +35,7 @@
 
 
 	<xsl:template name="MD_Metadata">
-		<div id="editDocRoot" changed="false" onmousemove="mouseEvent()">
+		<div id="editDocRoot" changed="false">
 		
 			<div>
 				<table id="main-menu" width="300" height="30" cellspacing="0" cellpadding="0">
