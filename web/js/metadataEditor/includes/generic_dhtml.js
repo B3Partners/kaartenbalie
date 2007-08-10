@@ -30,9 +30,9 @@ function ShowMenu(pElem) {
 
 	//current value
 	var pList;
-	for (var childIndex in pElem.childNodes) {
-		pList = pElem.childNodes[childIndex];
-		if (pList.nodeType == 1) {
+	for (var i = 0; i < pElem.childNodes.length; i++) {
+		pList = pElem.childNodes[i];
+		if (pList.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
 			if (pList.tagName.toLowerCase() == "ul") {
 				break;
 			}
@@ -60,8 +60,9 @@ function ShowMenu(pElem) {
 
 	// get image to use for positioning
 	var pImg;
-	for (var childIndex in pElem.childNodes) {
-		pImg = pElem.childNodes[childIndex];
+	//for (var childIndex in pElem.childNodes) {
+	for (var i = 0; i < pElem.childNodes.length; i++) {
+		pImg = pElem.childNodes[i];
 		if (pImg.nodeType == 1) {
 			if (pImg.tagName == "IMG") {
 				break;
@@ -138,8 +139,10 @@ function expandNode(pElem) {
 	// switch plus/minus text or plus/minus images
 
 	// get first img child (must be + or - image)
-	for (var childIndex in pFolderAnchor.childNodes) {
-		var pCurrentIMG = pFolderAnchor.childNodes[childIndex];
+	var pCurrentIMG;
+	//for (var childIndex in pFolderAnchor.childNodes) {
+	for (var i = 0; i < pFolderAnchor.childNodes.length; i++) {
+		pCurrentIMG = pFolderAnchor.childNodes[i];
 		if (pCurrentIMG.nodeType == 1 && pCurrentIMG.tagName.toLowerCase() == "img") {
 			// switch images
 			var pNewIMG;			

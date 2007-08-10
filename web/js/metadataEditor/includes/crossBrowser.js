@@ -44,6 +44,16 @@ function getWindowEvent(e) {
 	//return e;
 }
 
+function getTarget(e) {
+	var target;
+	if (!e) var e = window.event;
+	if (e.target) target = e.target;
+	else if (e.srcElement) target = e.srcElement;
+	if (target.nodeType == 3) // defeat Safari bug
+		target = target.parentNode;
+	return target;
+}
+
 function getKeyCode(e) {
 	if (!e) {
 		e = window.event;

@@ -89,7 +89,7 @@ if (isIE) {
             //if it gets to this point, the string worked, so save it and return
             //the DOM Document (NCZ, 1/30/02)
             STR_ACTIVEX = ARR_ACTIVEX[i];
-            bFound = true                
+            bFound = true;
         
         } catch (objException) { 
         } //End: try
@@ -191,7 +191,7 @@ function jsXML() { }
 // Returns
 //  The XML Document object that was created.
 //-----------------------------------------------------------------
-jsXML.createDOMDocument = function(strNamespaceURI, strRootTagName) {
+jsXML.createDOMDocument = function(freeThreadedIfPossible, strNamespaceURI, strRootTagName) {
 
     //variable for the created DOM Document
     var objDOM = null;
@@ -206,9 +206,20 @@ jsXML.createDOMDocument = function(strNamespaceURI, strRootTagName) {
         objDOM.addEventListener("load", _Document_onload, false);
         
     } else if (isIE) {
-    
         //create the DOM Document the IE way
-        objDOM = new ActiveXObject(STR_ACTIVEX);
+		if (freeThreadedIfPossible != null && freeThreadedIfPossible == true) {
+			try {
+				debug("Msxml2.FreeThreadedDOMDocument.3.0 proberen");
+				objDOM = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.3.0");
+				debug("Msxml2.FreeThreadedDOMDocument.3.0 lukt");				
+			}
+			catch (objException) {
+				alert("Your IE browser doesn't support an ActiveX object of the type: Msxml2.FreeThreadedDOMDocument.3.0\nPlease upgrade your browser.");
+			}
+		}
+		else {
+	        objDOM = new ActiveXObject(STR_ACTIVEX);
+		}
 
         //if there is a root tag name, we need to preload the DOM
         if (strRootTagName) {

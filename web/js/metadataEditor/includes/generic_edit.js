@@ -92,10 +92,19 @@ function changeFlag(bChange) {
 //             'me'   if(language of HTML page is VBScript
 //             'this' if(language of HTML page is JavaScript
 
-function startEdit(element, event) {
-	// return if already editing
-	if (element.childNodes[0].nodeType == 1)
-		return;
+function startEdit(event) {
+	debug("startEdit");
+	
+	var element = getTarget(event);
+	
+	// return if already editing by checking if the element has a child that is an element node
+	var checkElement;
+	for (var i = 0; i < element.childNodes.length; i++) {
+		checkElement = element.childNodes[i];
+		if (checkElement.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
+			return;
+		}
+	}
 	
 	// get current value (for checking if changed later)
 	strPreEditText = trim(getElementInnerText(element));
@@ -134,10 +143,10 @@ function startEdit(element, event) {
 			//current value
 			//pPicklist.childNodes[0].value = element.innerText;
 			
-			//for (i=0; i<pPicklist.childNodes.length; i++) {
-			for (var childIndex in pPicklist.childNodes) {
-				node = pPicklist.childNodes[childIndex];
-				if (node.nodeType == 1) {
+			//for (var i in pPicklist.childNodes) {
+			for (var i = 0; i < pPicklist.childNodes.length; i++) {
+				node = pPicklist.childNodes[i];
+				if (node.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
 					node.value = getElementInnerText(element);
 					break;
 				}
@@ -158,6 +167,7 @@ function startEdit(element, event) {
 	if (event.altKey) {
 		iRow = 4;
 		iCol = MAX_TEXTINPUT_SIZE;
+		//stopPropagation(event);
 		//debug("Alt-clicked.");
 	}
 
@@ -189,9 +199,12 @@ function startEdit(element, event) {
 		inputElement.setAttribute("size", iCol);		
 	}
 	
-	inputElement.setAttribute("onkeypress", "return checkKey(this, event);");
-	inputElement.setAttribute("onclick", "return false;");
-	inputElement.setAttribute("onBlur", "stopEdit(this);");
+	inputElement.onkeypress = checkKey;
+	if (inputElement.captureEvents) inputElement.captureEvents(Event.KEYPRESS);
+	//inputElement.setAttribute("onkeypress", "debug(\"jaja\"); return checkKey(this, event);");
+	//inputElement.setAttribute("onclick", "return false;");
+	inputElement.onblur = stopEdit;
+	//inputElement.setAttribute("onblur", "stopEdit(this);");
 
 	element.innerHTML = "";
 	element.appendChild(inputElement);
@@ -215,14 +228,16 @@ function startEdit(element, event) {
 //
 // Argument:
 //   element = the <span> element containing text to be edited.
-function stopEdit(element) {
+function stopEdit(event) {
 	// check if picklist has focus, if so don't stop editing
 	/*var pActiveElem = document.activeElement;
 	if (pActiveElem.tagName == "SELECT") {
 		return;
 	}*/
+	
+	var element = getTarget(event);
 
-	stopPropagation(element);
+	stopPropagation(event);
 
 	// get parent <span> element
 	var parentElement = getParentElement(element);
@@ -230,12 +245,17 @@ function stopEdit(element) {
 	var newValue = trim(element.value);
 	// check for changed value (from original)
 	if (strPreEditText != newValue) {
-		debug("parentElement.nodeType: " + parentElement.nodeType);
+		/*debug("parentElement.nodeType: " + parentElement.nodeType);
 		debug("parentElement.tagName: " + parentElement.tagName);		
 		debug("parentElement.innerHTML: " + parentElement.innerHTML);
 		debug("parentElement.outerHTML: " + parentElement.outerHTML);		
 		debug("parentElement.fullPath: " + parentElement.fullPath);
-		debug("parentElement.changed: " + parentElement.changed);		
+		debug("parentElement.changed: " + parentElement.changed);
+		debug(parentElement.attributes.length);
+		for (var i in parentElement.attributes) {
+			debug("parentElement.attribute: " + parentElement.attributes[i].nodeName + " = " + parentElement.attributes[i].nodeValue);
+		}*/
+		
 		
 		// user changed value attributes
 		// change class of span to 'changed_value'
@@ -246,8 +266,9 @@ function stopEdit(element) {
 		changeFlag(true);
 		
 
-		//debug("parentElement.getAttribute(fullPath): " + parentElement.getAttribute(fullPath));		
-		saveChangesInXMLDom(newValue, parentElement.getAttribute(name));		
+		debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
+		//saveChangesInXMLDom(newValue, parentElement.getAttribute(name));		
+		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);				
 	}
 
 	// is blank? user deleted value? to span default (default value)
@@ -365,10 +386,14 @@ function pickListKeyPress(element) {
 //   For "enter" key, stop editing if(in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
-function checkKey(element, keyEvent) {
-	var iKey = getKeyCode(keyEvent);
-	//if (iKey != null)
-	//	debug("Key pressed = " + iKey);
+function checkKey(event) {//element, keyEvent) {
+	debug("checkKey");
+	var element = getTarget(event);
+	var iKey = getKeyCode(event);//keyEvent);
+	if (iKey != null)
+		debug("Key pressed = " + iKey);
+	else
+		debug("no key pressed");
 	
 	//debug(element);
 

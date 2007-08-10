@@ -13,6 +13,9 @@
 					doctype-system="-//W3C//DTD XHTML 1.0 Strict//EN"
 					method="xml" omit-xml-declaration="no" indent="yes"
 					/>
+	
+	<!-- This parameter is set by the browser -->
+	<xsl:param name="basePath"/>
 				
 				
 	<!-- template library to use for making element editable -->
@@ -36,7 +39,7 @@
 
 	<xsl:template name="MD_Metadata">
 		<div id="editDocRoot" changed="false">
-		
+			<xsl:value-of select="$basePath"/>
 			<div>
 				<table id="main-menu" width="300" height="30" cellspacing="0" cellpadding="0">
 					<tr>
