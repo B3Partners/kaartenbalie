@@ -43,19 +43,6 @@
 	<xsl:variable name="MINUS_IMAGE"><xsl:value-of select="$basePath"/>images/xp_minus.gif</xsl:variable>
 	<xsl:variable name="MENU_IMAGE"><xsl:value-of select="$basePath"/>images/arrow.gif</xsl:variable>
 	
-	<!-- TODO: !!!!!!!!!!!!!! Tijdelijke oplossing !!!!!!!!!!!!!!!!! -->
-	<!--
-	<xsl:variable name="PLUS_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/xp_plus.gif</xsl:variable>
-	<xsl:variable name="MINUS_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/xp_minus.gif</xsl:variable>
-	<xsl:variable name="MENU_IMAGE">http://localhost:8084/kaartenbalie_mnp/js/metadataEditor/images/arrow.gif</xsl:variable>
-	-->
-	
-	<!--
-	<xsl:variable name="PLUS_IMAGE">images/xp_plus.gif</xsl:variable>
-	<xsl:variable name="MINUS_IMAGE">images/xp_minus.gif</xsl:variable>
-	<xsl:variable name="MENU_IMAGE">images/arrow.gif</xsl:variable>
-	-->
-	
 	<xsl:variable name="MENU_TOOLTIP">Klik om opties te zien</xsl:variable>
 	
 	

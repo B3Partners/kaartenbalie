@@ -41,34 +41,24 @@ XML.Transformer.prototype.transform = function(node, element) {
 		element = document.getElementById(element);
 		//debug("na: " + element);
 	}
-	//debug(element);
 	if ("transformToFragment" in this.processor) {
-		// If we've created an XSLTProcessor (i.e., we're in Mozilla) use it.
-		// Transform the node into a DOM DocumentFragment.
 		var fragment = this.processor.transformToFragment(node, document);
-		//debug(fragment.xml);
-		// Erase the existing content of element.
 		element.innerHTML = "";
-		// And insert the transformed nodes.
 		element.appendChild(fragment);
 	}
 	else if ("transform" in this.processor) {
-		debug("ie met parameters");
 		this.processor.input = node;
 		this.processor.transform();		
-		element.innerHTML = node.transformNode(this.stylesheet);			
+		element.innerHTML = this.processor.output;
 	}
+	/*
+	// oude IE methode: 
 	else if ("transformNode" in node) {
-		debug("ie zonder parameters");		
-		// If the node has a transformNode() function (in IE), use that.
-		// Note that transformNode() returns a string.
-		//debug(node);
 		fragmentText = node.transformNode(this.stylesheet);
-		//debug(fragmentText);
 		element.innerHTML = fragmentText;
 	}
+	*/
 	else {
-		// Otherwise, we're out of luck.
 		throw "XSLT is not supported in this browser";
 	}
 };
