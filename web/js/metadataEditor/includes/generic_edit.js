@@ -386,10 +386,10 @@ function pickListKeyPress(element) {
 //   For "enter" key, stop editing if(in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
-function checkKey(event) {//element, keyEvent) {
+function checkKey(event) {
 	debug("checkKey");
 	var element = getTarget(event);
-	var iKey = getKeyCode(event);//keyEvent);
+	var iKey = getKeyCode(event);
 	if (iKey != null)
 		debug("Key pressed = " + iKey);
 	else
@@ -1071,7 +1071,7 @@ function createSection(strAddName) {
 //
 // Arguments:
 //   text = text string to check && reformat
-function checkText(text){
+function checkText(text) {
 	// do replacements
 
 	//text = replace(text,"+","&#38");

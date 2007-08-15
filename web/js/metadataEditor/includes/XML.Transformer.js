@@ -8,10 +8,7 @@ function XML() { }
 */
 XML.Transformer = function(stylesheet) {
 	// Load the stylesheet if necessary.
-	//if (typeof stylesheet == "string") stylesheet = XML.load(stylesheet);
 	this.stylesheet = stylesheet;
-	// In Mozilla-based browsers, create an XSLTProcessor object and
-	// tell it about the stylesheet.
 	if (typeof XSLTProcessor != "undefined") {
 		this.processor = new XSLTProcessor();
 		this.processor.importStylesheet(this.stylesheet);

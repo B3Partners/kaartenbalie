@@ -14,9 +14,9 @@
 		/* <![CDATA[ */
 			var debugMode = true;
 			
-			var metadataId = "<c:out value="${metadataForm.map.id}"/>";
-			var metadataName = "<c:out value="${metadataForm.map.name}"/>";
-			var metadataXML = "<c:out value="${metadataForm.map.xml}" escapeXml="true"/>";
+			var layerId = "<c:out value="${metadataForm.map.id}"/>";
+			var layerName = "<c:out value="${metadataForm.map.name}"/>";
+			var metadataXML = "<c:out value="${metadataForm.map.metadata}" escapeXml="true"/>";
 			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
 			var basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";			
@@ -40,7 +40,7 @@
 		<%-- hier hebben we unescapeHTML uit nodig --%>
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
 
-		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css.jsp' module='' />" />
+		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css' module='' />" />
 
 	</head>
 
@@ -49,9 +49,6 @@
 		<html:form action="/metadata" onsubmit="checkForm(this); return false;">
 			<html:hidden property="id" />
 			<html:hidden property="name" />
-			<%--
-			<html:hidden property="xml" />
-			--%>
 
 			<html:button property="save" value="Save" onclick="checkForm(this);"/> 
 

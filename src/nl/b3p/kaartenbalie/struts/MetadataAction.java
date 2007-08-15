@@ -35,13 +35,12 @@ import org.json.JSONObject;
 
 public class MetadataAction extends KaartenbalieCrudAction {
     
-    private final static String SUCCESS = "success";
-    private final static String SUCCESSFULL = "successfull";
-    private static final Log log = LogFactory.getLog(MetadataAction.class);
-    
-    
+	// naamgeving beter regelen
+    //private final static String SUCCESS = "success";
+    private final static String SUCCESSFUL = "successfull";
+    private final static Log log = LogFactory.getLog(MetadataAction.class);
+	
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
         JSONObject root = this.createTree();
         request.setAttribute("layerList", root);
         return mapping.findForward(SUCCESS);
@@ -57,20 +56,35 @@ public class MetadataAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String layerid = (String)dynaForm.get("id");
-        Integer id = new Integer(Integer.parseInt(layerid.substring(0, layerid.indexOf("_"))));
+        String layerId = (String)dynaForm.get("id");
+		Layer layer = getLayerByLayerId(layerId);
+        populateMetadataEditorForm(layer, dynaForm, request);
+        return mapping.findForward(SUCCESSFUL);
+    }
+    // </editor-fold>
+	
+    /*public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String layerId = (String)dynaForm.get("id");
+		String metadata = (String)dynaForm.get("metadata");
+		
+		Layer layer = getLayerByLayerId(layerId);
+		layer.setMetaData(metadata);
+		getHibernateSession().update(layer);
+
+        return mapping.findForward(SAVE);
+    }*/
+	
+	private Layer getLayerByLayerId(String layerId) {
+        Integer id = new Integer(Integer.parseInt(layerId.substring(0, layerId.indexOf("_"))));
         
         Layer layer = (Layer)getHibernateSession().createQuery(
                     "from Layer l where " +
                     "(l.id) = lower(:id) ")
                 .setParameter("id", id)
                 .uniqueResult();
-
-        populateMetadataEditorForm(layer, dynaForm, request);
-        return mapping.findForward(SUCCESSFULL);
-    }
-    // </editor-fold>
-    
+		
+		return layer;
+	}
     
     /* Method which will fill the JSP form with the data of  a given organization.
      *
@@ -82,46 +96,15 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getName());
-		//String xml = layer.getMetaData();
-		String xml = getTestMetadata();		
-        dynaForm.set("xml", xml);
+		String metadata = layer.getMetaData();
+		if (metadata != null) {
+			metadata = metadata.replace('\n', ' ');
+			metadata = metadata.replace('\r', ' ');
+		}
+        dynaForm.set("metadata", metadata);
     }
     // </editor-fold>
 	
-	//tijdelijke test methodes:
-	private String getTestMetadata() {
-		String metadata = "";
-		try {
-			BufferedReader br = new BufferedReader(new FileReader("c:/dev_erik/kaartenbalie/web/js/metadataEditor/ex3.xml"));
-			String line;
-			while ((line = br.readLine()) != null) {
-				metadata += line;
-			}
-		}
-		catch (FileNotFoundException ex) {
-			ex.printStackTrace();
-		}
-		catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		return metadata;
-	}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *

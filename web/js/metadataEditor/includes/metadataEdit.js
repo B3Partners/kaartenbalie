@@ -34,7 +34,6 @@ function initWithXmlString() {
 	var xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", basePath);
 	xmlTransformer.transform(xmlDoc, "writeroot");
-	//XML.transform(xmlDoc, xslDoc, "writeroot");
 	
 	xmlDocInit();
 }
@@ -91,7 +90,7 @@ function checkForm(source) {
 		//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
 		var xmlHiddenInput = document.createElement("input");
 		xmlHiddenInput.setAttribute("type", "hidden");
-		xmlHiddenInput.setAttribute("name", "xml");
+		xmlHiddenInput.setAttribute("name", "metadata");
 		xmlHiddenInput.setAttribute("value", xmlDoc.xml);	
 		var form = document.getElementById("metadataForm");
 		form.appendChild(xmlHiddenInput);

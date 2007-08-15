@@ -39,7 +39,6 @@
 
 	<xsl:template name="MD_Metadata">
 		<div id="editDocRoot" changed="false">
-			basePath: "<xsl:value-of select="$basePath"/>"
 			<div>
 				<table id="main-menu" width="300" height="30" cellspacing="0" cellpadding="0">
 					<tr>
