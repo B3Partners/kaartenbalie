@@ -36,8 +36,6 @@ import org.json.JSONObject;
 
 public class MetadataAction extends KaartenbalieCrudAction {
     
-	// naamgeving beter regelen
-    private final static String METADATAEDIT_SUCCESSFUL = "successfull";
     private final static Log log = LogFactory.getLog(MetadataAction.class);
 	
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -55,7 +53,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         Integer id = new Integer(Integer.parseInt(layerIdAndName.substring(0, layerIdAndName.indexOf("_"))));
 		Layer layer = getLayerByLayerId(id);
         populateMetadataEditorForm(layer, dynaForm, request);
-        return mapping.findForward(METADATAEDIT_SUCCESSFUL);
+        return mapping.findForward(SUCCESS);
     }
 	
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {

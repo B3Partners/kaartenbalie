@@ -98,7 +98,7 @@ function changeFlag(bChange) {
 //             'this' if(language of HTML page is JavaScript
 
 function startEdit(event) {
-	debug("startEdit");
+	//debug("startEdit");
 	
 	var element = getTarget(event);
 	
@@ -258,7 +258,7 @@ function stopEdit(event) {
 		//page changed attribute;
 		changeFlag(true);
 		
-		debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
+		//debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
 		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);				
 	}
 
@@ -378,13 +378,13 @@ function pickListKeyPress(element) {
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
 function checkKey(event) {
-	debug("checkKey");
+	//debug("checkKey");
 	var element = getTarget(event);
 	var iKey = getKeyCode(event);
-	if (iKey != null)
+	/*if (iKey != null)
 		debug("Key pressed = " + iKey);
 	else
-		debug("no key pressed");
+		debug("no key pressed");*/
 	
 	//debug(element);
 

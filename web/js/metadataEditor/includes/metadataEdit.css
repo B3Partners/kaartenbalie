@@ -215,14 +215,16 @@ ul.menu li {
 .single_Belement {
 	font-weight: bold;
 	margin-left: 0px;
+	line-height: 200%;
 	/*text-indent: 0px;*/
 }
 
 .single_Melement {
 	font-weight: bold;
-	color: #EE0000;
 	margin-left: 0px;
+	line-height: 200%;
 	/*text-indent: 0px;*/
+	color: #EE0000;
 }
 
 .section_title {
@@ -368,6 +370,7 @@ input.element {
 	border: 2px solid #b0c900; 
 	position: relative;
 	top: 0px;
+	line-height: 150%;
 }
 
 .tab-selected {

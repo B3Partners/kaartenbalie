@@ -74,7 +74,7 @@
 			</xsl:choose>
 		</xsl:variable>
 		
-		<div class="{$class}">
+		<p class="{$class}">
 			<xsl:if test="$element_title != ''">
 				<xsl:value-of select="$element_title"/>:
 			</xsl:if>
@@ -95,15 +95,13 @@
 				</xsl:if>
 				<xsl:choose>
 					<!-- check of de inhoud van $element_path leeg is -->
-					<xsl:when test="normalize-space($element_path)">
+					<xsl:when test="string($nodeValue) != null && normalize-space($element_path)">
 						<xsl:attribute name="class">unchanged_value</xsl:attribute>
 						<xsl:attribute name="changed">false</xsl:attribute>
 						
 						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
 						<xsl:value-of select="$element_path"/>
 						<!--<xsl:apply-templates select=".//"/> -->
-						
-						
 						
 					</xsl:when>
 					<xsl:otherwise>
@@ -121,7 +119,7 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:element>
-		</div>
+		</p>
 
 	</xsl:template>
 	

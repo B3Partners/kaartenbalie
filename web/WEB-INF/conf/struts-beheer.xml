@@ -96,7 +96,7 @@
             <forward name="failure" path="base.beheer.metadata"/>
         </action>
         <action path="/editmetadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
-            <forward name="successfull" path="base.beheer.editmetadata"/>
+            <forward name="success" path="base.beheer.editmetadata"/>
             <forward name="failure" path="base.beheer.editmetadata"/>
         </action>
 

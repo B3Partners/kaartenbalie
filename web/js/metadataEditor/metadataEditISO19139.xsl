@@ -15,7 +15,7 @@
 					/>
 	
 	<!-- This parameter must be set by the browser -->
-	<xsl:param name="basePath">default</xsl:param>
+	<xsl:param name="basePath"/>
 				
 				
 	<!-- template library to use for making element editable -->
@@ -64,7 +64,11 @@
 
 	<xsl:template name="overzicht-tab">
 		<div id="overzicht" class="tab-definition" style="display:block">
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language"/>			
+			<xsl:call-template name="createElement">
+				<xsl:with-param name="title">Metadata taal</xsl:with-param>
+				<xsl:with-param name="path">/gmd:MD_Metadata/gmd:language</xsl:with-param>
+			</xsl:call-template>
+			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language"/>			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet"/>
 			
 			<xsl:call-template name="metadataVerantwoordelijkeOrganisatie"/>
@@ -83,10 +87,10 @@
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:status"/>
 			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:descriptiveKeywords//gmd:keyword"/>			
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:useLimitation"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:useLimitation"/>-->
 			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:accessConstraints"/>-->
 			
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode"/>
+			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:language"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:characterSet"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:topicCategory"/>
@@ -95,7 +99,7 @@
 			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:scope//gmd:level"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:DQ_QuantitativeResult//gmd:value"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:lineage//gmd:statement"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:lineage//gmd:statement"/>-->
 
 		</div>
 	</xsl:template>
@@ -110,6 +114,24 @@
 		<div id="specificaties" class="tab-definition" style="display:block">
 
 		</div>
+	</xsl:template>
+	
+	<xsl:template name="createElement">
+		<xsl:param name="title"/>
+		<xsl:param name="path"/>
+		<xsl:variable name="nodeValue">
+			<xsl:value-of select="$path"/>
+		</xsl:variable>
+		<xsl:choose>
+			<xsl:when test="$nodeValue != null">
+				<xsl:apply-templates select="$path"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="edit_element">
+					<xsl:with-param name="element_title" select="$title"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
 	
@@ -127,6 +149,12 @@
 			In de huidige implementatie ga ik er van uit dat de de ISO nummers niet worden hergebruikt.
 			De titel is namelijk specifiek.
 	-->
+	
+	<xsl:template match="node()">
+		<xsl:call-template name="edit_element">
+			<xsl:with-param name="element_title" select="$title"/>
+		</xsl:call-template>
+	</xsl:template>
 	
 	<!-- ISO nr. 3 -->
 	<xsl:template match="gmd:MD_Metadata/gmd:language">

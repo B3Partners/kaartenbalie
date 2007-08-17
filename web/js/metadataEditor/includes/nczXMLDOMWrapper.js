@@ -209,12 +209,12 @@ jsXML.createDOMDocument = function(freeThreadedIfPossible, strNamespaceURI, strR
         //create the DOM Document the IE way
 		if (freeThreadedIfPossible != null && freeThreadedIfPossible == true) {
 			try {
-				debug("Msxml2.FreeThreadedDOMDocument.3.0 proberen");
+				//debug("Msxml2.FreeThreadedDOMDocument.3.0 proberen");
 				objDOM = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.3.0");
-				debug("Msxml2.FreeThreadedDOMDocument.3.0 lukt");				
+				//debug("Msxml2.FreeThreadedDOMDocument.3.0 lukt");				
 			}
 			catch (objException) {
-				alert("Your IE browser doesn't support an ActiveX object of the type: Msxml2.FreeThreadedDOMDocument.3.0\nPlease upgrade your browser.");
+				alert("Your IE browser doesn't support an ActiveX object of the type: Msxml2.FreeThreadedDOMDocument.3.0\nPlease upgrade your browser to the latest version.");
 			}
 		}
 		else {
