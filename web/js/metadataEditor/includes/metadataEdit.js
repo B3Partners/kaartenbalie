@@ -39,7 +39,7 @@ function initWithXmlString() {
 }
 
 function saveChangesInXMLDom(newValue, path) {
-	//debug("saveChangesInXMLDom");
+	debug("saveChangesInXMLDom");
 
 	var pathArray = path.split("/");
 	var targetNode;
@@ -75,7 +75,7 @@ function getChildNode(root, parent, childTag) {
 	for (var i = 0; i < children.length; i++) {
 		child = children[i];
 		if (child.nodeType == 1 && child.tagName == childTag) {
-			//debug("child: " + child.nodeName);
+			debug("child: " + child.nodeName);
 			return child;
 		}
 	}
@@ -86,14 +86,15 @@ function getChildNode(root, parent, childTag) {
 
 function checkForm(source) {
 	var sourceName = source.getAttribute("name");
-	if (sourceName != "" && sourceName == "save") {
+	if (sourceName != null && sourceName == "save") {
 		//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
 		var xmlHiddenInput = document.createElement("input");
 		xmlHiddenInput.setAttribute("type", "hidden");
+		xmlHiddenInput.setAttribute("value", xmlDoc.xml.escapeHTML());	
 		xmlHiddenInput.setAttribute("name", "metadata");
-		xmlHiddenInput.setAttribute("value", xmlDoc.xml);	
 		var form = document.getElementById("metadataForm");
 		form.appendChild(xmlHiddenInput);
 		form.submit();
+		//self.close();
 	}
 }

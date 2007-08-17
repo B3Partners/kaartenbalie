@@ -8,15 +8,13 @@
 <html:html xhtml="true">
 	<head>
 
-		<title>Metadata Editor</title>
-
 		<script type="text/javascript">
 		/* <![CDATA[ */
 			var debugMode = true;
 			
 			var layerId = "<c:out value="${metadataForm.map.id}"/>";
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";
-			var metadataXML = "<c:out value="${metadataForm.map.metadata}" escapeXml="true"/>";
+			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
 			var basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";			
@@ -27,6 +25,8 @@
 		/* ]]> */
 		</script>	
 
+		<title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
+
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
@@ -36,9 +36,8 @@
 
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
-
-		<%-- hier hebben we unescapeHTML uit nodig --%>
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
+		
+		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
 
 		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css' module='' />" />
 
@@ -49,8 +48,9 @@
 		<html:form action="/metadata" onsubmit="checkForm(this); return false;">
 			<html:hidden property="id" />
 			<html:hidden property="name" />
+			<html:hidden property="save" value="val"/>			
 
-			<html:button property="save" value="Save" onclick="checkForm(this);"/> 
+			<html:submit property="save" value="Save" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 
 			<div id="writeroot"></div>
 

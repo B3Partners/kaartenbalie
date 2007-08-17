@@ -63,8 +63,7 @@
             <!-- user form fields-->
             <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="name" type="java.lang.String"/>            
-            <form-property name="xml" type="java.lang.String"/>
-            <form-property name="xsl" type="java.lang.String"/>			
+            <form-property name="metadata" type="java.lang.String"/>
         </form-bean>
     </form-beans>
     

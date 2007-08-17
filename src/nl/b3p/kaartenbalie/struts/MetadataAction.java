@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Layer;
 import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
@@ -36,47 +37,41 @@ import org.json.JSONObject;
 public class MetadataAction extends KaartenbalieCrudAction {
     
 	// naamgeving beter regelen
-    //private final static String SUCCESS = "success";
-    private final static String SUCCESSFUL = "successfull";
+    private final static String METADATAEDIT_SUCCESSFUL = "successfull";
     private final static Log log = LogFactory.getLog(MetadataAction.class);
 	
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        JSONObject root = this.createTree();
-        request.setAttribute("layerList", root);
+		showLayerTree(request);
         return mapping.findForward(SUCCESS);
     }
-    // </editor-fold>
-    
-    /* Creates a list with the available layers.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     *
-     * @throws HibernateException, JSONException, Exception
-     */
-    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
-    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String layerId = (String)dynaForm.get("id");
-		Layer layer = getLayerByLayerId(layerId);
-        populateMetadataEditorForm(layer, dynaForm, request);
-        return mapping.findForward(SUCCESSFUL);
-    }
-    // </editor-fold>
 	
-    /*public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String layerId = (String)dynaForm.get("id");
-		String metadata = (String)dynaForm.get("metadata");
+	private void showLayerTree(HttpServletRequest request) throws Exception {
+        JSONObject root = this.createTree();
+        request.setAttribute("layerList", root);
+	}
+	
+    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String layerIdAndName = (String)dynaForm.get("id");
+        Integer id = new Integer(Integer.parseInt(layerIdAndName.substring(0, layerIdAndName.indexOf("_"))));
+		Layer layer = getLayerByLayerId(id);
+        populateMetadataEditorForm(layer, dynaForm, request);
+        return mapping.findForward(METADATAEDIT_SUCCESSFUL);
+    }
+	
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Integer id = new Integer(Integer.parseInt((String)dynaForm.get("id")));
+		String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
 		
-		Layer layer = getLayerByLayerId(layerId);
+		Layer layer = getLayerByLayerId(id);
 		layer.setMetaData(metadata);
 		getHibernateSession().update(layer);
+		
+		showLayerTree(request);
 
-        return mapping.findForward(SAVE);
-    }*/
+        return getDefaultForward(mapping, request);
+    }
 	
-	private Layer getLayerByLayerId(String layerId) {
-        Integer id = new Integer(Integer.parseInt(layerId.substring(0, layerId.indexOf("_"))));
-        
+	private Layer getLayerByLayerId(Integer id) {
         Layer layer = (Layer)getHibernateSession().createQuery(
                     "from Layer l where " +
                     "(l.id) = lower(:id) ")
@@ -86,25 +81,17 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		return layer;
 	}
     
-    /* Method which will fill the JSP form with the data of  a given organization.
-     *
-     * @param organization Organization object from which the information has to be printed.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     */
-    // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getName());
-		String metadata = layer.getMetaData();
+		String metadata = (String)layer.getMetaData();
 		if (metadata != null) {
-			metadata = metadata.replace('\n', ' ');
-			metadata = metadata.replace('\r', ' ');
+			// remove all newline and return characters using RegEx
+			metadata = metadata.replaceAll("[\\n\\r]+", "");
 		}
+		String escapedMetadata = StringEscapeUtils.escapeXml(metadata);
         dynaForm.set("metadata", metadata);
     }
-    // </editor-fold>
-	
     
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *

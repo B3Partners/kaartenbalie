@@ -49,8 +49,10 @@ var strPreEditText; // text held by SPAN before editing
 // Helper functions
 // ================
 function trim(value) {
-	value = value.replace(/^\s+/, "");
-	value = value.replace(/\s+$/, "");
+	if (value != null && value != "") {
+		value = value.replace(/^\s+/, "");
+		value = value.replace(/\s+$/, "");
+	}
 	return value;
 }
 
@@ -70,6 +72,9 @@ function trim(value) {
 function changeFlag(bChange) {
 	var root = document.getElementById("editDocRoot");
 	if (bChange) {
+		document.getElementById("saveButton").disabled = false;
+		if (document.title.substring(document.title.length - 1) != "*")
+			document.title += "*";
 		//the body's 'changed' attribute to 'true'
 		root.changed = "true";
 		//document.all.changeFlag.innerHTML = "<font color='red'>Unsaved changes</font>"
@@ -245,18 +250,6 @@ function stopEdit(event) {
 	var newValue = trim(element.value);
 	// check for changed value (from original)
 	if (strPreEditText != newValue) {
-		/*debug("parentElement.nodeType: " + parentElement.nodeType);
-		debug("parentElement.tagName: " + parentElement.tagName);		
-		debug("parentElement.innerHTML: " + parentElement.innerHTML);
-		debug("parentElement.outerHTML: " + parentElement.outerHTML);		
-		debug("parentElement.fullPath: " + parentElement.fullPath);
-		debug("parentElement.changed: " + parentElement.changed);
-		debug(parentElement.attributes.length);
-		for (var i in parentElement.attributes) {
-			debug("parentElement.attribute: " + parentElement.attributes[i].nodeName + " = " + parentElement.attributes[i].nodeValue);
-		}*/
-		
-		
 		// user changed value attributes
 		// change class of span to 'changed_value'
 		parentElement.className = "changed_value";
@@ -265,9 +258,7 @@ function stopEdit(event) {
 		//page changed attribute;
 		changeFlag(true);
 		
-
 		debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
-		//saveChangesInXMLDom(newValue, parentElement.getAttribute(name));		
 		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);				
 	}
 

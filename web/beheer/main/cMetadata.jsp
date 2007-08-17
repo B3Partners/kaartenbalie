@@ -18,12 +18,13 @@
 
 
 <script type="text/javascript">
-    //function popUp(url) {
-    function popUp() {
-	window.location = 'editmetadata.do?edit=submit&id=17_iets';
-	//window.location = url;
-	//dit wil IE7 niet:
+    function popUp(url) {
+		//voor debuggen:
+		window.location = url;
+		//dit wil IE7 niet: //IE7 heeft problemen met de title
         //window.open(url, 'Metadata Editor');
+		//dit wel?:
+		//window.open(url, "", "directories=0, location=0, menubar=0, status=0, toolbar=0, resizable=1, scrollbars=1");
         return false;
     }    
     
@@ -42,10 +43,9 @@
             if(item.type != "serviceprovider") {
                 var popupLink = document.createElement("a");
                 popupLink.onclick = function() {
-		    newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
-		    //alert(newUrl);
-                    //popUp(newUrl);
-		    popUp();
+					newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
+					//alert(newUrl);
+					popUp(newUrl);
                 }
                 popupLink.innerHTML = item.name;
                 popupLink.href='#';
