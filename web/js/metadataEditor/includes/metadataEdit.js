@@ -39,7 +39,7 @@ function initWithXmlString() {
 }
 
 function saveChangesInXMLDom(newValue, path) {
-	debug("saveChangesInXMLDom");
+	//debug("saveChangesInXMLDom");
 
 	var pathArray = path.split("/");
 	var targetNode;
@@ -55,16 +55,23 @@ function saveChangesInXMLDom(newValue, path) {
 		var textNode = xmlDoc.createTextNode(newValue);
 		targetNode.appendChild(textNode);
 		
-		debug("Saved changes in xml dom succesfully.");
+		//debug("Saved changes in xml dom succesfully.");
 	}
 	else {
-		alert("Save path in XML document not found. Changes are not saved.");
+		alert("Save path in XML document not found. Changes will not be saved.");
 	}
 }
 
-function getChildNode(root, parent, childTag) {
+function getChildNode(root, parent, rawChildTag) {
 	if (parent == null)
 		parent = root;
+	
+	var childAndIndex = rawChildTag.split(/[\[\]]+/);
+	var childTag = childAndIndex[0];
+	if (childAndIndex.length > 1)
+		var childIndex = childAndIndex[1];
+	else
+		var childIndex = 1;
 		
 	var children = parent.childNodes;
 	if (children == null) {
@@ -72,11 +79,15 @@ function getChildNode(root, parent, childTag) {
 	}
 	
 	var child;
+	var correctChildCount = 0;
 	for (var i = 0; i < children.length; i++) {
 		child = children[i];
 		if (child.nodeType == 1 && child.tagName == childTag) {
-			debug("child: " + child.nodeName);
-			return child;
+			correctChildCount++;
+			if (correctChildCount == childIndex) {
+				//debug("child: " + child.nodeName);
+				return child;
+			}
 		}
 	}
 	

@@ -35,13 +35,26 @@
 	<!-- Description: returns the full XPath for passed node-set -->
 	<!-- From: http://www.dpawson.co.uk/xsl/sect2/N6077.html -->
 	<!-- modified by Eric Compas, 1/25/2005 to make a callable template -->
-	<xsl:template name="full_path">
+	<xsl:template name="full_path_old">
 	  <xsl:for-each select="ancestor-or-self::*">
-		<xsl:value-of select="name()" />
+		<xsl:value-of select="name()"/>
 		<xsl:if test="position()!=last()">
 			<xsl:text>/</xsl:text>
 		</xsl:if>
 	  </xsl:for-each>
+	</xsl:template>
+	
+	<xsl:template name="full-path">
+		<xsl:for-each select="ancestor-or-self::*">
+			<xsl:text>/</xsl:text>
+			<xsl:value-of select="name()"/>
+			<xsl:variable name="precedingSiblingsWithSameNodeName" select="count(preceding-sibling::*[name(current()) = name(.)])"/>
+			<xsl:if test="$precedingSiblingsWithSameNodeName > 0">
+				<xsl:text>[</xsl:text>
+					<xsl:value-of select="1 + $precedingSiblingsWithSameNodeName"/>
+				<xsl:text>]</xsl:text>
+			</xsl:if>
+		</xsl:for-each>
 	</xsl:template>
 	
 

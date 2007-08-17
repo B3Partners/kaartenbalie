@@ -81,7 +81,7 @@
 			<xsl:element name="span">
 				<xsl:attribute name="fullPath">
 					<!-- <xsl:call-template name="dynamic_path"> -->
-					<xsl:call-template name="full_path">					
+					<xsl:call-template name="full-path">					
 						<xsl:with-param name="theParmNodes" select="$element_path"/>
 					</xsl:call-template>
 				</xsl:attribute>
