@@ -8,20 +8,21 @@
 					exclude-result-prefixes="gco gmd"
 					>
 
+	<!-- This parameter must be set by the browser -->
+	<xsl:param name="basePath"/>
+
+	<!-- template library to use for making element editable -->
+	<xsl:include href="includes/editableElements.xsl"/>
+	<!-- template library to use for showing basic types of ISO 19139 -->
+	<xsl:include href="includes/editableBasicTypes.xsl"/>
+
 	<xsl:output	
 					doctype-public="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
 					doctype-system="-//W3C//DTD XHTML 1.0 Strict//EN"
 					method="xml" omit-xml-declaration="no" indent="yes"
 					/>
 	
-	<!-- This parameter must be set by the browser -->
-	<xsl:param name="basePath"/>
 				
-				
-	<!-- template library to use for making element editable -->
-	<xsl:include href="includes/editableElements.xsl"/>
-	<!-- template library to use for showing basic types of ISO 19139 -->
-	<xsl:include href="includes/editableBasicTypes.xsl"/>
 				
 
 	<!--
@@ -64,11 +65,20 @@
 
 	<xsl:template name="overzicht-tab">
 		<div id="overzicht" class="tab-definition" style="display:block">
-			<xsl:call-template name="createElement">
-				<xsl:with-param name="title">Metadata taal</xsl:with-param>
-				<xsl:with-param name="path">/gmd:MD_Metadata/gmd:language</xsl:with-param>
-			</xsl:call-template>
-			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language"/>			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
+			<xsl:variable name="language">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$language = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Metadata taal</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/language/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+			
+			<!--		
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet"/>
 			
 			<xsl:call-template name="metadataVerantwoordelijkeOrganisatie"/>
@@ -116,24 +126,7 @@
 		</div>
 	</xsl:template>
 	
-	<xsl:template name="createElement">
-		<xsl:param name="title"/>
-		<xsl:param name="path"/>
-		<xsl:variable name="nodeValue">
-			<xsl:value-of select="$path"/>
-		</xsl:variable>
-		<xsl:choose>
-			<xsl:when test="$nodeValue != null">
-				<xsl:apply-templates select="$path"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:call-template name="edit_element">
-					<xsl:with-param name="element_title" select="$title"/>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-	
+
 	
 
 	<!-- ============ -->
@@ -150,108 +143,102 @@
 			De titel is namelijk specifiek.
 	-->
 	
-	<xsl:template match="node()">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title" select="$title"/>
-		</xsl:call-template>
-	</xsl:template>
-	
 	<!-- ISO nr. 3 -->
-	<xsl:template match="gmd:MD_Metadata/gmd:language">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Metadata taal</xsl:with-param>
+	<xsl:template match="gmd:MD_Metadata/gmd:language/gco:CharacterString">
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Metadata taal</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 4 -->
 	<xsl:template match="gmd:MD_Metadata/gmd:characterSet">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Metadata karakterset</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Metadata karakterset</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 9 -->
 	<xsl:template match="gmd:MD_Metadata/gmd:dateStamp">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Metadata wijzigingsdatum</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Metadata wijzigingsdatum</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 10 -->
 	<xsl:template match="gmd:metadataStandardName">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Naam metadata standaard</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Naam metadata standaard</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 11 -->
 	<xsl:template match="gmd:metadataStandardVersion">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Versie metadata standaard</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Versie metadata standaard</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 25 -->
 	<xsl:template match="gmd:abstract">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Samenvatting</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Samenvatting</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 28 -->
 	<xsl:template match="gmd:status">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Status</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Status</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr.37 -->
 	<xsl:template match="gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Ruimtelijk schema</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Ruimtelijk schema</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 39 -->
 	<xsl:template match="gmd:identificationInfo//gmd:language">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Dataset taal</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Dataset taal</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 40 -->
 	<xsl:template match="gmd:identificationInfo//gmd:characterSet">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Dataset karakterset</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Dataset karakterset</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 41 -->
 	<xsl:template match="gmd:identificationInfo//gmd:topicCategory">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Thema's</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Thema's</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 53 -->
 	<!-- TODO: meerdere trefwoorden netjes weergeven -->
 	<xsl:template match="gmd:keyword">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Trefwoorden</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Trefwoorden</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 68 -->
 	<xsl:template match="gmd:useLimitation">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Gebruiksbeperkingen</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Gebruiksbeperkingen</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 70  bestaat niet??????-->
 	<xsl:template match="gmd:accessConstraints">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">(Juridische) toegangsrestricties</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">(Juridische) toegangsrestricties</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
@@ -266,13 +253,13 @@
 				<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>-->
 			</div>
 		</div>
-		<xsl:call-template name="get-br"/>		
+		<xsl:call-template name="br"/>		
 	</xsl:template>
 
 	<!-- ISO nr. 207 -->
 	<xsl:template match="gmd:code">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Code referentiesysteem</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Code referentiesysteem</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
@@ -294,41 +281,41 @@
 				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:role"/>		
 			</div>
 		</div>
-		<xsl:call-template name="get-br"/>		
+		<xsl:call-template name="br"/>		
 	</xsl:template>
 
 	<!-- ISO nr. 360 -->
 	<xsl:template match="gmd:title">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Dataset titel</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Dataset titel</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 376 -->
 	<xsl:template match="gmd:organisationName">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Naam organisatie metadata</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Naam organisatie metadata</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 379 -->
 	<xsl:template match="gmd:role">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Rol organisatie metadata</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Rol organisatie metadata</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 362/394 -->
 	<xsl:template match="gmd:date">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Dataset referentie datum</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Dataset referentie datum</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 397 -->
 	<xsl:template match="gmd:linkage">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">URL metadata organisatie</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">URL metadata organisatie</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
@@ -342,29 +329,29 @@
 			
 			</div>
 		</div>
-		<xsl:call-template name="get-br"/>
+		<xsl:call-template name="br"/>
 	</xsl:template>
 
 	<!-- ISO nr. 139 -->
 	<xsl:template match="gmd:level">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Data kwaliteitsniveau</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Data kwaliteitsniveau</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 137 -->
 	<xsl:template match="gmd:DQ_QuantitativeResult//gmd:value">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Geometrische nauwkeurigheid</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Geometrische nauwkeurigheid</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 83 -->
 	<xsl:template match="gmd:lineage//gmd:statement">
-		<xsl:call-template name="edit_element">
-			<xsl:with-param name="element_title">Geometrische nauwkeurigheid</xsl:with-param>
+		<xsl:call-template name="element">
+			<xsl:with-param name="title">Geometrische nauwkeurigheid</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
-
+	
 
 </xsl:stylesheet>
