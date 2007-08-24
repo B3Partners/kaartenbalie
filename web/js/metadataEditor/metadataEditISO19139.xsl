@@ -14,7 +14,7 @@
 	<!-- template library to use for making element editable -->
 	<xsl:include href="includes/editableElements.xsl"/>
 	<!-- template library to use for showing basic types of ISO 19139 -->
-	<xsl:include href="includes/editableBasicTypes.xsl"/>
+	<!--<xsl:include href="includes/editableBasicTypes.xsl"/>-->
 
 	<xsl:output	
 					doctype-public="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
@@ -65,10 +65,14 @@
 
 	<xsl:template name="overzicht-tab">
 		<div id="overzicht" class="tab-definition" style="display:block">
+		
+			<!-- try to apply template -->
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
+			<!-- store result of template in variable (this will contain only text (no nodes/tags) or is empty) -->
 			<xsl:variable name="language">
 				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
 			</xsl:variable>
+			<!-- if the template is not succesfully applied, make an empty entry for the user to be edited -->
 			<xsl:if test="$language = '' ">
 				<xsl:call-template name="element">
 					<xsl:with-param name="title">Metadata taal</xsl:with-param>
@@ -77,10 +81,214 @@
 					<xsl:with-param name="force-default" select="'true'"/>
 				</xsl:call-template>
 			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet/gco:CharacterString"/>
+			<xsl:variable name="characterSet">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$characterSet = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Metadata karakterset</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/characterSet/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:characterSet/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dateStamp/gco:Date"/>
+			<xsl:variable name="dateStamp">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dateStamp/gco:Date"/>
+			</xsl:variable>
+			<xsl:if test="$dateStamp = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Metadata wijzigingsdatum</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/dateStamp/gco:Date</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:dateStamp/gco:Date"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardName/gco:CharacterString"/>
+			<xsl:variable name="metadataStandardName">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardName/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$metadataStandardName = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Naam metadata standaard</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/metadataStandardName/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:metadataStandardName/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardVersion/gco:CharacterString"/>
+			<xsl:variable name="metadataStandardVersion">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardVersion/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$metadataStandardVersion = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Versie metadata standaard</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/metadataStandardVersion/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:metadataStandardVersion/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString"/>
+			<xsl:variable name="abstract">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$abstract = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Samenvatting</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/abstract/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:status/gmd:MD_ProgressCode"/>
+			<xsl:variable name="status">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:status/gmd:MD_ProgressCode"/>
+			</xsl:variable>
+			<xsl:if test="$status = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Status</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/status/MD_ProgressCode</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:status/gmd:MD_ProgressCode"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
 			
-			<!--		
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString"/>
+			<xsl:variable name="title">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$title = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Dataset titel</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/citation/CI_Citation/title/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date"/>
+			<xsl:variable name="date">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date"/>
+			</xsl:variable>
+			<xsl:if test="$date = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Dataset referentie datum</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/citation/CI_Citation/date/CI_Date/date/gco:Date</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gco:CharacterString"/>
+			<xsl:variable name="ds-language">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gco:CharacterString"/>
+			</xsl:variable>
+			<xsl:if test="$ds-language = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Dataset taal</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/language/gco:CharacterString</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language/gco:CharacterString"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode"/>
+			<xsl:variable name="topicCategory">
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode"/>
+			</xsl:variable>
+			<xsl:if test="$topicCategory = '' ">
+				<xsl:call-template name="element">
+					<xsl:with-param name="title">Thema's</xsl:with-param>
+					<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/topicCategory/MD_TopicCategoryCode</xsl:with-param>
+					<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory/gmd:MD_TopicCategoryCode"/>
+					<xsl:with-param name="force-default" select="'true'"/>
+				</xsl:call-template>
+			</xsl:if>
+			
+			<!-- onder /contact/ staan uiteindelijk xlink variabelen naar id's onder identificationinfo -->
+			<div class="section">
+				<xsl:call-template name="section-title">
+					<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
+				</xsl:call-template>
+				<div class="content">
+				
+					<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
+					<xsl:variable name="organisationName">
+						<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
+					</xsl:variable>
+					<xsl:if test="$organisationName = '' ">
+						<xsl:call-template name="element">
+							<xsl:with-param name="title">Naam organisatie metadata</xsl:with-param>
+							<xsl:with-param name="path">/MD_Metadata/contact/CI_ResponsibleParty/organisationName/gco:CharacterString</xsl:with-param>
+							<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
+							<xsl:with-param name="force-default" select="'true'"/>
+						</xsl:call-template>
+					</xsl:if>
+					
+					<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode"/>
+					<xsl:variable name="role">
+						<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode"/>
+					</xsl:variable>
+					<xsl:if test="$role = '' ">
+						<xsl:call-template name="element">
+							<xsl:with-param name="title">Rol organisatie metadata</xsl:with-param>
+							<xsl:with-param name="path">/MD_Metadata/contact/CI_ResponsibleParty/role/CI_RoleCode</xsl:with-param>
+							<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode"/>
+							<xsl:with-param name="force-default" select="'true'"/>
+						</xsl:call-template>
+					</xsl:if>
+					
+					<!-- met xlink zou deze ook moeten werken: /gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL -->
+					<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/>
+					<xsl:variable name="linkage">
+						<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/>
+					</xsl:variable>
+					<xsl:if test="$linkage = '' ">
+						<xsl:call-template name="element">
+							<xsl:with-param name="title">URL metadata organisatie</xsl:with-param>
+							<xsl:with-param name="path">/MD_Metadata/identificationInfo/MD_DataIdentification/pointOfContact/CI_ResponsibleParty/contactInfo/CI_Contact/onlineResource/CI_OnlineResource/linkage/URL</xsl:with-param>
+							<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/>
+							<xsl:with-param name="force-default" select="'true'"/>
+						</xsl:call-template>
+					</xsl:if>
+					
+				</div>
+			</div>
+			<xsl:call-template name="br"/>	
+			
+			<div class="section">
+				<xsl:call-template name="section-title">
+					<xsl:with-param name="title">Referentie systeem</xsl:with-param>
+				</xsl:call-template>
+				<div class="content">
+					<xsl:apply-templates select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+					<xsl:variable name="linkage">
+						<xsl:apply-templates select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+					</xsl:variable>
+					<xsl:if test="$linkage = '' ">
+						<xsl:call-template name="element">
+							<xsl:with-param name="title">Code referentiesysteem</xsl:with-param>
+							<xsl:with-param name="path">/MD_Metadata/referenceSystemInfo/MD_ReferenceSystem/referenceSystemIdentifier/RS_Identifier/code/gco:CharacterString</xsl:with-param>
+							<xsl:with-param name="value" select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>
+							<xsl:with-param name="force-default" select="'true'"/>
+						</xsl:call-template>
+					</xsl:if>
+
+					<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>-->
+					<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>--><!-- onvindbaar -->
+				</div>
+			</div>
+			<xsl:call-template name="br"/>
+			<!--
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet"/>
-			
+
 			<xsl:call-template name="metadataVerantwoordelijkeOrganisatie"/>
 
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact//gmd:CI_OnlineResource//gmd:linkage"/>
@@ -127,8 +335,6 @@
 	</xsl:template>
 	
 
-	
-
 	<!-- ============ -->
 	<!-- TAB CONTENT -->
 	<!-- ============ -->
@@ -151,42 +357,42 @@
 	</xsl:template>
 	
 	<!-- ISO nr. 4 -->
-	<xsl:template match="gmd:MD_Metadata/gmd:characterSet">
+	<xsl:template match="gmd:MD_Metadata/gmd:characterSet/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Metadata karakterset</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 9 -->
-	<xsl:template match="gmd:MD_Metadata/gmd:dateStamp">
+	<xsl:template match="gmd:MD_Metadata/gmd:dateStamp/gco:Date">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Metadata wijzigingsdatum</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 10 -->
-	<xsl:template match="gmd:metadataStandardName">
+	<xsl:template match="gmd:metadataStandardName/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Naam metadata standaard</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 11 -->
-	<xsl:template match="gmd:metadataStandardVersion">
+	<xsl:template match="gmd:metadataStandardVersion/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Versie metadata standaard</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 25 -->
-	<xsl:template match="gmd:abstract">
+	<xsl:template match="gmd:abstract/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Samenvatting</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 	
 	<!-- ISO nr. 28 -->
-	<xsl:template match="gmd:status">
+	<xsl:template match="gmd:status/gco:MD_ProgressCode"><!-- TODO: picklist maken. Documentatie over inhoud picklist? -->
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Status</xsl:with-param>
 		</xsl:call-template>
@@ -200,7 +406,7 @@
 	</xsl:template>
 	
 	<!-- ISO nr. 39 -->
-	<xsl:template match="gmd:identificationInfo//gmd:language">
+	<xsl:template match="gmd:identificationInfo//gmd:language/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Dataset taal</xsl:with-param>
 		</xsl:call-template>
@@ -214,7 +420,7 @@
 	</xsl:template>
 	
 	<!-- ISO nr. 41 -->
-	<xsl:template match="gmd:identificationInfo//gmd:topicCategory">
+	<xsl:template match="gmd:identificationInfo//gmd:topicCategory/gmd:MD_TopicCategoryCode">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Thema's</xsl:with-param>
 		</xsl:call-template>
@@ -257,7 +463,7 @@
 	</xsl:template>
 
 	<!-- ISO nr. 207 -->
-	<xsl:template match="gmd:code">
+	<xsl:template match="gmd:code/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Code referentiesysteem</xsl:with-param>
 		</xsl:call-template>
@@ -284,36 +490,36 @@
 		<xsl:call-template name="br"/>		
 	</xsl:template>
 
-	<!-- ISO nr. 360 -->
-	<xsl:template match="gmd:title">
+	<!-- ISO nr. 360 --> <!-- gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/-->
+	<xsl:template match="gmd:title/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Dataset titel</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 376 -->
-	<xsl:template match="gmd:organisationName">
+	<xsl:template match="gmd:organisationName/gco:CharacterString">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Naam organisatie metadata</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 379 -->
-	<xsl:template match="gmd:role">
+	<xsl:template match="gmd:role/gmd:CI_RoleCode">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Rol organisatie metadata</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 362/394 -->
-	<xsl:template match="gmd:date">
+	<xsl:template match="gmd:date/gco:Date">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Dataset referentie datum</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ISO nr. 397 -->
-	<xsl:template match="gmd:linkage">
+	<xsl:template match="gmd:linkage/gmd:URL">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">URL metadata organisatie</xsl:with-param>
 		</xsl:call-template>
@@ -347,11 +553,11 @@
 	</xsl:template>
 
 	<!-- ISO nr. 83 -->
-	<xsl:template match="gmd:lineage//gmd:statement">
+	<!--<xsl:template match="gmd:lineage//gmd:statement">
 		<xsl:call-template name="element">
 			<xsl:with-param name="title">Geometrische nauwkeurigheid</xsl:with-param>
 		</xsl:call-template>
-	</xsl:template>
+	</xsl:template>-->
 	
 
 </xsl:stylesheet>
