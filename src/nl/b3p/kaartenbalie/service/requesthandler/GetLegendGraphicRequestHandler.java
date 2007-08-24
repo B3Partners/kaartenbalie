@@ -63,7 +63,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             
             //Lets first check if this ServiceProvider can provide us the asked layers
             //otherwise it is not necessary at all to look further and ask for a lot of resources
-            String[] layer = (String[])parameters.get(WMS_PARAM_LAYERS);
+            String[] layer = new String [] {(String)parameters.get(WMS_PARAM_LAYER)};
             String spls = calcFormattedLayers(s, layer);
             if (spls==null)
                 continue;
@@ -83,7 +83,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             spUrl.append("=");
             spUrl.append(WMS_REQUEST_GetLegendGraphic);
             spUrl.append("&");
-            spUrl.append(WMS_PARAM_LAYERS);
+            spUrl.append(WMS_PARAM_LAYER);
             spUrl.append("=");
             spUrl.append(spls);
             
@@ -148,11 +148,9 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
                 spUrl.append("=");
                 spUrl.append(value);
             }
+            urls.add(spUrl);
         }
-        
-        StringBuffer [] url = null;
-        ArrayList tempList = new ArrayList();
-        getOnlineData(dw, tempList, false, WMS_REQUEST_GetLegendGraphic);
+        getOnlineData(dw, urls, false, WMS_REQUEST_GetLegendGraphic);
     }
     // </editor-fold>
 }

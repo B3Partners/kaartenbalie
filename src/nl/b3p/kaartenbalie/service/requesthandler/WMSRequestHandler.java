@@ -68,6 +68,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected String url;
     protected static long maxResponseTime = 100000;
     protected static final String FEATUREINFO_EXCEPTION = "msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.";
+    protected static final String LEGENDGRAPHIC_EXCEPTION = "msWMSGetLegendgraphic(): Invalid layer given in the LAYERS parameter.";
 
     private XMLReader parser;
     private static Stack stack = new Stack();
@@ -421,7 +422,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if(!urls.isEmpty()) {
                 getOnlineData(dw, ((StringBuffer)urls.get(0)).toString());
             } else {
-                throw new Exception(FEATUREINFO_EXCEPTION);
+                if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+                    throw new Exception(FEATUREINFO_EXCEPTION);
+                } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+                    throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+                }
             }
         }
     }
