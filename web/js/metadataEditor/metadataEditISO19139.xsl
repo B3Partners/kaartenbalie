@@ -66,13 +66,11 @@
 	<xsl:template name="overzicht-tab">
 		<div id="overzicht" class="tab-definition" style="display:block">
 		
-			<!-- try to apply template -->
+			<!--
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
-			<!-- store result of template in variable (this will contain only text (no nodes/tags) or is empty) -->
 			<xsl:variable name="language">
 				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language/gco:CharacterString"/>
 			</xsl:variable>
-			<!-- if the template is not succesfully applied, make an empty entry for the user to be edited -->
 			<xsl:if test="$language = '' ">
 				<xsl:call-template name="element">
 					<xsl:with-param name="title">Metadata taal</xsl:with-param>
@@ -212,7 +210,6 @@
 				</xsl:call-template>
 			</xsl:if>
 			
-			<!-- onder /contact/ staan uiteindelijk xlink variabelen naar id's onder identificationinfo -->
 			<div class="section">
 				<xsl:call-template name="section-title">
 					<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
@@ -245,7 +242,6 @@
 						</xsl:call-template>
 					</xsl:if>
 					
-					<!-- met xlink zou deze ook moeten werken: /gmd:MD_Metadata/gmd:contact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL -->
 					<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/>
 					<xsl:variable name="linkage">
 						<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage/gmd:URL"/>
@@ -281,43 +277,41 @@
 						</xsl:call-template>
 					</xsl:if>
 
-					<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gco:CharacterString"/>-->
-					<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>--><!-- onvindbaar -->
 				</div>
 			</div>
-			<xsl:call-template name="br"/>
-			<!--
+			<xsl:call-template name="br"/>-->
+			
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:language"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:characterSet"/>
 
 			<xsl:call-template name="metadataVerantwoordelijkeOrganisatie"/>
 
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact//gmd:CI_OnlineResource//gmd:linkage"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dateStamp"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardName"/>			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:metadataStandardVersion"/>
 			
 			<xsl:call-template name="referentieSysteem"/>
 			
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:title"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:date"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date"/>
 
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:abstract"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:status"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:status"/>
 			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:descriptiveKeywords//gmd:keyword"/>			
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:useLimitation"/>-->
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:useLimitation"/>
 			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:accessConstraints"/>-->
 			
-			<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:language"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:spatialRepresentationType/gmd:MD_SpatialRepresentationTypeCode"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:language"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:characterSet"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo//gmd:topicCategory"/>
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:topicCategory"/>
 
 			<xsl:call-template name="omgrenzendeRechthoek"/>
 			
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:scope//gmd:level"/>
 			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:dataQualityInfo//gmd:DQ_QuantitativeResult//gmd:value"/>
-			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:lineage//gmd:statement"/>-->
+			<xsl:apply-templates select="/gmd:MD_Metadata/gmd:lineage//gmd:statement"/>
 
 		</div>
 	</xsl:template>
@@ -455,7 +449,7 @@
 				<xsl:with-param name="title">Referentie systeem</xsl:with-param>
 			</xsl:call-template>
 			<div class="content">
-				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier//gmd:code"/>
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem//gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code"/>
 				<!--<xsl:apply-templates select="/gmd:MD_Metadata/gmd:contact/gmd:CI_RespParty/gmd:pointOfContact/gmd:role"/>-->
 			</div>
 		</div>
@@ -477,17 +471,19 @@
 	</xsl:template>-->
 	
 	<!-- (Niet helemaal ISO nr. 8) -->
+	<!-- via contact (met xlink; uitzoeken hoe dat precies moet) of identificationInfo te bereiken -->
 	<xsl:template name="metadataVerantwoordelijkeOrganisatie">
 		<div class="section">
 			<xsl:call-template name="section-title">
 				<xsl:with-param name="title">Metadata verantwoordelijke organisatie</xsl:with-param>
 			</xsl:call-template>
 			<div class="content">
-				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:organisationName"/>
-				<xsl:apply-templates select="/gmd:MD_Metadata//gmd:contact//gmd:CI_ResponsibleParty//gmd:role"/>		
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:organisationName"/>
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:role"/>		
+				<xsl:apply-templates select="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact/gmd:CI_ResponsibleParty/gmd:contactInfo/gmd:CI_Contact/gmd:onlineResource/gmd:CI_OnlineResource/gmd:linkage"/>
 			</div>
 		</div>
-		<xsl:call-template name="br"/>		
+		<xsl:call-template name="br"/>
 	</xsl:template>
 
 	<!-- ISO nr. 360 --> <!-- gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/-->

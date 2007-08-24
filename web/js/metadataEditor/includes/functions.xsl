@@ -49,7 +49,7 @@
 			<xsl:text>/</xsl:text>
 			<xsl:value-of select="name()"/>
 			<xsl:variable name="precedingSiblingsWithSameNodeName" select="count(preceding-sibling::*[name(current()) = name(.)])"/>
-			<xsl:if test="$precedingSiblingsWithSameNodeName > 0">
+			<xsl:if test="$precedingSiblingsWithSameNodeName > -1"><!-- in de praktijk zal "$precedingSiblingsWithSameNodeName > 0" ook wel werken (is misschien iets netter) -->
 				<xsl:text>[</xsl:text>
 					<xsl:value-of select="1 + $precedingSiblingsWithSameNodeName"/>
 				<xsl:text>]</xsl:text>

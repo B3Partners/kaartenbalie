@@ -57,8 +57,6 @@
 	<xsl:template name="element">
 		<xsl:param name="title"/> <!-- verplicht voor mooie weergave -->
 		<xsl:param name="path" select="."/> <!-- verplicht voor mooie weergave -->
-		<xsl:param name="value"/> <!-- verplicht voor mooie weergave -->
-		<xsl:param name="force-default" select="'false'"/>
 		<xsl:param name="default-value"/>
 		<xsl:param name="optionality" select="'optional'"/><!-- 'mandatory' of 'optional' of leeg (= mandatory). Mandatory wordt altijd opgeslagen -->
 		<xsl:param name="help-text"/>
@@ -82,17 +80,9 @@
 			</xsl:if>
 			<xsl:element name="span">
 				<xsl:attribute name="fullPath">
-					<!-- <xsl:call-template name="dynamic_path"> -->
-					<xsl:choose>
-						<xsl:when test="$value = '' ">
-							<xsl:call-template name="full-path">					
-								<xsl:with-param name="theParmNodes" select="$path"/>
-							</xsl:call-template>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="$path"/>
-						</xsl:otherwise>
-					</xsl:choose>
+					<xsl:call-template name="full-path">					
+						<xsl:with-param name="theParmNodes" select="$path"/>
+					</xsl:call-template>
 				</xsl:attribute>
 				<xsl:attribute name="title"><xsl:value-of select="$help-text"/></xsl:attribute>
 				<xsl:attribute name="default"><xsl:value-of select="$default-value"/></xsl:attribute>
@@ -105,16 +95,7 @@
 				</xsl:if>
 				<xsl:choose>
 					<!-- check of de inhoud van $element_path leeg is -->
-					<xsl:when test="$value != '' ">
-						<xsl:attribute name="class">unchanged_value</xsl:attribute>
-						
-						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
-						<!--<xsl:value-of select="$element_path"/>-->
-						<xsl:value-of select="normalize-space($value)"/>
-						<!--<xsl:apply-templates select=".//"/> -->
-						
-					</xsl:when>		
-					<xsl:when test="$force-default = 'false' ">
+					<xsl:when test="normalize-space($path)">
 						<xsl:attribute name="class">unchanged_value</xsl:attribute>
 						
 						<!-- HIER uitkijken: types moeten hieruit gedestilleerd worden -->
@@ -122,7 +103,7 @@
 						<xsl:value-of select="normalize-space($path)"/>
 						<!--<xsl:apply-templates select=".//"/> -->
 						
-					</xsl:when>
+					</xsl:when>		
 					<xsl:otherwise>
 						<!-- set value to default, set changed to true; ?Niet doen: default values niet opslaan dus? inderdaad-->
 						<xsl:attribute name="class">default-value</xsl:attribute>

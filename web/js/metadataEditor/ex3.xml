@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- VMAP 0 gmd based instance document -->
-<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" 
-						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-						xmlns:gco="http://www.isotc211.org/2005/gco"
-						xmlns:gml="http://www.opengis.net/gml"
-						xmlns:xlink="http://www.w3.org/1999/xlink"
-						xsi:schemaLocation="http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd"
-						uuid="US_NGA_VPF_VMAP0" id="VMAP0">
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd" uuid="US_NGA_VPF_VMAP0" id="VMAP0">
 	<language>
 		<gco:CharacterString>en</gco:CharacterString>
 	</language>
@@ -22,7 +16,7 @@
 			<contactInfo>
 				<CI_Contact>
 					<address xlink:href="#ID00003"/>
-					<onlineResource xlink:href="#ID00009"/>
+					<onlineResource xlink:href="#ID00004"/>
 				</CI_Contact>
 			</contactInfo>
 			<role>
