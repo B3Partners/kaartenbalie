@@ -24,40 +24,29 @@ XML.Transformer = function(stylesheet) {
 	}
 };
 
-
-/**
-* This is the transform() method of the XML.Transformer class.
-* It transforms the specified xml node using the encapsulated stylesheet.
-* The results of the transformation are assumed to be HTML and are used to
-* replace the content of the specified element.
-*/
-XML.Transformer.prototype.transform = function(node, element) {
-	// If element is specified by id, look it up.
-	if (typeof element == "string") {
-		//debug("voor: " + element);
-		element = document.getElementById(element);
-		//debug("na: " + element);
-	}
+XML.Transformer.prototype.transformNodeSet = function(node) {
 	if ("transformToFragment" in this.processor) {
-		var fragment = this.processor.transformToFragment(node, document);
-		element.innerHTML = "";
-		element.appendChild(fragment);
+		return this.processor.transformToFragment(node, document);
 	}
 	else if ("transform" in this.processor) {
 		this.processor.input = node;
 		this.processor.transform();		
-		element.innerHTML = this.processor.output;
+		return this.processor.output;
 	}
-	/*
-	// oude IE methode: 
 	else if ("transformNode" in node) {
-		fragmentText = node.transformNode(this.stylesheet);
-		element.innerHTML = fragmentText;
+		return node.transformNode(this.stylesheet);
 	}
-	*/
 	else {
 		throw "XSLT is not supported in this browser";
 	}
+}
+
+XML.Transformer.prototype.transform = function(node, element) {
+	// If element is specified by id, look it up.
+	if (typeof element == "string") {
+		element = document.getElementById(element);
+	}
+	element.innerHTML = this.transformNodeSet(node);
 };
 
 XML.Transformer.prototype.setParameter = function(key, value) {
@@ -70,10 +59,11 @@ XML.Transformer.prototype.setParameter = function(key, value) {
 };
 
 
-/**
-* This is an XSLT utility function that is useful when a stylesheet is
-* used only once.
-*/
+XML.transformNodeSet = function(xmldoc, stylesheet) {
+	var transformer = new XML.Transformer(stylesheet);
+	return transformer.transformNodeSet(xmldoc);
+}
+
 XML.transform = function(xmldoc, stylesheet, element) {
 	var transformer = new XML.Transformer(stylesheet);
 	transformer.transform(xmldoc, element);

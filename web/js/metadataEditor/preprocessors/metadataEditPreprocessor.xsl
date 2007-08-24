@@ -10,7 +10,7 @@
 	-->
 
 	<!--get template that 'knows' how to add elements-->
-	<xsl:include href="Add_MNP_Metadata_Beheerder_Edit_Templates.xsl"/>
+	<xsl:include href="metadataEditPreprocessorTemplates.xsl"/>
 	
 	
 	<!-- default template: copy all nodes and attributes-->

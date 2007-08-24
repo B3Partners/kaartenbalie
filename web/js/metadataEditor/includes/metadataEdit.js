@@ -22,10 +22,21 @@ function addLoadEvent(func) {
 function initWithXmlString() {
 	metadataXML = metadataXML.unescapeHTML();
 
+	rawXmlDoc = jsXML.createDOMDocument();
+	rawXmlDoc.async = false;
+	rawXmlDoc.loadXML(metadataXML);
+
+	var freeThreadedIfPossible = true;
+	var ppXslDoc = jsXML.createDOMDocument(freeThreadedIfPossible);
+	ppXslDoc.async = false;
+	ppXslDoc.load(preprocessorFullPath);
+	
+	var rawPreprocessedXML = XML.transformNodeSet(rawXmlDoc, ppXslDoc);
+	
 	xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
-	xmlDoc.loadXML(metadataXML);
-
+	xmlDoc.loadXML(rawPreprocessedXML);
+	
 	var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(freeThreadedIfPossible);
 	xslDoc.async = false;
@@ -33,7 +44,7 @@ function initWithXmlString() {
 	
 	var xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", basePath);
-	xmlTransformer.transform(xmlDoc, "writeroot");
+	xmlTransformer.transform(xmlDoc, "writeroot");	
 	
 	xmlDocInit();
 }

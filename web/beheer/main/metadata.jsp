@@ -17,6 +17,7 @@
 			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
+			var preprocessorFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";			
 			var basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";			
 			
 			var PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
