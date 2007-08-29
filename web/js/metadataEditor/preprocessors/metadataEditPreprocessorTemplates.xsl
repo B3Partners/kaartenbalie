@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet					
+					version="1.0"
+					xmlns="http://www.w3.org/1999/xhtml"
+					xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+					xmlns:xlink="http://www.w3.org/1999/xlink"					
+					xmlns:gmd="http://www.isotc211.org/2005/gmd"
+					xmlns:gco="http://www.isotc211.org/2005/gco"
+					>
+
 	<xsl:output method="xml" indent="yes"/>
 	<!--
 	Auteur: Erik van de Pol. B3Partners.
@@ -19,8 +27,8 @@
 			<xsl:call-template name="add-metadataStandardVersion"/>
 			<xsl:call-template name="add-referenceSystemInfo"/>
 			<xsl:call-template name="add-identificationInfo"/>
-			<xsl:call-template name="add-distributionInfo"/>
-			<xsl:call-template name="add-dataQualityInfo"/>
+			<!--<xsl:call-template name="add-distributionInfo"/>
+			<xsl:call-template name="add-dataQualityInfo"/>-->
 		</xsl:element>
 	</xsl:template>
 	

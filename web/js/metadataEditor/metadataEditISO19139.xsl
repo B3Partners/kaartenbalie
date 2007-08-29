@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet
 					version="1.0"
-					xmlns="http://www.w3.org/1999/xhtml"					
-					xmlns:gmd="http://www.isotc211.org/2005/gmd"
+					xmlns="http://www.w3.org/1999/xhtml"
 					xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+					xmlns:xlink="http://www.w3.org/1999/xlink"					
+					xmlns:gmd="http://www.isotc211.org/2005/gmd"
 					xmlns:gco="http://www.isotc211.org/2005/gco"
-					exclude-result-prefixes="gco gmd"
+					exclude-result-prefixes="gmd gco"
 					>
 
 	<!-- This parameter must be set by the browser -->

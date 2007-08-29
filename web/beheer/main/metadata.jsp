@@ -7,6 +7,7 @@
 
 <html:html xhtml="true">
 	<head>
+		<meta http-equiv="pragma" content="no-cache" />
 
 		<script type="text/javascript">
 		/* <![CDATA[ */
@@ -16,9 +17,11 @@
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";
 			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
+			var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\"/&gt;";
+			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
 			var preprocessorFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";			
-			var basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";			
+			var basePath = "<html:rewrite page='/js/metadataEditor/' module='' />";
 			
 			var PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
 			var MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
@@ -45,7 +48,6 @@
 	</head>
 
 	<body>
-		
 		<html:form action="/metadata" onsubmit="checkForm(this); return false;">
 			<html:hidden property="id" />
 			<html:hidden property="name" />
@@ -70,6 +72,8 @@
 		</div>
 
 	</body>
+	<!-- another head: prevents IE cache bug/feature -->
+	<head>
+		<meta http-equiv="pragma" content="no-cache" />
+	</head>
 </html:html>
-
-    

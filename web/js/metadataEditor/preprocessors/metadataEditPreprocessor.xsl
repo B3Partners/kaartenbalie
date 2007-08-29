@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet
+					version="1.0"
+					xmlns="http://www.w3.org/1999/xhtml"
+					xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+					xmlns:xlink="http://www.w3.org/1999/xlink"					
+					xmlns:gmd="http://www.isotc211.org/2005/gmd"
+					xmlns:gco="http://www.isotc211.org/2005/gco"
+					>
+
 	<xsl:output method="xml" indent="yes"/>
 	<!--
 	Auteur: Erik van de Pol. B3Partners.
 	
 	Beschrijving stylesheet:
 	Preprocessor die alle nodes kopieert en ontbrekende nodes toevoegd om de mogelijkheid te bieden deze te editen in de stylesheet.
-	De templates voor het toevoegen van nodes bevindt zich in "Add_MNP_Metadata_Beheerder_Edit_Templates.xsl".
+	De templates voor het toevoegen van nodes bevindt zich in "metadataEditPreprocessorTemplates.xsl".
 	-->
 
 	<!--get template that 'knows' how to add elements-->
@@ -22,11 +30,23 @@
 
 
 	<!--root template-->
+	<!--
 	<xsl:template match="/">
-		<xsl:apply-templates/>
+		<xsl:call-template name="main"/>
 	</xsl:template>
 
+	<xsl:template match="/MD_Metadata">
+		<xsl:call-template name="main"/>
+	</xsl:template>
+	-->
+	
+	<xsl:template match="/">
+		<xsl:copy>
+			<xsl:apply-templates/>
+		</xsl:copy>
+	</xsl:template>
 
+	<!--<xsl:template name="main">-->
 	<xsl:template match="MD_Metadata">
 	
 		<xsl:copy>
@@ -119,28 +139,6 @@
 				</xsl:otherwise>
 			</xsl:choose>
 
-			<xsl:choose>
-				<xsl:when test="not(distributionInfo)">
-					<!--Child element missing, create it-->
-					<xsl:call-template name="add-distributionInfo"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<!--Child element exists, copy it-->
-					<xsl:apply-templates select="distributionInfo"/>
-				</xsl:otherwise>
-			</xsl:choose>
-
-			<xsl:choose>
-				<xsl:when test="not(dataQualityInfo)">
-					<!--Child element missing, create it-->
-					<xsl:call-template name="add-dataQualityInfo"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<!--Child element exists, copy it-->
-					<xsl:apply-templates select="dataQualityInfo"/>
-				</xsl:otherwise>
-			</xsl:choose>
-
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
 														not(self::language) 
@@ -151,8 +149,6 @@
 														and not(self::metadataStandardVersion)
 														and not(self::referenceSystemInfo)
 														and not(self::identificationInfo)
-														and not(self::distributionInfo)																																										
-														and not(self::dataQualityInfo)																																										
 														]"/>
 			
 		</xsl:copy>

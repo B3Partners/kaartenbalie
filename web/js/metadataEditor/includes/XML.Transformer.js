@@ -46,7 +46,13 @@ XML.Transformer.prototype.transform = function(node, element) {
 	if (typeof element == "string") {
 		element = document.getElementById(element);
 	}
-	element.innerHTML = this.transformNodeSet(node);
+	if (element.appendChild) {
+		element.innerHTML = "";
+		element.appendChild(this.transformNodeSet(node));
+	}
+	else {
+		element.innerHTML = this.transformNodeSet(node);
+	}
 };
 
 XML.Transformer.prototype.setParameter = function(key, value) {

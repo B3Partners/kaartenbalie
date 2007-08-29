@@ -207,7 +207,7 @@ jsXML.createDOMDocument = function(freeThreadedIfPossible, strNamespaceURI, strR
         
     } else if (isIE) {
         //create the DOM Document the IE way
-		if (freeThreadedIfPossible != null && freeThreadedIfPossible == true) {
+		if (freeThreadedIfPossible != "undefined" && freeThreadedIfPossible == true) {
 			try {
 				//debug("Msxml2.FreeThreadedDOMDocument.3.0 proberen");
 				objDOM = new ActiveXObject("Msxml2.FreeThreadedDOMDocument.3.0");

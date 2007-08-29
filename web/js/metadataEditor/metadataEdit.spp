@@ -2,6 +2,7 @@
 <Project>
 	<Folder FolderName="XML Files" ExtStr="xml;cml;math;mtx;rdf;smil;svg;wml">
 		<File FilePath=".\ex3.xml" HomeFolder="Yes"/>
+		<File FilePath=".\ex6.xml" HomeFolder="Yes"/>
 	</Folder>
 	<Folder FolderName="XSL Files" ExtStr="xsl;xslt">
 		<File FilePath=".\includes\editableBasicTypes.xsl" HomeFolder="Yes"/>
