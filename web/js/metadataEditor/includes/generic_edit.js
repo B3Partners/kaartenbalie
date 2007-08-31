@@ -9,12 +9,9 @@
 // ==============
 
 // text box size (larger than max will create TEXTAREA also
-// sets with of TEXTAREA)
-var MIN_TEXTINPUT_SIZE = 30;
-var MAX_TEXTINPUT_SIZE = 100;
-
-// self reference text ('this' for JavaScript, 'me' for VBScript)
-var SELF_REF = "this";
+// sets width of TEXTAREA)
+var MIN_TEXTINPUT_SIZE = 50;
+var MAX_TEXTINPUT_SIZE = 75;
 
 // Tekst constanten vertaald naar het Nederlands
 // default text for elements with no default value specified 
@@ -70,7 +67,7 @@ function trim(value) {
 //   bChange = 'true' somethings been edited
 //   bChange = 'false' changes have been saved (almost never called)
 function changeFlag(bChange) {
-	var root = document.getElementById("editDocRoot");
+	var root = document.getElementById("edit-doc-root");
 	if (bChange) {
 		document.getElementById("saveButton").disabled = false;
 		if (document.title.substring(document.title.length - 1) != "*")
@@ -91,25 +88,15 @@ function changeFlag(bChange) {
 //   Which is determined by size of text to be edited. Assumes that
 //   text to be edited is in particular format.
 //
-// Arguement:
-//   element = the <span> element containing text to be edited.
-//   selfRef = the token to use for self-reference for an object, use
-//             'me'   if(language of HTML page is VBScript
-//             'this' if(language of HTML page is JavaScript
+// Argument:
+//   event = the <span> element containing text to be edited.
 
 function startEdit(event) {
-	//debug("startEdit");
-	
 	var element = getTarget(event);
 	
-	// return if already editing by checking if the element has a child that is an element node
-	var checkElement;
-	for (var i = 0; i < element.childNodes.length; i++) {
-		checkElement = element.childNodes[i];
-		if (checkElement.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
-			return;
-		}
-	}
+	// already editing?
+	if (element.tagName == "INPUT")
+		return;
 	
 	// get current value (for checking if changed later)
 	strPreEditText = trim(getElementInnerText(element));
@@ -136,7 +123,7 @@ function startEdit(event) {
 	// has picklist?
 	if (element.getAttribute("picklist") != "" && element.getAttribute("picklist") != null) {
 		// get picklist
-		var pPicklist = GetPicklist(element.getAttribute("picklist"));
+		var pPicklist = getPicklist(element.getAttribute("picklist"));
 		if (pPicklist == null) {
 			alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
 		}
@@ -214,12 +201,10 @@ function startEdit(event) {
 	element.innerHTML = "";
 	element.appendChild(inputElement);
 	
-	//debug("element.innerHTML: " + element.innerHTML);
-
 	inputElement.focus();
 
 	// if default value, select it (makes it easier to replace);
-	if (element.className == "default_value") {
+	if (element.className == "default-value") {
 		inputElement.select();
 	}
 	
@@ -252,9 +237,9 @@ function stopEdit(event) {
 	if (strPreEditText != newValue) {
 		// user changed value attributes
 		// change class of span to 'changed_value'
-		parentElement.className = "changed_value";
+		parentElement.className = "changed-value";
 		//element changed attribute
-		parentElement.changed = "true";
+		//parentElement.changed = "true";
 		//page changed attribute;
 		changeFlag(true);
 		
@@ -272,9 +257,9 @@ function stopEdit(event) {
 			newValue = GLOBAL_DEFAULT;//DEFAULT_VALUE;
 		}
 		//class of value to default (won't be saved unless 'mandatory')
-		parentElement.className = "default_value";
+		parentElement.className = "default-value";
 		//element changed attribute
-		parentElement.changed = "false";
+		//parentElement.changed = "false";
 	}
 	
 	// change span value to text alone
@@ -316,11 +301,11 @@ function stopEdit(event) {
 //   picklist = copy of <select> object containing picklist
 //   -or-
 //   null = if no picklist found
-function GetPicklist(name) {
+function getPicklist(name) {
 	// copy picklist source
 	var picklist = document.getElementById(name);
 	/*if (pPicklist == null) {
-	GetPicklist = null;
+	getPicklist = null;
 	Exit Function;
 	}
 	// return found picklist;
@@ -487,7 +472,7 @@ function addListItem(element, strName, strSize, strDefaultValue, strPicklist, bA
 	}
 
 	// create new span
-	var strNewSpan = "<span class='changed_value' title='" + strDefaultValue +  "' name='" + strName + "' onclick='startEdit(this)' " +  "changed='true' picklist='" + strPicklist + "'>" +  strDefaultValue + "</span>";
+	var strNewSpan = "<span class='changed-value' title='" + strDefaultValue +  "' name='" + strName + "' onclick='startEdit(this)' picklist='" + strPicklist + "'>" +  strDefaultValue + "</span>";
 
 	// add menu (copy HTML from calling menu)
 	//var objMenuCopy;
@@ -666,7 +651,7 @@ function deleteSection(element, strSectPath) {
 		objDiv = objParentDiv.childNodes[childIndex];
 		// if nodeType is text, getAttribute() doesn't exists
 		if (objDiv.getAttribute)
-			if (objDiv.getAttribute("section_path") == strSectPath)
+			if (objDiv.getAttribute("section-path") == strSectPath)
 				i++;
 	}
 	
@@ -938,7 +923,7 @@ function createSection(strAddName) {
 		//fsw.write("This is a test");
 		//fsw.close;
 
-		// search for DIV with correct section_path;
+		// search for DIV with correct section-path;
 		//alert("Loop");
 		var objTemp = objDIV.childNodes[0];
 		//alert("strAddName " + strAddName);
@@ -960,11 +945,11 @@ function createSection(strAddName) {
 
 			//alert("objTemp.outerHTML = " + objTemp.outerHTML);
 			//alert("objTemp.innerHTML = " + objTemp.innerHTML);
-			//if(objTemp.getAttribute("section_path") is ! Null)){
-			//alert("section_path " +objTemp.getAttribute("section_path"));
+			//if(objTemp.getAttribute("section-path") is ! Null)){
+			//alert("section-path " +objTemp.getAttribute("section-path"));
 			//}
 
-			varAddName = objTemp.getAttribute("section_path");
+			varAddName = objTemp.getAttribute("section-path");
 			//
 			if (varAddName == strAddName) {
 				//fsx.writeline("");
@@ -990,10 +975,10 @@ function createSection(strAddName) {
 
 					For Each obj in oNodeList    ;
 
-					//if(! isNull(obj.getAttribute("section_path"))){
-					//alert("section_path: "+ obj.getAttribute("section_path"));
+					//if(! isNull(obj.getAttribute("section-path"))){
+					//alert("section-path: "+ obj.getAttribute("section-path"));
 					//}else{
-					//alert("section_path: null");
+					//alert("section-path: null");
 					//}
 
 					//fsy.writeline ("********************   " + i+ "  **************************");

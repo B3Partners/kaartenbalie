@@ -20,7 +20,7 @@ var MENU_Y_OFFSET = 3;
 
 
 // Show popup window that's embedded in code
-function ShowMenu(pElem) {
+function showMenu(pElem) {
 	// is SPAN
 	if (pElem.tagName.toLowerCase() != "span") {
 		alert("This element isn't a \"span\". It's a " + pElem.tagName);
@@ -94,7 +94,7 @@ function ShowMenu(pElem) {
 
 // 2/05 Eric Compas;
 // Hide popup menu;
-function HideMenu(pElem) {
+function hideMenu(pElem) {
 	if (pElem.tagName.toLowerCase() == "ul") {
 		pElem.style.display = "none";
 	}

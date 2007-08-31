@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-16"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 
@@ -17,7 +17,8 @@
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";
 			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
-			var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\"/&gt;";
+			//var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-16\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
+			var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-16\"?&gt;&lt;MD_Metadata&gt; &lt;test/&gt; &lt;/MD_Metadata&gt;";
 			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
 			var preprocessorFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";			
@@ -55,7 +56,7 @@
 
 			<html:submit property="save" value="Save" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 
-			<div id="writeroot"></div>
+			<div id="write-root"></div>
 
 		</html:form>
 

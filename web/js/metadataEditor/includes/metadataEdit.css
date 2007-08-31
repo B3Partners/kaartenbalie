@@ -2,7 +2,8 @@
 
 body {
 	background-color: #FBFFFF;
-	margin: 0px;
+	padding: 0px;
+	margin: 5px;
 	font-size: 12px;
 	font-family: Arial, sans-serif;
 }
@@ -17,10 +18,12 @@ a {
 	text-decoration: none;
 }
 
+/*
 a:hover {
 	background-color: transparent;
 	color: black;
 }
+*/
 
 table {
 	position: relative;
@@ -33,7 +36,7 @@ td {
 	font-weight: bold;
 	font-size: 11pt;
 	border: 0px none;
-	border-right: 1px solid White;
+	border-right: 1px solid white;
 }	
 
 h1 {
@@ -56,6 +59,7 @@ li {
 	margin-bottom: 2px;
 }
 
+/*
 textarea {
 	font-family: Arial, sans-serif;
 	font-size: 12px;
@@ -65,6 +69,7 @@ input {
 	font-family: Arial, sans-serif;
 	font-size: 12px;
 }
+*/
 
 /* pop-up menus */
 
@@ -86,11 +91,12 @@ ul.menu a {
 	width: 180px;
 	/*width: 100%;*/
 }
-		
+
+/*		
 ul.menu a:hover {
 	background-color: #eee;
 	color: black;
-}
+}*/
 		
 ul.menu li a {
 	margin: 1px 0px 1px 0px;
@@ -99,11 +105,13 @@ ul.menu li a {
 	font-weight: normal;
 	width: 180px;
 }
-	
+
+/*	
 ul.menu li a:hover {
 	background-color: #eee;
 	color: black;
 }
+*/
 	
 ul.menu li {
 	margin: 0px;
@@ -113,16 +121,6 @@ ul.menu li {
 
 /* span classes */
 /*
-.plus_minus	{
-	color: #11b;
-	font-family: monospace;
-	font-size: 16px;
-	font-weight: bold;
-	text-decoration: none;
-	margin: 0px 2px 0px 0px;
-}	
-*/
-
 .instruction {
 	color: #000000;
 	font-size: 12px;
@@ -132,37 +130,22 @@ ul.menu li {
 	margin-left: 20px;
 }
 
-.repeat_element {
-	font-weight: normal;
-	/*margin-left:12px;*/
-	margin-left: 39px;
-	text-indent: -27px;
-}
 
-.repeat_Belement {
-	font-weight: bold;
-	/*margin-left:12px;*/
-	margin-left: 39px;
-	text-indent: -27px;
-}
-
-.repeat_Melement {
-	font-weight: bold;
-	color: #EE0000;
-	margin-left: 39px;
-	text-indent: -27px;
-}
-		
-.hiddenXML	{
+.hidden-xml	{
 	display: none;
 }
 
-.noedit	{
+.no-edit	{
 	color: #777;
 	font-weight: normal;
 }
+*/
 
-.unchanged_value {
+.key {
+	vertical-align: top;
+}
+
+.unchanged-value {
 	color: #000099;
 	cursor: pointer;
 	cursor: hand;
@@ -172,7 +155,7 @@ ul.menu li {
 	padding-right: 2px;
 }
 
-.changed_value {
+.changed-value {
 	color: purple;
 	cursor: pointer;
 	cursor: hand;
@@ -182,7 +165,7 @@ ul.menu li {
 	padding-right: 2px;
 }
 
-.default_value {
+.default-value {
 	color: #2D7D32;
 	cursor: pointer;
 	cursor: hand;
@@ -192,7 +175,7 @@ ul.menu li {
 	padding-right: 2px;
 }
 
-.mandatory_value {
+.mandatory-value {
 	color: #2D0000;
 	cursor: pointer;
 	cursor: hand;
@@ -202,48 +185,20 @@ ul.menu li {
 	padding-right: 2px;
 }
 
-.single_element	{
-	font-weight: normal;
-	/*margin-left:12px;*/
-	/*following two lines for hanging indent*/
-	/*margin-left: 39px;
-	text-indent: -27px;*/
-	margin-left: 0px;
-	/*text-indent: 0px;*/
-}
-
-.single_Belement {
+.element {
 	font-weight: bold;
 	margin-left: 0px;
 	line-height: 200%;
-	/*text-indent: 0px;*/
 }
 
-.single_Melement {
+.element-mandatory {
 	font-weight: bold;
 	margin-left: 0px;
 	line-height: 200%;
-	/*text-indent: 0px;*/
 	color: #EE0000;
 }
 
-.section_title {
-	color: #000;
-	font-size: 13px;
-	text-decoration: none;
-	font-weight: bold;
-	padding-left: 2px;
-}
-
-.section_Stitle {
-	color: #000;
-	font-size: 13px;
-	text-decoration: none;
-	font-weight: normal;
-	padding-left: 2px;
-}
-
-.section_Mtitle {
+.section-title {
 	/*color: #EE0000;*/
 	color: #2E8B57;
 	font-size: 13px;
@@ -252,7 +207,7 @@ ul.menu li {
 	padding-left: 0px;
 }
 
-.section_Mtitle_hover {
+.section-title-hover {
 	color: #00DD00;
 	font-size: 13px;
 	text-decoration: none;
@@ -260,25 +215,7 @@ ul.menu li {
 	padding-left: 0px;
 }
 
-/*
-.section_Ftitle {
-	color: #000;
-	font-size: 15px;
-	text-decoration: none;
-	font-weight: bold;
-	padding-left: 2px;
-}		
-*/		
-
-.section_path {
-	color: #999;
-	font-size: 12px;
-	text-decoration: none;
-	/*font-weight: bold;*/
-	padding-right: 2px;
-}
-
-.expand {
+.expandable {
 	position: relative;
 	left: -16px;
 }
@@ -295,7 +232,7 @@ div.header {
 	padding: 5px 5px 5px 5px;
 }
 
-div.titlebar {
+div.title-bar {
 	background-color: #f5f0dd;
 	margin: 0px;
 	padding: 5px 5px 5px 5px;
@@ -309,8 +246,8 @@ div.instruction {
 	margin: 5px;
 }
 
-div.main {
-	margin: 5px;	
+div#writeroot {
+	/*margin: 5px;*/
 }
 
 div.footer {
@@ -325,22 +262,18 @@ div.hidden {
 	display: none;
 }
 
-div.folder {
-	border: 0px solid #fff;
-	margin: 0px 0px 0px 0px;	
-}
-
-div.content	{
-	margin: 0px;
-	margin-left: 16px;
-}
-
 div.section {
 	margin-top: 2px;
 	margin-bottom: 2px;
 }
 
+div.section-content	{
+	margin: 0px;
+	margin-left: 16px;
+}
+
 /* buttons */
+/*
 input.section {
 	color: #676769;
 	font-family: arial,helvetica,sans-serif;
@@ -352,25 +285,29 @@ input.section {
 
 input.element {
 	color: #676769;
-	/*font-family:arial,helvetica,sans-serif;*/
+	font-family:arial,helvetica,sans-serif;
 	font-family: monospace;
 	font-size: 70%;
 	font-weight: bold;
 	background-color: #f5f0dd;
 	border: 1px solid #676769;
-}
+}*/
 
 /* overig */
 
-#main-menu {
+div#main-menu {
 	border: 0px none;
 }
 
-#properties-box {
+div#properties-box {
 	border: 2px solid #b0c900; 
 	position: relative;
 	top: 0px;
-	line-height: 150%;
+	font-family: Verdana, sans-serif;
+	color: #000094;
+	padding: 10px;
+	padding-left: 30px;
+	padding-right: 20px;
 }
 
 .tab-selected {
@@ -395,6 +332,7 @@ input.element {
 	color: #6495ED;
 }
 
+/*
 .title {
 	text-align: center;
 	font-size: 15pt;
@@ -402,20 +340,16 @@ input.element {
 	font-weight: bold;
 	padding-bottom: 0.4in;
 }
-
-.tab-definition {
-	font-family: Verdana, sans-serif;
-	line-height: 135%;
-	color: #000094;
-	margin: 0in 0.15in 0.75in 0.15in;
-	padding: 0.5in 0.9in 0in 0.9in;
-}
+*/
 
 .separator {
 	text-align: center;
-	margin-bottom: 10pt;
+	margin-bottom: 10px;
 }
 
 img.plus-minus {
 	border: 0px solid #fff;
+	padding: 0px;
+	margin: 0px;
+	margin-right: 5px;
 }

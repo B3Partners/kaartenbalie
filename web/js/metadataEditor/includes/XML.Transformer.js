@@ -24,13 +24,14 @@ XML.Transformer = function(stylesheet) {
 	}
 };
 
-XML.Transformer.prototype.transformNodeSet = function(node) {
+// if ff: transforms to nodeset; if ie: transforms to string
+XML.Transformer.prototype._transform = function(node) {
 	if ("transformToFragment" in this.processor) {
 		return this.processor.transformToFragment(node, document);
 	}
 	else if ("transform" in this.processor) {
 		this.processor.input = node;
-		this.processor.transform();		
+		this.processor.transform();
 		return this.processor.output;
 	}
 	else if ("transformNode" in node) {
@@ -41,17 +42,28 @@ XML.Transformer.prototype.transformNodeSet = function(node) {
 	}
 }
 
-XML.Transformer.prototype.transform = function(node, element) {
+// always transforms to string
+XML.Transformer.prototype.transformToString = function(node) {
+	var fragmentOrString = this._transform(node);
+	if ("transformToFragment" in this.processor) {
+	    var objXMLSerializer = new XMLSerializer;
+		return objXMLSerializer.serializeToString(fragmentOrString);
+	}
+	return fragmentOrString;
+}
+
+// always appends result to the specified element/id
+XML.Transformer.prototype.transformAndAppend = function(node, element) {
 	// If element is specified by id, look it up.
 	if (typeof element == "string") {
 		element = document.getElementById(element);
 	}
-	if (element.appendChild) {
+	if ("transformToFragment" in this.processor) {
 		element.innerHTML = "";
-		element.appendChild(this.transformNodeSet(node));
+		element.appendChild(this._transform(node));
 	}
 	else {
-		element.innerHTML = this.transformNodeSet(node);
+		element.innerHTML = this._transform(node);
 	}
 };
 
@@ -64,13 +76,18 @@ XML.Transformer.prototype.setParameter = function(key, value) {
 	}
 };
 
-
-XML.transformNodeSet = function(xmldoc, stylesheet) {
+// _transform: deze niet gebruiken
+XML._transform = function(xmldoc, stylesheet) {
 	var transformer = new XML.Transformer(stylesheet);
-	return transformer.transformNodeSet(xmldoc);
+	return transformer._transform(xmldoc);
 }
 
-XML.transform = function(xmldoc, stylesheet, element) {
+XML.transformToString = function(xmldoc, stylesheet) {
 	var transformer = new XML.Transformer(stylesheet);
-	transformer.transform(xmldoc, element);
+	return transformer.transformToString(xmldoc);
+}
+
+XML.transformAndAppend = function(xmldoc, stylesheet, element) {
+	var transformer = new XML.Transformer(stylesheet);
+	transformer.transformAndAppend(xmldoc, element);
 }

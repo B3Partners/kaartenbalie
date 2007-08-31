@@ -21,10 +21,12 @@ function addLoadEvent(func) {
 
 function initWithXmlString() {
 	// if no metadata is present we start the editor with all elements empty
-	if (metadataXML == "undefined" || trim(metadataXML) == "")
+	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
 		metadataXML = basicMetadataXML;
+	}
 		
 	metadataXML = metadataXML.unescapeHTML();
+	debug(metadataXML);
 	
 	rawXmlDoc = jsXML.createDOMDocument();
 	rawXmlDoc.async = false;
@@ -34,22 +36,22 @@ function initWithXmlString() {
 	debug(rawXmlDoc.xml);
 
 	//var freeThreadedIfPossible = true;
-	var ppXslDoc = jsXML.createDOMDocument();//true);
+	var ppXslDoc = jsXML.createDOMDocument(true);
 	ppXslDoc.async = false;
 	ppXslDoc.load(preprocessorFullPath);
-	debug("preprocessorFullPath: " + preprocessorFullPath);
+	//debug("preprocessorFullPath: " + preprocessorFullPath);
 	
 	debug("Preprocessor:");
 	debug(ppXslDoc.xml);
 	
-	var rawPreprocessedXML = XML.transformNodeSet(rawXmlDoc, ppXslDoc);
+	var rawPreprocessedXML = XML.transformToString(rawXmlDoc, ppXslDoc);
 	
 	debug("Preprocessed:");
-	debug(rawPreprocessedXML.xml);
+	debug(rawPreprocessedXML);
 	
 	xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
-	xmlDoc.loadXML(rawPreprocessedXML.xml);
+	xmlDoc.loadXML(rawPreprocessedXML);
 	
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
@@ -61,7 +63,7 @@ function initWithXmlString() {
 	
 	var xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", basePath);
-	xmlTransformer.transform(xmlDoc, "writeroot");
+	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
 	xmlDocInit();
 }
