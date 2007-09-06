@@ -12,7 +12,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.Style" table="Style">
+    <class name="nl.b3p.wms.capabilities.Style" table="Style">
     	<id name="id" type="int" column="STYLEID" >
             <generator class="native"/>
         </id>
@@ -21,7 +21,7 @@
         
         <set name="domainResource" inverse="true" cascade="all" lazy="true">
             <key column="STYLEID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.StyleDomainResource"/>
+            <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
         </set>
         
         <property name="name">

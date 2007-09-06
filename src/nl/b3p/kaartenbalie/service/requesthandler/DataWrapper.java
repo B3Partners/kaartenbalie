@@ -30,6 +30,8 @@ public class DataWrapper {
     private HttpServletResponse response;
     private OutputStream sos;
     private String contentDisposition;
+    private long startTime;
+    private long endTime;
     
     public DataWrapper(HttpServletResponse response) throws IOException {
         this.response = response;
@@ -117,6 +119,25 @@ public class DataWrapper {
         } finally {
             if (sos!=null)
                 sos.close();
-        }        
+        }
+        long time = System.currentTimeMillis() - this.getStartTime();
+        double sec = time / 1000;
+        System.out.println("Opdracht uitgevoerd in " + sec + " seconden.");
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 }

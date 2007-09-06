@@ -13,14 +13,19 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
+import nl.b3p.kaartenbalie.service.MyDatabase;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 public class GetMapRequestHandler extends WMSRequestHandler implements KBConstants {
     
@@ -53,44 +58,9 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         }
         dw.setErrorContentType(inimageType);
         
-        user = (User) parameters.get(KB_USER);
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        
-        String previousUrl = "";
-        ArrayList urls = new ArrayList();
-        StringBuffer spUrl = null;
-        
-        /* Get a list with ServiceProviders from the database */
-        List tempSP = getServiceProviders(false);
-        if (tempSP == null) 
-            return;
-        
-        /*
-         * Voordat we aan de lijst beginnen iis het eerst noodzakelijk dat een aantal variabelen
-         * gecontroleerd worden op hun input. Als hier namelijk fouten in blijken te zitten dan
-         * moeten deze aan de gebruiker gerapporteerd worden.
-         */
-        //Eerst moeten de WIDTH en HEIGHT gecontroleerd worden
-        //Vervolgens moeten de BBOX waarden gecontroleerd worden
-        //Dan moet de SRS bepaald worden. Stemt deze voor alle SP's overeen?
-        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);
-        boolean srsFound = false;
-        
-        Set spLayers = ((ServiceProvider)tempSP.get(0)).getLayers();
-        LayerValidator lv = new LayerValidator(spLayers);
-        String [] srsses = lv.validateSRS();
-        for (int i = 0; i < srsses.length; i++) {
-            String srs = srsses[i];
-            if(srs.equals(givenSRS)) {
-                srsFound = true;
-            }
-        }
-        
-        if (!srsFound) {
-            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid SRS given : SRS must be valid for all requested layers.");
-        }        
-        
-        
+        //Een aantal simpele controles. Deze staan vooraan omdat als een van deze
+        //controles al faalt er dan niet onnodig op de zwaardere controles beslag
+        //wordt gelegd.
         int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
         int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
         if(width < 1 || height < 1 || width > 2048 || height > 2048) {
@@ -111,103 +81,110 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid values for BBOX.");
         }
         
+        user = (User) parameters.get(KB_USER);
+        Integer orgId = user.getOrganization().getId();
         
-        /* Split the string with layers into a String array */
-        String layerString = (String) parameters.get(WMS_PARAM_LAYERS);
-        String [] layers = (String[]) layerString.split(",");
+        url = (String) parameters.get(KB_PERSONAL_URL);
+        String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
         
-        /* Go through each layer and find the ServiceProvider this layer belongs to.
-         * If a ServiceProvider has been found there will be checked if the previous
-         * layer belonged to the same ServiceProvider. If yes then this layer is added
-         * up in the URL of the previous layer, otherwise a new URL if created and will
-         * be stored in the previous URL variable to let further layer do the same 
-         * check.
-         */
-        for (int i = 0; i < layers.length; i++) {
-            String layer = layers[i];
-            boolean found = false;
-            int size = tempSP.size();
-            int loopsize = 0;
-            Iterator it = tempSP.iterator();
-            while (it.hasNext()) {
-                loopsize++;
-                ServiceProvider serviceProvider = (ServiceProvider)it.next();
-                Set serviceProviderLayers = serviceProvider.getLayers();
-                String spls = findLayer(layer, serviceProviderLayers);
-                if (spls == null && size == loopsize)
-                    throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
-                if (spls != null) {
-                    spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetMap);
-                    
-                    if (spUrl == null) {
-                        continue;
-                    }
-                    
-                    if(previousUrl.equals(spUrl.toString())) {
-                        StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
-                        url.append("," + spls);
-                        urls.remove(urls.size() - 1);
-                        urls.add(url);
-                        found = true;
-                    } else {
-                        previousUrl = spUrl.toString();                     
-                        spUrl.append(WMS_VERSION);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_VERSION));
-                        spUrl.append("&");
-                        spUrl.append(WMS_REQUEST);
-                        spUrl.append("=");
-                        spUrl.append(WMS_REQUEST_GetMap);
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_BBOX);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_BBOX));
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_SRS);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_SRS));
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_TRANSPARENT);
-                        spUrl.append("=");
-                        spUrl.append(WMS_PARAM_TRANSPARENT_TRUE);
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_FORMAT);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_FORMAT));
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_WIDTH);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_WIDTH));
-
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_HEIGHT);
-                        spUrl.append("=");
-                        spUrl.append((String)parameters.get(WMS_PARAM_HEIGHT));
-                        
-                        spUrl.append("&");
-                        spUrl.append(WMS_PARAM_LAYERS);
-                        spUrl.append("=");
-                        spUrl.append(spls);
-                        urls.add(spUrl);
-                        found = true;
+        ArrayList spUrls = getSeviceProviderURLS(layers, orgId);
+        
+        Session sess = MyDatabase.currentSession();
+        Transaction tx = sess.beginTransaction();        
+        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);        
+        HashMap spMap = new HashMap();
+        ArrayList urls = new ArrayList();
+        Iterator it = spUrls.iterator();
+        while (it.hasNext()) {
+            String [] sp_layerlist = (String []) it.next();
+            
+            //Eerst controle of deze spid al geweest is.... en als niet dan controleren of SRS ok is
+            if(!spMap.containsKey(sp_layerlist[0])) {
+                String layerid = sp_layerlist[3];
+                
+                Layer layer = (Layer) sess.createQuery("from Layer where id = '" + layerid + "'").uniqueResult();
+                Layer topLayer = layer.getTopLayer();
+                
+                
+                String query = 
+                        "SELECT DISTINCT temptabel.LAYERID, srs.SRS FROM srs INNER JOIN (" + 
+                        " SELECT layer.LAYERID, layer.PARENTID FROM layer WHERE layer.PARENTID IS NULL)" + 
+                        " AS temptabel ON temptabel.LAYERID = srs.LAYERID" + 
+                        " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = '" + topLayer.getId() + "'";
+                
+                boolean srsFound = false;
+                List sqlQuery = sess.createSQLQuery(query).list();
+                Iterator sqlIterator = sqlQuery.iterator();
+                while (sqlIterator.hasNext()) {
+                    Object [] objecten = (Object [])sqlIterator.next();
+                    String srs = (String) objecten[1];
+                    if(srs.equals(givenSRS)) {
+                        srsFound = true;
                     }
                 }
-                if (found)
-                    break;
+                
+                if(srsFound) {
+                    spMap.put(sp_layerlist[3], new Boolean(true));
+                } else {
+                    throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid SRS given : SRS must be valid for all requested layers.");
+                }
             }
-            if(spUrl == null) {
-                throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
-            }
+            
+            StringBuffer url = new StringBuffer();
+            url.append(sp_layerlist[1]);
+            url.append(WMS_VERSION);
+            url.append("=");
+            url.append((String)parameters.get(WMS_VERSION));
+            url.append("&");
+            url.append(WMS_REQUEST);
+            url.append("=");
+            url.append(WMS_REQUEST_GetMap);
+
+            url.append("&");
+            url.append(WMS_PARAM_BBOX);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_BBOX));
+
+            url.append("&");
+            url.append(WMS_PARAM_SRS);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_SRS));
+
+            url.append("&");
+            url.append(WMS_PARAM_TRANSPARENT);
+            url.append("=");
+            url.append(WMS_PARAM_TRANSPARENT_TRUE);
+
+            url.append("&");
+            url.append(WMS_PARAM_FORMAT);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_FORMAT));
+
+            url.append("&");
+            url.append(WMS_PARAM_WIDTH);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_WIDTH));
+
+            url.append("&");
+            url.append(WMS_PARAM_HEIGHT);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_HEIGHT));
+
+            url.append("&");
+            url.append(WMS_PARAM_LAYERS);
+            url.append("=");
+            url.append(sp_layerlist[2]);
+            urls.add(url.toString());
         }
+        tx.commit();
         
-        
+        if(urls == null) {
+            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
+        }
         
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
+    
+    
 }

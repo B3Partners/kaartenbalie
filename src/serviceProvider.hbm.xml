@@ -12,13 +12,13 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.ServiceProvider" table="ServiceProvider">
+    <class name="nl.b3p.wms.capabilities.ServiceProvider" table="ServiceProvider">
         <id name="id" type="int" column="SERVICEPROVIDERID">
             <generator class="native"/>
         </id>
         
         <one-to-one name="contactInformation"
-                    class="nl.b3p.kaartenbalie.core.server.ContactInformation"
+                    class="nl.b3p.wms.capabilities.ContactInformation"
                     cascade="all"                    
         />
         
@@ -28,7 +28,7 @@
         
         <set name="layers" inverse="true" cascade="all" lazy="true">
             <key column="SERVICEPROVIDERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
         </set>
         
         <set name="serviceProviderKeywordList" cascade="all" lazy="true">
@@ -38,7 +38,7 @@
      
         <set name="domainResource" inverse="true" cascade="all" lazy="true">
             <key column="SERVICEPROVIDERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.ServiceDomainResource"/>
+            <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
         </set>
         
         <set name="exceptions" cascade="all" lazy="true">

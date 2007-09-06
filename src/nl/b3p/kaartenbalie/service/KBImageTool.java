@@ -27,13 +27,13 @@ import org.apache.commons.logging.LogFactory;
 
 public class KBImageTool {
     
-     private static final Log log = LogFactory.getLog(ImageReader.class);
+     private static final Log log = LogFactory.getLog(KBImageTool.class);
      private BufferedImage bi;
      
-     private final String TIFF  = "image/tiff";
-     private final String GIF   = "image/gif";
-     private final String JPEG  = "image/jpeg";
-     private final String PNG   = "image/png";
+     private static final String TIFF  = "image/tiff";
+     private static final String GIF   = "image/gif";
+     private static final String JPEG  = "image/jpeg";
+     private static final String PNG   = "image/png";
     
     /** Reads an image from an http input stream.
      *
@@ -45,7 +45,7 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
-    public BufferedImage readImage(GetMethod method, String mime) throws Exception {
+    public static BufferedImage readImage(GetMethod method, String mime) throws Exception {
         String mimeType = getMimeType(mime);
     	if (mimeType == null)
     		throw new Exception ("unsupported mime type: " + mime);
@@ -69,7 +69,7 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="writeImage(BufferedImage [] images, String mime, DataWrapper dw) method.">
-    public void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
+    public static void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
         String mimeType = getMimeType(mime);
     	if (mimeType == null)
     		throw new Exception ("unsupported mime type: " + mime);
@@ -91,7 +91,7 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
-    private void writeTIFFImage(BufferedImage bufferedImage, DataWrapper dw) throws Exception {
+    private static void writeTIFFImage(BufferedImage bufferedImage, DataWrapper dw) throws Exception {
         log.info("Writing TIFF using ImageIO.write");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, "tif", baos);
@@ -108,11 +108,15 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="writeOtherImage(BufferedImage bufferedImage, DataWrapper dw, String extension) method.">
-    private void writeOtherImage(BufferedImage bufferedImage, DataWrapper dw, String extension) throws Exception {
+    private static void writeOtherImage(BufferedImage bufferedImage, DataWrapper dw, String extension) throws Exception {
         log.info("Writing JPG, GIF or PNG using ImageIO.write");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
         ImageIO.write(bufferedImage, extension, ios);
+        
+        long time = System.currentTimeMillis() - dw.getStartTime();
+        System.out.println("Images samengevoegd na " + (time/1000) + " seconden." );
+        
         dw.write(baos);
         ios.flush();
         ios.close();
@@ -128,7 +132,7 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineImages(BufferedImage [] images, String mime) method.">
-    private BufferedImage combineImages(BufferedImage [] images, String mime) {
+    private static BufferedImage combineImages(BufferedImage [] images, String mime) {
         if(mime.equals(JPEG)) {
             return combineJPGImages(images);
         } else {
@@ -145,7 +149,7 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineJPGImages(BufferedImage [] images) method.">
-    private BufferedImage combineJPGImages(BufferedImage [] images) {
+    private static BufferedImage combineJPGImages(BufferedImage [] images) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         
@@ -168,7 +172,7 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineOtherImages(BufferedImage [] images) method.">
-    private BufferedImage combineOtherImages(BufferedImage [] images) {
+    private static BufferedImage combineOtherImages(BufferedImage [] images) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         
@@ -193,7 +197,7 @@ public class KBImageTool {
      * @return a String with the found MIME or null if no MIME was found.
      */
     // <editor-fold defaultstate="" desc="getMimeType(String mime) method.">
-    private String getMimeType(String mime) {
+    private static String getMimeType(String mime) {
     	String [] mimeTypes = ImageIO.getReaderMIMETypes();
         for (int i = 0; i < mimeTypes.length; i++)
             if (mimeTypes[i].equalsIgnoreCase(mime))
@@ -210,7 +214,7 @@ public class KBImageTool {
      * @return ImageReader which can handle the specified MIME or null if no reader was found.
      */
     // <editor-fold defaultstate="" desc="getReader(String mime) method.">
-    private ImageReader getReader(String mime) {
+    private static ImageReader getReader(String mime) {
         if(mime.equals(JPEG) || mime.equals(PNG)) {
             return getJPGOrPNGReader(mime);
         } else {
@@ -230,7 +234,7 @@ public class KBImageTool {
      * @return ImageReader which can handle the specified MIME or null if no reader was found.
      */
     // <editor-fold defaultstate="" desc="getJPGOrPNGReader(String mime) method.">
-    private ImageReader getJPGOrPNGReader(String mime) {
+    private static ImageReader getJPGOrPNGReader(String mime) {
         Iterator it = ImageIO.getImageReadersByMIMEType(mime);
         ImageReader imTest = null;
         String name = null;
@@ -255,7 +259,7 @@ public class KBImageTool {
      * @return ImageReader which can handle the specified MIME or null if no reader was found.
      */
     // <editor-fold defaultstate="" desc="getGIFOrTIFFReader(String mime) method.">
-    private ImageReader getGIFOrTIFFReader(String mime) {
+    private static ImageReader getGIFOrTIFFReader(String mime) {
         Iterator it = ImageIO.getImageReadersByMIMEType(mime);
         ImageReader imTest = null;
         String name = null;

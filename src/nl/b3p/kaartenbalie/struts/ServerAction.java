@@ -21,10 +21,11 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -179,9 +180,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * or to change an already existing ServiceProvider. Therefore we are first going
          * to create some objects which we need to change the data if necessary.
          */
-        ServiceProvider newServiceProvider = new ServiceProvider();
+        ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
-        WMSCapabilitiesReader wms = new WMSCapabilitiesReader(newServiceProvider);
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         
         /*
          * This request can lead to several problems.

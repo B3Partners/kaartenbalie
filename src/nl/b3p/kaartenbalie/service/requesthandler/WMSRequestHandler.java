@@ -30,18 +30,19 @@ import java.util.Set;
 import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import nl.b3p.kaartenbalie.service.KBConstants;
-import nl.b3p.kaartenbalie.core.server.Layer;
-import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
-import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
+import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceDomainResource;
+import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
-import nl.b3p.kaartenbalie.struts.ElementHandler;
-import nl.b3p.kaartenbalie.struts.Switcher;
+import nl.b3p.wms.capabilities.ElementHandler;
+import nl.b3p.wms.capabilities.Switcher;
 import nl.b3p.kaartenbalie.service.KBImageTool;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +56,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import nl.b3p.kaartenbalie.service.ThreadedImageReader;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -194,6 +196,68 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return sps;
     }
     // </editor-fold>
+    
+    
+    
+    //Nieuwe methode om de urls samen te stellen en gelijk alle rechten te controleren
+    //deze methode werkt sneller en efficienter dan de bovenstaande getserviceprovider
+    //methode in combinatie met de code voor controle van layer rechten.
+    
+    protected ArrayList getSeviceProviderURLS(String [] layers, Integer orgId) throws Exception {
+        ArrayList spUrls = new ArrayList();
+        Session sess = MyDatabase.currentSession();
+        Transaction tx = sess.beginTransaction();
+        
+        for (int i = 0; i < layers.length; i++) {
+            String layerid = layers[i].substring(0, layers[i].indexOf("_"));
+            String query = 
+                    "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" + 
+                    " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," + 
+                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN " + 
+                    " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = '" + orgId + "'" +
+                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = '" + layerid + "'";
+            
+            List sqlQuery = sess.createSQLQuery(query).list();
+            if(sqlQuery.isEmpty()) {
+                throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
+            }
+            Object [] objecten = (Object [])sqlQuery.get(0);
+            
+            Integer layer_id            = (Integer)objecten[0];
+            String layer_name           = (String)objecten[1];
+            String layer_queryable      = (String)objecten[2];
+            Integer serviceprovider_id  = (Integer)objecten[3];
+            String serviceprovider_url  = (String)objecten[4];
+            
+            
+            String [] sp_layerlist = null;
+            boolean spUrlsEmpty = spUrls.isEmpty();
+            boolean equalIds = false;
+            if(!spUrlsEmpty) {
+                sp_layerlist = (String []) spUrls.get(spUrls.size() - 1);
+                equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
+            }
+            
+            if(equalIds) {
+                layer_name = "," + layer_name;
+            }
+            
+            if(!spUrlsEmpty && equalIds) {
+                sp_layerlist[2] += (layer_name);                
+                spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);    
+            } else {
+                sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), layer_id.toString()};
+                spUrls.add(sp_layerlist);
+            }
+        }
+        tx.commit();
+        return spUrls;
+    }
+    
+    
+    
+    
+    
 
     /** Creates a new Set of layers which are an exact clonecopy of the original ones.
      *
@@ -325,6 +389,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
     protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws Exception {
+        long time2 = System.currentTimeMillis() - dw.getStartTime();
+        double sec2 = time2 / 1000;
+        System.out.println("Controle van layerrechten en SRS uit database met query's is uitgevoerd in " + sec2 + " seconden.");
+        
+        
+        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
 
@@ -335,58 +405,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                /* Read each of the strings and create an URL for each one of them
-                 * With the defined URL create a BufferedImage which will contain the
-                 * image the URL was loacting to.
-                 * Before we can combine each of the read images, we first need to
-                 * check for for each image we read if an error occurs during reading
-                 * or if we get an error message from the server without even reading
-                 * an image. It could be that the reading of any input could go right
-                 * but that the information we get during reading is not the information
-                 * we expect it to be.
-                 *
-                 * In order to check if the information is what we expect of it we need
-                 * to check what contenttype is given when the information comes is. If
-                 * this contenttype is of the format EXCEPTION_XML we need to throw an
-                 * exception with the same exception as we recieved from the service-
-                 * provider.
-                 *
-                 * After all images are loaded into the memory, these images
-                 * can be combined (blended) to make it one image. In order to
-                 * be able to blend the images, an empty Graphics 2D object is
-                 * needed to project all the other images onto. This Graphics
-                 * object is recieved through a new and empty BufferedImage which
-                 * has the same size as our BufferedImages.
-                 */
-                bi = new BufferedImage [urls.size()];
-                KBImageTool kbir = new KBImageTool();
-                String contentType = "";
-
-                for (int i = 0; i < urls.size(); i++) {
-                    String url = ((StringBuffer)urls.get(i)).toString();
-                    URL u = new URL(url);
-
-                    HttpClient client = new HttpClient();
-                    GetMethod method = new GetMethod(url);
-                    client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
-
-					int statusCode = client.executeMethod(method);
-					if (statusCode != HttpStatus.SC_OK) {
-						throw new Exception("Error connecting to server. Status code: " + statusCode);
-					}
-
-                    contentType = method.getResponseHeader("Content-Type").getValue();
-
-                    if (contentType.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
-                        InputStream is = method.getResponseBodyAsStream();
-                        String body = getServiceException(is);
-                        throw new Exception(body);
-                    }
-
-                    bi[i] = kbir.readImage(method, contentType);
-                    method.releaseConnection();
-                }
-                kbir.writeImage(bi, contentType, dw);
+                ThreadedImageReader tir = new ThreadedImageReader(urls);
+                tir.sendCombinedImages(dw);
+                
+                //Temporary information...:
+                long time = System.currentTimeMillis() - dw.getStartTime();
+                double sec = time / 1000;
+                System.out.println("Schrijven van image is uitgevoerd in " + sec + " seconden.");
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo
@@ -556,91 +581,51 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     }
     // </editor-fold>
 
-    /** Tries to find a specified layer given for a certain ServiceProvider.
+    /** Tries to find a specified layer in a given set of layers. If a service provider is given
+     * this method checks also if the given layer belongs to the specified Service Provider. On the
+     * other end this method checks if a certain layer is queryable if the boolean is set to true.
      *
-     * @param layers the set with layers which the method has to surch through
-     * @param l the layer to be found
-     * @param s the ServiceProvider which the layer belongs to
-     *
-     * @return string with the name of the found layer or null if no layer was found
-     */
-    // <editor-fold defaultstate="" desc="findLayer(Set layers, String l, ServiceProvider s) method.">
-    protected String findLayer(Set layers, String l, ServiceProvider s) {
-        if (layers==null || layers.isEmpty())
-            return null;
-
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getId() + "_" + layer.getName();
-            if(identity.equalsIgnoreCase(l) && layer.getServiceProvider().getId().equals(s.getId()))
-                return layer.getName();
-
-            String foundLayer = findLayer(layer.getLayers(), l, s);
-            if (foundLayer != null)
-                return foundLayer;
-        }
-
-        return null;
-    }
-    // </editor-fold>
-
-    /** Tries to find a specified layer given for a certain ServiceProvider.
-     *
-     * @param layers the set with layers which the method has to surch through
-     * @param layerToBeFound the layer to be found
+     * @param layers the set with layers which the method has to surch through.
+     * @param layerToBeFound the layer to be found.
+     * @param serviceProvider the ServiceProvider which the layer belongs to.
+     * @param queryable boolean if the method has to search for a queryable layer or not.
      *
      * @return string with the name of the found layer or null if no layer was found
      */
-    // <editor-fold defaultstate="" desc="findLayer(String layerToBeFound, Set layers) method.">
-    protected String findLayer(String layerToBeFound, Set layers) {
-        if (layers==null || layers.isEmpty())
+    // <editor-fold defaultstate="" desc="protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable)">
+    protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable) {
+       if (layers==null || layers.isEmpty())
             return null;
-
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getId() + "_" + layer.getName();
-            if(identity.equalsIgnoreCase(layerToBeFound))
-                return layer.getName();
-
-            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
-            if (foundLayer != null)
-                return foundLayer;
-        }
-        return null;
-    }
-    // </editor-fold>
-
-    /** Tries to find a specified layer given for a certain ServiceProvider.
-     *
-     * @param layers the set with layers which the method has to surch through
-     * @param layerToBeFound the layer to be found
-     *
-     * @return string with the name of the found layer or null if no layer was found
-     */
-    // <editor-fold defaultstate="" desc="findQueryableLayer(String layerToBeFound, Set layers) method.">
-    protected String findQueryableLayer(String layerToBeFound, Set layers) {
-        if (layers==null || layers.isEmpty())
-            return null;
-
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
+       
+       Iterator it = layers.iterator();
+       while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             String identity = layer.getId() + "_" + layer.getName();
             if(identity.equalsIgnoreCase(layerToBeFound)) {
-                if (layer.getQueryable().equals("1")) {
+                if (!queryable && serviceProvider == null){
                     return layer.getName();
+                } else if (serviceProvider != null && !queryable) {
+                    if(layer.getServiceProvider().getId().equals(serviceProvider.getId())) {
+                        return layer.getName();
+                    } else {
+                        return null;
+                    }                    
+                } else if(queryable && serviceProvider == null) {
+                    if (layer.getQueryable().equals("1")) {
+                        return layer.getName();
+                    } else {
+                        return null;
+                    }
                 } else {
                     return null;
                 }
             }
-
-            String foundLayer = findQueryableLayer(layerToBeFound, layer.getLayers());
+            
+            String foundLayer = findLayer(layer.getLayers(), layerToBeFound, serviceProvider, queryable);
             if (foundLayer != null)
                 return foundLayer;
-        }
-        return null;
+       }
+       return null;
     }
     // </editor-fold>
 
@@ -659,7 +644,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             return null;
         StringBuffer requestedLayers = null;
         for (int i = 0; i < layer.length; i++) {
-            String foundLayer = findLayer(spLayers, layer[i], serviceProvider);
+            String foundLayer = findLayer(spLayers, layer[i], serviceProvider, false);
             if (foundLayer==null)
                 continue;
             if (requestedLayers==null)

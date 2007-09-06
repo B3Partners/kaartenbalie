@@ -18,7 +18,7 @@
         </id>
         <set name="organizationLayer" table="OrganizationLayer" lazy="false">
             <key column="ORGANIZATIONID"/>
-            <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer" lazy="false"/>
+            <many-to-many column="LAYERID" class="nl.b3p.wms.capabilities.Layer" lazy="false"/>
         </set>
         
         
@@ -26,18 +26,6 @@
             <key column="USERID" update="false"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
         </set>
-        
-        <!--
-        <class name="nl.b3p.kaartenbalie.core.server.Organization">
-            <id name="id" column="ORGANIZATIONID">
-                <generator class="native"/>
-            </id>
-            <set name="organizationLayer" table="OrganizationLayer">
-                <key column="ORGANIZATIONID"/>
-                <many-to-many column="LAYERID" class="nl.b3p.kaartenbalie.core.server.Layer"/>
-            </set>
-        </class>
-        -->
         
         <property name="name">
             <column name="NAME" />

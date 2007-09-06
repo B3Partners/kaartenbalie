@@ -12,7 +12,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.StyleDomainResource" table="StyleDomainResource">
+    <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="StyleDomainResource">
         <id name="id" type="int" column="SDRID" >
             <generator class="native"/>
         </id>

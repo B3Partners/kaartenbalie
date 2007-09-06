@@ -30,30 +30,13 @@
         <mapping resource="serviceDomainResource.hbm.xml"/>
         <mapping resource="serviceProvider.hbm.xml"/>
         <mapping resource="user.hbm.xml"/>
-        
         <mapping resource="layer.hbm.xml"/>
         <mapping resource="dimensions.hbm.xml"/>
-        
-        
         <mapping resource="identifier.hbm.xml"/>
         <mapping resource="layerDomainResource.hbm.xml"/>
         <mapping resource="srsboundingbox.hbm.xml"/>
         <mapping resource="style.hbm.xml"/>
         <mapping resource="styleDomainResource.hbm.xml"/>
-       
-        
-        
-        <!-- mapping resource="organizationLayer.hbm.xml"/ -->
-        
-        <!--mapping resource="billing.hbm.xml"/ -->        
-        <!--mapping resource="exceptions.hbm.xml"/ -->        
-        <!-- mapping resource="layerDomainFormat.hbm.xml"/ -->        
-        <!-- mapping resource="layerKeywordList.hbm.xml"/ -->
-        <!-- mapping resource="legendURL.hbm.xml"/ -->        
-        <!-- mapping resource="serviceDomainFormat.hbm.xml"/ -->        
-        <!-- mapping resource="serviceProviderKeywordList.hbm.xml"/ -->        
-        <!-- mapping resource="kaartenbalie.hbm.xml"/ -->
-        <!-- mapping resource="server.hbm.xml"/ -->
 </session-factory>
 </hibernate-configuration>
 

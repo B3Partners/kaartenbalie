@@ -16,7 +16,7 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import nl.b3p.kaartenbalie.service.KBConstants;
+import nl.b3p.wms.capabilities.KBConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.parsers.DOMParser;

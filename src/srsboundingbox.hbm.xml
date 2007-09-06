@@ -12,7 +12,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.SrsBoundingBox" table="SRS">
+    <class name="nl.b3p.wms.capabilities.SrsBoundingBox" table="SRS">
     	<id name="id" type="int" column="SRSID" >
             <generator class="native"/>
         </id>

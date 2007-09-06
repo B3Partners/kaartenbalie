@@ -20,10 +20,11 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import nl.b3p.kaartenbalie.core.server.Layer;
+import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -159,8 +160,8 @@ public class ServerActionDemo extends ServerAction {
          * or to change an already existing ServiceProvider. Therefore we are first going
          * to create some objects which we need to change the data if necessary.
          */        
-        ServiceProvider newServiceProvider = new ServiceProvider();
-        WMSCapabilitiesReader wms = new WMSCapabilitiesReader(newServiceProvider);
+        ServiceProvider newServiceProvider = null;
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
 
         /*
          * This request can lead to several problems.

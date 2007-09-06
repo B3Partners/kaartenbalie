@@ -29,9 +29,6 @@
             maxActive="100"
     />
 	
-	<!-- root password: ***REMOVED*** -->
-    
-    
     <!-- Config voor MNP productie, Tomcat 5.0 
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
     <ResourceParams name="jdbc/kaartenbalie">
@@ -79,8 +76,7 @@
             <name>validationQuery</name>
             <value>SELECT 1</value>
     </parameter>
-    </ResourceParams>
-    -->
+    </ResourceParams>-->
     
     <!-- Config voor B3Partners productie, Tomcat 5.0 
 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>

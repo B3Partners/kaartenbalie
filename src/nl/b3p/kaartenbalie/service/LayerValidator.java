@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.Layer;
-import nl.b3p.kaartenbalie.core.server.SrsBoundingBox;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.SrsBoundingBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

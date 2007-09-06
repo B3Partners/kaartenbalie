@@ -12,7 +12,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.LayerDomainResource" table="LayerDomainResource">        
+    <class name="nl.b3p.wms.capabilities.LayerDomainResource" table="LayerDomainResource">        
         <id name="id" type="int" column="LDRID" >
             <generator class="native"/>
         </id>

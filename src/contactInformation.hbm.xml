@@ -12,14 +12,14 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.ContactInformation" table="ContactInformation">
+    <class name="nl.b3p.wms.capabilities.ContactInformation" table="ContactInformation">
         <id name="id" type="int" column="SERVICEPROVIDERID">
             <generator class="foreign">
                 <param name="property">serviceProvider</param>
             </generator>
         </id>
         
-        <one-to-one name="serviceProvider" constrained="true" class="nl.b3p.kaartenbalie.core.server.ServiceProvider" />
+        <one-to-one name="serviceProvider" constrained="true" class="nl.b3p.wms.capabilities.ServiceProvider" />
         
         <property name="contactPerson">
             <column name="CONTACTPERSON"/>

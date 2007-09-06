@@ -37,7 +37,7 @@ import org.hibernate.Transaction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
-import nl.b3p.kaartenbalie.service.KBConstants;
+import nl.b3p.wms.capabilities.KBConstants;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -78,12 +78,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DataWrapper data = new DataWrapper(response);
+        data.setStartTime(System.currentTimeMillis());
         User user = null;
-
-        String s="";
-        s+=request.getServletPath();
-        s+=request.getPathInfo()+request.getQueryString();
-        log.info("Request: "+s);
+        log.info("Request: " + request.getServletPath() + request.getPathInfo() + request.getQueryString());
         try {
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
@@ -93,7 +90,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //of the user can be logged.
             if(user != null) {
             	data.setHeader("X-Kaartenbalie-User", user.getUsername());
-			}
+            }
 
             //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
 

@@ -12,57 +12,24 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.Layer" table="Layer">
+    <class name="nl.b3p.wms.capabilities.Layer" table="Layer">
     	<id name="id" type="int" column="LAYERID" >
             <generator class="native"/>
         </id>
         
         
-        <many-to-one name="parent" column="PARENTID" class="nl.b3p.kaartenbalie.core.server.Layer" />
+        <many-to-one name="parent" column="PARENTID" class="nl.b3p.wms.capabilities.Layer" />
         
 
         <set name="layers" inverse="true" cascade="all" order-by="name"> 
             <key column="PARENTID" /> 
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"></one-to-many>
+            <one-to-many class="nl.b3p.wms.capabilities.Layer"></one-to-many>
             
-        </set>
-        
-        <!--
-        <set name="organizationLayer">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.OrganizationLayer"/>
-        </set>
-        -->
-        
-        <!--
-        <class name="nl.b3p.kaartenbalie.core.server.Layer">
-            <id name="id" column="LAYERID">
-                <generator class="native"/>
-            </id>
-        </class>
-        -->
-        
-        
-        <!--
-        <set name="layers" cascade="all">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
-        </set>
-        
-        <many-to-one name="Layer" column="LAYERID" not-null="true" inverse="true" insert="false" update="false"/>
-        
-        <set name="layers" inverse="true" cascade="all" lazy="false">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Layer"/>
-        </set>
-        
-        <many-to-one name="Layer" column="LAYERID" not-null="true" insert="false" update="false"/>
-        -->
-        
+        </set>        
         
         <set name="dimensions" inverse="true" cascade="all">
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Dimensions"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
         </set>
         
         <set name="layerKeywordList" cascade="all">
@@ -72,28 +39,26 @@
                 
         <set name="styles" inverse="true" cascade="all">
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Style"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Style"/>
         </set>
         
         <set name="domainResource" inverse="true" cascade="all">
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.LayerDomainResource"/>
+            <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
         </set>
         
         <set name="identifiers" inverse="true" cascade="all" >
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Identifier"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
         </set>
-        
-        
-        
+                
         <set name="srsbb" inverse="true" cascade="all" lazy="false" >
             <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.SrsBoundingBox"/>
+            <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
         </set>
         
         <one-to-one name="attribution"
-                    class="nl.b3p.kaartenbalie.core.server.Attribution"
+                    class="nl.b3p.wms.capabilities.Attribution"
                     cascade="all"                    
                     fetch="join"
                     lazy="false"

@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

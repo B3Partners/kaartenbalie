@@ -12,6 +12,7 @@ package nl.b3p.kaartenbalie.core.server;
 
 import java.security.Principal;
 import java.util.Date;
+import nl.b3p.kaartenbalie.core.server.*;
 
 public class User implements Principal {
     

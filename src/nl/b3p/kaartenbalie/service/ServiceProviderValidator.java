@@ -17,9 +17,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.ContactInformation;
-import nl.b3p.kaartenbalie.core.server.ServiceDomainResource;
-import nl.b3p.kaartenbalie.core.server.ServiceProvider;
+import nl.b3p.wms.capabilities.ContactInformation;
+import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.wms.capabilities.ServiceDomainResource;
+import nl.b3p.wms.capabilities.ServiceProvider;
 
 
 public class ServiceProviderValidator implements KBConstants {

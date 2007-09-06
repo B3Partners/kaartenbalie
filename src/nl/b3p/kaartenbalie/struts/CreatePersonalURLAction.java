@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.kaartenbalie.service.KBConstants;
+import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

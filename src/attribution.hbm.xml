@@ -12,14 +12,14 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.Attribution" table="Attribution">
+    <class name="nl.b3p.wms.capabilities.Attribution" table="Attribution">
     	<id name="id" type="int" column="LAYERID">
             <generator class="foreign">
                 <param name="property">layer</param>
             </generator>
         </id>
         
-        <one-to-one name="layer" constrained="true" class="nl.b3p.kaartenbalie.core.server.Layer" />
+        <one-to-one name="layer" constrained="true" class="nl.b3p.wms.capabilities.Layer" />
         
         <property name="title">
             <column name="TITLE"/>

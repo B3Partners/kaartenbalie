@@ -12,7 +12,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.Dimensions" table="Dimensions">
+    <class name="nl.b3p.wms.capabilities.Dimensions" table="Dimensions">
     	<id name="id" type="int" column="DIMENSIONSID" >
             <generator class="native"/>
         </id>
