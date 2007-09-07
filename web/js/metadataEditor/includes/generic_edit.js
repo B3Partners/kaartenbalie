@@ -54,7 +54,6 @@ function trim(value) {
 }
 
 
-
 // =============
 // Edit Routines
 // =============
