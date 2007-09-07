@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,8 +40,6 @@ import nl.b3p.kaartenbalie.service.MyDatabase;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.wms.capabilities.Switcher;
-import nl.b3p.kaartenbalie.service.KBImageTool;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +53,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-import nl.b3p.kaartenbalie.service.ThreadedImageReader;
+import nl.b3p.kaartenbalie.service.ImageManager;
+import nl.b3p.kaartenbalie.service.ImageReader;
+import nl.b3p.kaartenbalie.service.ImageWriter;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -405,8 +404,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                ThreadedImageReader tir = new ThreadedImageReader(urls);
-                tir.sendCombinedImages(dw);
+                BufferedImage bufferedImage = null;
+                
+                ImageManager imagemanager = new ImageManager(urls.size());
+                ImageReader imReader = new ImageReader(imagemanager, bufferedImage, dw);
+                ImageWriter imWriter = new ImageWriter(imagemanager, bufferedImage, urls);
+                
+                imReader.start();
+                imWriter.start();
+                
+                imReader = null;
+                imWriter = null;
                 
                 //Temporary information...:
                 long time = System.currentTimeMillis() - dw.getStartTime();
@@ -433,7 +441,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 Document source = null;
                 for (int i = 0; i < urls.size(); i++) {
-                    source = builder.parse( ((StringBuffer)urls.get(i)).toString() );
+                    source = builder.parse( (String)urls.get(i) );
                     copyElements(source, destination);
                 }
 
@@ -445,7 +453,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         } else {
             if(!urls.isEmpty()) {
-                getOnlineData(dw, ((StringBuffer)urls.get(0)).toString());
+                getOnlineData(dw, (String)urls.get(0));
             } else {
                 if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                     throw new Exception(FEATUREINFO_EXCEPTION);

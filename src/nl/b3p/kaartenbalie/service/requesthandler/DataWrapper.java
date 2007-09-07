@@ -13,12 +13,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris
  */
 public class DataWrapper {
+    private static final Log log = LogFactory.getLog(DataWrapper.class);
 
     private String contentType;
     private String errorContentType;
@@ -117,8 +120,11 @@ public class DataWrapper {
             sos.write(baos.toByteArray());
             sos.flush();
         } finally {
-            if (sos!=null)
+            Thread t = Thread.currentThread();
+            log.info(t.getName() + "is now the current thread");
+            if (sos!=null) {
                 sos.close();
+            }
         }
         long time = System.currentTimeMillis() - this.getStartTime();
         double sec = time / 1000;
