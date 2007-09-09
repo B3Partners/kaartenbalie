@@ -55,7 +55,7 @@ import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import nl.b3p.kaartenbalie.service.ImageManager;
 import nl.b3p.kaartenbalie.service.ImageReader;
-import nl.b3p.kaartenbalie.service.ImageWriter;
+import nl.b3p.kaartenbalie.service.ImageCollector;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -63,20 +63,20 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
-
+    
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
     protected String url;
     protected static long maxResponseTime = 100000;
     protected static final String FEATUREINFO_EXCEPTION = "msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.";
     protected static final String LEGENDGRAPHIC_EXCEPTION = "msWMSGetLegendgraphic(): Invalid layer given in the LAYERS parameter.";
-
+    
     private XMLReader parser;
     private static Stack stack = new Stack();
     private Switcher s;
-
+    
     public WMSRequestHandler() { }
-
+    
     /** Creates a List of ServiceProviders recieved from the Database.
      * If the boolean is set to true, this method creates a single ServiceProvider in a List which holds again all
      * layers supported by the kaartenbalie. Otherwise if the boolean is set to false the method will get each single
@@ -87,25 +87,25 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="getServiceProviders(boolean combine) method.">
     protected List getServiceProviders(boolean combine) {
-
+        
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
-
+        
         List sps  = new ArrayList();
         List clonedsps  = new ArrayList();
         Set dbLayers = null;
         Set clonedLayers = new HashSet();
-
+        
         /*
          * First we a set with layers which are visible to the user doing the request
          */
         User dbUser = (User)sess.createQuery("from User u where " +
                 "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
-
+        
         dbLayers = dbUser.getOrganization().getOrganizationLayer();
         if (dbLayers == null)
             return null;
-
+        
         /*
          * Now we have a set of layers with which we can perform our action.
          * There can be two types of actions; there can be a combination of all
@@ -114,7 +114,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * Before we can perform the action we need to take some action in order
          * to be able to perform the action.
          */
-
+        
         /*
          * Getting the serviceproviders from the database layers.
          * By walking through all layers, checking if the layer has a parent we can
@@ -125,7 +125,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * we can build up the tree to the top by calling the getParents method.
          */
         Set parents = getParents(getLeafLayers(cloneLayers(dbLayers)));
-
+        
         Set serviceproviders = new HashSet();
         Iterator it = parents.iterator();
         while (it.hasNext()) {
@@ -135,7 +135,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             clonedSp.addLayer(parent);
             serviceproviders.add( clonedSp );
         }
-
+        
         if(combine) {
             /* Now a top layer is available we need a ServiceProviderobject to store
              * this toplayer in. With the ServiceProvider there are also a couple of
@@ -145,7 +145,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
              */
             ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
             ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-
+            
             /* We have still a Set of toplayers.
              * A ServiceProvider is allowed to have only one toplayer.
              * Therefore a toplayer has to be created manually.
@@ -155,7 +155,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             Layer layer = new Layer();
             layer.setTitle(TOPLAYERNAME);
             //layer.setName(TOPLAYERNAME);
-
+            
             //Standaard LatLonBoundingBox
             //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
             //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
@@ -169,7 +169,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             LayerValidator lv = new LayerValidator(dbLayers);
             layer.addSrsbb(lv.validateLatLonBoundingBox());
             layer.setLayers(parents);
-
+            
             /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
              * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
              * Name, then that layer is only a category title for all the layers nested within. A Map
@@ -185,7 +185,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 srsbb.setSrs(supportedSRS[i]);
                 layer.addSrsbb(srsbb);
             }
-
+            
             validServiceProvider.addLayer(layer);
             sps.add(validServiceProvider);
         } else {
@@ -209,10 +209,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         for (int i = 0; i < layers.length; i++) {
             String layerid = layers[i].substring(0, layers[i].indexOf("_"));
-            String query = 
-                    "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" + 
-                    " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," + 
-                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN " + 
+            String query =
+                    "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
+                    " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
+                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN " +
                     " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = '" + orgId + "'" +
                     " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = '" + layerid + "'";
             
@@ -242,8 +242,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
             
             if(!spUrlsEmpty && equalIds) {
-                sp_layerlist[2] += (layer_name);                
-                spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);    
+                sp_layerlist[2] += (layer_name);
+                spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
             } else {
                 sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), layer_id.toString()};
                 spUrls.add(sp_layerlist);
@@ -257,7 +257,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     
     
-
+    
     /** Creates a new Set of layers which are an exact clonecopy of the original ones.
      *
      * @param originalLayers
@@ -274,7 +274,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return cloneLayers;
     }
     // </editor-fold>
-
+    
     /** Creates a new layer which is an exact clonecopy of the original one.
      *
      * @param original
@@ -291,7 +291,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return cloneLayer;
     }
     // </editor-fold>
-
+    
     /** Defines a Set with layers in which only leafs are added. These have no childs.
      *
      * @param originalLayers
@@ -311,7 +311,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return leafLayers;
     }
     // </editor-fold>
-
+    
     /** Builds a new tree from the bottom up with only the leafs as beginning point.
      *
      * @param leafLayers
@@ -322,7 +322,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private Set getParents(Set leafLayers) {
         boolean found = false;
         Set parents = new HashSet();
-
+        
         Iterator leaflayerIterator = leafLayers.iterator();
         while(leaflayerIterator.hasNext()) {
             Layer leafLayer = (Layer)leaflayerIterator.next();
@@ -339,7 +339,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         break;
                     }
                 }
-
+                
                 //Before we are going to add this layer in the Set of parent layers we need to check if
                 //this layer is not already added by a previous child layer. If so the there is no need to
                 //add it again and it was only necessary to add the leaf layer to this parent.
@@ -353,11 +353,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 //toplayers are saved each time we get into this loop for a new check.
                 parents.add(leafLayer);
             }
-
+            
             //reset the boolean
             found = false;
         }
-
+        
         //Here we check if the created list contains only top layers.
         //If not then we need to go on recursivly untill we have only
         //toplayers in the list.
@@ -368,12 +368,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 return getParents(parents);
             }
         }
-
+        
         //Once we have a list of only top layers we can return this list.
         return parents;
     }
     // </editor-fold>
-
+    
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
      * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the
      * DataWrapper, which will sent the data to the client requested for this information.
@@ -396,7 +396,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
-
+        
         /* To save time, this method checks first if the ArrayList contains more then one url
          * If it contains only one url then the method doesn't have to load the image into the G2D
          * environment, which saves a lot of time and capacity because it doesn't have to decode
@@ -406,15 +406,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
                 BufferedImage bufferedImage = null;
                 
-                ImageManager imagemanager = new ImageManager(urls.size());
-                ImageReader imReader = new ImageReader(imagemanager, bufferedImage, dw);
-                ImageWriter imWriter = new ImageWriter(imagemanager, bufferedImage, urls);
-                
-                imReader.start();
-                imWriter.start();
-                
-                imReader = null;
-                imWriter = null;
+                ImageManager imagemanager = new ImageManager(urls);
+                imagemanager.process();
+                imagemanager.sendCombinedImages(dw);
+                // TODO duur van alle subrequest kan uit image collector berekend worden.
                 
                 //Temporary information...:
                 long time = System.currentTimeMillis() - dw.getStartTime();
@@ -431,7 +426,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 dbf.setValidating(true);
                 dbf.setNamespaceAware(true);
                 dbf.setIgnoringElementContentWhitespace(true);
-
+                
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document destination = builder.newDocument();
                 Element rootElement = destination.createElement("msGMLOutput");
@@ -444,7 +439,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     source = builder.parse( (String)urls.get(i) );
                     copyElements(source, destination);
                 }
-
+                
                 OutputFormat format = new OutputFormat(destination);
                 format.setIndenting(true);
                 XMLSerializer serializer = new XMLSerializer(baos, format);
@@ -464,7 +459,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
     }
     // </editor-fold>
-
+    
     /** Private method getOnlineData which handels the throughput of information when it is only
      *  about one URL. This is a slightly different method, because no checks have to be done or
      *  information has to be stored. Everything can be directly send through the open connection.
@@ -483,27 +478,27 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
-
+        
         String rhValue = "";
-
+        
         try {
-			long startTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             int statusCode = client.executeMethod(method);
             long time = System.currentTimeMillis() - startTime;
             dw.setHeader("X-Kaartenbalie-debug1", String.valueOf(time));
-
+            
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
-
+            
             rhValue = method.getResponseHeader("Content-Type").getValue();
-
+            
             if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                 InputStream is = method.getResponseBodyAsStream();
                 String body = getServiceException(is);
                 throw new Exception(body);
             }
-
+            
             dw.setContentType(rhValue);
             dw.write(method.getResponseBodyAsStream());
         } catch (HttpException e) {
@@ -517,7 +512,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
     }
     // </editor-fold>
-
+    
     /** Constructor of the WMSCapabilitiesReader.
      *
      * @param byteStream InputStream object in which the serviceexception is stored.
@@ -530,7 +525,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private static String getServiceException(InputStream byteStream) throws IOException, SAXException {
         Switcher s = new Switcher();
         s.setElementHandler("ServiceException", new ServiceExceptionHandler());
-
+        
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
@@ -539,7 +534,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return (String)stack.pop();
     }
     // </editor-fold>
-
+    
     /**
      * Below is the Handler defined which reads the Exception from a ServiceException recieved when an error occurs.
      */
@@ -549,17 +544,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             sb = new StringBuffer();
         }
-
+        
         public void characters(char[] chars, int start, int len) {
             sb.append(chars, start, len);
         }
-
+        
         public void endElement(String uri, String localName, String qName) {
             stack.push(sb.toString());
         }
     }
     // </editor-fold>
-
+    
     /** Method which copies information from one XML document to another document.
      * It adds information to an document and with this method it's possible to create
      * one document from several other documents as used to create an GetFeatureInfo
@@ -573,7 +568,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Element root_source = source.getDocumentElement();
         NodeList nodelist_source = root_source.getChildNodes();
         int size_source = nodelist_source.getLength();
-
+        
         for (int i = 0; i < size_source; i ++) {
             Node node_source = nodelist_source.item(i);
             if (node_source instanceof Element) {
@@ -588,7 +583,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
     }
     // </editor-fold>
-
+    
     /** Tries to find a specified layer in a given set of layers. If a service provider is given
      * this method checks also if the given layer belongs to the specified Service Provider. On the
      * other end this method checks if a certain layer is queryable if the boolean is set to true.
@@ -602,11 +597,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable)">
     protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable) {
-       if (layers==null || layers.isEmpty())
+        if (layers==null || layers.isEmpty())
             return null;
-       
-       Iterator it = layers.iterator();
-       while (it.hasNext()) {
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             String identity = layer.getId() + "_" + layer.getName();
             if(identity.equalsIgnoreCase(layerToBeFound)) {
@@ -617,7 +612,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         return layer.getName();
                     } else {
                         return null;
-                    }                    
+                    }
                 } else if(queryable && serviceProvider == null) {
                     if (layer.getQueryable().equals("1")) {
                         return layer.getName();
@@ -632,11 +627,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             String foundLayer = findLayer(layer.getLayers(), layerToBeFound, serviceProvider, queryable);
             if (foundLayer != null)
                 return foundLayer;
-       }
-       return null;
+        }
+        return null;
     }
     // </editor-fold>
-
+    
     /** Builds a Stringbuffer of the layers found in the database and compared with the requested layers.
      * @param serviceProvider ServiceProvider to which the layers belong
      * @param layer string array with layersto be found and added to the list
@@ -666,7 +661,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return requestedLayers.toString();
     }
     // </editor-fold>
-
+    
     /** Checks wether a post or get url is available for an incomming request.
      * @param serviceProvider ServiceProvider to which the request belongs
      * @param request String with the specified request
@@ -689,7 +684,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         return null;
     }
     // </editor-fold>
-
+    
     /** Processes the parameters and creates a byte array with the needed information.
      *
      * @param parameters Map parameters
@@ -701,12 +696,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract void getRequest(DataWrapper dw, Map params) throws IOException, Exception;
     // </editor-fold>
-
+    
     // <editor-fold defaultstate="" desc="getter methods.">
     public User getUser() {
         return user;
     }
-
+    
     public String getUrl() {
         return url;
     }

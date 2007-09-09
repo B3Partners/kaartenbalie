@@ -12,6 +12,10 @@ package nl.b3p.kaartenbalie.service;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Iterator;
+import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * ImageManager definition:
@@ -19,39 +23,72 @@ import java.util.ArrayList;
  */
 
 public class ImageManager {
-    private ArrayList images;
-    private int maxSize;
     
-    private static int imageCounter;
-    private boolean available = false;
+    private final Log log = LogFactory.getLog(this.getClass());
+    private static final int maxResponseTime = 100000;
+    private ArrayList ics = new ArrayList();
     
-    public ImageManager(int totalDownloads) {
-        images = new ArrayList();
-        this.maxSize = totalDownloads;
-        imageCounter = 0;
-    }
-    
-    public synchronized ArrayList get() {
-        while (available == false) {
-            try {
-                wait();
-            } catch (InterruptedException e) {}
+    public ImageManager(ArrayList urls) {
+        if (urls==null || urls.isEmpty())
+            return;
+        Iterator it = urls.iterator();
+        while (it.hasNext()) {
+            String url = (String) it.next();
+            ImageCollector ic = new ImageCollector(url);
+            ics.add(ic);
         }
-        available = (imageCounter >= maxSize);
-        imageCounter--;
-        notifyAll();
-        return images;
     }
-
-    public synchronized void put(BufferedImage bi) {
-        while (available == true) {
-            try {
-                wait();
-            } catch (InterruptedException e) { }
+    
+    public void process() throws Exception {
+        
+        log.debug("Starting process");
+        
+        // Hier worden de threads gestart
+        ImageCollector ic = null;
+        Iterator it = ics.iterator();
+        while (it.hasNext()) {
+            ic = (ImageCollector)it.next();
+            if (ic.getStatus()==ImageCollector.NEW) {
+                ic.processNew();
+            }
         }
-        images.add(bi);
-        imageCounter++;
-        available = (imageCounter >= maxSize);
-        notifyAll();
+        log.debug("Image collectors started");
+        
+        // Hier wordt op de threads gewacht tot ze klaar zijn.
+        it = ics.iterator();
+        while (it.hasNext()) {
+            ic = (ImageCollector)it.next();
+            if (ic.getStatus()==ImageCollector.ACTIVE) {
+                ic.processWaiting();
+            }
+        }
+        
+        
     }
+    
+    public void sendCombinedImages(DataWrapper dw) throws Exception {
+        
+        //TODO beslissen of we plaatje gaan sturen als een van de onderliggende
+        // image niet goed is opgehaald.
+        ImageCollector ic = null;
+        Iterator it = ics.iterator();
+        while (it.hasNext()) {
+            ic = (ImageCollector)it.next();
+            if (ic.getStatus()!=ImageCollector.COMPLETED || ic.getBufferedImage()==null) {
+                // TODO alleen eerste foutmelding of ook nog de andere ???
+                throw new Exception(ic.getMessage());
+            }
+        }
+        
+        BufferedImage [] allImages = new BufferedImage[ics.size()];
+        for (int i=0; i<ics.size(); i++) {
+            ic = (ImageCollector)ics.get(i);
+            allImages[i]= ic.getBufferedImage();
+        }
+        log.debug("Image collection retrieved from providers");
+        
+        KBImageTool kbi = new KBImageTool();
+        kbi.writeImage(allImages, "image/png", dw);
+    }
+    
 }

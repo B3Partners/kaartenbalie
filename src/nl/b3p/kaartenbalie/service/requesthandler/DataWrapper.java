@@ -120,15 +120,10 @@ public class DataWrapper {
             sos.write(baos.toByteArray());
             sos.flush();
         } finally {
-            Thread t = Thread.currentThread();
-            log.info(t.getName() + "is now the current thread");
             if (sos!=null) {
                 sos.close();
             }
         }
-        long time = System.currentTimeMillis() - this.getStartTime();
-        double sec = time / 1000;
-        System.out.println("Opdracht uitgevoerd in " + sec + " seconden.");
     }
 
     public long getStartTime() {

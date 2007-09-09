@@ -115,7 +115,7 @@ public class KBImageTool {
         ImageIO.write(bufferedImage, extension, ios);
         
         long time = System.currentTimeMillis() - dw.getStartTime();
-        System.out.println("Images samengevoegd na " + (time/1000) + " seconden." );
+        log.debug("Images samengevoegd na " + (time/1000) + " seconden." );
         
         dw.write(baos);
         ios.flush();
