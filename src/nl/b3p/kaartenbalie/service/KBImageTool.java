@@ -14,6 +14,8 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -74,7 +76,7 @@ public class KBImageTool {
     	if (mimeType == null)
     		throw new Exception ("unsupported mime type: " + mime);
         
-        BufferedImage bufferedImage = combineImages(images, mime);
+        BufferedImage bufferedImage = combineImages(images, mime, dw);
         if(mime.equals(TIFF)) {
             writeTIFFImage(bufferedImage, dw);
         } else {
@@ -132,11 +134,11 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineImages(BufferedImage [] images, String mime) method.">
-    private static BufferedImage combineImages(BufferedImage [] images, String mime) {
+    private static BufferedImage combineImages(BufferedImage [] images, String mime, DataWrapper dw) {
         if(mime.equals(JPEG)) {
-            return combineJPGImages(images);
+            return combineJPGImages(images, dw);
         } else {
-            return combineOtherImages(images);
+            return combineOtherImages(images, dw);
         }
     }
     // </editor-fold>
@@ -149,7 +151,7 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineJPGImages(BufferedImage [] images) method.">
-    private static BufferedImage combineJPGImages(BufferedImage [] images) {
+    private static BufferedImage combineJPGImages(BufferedImage [] images, DataWrapper dw) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         
@@ -172,7 +174,15 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineOtherImages(BufferedImage [] images) method.">
-    private static BufferedImage combineOtherImages(BufferedImage [] images) {
+    private static BufferedImage combineOtherImages(BufferedImage [] images, DataWrapper dw) {
+        //Temporary information, can be deleted afterwards.
+        long time = System.currentTimeMillis() - dw.getStartTime();
+        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //Date date = new Date(time);
+        //String combineImageStartTime = df.format(date);
+        log.info("In KBImageTool combineOtherImages. Start combining at: " + time);
+        //---------------------------------------------------------------
+        
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         
@@ -185,6 +195,14 @@ public class KBImageTool {
         for (int i = 1; i < images.length; i++) {
             gbi.drawImage(images[i], 0, 0, null);
         }
+        
+        //Temporary information, can be deleted afterwards.
+        time = System.currentTimeMillis() - dw.getStartTime();
+        //df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //date = new Date(time);
+        //String combineImageEndTime = df.format(date);
+        log.info("In ImageManager sendCombinedImages. End combining at: " + time);
+        //---------------------------------------------------------------
         return newBufIm;
     }
     // </editor-fold>

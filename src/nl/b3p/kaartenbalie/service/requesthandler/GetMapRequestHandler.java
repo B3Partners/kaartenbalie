@@ -12,22 +12,25 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.KBConstants;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 public class GetMapRequestHandler extends WMSRequestHandler implements KBConstants {
+    
+    private static final Log log = LogFactory.getLog(GetMapRequestHandler.class);
     
     // <editor-fold defaultstate="" desc="default GetMapRequestHandler() constructor.">
     public GetMapRequestHandler() {}
@@ -42,6 +45,15 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
+        //Temporary information, can be deleted afterwards.
+        long time = System.currentTimeMillis() - dw.getStartTime();
+        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //Date date = new Date(time);
+        //String getmapstarttime = df.format(date);
+        log.info("In GetMapRequestHandler. Start request at: " + time);
+        //---------------------------------------------------------------
+        
+        
         /* 
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
@@ -181,6 +193,15 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         if(urls == null) {
             throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
         }
+        
+        //Temporary information, can be deleted afterwards.
+        time = System.currentTimeMillis() - dw.getStartTime();
+        //df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //date = new Date(time);
+        //String getmapendtime = df.format(date);
+        log.info("In GetMapRequestHandler. Done checking rights at: " + time);
+        //---------------------------------------------------------------
+        
         
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }

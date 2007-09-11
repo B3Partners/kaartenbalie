@@ -11,7 +11,9 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
@@ -25,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 public class ImageManager {
     
     private final Log log = LogFactory.getLog(this.getClass());
-    private static final int maxResponseTime = 100000;
     private ArrayList ics = new ArrayList();
     
     public ImageManager(ArrayList urls) {
@@ -58,7 +59,7 @@ public class ImageManager {
         it = ics.iterator();
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();
-            if (ic.getStatus()==ImageCollector.ACTIVE) {
+            if (ic.getStatus()==ImageCollector.ACTIVE) {//if (ic.isAlive()) { //if (ic.getStatus()==ImageCollector.ACTIVE) {
                 ic.processWaiting();
             }
         }
@@ -67,16 +68,29 @@ public class ImageManager {
     }
     
     public void sendCombinedImages(DataWrapper dw) throws Exception {
-        
+        //Temporary information, can be deleted afterwards.
+        long time = System.currentTimeMillis() - dw.getStartTime();
+        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //Date date = new Date(time);
+        //String combineImageStartTime = df.format(date);
+        log.info("In ImageManager sendCombinedImages. Start combining at: " + time);
+        //---------------------------------------------------------------
+
+                
         //TODO beslissen of we plaatje gaan sturen als een van de onderliggende
         // image niet goed is opgehaald.
         ImageCollector ic = null;
         Iterator it = ics.iterator();
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();
-            if (ic.getStatus()!=ImageCollector.COMPLETED || ic.getBufferedImage()==null) {
+            int status = ic.getStatus();
+            if (status != ImageCollector.COMPLETED || ic.getBufferedImage() == null) {
                 // TODO alleen eerste foutmelding of ook nog de andere ???
-                throw new Exception(ic.getMessage());
+                if (status == ImageCollector.ERROR) {
+                    throw new Exception(ic.getMessage());
+                } else {
+                    throw new Exception(ic.getMessage() + " Download aborted.");
+                }                
             }
         }
         

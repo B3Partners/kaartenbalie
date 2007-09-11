@@ -79,12 +79,18 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DataWrapper data = new DataWrapper(response);
         data.setStartTime(System.currentTimeMillis());
+        
         User user = null;
         log.info("Request: " + request.getServletPath() + request.getPathInfo() + request.getQueryString());
         try {
+            //Create a map with parameters of of request parameters given
+            //with the request of this user and transforms each of these
+            //parameters and their keys into uppercase values.
+            Map parameters = getUpperCaseParameterMap(request.getParameterMap());
+            
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
-            user = checkLogin(request);
+            user = checkLogin(request, parameters, data);
 
             //Setting the header for this specific user so that any action
             //of the user can be logged.
@@ -94,10 +100,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
 
             //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
 
-            //Create a map with parameters of of request parameters given
-            //with the request of this user and transforms each of these
-            //parameters and their keys into uppercase values.
-            Map parameters = getUpperCaseParameterMap(request.getParameterMap());
+            
 
             //put two extra parameters into the map, since these two vars
             //are needed at several places in the application.
@@ -228,11 +231,21 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws UnsupportedEncodingException
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
-    public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
+    public User checkLogin(HttpServletRequest request, Map parameters, DataWrapper dw) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
 
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         if (user == null) {
+            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {            
+                if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+                    int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
+                    int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
+                    if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
+                        dw.setErrorContentType((String) parameters.get(WMS_PARAM_FORMAT));
+                    }                
+                }
+            }            
+            
             // niet ingelogd dus, dan checken op token in url
             Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();

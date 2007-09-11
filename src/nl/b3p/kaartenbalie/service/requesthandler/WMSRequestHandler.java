@@ -53,9 +53,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import nl.b3p.kaartenbalie.service.ImageManager;
-import nl.b3p.kaartenbalie.service.ImageReader;
-import nl.b3p.kaartenbalie.service.ImageCollector;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -388,12 +389,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
     protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws Exception {
-        long time2 = System.currentTimeMillis() - dw.getStartTime();
-        double sec2 = time2 / 1000;
-        System.out.println("Controle van layerrechten en SRS uit database met query's is uitgevoerd in " + sec2 + " seconden.");
-        
-        
-        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
@@ -406,15 +401,23 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
                 BufferedImage bufferedImage = null;
                 
+                //Temporary information, can be deleted afterwards.
+                long time = System.currentTimeMillis() - dw.getStartTime();
+                //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+                //Date date = new Date(time);
+                //String imageManagerstartTime = df.format(date);
+                log.info("In WMSRequesthandler. Start ImageManegerProces at: " + time);
+                //---------------------------------------------------------------
+                
                 ImageManager imagemanager = new ImageManager(urls);
                 imagemanager.process();
                 imagemanager.sendCombinedImages(dw);
                 // TODO duur van alle subrequest kan uit image collector berekend worden.
                 
                 //Temporary information...:
-                long time = System.currentTimeMillis() - dw.getStartTime();
-                double sec = time / 1000;
-                System.out.println("Schrijven van image is uitgevoerd in " + sec + " seconden.");
+                //long time = System.currentTimeMillis() - dw.getStartTime();
+                //double sec = time / 1000;
+                //System.out.println("Schrijven van image is uitgevoerd in " + sec + " seconden.");
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo

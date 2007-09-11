@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
@@ -115,6 +117,15 @@ public class DataWrapper {
     }
     
     public void write(ByteArrayOutputStream baos) throws IOException {
+        //Temporary information, can be deleted afterwards.
+        long time = System.currentTimeMillis() - this.getStartTime();
+        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //Date date = new Date(time);
+        //String beginSendResult = df.format(date);
+        log.info("In DataWrapper. Starting to sent out " + baos.size() + " bytes of information.");
+        log.info("In DataWrapper. Starting to sent out information at: " + time);
+        //---------------------------------------------------------------
+        
         this.setContentLength(baos.size());
         try {
             sos.write(baos.toByteArray());
@@ -124,6 +135,14 @@ public class DataWrapper {
                 sos.close();
             }
         }
+        
+        //Temporary information, can be deleted afterwards.
+        time = System.currentTimeMillis() - this.getStartTime();
+        //df = new SimpleDateFormat("HH:mm:ss.SSS");
+        //date = new Date(time);
+        //String sendResult = df.format(date);
+        log.info("In DataWrapper. Information sent out at: " + time);
+        //---------------------------------------------------------------
     }
 
     public long getStartTime() {
