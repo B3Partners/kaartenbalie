@@ -11,9 +11,7 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.awt.image.BufferedImage;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
@@ -42,7 +40,7 @@ public class ImageManager {
     
     public void process() throws Exception {
         
-        log.debug("Starting process");
+        //log.debug("Starting process");
         
         // Hier worden de threads gestart
         ImageCollector ic = null;
@@ -53,7 +51,7 @@ public class ImageManager {
                 ic.processNew();
             }
         }
-        log.debug("Image collectors started");
+        //log.debug("Image collectors started");
         
         // Hier wordt op de threads gewacht tot ze klaar zijn.
         it = ics.iterator();
@@ -68,15 +66,6 @@ public class ImageManager {
     }
     
     public void sendCombinedImages(DataWrapper dw) throws Exception {
-        //Temporary information, can be deleted afterwards.
-        long time = System.currentTimeMillis() - dw.getStartTime();
-        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
-        //Date date = new Date(time);
-        //String combineImageStartTime = df.format(date);
-        log.info("In ImageManager sendCombinedImages. Start combining at: " + time);
-        //---------------------------------------------------------------
-
-                
         //TODO beslissen of we plaatje gaan sturen als een van de onderliggende
         // image niet goed is opgehaald.
         ImageCollector ic = null;
@@ -99,7 +88,7 @@ public class ImageManager {
             ic = (ImageCollector)ics.get(i);
             allImages[i]= ic.getBufferedImage();
         }
-        log.debug("Image collection retrieved from providers");
+        //log.debug("Image collection retrieved from providers");
         
         KBImageTool kbi = new KBImageTool();
         kbi.writeImage(allImages, "image/png", dw);

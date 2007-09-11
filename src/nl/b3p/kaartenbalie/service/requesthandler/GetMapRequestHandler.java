@@ -12,9 +12,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -45,15 +43,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        //Temporary information, can be deleted afterwards.
-        long time = System.currentTimeMillis() - dw.getStartTime();
-        //SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
-        //Date date = new Date(time);
-        //String getmapstarttime = df.format(date);
-        log.info("In GetMapRequestHandler. Start request at: " + time);
-        //---------------------------------------------------------------
-        
-        
         /* 
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
@@ -193,16 +182,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         if(urls == null) {
             throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
         }
-        
-        //Temporary information, can be deleted afterwards.
-        time = System.currentTimeMillis() - dw.getStartTime();
-        //df = new SimpleDateFormat("HH:mm:ss.SSS");
-        //date = new Date(time);
-        //String getmapendtime = df.format(date);
-        log.info("In GetMapRequestHandler. Done checking rights at: " + time);
-        //---------------------------------------------------------------
-        
-        
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>

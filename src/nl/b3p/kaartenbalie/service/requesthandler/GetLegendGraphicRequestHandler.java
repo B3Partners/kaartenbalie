@@ -37,52 +37,40 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        
-        user = (User) parameters.get(KB_USER);
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        
-        String format = null;
-        dw.setHeader("Content-Disposition", "inline; filename=\"GetLegendGraphic.xml\";");
-        
-        try {
-            format = (String)((String[])parameters.get(WMS_PARAM_INFO_FORMAT))[0];
-        } catch (Exception e) {
-            format = "image/png";
-        }
+        /* 
+         * Initialize some variables
+         * And immediatly set the right output format (also for errors) because if an error occurs
+         * with the GetMap functionality before the outputformat is set then the standard output
+         * format would be used.
+         */
+        String format = (String) parameters.get(WMS_PARAM_FORMAT);
         dw.setContentType(format);
         
-        //First check if the given URL contains really only one layer
-        //Otherwise we need to throw an error.
-        String layerParams = (String)parameters.get(WMS_PARAM_LAYER);
-        String [] layers = layerParams.split(",");
+        String inimageType = null;
+        
+        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+            inimageType = format;
+        }
+        dw.setErrorContentType(inimageType);
+        
+        
+        user = (User) parameters.get(KB_USER);
+        Integer orgId = user.getOrganization().getId();
+        
+        url = (String) parameters.get(KB_PERSONAL_URL);
+        String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYER)).split(",");
         if(layers.length != 1) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
-        //Now get a list with service providers in which we can search for the specified layer        
-        List serviceProviders = getServiceProviders(false);
-        if (serviceProviders==null)
-            return;
-        
-        StringBuffer serviceProviderUrl = null;
-        String serviceProviderLayer = null;
-        Iterator serviceProviderIterator = serviceProviders.iterator();
-        while (serviceProviderIterator.hasNext()) {
-            ServiceProvider serviceProvider = (ServiceProvider)serviceProviderIterator.next();
-            Set serviceProviderLayers = serviceProvider.getLayers();
-            if(serviceProviderLayers == null)
-                continue;
-            serviceProviderLayer = findLayer(serviceProviderLayers, layers[0], serviceProvider, false);
-            if(serviceProviderLayer != null) {
-                serviceProviderUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetLegendGraphic);
-                break;
-            }
-        }
-        
-        if(serviceProviderLayer == null && serviceProviderUrl == null) {
+        ArrayList spUrls = getSeviceProviderURLS(layers, orgId);
+        if(spUrls == null) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
+        String [] details = (String[])spUrls.get(0);
+        StringBuffer serviceProviderUrl = new StringBuffer();
+        serviceProviderUrl.append(details[1]);        
         serviceProviderUrl.append(WMS_VERSION);
         serviceProviderUrl.append("=");
         serviceProviderUrl.append((String)parameters.get(WMS_VERSION));
@@ -93,7 +81,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_PARAM_LAYER);
         serviceProviderUrl.append("=");
-        serviceProviderUrl.append(serviceProviderLayer);
+        serviceProviderUrl.append(details[2]);
 
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_PARAM_STYLE);

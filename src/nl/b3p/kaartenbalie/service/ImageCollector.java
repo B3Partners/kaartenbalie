@@ -35,7 +35,7 @@ import org.xml.sax.XMLReader;
 public class ImageCollector extends Thread implements KBConstants {
     
     private static final Log log = LogFactory.getLog(ImageCollector.class);
-    private static final int maxResponseTime = 3000;
+    private static final int maxResponseTime = 30000;
     
     public static final int NEW = 0;
     public static final int ACTIVE = 1;
@@ -66,8 +66,7 @@ public class ImageCollector extends Thread implements KBConstants {
     }
     
     public void run() {
-        
-        log.info("Starting download of url: " + getUrl());
+        //log.info("Starting download of url: " + getUrl());
         setOperationStart(new Date());
         setOperationEnd(null);
         
@@ -99,7 +98,7 @@ public class ImageCollector extends Thread implements KBConstants {
                 throw new Exception(body);
             }
             
-            log.info("Downloaded and stored image of url: " + getUrl());
+            //log.info("Downloaded and stored image of url: " + getUrl());
             setBufferedImage(KBImageTool.readImage(method, mime));
             
             setStatus(COMPLETED);

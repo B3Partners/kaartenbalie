@@ -77,9 +77,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DataWrapper data = new DataWrapper(response);
-        data.setStartTime(System.currentTimeMillis());
-        
+        DataWrapper data = new DataWrapper(response);        
         User user = null;
         log.info("Request: " + request.getServletPath() + request.getPathInfo() + request.getQueryString());
         try {
