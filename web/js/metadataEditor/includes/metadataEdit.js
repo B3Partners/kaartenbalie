@@ -74,7 +74,7 @@ function saveChangesInXMLDom(newValue, path) {
 	var pathArray = path.split("/");
 	var targetNode;
 	for (var i = 0; i < pathArray.length; i++) {
-		targetNode = getChildNode(xmlDoc, targetNode, pathArray[i]);
+		targetNode = findChildNode(xmlDoc, targetNode, pathArray[i]);
 	}
 
 	if (targetNode != null) {
@@ -92,29 +92,34 @@ function saveChangesInXMLDom(newValue, path) {
 	}
 }
 
-function getChildNode(root, parent, rawChildTag) {
-	if (parent == null)
-		parent = root;
+function findChildNode(root, searchParent, targetRawChildTag) {
+	if (searchParent == null)
+		searchParent = root;
 	
-	var childAndIndex = rawChildTag.split(/[\[\]]+/);
-	var childTag = childAndIndex[0];
-	if (childAndIndex.length > 1)
-		var childIndex = childAndIndex[1];
+	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
+	var targetChildAndIndex = targetRawChildTag.split(/[\[\]:]+/);
+	
+	if (targetChildAndIndex.length < 3)
+		debug("length of rawChildTag < 3");
+	var targetChildTag = targetChildAndIndex[1];
+	
+	if (targetChildAndIndex.length > 2)
+		var targetChildIndex = targetChildAndIndex[2];
 	else
-		var childIndex = 1;
+		var targetChildIndex = 1;
 		
-	var children = parent.childNodes;
-	if (children == null) {
+	var searchChildren = searchParent.childNodes;
+	if (searchChildren == null) {
 		return null;
 	}
 	
-	var child;
+	var searchChild;
 	var correctChildCount = 0;
-	for (var i = 0; i < children.length; i++) {
-		child = children[i];
-		if (child.nodeType == 1 && child.tagName == childTag) {
+	for (var i = 0; i < searchChildren.length; i++) {
+		searchChild = searchChildren[i];
+		if (searchChild.nodeType == 1 && searchChild.tagName == targetChildTag) {
 			correctChildCount++;
-			if (correctChildCount == childIndex) {
+			if (correctChildCount == targetChildIndex) {
 				//debug("child: " + child.nodeName);
 				return child;
 			}
