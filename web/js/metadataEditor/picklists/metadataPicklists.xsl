@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<x:stylesheet xmlns:gml="http://www.opengis.net/gml" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:x="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<x:template name="picklist_CI_DateTypeCode">
+<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+	<xsl:template name="picklist_CI_DateTypeCode">
 		<select id="picklist_CI_DateTypeCode" name="picklist_CI_DateTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_DateTypeCode_creation" title="date identifies when the resource was brought into existence">creation</option>
 			<option value="CI_DateTypeCode_publication" title="date identifies when the resource was issued">publication</option>
 			<option value="CI_DateTypeCode_revision" title="date identifies when the resource was examined or re-examined and imporved or amended">revision</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_CI_OnLineFunctionCode">
+	</xsl:template>
+	<xsl:template name="picklist_CI_OnLineFunctionCode">
 		<select id="picklist_CI_OnLineFunctionCode" name="picklist_CI_OnLineFunctionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_OnLineFunctionCode_download" title="online instructions for transferring data from one storage device or system to another">download</option>
@@ -17,8 +17,8 @@
 			<option value="CI_OnLineFunctionCode_order" title="online order process for obtening the resource">order</option>
 			<option value="CI_OnLineFunctionCode_search" title="online search interface for seeking out information about the resource">search</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_CI_PresentationFormCode">
+	</xsl:template>
+	<xsl:template name="picklist_CI_PresentationFormCode">
 		<select id="picklist_CI_PresentationFormCode" name="picklist_CI_PresentationFormCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_PresentationFormCode_documentDigital" title="digital representation of a primarily textual item (can contain illustrations also)">documentDigital</option>
@@ -36,8 +36,8 @@
 			<option value="CI_PresentationFormCode_videoDigital" title="digital video recording">videoDigital</option>
 			<option value="CI_PresentationFormCode_videoHardcopy" title="video recording on film">videoHardcopy</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_CI_RoleCode">
+	</xsl:template>
+	<xsl:template name="picklist_CI_RoleCode">
 		<select id="picklist_CI_RoleCode" name="picklist_CI_RoleCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_RoleCode_resourceProvider" title="party that supplies the resource">resourceProvider</option>
@@ -52,16 +52,16 @@
 			<option value="CI_RoleCode_publisher" title="party who published the resource">publisher</option>
 			<option value="CI_RoleCode_author" title="party who authored the resource">author</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_DQ_EvaluationMethodTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_DQ_EvaluationMethodTypeCode">
 		<select id="picklist_DQ_EvaluationMethodTypeCode" name="picklist_DQ_EvaluationMethodTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DQ_EvaluationMethodTypeCode_directInternal" title="method of evaluating the quality of a dataset based on inspection of items within the dataset, where all data required is internal to the dataset being evaluated">directInternal</option>
 			<option value="DQ_EvaluationMethodTypeCode_directExternal" title="method of evaluating the quality of a dataset based on inspection of items within the dataset, where reference data external to the dataset being evaluated is required">directExternal</option>
 			<option value="DQ_EvaluationMethodTypeCode_indirect" title="method of evaluating the quality of a dataset based on external knowledge">indirect</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_DS_AssociationTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_DS_AssociationTypeCode">
 		<select id="picklist_DS_AssociationTypeCode" name="picklist_DS_AssociationTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DS_AssociationTypeCode_crossReference" title="reference from one dataset to another">crossReference</option>
@@ -70,8 +70,8 @@
 			<option value="DS_AssociationTypeCode_source" title="mapping and charting information from which the dataset content originates">source</option>
 			<option value="DS_AssociationTypeCode_stereoMate" title="part of a set of imagery that when used together, provides three-dimensional images">stereoMate</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_DS_InitiativeTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_DS_InitiativeTypeCode">
 		<select id="picklist_DS_InitiativeTypeCode" name="picklist_DS_InitiativeTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DS_InitiativeTypeCode_campaign" title="series of organized planned actions">campaign</option>
@@ -90,15 +90,15 @@
 			<option value="DS_InitiativeTypeCode_task" title="piece of work">task</option>
 			<option value="DS_InitiativeTypeCode_trial" title="process of testing to discover or demonstrate something">trial</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_CellGeometryCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_CellGeometryCode">
 		<select id="picklist_MD_CellGeometryCode" name="picklist_MD_CellGeometryCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CellGeometryCode_point" title="each cell represents a point">point</option>
 			<option value="MD_CellGeometryCode_area" title="each cell represents an area">area</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_CharacterSetCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_CharacterSetCode">
 		<select id="picklist_MD_CharacterSetCode" name="picklist_MD_CharacterSetCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CharacterSetCode_ucs2" title="16-bit fixed size Universal Character Set, based on ISO/IEC 10646">ucs2</option>
@@ -130,8 +130,8 @@
 			<option value="MD_CharacterSetCode_big5" title="traditional Chinese code set used in Taiwan, Hong Kong of China and other areas">big5</option>
 			<option value="MD_CharacterSetCode_GB2312" title="simplified Chinese code set">GB2312</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_ClassificationCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_ClassificationCode">
 		<select id="picklist_MD_ClassificationCode" name="picklist_MD_ClassificationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ClassificationCode_unclassified" title="available for general disclosure">unclassified</option>
@@ -140,16 +140,16 @@
 			<option value="MD_ClassificationCode_secret" title="kept or meant to be kept private, unknown, or hidden from all but a select group of people">secret</option>
 			<option value="MD_ClassificationCode_topSecret" title="of the highest secrecy">topSecret</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_CoverageContentTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_CoverageContentTypeCode">
 		<select id="picklist_MD_CoverageContentTypeCode" name="picklist_MD_CoverageContentTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CoverageContentTypeCode_image" title="meaningful numerical representation of a physical parameter that is not the actual value of the physical parameter">image</option>
 			<option value="MD_CoverageContentTypeCode_thematicClassification" title="code value with no quantitative meaning, used to represent a physical quantity">thematicClassification</option>
 			<option value="MD_CoverageContentTypeCode_physicalMeasurement" title="value in physical units of the quantity being measured">physicalMeasurement</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_DatatypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_DatatypeCode">
 		<select id="picklist_MD_DatatypeCode" name="picklist_MD_DatatypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_DatatypeCode_class" title="descriptor of a set of objects that share the same attributes, operations, methods, relationships, and behavior">class</option>
@@ -168,8 +168,8 @@
 			<option value="MD_DatatypeCode_integer" title="numerical field">integer</option>
 			<option value="MD_DatatypeCode_association" title="semantic relationship between two classes that involves connections among their instances">association</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_DimensionNameTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_DimensionNameTypeCode">
 		<select id="picklist_MD_DimensionNameTypeCode" name="picklist_MD_DimensionNameTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_DimensionNameTypeCode_row" title="ordinate (y) axis">row</option>
@@ -181,8 +181,8 @@
 			<option value="MD_DimensionNameTypeCode_sample" title="element along a scan line">sample</option>
 			<option value="MD_DimensionNameTypeCode_time" title="duration">time</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_GeometricObjectTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_GeometricObjectTypeCode">
 		<select id="picklist_MD_GeometricObjectTypeCode" name="picklist_MD_GeometricObjectTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_GeometricObjectTypeCode_complex" title="set of geometric primitives such that their boundaries can be represented as a union of other primitives">complex</option>
@@ -192,8 +192,8 @@
 			<option value="MD_GeometricObjectTypeCode_solid" title="bounded, connected 3-dimensional geometric primitive, representing the continuous image of a region of space">solid</option>
 			<option value="MD_GeometricObjectTypeCode_surface" title="bounded, connected 2-dimensional geometric primitive, representing the continuous image of a region of a plane">surface</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_ImagingConditionCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_ImagingConditionCode">
 		<select id="picklist_MD_ImagingConditionCode" name="picklist_MD_ImagingConditionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ImagingConditionCode_blurredImage" title="portion of the image is blurred">blurredImage</option>
@@ -208,8 +208,8 @@
 			<option value="MD_ImagingConditionCode_snow" title="portion of the image is obscured by snow">snow</option>
 			<option value="MD_ImagingConditionCode_terrainMasking" title="the absence of collection data of a given point or area caused by the relative location of topographic features which obstruct the collection path between the collector(s) and the subject(s) of interest">terrainMasking</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_KeywordTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_KeywordTypeCode">
 		<select id="picklist_MD_KeywordTypeCode" name="picklist_MD_KeywordTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_KeywordTypeCode_discipline" title="keyword identifies a branch of instruction or specialized learning">discipline</option>
@@ -218,8 +218,8 @@
 			<option value="MD_KeywordTypeCode_temporal" title="keyword identifies a time period related to the dataset">temporal</option>
 			<option value="MD_KeywordTypeCode_theme" title="keyword identifies a particular subject or topic">theme</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_MaintenanceFrequencyCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_MaintenanceFrequencyCode">
 		<select id="picklist_MD_MaintenanceFrequencyCode" name="picklist_MD_MaintenanceFrequencyCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MaintenanceFrequencyCode_continual" title="data is repeatedly and frequently updated">continual</option>
@@ -235,8 +235,8 @@
 			<option value="MD_MaintenanceFrequencyCode_notPlanned" title="there are no plans to update the data">notPlanned</option>
 			<option value="MD_MaintenanceFrequencyCode_unknown" title="frequency of maintenance for the data is not known">unknwon</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_MediumFormatCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_MediumFormatCode">
 		<select id="picklist_MD_MediumFormatCode" name="picklist_MD_MediumFormatCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MediumFormatCode_cpio" title="CoPy In / Out (UNIX file format and command)">cpio</option>
@@ -246,8 +246,8 @@
 			<option value="MD_MediumFormatCode_iso9660RockRidge" title="rock ridge interchange protocol (UNIX)">iso9660RockRidge</option>
 			<option value="MD_MediumFormatCode_iso9660AppleHFS" title="hierarchical file system (Macintosh)">iso9660AppleHFS</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_MediumNameCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_MediumNameCode">
 		<select id="picklist_MD_MediumNameCode" name="picklist_MD_MediumNameCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MediumNameCode_cdRom" title="read-only optical disk">cdRom</option>
@@ -269,16 +269,16 @@
 			<option value="MD_MediumNameCode_telephoneLink" title="communication through a telephone network">telephoneLink</option>
 			<option value="MD_MediumNameCode_hardcopy" title="pamphlet or leaflet giving descriptive information">hardcopy</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_ObligationCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_ObligationCode">
 		<select id="picklist_MD_ObligationCode" name="picklist_MD_ObligationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ObligationCode_mandatory" title="element is always required">mandatory</option>
 			<option value="MD_ObligationCode_optional" title="element is not required">optional</option>
 			<option value="MD_ObligationCode_conditional" title="element is required when a specific condition is met">conditional</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_PixelOrientationCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_PixelOrientationCode">
 		<select id="picklist_MD_PixelOrientationCode" name="picklist_MD_PixelOrientationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_PixelOrientationCode_center" title="point halfway between the lower left and the upper right of the pixel">center</option>
@@ -287,8 +287,8 @@
 			<option value="MD_PixelOrientationCode_upperRight" title="next corner counterclockwise from the lower right">upperRight</option>
 			<option value="MD_PixelOrientationCode_upperLeft" title="next corner counterclockwise from the upper right">upperLeft</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_ProgressCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_ProgressCode">
 		<select id="picklist_MD_ProgressCode" name="picklist_MD_ProgressCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ProgressCode_completed" title="production of the data has been completed">completed</option>
@@ -299,8 +299,8 @@
 			<option value="MD_ProgressCode_required" title="data needs to be generated or updated">required</option>
 			<option value="MD_ProgressCode_underDevelopment" title="data is currently in the process of being created">underDevelopment</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_RestrictionCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_RestrictionCode">
 		<select id="picklist_MD_RestrictionCode" name="picklist_MD_RestrictionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_RestrictionCode_copyright" title="exclusive right to the publication, production, or sale of the rights to a literary, dramatic, musical, or artistic work, or to the use of a commercial print or label, granted by law for a specified period of time to an author, composer, artist, distributor">copyright</option>
@@ -312,8 +312,8 @@
 			<option value="MD_RestrictionCode_restricted" title="withheld from general circulation or disclosure">restricted</option>
 			<option value="MD_RestrictionCode_otherRestrictions" title="limitation not listed">otherRestrictions</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_ScopeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_ScopeCode">
 		<select id="picklist_MD_ScopeCode" name="picklist_MD_ScopeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ScopeCode_attribute" title="information applies to the attribute class">attribute</option>
@@ -333,8 +333,8 @@
 			<option value="MD_ScopeCode_model" title="information applies to a copy or imitation of an existing or hypothetical object">model</option>
 			<option value="MD_ScopeCode_tile" title="information applies to a tile, a spatial subset of geographic data">tile</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_SpatialRepresentationTypeCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_SpatialRepresentationTypeCode">
 		<select id="picklist_MD_SpatialRepresentationTypeCode" name="picklist_MD_SpatialRepresentationTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_SpatialRepresentationTypeCode_vector" title="vector data is used to represent geographic data">vector</option>
@@ -344,8 +344,8 @@
 			<option value="MD_SpatialRepresentationTypeCode_stereoModel" title="three-dimensional view formed by the intersecting homologous rays of an overlapping pair of images">stereoModel</option>
 			<option value="MD_SpatialRepresentationTypeCode_video" title="scene from a video recording">video</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_TopicCategoryCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_TopicCategoryCode">
 		<select id="picklist_MD_TopicCategoryCode" name="picklist_MD_TopicCategoryCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_TopicCategoryCode_farming" title="rearing of animals and/or cultivation of plants. Examples: agriculture, irrigation, aquaculture, plantations, herding, pests and diseases affecting crops and livestock">farming</option>
@@ -368,8 +368,8 @@
 			<option value="MD_TopicCategoryCode_transportation" title="means and aids for conveying persons and/or goods. Examples: roads, airports/airstrips, shipping routes, tunnels, nautical charts, vehicle or vessel location, aeronautical charts, railways">transportation</option>
 			<option value="MD_TopicCategoryCode_utilitiesCommunication" title="energy, water and waste systems and communications infrastructure and services. Examples: hydroelectricity, geothermal, solar and nuclear sources of energy, water purification and distribution, sewage collection and disposal, electricity and gas distribution, data communication, telecommunication, radio, communication networks">utilitiesCommunication</option>
 		</select>
-	</x:template>
-	<x:template name="picklist_MD_TopologyLevelCode">
+	</xsl:template>
+	<xsl:template name="picklist_MD_TopologyLevelCode">
 		<select id="picklist_MD_TopologyLevelCode" name="picklist_MD_TopologyLevelCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_TopologyLevelCode_geometryOnly" title="geometry objects without any additional structure which describes topology">geometryOnly</option>
@@ -382,5 +382,5 @@
 			<option value="MD_TopologyLevelCode_fullTopology3D" title="complete coverage of a 3D Euclidean coordinate space">fullTopology3D</option>
 			<option value="MD_TopologyLevelCode_abstract" title="topological complex without any specified geometric realisation">abstract</option>
 		</select>
-	</x:template>
-</x:stylesheet>
+	</xsl:template>
+</xsl:stylesheet>

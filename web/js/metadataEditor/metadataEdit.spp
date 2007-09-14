@@ -4,6 +4,7 @@
 		<File FilePath=".\ex3.xml" HomeFolder="Yes"/>
 		<File FilePath=".\ex6.xml" HomeFolder="Yes"/>
 		<File FilePath=".\exFull.xml" HomeFolder="Yes"/>
+		<File FilePath=".\ISO19139_2005-10-08\resources\Codelists\gmxCodelists.xml" HomeFolder="Yes"/>
 	</Folder>
 	<Folder FolderName="XSL Files" ExtStr="xsl;xslt">
 		<File FilePath=".\includes\editableBasicTypes.xsl" HomeFolder="Yes"/>
@@ -12,6 +13,8 @@
 		<File FilePath=".\metadataEditISO19139.xsl" HomeFolder="Yes"/>
 		<File FilePath=".\preprocessors\metadataEditPreprocessor.xsl" HomeFolder="Yes"/>
 		<File FilePath=".\preprocessors\metadataEditPreprocessorTemplates.xsl" HomeFolder="Yes"/>
+		<File FilePath=".\picklists\metadataISO19115picklistExtractor.xsl" HomeFolder="Yes"/>
+		<File FilePath=".\picklists\metadataPicklists.xsl" HomeFolder="Yes"/>
 	</Folder>
 	<Folder FolderName="XQuery Files" ExtStr="xq;xql;xquery"/>
 	<Folder FolderName="HTML Files" ExtStr="html;htm;xhtml;asp"/>

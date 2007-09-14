@@ -3,75 +3,77 @@
 Invoer voor deze file moet de file "ML_gmxCodelists.xml" of "gmxCodelists.xml" zijn.
 Die zijn allebei onderdeel van de ISO 19115 geografische metadata standaard.
 -->
-<x:stylesheet
+<xsl:stylesheet
+				version="1.0"
+				xmlns="http://www.w3.org/1999/xhtml"
 				xmlns:gmx="http://www.isotc211.org/2005/gmx"
 				xmlns:gml="http://www.opengis.net/gml" 
-				xmlns:x="http://www.w3.org/1999/XSL/Transform"
-				xmlns:xsl="anything" 
-				version="1.0"
+				xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+				xmlns:x="anything"
+				exclude-result-prefixes="gmx gml"
 				>
-				<!-- de waarde van xmlns:xsl mag alles zijn --> 
+				<!-- de waarde van xmlns:x mag alles zijn --> 
 				
-<x:output method="xml" indent="yes"/>
+<xsl:output method="xml" indent="yes"/>
 
-<x:namespace-alias stylesheet-prefix="xsl" result-prefix="x"/>
+<xsl:namespace-alias stylesheet-prefix="x" result-prefix="xsl"/>
 
 <!-- Deze variabele wordt nog niet gebruikt; Nog geen Nederlandse vertaling gevonden -->
-<x:variable name="locale">nl-nl</x:variable>
+<xsl:variable name="locale">nl-nl</xsl:variable>
 
 <!--
-everything between the x:template tags
+everything between the xsl:template tags
 is outputted to the new stylesheet
 -->
 
-	<x:template match="/">
-		<xsl:stylesheet version="1.0">
-			<x:apply-templates select="gmx:CT_CodelistCatalogue/gmx:codelistItem"/>
-		</xsl:stylesheet>
-	</x:template>
+	<xsl:template match="/">
+		<x:stylesheet version="1.0">
+			<xsl:apply-templates select="gmx:CT_CodelistCatalogue/gmx:codelistItem"/>
+		</x:stylesheet>
+	</xsl:template>
 	
-	<x:template match="versionNumber">
+	<xsl:template match="versionNumber">
 	
-	</x:template>
+	</xsl:template>
 	
-	<x:template match="versionDate">
+	<xsl:template match="versionDate">
 	
-	</x:template>
+	</xsl:template>
    
-	<x:template match="language">
+	<xsl:template match="language">
 	
-	</x:template>
+	</xsl:template>
 
-	<x:template match="characterSet">
+	<xsl:template match="characterSet">
 	
-	</x:template>
+	</xsl:template>
   
-	<x:template match="codelistItem">
-		<x:apply-templates select="gmx:ML_CodeListDictionary | gmx:CodeListDictionary"/>
-	</x:template>
+	<xsl:template match="codelistItem">
+		<xsl:apply-templates select="gmx:ML_CodeListDictionary | gmx:CodeListDictionary"/>
+	</xsl:template>
 	
-	<x:template match="gmx:ML_CodeListDictionary | gmx:CodeListDictionary">
-		<x:variable name="picklistId" select="concat('picklist_', @gml:id)"/>
-		<xsl:template name="{$picklistId}">
+	<xsl:template match="gmx:ML_CodeListDictionary | gmx:CodeListDictionary">
+		<xsl:variable name="picklistId" select="concat('picklist_', @gml:id)"/>
+		<x:template name="{$picklistId}">
 			<select id="{$picklistId}" name="{$picklistId}" onchange="pickList(this)" onBlur='pickList(this)' onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
 				<option value="default">[huidige waarde]</option>
-				<x:apply-templates select="gmx:codeEntry"/>
+				<xsl:apply-templates select="gmx:codeEntry"/>
 			</select>
-		</xsl:template>
-	</x:template>
+		</x:template>
+	</xsl:template>
 	
-	<x:template match="gmx:codeEntry">
-		<x:apply-templates select="gmx:ML_CodeDefinition | gmx:CodeDefinition"/>
-	</x:template>
+	<xsl:template match="gmx:codeEntry">
+		<xsl:apply-templates select="gmx:ML_CodeDefinition | gmx:CodeDefinition"/>
+	</xsl:template>
 	
-	<x:template match="gmx:ML_CodeDefinition | gmx:CodeDefinition">
-		<x:variable name="optionId" select="@gml:id"/>
-		<x:variable name="optionDescription" select="gml:description"/>
+	<xsl:template match="gmx:ML_CodeDefinition | gmx:CodeDefinition">
+		<xsl:variable name="optionId" select="@gml:id"/>
+		<xsl:variable name="optionDescription" select="gml:description"/>
 		<option value="{$optionId}" title="{$optionDescription}">
-			<x:value-of select="gml:identifier"/>
+			<xsl:value-of select="gml:identifier"/>
 		</option>
-	</x:template>
+	</xsl:template>
 	
 	
   
-</x:stylesheet>
+</xsl:stylesheet>
