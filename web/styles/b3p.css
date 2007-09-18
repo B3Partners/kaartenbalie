@@ -152,7 +152,6 @@ div.smallTableContainer {
   background-image: url(../images/siteImages/navigbol.gif);
   background-position: right center;
   background-repeat: no-repeat;
-  cursor: pointer;
 }
 
 #nav-menu ul li a:hover {
@@ -164,8 +163,6 @@ div.smallTableContainer {
     border-bottom: darkgreen 1px solid;
     color: darkgreen;
     background-color: transparent;
-    cursor: pointer;
-    cursor: hand;
 }
 
 .intellitxtTooltip {

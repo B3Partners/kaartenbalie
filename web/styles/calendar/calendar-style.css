@@ -1,6 +1,6 @@
 .calcss_cpYearNavigation, .calcss_cpMonthNavigation {
     text-align: center;
-    vertical-align: center;
+    vertical-align: middle;
     text-decoration: none;
     background: #654;
     color: #fed;
@@ -54,7 +54,7 @@ TD.calcss_cpCurrentDateDisabled {
 }
 
 TD.calcss_cpTodayText, TD.calcss_cpTodayTextDisabled {
-    border: 0px none #fed;
+    border: 0px none;
     border-top: 1px solid #655;
 }
 

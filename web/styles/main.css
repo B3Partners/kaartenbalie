@@ -309,7 +309,6 @@ margin: 0;
   background-image: url(../images/siteImages/navigbol.gif);
   background-position: right center;
   background-repeat: no-repeat;
-  cursor: pointer;
 }
 
 #nav-menu ul li a:hover {
@@ -323,8 +322,6 @@ margin: 0;
     padding-bottom: 0px;
     color: darkgreen;
     background-color: transparent;
-    cursor: pointer;
-    cursor: hand;
     float: inherit;
     clear: none;
 }
@@ -400,7 +397,6 @@ margin: 0;
     background-repeat: no-repeat;
     background-position: top left;
     padding-left: 22px;
-    cursor: pointer;
     float: left;
 }
 .layerLabel{
@@ -408,7 +404,6 @@ margin: 0;
     background-repeat: no-repeat;
     background-position: top left;
     padding-left: 22px;
-    cursor: pointer;
     float: left;
 }
 .layerVink{
@@ -486,13 +481,11 @@ margin: 0;
 }
 .orderLayerClass{
     clear: both;
-    cursor: pointer;
     background-color: rgb(233,241,247);
 }
 .orderLayerClassSelected{
     clear: both;
     background-color: #bbbbbb;
-    cursor: pointer;
 }
 /*map info*/
 .mapInfo{

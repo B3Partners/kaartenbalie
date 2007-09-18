@@ -82,7 +82,7 @@
                 Persoonlijke GetMap URL:<BR>
                 <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
                 
-                <div style="clear: both height: 0px;"></div>
+                <div style="clear: both; height: 0px;"></div>
                 <html:submit property="getMapUrl">
                     <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
                 </html:submit>

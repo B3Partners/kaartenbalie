@@ -159,7 +159,6 @@ div.smallTableContainer {
   background-image: url(../images/mnp/pijltje_lichtblauw.gif);
   background-repeat: no-repeat;
   background-position: 5px 7px;
-  cursor: pointer;
   font-weight: normal;
 }
 
@@ -173,8 +172,6 @@ div.smallTableContainer {
     border-bottom: darkgreen 1px solid;
     color: darkgreen;
     background-color: transparent;
-    cursor: pointer;
-    cursor: hand;
 }
 
 .intellitxtTooltip {
