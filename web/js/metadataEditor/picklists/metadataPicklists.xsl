@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:template name="picklist_CI_DateTypeCode">
-		<select id="picklist_CI_DateTypeCode" name="picklist_CI_DateTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_CI_DateTypeCode" name="picklist_CI_DateTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_DateTypeCode_creation" title="date identifies when the resource was brought into existence">creation</option>
 			<option value="CI_DateTypeCode_publication" title="date identifies when the resource was issued">publication</option>
@@ -9,7 +9,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_CI_OnLineFunctionCode">
-		<select id="picklist_CI_OnLineFunctionCode" name="picklist_CI_OnLineFunctionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_CI_OnLineFunctionCode" name="picklist_CI_OnLineFunctionCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_OnLineFunctionCode_download" title="online instructions for transferring data from one storage device or system to another">download</option>
 			<option value="CI_OnLineFunctionCode_information" title="online information about the resource">information</option>
@@ -19,7 +19,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_CI_PresentationFormCode">
-		<select id="picklist_CI_PresentationFormCode" name="picklist_CI_PresentationFormCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_CI_PresentationFormCode" name="picklist_CI_PresentationFormCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_PresentationFormCode_documentDigital" title="digital representation of a primarily textual item (can contain illustrations also)">documentDigital</option>
 			<option value="CI_PresentationFormCode_documentHardcopy" title="representation of a primarily textual item (can contain illustrations also) on paper, photograhic material, or other media">imageDigital</option>
@@ -38,7 +38,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_CI_RoleCode">
-		<select id="picklist_CI_RoleCode" name="picklist_CI_RoleCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_CI_RoleCode" name="picklist_CI_RoleCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="CI_RoleCode_resourceProvider" title="party that supplies the resource">resourceProvider</option>
 			<option value="CI_RoleCode_custodian" title="party that accepts accountability and responsability for the data and ensures appropriate care and maintenance of the resource">custodian</option>
@@ -54,7 +54,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_DQ_EvaluationMethodTypeCode">
-		<select id="picklist_DQ_EvaluationMethodTypeCode" name="picklist_DQ_EvaluationMethodTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_DQ_EvaluationMethodTypeCode" name="picklist_DQ_EvaluationMethodTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DQ_EvaluationMethodTypeCode_directInternal" title="method of evaluating the quality of a dataset based on inspection of items within the dataset, where all data required is internal to the dataset being evaluated">directInternal</option>
 			<option value="DQ_EvaluationMethodTypeCode_directExternal" title="method of evaluating the quality of a dataset based on inspection of items within the dataset, where reference data external to the dataset being evaluated is required">directExternal</option>
@@ -62,7 +62,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_DS_AssociationTypeCode">
-		<select id="picklist_DS_AssociationTypeCode" name="picklist_DS_AssociationTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_DS_AssociationTypeCode" name="picklist_DS_AssociationTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DS_AssociationTypeCode_crossReference" title="reference from one dataset to another">crossReference</option>
 			<option value="DS_AssociationTypeCode_largerWorkCitation" title="reference to a master dataset of which this one is a part">largerWorkCitation</option>
@@ -72,7 +72,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_DS_InitiativeTypeCode">
-		<select id="picklist_DS_InitiativeTypeCode" name="picklist_DS_InitiativeTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_DS_InitiativeTypeCode" name="picklist_DS_InitiativeTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="DS_InitiativeTypeCode_campaign" title="series of organized planned actions">campaign</option>
 			<option value="DS_InitiativeTypeCode_collection" title="accumulation of datasets assembled for a specific purpose">collection</option>
@@ -92,14 +92,14 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_CellGeometryCode">
-		<select id="picklist_MD_CellGeometryCode" name="picklist_MD_CellGeometryCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_CellGeometryCode" name="picklist_MD_CellGeometryCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CellGeometryCode_point" title="each cell represents a point">point</option>
 			<option value="MD_CellGeometryCode_area" title="each cell represents an area">area</option>
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_CharacterSetCode">
-		<select id="picklist_MD_CharacterSetCode" name="picklist_MD_CharacterSetCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_CharacterSetCode" name="picklist_MD_CharacterSetCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CharacterSetCode_ucs2" title="16-bit fixed size Universal Character Set, based on ISO/IEC 10646">ucs2</option>
 			<option value="MD_CharacterSetCode_ucs4" title="32-bit fixed size Universal Character Set, based on ISO/IEC 10646">ucs4</option>
@@ -132,7 +132,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_ClassificationCode">
-		<select id="picklist_MD_ClassificationCode" name="picklist_MD_ClassificationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_ClassificationCode" name="picklist_MD_ClassificationCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ClassificationCode_unclassified" title="available for general disclosure">unclassified</option>
 			<option value="MD_ClassificationCode_restricted" title="not for general disclosure">restricted</option>
@@ -142,7 +142,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_CoverageContentTypeCode">
-		<select id="picklist_MD_CoverageContentTypeCode" name="picklist_MD_CoverageContentTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_CoverageContentTypeCode" name="picklist_MD_CoverageContentTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_CoverageContentTypeCode_image" title="meaningful numerical representation of a physical parameter that is not the actual value of the physical parameter">image</option>
 			<option value="MD_CoverageContentTypeCode_thematicClassification" title="code value with no quantitative meaning, used to represent a physical quantity">thematicClassification</option>
@@ -150,7 +150,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_DatatypeCode">
-		<select id="picklist_MD_DatatypeCode" name="picklist_MD_DatatypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_DatatypeCode" name="picklist_MD_DatatypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_DatatypeCode_class" title="descriptor of a set of objects that share the same attributes, operations, methods, relationships, and behavior">class</option>
 			<option value="MD_DatatypeCode_codelist" title="descriptor of a set of objects that share the same attributes, operations, methods, relationships, and behavior">codelist</option>
@@ -170,7 +170,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_DimensionNameTypeCode">
-		<select id="picklist_MD_DimensionNameTypeCode" name="picklist_MD_DimensionNameTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_DimensionNameTypeCode" name="picklist_MD_DimensionNameTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_DimensionNameTypeCode_row" title="ordinate (y) axis">row</option>
 			<option value="MD_DimensionNameTypeCode_column" title="abscissa (x) axis">column</option>
@@ -183,7 +183,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_GeometricObjectTypeCode">
-		<select id="picklist_MD_GeometricObjectTypeCode" name="picklist_MD_GeometricObjectTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_GeometricObjectTypeCode" name="picklist_MD_GeometricObjectTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_GeometricObjectTypeCode_complex" title="set of geometric primitives such that their boundaries can be represented as a union of other primitives">complex</option>
 			<option value="MD_GeometricObjectTypeCode_composite" title="connected set of curves, solids or surfaces">composite</option>
@@ -194,7 +194,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_ImagingConditionCode">
-		<select id="picklist_MD_ImagingConditionCode" name="picklist_MD_ImagingConditionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_ImagingConditionCode" name="picklist_MD_ImagingConditionCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ImagingConditionCode_blurredImage" title="portion of the image is blurred">blurredImage</option>
 			<option value="MD_ImagingConditionCode_cloud" title="portion of the image is partially obscured by cloud cover">cloud</option>
@@ -210,7 +210,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_KeywordTypeCode">
-		<select id="picklist_MD_KeywordTypeCode" name="picklist_MD_KeywordTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_KeywordTypeCode" name="picklist_MD_KeywordTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_KeywordTypeCode_discipline" title="keyword identifies a branch of instruction or specialized learning">discipline</option>
 			<option value="MD_KeywordTypeCode_place" title="keyword identifies a location">place</option>
@@ -220,7 +220,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_MaintenanceFrequencyCode">
-		<select id="picklist_MD_MaintenanceFrequencyCode" name="picklist_MD_MaintenanceFrequencyCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_MaintenanceFrequencyCode" name="picklist_MD_MaintenanceFrequencyCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MaintenanceFrequencyCode_continual" title="data is repeatedly and frequently updated">continual</option>
 			<option value="MD_MaintenanceFrequencyCode_daily" title="data is updated each day">daily</option>
@@ -237,7 +237,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_MediumFormatCode">
-		<select id="picklist_MD_MediumFormatCode" name="picklist_MD_MediumFormatCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_MediumFormatCode" name="picklist_MD_MediumFormatCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MediumFormatCode_cpio" title="CoPy In / Out (UNIX file format and command)">cpio</option>
 			<option value="MD_MediumFormatCode_tar" title="Tape ARchive">tar</option>
@@ -248,7 +248,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_MediumNameCode">
-		<select id="picklist_MD_MediumNameCode" name="picklist_MD_MediumNameCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_MediumNameCode" name="picklist_MD_MediumNameCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_MediumNameCode_cdRom" title="read-only optical disk">cdRom</option>
 			<option value="MD_MediumNameCode_dvd" title="digital versatile disk">dvd</option>
@@ -271,7 +271,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_ObligationCode">
-		<select id="picklist_MD_ObligationCode" name="picklist_MD_ObligationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_ObligationCode" name="picklist_MD_ObligationCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ObligationCode_mandatory" title="element is always required">mandatory</option>
 			<option value="MD_ObligationCode_optional" title="element is not required">optional</option>
@@ -279,7 +279,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_PixelOrientationCode">
-		<select id="picklist_MD_PixelOrientationCode" name="picklist_MD_PixelOrientationCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_PixelOrientationCode" name="picklist_MD_PixelOrientationCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_PixelOrientationCode_center" title="point halfway between the lower left and the upper right of the pixel">center</option>
 			<option value="MD_PixelOrientationCode_lowerLeft" title="the corner in the pixel closest to the origin of the SRS; if two are at the same distance from the origin, the one with the smallest x-value">lowerLeft</option>
@@ -289,7 +289,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_ProgressCode">
-		<select id="picklist_MD_ProgressCode" name="picklist_MD_ProgressCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_ProgressCode" name="picklist_MD_ProgressCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ProgressCode_completed" title="production of the data has been completed">completed</option>
 			<option value="MD_ProgressCode_historicalArchive" title="data has been stored in an offline storage facility">historicalArchive</option>
@@ -301,7 +301,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_RestrictionCode">
-		<select id="picklist_MD_RestrictionCode" name="picklist_MD_RestrictionCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_RestrictionCode" name="picklist_MD_RestrictionCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_RestrictionCode_copyright" title="exclusive right to the publication, production, or sale of the rights to a literary, dramatic, musical, or artistic work, or to the use of a commercial print or label, granted by law for a specified period of time to an author, composer, artist, distributor">copyright</option>
 			<option value="MD_RestrictionCode_patent" title="government has granted exclusive right to make, sell, use or license an invention or discovery">patent</option>
@@ -314,7 +314,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_ScopeCode">
-		<select id="picklist_MD_ScopeCode" name="picklist_MD_ScopeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_ScopeCode" name="picklist_MD_ScopeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_ScopeCode_attribute" title="information applies to the attribute class">attribute</option>
 			<option value="MD_ScopeCode_attributeType" title="information applies to the characteristic of a feature">attributeType</option>
@@ -335,7 +335,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_SpatialRepresentationTypeCode">
-		<select id="picklist_MD_SpatialRepresentationTypeCode" name="picklist_MD_SpatialRepresentationTypeCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_SpatialRepresentationTypeCode" name="picklist_MD_SpatialRepresentationTypeCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_SpatialRepresentationTypeCode_vector" title="vector data is used to represent geographic data">vector</option>
 			<option value="MD_SpatialRepresentationTypeCode_grid" title="grid data is used to represent geographic data">grid</option>
@@ -346,7 +346,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_TopicCategoryCode">
-		<select id="picklist_MD_TopicCategoryCode" name="picklist_MD_TopicCategoryCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_TopicCategoryCode" name="picklist_MD_TopicCategoryCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_TopicCategoryCode_farming" title="rearing of animals and/or cultivation of plants. Examples: agriculture, irrigation, aquaculture, plantations, herding, pests and diseases affecting crops and livestock">farming</option>
 			<option value="MD_TopicCategoryCode_biota" title="flora and/or fauna in natural environment. Examples: wildlife, vegetation, biological sciences, ecology, wilderness, sealife, wetlands, habitat">biota</option>
@@ -370,7 +370,7 @@
 		</select>
 	</xsl:template>
 	<xsl:template name="picklist_MD_TopologyLevelCode">
-		<select id="picklist_MD_TopologyLevelCode" name="picklist_MD_TopologyLevelCode" onchange="pickList(this)" onBlur="pickList(this)" onkeypress="pickListKeyPress(this)" onkeydown="pickListKeyPress(this)">
+		<select id="picklist_MD_TopologyLevelCode" name="picklist_MD_TopologyLevelCode" onchange="pickList(event)" onBlur="pickList(event)" onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
 			<option value="default">[huidige waarde]</option>
 			<option value="MD_TopologyLevelCode_geometryOnly" title="geometry objects without any additional structure which describes topology">geometryOnly</option>
 			<option value="MD_TopologyLevelCode_topology1D" title="1-dimensional topological complex --  commonly called  chain-node  topology">topology1D</option>

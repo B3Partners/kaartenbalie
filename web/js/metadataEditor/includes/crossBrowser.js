@@ -21,16 +21,6 @@ function setElementInnerText(element, value) {
 		alert("innerText and textContent not supported by your browser: Please use either IE or FireFox");
 }
 
-function getParentElement(element) {
-	if (element.parentElement)
-		return element.parentElement;
-	else if (element.parentNode)
-		return element.parentNode;
-	else
-		alert("parentElement and parentNode not supported by your browser: Please use either IE or FireFox");
-}
-
-
 ////////////////// Events /////////////////////////
 function getWindowEvent(e) {
 	if (!e) {
@@ -46,11 +36,22 @@ function getWindowEvent(e) {
 
 function getTarget(e) {
 	var target;
-	if (!e) var e = window.event;
-	if (e.target) target = e.target;
-	else if (e.srcElement) target = e.srcElement;
-	if (target.nodeType == 3) // defeat Safari bug
-		target = target.parentNode;
+	if (!e) {
+		var e = window.event;
+		debug("use winevent");
+	}
+	if (e.target) {
+		target = e.target;
+		debug("use target");
+	}
+	else if (e.srcElement) {
+		target = e.srcElement;
+		debug("use srcElem");
+	}
+	//if (target.nodeType == 3) // defeat Safari bug
+		//target = target.parentNode;
+	debug("window.event: " + window.event);
+	debug("target: " + target);
 	return target;
 }
 

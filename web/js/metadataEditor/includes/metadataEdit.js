@@ -98,18 +98,26 @@ function findChildNode(root, searchParent, targetRawChildTag) {
 	
 	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
 	var targetChildAndIndex = targetRawChildTag.split(/[\[\]:]+/);
+	for (var i = 0; i < targetChildAndIndex.length; i++) {
+		debug(targetChildAndIndex[i]);
+	}
 	
-	if (targetChildAndIndex.length < 3)
-		debug("length of rawChildTag < 3");
-	var targetChildTag = targetChildAndIndex[1];
+	var targetChildTag, targetChildIndex;
+	if (targetChildAndIndex.length == 3) {
+		targetChildTag = targetChildAndIndex[1];
+		targetChildIndex = targetChildAndIndex[2];
+	}
+	else if (targetChildAndIndex.length == 2) {
+		targetChildTag = targetChildAndIndex[0];
+		targetChildIndex = targetChildAndIndex[1];
+	}
+	else { // == 1
+		targetChildTag = targetChildAndIndex[0];		
+	}
 	
-	if (targetChildAndIndex.length > 2)
-		var targetChildIndex = targetChildAndIndex[2];
-	else
-		var targetChildIndex = 1;
-		
 	var searchChildren = searchParent.childNodes;
-	if (searchChildren == null) {
+	if (searchChildren == null || searchChildren.length == 0) {
+		debug("tree empty?");
 		return null;
 	}
 	
@@ -117,11 +125,12 @@ function findChildNode(root, searchParent, targetRawChildTag) {
 	var correctChildCount = 0;
 	for (var i = 0; i < searchChildren.length; i++) {
 		searchChild = searchChildren[i];
-		if (searchChild.nodeType == 1 && searchChild.tagName == targetChildTag) {
+		debug("searchChild: "+searchChild.tagName);
+		if (searchChild.nodeType == 1 && searchChild.tagName.toLowerCase() == targetChildTag.toLowerCase()) {
 			correctChildCount++;
 			if (correctChildCount == targetChildIndex) {
-				//debug("child: " + child.nodeName);
-				return child;
+				debug("child: " + searchChild.nodeName);
+				return searchChild;
 			}
 		}
 	}

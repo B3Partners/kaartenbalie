@@ -94,7 +94,7 @@ function startEdit(event) {
 	var element = getTarget(event);
 	
 	// already editing?
-	if (element.tagName == "INPUT")
+	if (element.tagName.toLowerCase() == "input")
 		return;
 	
 	// get current value (for checking if changed later)
@@ -128,20 +128,20 @@ function startEdit(event) {
 		}
 		else {
 			// add to code and display it
-			//*************************************************
-			element.insertAdjacentElement("afterEnd", pPicklist);
+			element.parentNode.appendChild(pPicklist);
 
 			//current value
 			//pPicklist.childNodes[0].value = element.innerText;
 			
 			//for (var i in pPicklist.childNodes) {
-			for (var i = 0; i < pPicklist.childNodes.length; i++) {
+			/*for (var i = 0; i < pPicklist.childNodes.length; i++) {
 				node = pPicklist.childNodes[i];
-				if (node.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
-					node.value = getElementInnerText(element);
+				if (node.nodeType == 1) { // == Node.ELEMENT_NODE //(Node.ELEMENT_NODE werkt niet in IE)
+					node.innerHTML = "";
+					node.appendChild(element);
 					break;
 				}
-			}
+			}*/
 			/*var node;
 			For Each node in pPicklist.childNodes;
 				//alert("node.nodeType = " + node.nodeType);
@@ -200,13 +200,17 @@ function startEdit(event) {
 	element.innerHTML = "";
 	element.appendChild(inputElement);
 	
-	inputElement.focus();
+	if (element.getAttribute("picklist") != "" && element.getAttribute("picklist") != null) {
+		pPicklist.focus();
+	}
+	else {
+		inputElement.focus();
+	}
 
 	// if default value, select it (makes it easier to replace);
 	if (element.className == "default-value") {
 		inputElement.select();
 	}
-	
 }
 
 
@@ -218,18 +222,17 @@ function startEdit(event) {
 // Argument:
 //   element = the <span> element containing text to be edited.
 function stopEdit(event) {
-	// check if picklist has focus, if so don't stop editing
-	/*var pActiveElem = document.activeElement;
-	if (pActiveElem.tagName == "SELECT") {
-		return;
-	}*/
-	
 	var element = getTarget(event);
+	debug("stopEdit element: " + element.tagName);
+	
+	// check if picklist has focus, if so don't stop editing
+	if (element.tagName.toLowerCase() == "select")
+		return;
 
-	stopPropagation(event);
+	//stopPropagation(event);
 
 	// get parent <span> element
-	var parentElement = getParentElement(element);
+	var parentElement = element.parentNode;
 
 	var newValue = trim(element.value);
 	// check for changed value (from original)
@@ -242,7 +245,7 @@ function stopEdit(event) {
 		//page changed attribute;
 		changeFlag(true);
 		
-		//debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
+		debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
 		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);				
 	}
 
@@ -262,15 +265,17 @@ function stopEdit(event) {
 	}
 	
 	// change span value to text alone
-	parentElement.innerHTML = checkText(newValue);
+	element.innerHTML = "";
+	//debug("checkText(newValue): "+checkText(newValue));
+	//debug("newValue: "+newValue);
+	element.appendChild(document.createTextNode(checkText(newValue)));
 
 	// has picklist? if so, delete it
 	if (parentElement.getAttribute("picklist") != "" && parentElement.getAttribute("picklist") != null) {
-		//alert("Has picklist=" + element.parentElement.getAttribute("picklist"));
+		debug("Has picklist=" + parentElement.getAttribute("picklist"));
 		// get picklist
 		var pPicklist = parentElement.nextSibling;
-		//alert("pPicklist.tagName=" + pPicklist.tagName);
-		//*******************************************************
+		debug("pPicklist.tagName=" + pPicklist.tagName);
 		if (pPicklist == null) {
 			alert("Error locating picklist in stylesheet to remove.");
 		}
@@ -279,10 +284,10 @@ function stopEdit(event) {
 		}
 		else {
 			// delete it
-			pPicklist.removeNode(true);
+			parentElement.parentNode.removeChild(pPicklist);
 		}
 	}
-	//alert("Has picklist? =" + element.parentElement.getAttribute("picklist"));
+	//debug("Has picklist? =" + parentElement.getAttribute("picklist"));
 
 }
 
@@ -318,22 +323,36 @@ function getPicklist(name) {
 // 2/05 Eric Compas
 //
 // Description: code called by picklists when selection changed (onchange)
-function pickList(element) {
-	//alert("element.tagName=" + element.tagName);
-	//htmlText.value = element.parentElement.outerHTML;
+function pickList(event) {
+	var element = getTarget(event);
+	debug("element=" + element);
+	debug("element.tagName=" + element.tagName);
+	//htmlText.value = element.parentNode.outerHTML;
 
 	// get adjacent text box;
-	var textInput = element.previousSibling.childNodes[0];
+	var textInput;
+	for (var i = 0; i < element.previousSibling.childNodes.length; i++) {
+		textInput = element.previousSibling.childNodes[i];
+		if (textInput.nodeType == 1) { // == Node.ELEMENT_NODE //(Node.ELEMENT_NODE werkt niet in IE)
+			break;
+		}
+	}
+	
+	//var textInput = element.previousSibling.childNodes[0];
 	//Set textInput = element.parentElement.previousSibling.childNodes(0);
 	
-	if (textInput.tagName != "textarea" && textInput.tagName != "input") {
+	if (textInput == "" || 
+		(textInput.tagName.toLowerCase() != "textarea" && textInput.tagName.toLowerCase() != "input") ) {
 		alert("Error locating text input for picklist.");
 		return;
 	}
 	//alert("textInput.tagName=" + textInput.tagName + " value=" + textInput.value +  '\r\n' + " element.value=" + element.value );
 
 	// update value;
-	textInput.value = element.value;
+	textInput.innerHTML = "";
+	textInput.appendChild(document.createTextNode(element.value));
+	debug("element.value: " + element.value);
+	debug("textInput.value: " + textInput.value);
 
 	//focus back to text input
 	// (need to do this to make sure text input onBlur event is triggered correctly)
