@@ -35,7 +35,7 @@ import org.xml.sax.XMLReader;
 public class ImageCollector extends Thread implements KBConstants {
     
     private static final Log log = LogFactory.getLog(ImageCollector.class);
-    private static final int maxResponseTime = 30000;
+    private static final int maxResponseTime = 60000;
     
     public static final int NEW = 0;
     public static final int ACTIVE = 1;
@@ -52,7 +52,7 @@ public class ImageCollector extends Thread implements KBConstants {
     
     public ImageCollector(String url) {
         this.url = url;
-        this.setMessage("Downloading from url: " + this.getUrl() + ". Status of download is still active.");
+        this.setMessage("Download status is still active.");
     }
     
     public void processNew() throws InterruptedException {

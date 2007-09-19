@@ -30,6 +30,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.MyDatabase;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -135,6 +136,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                      * into the Datawrapper and sent directly. This means we don't have to given another sent command
                      * anymore after calling method below.
                      */
+                    int width  = Integer.parseInt((String)data.getParameters().get(WMS_PARAM_WIDTH));
+                    int height = Integer.parseInt((String)data.getParameters().get(WMS_PARAM_HEIGHT));
+                    
                     tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
                 } catch (Exception e) {
                     log.error("error: ", e);
@@ -160,9 +164,38 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 rootElement.setAttribute("version", "1.1.1");
 
                 Element serviceExceptionElement = dom.createElement("ServiceException");
-                serviceExceptionElement.setAttribute("code", ex.getClass().getName());
-
-                CDATASection cdata = dom.createCDATASection(ex.getMessage() + " - " + ex.getCause());
+                
+                String exceptionName;
+                try {
+                    exceptionName = ex.getClass().getName();
+                } catch (Exception e) {
+                    exceptionName = "";
+                }
+                
+                String message;
+                
+                try {
+                    message = ex.getMessage();
+                } catch (Exception e) {
+                    message = "";
+                }
+                
+                Throwable cause;
+                
+                try {
+                    cause = ex.getCause();
+                } catch (Exception e) {
+                    cause = null;
+                }
+                
+                serviceExceptionElement.setAttribute("code", exceptionName);
+                CDATASection cdata = null;
+                if(cause != null) {
+                    cdata = dom.createCDATASection(message + " - " + cause);
+                } else {
+                    cdata = dom.createCDATASection(message);
+                }
+                
                 serviceExceptionElement.appendChild(cdata);
                 rootElement.appendChild(serviceExceptionElement);
 
@@ -234,15 +267,18 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         if (user == null) {
-            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {            
-                if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+                if (parameters.containsKey(WMS_PARAM_WIDTH) && parameters.containsKey(WMS_PARAM_HEIGHT)) {
                     int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
                     int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
                     if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
-                        dw.setErrorContentType((String) parameters.get(WMS_PARAM_FORMAT));
-                    }                
+                        if(((String) parameters.get(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
+                            dw.setErrorContentType((String) parameters.get(WMS_PARAM_FORMAT));
+                            dw.setParameters(parameters);
+                        }
+                    }
                 }
-            }            
+            }
             
             // niet ingelogd dus, dan checken op token in url
             Session sess = MyDatabase.currentSession();
@@ -301,8 +337,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String toBeHashedString = registeredIP + username + password + personalDate;
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
-        BigInteger hash = new BigInteger(1, md.digest());
-        return hash.toString( 16 );
+        byte[] md5hash = md.digest();
+        return new String(Hex.encodeHex(md5hash));
     }
     // </editor-fold>
 
@@ -339,8 +375,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
         }
 
-        if (!supported)
-            throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported!");
+        if (!supported) {
+            throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported! Use GetCapabilities request to " +
+                    "get the list of supported functions. Usage: i.e. http://urltoserver/personalurl?REQUEST=GetCapabilities&" +
+                    "VERSION=1.1.1&SERVICE=WMS");
+        }
 
         /*
          * The request is supported so now we can go ahed and find the right information which

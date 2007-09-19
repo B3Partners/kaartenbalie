@@ -88,7 +88,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         url = (String) parameters.get(KB_PERSONAL_URL);
         String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
         
-        ArrayList spUrls = getSeviceProviderURLS(layers, orgId);
+        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, false);
         
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();        
@@ -101,20 +101,14 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             
             //Eerst controle of deze spid al geweest is.... en als niet dan controleren of SRS ok is
             if(!spMap.containsKey(sp_layerlist[0])) {
-                String layerid = sp_layerlist[3];
-                
-                Layer layer = (Layer) sess.createQuery("from Layer where id = '" + layerid + "'").uniqueResult();
-                Layer topLayer = layer.getTopLayer();
-                
-                
                 String query = 
                         "SELECT DISTINCT temptabel.LAYERID, srs.SRS FROM srs INNER JOIN (" + 
                         " SELECT layer.LAYERID, layer.PARENTID FROM layer WHERE layer.PARENTID IS NULL)" + 
                         " AS temptabel ON temptabel.LAYERID = srs.LAYERID" + 
-                        " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = '" + topLayer.getId() + "'";
+                        " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = :toplayer";
                 
                 boolean srsFound = false;
-                List sqlQuery = sess.createSQLQuery(query).list();
+                List sqlQuery = sess.createSQLQuery(query).setParameter("toplayer", sp_layerlist[3]).list();
                 Iterator sqlIterator = sqlQuery.iterator();
                 while (sqlIterator.hasNext()) {
                     Object [] objecten = (Object [])sqlIterator.next();

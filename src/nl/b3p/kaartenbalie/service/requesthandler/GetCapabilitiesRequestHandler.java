@@ -54,23 +54,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         user = (User) parameters.get(KB_USER);
         url = (String) parameters.get(KB_PERSONAL_URL);
                 
-        ServiceProvider s = null;
-        List sps = getServiceProviders(true);
-        Iterator it = sps.iterator();
-        
-        /*
-         * Since we use List sps = getServiceProviders(true); where the boolean is set to true we don't have
-         * to worry about the fact that only the last service provider in the list will be used in the capability
-         * request. The boolean tells the getServiceProvider method to combine all service providers and create
-         * one new service provider object from all providers found in the database. Therefore also only ONE
-         * service provider will be returned inside the list.
-         * Because the get service provider also can return several providers (not combined to one) a list will be
-         * returned.
-         */
-        if (it.hasNext()) {
-            s = (ServiceProvider)it.next();
-            s.overwriteURL(url);
-        }
+        ServiceProvider s = getServiceProvider();
+        s.overwriteURL(url);
         
         ByteArrayOutputStream output = null;
         

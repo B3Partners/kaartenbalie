@@ -31,7 +31,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -53,6 +52,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import java.util.HashMap;
 import nl.b3p.kaartenbalie.service.ImageManager;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -74,126 +74,93 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private static Stack stack = new Stack();
     private Switcher s;
     
-    public WMSRequestHandler() { }
-    
-    /** Creates a List of ServiceProviders recieved from the Database.
-     * If the boolean is set to true, this method creates a single ServiceProvider in a List which holds again all
-     * layers supported by the kaartenbalie. Otherwise if the boolean is set to false the method will get each single
-     * ServiceProvider from the database and stores these seperatly, with their own layers, in the List.
-     *
-     * @param combine boolean wether to combine the serviceproviders or not
-     * @return a list of the serviceproviders
-     */
-    // <editor-fold defaultstate="" desc="getServiceProviders(boolean combine) method.">
-    protected List getServiceProviders(boolean combine) {
+    public WMSRequestHandler() {}
+        
+    public ServiceProvider getServiceProvider() {
+        Layer kaartenbalieTopLayer = new Layer();
+        kaartenbalieTopLayer.setTitle(TOPLAYERNAME);        
         
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
         
-        List sps  = new ArrayList();
-        List clonedsps  = new ArrayList();
-        Set dbLayers = null;
-        Set clonedLayers = new HashSet();
-        
-        /*
-         * First we a set with layers which are visible to the user doing the request
-         */
         User dbUser = (User)sess.createQuery("from User u where " +
                 "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
         
-        dbLayers = dbUser.getOrganization().getOrganizationLayer();
-        if (dbLayers == null)
+        Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+        if (organizationLayers == null)
             return null;
         
-        /*
-         * Now we have a set of layers with which we can perform our action.
-         * There can be two types of actions; there can be a combination of all
-         * serviceproviders or return each serviceprovider seperatly in a list.
-         *
-         * Before we can perform the action we need to take some action in order
-         * to be able to perform the action.
-         */
-        
-        /*
-         * Getting the serviceproviders from the database layers.
-         * By walking through all layers, checking if the layer has a parent we can
-         * select only those layers which hang directly under a serviceprovider
-         *
-         * First we need to clone each of the layers we recieved from the database.
-         * Of these clones we need to select only the leaf layers and with those leaf layers
-         * we can build up the tree to the top by calling the getParents method.
-         */
-        Set parents = getParents(getLeafLayers(cloneLayers(dbLayers)));
-        
-        Set serviceproviders = new HashSet();
-        Iterator it = parents.iterator();
-        while (it.hasNext()) {
-            Layer parent = (Layer)it.next();
-            ServiceProvider clonedSp = parent.getServiceProvider();
-            clonedSp.setLayers(null);
-            clonedSp.addLayer(parent);
-            serviceproviders.add( clonedSp );
-        }
-        
-        if(combine) {
-            /* Now a top layer is available we need a ServiceProviderobject to store
-             * this toplayer in. With the ServiceProvider there are also a couple of
-             * constraints, concerning the DomainResources and their available return
-             * formats. Therefore we have to validate the avaible ServiceProviders to
-             * create a valid one.
-             */
-            ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
-            ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-            
-            /* We have still a Set of toplayers.
-             * A ServiceProvider is allowed to have only one toplayer.
-             * Therefore a toplayer has to be created manually.
-             * This toplayer has to have a certain amount of SRS values
-             * which apply to ALL layers which are child of this toplayer.
-             */
-            Layer layer = new Layer();
-            layer.setTitle(TOPLAYERNAME);
-            //layer.setName(TOPLAYERNAME);
-            
-            //Standaard LatLonBoundingBox
-            //Het enige dat hier gedaan moet worden is een nieuwe methode van LayerValidator aanroepen
-            //Die even controleert welke layers allemaal een llbb hebben, deze llbb's vervolgens naast
-            //elkaar legt en even de minimale en maximale waarden van de verschillende minnen en maxen
-            //er tussen uit pikt en deze vervolgens in een nieuw srs object plaatst en dit object terug
-            //geeft aan de aanroep.
-            //In het srs object moet vervolgens nog een kleine aanpassing gedaan worden mbt de getType
-            //functie om de juiste types te selecteren en in de WMSCapabilityReader moet nog een kleine
-            //aanpassing gedaan worden zodat een LLBB geen SRS meer meekrijgt aangezien een LLBB geen
-            //SRS heeft.
-            LayerValidator lv = new LayerValidator(dbLayers);
-            layer.addSrsbb(lv.validateLatLonBoundingBox());
-            layer.setLayers(parents);
-            
-            /* If, and only if, a layer has a <Name>, then it is a map layer that can be requested by using
-             * that Name in the LAYERS parameter of a GetMap request. If the layer has a Title but no
-             * Name, then that layer is only a category title for all the layers nested within. A Map
-             * Server that advertises a Layer containing a Name element shall be able to accept that
-             * Name as the value of LAYERS argument in a GetMap request and return the
-             * corresponding map. A Client shall not attempt to request a layer that has a Title but no
-             * Name.
-             */
-            lv = new LayerValidator(parents);
-            String [] supportedSRS = lv.validateSRS();
-            for (int i=0; i < supportedSRS.length; i++){
-                SrsBoundingBox srsbb= new SrsBoundingBox();
-                srsbb.setSrs(supportedSRS[i]);
-                layer.addSrsbb(srsbb);
+        Set clonedOrganizationLayers = new HashSet();
+        Map serviceproviders = new HashMap();
+        Iterator orgIt = organizationLayers.iterator();
+        while(orgIt.hasNext()) {
+            Layer tempLayer = (Layer)orgIt.next();
+            clonedOrganizationLayers.add(tempLayer.clone());                    
+                    
+            ServiceProvider sp = (ServiceProvider)(tempLayer.getServiceProvider()).clone();
+            if(!serviceproviders.containsKey(sp.getId())) {
+                serviceproviders.put(sp.getId(), sp);
             }
-            
-            validServiceProvider.addLayer(layer);
-            sps.add(validServiceProvider);
-        } else {
-            sps.addAll(serviceproviders);
         }
+        
+        LayerValidator lv = new LayerValidator(organizationLayers);
+        kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
+        
+        HashMap topLayers = new HashMap();
+        Iterator it = organizationLayers.iterator();
+        while (it.hasNext()) {
+            Layer orgLayer = (Layer) it.next();
+            Layer topLayer = (Layer)orgLayer.getTopLayer().clone();
+            topLayer.setLayers(null);
+            if(!topLayers.containsKey(topLayer.getId())) {
+                topLayers.put(topLayer.getId(), topLayer);
+            }
+        }
+        
+        Set topLayerList = new HashSet(topLayers.values());
+        
+        lv = new LayerValidator(topLayerList);
+        String [] supportedSRS = lv.validateSRS();
+        for (int i=0; i < supportedSRS.length; i++){
+            SrsBoundingBox srsbb= new SrsBoundingBox();
+            srsbb.setSrs(supportedSRS[i]);
+            kaartenbalieTopLayer.addSrsbb(srsbb);
+        }
+        
+        it = topLayerList.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer)it.next();
+            kaartenbalieTopLayer.addLayer(this.addToParent(organizationLayers, layer));
+        }
+        
+        ServiceProviderValidator spv = new ServiceProviderValidator(new HashSet(serviceproviders.values()));
+        ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+        
+        Layer clonedLayer = (Layer)kaartenbalieTopLayer.clone();
+        validServiceProvider.addLayer(clonedLayer);
         tx.commit();
-        return sps;
+        return validServiceProvider;
     }
-    // </editor-fold>
+    
+    public Layer addToParent(Set layers, Layer parent) {
+        Iterator it = layers.iterator();
+        while(it.hasNext()) {
+            Layer possibleChild = (Layer)it.next();
+            Layer childsParent = possibleChild.getParent();
+            Layer possiblechildCloned = (Layer)possibleChild.clone();
+            possiblechildCloned.setLayers(null);
+            if(childsParent != null) {
+                if (childsParent.getId() != null) {
+                    if(childsParent.getId().equals(parent.getId())) {
+                        //possibleChild is a direct child of this parent.
+                        //Add this to child to it's parent and delete it from the list of layers.
+                        parent.addLayer(this.addToParent(layers, possiblechildCloned));
+                    }
+                }
+            }
+        }
+        return parent;
+    }
     
     
     
@@ -201,21 +168,31 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     //deze methode werkt sneller en efficienter dan de bovenstaande getserviceprovider
     //methode in combinatie met de code voor controle van layer rechten.
     
-    protected ArrayList getSeviceProviderURLS(String [] layers, Integer orgId) throws Exception {
+    protected ArrayList getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable) throws Exception {
         ArrayList spUrls = new ArrayList();
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
         
+        String topLayerId = null;
         for (int i = 0; i < layers.length; i++) {
             String layerid = layers[i].substring(0, layers[i].indexOf("_"));
             String query =
                     "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
                     " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
                     " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN " +
-                    " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = '" + orgId + "'" +
-                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = '" + layerid + "'";
+                    " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
+                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid";
             
-            List sqlQuery = sess.createSQLQuery(query).list();
+            
+/*
+SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL
+FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME, layer.QUERYABLE AS LAYER_QUERYABLE, 
+layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND 
+organizationlayer.ORGANIZATIONID = '1') AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND 
+tempTabel.LAYER_ID = '1'
+*/
+            
+            List sqlQuery = sess.createSQLQuery(query).setParameter("orgId", orgId).setParameter("layerid", layerid).list();
             if(sqlQuery.isEmpty()) {
                 throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
             }
@@ -236,142 +213,45 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
             }
             
+            
             if(equalIds) {
                 layer_name = "," + layer_name;
+            } else {
+                Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layerid).uniqueResult();
+                Layer topLayer = layer.getTopLayer();
+                topLayerId = topLayer.getId().toString();
             }
             
-            if(!spUrlsEmpty && equalIds) {
-                sp_layerlist[2] += (layer_name);
-                spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
+            
+            //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
+            //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
+            //staan op het id dat door de eerste layer gegeven werd.
+            //daarnaast mmoet er per layer bij komen te staan of deze layer queryable is....
+            
+            
+            if (checkForQueryable) {
+                if(layer_queryable.equals("1")) {
+                    if(!spUrlsEmpty && equalIds) {
+                        sp_layerlist[2] += (layer_name);
+                        spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
+                    } else {
+                        sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
+                        spUrls.add(sp_layerlist);
+                    }
+                }
             } else {
-                sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), layer_id.toString()};
-                spUrls.add(sp_layerlist);
+                if(!spUrlsEmpty && equalIds) {
+                    sp_layerlist[2] += (layer_name);
+                    spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
+                } else {
+                    sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
+                    spUrls.add(sp_layerlist);
+                }
             }
         }
         tx.commit();
         return spUrls;
     }
-    
-    
-    
-    
-    
-    
-    /** Creates a new Set of layers which are an exact clonecopy of the original ones.
-     *
-     * @param originalLayers
-     *
-     * @return Set with the cloned layers
-     */
-    // <editor-fold defaultstate="" desc="cloneLayers(Set originalLayers) method.">
-    private Set cloneLayers(Set originalLayers) {
-        Set cloneLayers = new HashSet();
-        Iterator orglayerIterator = originalLayers.iterator();
-        while(orglayerIterator.hasNext()) {
-            cloneLayers.add(cloneLayer( (Layer) orglayerIterator.next() ));
-        }
-        return cloneLayers;
-    }
-    // </editor-fold>
-    
-    /** Creates a new layer which is an exact clonecopy of the original one.
-     *
-     * @param original
-     *
-     * @return Layer exact copy of the original layer
-     */
-    // <editor-fold defaultstate="" desc="cloneLayer(Layer original) method.">
-    private Layer cloneLayer(Layer original) {
-        Layer cloneLayer = (Layer) original.clone();
-        if(original.getParent() != null) {
-            cloneLayer.setParent(cloneLayer(original.getParent()));
-        }
-        cloneLayer.setServiceProvider((ServiceProvider) original.getServiceProvider().clone());
-        return cloneLayer;
-    }
-    // </editor-fold>
-    
-    /** Defines a Set with layers in which only leafs are added. These have no childs.
-     *
-     * @param originalLayers
-     *
-     * @return Set with only leaf layers
-     */
-    // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
-    private Set getLeafLayers(Set originalLayers) {
-        Set leafLayers = new HashSet();
-        Iterator orglayerIterator = originalLayers.iterator();
-        while(orglayerIterator.hasNext()) {
-            Layer orglayer = (Layer)orglayerIterator.next();
-            if(orglayer.getLayers().isEmpty()) {
-                leafLayers.add(orglayer);
-            }
-        }
-        return leafLayers;
-    }
-    // </editor-fold>
-    
-    /** Builds a new tree from the bottom up with only the leafs as beginning point.
-     *
-     * @param leafLayers
-     *
-     * @return Set with the top layers which hold all children.
-     */
-    // <editor-fold defaultstate="" desc="getParents(Set leafLayers) method.">
-    private Set getParents(Set leafLayers) {
-        boolean found = false;
-        Set parents = new HashSet();
-        
-        Iterator leaflayerIterator = leafLayers.iterator();
-        while(leaflayerIterator.hasNext()) {
-            Layer leafLayer = (Layer)leaflayerIterator.next();
-            Layer parent = leafLayer.getParent();
-            if(parent != null) {
-                //This leafLayer has a parent, this means we need to take this parentlayer and put it
-                //in the list of parent layers and make this leafLayer his child again.
-                Iterator parentsIterator = parents.iterator();
-                while (parentsIterator.hasNext()) {
-                    Layer parentInSet = (Layer) parentsIterator.next();
-                    if (parentInSet.getId().equals(parent.getId())) {
-                        parentInSet.addLayer(leafLayer);
-                        found = true;
-                        break;
-                    }
-                }
-                
-                //Before we are going to add this layer in the Set of parent layers we need to check if
-                //this layer is not already added by a previous child layer. If so the there is no need to
-                //add it again and it was only necessary to add the leaf layer to this parent.
-                if(!found) {
-                    parent.setLayers(null);
-                    parent.addLayer(leafLayer);
-                    parents.add(parent);
-                }
-            } else {
-                //Since this method checks in the end if we have only toplayers, we must make sure that
-                //toplayers are saved each time we get into this loop for a new check.
-                parents.add(leafLayer);
-            }
-            
-            //reset the boolean
-            found = false;
-        }
-        
-        //Here we check if the created list contains only top layers.
-        //If not then we need to go on recursivly untill we have only
-        //toplayers in the list.
-        Iterator parentsIterator = parents.iterator();
-        while(parentsIterator.hasNext()) {
-            Layer parent = (Layer)parentsIterator.next();
-            if(parent.getParent() != null) {
-                return getParents(parents);
-            }
-        }
-        
-        //Once we have a list of only top layers we can return this list.
-        return parents;
-    }
-    // </editor-fold>
     
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
      * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the
@@ -568,108 +448,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
     }
     // </editor-fold>
-    
-    /** Tries to find a specified layer in a given set of layers. If a service provider is given
-     * this method checks also if the given layer belongs to the specified Service Provider. On the
-     * other end this method checks if a certain layer is queryable if the boolean is set to true.
-     *
-     * @param layers the set with layers which the method has to surch through.
-     * @param layerToBeFound the layer to be found.
-     * @param serviceProvider the ServiceProvider which the layer belongs to.
-     * @param queryable boolean if the method has to search for a queryable layer or not.
-     *
-     * @return string with the name of the found layer or null if no layer was found
-     */
-    // <editor-fold defaultstate="" desc="protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable)">
-    protected String findLayer(Set layers, String layerToBeFound, ServiceProvider serviceProvider, boolean queryable) {
-        if (layers==null || layers.isEmpty())
-            return null;
         
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getId() + "_" + layer.getName();
-            if(identity.equalsIgnoreCase(layerToBeFound)) {
-                if (!queryable && serviceProvider == null){
-                    return layer.getName();
-                } else if (serviceProvider != null && !queryable) {
-                    if(layer.getServiceProvider().getId().equals(serviceProvider.getId())) {
-                        return layer.getName();
-                    } else {
-                        return null;
-                    }
-                } else if(queryable && serviceProvider == null) {
-                    if (layer.getQueryable().equals("1")) {
-                        return layer.getName();
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return null;
-                }
-            }
-            
-            String foundLayer = findLayer(layer.getLayers(), layerToBeFound, serviceProvider, queryable);
-            if (foundLayer != null)
-                return foundLayer;
-        }
-        return null;
-    }
-    // </editor-fold>
-    
-    /** Builds a Stringbuffer of the layers found in the database and compared with the requested layers.
-     * @param serviceProvider ServiceProvider to which the layers belong
-     * @param layer string array with layersto be found and added to the list
-     *
-     * @return string with all the request layers
-     */
-    // <editor-fold defaultstate="" desc="calcFormattedLayers(ServiceProvider serviceProvider, String[] layer) method.">
-    protected String calcFormattedLayers(ServiceProvider serviceProvider, String[] layer) {
-        if (serviceProvider==null)
-            return null;
-        Set spLayers = serviceProvider.getLayers();
-        if (spLayers==null || spLayers.size()==0)
-            return null;
-        StringBuffer requestedLayers = null;
-        for (int i = 0; i < layer.length; i++) {
-            String foundLayer = findLayer(spLayers, layer[i], serviceProvider, false);
-            if (foundLayer==null)
-                continue;
-            if (requestedLayers==null)
-                requestedLayers = new StringBuffer();
-            else
-                requestedLayers.append(",");
-            requestedLayers.append(foundLayer);
-        }
-        if (requestedLayers==null)
-            return null;
-        return requestedLayers.toString();
-    }
-    // </editor-fold>
-    
-    /** Checks wether a post or get url is available for an incomming request.
-     * @param serviceProvider ServiceProvider to which the request belongs
-     * @param request String with the specified request
-     * @return stringbuffer with the url found in the database for this specific request
-     */
-    // <editor-fold defaultstate="" desc="calcRequestUrl(ServiceProvider serviceProvider, String request) method.">
-    protected StringBuffer calcRequestUrl(ServiceProvider serviceProvider, String request) {
-        Set domain = serviceProvider.getDomainResource();
-        Iterator domainIter = domain.iterator();
-        while (domainIter.hasNext()) {
-            ServiceDomainResource sdr = (ServiceDomainResource)domainIter.next();
-            if(sdr.getDomain().equalsIgnoreCase(request)) {
-                if(sdr.getPostUrl() != null) {
-                    return new StringBuffer(sdr.getPostUrl());
-                } else {
-                    return new StringBuffer(sdr.getGetUrl());
-                }
-            }
-        }
-        return null;
-    }
-    // </editor-fold>
-    
     /** Processes the parameters and creates a byte array with the needed information.
      *
      * @param parameters Map parameters
@@ -680,15 +459,5 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      */
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract void getRequest(DataWrapper dw, Map params) throws IOException, Exception;
-    // </editor-fold>
-    
-    // <editor-fold defaultstate="" desc="getter methods.">
-    public User getUser() {
-        return user;
-    }
-    
-    public String getUrl() {
-        return url;
-    }
     // </editor-fold>
 }

@@ -35,151 +35,102 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        /* Initialize some variables */
-        user = (User) parameters.get(KB_USER);
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        
-        String format = null;
+        /* 
+         * Initialize some variables
+         * And immediatly set the right output format (also for errors) because if an error occurs
+         * with the GetMap functionality before the outputformat is set then the standard output
+         * format would be used.
+         */
         dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         
-        try {
-            format = ((String)parameters.get(WMS_PARAM_INFO_FORMAT));
-        } catch (Exception e) {
-            format = "application/vnd.ogc.gml";
-        }
+        String format = (String) parameters.get(WMS_PARAM_FORMAT);
         dw.setContentType(format);
-                
-        String previousUrl = "";
+        
+        String inimageType = null;
+        
+        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+            inimageType = format;
+        }
+        dw.setErrorContentType(inimageType);        
+        
+        user = (User) parameters.get(KB_USER);
+        Integer orgId = user.getOrganization().getId();
+        
+        url = (String) parameters.get(KB_PERSONAL_URL);
+        String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
+        
+        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, true);        
         ArrayList urls = new ArrayList();
-        StringBuffer spUrl = null;
-        
-        /* Get a list with ServiceProviders from the database */
-        List tempSP = getServiceProviders(false);
-        String [] layers = ((String)parameters.get(WMS_PARAM_LAYERS)).split(",");
-        
-        if (layers.length != 0 && tempSP != null) {        
-            /* Go through each layer and find the ServiceProvider this layer belongs to.
-             * If a ServiceProvider has been found there will be checked if the previous
-             * layer belonged to the same ServiceProvider. If yes then this layer is added
-             * up in the URL of the previous layer, otherwise a new URL if created and will
-             * be stored in the previous URL variable to let further layer do the same 
-             * check.
-             */
-            for (int j = 0; j < layers.length; j++) {
-                String layer = layers[j];
+        Iterator it = spUrls.iterator();
+        while (it.hasNext()) {
+            String [] sp_layerlist = (String []) it.next();            
+            
+            StringBuffer url = new StringBuffer();
+            url.append(sp_layerlist[1]);
+            url.append(WMS_VERSION);
+            url.append("=");
+            url.append((String)parameters.get(WMS_VERSION));
+            url.append("&");
+            url.append(WMS_REQUEST);
+            url.append("=");
+            url.append(WMS_REQUEST_GetFeatureInfo);
 
-                Iterator it = tempSP.iterator();
-                while (it.hasNext()) {
-                    ServiceProvider serviceProvider = (ServiceProvider)it.next();
-                    Set serviceProviderLayers = serviceProvider.getLayers();
-                    String spls = findLayer(serviceProviderLayers, layer, null, true);
-                                        
-                    if (spls != null) {
-                        spUrl = calcRequestUrl(serviceProvider, WMS_REQUEST_GetFeatureInfo);
 
-                        if (spUrl == null) {
-                            continue;
-                        }
-
-                        if(previousUrl.equals(spUrl.toString())) {
-                            StringBuffer url = (StringBuffer)urls.get(urls.size() - 1);
-                            url.append("," + spls);
-                            urls.remove(urls.size() - 1);
-                            urls.add(url);                        
-                        } else {
-                            previousUrl = spUrl.toString();            
-                            spUrl.append(WMS_VERSION);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_VERSION));
-                            spUrl.append("&");
-                            spUrl.append(WMS_REQUEST);
-                            spUrl.append("=");
-                            spUrl.append(WMS_REQUEST_GetFeatureInfo);
-                            
-
-                            String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
-                            if(null != infoFormat) {
-                                spUrl.append("&");
-                                spUrl.append(WMS_PARAM_INFO_FORMAT);
-                                spUrl.append("=");
-                                spUrl.append(FEATURE_INFO_FORMAT);
-                            }
-
-                            String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
-                            if (null != featureCount) {
-                                spUrl.append("&");
-                                spUrl.append(WMS_PARAM_FEATURECOUNT);
-                                spUrl.append("=");
-                                spUrl.append(featureCount);
-                            }
-
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_X);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_X));
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_Y);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_Y));
-
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_LAYERS);
-                            spUrl.append("=");
-                            
-                            String [] dbLayers = ((String)parameters.get(WMS_PARAM_LAYERS)).split(",");
-                            StringBuffer cutOffdbLayers = new StringBuffer();
-                            for (int i = 0; i < dbLayers.length; i++) {
-                                cutOffdbLayers.append(dbLayers[i].substring(dbLayers[i].indexOf("_") + 1));
-                                if (i != (dbLayers.length - 1)) {
-                                    cutOffdbLayers.append(",");
-                                }
-                            }
-
-                            //spUrl.append(cutOffdbLayers.toString());
-                            spUrl.append(spls);
-                            //spUrl.append((String)((String[])parameters.get(WMS_PARAM_LAYERS))[0]);
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_SRS);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_SRS));
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_BBOX);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_BBOX));
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_WIDTH);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_WIDTH));
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_HEIGHT);
-                            spUrl.append("=");
-                            spUrl.append((String)parameters.get(WMS_PARAM_HEIGHT));  
-                            spUrl.append("&");
-                            spUrl.append(WMS_PARAM_QUERY_LAYERS);
-                            spUrl.append("=");
-                            spUrl.append(spls);
-                            
-                            urls.add(spUrl.toString());
-                        }
-                    }
-                }
+            String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
+            if(null != infoFormat) {
+                url.append("&");
+                url.append(WMS_PARAM_INFO_FORMAT);
+                url.append("=");
+                url.append(FEATURE_INFO_FORMAT);
             }
-        }
-        /*
-        else {
-            throw new Exception("Error occured during parsing GetFeatureInfo.");
-        }
-        */
+
+            String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+            if (null != featureCount) {
+                url.append("&");
+                url.append(WMS_PARAM_FEATURECOUNT);
+                url.append("=");
+                url.append(featureCount);
+            }
+
+            url.append("&");
+            url.append(WMS_PARAM_X);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_X));
+            url.append("&");
+            url.append(WMS_PARAM_Y);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_Y));
+            url.append("&");
+            url.append(WMS_PARAM_LAYERS);
+            url.append("=");
+            url.append(sp_layerlist[2]);
+            url.append("&");
+            url.append(WMS_PARAM_SRS);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_SRS));
+            url.append("&");
+            url.append(WMS_PARAM_BBOX);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_BBOX));
+            url.append("&");
+            url.append(WMS_PARAM_WIDTH);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_WIDTH));
+            url.append("&");
+            url.append(WMS_PARAM_HEIGHT);
+            url.append("=");
+            url.append((String)parameters.get(WMS_PARAM_HEIGHT));  
+            url.append("&");
+            url.append(WMS_PARAM_QUERY_LAYERS);
+            url.append("=");
+            url.append(sp_layerlist[2]);
+            urls.add(url.toString());            
+        }        
         
-        /* This return might be a little confusing, because this specific 
-         * super method getOnlineData is mostly used to transfer image data 
-         * from one or more serviceproviders to the client. But since the 
-         * boolean is set to false, and the urls exists of only ONE url the 
-         * method automatically returns all the incoming data without any 
-         * control or adaptation of this information. Therefore we don't have 
-         * to be affraid anything will go wrong when using this method for 
-         * an xml document as well.
-         */
+        if(urls == null) {            
+            throw new Exception("msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.");
+        }
+        
         getOnlineData(dw, urls, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>

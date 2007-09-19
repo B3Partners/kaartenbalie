@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.math.BigInteger;
+import org.apache.commons.codec.binary.Hex;
 
 public class CreatePersonalURLAction extends KaartenbalieCrudAction implements KBConstants  {
     
@@ -224,14 +225,14 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
-        BigInteger hash = new BigInteger(1, md.digest());
-        
+        byte[] md5hash = md.digest();
+        String hashString = new String(Hex.encodeHex(md5hash));
         
         personalURL = protocol + "://" + requestServerName;
         if(port != 80) {
             personalURL += ":" + port;
         }
-        personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
+        personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hashString;
         
         /*
          * Set the new information in the userobject

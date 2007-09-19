@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Locale;
+import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +34,7 @@ public class DataWrapper {
     private HttpServletResponse response;
     private OutputStream sos;
     private String contentDisposition;
+    private Map parameters;
     private long startTime;
     private long endTime;
     
@@ -140,5 +142,13 @@ public class DataWrapper {
 
     public void setEndTime(long endTime) {
         this.endTime = endTime;
+    }
+
+    public Map getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map parameters) {
+        this.parameters = parameters;
     }
 }

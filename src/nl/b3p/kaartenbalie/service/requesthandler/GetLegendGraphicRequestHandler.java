@@ -63,7 +63,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
-        ArrayList spUrls = getSeviceProviderURLS(layers, orgId);
+        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, false);
         if(spUrls == null) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
