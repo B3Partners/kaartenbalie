@@ -70,6 +70,10 @@ public class ServiceProviderValidator implements KBConstants {
                 resources.add(sdr);
             }
         }
+        
+        if (resources.isEmpty()) {
+            resources = getDefaultResources();
+        }
         newSP.setDomainResource(resources);
         
         //Now we still need to check for the right Exception formats.....
@@ -79,10 +83,54 @@ public class ServiceProviderValidator implements KBConstants {
             if (exceptions[j] != null && exceptions[j] != "null")
                 exception.add(exceptions[j]);
         }
+        
+        if(exception.isEmpty()) {
+            exception = getDefaultException();
+        }
+        
         newSP.setExceptions(exception);
         return newSP;
     }
     // </editor-fold>
+    
+    private Set getDefaultException() {
+        Set exception = new HashSet();
+        exception.add("application/vnd.ogc.se_xml");
+        exception.add("application/vnd.ogc.se_inimage");
+        exception.add("application/vnd.ogc.se_blank");       
+        return exception;
+    }
+    
+    private Set getDefaultResources() {
+        Set resources = new HashSet();
+        
+        ServiceDomainResource sdr = new ServiceDomainResource();
+        sdr.setDomain("GetCapabilities"); //
+        Set formats = new HashSet();
+        formats.add("application/vnd.ogc.wms_xml");
+        sdr.setFormats(formats);
+        resources.add(sdr);
+        
+        
+        sdr = new ServiceDomainResource();
+        sdr.setDomain("GetMap"); //
+        formats = new HashSet();
+        formats.add("image/png");
+        formats.add("image/jpeg");
+        formats.add("image/tiff");
+        sdr.setFormats(formats);
+        resources.add(sdr);
+        
+        sdr = new ServiceDomainResource();
+        sdr.setDomain("GetFeatureInfo"); //
+        formats = new HashSet();
+        formats.add("text/plain");
+        formats.add("application/vnd.ogc.gml");
+        sdr.setFormats(formats);
+        resources.add(sdr);
+        
+        return resources;
+    }
     
     /** 
      * Fill the serviceprovider object with predefined static constants.
