@@ -42,6 +42,8 @@ var DEFAULT_VALUE = "Standaard waarde.";
 
 var strPreEditText; // text held by SPAN before editing
 
+var lastFocusedElement = null;
+
 // ================
 // Helper functions
 // ================
@@ -202,13 +204,17 @@ function startEdit(event) {
 	
 	if (element.getAttribute("picklist") != "" && element.getAttribute("picklist") != null) {
 		pPicklist.focus();
+		document.activeElement = pPicklist;
 	}
 	else {
 		inputElement.focus();
+		document.activeElement = inputElement;		
 	}
 
 	// if default value, select it (makes it easier to replace);
-	if (element.className == "default-value") {
+	if (element.className == "default-value" &&
+			(element.getAttribute("picklist") == "" || element.getAttribute("picklist") == null)
+		) {
 		inputElement.select();
 	}
 }
@@ -224,11 +230,13 @@ function startEdit(event) {
 function stopEdit(event) {
 	var element = getTarget(event);
 	debug("stopEdit element: " + element.tagName);
-	
+	debug("document.activeElement.tagName: " + document.activeElement.tagName);
 	// check if picklist has focus, if so don't stop editing
-	if (element.tagName.toLowerCase() == "select")
+	if (document.activeElement.tagName.toLowerCase() == "select") {
+		debug("select focused");
 		return;
-
+	}
+	
 	//stopPropagation(event);
 
 	// get parent <span> element
@@ -246,7 +254,7 @@ function stopEdit(event) {
 		changeFlag(true);
 		
 		debug("parentElement.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentElement.attributes.getNamedItem("fullPath").nodeValue);		
-		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);				
+		saveChangesInXMLDom(newValue, parentElement.attributes.getNamedItem("fullPath").nodeValue);
 	}
 
 	// is blank? user deleted value? to span default (default value)
@@ -265,11 +273,9 @@ function stopEdit(event) {
 	}
 	
 	// change span value to text alone
-	element.innerHTML = "";
-	//debug("checkText(newValue): "+checkText(newValue));
-	//debug("newValue: "+newValue);
-	element.appendChild(document.createTextNode(checkText(newValue)));
-
+	parentElement.innerHTML = "";
+	parentElement.appendChild(document.createTextNode(checkText(newValue)));
+	
 	// has picklist? if so, delete it
 	if (parentElement.getAttribute("picklist") != "" && parentElement.getAttribute("picklist") != null) {
 		debug("Has picklist=" + parentElement.getAttribute("picklist"));
@@ -329,10 +335,19 @@ function pickList(event) {
 	debug("element.tagName=" + element.tagName);
 	//htmlText.value = element.parentNode.outerHTML;
 
+	//debug("element.previousSibling.childNodes.length: " + element.previousSibling.childNodes.length);
+	//debug("element.previousSibling.tagName: " + element.previousSibling.tagName);
+	var parent = element;
+	while (parent = parent.previousSibling) {
+		if (parent.nodeType == 1) { // == Node.ELEMENT_NODE //(Node.ELEMENT_NODE werkt niet in IE)
+			break;
+		}
+	}
+	
 	// get adjacent text box;
 	var textInput;
-	for (var i = 0; i < element.previousSibling.childNodes.length; i++) {
-		textInput = element.previousSibling.childNodes[i];
+	for (var i = 0; i < parent.childNodes.length; i++) {
+		textInput = parent.childNodes[i];
 		if (textInput.nodeType == 1) { // == Node.ELEMENT_NODE //(Node.ELEMENT_NODE werkt niet in IE)
 			break;
 		}
@@ -341,21 +356,21 @@ function pickList(event) {
 	//var textInput = element.previousSibling.childNodes[0];
 	//Set textInput = element.parentElement.previousSibling.childNodes(0);
 	
-	if (textInput == "" || 
+	if (textInput == null || textInput == "" ||
 		(textInput.tagName.toLowerCase() != "textarea" && textInput.tagName.toLowerCase() != "input") ) {
 		alert("Error locating text input for picklist.");
 		return;
 	}
-	//alert("textInput.tagName=" + textInput.tagName + " value=" + textInput.value +  '\r\n' + " element.value=" + element.value );
+	debug("textInput.tagName=" + textInput.tagName + " value=" + textInput.value + " element.value=" + element.value );
 
 	// update value;
-	textInput.innerHTML = "";
-	textInput.appendChild(document.createTextNode(element.value));
+	textInput.value = element.value;
 	debug("element.value: " + element.value);
 	debug("textInput.value: " + textInput.value);
 
 	//focus back to text input
 	// (need to do this to make sure text input onBlur event is triggered correctly)
+	document.activeElement = textInput;
 	textInput.focus();
 }
 
@@ -377,7 +392,7 @@ function pickListKeyPress(element) {
 // Description:
 //   Capture a couple of key events in edit boxes.
 //   For "tab" key, stop editing, but don't go to next link (IE default)
-//   For "enter" key, stop editing if(in INPUT edit box.
+//   For "enter" key, stop editing if in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
 //*******************************************************
 function checkKey(event) {
@@ -402,7 +417,7 @@ function checkKey(event) {
 
 	// was 'tab' or down-arrow pressed?
 	// huh? can't use 40 for down-arrow, that's the '(' in ArcCatalog. Why?
-	//if(iKey = 9 || iKey = 40){
+	//if (iKey = 9 || iKey = 40) {
 	if (iKey == 9) {
 		// cancel default IE tab handler
 		//window.event.returnValue = false;

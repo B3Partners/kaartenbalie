@@ -11,7 +11,6 @@ body {
 p {
 	font-size: normal;
 	margin: 0px; 
-	/*display: block;*/
 }
 
 a {
@@ -38,17 +37,6 @@ td {
 	border: 0px none;
 	border-right: 1px solid white;
 }	
-
-h1 {
-	margin: 0px;
-	font-size: 16px;
-	color: #ffffff;
-}
-
-h2 {
-	margin: 5px;
-	font-size: 14px;
-}
 
 ul {
 	margin: 0px;
@@ -120,27 +108,6 @@ ul.menu li {
 }
 
 /* span classes */
-/*
-.instruction {
-	color: #000000;
-	font-size: 12px;
-	font-weight: normal;
-	font-style: normal;
-	padding-right: 5px;
-	margin-left: 20px;
-}
-
-
-.hidden-xml	{
-	display: none;
-}
-
-.no-edit	{
-	color: #777;
-	font-weight: normal;
-}
-*/
-
 .key {
 	vertical-align: top;
 }
@@ -332,16 +299,6 @@ div#properties-box {
 	color: #6495ED;
 }
 
-/*
-.title {
-	text-align: center;
-	font-size: 15pt;
-	font-family: Verdana, sans-serif;
-	font-weight: bold;
-	padding-bottom: 0.4in;
-}
-*/
-
 .separator {
 	text-align: center;
 	margin-bottom: 10px;
@@ -352,4 +309,11 @@ img.plus-minus {
 	padding: 0px;
 	margin: 0px;
 	margin-right: 5px;
+}
+
+.debug-box {
+	background-color: white;
+	font-family: monospace;
+	border: solid black 3px;
+	padding: 10px;
 }

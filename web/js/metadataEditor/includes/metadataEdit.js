@@ -26,14 +26,14 @@ function initWithXmlString() {
 	}
 		
 	metadataXML = metadataXML.unescapeHTML();
-	debug(metadataXML);
+	//debug(metadataXML);
 	
 	rawXmlDoc = jsXML.createDOMDocument();
 	rawXmlDoc.async = false;
 	rawXmlDoc.loadXML(metadataXML);
 	
-	debug("Raw:");
-	debug(rawXmlDoc.xml);
+	//debug("Raw:");
+	//debug(rawXmlDoc.xml);
 
 	//var freeThreadedIfPossible = true;
 	var ppXslDoc = jsXML.createDOMDocument(true);
@@ -41,13 +41,13 @@ function initWithXmlString() {
 	ppXslDoc.load(preprocessorFullPath);
 	//debug("preprocessorFullPath: " + preprocessorFullPath);
 	
-	debug("Preprocessor:");
-	debug(ppXslDoc.xml);
+	//debug("Preprocessor:");
+	//debug(ppXslDoc.xml);
 	
 	var rawPreprocessedXML = XML.transformToString(rawXmlDoc, ppXslDoc);
 	
-	debug("Preprocessed:");
-	debug(rawPreprocessedXML);
+	//debug("Preprocessed:");
+	//debug(rawPreprocessedXML);
 	
 	xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
@@ -58,23 +58,46 @@ function initWithXmlString() {
 	xslDoc.async = false;
 	xslDoc.load(xslFullPath);
 	
-	debug("Xsl:");
-	debug(xslDoc.xml);
+	//debug("Xsl:");
+	//debug(xslDoc.xml);
 	
 	var xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", basePath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
+	//addFocusListeners();
 	xmlDocInit();
+}
+
+// misschien een beetje overkill om overal focuslisteners aan te hangen
+function addFocusListeners() {
+	if (document.getElementsByTagName) {
+		var e;
+		var i = 0;
+		while (e = document.getElementsByTagName('*')[i]) {
+			e.onfocus = function () {
+				document.activeElement = this;
+				stopPropagation(this);
+				debug("focus is on a: " + focusedElement.tagName);
+			};
+			i++;
+			//debug("elem: " + e.tagName);
+		}
+	}
+	else {
+		alert("Please use either Firefox or IE: document.getElementsByTagName not supported.");
+	}
 }
 
 function saveChangesInXMLDom(newValue, path) {
 	//debug("saveChangesInXMLDom");
-
+	debug("root tag: " + xmlDoc.nodeName);
+	
 	var pathArray = path.split("/");
-	var targetNode;
+	
+	var targetNode = null;
 	for (var i = 0; i < pathArray.length; i++) {
-		targetNode = findChildNode(xmlDoc, targetNode, pathArray[i]);
+		targetNode = findChildNode(targetNode, pathArray[i]);
 	}
 
 	if (targetNode != null) {
@@ -92,19 +115,39 @@ function saveChangesInXMLDom(newValue, path) {
 	}
 }
 
-function findChildNode(root, searchParent, targetRawChildTag) {
-	if (searchParent == null)
-		searchParent = root;
-	
-	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
-	var targetChildAndIndex = targetRawChildTag.split(/[\[\]:]+/);
-	for (var i = 0; i < targetChildAndIndex.length; i++) {
-		debug(targetChildAndIndex[i]);
+function findChildNode(searchParent, targetRawChildTag) {
+	if (targetRawChildTag == null || targetRawChildTag == "") {
+		//debug("empty tagName");
+		return null;
 	}
 	
+	if (searchParent == null) {
+		searchParent = xmlDoc;
+	}
+	
+	//debug("searchParent: " + searchParent.nodeName);
+	//debug("targetRawChildTag: " + targetRawChildTag);
+	
+	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
+	var targetChildAndIndexUnfiltered = targetRawChildTag.split(/[:\[\]]+/);
+	// filter out empty groups
+	var targetChildAndIndex = [];
+	var newIndex = 0;
+	for (var i = 0; i < targetChildAndIndexUnfiltered.length; i++) {
+		if (targetChildAndIndexUnfiltered[i] != "") {
+			targetChildAndIndex[newIndex] = targetChildAndIndexUnfiltered[i];
+			newIndex++;
+		}
+	}
+	
+	for (var i = 0; i < targetChildAndIndex.length; i++) {
+		//debug(i + ": " + targetChildAndIndex[i]);
+	}
+	
+	//debug("targetChildAndIndex.length: " + targetChildAndIndex.length)
 	var targetChildTag, targetChildIndex;
 	if (targetChildAndIndex.length == 3) {
-		targetChildTag = targetChildAndIndex[1];
+		targetChildTag = targetChildAndIndex[0] + ":" + targetChildAndIndex[1];
 		targetChildIndex = targetChildAndIndex[2];
 	}
 	else if (targetChildAndIndex.length == 2) {
@@ -112,12 +155,13 @@ function findChildNode(root, searchParent, targetRawChildTag) {
 		targetChildIndex = targetChildAndIndex[1];
 	}
 	else { // == 1
-		targetChildTag = targetChildAndIndex[0];		
+		targetChildTag = targetChildAndIndex[0];
+        targetChildIndex = 1;
 	}
 	
 	var searchChildren = searchParent.childNodes;
 	if (searchChildren == null || searchChildren.length == 0) {
-		debug("tree empty?");
+		//debug("tree empty?");
 		return null;
 	}
 	
@@ -125,11 +169,15 @@ function findChildNode(root, searchParent, targetRawChildTag) {
 	var correctChildCount = 0;
 	for (var i = 0; i < searchChildren.length; i++) {
 		searchChild = searchChildren[i];
-		debug("searchChild: "+searchChild.tagName);
-		if (searchChild.nodeType == 1 && searchChild.tagName.toLowerCase() == targetChildTag.toLowerCase()) {
+		//debug("searchChild: "+searchChild.nodeName);
+		//debug("searchChild.nodeType: " + searchChild.nodeType);
+		//debug("searchChild.nodeName: " + searchChild.nodeName);
+		//debug("targetChildTag: " + targetChildTag);		
+		if (searchChild.nodeType == 1 && searchChild.nodeName == targetChildTag) {
+			// Xpath begint met tellen bij 1, dus eerst deze variable ophogen.
 			correctChildCount++;
 			if (correctChildCount == targetChildIndex) {
-				debug("child: " + searchChild.nodeName);
+				//debug("child: " + searchChild.nodeName);
 				return searchChild;
 			}
 		}
