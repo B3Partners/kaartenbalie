@@ -1,7 +1,7 @@
 <%@include file="/templates/taglibs.jsp" %>
 
-<c:set var="focus" value="timeout" scope="request"/> 
 <tiles:insert definition="common.setFocus"/>
+<c:set var="focus" value="registeredIP" scope="request"/> 
 
 <c:set var="form" value="${createPersonalURLForm}"/>
 <c:set var="action" value="${form.map.action}"/>
@@ -13,12 +13,6 @@
 <!-- Scripts and settings for the calendar function -->
 <html:link href="calendar-brown" title="summer" />
 
-<%--
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar.js' module='' />"/>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-en.js' module='' />"/>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"/>
-<link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
---%>
 <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
@@ -26,6 +20,7 @@
     var cal = new CalendarPopup("calDiv");
     cal.setCssPrefix("calcss_");
 </script>
+
 <html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
 <html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)">
     <html:hidden property="action"/>

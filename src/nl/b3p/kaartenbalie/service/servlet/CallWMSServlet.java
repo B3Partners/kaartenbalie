@@ -86,6 +86,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //with the request of this user and transforms each of these
             //parameters and their keys into uppercase values.
             Map parameters = getUpperCaseParameterMap(request.getParameterMap());
+            data.setParameters(parameters);
             
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
@@ -274,7 +275,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
                         if(((String) parameters.get(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
                             dw.setErrorContentType((String) parameters.get(WMS_PARAM_FORMAT));
-                            dw.setParameters(parameters);
                         }
                     }
                 }

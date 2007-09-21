@@ -11,7 +11,7 @@
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <html:javascript formName="changeProfileForm" staticJavascript="false"/>
-<html:form action="/changeProfile" onsubmit="return validateChangeProfileForm(this)" focus="name">
+<html:form action="/changeProfile" onsubmit="return validateChangeProfileForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />

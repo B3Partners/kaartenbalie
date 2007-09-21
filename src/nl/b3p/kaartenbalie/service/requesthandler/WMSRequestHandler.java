@@ -176,23 +176,20 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         String topLayerId = null;
         for (int i = 0; i < layers.length; i++) {
             String layerid = layers[i].substring(0, layers[i].indexOf("_"));
+            String layername = layers[i].substring(layers[i].indexOf("_") + 1, layers[i].length());
             String query =
                     "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
                     " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
-                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN " +
+                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN" +
                     " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
-                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid";
+                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
+                    " AND tempTabel.LAYER_NAME = :layername";
             
-            
-/*
-SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL
-FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME, layer.QUERYABLE AS LAYER_QUERYABLE, 
-layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND 
-organizationlayer.ORGANIZATIONID = '1') AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND 
-tempTabel.LAYER_ID = '1'
-*/
-            
-            List sqlQuery = sess.createSQLQuery(query).setParameter("orgId", orgId).setParameter("layerid", layerid).list();
+            List sqlQuery = sess.createSQLQuery(query)
+                    .setParameter("orgId", orgId)
+                    .setParameter("layerid", layerid)
+                    .setParameter("layername", layername)
+                    .list();
             if(sqlQuery.isEmpty()) {
                 throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
             }
@@ -217,12 +214,12 @@ tempTabel.LAYER_ID = '1'
             if(equalIds) {
                 layer_name = "," + layer_name;
             } else {
-                Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layerid).uniqueResult();
+                Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).uniqueResult();
                 Layer topLayer = layer.getTopLayer();
                 topLayerId = topLayer.getId().toString();
             }
             
-            
+            //TODO:
             //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
             //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
             //staan op het id dat door de eerste layer gegeven werd.

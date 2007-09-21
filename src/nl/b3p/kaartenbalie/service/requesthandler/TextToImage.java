@@ -21,9 +21,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import javax.imageio.ImageIO;
+import nl.b3p.wms.capabilities.KBConstants;
 
-public class TextToImage {
+public class TextToImage implements KBConstants {
     private String imageType;
     
     /** Creates a new instance of TextToImage */
@@ -31,6 +33,7 @@ public class TextToImage {
     }
     
     public void createImage(String message, String imageType, DataWrapper data) throws IOException {
+        Map parameters = data.getParameters();        
         this.imageType = imageType;
         Color background = Color.white;
         Color textColor = Color.black;
@@ -44,8 +47,8 @@ public class TextToImage {
         Rectangle2D bounds = font.getStringBounds(message, fc);
 
         // calculate the size of the text
-        int width = 450;//(int) bounds.getWidth();
-        int height = 450;//(int) bounds.getHeight();
+        int width = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
+        int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
 
         // prepare some output
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -58,7 +61,7 @@ public class TextToImage {
         g2.fillRect(0, 0, width, height);
         g2.setColor(textColor);
         
-        ArrayList sentences = cutMessage(message);
+        ArrayList sentences = cutMessage(message, width, height);
         Iterator it = sentences.iterator();
         int x = 0;
         while (it.hasNext()) {
@@ -79,10 +82,10 @@ public class TextToImage {
         //return baos;
     }
     
-    private ArrayList cutMessage(String message) {
+    private ArrayList cutMessage(String message, int width, int height) {
         ArrayList sentences = new ArrayList();
         int length = message.length();
-        int divide = 60;
+        int divide = (int)(width / 7);
         int parts = length / divide;
         int leftOver = length - (parts* divide);
         
