@@ -84,7 +84,3 @@ function sectionTitleHover(obj) {
     obj.onmouseout = function() { obj.className = 'section-title'; }
   }
 }
-
-function picklistItemHover(obj, description) {
-	// TODO: uitwerken
-}

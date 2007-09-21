@@ -90,7 +90,7 @@ function debug(msg) {
 	if (debugMode == true) {
 		if (!debug.box) {
 			debug.box = document.createElement("div");
-			debug.box.class = "debug-box";
+			//debug.box.class = "debug-box"; // wat kan IE wel?!?
 			debug.box.setAttribute("class", "debug-box");
 			/*
 								   "background-color: white; " +
@@ -99,7 +99,7 @@ function debug(msg) {
 								   "padding: 10px; ");*/
 
 			var h1 = document.createElement("h1");
-			h1.style = "text-align: center;";
+			//h1.style = "text-align: center;";
 			h1.setAttribute("style", "text-align: center; ");			
 			
 			h1.appendChild(document.createTextNode("Debugging Output"));

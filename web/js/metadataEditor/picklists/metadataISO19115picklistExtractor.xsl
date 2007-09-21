@@ -55,8 +55,8 @@ is outputted to the new stylesheet
 	<xsl:template match="gmx:ML_CodeListDictionary | gmx:CodeListDictionary">
 		<xsl:variable name="picklistId" select="concat('picklist_', @gml:id)"/>
 		<x:template name="{$picklistId}">
-			<select id="{$picklistId}" name="{$picklistId}" onchange="pickList(event)" onBlur='pickList(event)' onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
-				<option value="default">[huidige waarde]</option>
+			<select id="{$picklistId}" name="{$picklistId}" onchange="selectPickListValue(event)" onblur='destroyPickList(event)' onkeypress="pickListKeyPress(event)" onkeydown="pickListKeyPress(event)">
+				<!--<option value="default">[huidige waarde]</option>-->
 				<xsl:apply-templates select="gmx:codeEntry"/>
 			</select>
 		</x:template>
@@ -67,10 +67,10 @@ is outputted to the new stylesheet
 	</xsl:template>
 	
 	<xsl:template match="gmx:ML_CodeDefinition | gmx:CodeDefinition">
-		<xsl:variable name="optionId" select="@gml:id"/>
+		<xsl:variable name="optionId" select="gml:identifier"/>
 		<xsl:variable name="optionDescription" select="gml:description"/>
 		<option value="{$optionId}" title="{$optionDescription}">
-			<xsl:value-of select="gml:identifier"/>
+			<xsl:value-of select="$optionId"/>
 		</option>
 	</xsl:template>
 	
