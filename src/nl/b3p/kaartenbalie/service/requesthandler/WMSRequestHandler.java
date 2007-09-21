@@ -67,8 +67,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected User user;
     protected String url;
     protected static long maxResponseTime = 100000;
-    protected static final String FEATUREINFO_EXCEPTION = "msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.";
-    protected static final String LEGENDGRAPHIC_EXCEPTION = "msWMSGetLegendgraphic(): Invalid layer given in the LAYERS parameter.";
     
     private XMLReader parser;
     private static Stack stack = new Stack();
@@ -174,60 +172,77 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Transaction tx = sess.beginTransaction();
         
         String topLayerId = null;
-        for (int i = 0; i < layers.length; i++) {
-            String layerid = layers[i].substring(0, layers[i].indexOf("_"));
-            String layername = layers[i].substring(layers[i].indexOf("_") + 1, layers[i].length());
-            String query =
-                    "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
-                    " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
-                    " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN" +
-                    " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
-                    " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
-                    " AND tempTabel.LAYER_NAME = :layername";
-            
-            List sqlQuery = sess.createSQLQuery(query)
-                    .setParameter("orgId", orgId)
-                    .setParameter("layerid", layerid)
-                    .setParameter("layername", layername)
-                    .list();
-            if(sqlQuery.isEmpty()) {
-                throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
-            }
-            Object [] objecten = (Object [])sqlQuery.get(0);
-            
-            Integer layer_id            = (Integer)objecten[0];
-            String layer_name           = (String)objecten[1];
-            String layer_queryable      = (String)objecten[2];
-            Integer serviceprovider_id  = (Integer)objecten[3];
-            String serviceprovider_url  = (String)objecten[4];
-            
-            
-            String [] sp_layerlist = null;
-            boolean spUrlsEmpty = spUrls.isEmpty();
-            boolean equalIds = false;
-            if(!spUrlsEmpty) {
-                sp_layerlist = (String []) spUrls.get(spUrls.size() - 1);
-                equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
-            }
-            
-            
-            if(equalIds) {
-                layer_name = "," + layer_name;
-            } else {
-                Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).uniqueResult();
-                Layer topLayer = layer.getTopLayer();
-                topLayerId = topLayer.getId().toString();
-            }
-            
-            //TODO:
-            //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
-            //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
-            //staan op het id dat door de eerste layer gegeven werd.
-            //daarnaast mmoet er per layer bij komen te staan of deze layer queryable is....
-            
-            
-            if (checkForQueryable) {
-                if(layer_queryable.equals("1")) {
+        int layerlength = layers.length;
+        if(layerlength >= 1) {
+            for (int i = 0; i < layers.length; i++) {
+                String layerid = "";
+                String layername = "";
+                try {
+                    layerid = layers[i].substring(0, layers[i].indexOf("_"));
+                    layername = layers[i].substring(layers[i].indexOf("_") + 1, layers[i].length());
+                } catch (Exception e) {
+                    throw new Exception(GETMAP_EXCEPTION);
+                }
+                String query =
+                        "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
+                        " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
+                        " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN" +
+                        " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
+                        " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
+                        " AND tempTabel.LAYER_NAME = :layername";
+
+                List sqlQuery = sess.createSQLQuery(query)
+                        .setParameter("orgId", orgId)
+                        .setParameter("layerid", layerid)
+                        .setParameter("layername", layername)
+                        .list();
+                if(sqlQuery.isEmpty()) {
+                    throw new Exception(GETMAP_EXCEPTION);
+                }
+                Object [] objecten = (Object [])sqlQuery.get(0);
+
+                Integer layer_id            = (Integer)objecten[0];
+                String layer_name           = (String)objecten[1];
+                String layer_queryable      = (String)objecten[2];
+                Integer serviceprovider_id  = (Integer)objecten[3];
+                String serviceprovider_url  = (String)objecten[4];
+
+
+                String [] sp_layerlist = null;
+                boolean spUrlsEmpty = spUrls.isEmpty();
+                boolean equalIds = false;
+                if(!spUrlsEmpty) {
+                    sp_layerlist = (String []) spUrls.get(spUrls.size() - 1);
+                    equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
+                }
+
+
+                if(equalIds) {
+                    layer_name = "," + layer_name;
+                } else {
+                    Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).uniqueResult();
+                    Layer topLayer = layer.getTopLayer();
+                    topLayerId = topLayer.getId().toString();
+                }
+
+                //TODO:
+                //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
+                //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
+                //staan op het id dat door de eerste layer gegeven werd.
+                //daarnaast mmoet er per layer bij komen te staan of deze layer queryable is....
+
+
+                if (checkForQueryable) {
+                    if(layer_queryable.equals("1")) {
+                        if(!spUrlsEmpty && equalIds) {
+                            sp_layerlist[2] += (layer_name);
+                            spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
+                        } else {
+                            sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
+                            spUrls.add(sp_layerlist);
+                        }
+                    }
+                } else {
                     if(!spUrlsEmpty && equalIds) {
                         sp_layerlist[2] += (layer_name);
                         spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
@@ -236,15 +251,9 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         spUrls.add(sp_layerlist);
                     }
                 }
-            } else {
-                if(!spUrlsEmpty && equalIds) {
-                    sp_layerlist[2] += (layer_name);
-                    spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
-                } else {
-                    sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
-                    spUrls.add(sp_layerlist);
-                }
             }
+        } else {
+            throw new Exception(GETMAP_EXCEPTION);
         }
         tx.commit();
         return spUrls;
