@@ -42,6 +42,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     private static final Log log = LogFactory.getLog(ServerAction.class);
     
     protected static final String MISSING_SEPARATOR_ERRORKEY = "error.missingseparator";
+    protected static final String MISSING_QUESTIONMARK_ERRORKEY = "error.missingquestionmark";
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
@@ -171,7 +172,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             url = checkWmsUrl(url);
         } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
+            addAlternateMessage(mapping, request, e.getMessage());
             return getAlternateForward(mapping, request);
         }
         
@@ -533,18 +534,21 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         
         boolean hasLastQuest = false;
         int lastQuest = url.lastIndexOf("?");
-        if (lastQuest >= 0 && length != lastQuest + 1) {
+        if (lastQuest >= 0 || length == lastQuest + 1) {
             hasLastQuest = true;
         }
         
         boolean hasLastAmper = false;
         int lastAmper = url.lastIndexOf("&");
-        if (lastAmper >= 0 && length != lastAmper + 1) {
+        if ((lastAmper >= 0 && length == lastAmper + 1) || length == lastQuest + 1) {
             hasLastAmper = true;
         }
         
-        if (!hasLastAmper && !hasLastQuest)
-            throw new Exception(MISSING_SEPARATOR_ERRORKEY);
+        if (!hasLastQuest)
+            throw new Exception(MISSING_QUESTIONMARK_ERRORKEY);
+        
+        if (!hasLastAmper)
+            throw new Exception(MISSING_SEPARATOR_ERRORKEY); 
         
         //Maybe some parameters have been given. We need to check which params still
         //need to be added.
