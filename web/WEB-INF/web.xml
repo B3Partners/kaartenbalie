@@ -22,7 +22,7 @@
         </init-param>
         <init-param>
             <param-name>validate</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
             <description>Validate config file if set to true</description>
         </init-param>
     </filter>
@@ -100,7 +100,7 @@
         </init-param>
         <init-param>
             <param-name>csspath2</param-name>
-            <param-value>styles/mnp.css</param-value>
+            <param-value>styles/b3p.css</param-value>
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>

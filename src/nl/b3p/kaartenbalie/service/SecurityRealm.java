@@ -17,9 +17,10 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.securityfilter.realm.ExternalAuthenticatedRealm;
 import org.securityfilter.realm.SecurityRealmInterface;
 
-public class SecurityRealm implements SecurityRealmInterface {
+public class SecurityRealm implements SecurityRealmInterface, ExternalAuthenticatedRealm {
     private final Log log = LogFactory.getLog(this.getClass());
     
     /** Checks wether an user, given his username and password, is allowed to use the system.
@@ -50,6 +51,24 @@ public class SecurityRealm implements SecurityRealmInterface {
         }
     }
     // </editor-fold>
+    
+    public Principal getAuthenticatedPrincipal(String username) {
+        Session sess = MyDatabase.getSessionFactory().getCurrentSession();
+        Transaction tx = sess.beginTransaction();
+        try {
+            User user = (User)sess.createQuery(
+                    "from User u where " +
+                    "lower(u.username) = lower(:username) ")
+                .setParameter("username", username)
+                .uniqueResult();
+            if(user != null) {
+                Hibernate.initialize(user.getRole());
+            }
+            return user;
+        } finally {
+            tx.commit();
+        }
+    }
     
     /** Checks if a user is in the given role. A role represents a level of priviliges.
      *
