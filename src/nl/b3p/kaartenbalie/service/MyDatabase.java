@@ -163,7 +163,7 @@ public class MyDatabase extends HttpServlet {
     public static String uniqueName(String prefix, String extension, boolean includePath) {
         // Gebruik tijd in milliseconden om gerekend naar een radix van 36.
         // Hierdoor ontstaat een lekker korte code.
-        long now = (long) (new Date()).getTime();
+        long now = (new Date()).getTime();
         String val1 = Long.toString(now, Character.MAX_RADIX).toUpperCase();
         // random nummer er aanplakken om zeker te zijn van unieke code
         long rnum = (long) rg.nextInt(1000);

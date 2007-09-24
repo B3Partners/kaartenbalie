@@ -10,12 +10,16 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-import java.io.*;
-import javax.servlet.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import javax.servlet.ServletConfig;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import nl.b3p.wms.capabilities.KBConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -57,7 +57,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Integer orgId = user.getOrganization().getId();
         
         url = (String) parameters.get(KB_PERSONAL_URL);
-        String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
+        String [] layers = ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
         
         ArrayList spUrls = getSeviceProviderURLS(layers, orgId, true);        
         ArrayList urls = new ArrayList();

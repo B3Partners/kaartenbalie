@@ -58,7 +58,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         Integer orgId = user.getOrganization().getId();
         
         url = (String) parameters.get(KB_PERSONAL_URL);
-        String [] layers = (String[]) ((String) parameters.get(WMS_PARAM_LAYER)).split(",");
+        String [] layers = ((String) parameters.get(WMS_PARAM_LAYER)).split(",");
         if(layers.length != 1) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }

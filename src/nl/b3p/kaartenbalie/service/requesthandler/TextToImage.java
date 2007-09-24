@@ -85,7 +85,7 @@ public class TextToImage implements KBConstants {
     private ArrayList cutMessage(String message, int width, int height) {
         ArrayList sentences = new ArrayList();
         int length = message.length();
-        int divide = (int)(width / 7);
+        int divide = (width / 7);
         int parts = length / divide;
         int leftOver = length - (parts* divide);
         

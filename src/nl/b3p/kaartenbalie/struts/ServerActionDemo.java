@@ -57,7 +57,7 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String userid = (String) request.getParameter("userid");
+        String userid = request.getParameter("userid");
         ActionForward action = super.unspecified(mapping, dynaForm, request, response);
         dynaForm.set("id", userid);
         return action;

@@ -13,8 +13,8 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Set;
@@ -294,7 +294,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
 
             if (user!=null) {
-                java.util.Date date = (java.util.Date)user.getTimeout();
+                java.util.Date date = user.getTimeout();
 
                 if (date.compareTo(new java.util.Date()) <= 0) {
                     throw new AccessDeniedException("Personal URL key has expired!");

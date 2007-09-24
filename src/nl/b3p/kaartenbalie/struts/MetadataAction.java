@@ -82,7 +82,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getName());
-		String metadata = (String)layer.getMetaData();
+		String metadata = layer.getMetaData();
 		if (metadata != null) {
 			// remove all newline and return characters using RegEx
 			metadata = metadata.replaceAll("[\\n\\r]+", "");
