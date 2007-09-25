@@ -37,6 +37,7 @@
         <mapping resource="srsboundingbox.hbm.xml"/>
         <mapping resource="style.hbm.xml"/>
         <mapping resource="styleDomainResource.hbm.xml"/>
+        <mapping resource="roles.hbm.xml"/>
 </session-factory>
 </hibernate-configuration>
 

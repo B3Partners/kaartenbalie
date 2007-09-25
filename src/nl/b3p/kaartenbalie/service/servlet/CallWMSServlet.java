@@ -369,7 +369,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             Iterator it = SUPPORTED_REQUESTS.iterator();
             while (it.hasNext()) {
                 String supported_requests = (String) it.next();
-                if(supported_requests.equals(givenRequest)) {
+                if(supported_requests.equalsIgnoreCase(givenRequest)) {
                     supported = true;
                 }
             }
@@ -387,10 +387,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
          */
         RequestHandler requestHandler = null;
         List reqParams = null;
-        if(givenRequest.equals(WMS_REQUEST_GetCapabilities)) {
+        if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
-        } else if (givenRequest.equals(WMS_REQUEST_GetMap)) {
+        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
 
             //Att all time set the error contenttype at first....
             String format = (String) parameters.get(WMS_PARAM_FORMAT);

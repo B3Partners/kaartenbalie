@@ -57,50 +57,67 @@
     <c:if test="${action != 'list'}">
         <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
             <table>
-                <tr>
-                    <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
-                    <td><html:text property="firstname"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
-                    <td><html:text property="surname"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
-                    <td><html:text property="emailAddress"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
-                    <td><html:text property="username"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
-                    <td><html:password property="password"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
-                    <td><html:password property="repeatpassword"/></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
+                                    <td><html:text property="firstname"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
+                                    <td><html:text property="surname"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
+                                    <td><html:text property="emailAddress"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
+                                    <td><html:text property="username"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
+                                    <td><html:password property="password"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
+                                    <td><html:password property="repeatpassword"/></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>
+                                    <td>
+                                        <html:select property="selectedOrganization">
+                                            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                                                <html:option value="${nOrganization.id}">
+                                                    ${nOrganization.name}
+                                                </html:option>
+                                            </c:forEach>
+                                        </html:select>     
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    
+                
                     <td>
-                        <html:select property="selectedOrganization">
-                            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                                <html:option value="${nOrganization.id}">
-                                    ${nOrganization.name}
-                                </html:option>
-                            </c:forEach>
-                        </html:select>     
-                    </td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="beheer.userRole"/>:</B></td>
-                    <td>
+                        <table cellpadding="0px;">
+                        <B><fmt:message key="beheer.userRole"/>:</B>
+                        <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
+                            <tr>
+                                <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
+                                <td><c:out value="${nRole.role}" /></td>
+                            </tr>
+                        </c:forEach>
+                        
+                        <%--
                         <html:select property="selectedRole">
                             <html:option value="beheerder">beheerder</html:option>
                             <html:option value="gebruiker">gebruiker</html:option>
                             <html:option value="demogebruiker">demogebruiker</html:option>
-                        </html:select>     
+                        </html:select>
+                        --%>
+                        </table>
                     </td>
                 </tr>
             </table>

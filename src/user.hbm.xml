@@ -19,6 +19,11 @@
         
         <many-to-one name="organization" column="ORGANIZATIONID" not-null="true" insert="true" update="true" lazy="false"/>
         
+        <set name="userroles" table="Userroles" lazy="false">
+            <key column="USERID"/>
+            <many-to-many column="ROLEID" class="nl.b3p.kaartenbalie.core.server.Roles" lazy="false"/>
+        </set>
+        
         <property name="firstName">
             <column name="FIRSTNAME"/>
         </property>
@@ -33,9 +38,6 @@
         </property>
         <property name="password">
             <column name="PASSWORD"/>
-        </property>
-        <property name="role">
-            <column name="ROLE"/>
         </property>
         <property name="personalURL">
             <column name="PERSONALURL"/>

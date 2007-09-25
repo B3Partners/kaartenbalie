@@ -303,7 +303,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailaddress", user.getEmailAddress());
-        dynaForm.set("role", user.getRole());
+        dynaForm.set("role", user.getRolesAsString());
         dynaForm.set("personalURL", user.getPersonalURL());        
         
         String ipaddress = user.getRegisteredIP();

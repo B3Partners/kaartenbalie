@@ -42,9 +42,6 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                 .setParameter("username", username)
                 .setParameter("password", password)
                 .uniqueResult();
-            if(user != null) {
-                Hibernate.initialize(user.getRole());
-            }
             return user;
         } finally {
             tx.commit();
@@ -61,9 +58,6 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                     "lower(u.username) = lower(:username) ")
                 .setParameter("username", username)
                 .uniqueResult();
-            if(user != null) {
-                Hibernate.initialize(user.getRole());
-            }
             return user;
         } finally {
             tx.commit();
@@ -84,7 +78,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         }
         User user = (User)principal;
         //log.info("Check user principal has role");
-        return user.getRole().equalsIgnoreCase(role);
+        return user.checkRole(role);
     }
     // </editor-fold>
 }

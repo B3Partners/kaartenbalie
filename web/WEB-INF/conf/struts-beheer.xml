@@ -17,10 +17,10 @@
             <form-property name="surname" type="java.lang.String"/>
             <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
-            <form-property name="selectedRole" type="java.lang.String"/>
             <form-property name="selectedOrganization" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
             <form-property name="repeatpassword" type="java.lang.String"/>
+            <form-property name="roleSelected" type="java.lang.String[]"/>
         </form-bean>
         
         <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">

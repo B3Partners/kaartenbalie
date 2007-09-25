@@ -12,7 +12,9 @@ package nl.b3p.kaartenbalie.core.server;
 
 import java.security.Principal;
 import java.util.Date;
-import nl.b3p.kaartenbalie.core.server.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class User implements Principal {
     
@@ -22,12 +24,13 @@ public class User implements Principal {
     private String emailAddress;
     private String username;
     private String password;
-    private String role;
     private String personalURL;
     private String registeredIP;
     private String defaultGetMap;
     private Date timeout;
     private Organization organization;
+    
+    private Set userroles;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -85,14 +88,6 @@ public class User implements Principal {
     public void setOrganization(Organization organization) {
         this.organization = organization;
     }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
     
     /* impl principal*/
     public String getName() {
@@ -131,4 +126,46 @@ public class User implements Principal {
         defaultGetMap=s;
     }
     // </editor-fold>
+
+    public Set getUserroles() {
+        return userroles;
+    }
+
+    public void setUserroles(Set userroles) {
+        this.userroles = userroles;
+    }
+    
+    public void addUserRole (Roles role) {
+        if(userroles == null) {
+            userroles = new HashSet();
+        }
+        userroles.add(role);
+    }
+    
+    public void deleteUserRole(Roles role) {
+        if (userroles != null) {
+            userroles.remove(role);
+        }
+    }
+    
+    public boolean checkRole(String role) {
+        Iterator it = userroles.iterator();
+        while (it.hasNext()) {
+            Roles theUserroles = (Roles) it.next();
+            if (role.equalsIgnoreCase(theUserroles.getRole())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public String getRolesAsString() {
+        String roles = "";
+        Iterator it = userroles.iterator();
+        while (it.hasNext()) {
+            Roles theUserroles = (Roles) it.next();
+            roles = roles + theUserroles.getRole() + " ";
+        }
+        return roles;
+    }
 }

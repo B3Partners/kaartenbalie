@@ -28,6 +28,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
@@ -244,7 +245,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         super.populateUserForm(user, dynaForm, request);
         dynaForm.set("personalURL", user.getPersonalURL());
         dynaForm.set("organizationName", user.getOrganization().getName());
-        dynaForm.set("selectedRole", user.getRole());
+//        dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
     
@@ -281,7 +282,14 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         
         user.setRegisteredIP(registeredIP);
         user.setPersonalURL(personalURL);
-        user.setRole("demogebruiker");
+        
+        List roles = getHibernateSession().createQuery("from Roles").list();
+        Iterator roleIt = roles.iterator();
+        while (roleIt.hasNext()) {
+            Roles role = (Roles) roleIt.next();
+            if (role.getRole().equalsIgnoreCase("demogebruiker"))
+                user.addUserRole(role);
+        }
         
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));

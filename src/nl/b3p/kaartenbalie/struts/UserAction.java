@@ -10,11 +10,15 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
@@ -177,7 +181,7 @@ public class UserAction extends KaartenbalieCrudAction {
          * Once we have a (new or existing) user object we can fill this object with
          * the user input.
          */
-        populateUserObject(dynaForm, user, request);
+        populateUserObject(dynaForm, user, request);        
         
         /*
          * No errors occured so we can assume that all is good and we can safely
@@ -360,10 +364,21 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
         dynaForm.set("repeatpassword", user.getPassword());
+        
+        List roles = getHibernateSession().createQuery("from Roles").list();
+        request.setAttribute("userrolelist", roles);
+        ArrayList roleSet = new ArrayList(user.getUserroles());
+        String [] roleSelected = new String[roleSet.size()];
+        for (int i = 0; i < roleSet.size(); i++) {
+            Roles role = (Roles)roleSet.get(i);
+            roleSelected[i] = role.getId().toString();
+        }
+        dynaForm.set("roleSelected", roleSelected);
+        
         if(user.getOrganization() != null) {
             dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
         }
-        dynaForm.set("selectedRole", user.getRole());
+        //dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
     
@@ -385,9 +400,18 @@ public class UserAction extends KaartenbalieCrudAction {
         if(selectedOrg != null) {
             user.setOrganization(this.getOrganization(FormUtils.StringToInteger(selectedOrg)));
         }
-        String selectedRole = dynaForm.getString("selectedRole");
-        if(selectedRole != null) {
-            user.setRole(selectedRole);
+        user.setUserroles(null);
+        List roleList = getHibernateSession().createQuery("from Roles").list();
+        String [] roleSelected = dynaForm.getStrings("roleSelected");
+        int size = roleSelected.length;
+        for (int i = 0; i < size; i ++) {
+            Iterator it = roleList.iterator();
+            while (it.hasNext()) {
+                Roles role = (Roles) it.next();
+                if (role.getId().toString().equals(roleSelected[i])) {
+                    user.addUserRole(role);
+                }
+            }
         }
     }
     // </editor-fold>

@@ -169,7 +169,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
             url.append(sp_layerlist[2]);
-            urls.add(url.toString());
+            urls.add(url.toString().replaceAll(" ", "%20"));
         }
         tx.commit();
         

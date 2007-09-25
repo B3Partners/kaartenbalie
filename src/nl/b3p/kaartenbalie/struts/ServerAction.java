@@ -449,7 +449,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
-        serviceProvider.setUrl(dynaForm.getString("url"));
+        serviceProvider.setUrl(getUrlWithoutParams(dynaForm.getString("url")));
         if (serviceProvider.getId() == null) {
             serviceProvider.setUpdatedDate(new Date());
         }
@@ -519,6 +519,28 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     }
     // </editor-fold>
     
+    private String getUrlWithoutParams(String url) {
+        String splitUrl = url.substring(0, url.lastIndexOf("?"));
+        String theParams = url.substring(url.lastIndexOf("?") + 1, url.length());
+        splitUrl += "?";
+        if(theParams != null && !theParams.equals("")) {
+            String [] paramPairs = theParams.split("&");
+            for (int i = 0; i < paramPairs.length; i ++) {
+                String [] params = paramPairs[i].split("=");
+                if(!PARAMS_GetCapabilities.contains(params[0]) &&
+                   !PARAMS_GetMap.contains(params[0]) &&
+                   !PARAMS_GetFeatureInfo.contains(params[0]) &&
+                   !PARAMS_GetLegendGraphic.contains(params[0]) &&
+                   !PARAMS_GetStyles.contains(params[0]) &&
+                   !PARAMS_PutStyles.contains(params[0]) &&
+                   !PARAMS_DescribeLayer.contains(params[0])) {
+                    splitUrl = splitUrl + params[0] + "=" + params[1];
+                }
+            }
+        } 
+        return splitUrl;
+    }
+    
     protected String checkWmsUrl(String url) throws Exception {
         
         /*
@@ -556,7 +578,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         boolean version = false;
         boolean service = false;
         
-        String paramURL = url.substring(lastQuest);
+        String paramURL = url.substring(lastQuest + 1);
         String [] params = paramURL.split("&");
         for (int i = 0; i < params.length; i++) {
             String [] paramValue = params[i].split("=");
