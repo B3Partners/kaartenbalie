@@ -15,7 +15,7 @@ var MAX_TEXTINPUT_SIZE = 75;
 
 // Tekst constanten vertaald naar het Nederlands
 // default text for elements with no default value specified 
-var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken";
+var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken.";
 
 // add/delete elements/sections menu text 
 var ADD_ELEMENT_ABOVE_TEXT = "Voeg element hierboven toe";
@@ -30,7 +30,7 @@ var ADD_CHILD_TEXT = "Voeg nieuw kind toe";
 //var PLUS_IMAGE = "images/xp_plus.gif";
 //var MINUS_IMAGE = "images/xp_minus.gif";
 //var MENU_IMAGE = "images/arrow.gif";
-var MENU_TOOLTIP = "Klik hier om opties weer te geven";
+var MENU_TOOLTIP = "Klik hier om opties weer te geven.";
 
 // message titles
 var ERROR_TITLE = "Fout";
@@ -40,7 +40,7 @@ var DEFAULT_VALUE = "Standaard waarde.";
 
 // global variables
 
-var strPreEditText; // text held by SPAN before editing
+var preEditText; // text held by SPAN before editing
 
 var lastFocusedElement = null;
 
@@ -67,20 +67,12 @@ function trim(value) {
 // Arguments:
 //   bChange = 'true' somethings been edited
 //   bChange = 'false' changes have been saved (almost never called)
-function changeFlag(bChange) {
+function changeFlag(changed) {
 	var root = document.getElementById("edit-doc-root");
-	if (bChange) {
+	if (changed) {
 		document.getElementById("saveButton").disabled = false;
 		if (document.title.substring(document.title.length - 1) != "*")
 			document.title += "*";
-		//the body's 'changed' attribute to 'true'
-		root.changed = "true";
-		//document.all.changeFlag.innerHTML = "<font color='red'>Unsaved changes</font>"
-	}
-	else {
-		//the body's 'changed' attribute to 'false'
-		root.changed = "false";
-		//document.all.changeFlag.innerHTML = "No unsaved changes"
 	}
 }
 
@@ -100,21 +92,20 @@ function startEdit(event) {
 		return;
 	
 	// get current value (for checking if changed later)
-	strPreEditText = trim(getElementInnerText(element));
-	var strCurEditText = strPreEditText;
+	preEditText = trim(getElementInnerText(element));
 
 	// has no picklist?
 	if (element.getAttribute("picklist") == "" || element.getAttribute("picklist") == null) {
 		// get size from current text
 		var iCol, iRow;
-		if (strCurEditText.length > MIN_TEXTINPUT_SIZE) {
-			if (strCurEditText.length < MAX_TEXTINPUT_SIZE) {
-				iCol = strCurEditText.length;
+		if (preEditText.length > MIN_TEXTINPUT_SIZE) {
+			if (preEditText.length < MAX_TEXTINPUT_SIZE) {
+				iCol = preEditText.length;
 				iRow = 1;
 			}
 			else {
 				iCol = MAX_TEXTINPUT_SIZE;
-				iRow = Math.floor(strCurEditText.length / MAX_TEXTINPUT_SIZE) + 1;
+				iRow = Math.floor(preEditText.length / MAX_TEXTINPUT_SIZE) + 1;
 			}
 		}
 		else {
@@ -173,38 +164,49 @@ function startEdit(event) {
 	}
 	else {
 		// get picklist
-		var pPicklist = getPicklist(element.getAttribute("picklist"));
-		if (pPicklist == null) {
+		var picklist = getPicklist(element.getAttribute("picklist"));
+		if (picklist == null) {
 			alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
 		}
 		else {
-			// check if value exists in picklist
+			// check if value exists in picklist and remember selected index
 			var exists = false;
-			// TODO: check if exists in picklists: if not add to list as first child
-			
-			// add to code and display it
-			element.innerHTML = "";
-			element.appendChild(pPicklist);
-			pPicklist.focus();
-
-			//current value
-			//pPicklist.childNodes[0].value = element.innerText;
-			
-			//for (var i in pPicklist.childNodes) {
-			/*for (var i = 0; i < pPicklist.childNodes.length; i++) {
-				node = pPicklist.childNodes[i];
-				if (node.nodeType == 1) { // == Node.ELEMENT_NODE //(Node.ELEMENT_NODE werkt niet in IE)
-					node.innerHTML = "";
-					node.appendChild(element);
+			var pick;
+			for (var selectedIndex = 0; selectedIndex < picklist.options.length; selectedIndex++) {
+				pick = picklist.options[selectedIndex];
+				if (getElementInnerText(pick) == preEditText) {
+					exists = true;
 					break;
 				}
-			}*/
+			}
+			
+			if (exists) {
+				picklist.selectedIndex = selectedIndex;
+			}
+			else if (preEditText != GLOBAL_DEFAULT) {
+				// create new option
+				var newOption = document.createElement('option');
+				newOption.text = preEditText;
+				newOption.value = preEditText;
+				
+				// insert value at the top of the picklist
+				try {
+					picklist.add(newOption, picklist.options[0]); // standards compliant; doesn't work in IE
+					debug("standards compliant picklist add");
+				}
+				catch(e) {
+					picklist.add(newOption, picklist.selectedIndex); // IE only
+					debug("IE only picklist add");
+				}
+			}
+			
+			// add picklist to code and display it
+			element.innerHTML = "";
+			element.appendChild(picklist);
+			picklist.focus();
 		}
 	}
-
-
 }
-
 
 
 // Description:
@@ -215,14 +217,13 @@ function startEdit(event) {
 //   element = the <span> element containing text to be edited.
 function stopEdit(event) {
 	var element = getTarget(event);
-	debug("stopEdit element: " + element.tagName);
+	//debug("stopEdit element: " + element.tagName);
 	
-	// get parent <span> element
 	var parentNode = element.parentNode;
 
 	var newValue = trim(element.value);
 	// check for changed value (from original)
-	if (strPreEditText != newValue) {
+	if (preEditText != newValue) {
 		saveValueOnClientSide(parentNode, newValue);
 	}
 
@@ -242,7 +243,6 @@ function stopEdit(event) {
 	// change span value to text alone
 	parentNode.innerHTML = "";
 	parentNode.appendChild(document.createTextNode(checkText(newValue)));
-	
 }
 
 function saveValueOnClientSide(parentNode, newValue) {
@@ -303,13 +303,11 @@ function destroyPickList(event) {
 	var element = getTarget(event);
 	var parentNode = element.parentNode;
 	parentNode.innerHTML = "";
-	parentNode.appendChild(document.createTextNode(checkText(newValue)));
-	//TODO: oude value terug!
+	parentNode.appendChild(document.createTextNode(checkText(preEditText)));
 }
 
 // 2/05 Eric Compas;
 // Catch "tab" key press when picklist is open (will leave editing field open)
-//***********************************************
 function pickListKeyPress(element) {
 	var iKey = getKeyCode(element);
 	//alert("Key pressed = " + iKey);
@@ -332,10 +330,6 @@ function checkKey(event) {
 	//debug("checkKey");
 	var element = getTarget(event);
 	var iKey = getKeyCode(event);
-	/*if (iKey != null)
-		debug("Key pressed = " + iKey);
-	else
-		debug("no key pressed");*/
 	
 	//debug(element);
 

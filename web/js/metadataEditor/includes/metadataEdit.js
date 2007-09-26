@@ -65,28 +65,7 @@ function initWithXmlString() {
 	xmlTransformer.setParameter("basePath", basePath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
-	//addFocusListeners();
 	xmlDocInit();
-}
-
-// misschien een beetje overkill om overal focuslisteners aan te hangen
-function addFocusListeners() {
-	if (document.getElementsByTagName) {
-		var e;
-		var i = 0;
-		while (e = document.getElementsByTagName('*')[i]) {
-			e.onfocus = function () {
-				document.activeElement = this;
-				stopPropagation(this);
-				debug("focus is on a: " + focusedElement.tagName);
-			};
-			i++;
-			//debug("elem: " + e.tagName);
-		}
-	}
-	else {
-		alert("Please use either Firefox or IE: document.getElementsByTagName not supported.");
-	}
 }
 
 function saveChangesInXMLDom(newValue, path) {
