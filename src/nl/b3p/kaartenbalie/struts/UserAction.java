@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.Roles;
+import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;

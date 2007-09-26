@@ -14,6 +14,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // [
         // <!ELEMENT VendorSpecificCapabilities EMPTY>
         // ]>  <!-- end of DOCTYPE declaration -->
-        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd");
+        URL dtdURL = this.getClass().getResource("/nl/b3p/wms/dtd/capabilities_1_1_1.dtd");
+        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://localhost:8084/kaartenbalie_mnp/capabilities_1_1_1.dtd");//dtdURL.toString());
         Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");

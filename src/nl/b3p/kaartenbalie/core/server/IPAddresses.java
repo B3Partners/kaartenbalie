@@ -1,7 +1,7 @@
 /*
- * @(#)Roles.java
+ * @(#)IPAddresses.java
  * @author N. de Goeij
- * @version 1.00, 24 september 2007
+ * @version 1.00, 25 september 2007
  *
  * @copyright 2007 B3Partners. All rights reserved.
  * B3Partners PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
@@ -10,10 +10,9 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-public class Roles {
-    
+public class IPAddresses {
     private Integer id;
-    private String role;
+    private String ipaddress;
     
     public Integer getId() {
         return id;
@@ -23,11 +22,12 @@ public class Roles {
         this.id = id;
     }
 
-    public String getRole() {
-        return role;
+    public String getIpaddress() {
+        return ipaddress;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }    
+    public void setIpaddress(String ipaddress) {
+        this.ipaddress = ipaddress;
+    }
+    
 }

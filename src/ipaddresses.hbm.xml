@@ -12,13 +12,13 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.wms.capabilities.Roles" table="Roles">
-    	<id name="id" type="int" column="ROLEID" >
+    <class name="nl.b3p.kaartenbalie.core.server.IPAddresses" table="IPAddresses">
+    	<id name="id" type="int" column="IPADDRESSID" >
             <generator class="native"/>
         </id>
         
-        <property name="role">
-            <column name="ROLE"/>
+        <property name="ipaddress">
+            <column name="IPADDRESS"/>
         </property>
     </class>
 </hibernate-mapping>

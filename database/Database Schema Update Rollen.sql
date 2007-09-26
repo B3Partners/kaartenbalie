@@ -26,4 +26,8 @@ INSERT INTO roles (ROLE) VALUES ('themabeheerder');
 INSERT INTO roles (ROLE) VALUES ('gebruiker');
 INSERT INTO roles (ROLE) VALUES ('demogebruiker');
 
+INSERT INTO userroles (USERID, ROLEID) VALUES ('1', '1');
+INSERT INTO userroles (USERID, ROLEID) VALUES ('2', '3');
+INSERT INTO userroles (USERID, ROLEID) VALUES ('3', '4');
+
 ALTER TABLE `kaartenbalie`.`user` DROP COLUMN `ROLE`;

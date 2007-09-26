@@ -38,6 +38,7 @@
         <mapping resource="style.hbm.xml"/>
         <mapping resource="styleDomainResource.hbm.xml"/>
         <mapping resource="roles.hbm.xml"/>
+        <mapping resource="ipaddresses.hbm.xml"/>
 </session-factory>
 </hibernate-configuration>
 

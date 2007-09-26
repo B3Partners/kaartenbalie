@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import nl.b3p.wms.capabilities.Roles;
 
 public class User implements Principal {
     
@@ -31,6 +32,7 @@ public class User implements Principal {
     private Organization organization;
     
     private Set userroles;
+    private Set ipaddresses;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -167,5 +169,29 @@ public class User implements Principal {
             roles = roles + theUserroles.getRole() + " ";
         }
         return roles;
+    }
+
+    public Set getIpaddresses() {
+        return ipaddresses;
+    }
+
+    public void setIpaddresses(Set ipaddresses) {
+        this.ipaddresses = ipaddresses;
+    }
+    
+    public void addIpaddress (String ipaddress) {
+        if(ipaddresses == null) {
+            ipaddresses = new HashSet();
+        }
+        
+        //TODO:
+        //check if it is a real ipaddress
+        ipaddresses.add(ipaddress);
+    }
+    
+    public void deleteIpaddress(String ipaddress) {
+        if (ipaddresses != null) {
+            ipaddresses.remove(ipaddress);
+        }
     }
 }
