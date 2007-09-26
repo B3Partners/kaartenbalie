@@ -33,12 +33,14 @@ import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.codec.binary.Base64;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.math.BigInteger;
+import java.security.Principal;
 import nl.b3p.wms.capabilities.KBConstants;
+import org.securityfilter.filter.SecurityRequestWrapper;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -50,7 +52,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public static final long serialVersionUID = 24362462L;
     private String format;
     private String inimageType;
-
+    
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
      *
@@ -61,13 +63,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-
+        
         // Zet de logger
         log = LogFactory.getLog(this.getClass());
         log.info("Initializing Call WMS Servlet");
     }
     // </editor-fold>
-
+    
+    
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *
      * @param request servlet request
@@ -78,8 +81,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        DataWrapper data = new DataWrapper(response);        
+        DataWrapper data = new DataWrapper(response);
         User user = null;
+        
         log.info("Request: " + request.getServletPath() + request.getPathInfo() + request.getQueryString());
         try {
             //Create a map with parameters of of request parameters given
@@ -91,47 +95,47 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
             user = checkLogin(request, parameters, data);
-
+            
             //Setting the header for this specific user so that any action
             //of the user can be logged.
             if(user != null) {
-            	data.setHeader("X-Kaartenbalie-User", user.getUsername());
+                data.setHeader("X-Kaartenbalie-User", user.getUsername());
             }
-
-            //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
-
             
-
+            //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
+            
+            
+            
             //put two extra parameters into the map, since these two vars
             //are needed at several places in the application.
             parameters.put(KB_USER, user);
             parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
-
+            
             //Finally call the parse and request method.
             parseRequestAndData(data, parameters);
         } catch (Exception ex) {
             log.error("error: ", ex);
             String errorContentType = data.getErrorContentType();
-
+            
             if(errorContentType != null) {
                 String exceptionName, message, cause;
-
+                
                 try {
                     exceptionName = ex.getClass().getName();
                 } catch (Exception e) {
                     exceptionName = "";
                 }
-
+                
                 try {
                     message = ex.getMessage();
                 } catch (Exception e) {
                     message = "";
                 }
-
+                
                 try {
                     TextToImage tti = new TextToImage();
                     data.setContentType(errorContentType);
-
+                    
                     /*
                      * Inside TextToImage, when the image with the exception has been created, the image will be stored
                      * into the Datawrapper and sent directly. This means we don't have to given another sent command
@@ -156,14 +160,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     throw new IOException("Exception occured during creation of error message: " + e);
                 }
                 DOMImplementation di = db.getDOMImplementation();
-
+                
                 // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
                 // <!-- end of DOCTYPE declaration -->
                 DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd");
                 Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
                 Element rootElement = dom.getDocumentElement();
                 rootElement.setAttribute("version", "1.1.1");
-
+                
                 Element serviceExceptionElement = dom.createElement("ServiceException");
                 
                 String exceptionName;
@@ -199,18 +203,18 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
                 serviceExceptionElement.appendChild(cdata);
                 rootElement.appendChild(serviceExceptionElement);
-
+                
                 /*
                  * Create a new output format to which this document should be translated and
                  * serialize the tree to an XML document type
                  */
                 OutputFormat format = new OutputFormat(dom);
-
+                
                 format.setIndenting(true);
                 output = new ByteArrayOutputStream();
                 XMLSerializer serializer = new XMLSerializer(output, format);
                 serializer.serialize(dom);
-
+                
                 DOMValidator dv = new DOMValidator();
                 try {
                     dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
@@ -225,8 +229,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
     }
     // </editor-fold>
-
-
+    
+    
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -242,16 +246,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         while (keySetIterator.hasNext()) {
             String key   = (String)keySetIterator.next();
             String value = ((String[]) parameters.get(key))[0];
-
+            
             String caseInsensitiveKey   = key.toUpperCase();
             String caseInsensitiveValue = value.toUpperCase();
-
+            
             newParameterMap.put(caseInsensitiveKey, caseInsensitiveValue);
         }
         return newParameterMap;
     }
     // </editor-fold>
-
+    
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -264,9 +268,39 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request, Map parameters, DataWrapper dw) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
-
+        
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
+        
+        Session sess = MyDatabase.currentSession();
+        
+        // probeer preemptive basic login
+        if (user == null) {
+            // attempt to dig out authentication info only if the user has not yet been authenticated
+            String authorizationHeader = request.getHeader("Authorization");
+            HttpSession session = request.getSession();
+            if (authorizationHeader != null) {
+                String decoded = decodeBasicAuthorizationString(authorizationHeader);
+                String username = parseUsername(decoded);
+                String password = parsePassword(decoded);
+                // niet ingelogd dus, dan checken op token in url
+                Transaction tx = sess.beginTransaction();
+                try {
+                    User user = (User)sess.createQuery(
+                            "from User u where " +
+                            "lower(u.username) = lower(:username) " +
+                            "and lower(u.password) = lower(:password)")
+                            .setParameter("username", username)
+                            .setParameter("password", password)
+                            .uniqueResult();
+                } finally {
+                    tx.commit();
+                }
+            }
+        }
+        
+        
+        // probeer personal url
         if (user == null) {
             if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
                 if (parameters.containsKey(WMS_PARAM_WIDTH) && parameters.containsKey(WMS_PARAM_HEIGHT)) {
@@ -281,7 +315,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             // niet ingelogd dus, dan checken op token in url
-            Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();
             try {
                 user = (User)sess.createQuery(
@@ -292,24 +325,24 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             } finally {
                 tx.commit();
             }
-
+            
             if (user!=null) {
                 java.util.Date date = user.getTimeout();
-
+                
                 if (date.compareTo(new java.util.Date()) <= 0) {
                     throw new AccessDeniedException("Personal URL key has expired!");
                 }
-
+                
                 SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
                 String token = calcToken(
                         request.getRemoteAddr(),
                         user.getUsername(),
                         user.getPassword(),
                         df.format(date));
-
+                
                 // vraag het token uit ingegeven url op
                 String urlToken = request.getPathInfo().substring(1);
-
+                
                 if (!urlToken.equals(token)) {
                     throw new AccessDeniedException("Personal URL not found!");
                 }
@@ -320,7 +353,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         return user;
     }
     // </editor-fold>
-
+    
     /** Creates a hash of the IP address, username and the password.
      *
      * @param registeredIP string representing the ip address of this user
@@ -341,7 +374,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         return new String(Hex.encodeHex(md5hash));
     }
     // </editor-fold>
-
+    
     /** Parses any incoming request and redirects this request to the right handler.
      *
      * @param parameters map with the given parameters
@@ -362,10 +395,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
          */
         String givenRequest = null;
         boolean supported = false;
-
+        
         if (parameters.get(WMS_REQUEST)!=null){
             givenRequest = (String) parameters.get(WMS_REQUEST);
-
+            
             Iterator it = SUPPORTED_REQUESTS.iterator();
             while (it.hasNext()) {
                 String supported_requests = (String) it.next();
@@ -374,13 +407,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 }
             }
         }
-
+        
         if (!supported) {
             throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported! Use GetCapabilities request to " +
                     "get the list of supported functions. Usage: i.e. http://urltoserver/personalurl?REQUEST=GetCapabilities&" +
                     "VERSION=1.1.1&SERVICE=WMS");
         }
-
+        
         /*
          * The request is supported so now we can go ahed and find the right information which
          * the user asked for.
@@ -391,7 +424,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-
+            
             //Att all time set the error contenttype at first....
             String format = (String) parameters.get(WMS_PARAM_FORMAT);
             String inimageType = null;
@@ -399,7 +432,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 inimageType = format;
             }
             data.setErrorContentType(inimageType);
-
+            
             requestHandler = new GetMapRequestHandler();
             reqParams = PARAMS_GetMap;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
@@ -409,7 +442,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             requestHandler = new GetLegendGraphicRequestHandler();
             reqParams = PARAMS_GetLegendGraphic;
         }
-
+        
         /*
          * If the request is supported and we also know which variables are given in the request, then we
          * also first need to find out if all the mandatory variables are given in the request. If not we
@@ -427,14 +460,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     givenRequest + "' are available, required: [" + reqParams.toString() +
                     "], available: [" + availableParams.toString() + "].");
         }
-
+        
         /*
          * All clear, we can continue!
          */
         requestHandler.getRequest(data, parameters);
     }
     // </editor-fold>
-
+    
     /** Checks if the parameters of a given request comply to the required parameters.
      *
      * @param parameters map with the given parameters
@@ -446,11 +479,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     protected boolean requestComplete(Map parameters, List requiredParameters) {
         if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
             return false;
-
+        
         // lijst met default waarden voor parameters die eigenlijk verplicht zijn, goed idee?
         HashMap defVals = new HashMap();
         defVals.put(WMS_PARAM_STYLES, "");
-
+        
         Iterator it = requiredParameters.iterator();
         while (it.hasNext()) {
             String reqParam = (String)it.next();
@@ -463,7 +496,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         return true;
     }
     // </editor-fold>
-
+    
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
@@ -474,7 +507,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-
+    
     /** Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -484,11 +517,64 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-
+    
     /** Returns a short description of the servlet.
      */
     public String getServletInfo() {
         return "CallWMSServlet info";
     }
     // </editor-fold>
+    
+    /**
+     * Parse the username out of the BASIC authorization header string.
+     * @param decoded
+     * @return username parsed out of decoded string
+     */
+    private String parseUsername(String decoded) {
+        if (decoded == null) {
+            return null;
+        } else {
+            int colon = decoded.indexOf(':');
+            if (colon < 0) {
+                return null;
+            } else {
+                return decoded.substring(0, colon).trim();
+            }
+        }
+    }
+    
+    /**
+     * Parse the password out of the decoded BASIC authorization header string.
+     * @param decoded
+     * @return password parsed out of decoded string
+     */
+    private String parsePassword(String decoded) {
+        if (decoded == null) {
+            return null;
+        } else {
+            int colon = decoded.indexOf(':');
+            if (colon < 0) {
+                return (null);
+            } else {
+                return decoded.substring(colon + 1).trim();
+            }
+        }
+    }
+    
+    /**
+     * Decode the BASIC authorization string.
+     *
+     * @param authorization
+     * @return decoded string
+     */
+    private String decodeBasicAuthorizationString(String authorization) {
+        if (authorization == null || !authorization.toLowerCase().startsWith("basic ")) {
+            return null;
+        } else {
+            authorization = authorization.substring(6).trim();
+            // Decode and parse the authorization credentials
+            return new String(Base64.decodeBase64(authorization.getBytes()));
+        }
+    }
+    
 }

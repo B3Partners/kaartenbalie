@@ -207,30 +207,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         /*
          * Get all layers supported by this WMS server.
          */
-        Set standardLayerSet = new HashSet();
-        standardLayerSet = getAllLayers(stdServiceProvider.getLayers(), standardLayerSet);
-        return standardLayerSet;
-    }
-    // </editor-fold>
-    
-    /** Defines a Set with layers in which only leafs are added. These have no childs.
-     *
-     * @param layers Set with main layers.
-     * @param newLayerSet Set with all layers in the previous set plus those which were found as a leaf of the layers processed.
-     *
-     * @return Set with all layers.
-     */
-    // <editor-fold defaultstate="" desc="getAllLayers(Set layers, Set newLayerSet) method.">
-    private Set getAllLayers(Set layers, Set newLayerSet) {
-        if (layers != null) {
-            Iterator it = layers.iterator();
-            while (it.hasNext()) {
-                Layer layer = (Layer) it.next();
-                newLayerSet.add(layer);
-                getAllLayers(layer.getLayers(), newLayerSet);
-            }
-        }
-        return newLayerSet;
+         return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
     

@@ -224,8 +224,7 @@ public class ServerActionDemo extends ServerAction {
             organizationLayers.add(((Layer)it.next()).clone());
         }
         
-        Set newLayerSet = new HashSet();
-        newLayerSet = getAllLayers(newServiceProvider.getLayers(), newLayerSet);
+        Set newLayerSet = newServiceProvider.getAllLayers();
         Iterator newLayers = newLayerSet.iterator();
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
@@ -288,23 +287,4 @@ public class ServerActionDemo extends ServerAction {
     }
     // </editor-fold>
     
-    /** Defines a Set with layers in which only leafs are added. These have no childs.
-     *
-     * @param originalLayers
-     * 
-     * @return Set with only leaf layers
-     */
-    // <editor-fold defaultstate="" desc="getLeafLayers(Set orgLayers) method.">
-    private Set getAllLayers(Set layers, Set newLayerSet) {
-        if (layers != null) {
-            Iterator it = layers.iterator();
-            while (it.hasNext()) {
-                Layer layer = (Layer) it.next();
-                newLayerSet.add(layer);
-                getAllLayers(layer.getLayers(), newLayerSet);            
-            }
-        }
-        return newLayerSet;
-    }
-    // </editor-fold>
 }
