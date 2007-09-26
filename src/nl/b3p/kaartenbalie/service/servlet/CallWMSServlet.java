@@ -286,7 +286,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 // niet ingelogd dus, dan checken op token in url
                 Transaction tx = sess.beginTransaction();
                 try {
-                    User user = (User)sess.createQuery(
+                    user = (User)sess.createQuery(
                             "from User u where " +
                             "lower(u.username) = lower(:username) " +
                             "and lower(u.password) = lower(:password)")
