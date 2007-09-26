@@ -20,5 +20,10 @@ CREATE TABLE `kaartenbalie`.`userroles` (
 )
 ENGINE = InnoDB;
 
+INSERT INTO roles (ROLE) VALUES ('beheerder');
+INSERT INTO roles (ROLE) VALUES ('organisatiebeheerder');
+INSERT INTO roles (ROLE) VALUES ('themabeheerder');
+INSERT INTO roles (ROLE) VALUES ('gebruiker');
+INSERT INTO roles (ROLE) VALUES ('demogebruiker');
 
 ALTER TABLE `kaartenbalie`.`user` DROP COLUMN `ROLE`;
