@@ -21,6 +21,8 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.b3p.kaartenbalie.service.MyDatabase;
+import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
@@ -73,8 +75,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // [
         // <!ELEMENT VendorSpecificCapabilities EMPTY>
         // ]>  <!-- end of DOCTYPE declaration -->
-        URL dtdURL = this.getClass().getResource("/nl/b3p/wms/dtd/capabilities_1_1_1.dtd");
-        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities",null,"http://localhost:8084/kaartenbalie_mnp/capabilities_1_1_1.dtd");//dtdURL.toString());
+        
+        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities", null, CallWMSServlet.CAPABILITIES_DTD);
         Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");

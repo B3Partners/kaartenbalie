@@ -53,6 +53,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     private String format;
     private String inimageType;
     
+    public static String CAPABILITIES_DTD = null;
+    
+    
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
      *
@@ -81,6 +84,24 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (CAPABILITIES_DTD == null) {
+            String scheme = request.getScheme();
+            String serverName = request.getServerName();
+            int serverPort = request.getServerPort();
+            String contextPath = request.getContextPath();
+            
+            StringBuffer theUrl = new StringBuffer(scheme);
+            theUrl.append("://");
+            theUrl.append(serverName);
+            if ((scheme.equals("http") && serverPort!=80) || (scheme.equals("https") && serverPort!=443)) {
+                theUrl.append(":");
+                theUrl.append(serverPort);
+            }
+            theUrl.append(contextPath);
+            theUrl.append(MyDatabase.getDtd());
+            CAPABILITIES_DTD = theUrl.toString();
+        }
+        
         DataWrapper data = new DataWrapper(response);
         User user = null;
         

@@ -10,8 +10,11 @@
 
 package nl.b3p.kaartenbalie.service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import org.apache.commons.logging.Log;
@@ -26,6 +29,8 @@ public class MyDatabase extends HttpServlet {
     private static String cachePath = null;
     private static SessionFactory sessionFactory;
     private static String hibernateInitExceptionMessage;
+    private static String dtd = "/dtd/capabilities_1_1_1.dtd";
+    
     public static final long serialVersionUID = 24362462L;
     
     /** Initializes the servlet.
@@ -40,8 +45,12 @@ public class MyDatabase extends HttpServlet {
         if (log.isInfoEnabled())
             log.info("Initializing MyDatabase servlet");
         
-        // Initialize cache pad
-        cachePath = getServletContext().getRealPath( config.getInitParameter("cache") );
+        String value = config.getInitParameter("dtd");
+        if (value!=null && value.length()>0)
+            dtd = value;
+        value = config.getInitParameter("cache");
+        if (value!=null && value.length()>0)
+            cachePath = getServletContext().getRealPath( value );
         log.debug("cache pad: " + cachePath);
         
         // Randomizer
@@ -178,5 +187,9 @@ public class MyDatabase extends HttpServlet {
         return thePath + prefix + val1 + val2 + extension;
     }
     // </editor-fold>
+    
+    public static String getDtd() {
+        return dtd;
+    }
     
 }
