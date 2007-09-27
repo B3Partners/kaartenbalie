@@ -367,7 +367,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String toBeHashedString = registeredIP + username + password + personalDate;
+        String toBeHashedString = username + password + personalDate;
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();

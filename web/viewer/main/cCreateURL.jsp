@@ -23,23 +23,28 @@
 
 
 <script type="text/javascript">    
-    
-    function addElement() {
-        var ni = document.getElementById('myDiv');
-        var numi = document.getElementById('theValue');
-        var num = (document.getElementById('theValue').value -1)+ 2;
-        numi.value = num;
-        var newdiv = document.createElement('div');
-        var divIdName = 'my'+num+'Div';
-        newdiv.setAttribute('id',divIdName);
-        newdiv.innerHTML = 'Element Number '+num+' has been added! <a href='#' onclick='removeElement('+divIdName+')'>Remove the div "'+divIdName+'"</a>';
-        ni.appendChild(newdiv);
-    }
-    
-    function removeElement(divNum) {
-        var d = document.getElementById('myDiv');
-        var olddiv = document.getElementById(divNum);
-        d.removeChild(olddiv);
+    function addRow()
+    {
+        if (!document.getElementsByTagName) 
+            return;
+
+
+        var tBodiesObj = document.getElementById('iptable').tBodies[0];    
+        row=document.createElement("TR");
+        cell0 = document.createElement("TD");
+        cell0.innerHTML = '<fmt:message key="viewer.persoonlijkeurl.registeredip"/>:'; 
+        cell1 = document.createElement("TD");
+        textnode1=document.createTextNode(content);
+
+        var newTextField = document.createElement('input');
+        newTextField.setAttribute('type','text');
+        newTextField.setAttribute('id','registeredIP');
+        newTextField.setAttribute('name','registeredIP');
+
+        cell1.appendChild(newTextField);
+        row.appendChild(cell0);
+        row.appendChild(cell1);
+        tBodiesObj.appendChild(row);  
     }
     
 </script>
@@ -130,11 +135,25 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                    <td><html:text property="registeredIP"/>
-                    <html:submit property="getIpAddress" styleClass="knop">
-                        <fmt:message key="button.getipaddress"/>
-                    </html:submit>
+                    <table id='iptable'>
+                        <tbody>
+                            <c:forEach var="nIP" varStatus="status" items="${iplist}">
+                                <tr>
+                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
+                                    <td><html:text property="registeredIP" value="${nIP.ipaddress}"/>
+                                </tr>
+                            </c:forEach> 
+                        </tbody>
+                    </table>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <html:submit property="getIpAddress" styleClass="knop">
+                            <fmt:message key="button.getipaddress"/>
+                        </html:submit>
+                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
+                    </td>
                 </tr>
                 <tr>
                     <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
@@ -142,13 +161,7 @@
                 </tr>
             </table>
         </div>
-    </c:if>
-    
-    
-    <input type="hidden" value="0" id="theValue" />
-    <p><a href="javascript:;" onclick="addElement();">Add Some Elements</a></p>
-    <div id="myDiv"> </div>
-    
+    </c:if>    
     
     <c:choose>
         <c:when test="${action != 'list'}">

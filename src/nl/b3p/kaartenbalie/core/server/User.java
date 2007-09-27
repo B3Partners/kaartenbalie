@@ -179,7 +179,7 @@ public class User implements Principal {
         this.ipaddresses = ipaddresses;
     }
     
-    public void addIpaddress (String ipaddress) {
+    public void addIpaddress (IPAddresses ipaddress) {
         if(ipaddresses == null) {
             ipaddresses = new HashSet();
         }
@@ -189,7 +189,7 @@ public class User implements Principal {
         ipaddresses.add(ipaddress);
     }
     
-    public void deleteIpaddress(String ipaddress) {
+    public void deleteIpaddress(IPAddresses ipaddress) {
         if (ipaddresses != null) {
             ipaddresses.remove(ipaddress);
         }

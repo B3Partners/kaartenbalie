@@ -11,10 +11,14 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.security.Principal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,8 +35,12 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session; 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.Set;
+import nl.b3p.kaartenbalie.core.server.IPAddresses;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.codec.binary.Hex;
+import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class CreatePersonalURLAction extends KaartenbalieCrudAction implements KBConstants  {
     
@@ -48,8 +56,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     
      
-    private String registeredIP;
-    private String personalURL;
+    //private String registeredIP;
+    //private String personalURL;
     
     
     /*
@@ -176,8 +184,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             return getAlternateForward(mapping, request);
         }
         
-        User sessionUser = (User) request.getUserPrincipal();
-        if(sessionUser == null) {
+        User user = getUser(dynaForm, request, false);
+        if(user == null) {
             populateUserForm(mapping, dynaForm, request, response, EDIT, EDIT);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
@@ -188,12 +196,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
          * First get all the user input which need to be saved.
          */
         String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        String registeredIP = FormUtils.nullIfEmpty(dynaForm.getString("registeredIP"));
-        
-        /*
-         * Now lets do some checks to make sure that all the input is in the right format.
-         * Check if the date is according some specified rules
-         */
         Date date = null;
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         try {
@@ -212,6 +214,24 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             return getAlternateForward(mapping, request);
         }
         
+        Session sess = getHibernateSession();
+        Set newList = new HashSet();
+        Set ipaddressList = user.getIpaddresses();
+        String [] registeredIP = dynaForm.getStrings("registeredIP");
+        int size = registeredIP.length;
+        for (int i = 0; i < size; i ++) {
+            IPAddresses ipa = ipInList(ipaddressList, registeredIP[i]);
+            if(ipa != null) {
+                newList.add(ipa);
+            } else {
+                ipa = new IPAddresses();
+                ipa.setIpaddress(registeredIP[i]);
+                sess.saveOrUpdate(ipa);
+                newList.add(ipa);
+            }
+        }
+        user.setIpaddresses(newList);
+        
         /*
          * Everything seems to be ok, so it's alright to save the information
          * First we need to create a personal URL based on the information from the user
@@ -222,13 +242,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
-        String toBeHashedString = registeredIP + sessionUser.getUsername() + sessionUser.getPassword() + df.format(date);
+        String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date);
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
         String hashString = new String(Hex.encodeHex(md5hash));
         
-        personalURL = protocol + "://" + requestServerName;
+        String personalURL = protocol + "://" + requestServerName;
         if(port != 80) {
             personalURL += ":" + port;
         }
@@ -237,27 +257,48 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         /*
          * Set the new information in the userobject
          */
-        sessionUser.setRegisteredIP(registeredIP);
-        sessionUser.setPersonalURL(personalURL);
-        sessionUser.setTimeout(date);
+        user.setPersonalURL(personalURL);
+        user.setTimeout(date);
         
         /*
          * Check if this user gets a valid capability when using this personalURL
          */
-        if(!sessionUser.getOrganization().getHasValidGetCapabilities()) {
+        if(!user.getOrganization().getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
         }
         
         /*
          * Save the information
          */
-        Session sess = getHibernateSession();
-        sess.saveOrUpdate(sessionUser);
+        sess.saveOrUpdate(user);
         sess.flush();
+        
+        Principal principal = (Principal) request.getUserPrincipal();
+        if (request instanceof SecurityRequestWrapper) {
+            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            srw.setUserPrincipal(user);
+        }
+        
         populateUserForm(mapping, dynaForm, request, response, LIST, LIST);
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
+    
+    
+    private IPAddresses ipInList(Set ipaddresses, String address) {
+        Iterator it = ipaddresses.iterator();
+        while (it.hasNext()) {
+            IPAddresses ipaddress = (IPAddresses) it.next();
+            if (similarAddress(ipaddress, address)) {
+                return ipaddress;
+            }
+        }
+        return null;
+    }
+    
+    private boolean similarAddress(IPAddresses ipaddress, String address) {
+        return ipaddress.getIpaddress().equalsIgnoreCase(address);
+    }
     
     /** Method which sets a the IP address of the users from his current location to the screen.
      *
@@ -274,9 +315,50 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     public ActionForward getIpAddress(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
         ActionForward af = populateUserForm(mapping, dynaForm, request, response, EDIT, EDIT);
-        dynaForm.set("registeredIP", request.getRemoteAddr());
         dynaForm.set("timeout", timeout);
         return af;
+    }
+    // </editor-fold>
+    
+    /* Private method which gets the hidden id in a form.
+     *
+     * @param mapping The ActionMapping used to select this instance.
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param response The HTTP Response we are processing.
+     *
+     * @return an Actionforward object.
+     *
+     * @throws Exception
+     */
+    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+    protected Integer getID(DynaValidatorForm dynaForm, HttpServletRequest request) {
+        return ((User) request.getUserPrincipal()).getId();
+    }
+    // </editor-fold>
+    
+    /* Method which returns the user with a specified id or a new user if no id is given.
+     *
+     * @param form The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
+     * @param createNew A boolean which indicates if a new object has to be created.
+     * @param id An Integer indicating which organization id has to be searched for.
+     *
+     * @return a User object.
+     */
+    // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+    protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+        Session session = getHibernateSession();
+        User user = null;
+        
+        Integer id = getID(dynaForm, request);
+        
+        if(null == id && createNew) {
+            user = new User();
+        } else if (null != id) {
+            user = (User)session.get(User.class, new Integer(id.intValue()));
+        }
+        return user;
     }
     // </editor-fold>
     
@@ -306,12 +388,15 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         dynaForm.set("role", user.getRolesAsString());
         dynaForm.set("personalURL", user.getPersonalURL());        
         
-        String ipaddress = user.getRegisteredIP();
-        if (ipaddress == null || ipaddress.equals("")) {
-            dynaForm.set("registeredIP", request.getRemoteAddr());
-        } else {
-            dynaForm.set("registeredIP", user.getRegisteredIP());
+        List iplist = new ArrayList(user.getIpaddresses());
+        request.setAttribute("iplist", iplist);
+        
+        String [] registeredIP = new String[iplist.size()];
+        for (int i = 0; i < iplist.size(); i++) {
+            IPAddresses ipaddresses = (IPAddresses)iplist.get(i);
+            registeredIP[i] = ipaddresses.getId().toString();
         }
+        dynaForm.set("registeredIP", registeredIP);
         
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         Date timeout = user.getTimeout();

@@ -24,7 +24,7 @@
             <many-to-many column="ROLEID" class="nl.b3p.wms.capabilities.Roles" lazy="false"/>
         </set>
         
-        <set name="ipaddresses" table="UserIP" lazy="false">
+        <set name="ipaddresses" table="Userip" lazy="false">
             <key column="USERID"/>
             <many-to-many column="IPADDRESSID" class="nl.b3p.kaartenbalie.core.server.IPAddresses" lazy="false"/>
         </set>

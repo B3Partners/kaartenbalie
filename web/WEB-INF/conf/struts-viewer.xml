@@ -51,7 +51,7 @@
             <form-property name="emailaddress" type="java.lang.String"/>
             <form-property name="role" type="java.lang.String"/>
             <form-property name="personalURL" type="java.lang.String"/>
-            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="registeredIP" type="java.lang.String[]"/>
             <form-property name="timeout" type="java.lang.String"/>
         </form-bean>
         
