@@ -273,7 +273,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         sess.saveOrUpdate(user);
         sess.flush();
         
-        Principal principal = (Principal) request.getUserPrincipal();
+        Principal principal = request.getUserPrincipal();
         if (request instanceof SecurityRequestWrapper) {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
             srw.setUserPrincipal(user);

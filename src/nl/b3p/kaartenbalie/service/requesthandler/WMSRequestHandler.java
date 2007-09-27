@@ -54,6 +54,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
 import nl.b3p.kaartenbalie.service.ImageManager;
+import nl.b3p.wms.capabilities.Roles;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -133,6 +134,15 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         ServiceProviderValidator spv = new ServiceProviderValidator(new HashSet(serviceproviders.values()));
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+        
+        Set roles = dbUser.getUserroles();
+        if (roles!=null) {
+            it = roles.iterator();
+            while (it.hasNext()) {
+                Roles role = (Roles)it.next();
+                validServiceProvider.addRole(role);
+            }
+        }
         
         Layer clonedLayer = (Layer)kaartenbalieTopLayer.clone();
         validServiceProvider.addLayer(clonedLayer);
