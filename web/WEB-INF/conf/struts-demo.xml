@@ -20,10 +20,10 @@
             <form-property name="password" type="java.lang.String"/>
             <form-property name="repeatpassword" type="java.lang.String"/>
             <form-property name="personalURL" type="java.lang.String"/>
-            <form-property name="selectedRole" type="java.lang.String"/>
             <form-property name="selectedOrganization" type="java.lang.String"/>            
             <form-property name="organizationName" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
+            <form-property name="roleSelected" type="java.lang.String[]"/>
         </form-bean>
         
         <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
