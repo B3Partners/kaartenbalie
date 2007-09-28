@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/kaartenbalie">
-  <!-- Voor Tomcat 5.5
+<Context path="/kaartenbalie_wis">
+    <!-- Voor Tomcat 5.5
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
@@ -14,33 +14,34 @@
             maxActive="100"
             minEvictableIdleTimeMillis="10000"
             timeBetweenEvictionRunsMillis="60000"
-    />
+    />-->
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
             driverClassName="com.mysql.jdbc.Driver"
-            password="kaartenbalie"
+            password="***REMOVED***"
             maxIdle="30"
             maxWait="5000"
             validationQuery="select now();"
-            username="kaartenbalie"
-            url="jdbc:mysql://b3p-nando:3306/kaartenbalie"
+            username="root"
+            url="jdbc:mysql://localhost:3306/kaartenbalie_wis"
             maxActive="100"
     />
-   -->
-  <Resource 
-    driverClassName="com.mysql.jdbc.Driver" 
-    maxActive="100" 
-    maxIdle="30" 
-    maxWait="5000" 
-    name="jdbc/kaartenbalie" 
-    password="XnigASDNggds" 
-    type="javax.sql.DataSource" 
-    url="jdbc:mysql://x5.b3p.nl:3306/kaartenbalie_wis" 
-    username="kaartenbalie_wis" 
-    validationQuery="select now();"
-  />
-  <!-- Config voor MNP productie, Tomcat 5.0 
+   <!--
+    <Resource
+            name="jdbc/kaartenbalie"
+            type="javax.sql.DataSource"
+            driverClassName="com.mysql.jdbc.Driver"
+            password="XnigASDNggds"
+            maxIdle="30"
+            maxWait="5000"
+            validationQuery="select now();"
+            username="kaartenbalie_wis"
+            url="jdbc:mysql://x5.b3p.nl:3306/kaartenbalie_wis"
+            maxActive="100"
+    />-->
+
+    <!-- Config voor MNP productie, Tomcat 5.0
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
     <ResourceParams name="jdbc/kaartenbalie">
     <parameter>
@@ -88,7 +89,8 @@
             <value>SELECT 1</value>
     </parameter>
     </ResourceParams>-->
-  <!-- Config voor B3Partners productie, Tomcat 5.0 
+
+    <!-- Config voor B3Partners productie, Tomcat 5.0
 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
@@ -136,4 +138,55 @@
 		<value>SELECT 1</value>
 	</parameter>
 	</ResourceParams>-->
+
+	<!-- context voor kaartenbalie op tomcat 5.0 x5 -->
+	<!--
+ 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
+	<ResourceParams name="jdbc/kaartenbalie">
+	<parameter>
+		<name>factory</name>
+		<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+	</parameter>
+	<parameter>
+		<name>maxActive</name>
+		<value>100</value>
+	</parameter>
+	<parameter>
+		<name>maxIdle</name>
+		<value>30</value>
+	</parameter>
+	<parameter>
+		<name>maxWait</name>
+		<value>10000</value>
+	</parameter>
+	<parameter>
+		<name>minEvictableIdleTimeMillis</name>
+		<value>10000</value>
+	</parameter>
+	<parameter>
+		<name>timeBetweenEvictionRunsMillis</name>
+		<value>60000</value>
+	</parameter>
+	<parameter>
+		<name>username</name>
+		<value>kaartenbalie_wis</value>
+	</parameter>
+	<parameter>
+		<name>password</name>
+		<value>XnigASDNggds</value>
+	</parameter>
+	<parameter>
+		<name>driverClassName</name>
+		<value>com.mysql.jdbc.Driver</value>
+	</parameter>
+	<parameter>
+		<name>url</name>
+		<value>jdbc:mysql://localhost:3306/kaartenbalie_wis?autoReconnect=true</value>
+	</parameter>
+	<parameter>
+		<name>validationQuery</name>
+		<value>SELECT 1</value>
+	</parameter>
+	</ResourceParams>
+	-->
 </Context>
