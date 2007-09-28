@@ -25,10 +25,20 @@
 <script type="text/javascript">    
     function addRow()
     {
-        if (!document.getElementsByTagName) 
+        if (!document.getElementsByTagName) {
             return;
-
-
+        }
+        
+        var tbl = document.getElementById('iptable');
+        var elements = document.getElementsByName('registeredIP');
+        var length = tbl.rows.length - 1;
+        for(i = 1; i <= length; i++) {
+            if (elements[i].value.length <= 0) {
+                alert('Veld is leeg');
+                return;
+            }
+        }
+        
         var tBodiesObj = document.getElementById('iptable').tBodies[0];    
         row=document.createElement("TR");
         cell0 = document.createElement("TD");
@@ -45,6 +55,13 @@
         row.appendChild(cell0);
         row.appendChild(cell1);
         tBodiesObj.appendChild(row);  
+    }
+    
+    function removeRow()
+    {
+      var tbl = document.getElementById('iptable');
+      var lastRow = tbl.rows.length;
+      if (lastRow > 1) tbl.deleteRow(lastRow - 1);
     }
     
 </script>
@@ -91,11 +108,7 @@
             </tr>
             
             <c:choose>
-                <c:when test="${form.map.registeredIP != null}">
-                    <tr>
-                        <td>IP adres:</td>
-                        <td><c:out value="${form.map.registeredIP}"/></td>
-                    </tr>
+                <c:when test="${form.map.personalURL != null}">
                     <tr>
                         <td>Pers. URL:</td>
                         <td><c:out value="${form.map.personalURL}"/></td>
@@ -103,15 +116,16 @@
                 </c:when>
                 <c:otherwise>
                     <tr>
-                        <td>IP adres:</td>
-                        <td>Nog geen IP adres geregistreerd.</td>
-                    </tr>
-                    <tr>
                         <td>Pers. URL:</td>
                         <td>Nog geen URL aangemaakt.</td>
                     </tr>
                 </c:otherwise>
             </c:choose>
+            
+            <tr>
+                <td>Huidig IP adres:</td>
+                <td><c:out value="${form.map.currentaddress}"/></td>
+            </tr>
         </table>
     </div>
     
@@ -149,10 +163,8 @@
                 <tr>
                     <td>&nbsp;</td>
                     <td>
-                        <html:submit property="getIpAddress" styleClass="knop">
-                            <fmt:message key="button.getipaddress"/>
-                        </html:submit>
-                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
+                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button>&nbsp;
+                        <button onClick='removeRow(); return false;'>Verwijder Adres</button><P>
                     </td>
                 </tr>
                 <tr>

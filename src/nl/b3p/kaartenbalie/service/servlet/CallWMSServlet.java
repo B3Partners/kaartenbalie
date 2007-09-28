@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import nl.b3p.kaartenbalie.core.server.IPAddresses;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.text.SimpleDateFormat;
@@ -354,21 +355,24 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     throw new AccessDeniedException("Personal URL key has expired!");
                 }
                 
-                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-                String token = calcToken(
-                        request.getRemoteAddr(),
-                        user.getUsername(),
-                        user.getPassword(),
-                        df.format(date));
+                String remoteaddress = request.getRemoteAddr();
+                boolean validip = false;
                 
-                // vraag het token uit ingegeven url op
-                String urlToken = request.getPathInfo().substring(1);
+                Set ipaddresses = user.getIpaddresses();
+                Iterator it = ipaddresses.iterator();
+                while (it.hasNext()) {
+                    IPAddresses ipaddress = (IPAddresses) it.next();
+                    if(ipaddress.getIpaddress().equals(remoteaddress)) {
+                        validip = true;
+                        break;
+                    }                    
+                }
                 
-                if (!urlToken.equals(token)) {
-                    throw new AccessDeniedException("Personal URL not found!");
+                if(!validip) {
+                    throw new AccessDeniedException("Personal URL not usuable for this IP address!");
                 }
             } else {
-                throw new AccessDeniedException("Authorisation required for this service!");
+                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             }
         }
         return user;

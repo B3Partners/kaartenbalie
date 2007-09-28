@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -224,10 +225,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             if(ipa != null) {
                 newList.add(ipa);
             } else {
-                ipa = new IPAddresses();
-                ipa.setIpaddress(registeredIP[i]);
-                sess.saveOrUpdate(ipa);
-                newList.add(ipa);
+                if(!registeredIP[i].equals("")) {
+                    ipa = new IPAddresses();
+                    ipa.setIpaddress(registeredIP[i]);
+                    sess.saveOrUpdate(ipa);
+                    newList.add(ipa);
+                }
             }
         }
         user.setIpaddresses(newList);
@@ -242,7 +245,9 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
-        String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date);
+        Random rd = new Random();
+        
+        String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
@@ -286,11 +291,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     
     
     private IPAddresses ipInList(Set ipaddresses, String address) {
-        Iterator it = ipaddresses.iterator();
-        while (it.hasNext()) {
-            IPAddresses ipaddress = (IPAddresses) it.next();
-            if (similarAddress(ipaddress, address)) {
-                return ipaddress;
+        if (!address.equals("")) {
+            Iterator it = ipaddresses.iterator();
+            while (it.hasNext()) {
+                IPAddresses ipaddress = (IPAddresses) it.next();
+                if (similarAddress(ipaddress, address)) {
+                    return ipaddress;
+                }
             }
         }
         return null;
@@ -299,27 +306,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     private boolean similarAddress(IPAddresses ipaddress, String address) {
         return ipaddress.getIpaddress().equalsIgnoreCase(address);
     }
-    
-    /** Method which sets a the IP address of the users from his current location to the screen.
-     *
-     * @param mapping action mapping
-     * @param dynaForm dyna validator form
-     * @param request servlet request
-     * @param response servlet response
-     *
-     * @return ActionForward defined by Apache foundation
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="getIpAdrs(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward getIpAddress(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        ActionForward af = populateUserForm(mapping, dynaForm, request, response, EDIT, EDIT);
-        dynaForm.set("timeout", timeout);
-        return af;
-    }
-    // </editor-fold>
-    
+        
     /* Private method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -380,13 +367,15 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+         
         dynaForm.set("username", user.getUsername());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailaddress", user.getEmailAddress());
         dynaForm.set("role", user.getRolesAsString());
         dynaForm.set("personalURL", user.getPersonalURL());        
+        
+        dynaForm.set("currentaddress", request.getRemoteAddr());
         
         List iplist = new ArrayList(user.getIpaddresses());
         request.setAttribute("iplist", iplist);
