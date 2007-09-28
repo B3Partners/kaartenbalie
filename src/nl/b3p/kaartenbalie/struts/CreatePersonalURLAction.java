@@ -216,24 +216,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         }
         
         Session sess = getHibernateSession();
-        Set newList = new HashSet();
-        Set ipaddressList = user.getIpaddresses();
+        
         String [] registeredIP = dynaForm.getStrings("registeredIP");
+        Set newset = new HashSet();
         int size = registeredIP.length;
         for (int i = 0; i < size; i ++) {
-            IPAddresses ipa = ipInList(ipaddressList, registeredIP[i]);
-            if(ipa != null) {
-                newList.add(ipa);
-            } else {
-                if(!registeredIP[i].equals("")) {
-                    ipa = new IPAddresses();
-                    ipa.setIpaddress(registeredIP[i]);
-                    sess.saveOrUpdate(ipa);
-                    newList.add(ipa);
-                }
-            }
+            IPAddresses ipa = new IPAddresses();
+            ipa.setIpaddress(registeredIP[i]);
+            newset.add(ipa);
         }
-        user.setIpaddresses(newList);
+        user.setIpaddresses(compareSets(user.getIpaddresses(), newset, sess));
         
         /*
          * Everything seems to be ok, so it's alright to save the information
@@ -289,6 +281,54 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
+    
+    public Set compareSets(Set oldset, Set newset, Session sess) {        
+        //Eerst alle oude ip adressen verwijderd uit de lijst en uide database.
+        Set tempRemoveSet = new HashSet();
+        
+        Iterator it = oldset.iterator();
+        while (it.hasNext()) {
+            IPAddresses oldIP = (IPAddresses) it.next();
+            boolean same = false;
+            Iterator newit = newset.iterator();
+            while(newit.hasNext()) {
+                IPAddresses newIP = (IPAddresses) newit.next();
+                if(oldIP.compare(newIP)) {
+                    same = true;
+                    break;
+                }
+            }
+            if (!same) {
+                tempRemoveSet.add(oldIP);
+            }
+        }
+        
+        Iterator removeIt = tempRemoveSet.iterator();
+        while (removeIt.hasNext()) {
+            IPAddresses removableIP = (IPAddresses) removeIt.next();
+            oldset.remove(removableIP);
+            sess.delete(removableIP);
+        }
+        
+        //Nu alle nieuwe adressen toevoegen aan de lijst en de database
+        Iterator newit = newset.iterator();
+        while (newit.hasNext()) {
+            boolean inlist = false;
+            IPAddresses newIP = (IPAddresses) newit.next();
+            Iterator oldit = oldset.iterator();
+            while (oldit.hasNext()) {
+                IPAddresses oldIP = (IPAddresses) oldit.next();
+                if(newIP.compare(oldIP)) {
+                    inlist = true;
+                }
+            }
+            if(!inlist) {
+                oldset.add(newIP);
+                sess.saveOrUpdate(newIP);
+            }
+        }
+        return oldset;
+    }
     
     
     private IPAddresses ipInList(Set ipaddresses, String address) {

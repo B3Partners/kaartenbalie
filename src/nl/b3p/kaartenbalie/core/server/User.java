@@ -178,20 +178,4 @@ public class User implements Principal {
     public void setIpaddresses(Set ipaddresses) {
         this.ipaddresses = ipaddresses;
     }
-    
-    public void addIpaddress (IPAddresses ipaddress) {
-        if(ipaddresses == null) {
-            ipaddresses = new HashSet();
-        }
-        
-        //TODO:
-        //check if it is a real ipaddress
-        ipaddresses.add(ipaddress);
-    }
-    
-    public void deleteIpaddress(IPAddresses ipaddress) {
-        if (ipaddresses != null) {
-            ipaddresses.remove(ipaddress);
-        }
-    }
 }

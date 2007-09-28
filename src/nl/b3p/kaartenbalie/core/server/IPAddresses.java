@@ -30,4 +30,7 @@ public class IPAddresses {
         this.ipaddress = ipaddress;
     }
     
+    public boolean compare(IPAddresses ipaddress) {
+        return this.getIpaddress().equals(ipaddress.getIpaddress());
+    }
 }
