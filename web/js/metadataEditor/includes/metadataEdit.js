@@ -70,7 +70,7 @@ function initWithXmlString() {
 
 function saveChangesInXMLDom(newValue, path) {
 	//debug("saveChangesInXMLDom");
-	debug("root tag: " + xmlDoc.nodeName);
+	//debug("root tag: " + xmlDoc.nodeName);
 	
 	var pathArray = path.split("/");
 	
@@ -108,7 +108,7 @@ function findChildNode(searchParent, targetRawChildTag) {
 	//debug("targetRawChildTag: " + targetRawChildTag);
 	
 	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
-	var targetChildAndIndexUnfiltered = targetRawChildTag.split(/[:\[\]]+/);
+	var targetChildAndIndexUnfiltered = targetRawChildTag.split(/[\[\]]+/);
 	// filter out empty groups
 	var targetChildAndIndex = [];
 	var newIndex = 0;
@@ -125,22 +125,27 @@ function findChildNode(searchParent, targetRawChildTag) {
 	
 	//debug("targetChildAndIndex.length: " + targetChildAndIndex.length)
 	var targetChildTag, targetChildIndex;
-	if (targetChildAndIndex.length == 3) {
+	/*if (targetChildAndIndex.length == 3) {
 		targetChildTag = targetChildAndIndex[0] + ":" + targetChildAndIndex[1];
 		targetChildIndex = targetChildAndIndex[2];
 	}
-	else if (targetChildAndIndex.length == 2) {
+	else*/
+	if (targetChildAndIndex.length == 2) {
 		targetChildTag = targetChildAndIndex[0];
 		targetChildIndex = targetChildAndIndex[1];
 	}
-	else { // == 1
+	else if (targetChildAndIndex.length == 1) {
 		targetChildTag = targetChildAndIndex[0];
         targetChildIndex = 1;
+	}
+	else {
+		alert("Incorrect tag name. Changes will not be saved correctly.");
+		return null;
 	}
 	
 	var searchChildren = searchParent.childNodes;
 	if (searchChildren == null || searchChildren.length == 0) {
-		//debug("tree empty?");
+		alert("Childtree empty. Changes will not be saved correctly.");
 		return null;
 	}
 	
@@ -156,7 +161,7 @@ function findChildNode(searchParent, targetRawChildTag) {
 			// Xpath begint met tellen bij 1, dus eerst deze variable ophogen.
 			correctChildCount++;
 			if (correctChildCount == targetChildIndex) {
-				//debug("child: " + searchChild.nodeName);
+				//debug("correct child: " + searchChild.nodeName);
 				return searchChild;
 			}
 		}
@@ -169,6 +174,7 @@ function findChildNode(searchParent, targetRawChildTag) {
 function checkForm(source) {
 	var sourceName = source.getAttribute("name");
 	if (sourceName != null && sourceName == "save") {
+		addDateStampToXMLDom();
 		//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
 		var xmlHiddenInput = document.createElement("input");
 		xmlHiddenInput.setAttribute("type", "hidden");
@@ -179,4 +185,16 @@ function checkForm(source) {
 		form.submit();
 		//self.close();
 	}
+}
+
+function addDateStampToXMLDom() {
+	var currentTime = new Date();
+	var month = currentTime.getMonth() + 1;
+	var day = currentTime.getDate();
+	var year = currentTime.getFullYear();
+	
+	var currentDate = day + "-" + month + "-" + year;
+	var dateStampPath = "/MD_Metadata/dateStamp/gco:Date";
+	
+	saveChangesInXMLDom(currentDate, dateStampPath);
 }

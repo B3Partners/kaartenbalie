@@ -54,7 +54,7 @@
 			<html:hidden property="name" />
 			<html:hidden property="save" value="val"/>			
 
-			<html:submit property="save" value="Save" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
+			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 
 			<div id="write-root"></div>
 

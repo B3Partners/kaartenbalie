@@ -39,10 +39,7 @@ var ERROR_TITLE = "Fout";
 var DEFAULT_VALUE = "Standaard waarde.";
 
 // global variables
-
 var preEditText; // text held by SPAN before editing
-
-var lastFocusedElement = null;
 
 // ================
 // Helper functions
@@ -88,7 +85,7 @@ function startEdit(event) {
 	var element = getTarget(event);
 	
 	// already editing?
-	if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "select")
+	if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "textarea" || element.tagName.toLowerCase() == "select")
 		return;
 	
 	// get current value (for checking if changed later)
@@ -124,7 +121,7 @@ function startEdit(event) {
 		}
 
 		// change span into text input or textarea for editing
-		var newInnerText = checkText(getElementInnerText(element));
+		var newInnerText = getElementInnerText(element);		
 
 		var inputElement;
 		if (iRow > 1) {
@@ -242,7 +239,7 @@ function stopEdit(event) {
 	
 	// change span value to text alone
 	parentNode.innerHTML = "";
-	parentNode.appendChild(document.createTextNode(checkText(newValue)));
+	parentNode.appendChild(document.createTextNode(newValue));
 }
 
 function saveValueOnClientSide(parentNode, newValue) {
@@ -281,7 +278,7 @@ function getPicklist(name) {
 // Description: code called by picklists when selection changed (onchange)
 function selectPickListValue(event) {
 	var element = getTarget(event);
-	debug("element.tagName=" + element.tagName);
+	//debug("element.tagName=" + element.tagName);
 
 	if (element == null) {
 		alert("Error locating picklist in stylesheet to remove.");
@@ -294,7 +291,7 @@ function selectPickListValue(event) {
 		//element.title? desc
 		var parentNode = element.parentNode;
 		parentNode.innerHTML = "";
-		parentNode.appendChild(document.createTextNode(checkText(newValue)));
+		parentNode.appendChild(document.createTextNode(newValue));
 		saveValueOnClientSide(parentNode, newValue);
 	}
 }
@@ -303,7 +300,7 @@ function destroyPickList(event) {
 	var element = getTarget(event);
 	var parentNode = element.parentNode;
 	parentNode.innerHTML = "";
-	parentNode.appendChild(document.createTextNode(checkText(preEditText)));
+	parentNode.appendChild(document.createTextNode(preEditText));
 }
 
 // 2/05 Eric Compas;
@@ -312,8 +309,8 @@ function pickListKeyPress(element) {
 	var iKey = getKeyCode(element);
 	//alert("Key pressed = " + iKey);
 
-	// was 'tab' pressed?
-	if (iKey == 9) {
+	// was 'tab' or 'escape' pressed?
+	if (iKey == 9 || iKey == 27) {
 		// cancel default IE tab handler
 		//window.event.returnValue = false;
 		return false;
@@ -373,7 +370,7 @@ function checkKey(event) {
 	// was 'escape' pressed?
 	if (iKey == 27) {
 		//text to original value
-		element.value = strPreEditText;
+		element.value = preEditText;
 
 		stopPropagation(element);
 		// trigger blur event - stop editing
@@ -996,39 +993,3 @@ function createSection(strAddName) {
 	return objContentDIV;
 }
 
-// Description:
-//   Check that edited text contains only valid XML characters.
-//   Checks for the following characters && makes replacement:
-//  <   &lt;
-//  >   &gt;
-//  +   &amp;
-//  "   &quot;
-//  '   &apos;   ' ! required? won't display correctly in IE
-//
-// Arguments:
-//   text = text string to check && reformat
-function checkText(text) {
-	// do replacements
-
-	//text = replace(text,"+","&#38");
-	//text = replace(text,"'","&#39");
-	//text = replace(text,"""","&#34");
-	//text = replace(text,"<","&#60");
-	//text = replace(text,">","&#62");
-
-	text = text.replace("+", "&amp;");
-	text = text.replace("<", "&lt;");
-	text = text.replace(">", "&gt;");
-	text = text.replace("\"", "&quot;");
-	//text = text.replace("'", "&apos;"); // not required?
-	text = text.replace("'", "&#39");
-
-	// more complex search for ampersand (since it's in all of the replacements)
-	// TODO: write this example &nbsp;
-
-	//debug
-	//alert("return " + text);
-
-	//return value
-	return text;
-}
