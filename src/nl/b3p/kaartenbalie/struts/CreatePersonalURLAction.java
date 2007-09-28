@@ -245,8 +245,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
-        Random rd = new Random();
-        
+        Random rd = new Random();        
         String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
@@ -262,7 +261,9 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         /*
          * Set the new information in the userobject
          */
-        user.setPersonalURL(personalURL);
+        if (date.compareTo(user.getTimeout()) != 0) {
+            user.setPersonalURL(personalURL);
+        }
         user.setTimeout(date);
         
         /*
