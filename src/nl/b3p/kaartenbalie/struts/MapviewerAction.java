@@ -226,8 +226,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getId() + "_" + layer.getName());
-        jsonLayer.put("name", layer.getName());
+        jsonLayer.put("id", layer.getUniqueName());
+        jsonLayer.put("name", layer.getTitle());
         jsonLayer.put("type", "layer");
         return jsonLayer;
     }

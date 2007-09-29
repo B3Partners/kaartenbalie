@@ -44,7 +44,7 @@ public class LayerValidator {
             Layer l = (Layer) it.next();
             Set srsbb = l.getSrsbb();
             if (srsbb == null) {
-                log.debug("Layer: "+l.getName()+" does not have a SRS");
+                log.debug("Layer: "+l.getUniqueName()+" does not have a SRS");
             }
         }
     }

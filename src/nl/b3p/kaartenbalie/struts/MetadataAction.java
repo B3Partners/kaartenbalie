@@ -81,7 +81,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
-        dynaForm.set("name", layer.getName());
+        dynaForm.set("name", layer.getTitle());
 		String metadata = layer.getMetaData();
 		if (metadata != null) {
 			// remove all newline and return characters using RegEx
@@ -106,7 +106,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
-            String identity = layer.getId() + "_" + layer.getName();
+            String identity = layer.getUniqueName();
             if(identity.equalsIgnoreCase(layerToBeFound))
                 return layer.getName();
             
@@ -236,8 +236,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getId() + "_" + layer.getName());
-        jsonLayer.put("name", layer.getName());
+        jsonLayer.put("id", layer.getUniqueName());
+        jsonLayer.put("name", layer.getTitle());
         jsonLayer.put("type", "layer");
         return jsonLayer;
     }

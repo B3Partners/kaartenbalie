@@ -364,9 +364,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         String checkedLayers = "";
         for (int i = 0; i < organizationLayer.length; i++) {
             if (i < organizationLayer.length - 1) {
-                checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName() + ",";
+                checkedLayers += ((Layer)organizationLayer[i]).getUniqueName() + ",";
             } else {
-                checkedLayers += ((Layer)organizationLayer[i]).getId().toString() + "_" + ((Layer)organizationLayer[i]).getName();
+                checkedLayers += ((Layer)organizationLayer[i]).getUniqueName();
             }
         }
         JSONObject root = this.createTree();
@@ -573,8 +573,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getId() + "_" + layer.getName());
-        jsonLayer.put("name", layer.getName());
+        jsonLayer.put("id", layer.getUniqueName());
+        jsonLayer.put("name", layer.getTitle());
         jsonLayer.put("type", "layer");
         return jsonLayer;
     }
