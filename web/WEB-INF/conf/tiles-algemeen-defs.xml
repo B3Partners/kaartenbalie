@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : tiles-algemeen-defs.xml
+    Created on : 5 september 2006, 13:46
+    Author     : Roy
+    Description:
+        Purpose of the document follows.
+-->
+
+<tiles-definitions>
+    <!-- base -->
+    <definition name="base" path="/WEB-INF/jsp/templates/template.jsp">
+        <put name="top" value="/WEB-INF/jsp/commons/header.jsp"/>
+        <put name="footer" value="/WEB-INF/jsp/commons/footer.jsp"/>
+    </definition>
+    <!-- commons -->
+    <definition name="common.actionMessages" path="/WEB-INF/jsp/commons/actionMessages.jsp"/> 
+    <!-- algemeen -->
+    <definition name="base.algemeen" extends="base">
+        <put name="menu" value="/WEB-INF/jsp/algemeen/menu.jsp"/>
+    </definition>
+    <definition name="base.algemeen.index" extends="base.algemeen">
+        <put name="content" value="/WEB-INF/jsp/algemeen/index.jsp"/>
+    </definition>
+    <definition name="base.algemeen.norights" extends="base.algemeen">
+        <put name="content" value="/WEB-INF/jsp/algemeen/noRights.jsp"/>
+    </definition>
+    <definition name="base.algemeen.invalidlogin" extends="base.algemeen">
+        <put name="content" value="/WEB-INF/jsp/algemeen/invalidLogin.jsp"/>
+    </definition>  
+    <definition name="base.algemeen.login" extends="base.algemeen">
+        <put name="content" value="/WEB-INF/jsp/algemeen/login.jsp"/>
+    </definition>  
+</tiles-definitions>

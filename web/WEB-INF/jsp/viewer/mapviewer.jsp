@@ -67,7 +67,7 @@
     <font color="red"><strong>For some reason the Flamingo mapviewer can not be shown. Please contact the website administrator.</strong></font>
 </div>
 <script type="text/javascript">
-    var so = new SWFObject('<html:rewrite page="/flamingo/flamingo.swf"/>?config=servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
+    var so = new SWFObject('<html:rewrite page="/flamingo/flamingo.swf" module=""/>?config=servlet/FlamingoConfigServlet/<c:out value="${checkedLayers}"/>extent=<c:out value="${extent}"/>', "flamingo", "500", "500", "8", "#FFFFFF");
     so.write("flashcontent");
 </script>
 
@@ -133,7 +133,7 @@
                 d.href="#";
                 d.onclick= function(){setAllTrue(this);};
                 d.selecteditem=item;
-                d.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg"/>' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+                d.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg" module=""/>' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
                 d.style.marginLeft="5px";
                 container.appendChild(d);
             }
@@ -145,9 +145,9 @@
             "rootChildrenAsRoots": true,
             "itemLabelCreatorFunction": createLabel,        
             "toggleImages": {
-                "collapsed": "<html:rewrite page='/images/treeview/plus.gif'/>",
-                "expanded": "<html:rewrite page='/images/treeview/minus.gif'/>",
-                "leaf": "<html:rewrite page='/images/treeview/leaft.gif'/>"
+                "collapsed": "<html:rewrite page='/images/treeview/plus.gif' module=''/>",
+                "expanded": "<html:rewrite page='/images/treeview/minus.gif' module=''/>",
+                "leaf": "<html:rewrite page='/images/treeview/leaft.gif' module=''/>"
             },
             "saveExpandedState": true,
             "saveScrollState": true,
@@ -172,12 +172,12 @@
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
-            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/selectall.jpg"/>' title='Deselecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/selectall.jpg" module=""/>' title='Deselecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg"/>' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg" module=""/>' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         
         function setAll(element,checked){

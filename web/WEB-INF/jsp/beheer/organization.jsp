@@ -199,9 +199,9 @@
             "rootChildrenAsRoots": true,
             "itemLabelCreatorFunction": createLabel,        
             "toggleImages": {
-                "collapsed": "<html:rewrite page='/images/treeview/plus.gif'/>",
-                "expanded": "<html:rewrite page='/images/treeview/minus.gif'/>",
-                "leaf": "<html:rewrite page='/images/treeview/leaft.gif'/>"
+                "collapsed": "<html:rewrite page='/images/treeview/plus.gif' module=''/>",
+                "expanded": "<html:rewrite page='/images/treeview/minus.gif' module=''/>",
+                "leaf": "<html:rewrite page='/images/treeview/leaft.gif' module=''/>"
             },
             "saveExpandedState": true,
             "saveScrollState": true,

@@ -10,30 +10,28 @@
 
 <tiles-definitions>
     <definition name="base.demo" extends="base">
-        <put name="top" value="/algemeen/main/hIndex.jsp"/>
-        <put name="menu" value="/demo/main/mIndex.jsp"/>
-        <put name="footer" value="/algemeen/main/fIndex.jsp"/>
+        <put name="menu" value="/WEB-INF/jsp/demo/menu.jsp"/>
     </definition>
-    
     <definition name="base.demo.index" extends="base.demo">
-        <put name="content" value="/demo/main/cIndex.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/index.jsp"/>
     </definition> 
     <definition name="base.demo.registration" extends="base.demo">
-        <put name="content" value="/demo/main/cRegistratie.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/registratie.jsp"/>
     </definition>
     <definition name="base.demo.registrationsuccessfull" extends="base.demo">
-        <put name="content" value="/demo/main/cRegistratiesuccess.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/registratiesuccess.jsp"/>
     </definition>
     <definition name="base.demo.addUrl" extends="base.demo">
-        <put name="content" value="/demo/main/cAddUrl.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/addUrl.jsp"/>
     </definition>
     <definition name="base.demo.addUrlsuccessfull" extends="base.demo">
-        <put name="content" value="/demo/main/cAddUrlsuccess.jsp"/>
-    </definition>
-    <definition name="base.demo.mapviewer" extends="base.demo">
-        <put name="content" value="/demo/main/cMapviewer.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/addUrlsuccess.jsp"/>
     </definition>
     <definition name="base.demo.profile" extends="base.demo">
-        <put name="content" value="/demo/main/cProfile.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/profile.jsp"/>
+    </definition>
+    <!-- via viewer -->
+    <definition name="base.demo.mapviewer" extends="base.demo">
+        <put name="content" value="/WEB-INF/jsp/viewer/mapviewer.jsp"/>
     </definition>
 </tiles-definitions>

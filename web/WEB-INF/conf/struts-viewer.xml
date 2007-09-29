@@ -78,7 +78,7 @@
     </global-exceptions>
 
     <global-forwards>
-        
+       <forward name="success"  path="/index.do"/>
     </global-forwards>
 
     <action-mappings>
@@ -106,7 +106,7 @@
 
     <!-- ========================= Tiles plugin ===============================-->
     <plug-in className="org.apache.struts.tiles.TilesPlugin" >
-        <set-property property="definitions-config" value="/WEB-INF/tiles-defs.xml, /WEB-INF/tiles-viewer-defs.xml" />      
+        <set-property property="definitions-config" value="/WEB-INF/conf/tiles-algemeen-defs.xml,/WEB-INF/conf/tiles-viewer-defs.xml" />      
         <set-property property="moduleAware" value="true" />
     </plug-in>
     
