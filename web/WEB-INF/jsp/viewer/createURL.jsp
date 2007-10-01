@@ -1,4 +1,7 @@
-<%@include file="/WEB-INF/jsp/taglibs.jsp" %>
+<%@include file="/templates/taglibs.jsp" %>
+
+<tiles:insert definition="common.setFocus"/>
+<c:set var="focus" value="registeredIP" scope="request"/> 
 
 <c:set var="form" value="${createPersonalURLForm}"/>
 <c:set var="action" value="${form.map.action}"/>
@@ -47,24 +50,42 @@
         newTextField.setAttribute('type','text');
         newTextField.setAttribute('id','registeredIP');
         newTextField.setAttribute('name','registeredIP');
-
+        
+        var newButton = document.createElement('button');
+        var lastRow = tbl.rows.length;
+        newButton.setAttribute('onClick','removeRow(this); return false;');
+        newButton.innerHTML = '-';
         cell1.appendChild(newTextField);
+        cell1.innerHTML += '&nbsp;';
+        cell1.appendChild(newButton);
         row.appendChild(cell0);
         row.appendChild(cell1);
         tBodiesObj.appendChild(row);  
     }
     
-    function removeRow()
+    //
+    function removeRow(buttonClicked)
     {
-      var tbl = document.getElementById('iptable');
-      var lastRow = tbl.rows.length;
-      if (lastRow > 1) tbl.deleteRow(lastRow - 1);
+        var parent = buttonClicked;
+        while (parent.tagName != 'TR') {
+            //alert(parent.tagName);
+            parent = parent.parentNode;
+        }
+        var tbl = parent.parentNode;
+        //tbl.removeChild( parent );
+        
+        var lastRow = tbl.rows.length;
+        if (lastRow > 1) { 
+            tbl.removeChild( parent );
+        } else {
+            alert('U dient minimaal een IP adres op te geven!');
+        }
     }
     
 </script>
 
 <html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
-<html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)" focus="timeout">
+<html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -126,8 +147,7 @@
         </table>
     </div>
     
-    <c:choose>
-        <c:when test="${action != 'list'}">
+    <c:if test="${action != 'list'}">
         <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
             <table>
                 <tr>
@@ -152,7 +172,10 @@
                             <c:forEach var="nIP" varStatus="status" items="${iplist}">
                                 <tr>
                                     <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                                    <td><html:text property="registeredIP" value="${nIP.ipaddress}"/>
+                                    <td>
+                                        <html:text property="registeredIP" value="${nIP.ipaddress}"/>
+                                        <button onClick='removeRow(this); return false;'>-</button>
+                                    </td>
                                 </tr>
                             </c:forEach> 
                         </tbody>
@@ -161,8 +184,7 @@
                 <tr>
                     <td>&nbsp;</td>
                     <td>
-                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button>&nbsp;
-                        <button onClick='removeRow(); return false;'>Verwijder Adres</button><P>
+                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
                     </td>
                 </tr>
                 <tr>
@@ -171,6 +193,10 @@
                 </tr>
             </table>
         </div>
+    </c:if>    
+    
+    <c:choose>
+        <c:when test="${action != 'list'}">
             <div class="knoppen">
                 <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.cancel"/>
@@ -181,7 +207,6 @@
             </div>
         </c:when>
         <c:otherwise>
-            <html:hidden property="timeout" />
             <div class="knoppen">
                 <html:submit property="edit" accesskey="n" styleClass="knop">
                     <fmt:message key="button.edit"/>
