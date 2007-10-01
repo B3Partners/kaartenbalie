@@ -1,4 +1,4 @@
-<%@include file="/templates/taglibs.jsp" %>
+<%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <tiles:insert definition="common.setFocus"/>
 <c:set var="focus" value="registeredIP" scope="request"/> 
