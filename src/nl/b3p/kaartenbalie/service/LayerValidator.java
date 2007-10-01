@@ -110,7 +110,7 @@ public class LayerValidator {
     /** 
      * Checks wether or not a layer has a LatLonBoundingBox. If so this LatLonBoundingBox is added to the supported hashmap
      */
-    // <editor-fold defaultstate="collapsed" desc="default DescribeLayerRequestHandler() constructor">
+    // <editor-fold defaultstate="" desc="default DescribeLayerRequestHandler() constructor">
     private void addLayerSupportedLLBB(Layer layer, ArrayList supported) {
         Set srsen = layer.getSrsbb();
         if (srsen == null) {

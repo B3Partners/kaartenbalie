@@ -74,14 +74,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private Switcher s;
     
     public WMSRequestHandler() {}
-        
+    
     public ServiceProvider getServiceProvider() {
-        Layer kaartenbalieTopLayer = new Layer();
-        kaartenbalieTopLayer.setTitle(TOPLAYERNAME);        
         
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();
-        
         User dbUser = (User)sess.createQuery("from User u where " +
                 "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
         
@@ -89,36 +86,54 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (organizationLayers == null)
             return null;
         
-        Set clonedOrganizationLayers = new HashSet();
-        Map serviceproviders = new HashMap();
+        LayerValidator lv = new LayerValidator(organizationLayers);
+        Layer kaartenbalieTopLayer = new Layer();
+        kaartenbalieTopLayer.setTitle(TOPLAYERNAME);
+        kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
+        
+        Set serviceproviders = new HashSet();
         Iterator orgIt = organizationLayers.iterator();
         while(orgIt.hasNext()) {
             Layer tempLayer = (Layer)orgIt.next();
-            clonedOrganizationLayers.add(tempLayer.clone());                    
-                    
-            ServiceProvider sp = (ServiceProvider)(tempLayer.getServiceProvider()).clone();
-            if(!serviceproviders.containsKey(sp.getId())) {
-                serviceproviders.put(sp.getId(), sp);
+            ServiceProvider sp = tempLayer.getServiceProvider();
+            if(!serviceproviders.contains(sp))
+                serviceproviders.add(sp);
+        }
+        if (serviceproviders.isEmpty())
+            return null;
+        
+        Set topLayers = new HashSet();
+        Set orgLayerIds = new HashSet();
+        Iterator layerIt = organizationLayers.iterator();
+        while (layerIt.hasNext()) {
+            Layer orgLayer = (Layer) layerIt.next();
+            orgLayerIds.add(orgLayer.getId());
+            Layer topLayer = orgLayer.getTopLayer();
+            if(!topLayers.contains(topLayer)) {
+                topLayers.add(topLayer);
             }
         }
         
-        LayerValidator lv = new LayerValidator(organizationLayers);
-        kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
-        
-        HashMap topLayers = new HashMap();
-        Iterator it = organizationLayers.iterator();
-        while (it.hasNext()) {
-            Layer orgLayer = (Layer) it.next();
-            Layer topLayer = (Layer)orgLayer.getTopLayer().clone();
-            topLayer.setLayers(null);
-            if(!topLayers.containsKey(topLayer.getId())) {
-                topLayers.put(topLayer.getId(), topLayer);
-            }
+        Iterator tlId= topLayers.iterator();
+        while (tlId.hasNext()) {
+            Layer layer = (Layer)tlId.next();
+            Layer layerCloned = (Layer)layer.clone();
+            Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
+            // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
+            boolean layerAuthorized = orgLayerIds.contains(layer.getId());
+            if (!layerAuthorized && (authSubLayers==null || authSubLayers.isEmpty()))
+                continue;
+            layerCloned.setLayers(authSubLayers);
+            // layer alleen als placeholder indien niet toegankelijk maar wel toegankelijke sublayers heeft
+            if (!layerAuthorized)
+                layerCloned.setName(null);
+            if (authSubLayers==null)
+                authSubLayers = new HashSet();
+            kaartenbalieTopLayer.addLayer(layerCloned);
         }
         
-        Set topLayerList = new HashSet(topLayers.values());
-        
-        lv = new LayerValidator(topLayerList);
+        // Valideer SRS van toplayers
+        lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
         String [] supportedSRS = lv.validateSRS();
         for (int i=0; i < supportedSRS.length; i++){
             SrsBoundingBox srsbb= new SrsBoundingBox();
@@ -126,51 +141,23 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             kaartenbalieTopLayer.addSrsbb(srsbb);
         }
         
-        it = topLayerList.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer)it.next();
-            kaartenbalieTopLayer.addLayer(this.addToParent(organizationLayers, layer));
-        }
-        
-        ServiceProviderValidator spv = new ServiceProviderValidator(new HashSet(serviceproviders.values()));
+        // Creeer geldige service provider
+        ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
         
         Set roles = dbUser.getUserroles();
         if (roles!=null) {
-            it = roles.iterator();
-            while (it.hasNext()) {
-                Roles role = (Roles)it.next();
+            Iterator roleIt = roles.iterator();
+            while (roleIt.hasNext()) {
+                Roles role = (Roles)roleIt.next();
                 validServiceProvider.addRole(role);
             }
         }
         
-        Layer clonedLayer = (Layer)kaartenbalieTopLayer.clone();
-        validServiceProvider.addLayer(clonedLayer);
+        validServiceProvider.addLayer(kaartenbalieTopLayer);
         tx.commit();
         return validServiceProvider;
     }
-    
-    public Layer addToParent(Set layers, Layer parent) {
-        Iterator it = layers.iterator();
-        while(it.hasNext()) {
-            Layer possibleChild = (Layer)it.next();
-            Layer childsParent = possibleChild.getParent();
-            Layer possiblechildCloned = (Layer)possibleChild.clone();
-            possiblechildCloned.setLayers(null);
-            if(childsParent != null) {
-                if (childsParent.getId() != null) {
-                    if(childsParent.getId().equals(parent.getId())) {
-                        //possibleChild is a direct child of this parent.
-                        //Add this to child to it's parent and delete it from the list of layers.
-                        parent.addLayer(this.addToParent(layers, possiblechildCloned));
-                    }
-                }
-            }
-        }
-        return parent;
-    }
-    
-    
     
     //Nieuwe methode om de urls samen te stellen en gelijk alle rechten te controleren
     //deze methode werkt sneller en efficienter dan de bovenstaande getserviceprovider
@@ -200,24 +187,24 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
                         " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
                         " AND tempTabel.LAYER_NAME = :layername";
-
+                
                 List sqlQuery = sess.createSQLQuery(query)
-                        .setParameter("orgId", orgId)
-                        .setParameter("layerid", layerid)
-                        .setParameter("layername", layername)
-                        .list();
+                .setParameter("orgId", orgId)
+                .setParameter("layerid", layerid)
+                .setParameter("layername", layername)
+                .list();
                 if(sqlQuery.isEmpty()) {
                     throw new Exception(GETMAP_EXCEPTION);
                 }
                 Object [] objecten = (Object [])sqlQuery.get(0);
-
+                
                 Integer layer_id            = (Integer)objecten[0];
                 String layer_name           = (String)objecten[1];
                 String layer_queryable      = (String)objecten[2];
                 Integer serviceprovider_id  = (Integer)objecten[3];
                 String serviceprovider_url  = (String)objecten[4];
-
-
+                
+                
                 String [] sp_layerlist = null;
                 boolean spUrlsEmpty = spUrls.isEmpty();
                 boolean equalIds = false;
@@ -225,8 +212,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     sp_layerlist = (String []) spUrls.get(spUrls.size() - 1);
                     equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
                 }
-
-
+                
+                
                 if(equalIds) {
                     layer_name = "," + layer_name;
                 } else {
@@ -234,14 +221,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     Layer topLayer = layer.getTopLayer();
                     topLayerId = topLayer.getId().toString();
                 }
-
+                
                 //TODO:
                 //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
                 //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
                 //staan op het id dat door de eerste layer gegeven werd.
                 //daarnaast mmoet er per layer bij komen te staan of deze layer queryable is....
-
-
+                
+                
                 if (checkForQueryable) {
                     if(layer_queryable.equals("1")) {
                         if(!spUrlsEmpty && equalIds) {
@@ -464,7 +451,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         }
     }
     // </editor-fold>
-        
+    
     /** Processes the parameters and creates a byte array with the needed information.
      *
      * @param parameters Map parameters

@@ -141,9 +141,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
         /*
          * No errors occured during validation and token check. Therefore we can get a new
-         * organization object if a we are dealing with new input of the user, otherwise we 
+         * organization object if a we are dealing with new input of the user, otherwise we
          * can change the organization object which is already know, because of it's id.
-         */  
+         */
         Organization organization = getOrganization(dynaForm, request, true);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -161,15 +161,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         /*
          * A warning has to be given if the organization has an invalid capability with the
          * selected layers.
-         */ 
+         */
         if(!organization.getHasValidGetCapabilities()) {
-            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);            
+            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }
         
         /*
          * No errors occured so we can assume that all is good and we can safely
-         * save this organization. Any other exception that might occur is in the 
-         * form of an unknown or unsuspected form and will be thrown in the super 
+         * save this organization. Any other exception that might occur is in the
+         * form of an unknown or unsuspected form and will be thrown in the super
          * class.
          */
         Session sess = getHibernateSession();
@@ -216,7 +216,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * No errors occured during validation and token check. Therefore we can get
          * the selected user from the database. If this user is unknown in the database
          * something has gone wrong and we need to inform the user about it.
-         */                
+         */
         Organization organization = getOrganization(dynaForm, request, false);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -230,14 +230,14 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         /*
          * Instead of letting the Database decide if it is allowed to delete an organization
          * we can decide this our selfs. All there has to be done is checking if there are
-         * still users connected to this organization. This is easily done by checking if an 
+         * still users connected to this organization. This is easily done by checking if an
          * organization has a empty set of users or not.
          */
         if(!organization.getUser().isEmpty()) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, ORGANIZATION_LINKED_ERROR_KEY);
             return getAlternateForward(mapping, request);
-        }        
+        }
         
         /*
          * Otherwise we can assume that all is good and we can safely delete this organization.
@@ -260,7 +260,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="create(DynaValidatorForm form, HttpServletRequest request) method.">
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, JSONException, Exception {
-        request.setAttribute("layerList", createTree());        
+        request.setAttribute("layerList", createTree());
         return super.create(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -313,9 +313,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             List us = session.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).list();
             Set users = new HashSet();
             users.addAll(us);
-            organization.setUser(users); 
+            organization.setUser(users);
         }
-          
+        
         return organization;
     }
     // </editor-fold>
@@ -360,7 +360,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("fax", organization.getFax());
         
         Set l = organization.getOrganizationLayer();
-        Object [] organizationLayer = l.toArray();            
+        Object [] organizationLayer = l.toArray();
         String checkedLayers = "";
         for (int i = 0; i < organizationLayer.length; i++) {
             if (i < organizationLayer.length - 1) {
@@ -403,8 +403,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
          * checked if a layer has any parents and if so this has to be checked recursively until there
-         * aren't any parents anymore. Each of the parents found have to be added to the list of layers 
+         * aren't any parents anymore. Each of the parents found have to be added to the list of layers
          * which are allowed to be requested.
+         *
+         * TODO: beschrijving klopt niet meer
          */
         int size = selectedLayers.length;
         Set layers = new HashSet();
@@ -415,9 +417,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             while (it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 if (layer.getId().intValue() == select) {
-                    //layers.add(layer);
-                    layers = getAllParentLayers(layer,  layers );
-                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
+                    layers.add(layer);
+                    ServiceProvider sp = layer.getServiceProvider();
+                    if (!serviceProviders.contains(sp))
+                        serviceProviders.add(sp);
+//                    layers = getAllParentLayers(layer,  layers );
+//                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
                     break;
                 }
             }
@@ -428,7 +433,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
          * the GetCapabilities request which is going to be sent to the client is valid. In all other cases
          * we need to give a warning that the GetCapabilities can have problems when used with certain viewers.
-         * 
+         *
          * In order to give the user the same warning as the supervisor and in order to keep the administration
          * up to date a boolean hasValidGetCapabilities will be set to false if a GetCapabilities is not stictly
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
@@ -462,7 +467,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON tree from a list of serviceproviders from the database.
-     * 
+     *
      * @param layers Set of layers from which the part of the tree ahs to be build
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      * @param parent JSONObject which represents the parent object to which this set of layers should be added
@@ -473,8 +478,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private JSONObject createTree() throws JSONException {
         List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
         
-        JSONObject root = new JSONObject(); 
-        JSONArray rootArray = new JSONArray(); 
+        JSONObject root = new JSONObject();
+        JSONArray rootArray = new JSONArray();
         
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
@@ -495,7 +500,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
-     * 
+     *
      * @param layers Set of layers from which the part of the tree ahs to be build
      * @param organizationLayers Set of restrictions which define the visible and non visible layers
      * @param parent JSONObject which represents the parent object to which this set of layers should be added
@@ -505,7 +510,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its function is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure. 
+         * in a tree like array which can be used to build up a menu structure.
          */
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
@@ -520,9 +525,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
             JSONObject layerObj = this.layerToJSON(layer);
-
+            
             /* Before we are going to save the present object we can first use our object to recieve and store
-             * any information which there might be for the child layers. First we check if the set of layers 
+             * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
              * If, on the other hand, this layer does have children then the method is called recursivly to
              * add these childs to the present layer we are working on.
@@ -531,11 +536,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
             }
-
+            
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
-            parentArray.put(layerObj);            
+            parentArray.put(layerObj);
         }
         if (parentArray.length() > 0){
             parent.put("children", parentArray);
@@ -545,7 +550,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the ServiceProvider with its given name and id.
-     * 
+     *
      * @param serviceProvider The ServiceProvider object which has to be converted
      *
      * @return JSONObject
@@ -563,7 +568,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // </editor-fold>
     
     /* Creates a JSON object from the Layer with its given name and id.
-     * 
+     *
      * @param layer The Layer object which has to be converted
      *
      * @return JSONObject

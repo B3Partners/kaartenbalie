@@ -163,20 +163,15 @@
         function createLabel(container, item) {
             var div = document.createElement("div");
             var vink= document.createElement("input");
-            //var vink= document.createElement("html:multibox");
-            //als het item kinderen heeft dan geen vink toevoegen.
-            if (!item.children){
-                vink.type="checkbox";
+            
+            vink.type="checkbox";
+            vink.value=item.id;
+            vink.name="selectedLayers";
+            vink.id=item.id;
+            vink.layerType=item.type;
+            vink.className="layerVink";
+            container.appendChild(vink);
                 
-                vink.value=item.id;
-                //vink.name=item.id;
-                vink.name="selectedLayers";
-                //vink.property="selectedLayers";
-                vink.id=item.id;
-                vink.layerType=item.type;
-                vink.className="layerVink";
-                container.appendChild(vink);
-            }
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
             div.onclick = function() {
                 itemClick(item);
