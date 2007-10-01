@@ -1,8 +1,5 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<tiles:insert definition="common.setFocus"/>
-<c:set var="focus" value="registeredIP" scope="request"/> 
-
 <c:set var="form" value="${createPersonalURLForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
@@ -85,7 +82,7 @@
 </script>
 
 <html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
-<html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)">
+<html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)" focus="timeout">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -147,7 +144,8 @@
         </table>
     </div>
     
-    <c:if test="${action != 'list'}">
+    <c:choose>
+        <c:when test="${action != 'list'}">
         <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
             <table>
                 <tr>
@@ -193,10 +191,6 @@
                 </tr>
             </table>
         </div>
-    </c:if>    
-    
-    <c:choose>
-        <c:when test="${action != 'list'}">
             <div class="knoppen">
                 <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.cancel"/>
@@ -207,6 +201,7 @@
             </div>
         </c:when>
         <c:otherwise>
+            <html:hidden property="timeout" />
             <div class="knoppen">
                 <html:submit property="edit" accesskey="n" styleClass="knop">
                     <fmt:message key="button.edit"/>
