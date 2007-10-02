@@ -173,15 +173,22 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append(sp_layerlist[2]);
             
             Iterator it2 = userdefinedParams.keySet().iterator();
+            String urlstring=url.toString();
             while (it2.hasNext()) {
                 String key = (String)it2.next();
                 String value = (String)userdefinedParams.get(key);
-                url.append("&");
+                urlstring+="&";
+                urlstring+=key;
+                urlstring+="=";
+                urlstring+=value.replaceAll("=", "%3D");
+                /*url.append("&");
                 url.append(key);
                 url.append("=");
-                url.append(value);
+                value=value.replaceAll("=", "%3D");
+                url.append(value);*/
+                
             }
-            urls.add(url.toString().replaceAll(" ", "%20"));
+            urls.add(urlstring.replaceAll(" ", "%20"));
         }
         tx.commit();
         
