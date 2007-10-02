@@ -294,8 +294,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         
-        Session sess = MyDatabase.currentSession();
-        
         // probeer preemptive basic login
         if (user == null) {
             // attempt to dig out authentication info only if the user has not yet been authenticated
@@ -306,6 +304,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
                 // niet ingelogd dus, dan checken op token in url
+                Session sess = MyDatabase.currentSession();
                 Transaction tx = sess.beginTransaction();
                 try {
                     user = (User)sess.createQuery(
@@ -337,6 +336,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             // niet ingelogd dus, dan checken op token in url
+            Session sess = MyDatabase.currentSession();
             Transaction tx = sess.beginTransaction();
             try {
                 user = (User)sess.createQuery(
@@ -365,7 +365,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     if(ipaddress.getIpaddress().equals(remoteaddress)) {
                         validip = true;
                         break;
-                    }                    
+                    }
                 }
                 
                 if(!validip) {

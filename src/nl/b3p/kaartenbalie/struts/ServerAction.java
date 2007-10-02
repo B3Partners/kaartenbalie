@@ -48,7 +48,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
-    protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";    
+    protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -435,7 +435,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
-            serviceProvider = (ServiceProvider)session.get(ServiceProvider.class, new Integer(id.intValue()));            
+            serviceProvider = (ServiceProvider)session.get(ServiceProvider.class, new Integer(id.intValue()));
         }
         return serviceProvider;
     }
@@ -520,25 +520,31 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // </editor-fold>
     
     private String getUrlWithoutParams(String url) {
-        String splitUrl = url.substring(0, url.lastIndexOf("?"));
-        String theParams = url.substring(url.lastIndexOf("?") + 1, url.length());
-        splitUrl += "?";
-        if(theParams != null && !theParams.equals("")) {
-            String [] paramPairs = theParams.split("&");
-            for (int i = 0; i < paramPairs.length; i ++) {
-                String [] params = paramPairs[i].split("=");
-                if(!PARAMS_GetCapabilities.contains(params[0]) &&
-                   !PARAMS_GetMap.contains(params[0]) &&
-                   !PARAMS_GetFeatureInfo.contains(params[0]) &&
-                   !PARAMS_GetLegendGraphic.contains(params[0]) &&
-                   !PARAMS_GetStyles.contains(params[0]) &&
-                   !PARAMS_PutStyles.contains(params[0]) &&
-                   !PARAMS_DescribeLayer.contains(params[0])) {
-                    splitUrl = splitUrl + params[0] + "=" + params[1];
-                }
+        int qpos = url.lastIndexOf("?");
+        if (url.length()==qpos+1)
+            return url;
+        
+        StringBuffer trimmedUrl = new StringBuffer(url.substring(0, qpos));
+        trimmedUrl.append("?");
+        String theParams = url.substring(qpos + 1);
+        String [] paramPairs = theParams.split("&");
+        for (int i = 0; i < paramPairs.length; i ++) {
+            String [] params = paramPairs[i].split("=");
+            if(params.length>1 &&
+                    !PARAMS_GetCapabilities.contains(params[0]) &&
+                    !PARAMS_GetMap.contains(params[0]) &&
+                    !PARAMS_GetFeatureInfo.contains(params[0]) &&
+                    !PARAMS_GetLegendGraphic.contains(params[0]) &&
+                    !PARAMS_GetStyles.contains(params[0]) &&
+                    !PARAMS_PutStyles.contains(params[0]) &&
+                    !PARAMS_DescribeLayer.contains(params[0])) {
+                trimmedUrl.append(params[0]);
+                trimmedUrl.append("=");
+                trimmedUrl.append(params[1]);
+                trimmedUrl.append("&");
             }
-        } 
-        return splitUrl;
+        }
+        return trimmedUrl.toString();
     }
     
     protected String checkWmsUrl(String url) throws Exception {
@@ -570,7 +576,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             throw new Exception(MISSING_QUESTIONMARK_ERRORKEY);
         
         if (!hasLastAmper)
-            throw new Exception(MISSING_SEPARATOR_ERRORKEY); 
+            throw new Exception(MISSING_SEPARATOR_ERRORKEY);
         
         //Maybe some parameters have been given. We need to check which params still
         //need to be added.
