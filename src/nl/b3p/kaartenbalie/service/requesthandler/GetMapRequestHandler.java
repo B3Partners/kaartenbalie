@@ -90,6 +90,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         ArrayList spUrls = getSeviceProviderURLS(layers, orgId, false);
         
+        Map userdefinedParams = filterUserdefinedParams(parameters);
+        
         Session sess = MyDatabase.currentSession();
         Transaction tx = sess.beginTransaction();        
         String givenSRS = (String)parameters.get(WMS_PARAM_SRS);        
@@ -169,6 +171,16 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
             url.append(sp_layerlist[2]);
+            
+            Iterator it2 = userdefinedParams.keySet().iterator();
+            while (it2.hasNext()) {
+                String key = (String)it2.next();
+                String value = (String)userdefinedParams.get(key);
+                url.append("&");
+                url.append(key);
+                url.append("=");
+                url.append(value);
+            }
             urls.add(url.toString().replaceAll(" ", "%20"));
         }
         tx.commit();
@@ -179,6 +191,29 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
+    
+    private Map filterUserdefinedParams(Map parameters) {
+        Map map = new HashMap();
+        map.putAll(parameters);
+        
+        List getmapParams = PARAMS_GetMap;
+        Iterator it = getmapParams.iterator();
+        while (it.hasNext()) {
+            String param = (String) it.next();
+            if (map.containsKey(param)) {
+                map.remove(param);
+            }            
+        }
+        List nonRequiredParamsGetMap = NON_REQUIRED_PARAMS_GetMap;
+        it = nonRequiredParamsGetMap.iterator();
+        while (it.hasNext()) {
+            String param = (String) it.next();
+            if (map.containsKey(param)) {
+                map.remove(param);
+            }            
+        }           
+        return map;
+    }
     
     
 }
