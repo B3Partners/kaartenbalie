@@ -26,7 +26,6 @@ public class User implements Principal {
     private String username;
     private String password;
     private String personalURL;
-    private String registeredIP;
     private String defaultGetMap;
     private Date timeout;
     private Organization organization;
@@ -103,14 +102,6 @@ public class User implements Principal {
     public void setPersonalURL(String personalURL) {
         this.personalURL = personalURL;
     }
-    
-    public String getRegisteredIP() {
-        return registeredIP;
-    }
-
-    public void setRegisteredIP(String registeredIP) {
-        this.registeredIP = registeredIP;
-    }
 
     public Date getTimeout() {
         return timeout;
@@ -177,5 +168,12 @@ public class User implements Principal {
 
     public void setIpaddresses(Set ipaddresses) {
         this.ipaddresses = ipaddresses;
+    }
+    
+    public void addIpaddresses(IPAddresses ipaddress) {
+        if(ipaddresses == null) {
+            ipaddresses = new HashSet();
+        }
+        ipaddresses.add(ipaddress);
     }
 }

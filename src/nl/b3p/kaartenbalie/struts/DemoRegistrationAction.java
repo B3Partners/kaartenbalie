@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.server.IPAddresses;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -257,7 +258,9 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         }
         personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
-        user.setRegisteredIP(registeredIP);
+        IPAddresses ipa = new IPAddresses();
+        ipa.setIpaddress(registeredIP);
+        user.addIpaddresses(ipa);
         user.setPersonalURL(personalURL);
         
         List roles = getHibernateSession().createQuery("from Roles").list();
