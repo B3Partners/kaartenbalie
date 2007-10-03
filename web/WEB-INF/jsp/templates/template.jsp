@@ -5,6 +5,10 @@
 
 <html:html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <META HTTP-EQUIV="Expires" CONTENT="-1">
+        <META HTTP-EQUIV="Cache-Control" CONTENT="max-age=0, no-store">
+
         <title>Kaartenbalie</title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/selectcss' module='' />" type="text/css" rel="stylesheet" />
