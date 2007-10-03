@@ -104,11 +104,11 @@ function findChildNode(searchParent, targetRawChildTag) {
 		searchParent = xmlDoc;
 	}
 	
-	//debug("searchParent: " + searchParent.nodeName);
-	//debug("targetRawChildTag: " + targetRawChildTag);
+	debug("searchParent: " + searchParent.nodeName);
+	debug("targetRawChildTag: " + targetRawChildTag);
 	
 	// split rawChildTag on ':', '[' and ']'. For example "prefix:tagName[3]"
-	var targetChildAndIndexUnfiltered = targetRawChildTag.split(/[\[\]]+/);
+	var targetChildAndIndexUnfiltered = targetRawChildTag.split(/[:\[\]]+/);
 	// filter out empty groups
 	var targetChildAndIndex = [];
 	var newIndex = 0;
@@ -120,54 +120,65 @@ function findChildNode(searchParent, targetRawChildTag) {
 	}
 	
 	for (var i = 0; i < targetChildAndIndex.length; i++) {
-		//debug(i + ": " + targetChildAndIndex[i]);
+		debug(i + ": " + targetChildAndIndex[i]);
 	}
 	
 	//debug("targetChildAndIndex.length: " + targetChildAndIndex.length)
+	// de xsl transformatie garandeert dat elke tag een volgnr heeft: dus
+	// bijvoorbeeld "prefix:tagName[3]" of "tagName[1234]"
 	var targetChildTag, targetChildIndex;
-	/*if (targetChildAndIndex.length == 3) {
-		targetChildTag = targetChildAndIndex[0] + ":" + targetChildAndIndex[1];
+	if (targetChildAndIndex.length >= 3) { // met  prefix
+		//targetChildTag = targetChildAndIndex[0] + ":" + targetChildAndIndex[1];
+		targetChildTag = targetChildAndIndex[1];		
 		targetChildIndex = targetChildAndIndex[2];
 	}
-	else*/
-	if (targetChildAndIndex.length == 2) {
+	else if (targetChildAndIndex.length == 2) { // geen prefix
 		targetChildTag = targetChildAndIndex[0];
 		targetChildIndex = targetChildAndIndex[1];
 	}
-	else if (targetChildAndIndex.length == 1) {
+	else if (targetChildAndIndex.length == 1) { // eigenlijk overbodig:
 		targetChildTag = targetChildAndIndex[0];
         targetChildIndex = 1;
 	}
 	else {
-		alert("Incorrect tag name. Changes will not be saved correctly.");
+		debug("Incorrect tag name. Changes will not be saved correctly.");
 		return null;
 	}
 	
 	var searchChildren = searchParent.childNodes;
 	if (searchChildren == null || searchChildren.length == 0) {
-		alert("Childtree empty. Changes will not be saved correctly.");
+		debug("Childtree empty. Changes will not be saved correctly.");
 		return null;
 	}
 	
-	var searchChild;
+	var searchChildNodeName, searchChildNode;
+	var searchChildSplit;
 	var correctChildCount = 0;
 	for (var i = 0; i < searchChildren.length; i++) {
-		searchChild = searchChildren[i];
-		//debug("searchChild: "+searchChild.nodeName);
+		searchChildNode = searchChildren[i];
+		searchChildSplit = searchChildNode.nodeName.split(/[:]+/);
+		if (searchChildSplit.length == 2) {
+			searchChildNodeName = searchChildSplit[1];
+		}
+		else { // searchChildSplit.length == 1
+			searchChildNodeName = searchChildSplit[0];
+		}
+		debug("searchChildNodeName: " + searchChildNodeName);		
+		debug("searchChildSplit.length: " + searchChildSplit.length);
 		//debug("searchChild.nodeType: " + searchChild.nodeType);
-		//debug("searchChild.nodeName: " + searchChild.nodeName);
-		//debug("targetChildTag: " + targetChildTag);		
-		if (searchChild.nodeType == 1 && searchChild.nodeName == targetChildTag) {
+		//debug("searchChildNode.nodeName: " + searchChildNode.nodeName);
+		debug("targetChildTag: " + targetChildTag);		
+		if (searchChildNode.nodeType == 1 && searchChildNodeName == targetChildTag) {
 			// Xpath begint met tellen bij 1, dus eerst deze variable ophogen.
 			correctChildCount++;
 			if (correctChildCount == targetChildIndex) {
-				//debug("correct child: " + searchChild.nodeName);
-				return searchChild;
+				debug("correct child: " + searchChildNodeName);
+				return searchChildNode;
 			}
 		}
 	}
 	
-	//debug("goede child niet gevonden bij parent: " + parent.nodeName);
+	debug("goede child niet gevonden bij parent: " + parent.nodeName);
 	return null;
 }
 
@@ -194,7 +205,7 @@ function addDateStampToXMLDom() {
 	var year = currentTime.getFullYear();
 	
 	var currentDate = day + "-" + month + "-" + year;
-	var dateStampPath = "/MD_Metadata/dateStamp/gco:Date";
+	var dateStampPath = "/MD_Metadata[1]/gmd:dateStamp[1]/gco:Date[1]";
 	
 	saveChangesInXMLDom(currentDate, dateStampPath);
 }

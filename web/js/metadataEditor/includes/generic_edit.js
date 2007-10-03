@@ -525,47 +525,36 @@ function deleteListItem(element) {
 //
 // Arguments:
 //  element = the calling element, the anchor tag in popup menu
-//   strAddName = the name of the section to add, e.g. "theme"
+//   addName = the name of the section to add, e.g. "theme"
 //   bAbove = whether to add new element above (true) or below (false)
-function addSection(element, strAddName, bAbove) {
-	//alert(element)
-	//alert(strAddName)
-	//alert(bAbove)
-
+function addSection(element, addName, above) {
 	// create new section
-	var objContentDIV = createSection(strAddName);
-	if (objContentDIV == null) {
+	var newContentNode = createSection(addName);
+	if (newContentNode == null) {
 		alert("Error creating new compound element.");
 		return;
 	}
 
-	// insert new section into document
-
 	// get calling menu and test for problems
-	var objMenuSpan = element.parentElement.parentElement.parentElement;
-	if (objMenuSpan.tagName != "SPAN") {
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
+	var menuNode = element.parentNode.parentNode.parentNode;
+	if (menuNode.tagName.toLowerCase() != "span") {
+		alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
 		return;
 	}
-	//alert("objMenuSpan.outerHTML = " + objMenuSpan.outerHTML);
 
 	// get parent folder div and check for problems
-	var objFolderDiv = objMenuSpan.parentElement;
-	if (objFolderDiv.tagName != "DIV") {
-		alert("Unexpected HTML object encountered. Expected DIV, found " + objFolderDiv.tagName);
+	var folderNode = menuNode.parentNode;
+	if (folderNode.tagName.toLowerCase() != "div") {
+		alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
 		return;
 	}
 
 	// add new DIV to document (either before or after current element's 'folder' div)
-	//alert("objContentDIV");
-	//alert(objContentDIV.innerHTML);
-	//alert(objContentDIV.outerHTML);
-	if (bAbove)
-		objFolderDiv.insertAdjacentElement("beforeBegin", objContentDIV);
-	else
-		objFolderDiv.insertAdjacentElement("afterEnd", objContentDIV);
-
-	//alert("Done add section");
+	var tabNode = folderNode.parentNode;
+	if (above)
+		tabNode.insertBefore(newContentNode, folderNode);
+	else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
+		tabNode.insertBefore(newContentNode, folderNode.nextSibling);
 }
 
 // 12/30/2004 Eric Compas
@@ -576,39 +565,35 @@ function addSection(element, strAddName, bAbove) {
 // Arguments:
 //   element = the input button calling routine, used to get reference to
 //             other objects to delete
-function deleteSection(element, strSectPath) {
+function deleteSection(element, sectionPath) {
 	// get calling menu and test for problems
-	var objMenuSpan = element.parentElement.parentElement.parentElement;
-	if (objMenuSpan.tagName != "SPAN") {
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
-		return;
-	}
-	//alert("objMenuSpan.outerHTML = " + objMenuSpan.outerHTML);
-
-	// get parent folder div and check for problems;
-	var objFolderDiv = objMenuSpan.parentElement;
-	if (objFolderDiv.tagName != "DIV") {
-		alert("Unexpected HTML object encountered. Expected DIV, found " + objFolderDiv.tagName);
+	var menuNode = element.parentNode.parentNode.parentNode;
+	if (menuNode.tagName.toLowerCase() != "span") {
+		alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
 		return;
 	}
 
-	// get FolderDiv's parent (may by "content" or "folder" DIV)
-	var objParentDiv = objFolderDiv.parentElement;
-	if (objParentDiv.tagName != "DIV") {
-		alert("Unexpected HTML object encountered. Expected DIV, found " + objParentDiv.tagName);
+	// get calling menu and test for problems
+	var menuNode = element.parentNode.parentNode.parentNode;
+	if (menuNode.tagName.toLowerCase() != "span") {
+		alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
+		return;
+	}
+
+	// get parent folder div and check for problems
+	var folderNode = menuNode.parentNode;
+	if (folderNode.tagName.toLowerCase() != "div") {
+		alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
 		return;
 	}
 
 	// check to make sure not last folder DIV of same type
-	var objDiv;
+	var section;
 	var i = 0;
-	//for (j=0; j<objParentDiv.childNodes.length; j++) {
-		//objDiv = objParentDiv.childNodes[j];
-	for (var childIndex in objParentDiv.childNodes) {
-		objDiv = objParentDiv.childNodes[childIndex];
-		// if nodeType is text, getAttribute() doesn't exists
-		if (objDiv.getAttribute)
-			if (objDiv.getAttribute("section-path") == strSectPath)
+	for (var childIndex in folderNode.parentNode.childNodes) {
+		section = folderNode.parentNode.childNodes[childIndex];
+		if (section.nodeType == Node.ELEMENT_NODE)
+			if (section.getAttribute("section-path") == sectionPath)
 				i++;
 	}
 	
@@ -620,13 +605,13 @@ function deleteSection(element, strSectPath) {
 	}
 
 	// confirm delete
-	var iReturn = confirm("Are you sure you want to delete this section?");
-	if (iReturn == 7) {
+	var returnKey = confirm("Are you sure you want to delete this section?");
+	if (returnKey == 7) {
 		return;
 	}
 
 	// delete section
-	objFolderDiv.parentElement.removeChild(objFolderDiv);
+	folderNode.parentNode.removeChild(folderNode);
 
 	//page changed value
 	changeFlag(true);
@@ -695,7 +680,7 @@ function createSection(strAddName) {
 	// get edit stylesheet file location from document
 	var pXSLSpan = document.getElementById("editStylesheetFile");
 	if (pXSLSpan == null) {
-		alert("Error locating editable stylesheet file. Please " +  "correct its path within this stylesheet.");
+		alert("Error locating editable stylesheet file.");
 		return null;
 	}
 	var strEditXSLFile = pXSLSpan.innerText;
@@ -703,7 +688,7 @@ function createSection(strAddName) {
 	// get add templates stylesheet file location from document
 	pXSLSpan = document.getElementById("addStylesheetFile");
 	if (pXSLSpan == null) {
-		alert("Error locating add templates stylesheet file. Please " +  "correct its path within this stylesheet.");
+		alert("Error locating add templates stylesheet file.");
 		return null;
 	}
 	var strAddXSLFile = pXSLSpan.innerText;
