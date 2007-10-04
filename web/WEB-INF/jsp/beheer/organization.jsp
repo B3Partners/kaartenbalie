@@ -164,14 +164,16 @@
             var div = document.createElement("div");
             var vink= document.createElement("input");
             
-            vink.type="checkbox";
-            vink.value=item.id;
-            vink.name="selectedLayers";
-            vink.id=item.id;
-            vink.layerType=item.type;
-            vink.className="layerVink";
-            container.appendChild(vink);
-                
+            if (item.id && item.type != "serviceprovider") {
+                vink.type="checkbox";
+                vink.value=item.id;
+                vink.name="selectedLayers";
+                vink.id=item.id;
+                vink.layerType=item.type;
+                vink.className="layerVink";
+                container.appendChild(vink);
+            }
+            
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
             div.onclick = function() {
                 itemClick(item);
