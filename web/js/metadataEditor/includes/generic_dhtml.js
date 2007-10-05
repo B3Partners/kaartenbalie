@@ -21,34 +21,26 @@ var MENU_Y_OFFSET = 3;
 
 // Show popup window that's embedded in code
 function showMenu(pElem) {
+	debug("showmenu");
 	// is SPAN
 	if (pElem.tagName.toLowerCase() != "span") {
 		alert("This element isn't a \"span\". It's a " + pElem.tagName);
 		return;
 	}
-	//alert("Span found. # child nodes = " + pElem.childNodes.length + " innerHTML=" + pElem.innerHTML);
+	debug("Span found. # child nodes = " + pElem.childNodes.length);
 
 	//current value
 	var pList;
-	for (var i = 0; i < pElem.childNodes.length; i++) {
+	var listFound = false;
+	for (var i in pElem.childNodes) {
 		pList = pElem.childNodes[i];
-		if (pList.nodeType == 1) { // == Node.ELEMENT_NODE //(werkt niet in IE)
-			if (pList.tagName.toLowerCase() == "ul") {
-				break;
-			}
+		if (pList.nodeType == Node.ELEMENT_NODE && pList.tagName.toLowerCase() == "ul") {
+			listFound = true;
+			break;
 		}
 	}
-	/*var pList;
-	For Each pList in pElem.childNodes;
-		//alert("node.nodeType = " + node.nodeType);
-		if (pList.nodeType == 1) {
-			if (pList.tagName == "UL") {
-				break;
-			}
-		}
-	Next;*/
 
-	if (pList.nodeType != 1 || pList.tagName.toLowerCase() != "ul") {
+	if (!listFound) {
 		alert("Cannot locate menu to display.");
 		return;
 	}
@@ -60,46 +52,50 @@ function showMenu(pElem) {
 
 	// get image to use for positioning
 	var pImg;
-	//for (var childIndex in pElem.childNodes) {
-	for (var i = 0; i < pElem.childNodes.length; i++) {
+	var imageFound = false;
+	for (var i in pElem.childNodes) {
 		pImg = pElem.childNodes[i];
-		if (pImg.nodeType == 1) {
-			if (pImg.tagName == "IMG") {
-				break;
-			}
+		if (pImg.nodeType == Node.ELEMENT_NODE && pImg.tagName.toLowerCase() == "img") {
+			imageFound = true;
+			break;
 		}
 	}
 
-	/*var pImg;
-	For Each pImg in pElem.childNodes;
-		//alert("node.nodeType = " + node.nodeType);
-		if(pImg.nodeType == 1){
-			if(pImg.tagName == "IMG"){
-				break;
-			}
-		}
-	Next;*/
-
-	if (pImg.nodeType != 1 || pImg.tagName.toLowerCase() != "img") {
+	if (!imageFound) {
 		alert("Cannot locate menu image.");
 		return;
 	}
+	
+	debug("pImg.offsetLeft: " + pImg.offsetLeft);
+	debug("pImg.offsetTop: " + pImg.offsetTop);
+	debug("MENU_X_OFFSET: " + MENU_X_OFFSET);	
+	debug("MENU_Y_OFFSET: " + MENU_Y_OFFSET);		
 
 	// show menu
-	pList.style.pixelLeft = pImg.offsetLeft + MENU_X_OFFSET;
-	pList.style.pixelTop = pImg.offsetTop + MENU_Y_OFFSET;
-	pList.style.display = "block";
+	//pList.style.left = pImg.offsetLeft + MENU_X_OFFSET;
+	//pList.style.top = pImg.offsetTop + MENU_Y_OFFSET;
+	//pList.style.display = "list-item";
+	pList.style.display = "inline";
+	//pList.onmouseout = hideMenu;
+	
+	debug("pList.style.left: " + pList.style.left);		
+	debug("pList.style.top: " + pList.style.top);
+	debug("pList.offsetLeft: " + pList.offsetLeft);		
+	debug("pList.offsetTop: " + pList.offsetTop);
+	for (var i in pList.childNodes)
+		debug(i + ": " + pList.childNodes[i]);
 }
 
 
 // 2/05 Eric Compas;
 // Hide popup menu;
 function hideMenu(pElem) {
+	debug("hidemenu");
 	if (pElem.tagName.toLowerCase() == "ul") {
 		pElem.style.display = "none";
 	}
 	else {
-		alert("Cannot locate menu list (ul). Found tag = " + pList.tagName);
+		alert("Cannot locate menu list (ul). Found tag = " + pElem.tagName);
 	}
 }
 

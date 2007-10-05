@@ -378,145 +378,6 @@ function checkKey(event) {
 	}
 }
 
-// Description:
-//   Get next (getNext = true) or previous (getNext = false) editable
-//   SPAN tag in document from current one (element). if none found,
-//   returns null;
-function getNextPreEditSpan(element, getNext) {
-	// get all SPANs
-	var pSPANElements = document.getElementsByTagName("span");
-
-	// find current one in collection
-	// ************************************
-}
-
-// 1/30/04 Eric Compas;
-// 8/04 EDC - converted to VBScript from JScript
-// 12/04 EDC - add in specified location (not just last element)
-//
-// Description:
-//   Add new input box to input box list in the specified location.
-//
-// Arguments:
-//   element = anchor element (in popup menu) that called this routine
-//             (use to get reference to its list item)
-//   iListItem = item number (1 based) to add new input after
-//   strName = name of element, usually its full path, e.g. /metadata/idinfo/keywords/theme
-//   strSize = size (max?) of the text element
-//   strDefaultValue = the default value of the element to be assigned
-//   strPicklist = name of picklist to use ('' if none)
-//   bAbove = whether to add new element above (true) or below (false)
-function addListItem(element, strName, strSize, strDefaultValue, strPicklist, bAbove) {
-	// get calling menu and test for problems;
-	var objMenuSpan = element.parentElement.parentElement.parentElement;
-	if (objMenuSpan.tagName != "SPAN") {
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
-		return;
-	}
-
-	// get listitem and test for problems
-	var objListItem = objMenuSpan.parentElement;
-	if(objListItem.tagName != "LI"){
-		alert("Unexpected HTML object encountered. Expected LI, found " + objListItem.tagName);
-		return;
-	}
-
-	// get list and test for problems
-	var objList = objListItem.parentElement;
-	if(objList.tagName != "UL" && objList.tagName != "OL"){
-		alert("Unexpected HTML object encountered. Expected UL or OL, found " + objList.tagName);
-		return;
-	}
-
-	// create new span
-	var strNewSpan = "<span class='changed-value' title='" + strDefaultValue +  "' name='" + strName + "' onclick='startEdit(this)' picklist='" + strPicklist + "'>" +  strDefaultValue + "</span>";
-
-	// add menu (copy HTML from calling menu)
-	//var objMenuCopy;
-	//Set objMenuCopy = objMenuSpan.cloneNode(true);
-	//objMenuCopy.childNodes(1).style.display = "none"
-	var strMenu = "<span onclick=\"ShowMenu(this)\"><img title=\"Click for options\" src=\"" + MENU_IMAGE + "\">" +  "<ul class=\"menu\" onmouseleave=\"HideMenu(this)\">" +  "<li class=\"menuaddabove\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', true)\">" + ADD_ELEMENT_ABOVE_TEXT + "</a></li>" +  "<li class=\"menuaddbelow\"><a href=\"javascript:void(0)\" onclick=\"addListItem(this,'" + strName + "',50,'" + strDefaultValue + "','" + strPicklist + "', false)\">" + ADD_ELEMENT_BELOW_TEXT + "</a></li>" +  "<li class=\"menudelete\"><a href=\"javascript:void(0)\" onclick=\"deleteListItem(this)\">" + DELETE_ELEMENT_TEXT + "</a></li>" +  "</ul></span>";
-	//alert("strMenu = " + strMenu);
-	strNewSpan = strNewSpan + strMenu;
-	//htmlText.value = strMenu;
-	//alert("strNewSpan = " + strNewSpan);
-	//strNewSpan = strNewSpan + objMenuCopy.outerHTML;
-
-	// add line item
-	var objNewLI = document.createElement("li");
-	objNewLI.innerHTML = strNewSpan;
-
-	// add to document (either before or after current element)
-	//***************************************
-	if (bAbove) {
-		//alert("beforeBegin");
-		//alert(objNewLI);
-		objListItem.insertAdjacentElement("BeforeBegin", objNewLI);
-	}
-	else {
-		objListItem.insertAdjacentElement("AfterEnd", objNewLI);
-	}
-
-	//page changed value
-	changeFlag(true);
-}
-
-
-// 1/30/04 Eric Compas
-// 8/04 EDC - converted to VBScrip
-// 12/04 EDC - delete specified (not just last)
-// Description:
-//   Delete a list item from list with specified Id.
-//
-// Arguments:
-//   strListId = Id of list to delete from. Needs to be unique in document
-//   iListItem = number of list item to delete (1 based)
-function deleteListItem(element) {
-	// get calling menu and test for problems
-	var objMenuSpan = element.parentElement.parentElement.parentElement;
-	if (objMenuSpan.tagName != "SPAN") {
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
-		return;
-	}
-
-	// get listitem and test for problems
-	var objListItem = objMenuSpan.parentElement;
-	if (objListItem.tagName != "LI") {
-		alert("Unexpected HTML object encountered. Expected LI, found " + objListItem.tagName);
-		return;
-	}
-
-	//get list and check for problems;
-	var objList = objListItem.parentElement;
-	if (objList.tagName != "UL" && objList.tagName != "OL") {
-		alert("Unexpected HTML object encountered. Expected UL or OL, found " + objList.tagName);
-		return;
-	}
-
-	// last value? don't let them delete it
-	if (objList.childNodes.length < 2) {
-		alert("Deleting the last element is not allowed.");
-		return;
-	}
-
-	// get span, contain value?
-	var objSpan = objListItem.firstChild;
-	if (objSpan.innerHTML != "") {
-		var iReturn = confirm("Are you sure you want to delete the '" + objSpan.innerHTML + "' value?");
-
-		// delete item;
-		//*************************************
-		if (iReturn == 7) {
-			return;
-		}
-	}
-
-	// delete item;
-	objList.removeChild(objListItem);
-
-	//page changed value;
-	changeFlag(true);
-}
 
 // 12/30/2004 Eric Compas
 //
@@ -623,49 +484,29 @@ function deleteSection(element, sectionPath) {
 //   Add a child section (compound element) below the current
 //   parent. Similar to AddSection code except adding as
 //   child instead of sibling.
-function addChild(element, strAddName) {
-	// create new section (compound element)
-	var objNewDIV = createSection(strAddName);
-	if (objNewDIV == null) {
-		alert("Error creating new section (compound element)).");
+function addChild(element, addName) {
+	// create new section
+	var newContentNode = createSection(addName);
+	if (newContentNode == null) {
+		alert("Error creating new compound element.");
 		return;
 	}
-
-	// get objects to ensure proper placement of new child
-	// (must appear within parent DIV's 'content' div just before hidden span
-	//  closing out the parent XML element)
 
 	// get calling menu and test for problems
-	var objMenuSpan = element.parentElement.parentElement.parentElement;
-	if(objMenuSpan.tagName != "SPAN"){
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objMenuSpan.tagName);
+	var menuNode = element.parentNode.parentNode.parentNode;
+	if (menuNode.tagName.toLowerCase() != "span") {
+		alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
 		return;
 	}
 
-	// get parent folder div and check for problems
-	var objFolderDiv = objMenuSpan.parentElement;
-	if(objFolderDiv.tagName != "DIV"){
-		alert("Unexpected HTML object encountered. Expected DIV, found " + objFolderDiv.tagName);
+	// get section content div and check for problems
+	var folderNode = menuNode.nextSibling;
+	if (folderNode.tagName.toLowerCase() != "div") {
+		alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
 		return;
 	}
-
-	// get content div of folder div
-	var objContentDiv = objFolderDiv.getElementsByTagName("DIV").item[0];
-	if(objContentDiv.className != "content"){
-		alert("Cannot locate 'content' DIV for parent 'folder' DIV.");
-		return;
-	}
-
-	// get content div's last SPAN (the hidden closing XML element)
-	var objLastSpan = objContentDiv.children.item(objContentDiv.children.length - 1);
-	if(objLastSpan.tagName != "SPAN"){
-		alert("Unexpected HTML object encountered. Expected SPAN, found " + objLastSpan.tagName);
-		return;
-	}
-
-	// insert new DIV in document
-	//objContentDiv.insertBefore objNewDIV, objLastSpan
-	objLastSpan.insertAdjacentElement("beforeBegin", objNewDIV);
+	
+	folderNode.appendChild(newContentNode);
 }
 
 // 2/21/2005 Eric Compas
@@ -683,7 +524,7 @@ function createSection(strAddName) {
 		alert("Error locating editable stylesheet file.");
 		return null;
 	}
-	var strEditXSLFile = pXSLSpan.innerText;
+	var strEditXSLFile = getElementInnerText(pXSLSpan);
 
 	// get add templates stylesheet file location from document
 	pXSLSpan = document.getElementById("addStylesheetFile");
@@ -691,19 +532,16 @@ function createSection(strAddName) {
 		alert("Error locating add templates stylesheet file.");
 		return null;
 	}
-	var strAddXSLFile = pXSLSpan.innerText;
-
+	var strAddXSLFile = getElementInnerText(pXSLSpan);
 
 	//alert("strAddXSLFile=" + strAddXSLFile + ", strEditXSLFile=" + strEditXSLFile);
 
 	// create blank XML document
-	//*****************************************
-	//IE only. Nog FF doen
-	var xmlDoc = new ActiveXObject("MSXML2.DOMDocument");
-	xmlDoc.async = false;
-	//xmlDoc.loadXML "<metadata/>";
-	xmlDoc.loadXML("<root/>");
+	var tempXmlDoc = jsXML.createDOMDocument();
+	tempXmlDoc.async = false;
+	tempXmlDoc.loadXML("<root/>");
 
+	
 	// add blank parent elements (if they exist)
 	// (needed if "full path" transformations used)
 	var sParentNodes, sNode;
@@ -714,7 +552,7 @@ function createSection(strAddName) {
 		//sParentNodes = Left(strAddName, InStrRev(strAddName,"/")-1);
 		sParentNodes = strAddName.substring(0, strAddName.lastIndexOf("/"));
 		//alert("AddSection: parent nodes = " + sParentNodes);
-		pNode = xmlDoc.documentElement;
+		pNode = tempXmlDoc.documentElement;
 		sNodes = sParentNodes;
 		while (sNodes != "") {
 			//if (InStr(sNodes,"/") > 0) {
@@ -731,7 +569,7 @@ function createSection(strAddName) {
 				sNodes = "";
 			}
 			//alert("AddSection: sNode = " + sNode + ", sNodes = " + sNodes);
-			newNode = xmlDoc.createNode(1, sNode, "");
+			newNode = tempXmlDoc.createNode(1, sNode, "");
 			pNode.appendChild(newNode);
 			pNode = newNode;
 		}
@@ -745,45 +583,54 @@ function createSection(strAddName) {
 		//alert("AddSection:parent ! found " + strAddName);
 	}
 	//alert("xmlDoc = " + xmlDoc.xml);
-	//alert("sParentNodes = " + sParentNodes + ", sNode = " + sNode);
-
+	debug("sParentNodes = " + sParentNodes + ", sNode = " + sNode);
+	
+	
 	// create stylesheet to transform, or "preprocess" it;
 	// this will add the appropriate blank XML elements;
-	var preXSLDoc = new ActiveXObject("MSXML2.DOMDocument");
-	var strXSL = "<?xml version='1.0' encoding='ISO-8859-1'?>" +  "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<!-- inlude Add Templates library for stylesheet -->" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;
-
+	//var preXSLDoc = new ActiveXObject("MSXML2.DOMDocument");
+	//var strXSL = "<?xml version='1.0' encoding='ISO-8859-1'?>" +  "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<!-- inlude Add Templates library for stylesheet -->" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;
+	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;	
+	strXSL += "<xsl:template match='" + sParentNodes + "'>";
+	
+	/*
 	//start of creating the XSL transform;
 	if (sParentNodes != "") {
 		strXSL += "<xsl:template match='" + sParentNodes + "'>";
 	}
 	else {
-		strXSL += "<xsl:template match='/'>";
+		strXSL += "<xsl:template match='/'/>";
 		strXSL += "<xsl:template match='" + strAddName + "'>";
 	}
-
+	*/
 	//alert("strXSL : "+ strXSL);
 	//alert("sNode =  "+sNode);
 
 
-	strXSL += "<xsl:copy><xsl:call-template name='add_" + sNode + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
+	strXSL += "<xsl:copy><xsl:call-template name='add-" + sNode + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
 
-	alert("strXSL "+ strXSL);
+	debug("strXSL "+ strXSL);
 
+	preXSLDoc = jsXML.createDOMDocument();
 	preXSLDoc.async = false;
 	preXSLDoc.loadXML(strXSL);
-	if (preXSLDoc.parseError.errorCode != 0) {
+	/*if (preXSLDoc.parseError.errorCode != 0) {
 		alert("Error parsing the preprocesser XSL file. Code=" +  preXSLDoc.parseError.errorCode + ", Desc=" +  preXSLDoc.parseError.reason);
 		return null;
-	}
-	alert("preXSLDoc.xml = " + preXSLDoc.xml);
-
+	}*/
+	debug("preXSLDoc.xml = " + preXSLDoc.xml);
+	//tot hier ff testen
+	return;
 	// transform or "preprocess" it
-	var preXMLDoc = new ActiveXObject("MSXML2.DOMDocument");
+
 	//On Error Goto EH:
-	alert("hierna loopt ie vast");
+	debug("hierna loopt ie vast");
 	var strPreXML = xmlDoc.transformNode(preXSLDoc);
-	alert("hier");
+	debug("hier");
+	
+	var preXMLDoc = new ActiveXObject("MSXML2.DOMDocument");
 	preXMLDoc.loadXML(strPreXML);
+	
 	if (preXMLDoc.parseError.errorCode != 0) {
 		alert("Error parsing the preprocessed XML file. Code=" +  preXMLDoc.parseError.errorCode + ", Desc=" +  preXMLDoc.parseError.reason);
 		return null;

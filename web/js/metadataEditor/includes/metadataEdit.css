@@ -38,15 +38,6 @@ td {
 	border-right: 1px solid white;
 }	
 
-ul {
-	margin: 0px;
-}
-
-li {
-	margin-left: 50px;
-	margin-bottom: 2px;
-}
-
 /*
 textarea {
 	font-family: Arial, sans-serif;
@@ -61,51 +52,33 @@ input {
 
 /* pop-up menus */
 
-.menu {
+ul.menu {
+	margin: 0px;
+	padding: 2px 0px 2px 0px;
 	background-color: #fff;
 	border: 1px solid #999; 
-	padding: 2px 0px 2px 0px;
 	position: absolute;  /* key attribute for hovering menu */
-	/*z-index: 9990;*/ /* werkt niet helemaal lekker in IE */
+	z-index: 9990; /* werkt niet helemaal lekker in IE */
 	display: none;
+	list-style-type: none;
 }
 
-ul.menu a {
-	color: #000;
-	margin: 1px 0px 1px 0px;
-	padding: 1px 5px 1px 10px;
-	/*font-size: 12px;*/
-	font-weight: normal;
-	width: 180px;
-	/*width: 100%;*/
-}
-
-/*		
-ul.menu a:hover {
-	background-color: #eee;
-	color: black;
-}*/
-		
-ul.menu li a {
-	margin: 1px 0px 1px 0px;
-	color: #000;
-	padding: 1px 5px 1px 10px;
-	font-weight: normal;
-	width: 180px;
-}
-
-/*	
-ul.menu li a:hover {
-	background-color: #eee;
-	color: black;
-}
-*/
-	
 ul.menu li {
-	margin: 0px;
-	margin-left: 5px;
-	margin-right: 5px;
+	margin: 1px 5px 1px 5px;
+	padding: 1px 5px 1px 10px;
+	width: 180px;
 }
+
+ul.menu li a {
+	color: #000;
+	font-weight: normal;
+}
+
+ul.menu li a:hover {
+	color: black;
+	background-color: #eee;
+}
+	
 
 /* span classes */
 .key {

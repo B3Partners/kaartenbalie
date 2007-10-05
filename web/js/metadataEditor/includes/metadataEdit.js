@@ -21,6 +21,7 @@ function addLoadEvent(func) {
 
 function initWithXmlString() {
 	// if no metadata is present we start the editor with all elements empty
+	var metadataXML;
 	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
 		metadataXML = basicMetadataXML;
 	}
@@ -28,7 +29,7 @@ function initWithXmlString() {
 	metadataXML = metadataXML.unescapeHTML();
 	//debug(metadataXML);
 	
-	rawXmlDoc = jsXML.createDOMDocument();
+	var rawXmlDoc = jsXML.createDOMDocument();
 	rawXmlDoc.async = false;
 	rawXmlDoc.loadXML(metadataXML);
 	
@@ -61,7 +62,7 @@ function initWithXmlString() {
 	//debug("Xsl:");
 	//debug(xslDoc.xml);
 	
-	var xmlTransformer = new XML.Transformer(xslDoc);
+	xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", basePath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
