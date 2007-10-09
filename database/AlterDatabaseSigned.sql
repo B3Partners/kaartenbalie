@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
 --
 -- Definition of table attribution
 --
@@ -37,7 +39,7 @@ rename table new_attribution to attribution;
 -- Definition of table contactinformation
 --
 
-CREATE TABLE contactinformation (
+CREATE TABLE new_contactinformation (
   SERVICEPROVIDERID int(11) NOT NULL default '0',
   CONTACTPERSON varchar(50) default NULL,
   CONTACTPOSITION varchar(50) default NULL,
@@ -89,7 +91,7 @@ rename table new_contactinformation to contactinformation;
 -- Definition of table dimensions
 --
 
-CREATE TABLE dimensions (
+CREATE TABLE new_dimensions (
   DIMENSIONSID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   DIMENSIONSNAME varchar(50) default NULL,
@@ -137,7 +139,7 @@ rename table new_dimensions to dimensions;
 -- Definition of table exceptions
 --
 
-CREATE TABLE exceptions (
+CREATE TABLE new_exceptions (
   SERVICEPROVIDERID int(11) NOT NULL default '0',
   FORMAT varchar(50) NOT NULL default '0',
   PRIMARY KEY  (SERVICEPROVIDERID,FORMAT),
@@ -160,7 +162,7 @@ rename table new_exceptions to exceptions;
 -- Definition of table identifier
 --
 
-CREATE TABLE identifier (
+CREATE TABLE new_identifier (
   IDENTIFIERID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   AUTHORITYNAME varchar(50) NOT NULL default '0',
@@ -190,7 +192,7 @@ rename table new_identifier to identifier;
 -- Definition of table latlonboundingbox
 --
 
-CREATE TABLE latlonboundingbox (
+CREATE TABLE new_latlonboundingbox (
   LAYERID int(11) NOT NULL default '0',
   MINX double default '0',
   MINY double default '0',
@@ -222,7 +224,7 @@ rename table new_latlonboundingbox to latlonboundingbox;
 -- Definition of table layer
 --
 
-CREATE TABLE layer (
+CREATE TABLE new_layer (
   LAYERID int(11) NOT NULL auto_increment,
   SERVICEPROVIDERID int(11) default '0',
   NAME varchar(50) default NULL,
@@ -280,7 +282,7 @@ rename table new_layer to layer;
 -- Definition of table layerdomainformat
 --
 
-CREATE TABLE layerdomainformat (
+CREATE TABLE new_layerdomainformat (
   LDRID int(11) NOT NULL default '0',
   FORMAT varchar(100) NOT NULL default '',
   PRIMARY KEY  (LDRID,FORMAT),
@@ -303,7 +305,7 @@ rename table new_layerdomainformat to layerdomainformat;
 -- Definition of table layerdomainresource
 --
 
-CREATE TABLE layerdomainresource (
+CREATE TABLE new_layerdomainresource (
   LDRID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   DOMAIN varchar(50) NOT NULL default '0',
@@ -333,7 +335,7 @@ rename table new_layerdomainresource to layerdomainresource;
 -- Definition of table layerkeywordlist
 --
 
-CREATE TABLE layerkeywordlist (
+CREATE TABLE new_layerkeywordlist (
   KEYWORDLISTID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   KEYWORD varchar(50) NOT NULL default '0',
@@ -360,7 +362,7 @@ rename table new_layerkeywordlist to layerkeywordlist;
 -- Definition of table organization
 --
 
-CREATE TABLE organization (
+CREATE TABLE new_organization (
   ORGANIZATIONID int(11) NOT NULL auto_increment,
   NAME varchar(50) NOT NULL default '0',
   STREET varchar(50) NOT NULL default '0',
@@ -418,7 +420,7 @@ rename table new_organization to organization;
 -- Definition of table organizationlayer
 --
 
-CREATE TABLE organizationlayer (
+CREATE TABLE new_organizationlayer (
   ORGANIZATIONID int(11) NOT NULL default '0',
   LAYERID int(11) NOT NULL default '0',
   PRIMARY KEY  (ORGANIZATIONID,LAYERID),
@@ -443,7 +445,7 @@ rename table new_organizationlayer to organizationlayer;
 -- Definition of table servicedomainformat
 --
 
-CREATE TABLE servicedomainformat (
+CREATE TABLE new_servicedomainformat (
   SDRID int(11) NOT NULL default '0',
   FORMAT varchar(100) NOT NULL default '0',
   PRIMARY KEY  (SDRID,FORMAT),
@@ -466,7 +468,7 @@ rename table new_servicedomainformat to servicedomainformat;
 -- Definition of table servicedomainresource
 --
 
-CREATE TABLE servicedomainresource (
+CREATE TABLE new_servicedomainresource (
   SDRID int(11) NOT NULL auto_increment,
   SERVICEPROVIDERID int(11) NOT NULL default '0',
   DOMAIN varchar(50) NOT NULL default '0',
@@ -499,7 +501,7 @@ rename table new_servicedomainresource to servicedomainresource;
 -- Definition of table serviceprovider
 --
 
-CREATE TABLE serviceprovider (
+CREATE TABLE new_serviceprovider (
   SERVICEPROVIDERID int(11) NOT NULL auto_increment,
   NAME varchar(60) NOT NULL default '0',
   TITLE varchar(50) NOT NULL default '0',
@@ -545,7 +547,7 @@ rename table new_serviceprovider to serviceprovider;
 -- Definition of table serviceproviderkeywordlist
 --
 
-CREATE TABLE serviceproviderkeywordlist (
+CREATE TABLE new_serviceproviderkeywordlist (
   SERVICEPROVIDERID int(11) NOT NULL default '0',
   KEYWORD varchar(50) NOT NULL default '0',
   PRIMARY KEY  (SERVICEPROVIDERID,KEYWORD),
@@ -568,7 +570,7 @@ rename table new_serviceproviderkeywordlist to serviceproviderkeywordlist;
 -- Definition of table srs
 --
 
-CREATE TABLE srs (
+CREATE TABLE new_srs (
   SRSID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   SRS varchar(150) NOT NULL default '0',
@@ -613,7 +615,7 @@ rename table new_srs to srs;
 -- Definition of table style
 --
 
-CREATE TABLE style (
+CREATE TABLE new_style (
   STYLEID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL default '0',
   NAME varchar(50) NOT NULL default '0',
@@ -652,7 +654,7 @@ rename table new_style to style;
 -- Definition of table styledomainformat
 --
 
-CREATE TABLE styledomainformat (
+CREATE TABLE new_styledomainformat (
   SDRID int(11) NOT NULL auto_increment,
   FORMAT char(45) NOT NULL default '',
   PRIMARY KEY  (SDRID,FORMAT),
@@ -675,7 +677,7 @@ rename table new_styledomainformat to styledomainformat;
 -- Definition of table styledomainresource
 --
 
-CREATE TABLE styledomainresource (
+CREATE TABLE new_styledomainresource (
   SDRID int(11) NOT NULL auto_increment,
   STYLEID int(11) NOT NULL default '0',
   DOMAIN varchar(45) NOT NULL default '',
@@ -711,7 +713,7 @@ rename table new_styledomainresource to styledomainresource;
 -- Definition of table user
 --
 
-CREATE TABLE user (
+CREATE TABLE new_user (
   USERID int(11) NOT NULL auto_increment,
   ORGANIZATIONID int(11) NOT NULL default '0',
   FIRSTNAME varchar(50) NOT NULL default '0',
@@ -758,3 +760,4 @@ insert into new_user (
 drop table user;
 rename table new_user to user;
 
+SET FOREIGN_KEY_CHECKS = 1;
