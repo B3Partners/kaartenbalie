@@ -476,10 +476,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private JSONObject createTree() throws JSONException {
         List serviceProviders =em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         
-        
-        JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
-        
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
@@ -491,6 +488,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 rootArray.put(parentObj);
             }
         }
+        
+        JSONObject root = new JSONObject();
         root.put("name","root");
         root.put("children", rootArray);
         return root;
@@ -523,23 +522,23 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
-                JSONObject layerObj = this.layerToJSON(layer);
-                
+            JSONObject layerObj = this.layerToJSON(layer);
+            
             /* Before we are going to save the present object we can first use our object to recieve and store
              * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
              * If, on the other hand, this layer does have children then the method is called recursivly to
              * add these childs to the present layer we are working on.
              */
-                Set childLayers = layer.getLayers();
-                if (childLayers != null && !childLayers.isEmpty()) {
-                    layerObj = createTreeList(childLayers, layerObj);
-                }
-                
+            Set childLayers = layer.getLayers();
+            if (childLayers != null && !childLayers.isEmpty()) {
+                layerObj = createTreeList(childLayers, layerObj);
+            }
+            
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
-                parentArray.put(layerObj);
+            parentArray.put(layerObj);
             
         }
         if (parentArray.length() > 0){

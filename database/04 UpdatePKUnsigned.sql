@@ -166,25 +166,6 @@ insert into new_identifier (
   from identifier;
 
 --
--- Definition of table ipaddresses
---
-
-CREATE TABLE new_ipaddresses ( 
-   IPADDRESSID int(11) NOT NULL AUTO_INCREMENT, 
-   IPADDRESS varchar(45) NOT NULL, 
-   PRIMARY KEY (IPADDRESSID) 
-) ENGINE= InnoDB DEFAULT CHARSET= utf8;
-
-insert into new_ipaddresses (
-  IPADDRESSID,
-  IPADDRESS
-	)
-  select 
-  IPADDRESSID,
-  IPADDRESS
-  from ipaddresses;
-
---
 -- Definition of table layer
 --
 
@@ -675,19 +656,22 @@ insert into new_user (
 -- Definition of table userip
 --
 
-CREATE TABLE new_userip ( 
-   USERID int(11) NOT NULL AUTO_INCREMENT, 
-   IPADDRESSID int(11) NOT NULL, 
-   PRIMARY KEY (USERID, IPADDRESSID) 
-) ENGINE= InnoDB DEFAULT CHARSET= utf8;
+CREATE TABLE new_userip (
+  USERIPID int(11) NOT NULL AUTO_INCREMENT,
+  USERID int(11) NOT NULL,
+  IPADDRESS VARCHAR(45) NOT NULL,
+  PRIMARY KEY(USERIPID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
     
 insert into new_userip (
+	USERIPID,
   USERID,
-  IPADDRESSID
+  IPADDRESS
 	)
   select 
+	USERIPID,
   USERID,
-  IPADDRESSID
+  IPADDRESS
   from userip;
   
 --
@@ -711,24 +695,20 @@ insert into new_userroles (
     
 --
 
-alter table attribution drop foreign key FK_Attribution_1;
---alter table contactinformation drop foreign key ;
+alter table attribution drop foreign key LAYERID;
+--alter table attribution drop foreign key FK_Attribution_1;
 alter table dimensions drop foreign key FK_Dimensions_1;
 alter table exceptions drop foreign key FK_Exceptions_1;
 alter table identifier drop foreign key FK_Identifier_1;
---alter table ipaddresses drop foreign key ;
-alter table layer drop foreign key FK_Layer_1;
-alter table layer drop foreign key FK_Layer_2;
+--alter table layer drop foreign key FK_Layer_1;
+--alter table layer drop foreign key FK_Layer_2;
 alter table layerdomainformat drop foreign key FK_LayerDomainFormat_1;
 alter table layerdomainresource drop foreign key FK_LayerDomainResource_1;
 alter table layerkeywordlist drop foreign key FK_LayerKeywordList_1;
---alter table organization drop foreign key ;
 alter table organizationlayer drop foreign key FK_OrganizationLayer_1;
 alter table organizationlayer drop foreign key FK_OrganizationLayer_2;
---alter table roles drop foreign key ;
 alter table servicedomainformat drop foreign key FK_ServiceDomainFormat_1;
 alter table servicedomainresource drop foreign key FK_RequestDomainResource_1;
---alter table serviceprovider drop foreign key ;
 alter table serviceproviderkeywordlist drop foreign key FK_ServiceProviderKeywordList_1;
 alter table srs drop foreign key FK_SRS_1;
 alter table style drop foreign key FK_Style_1;
@@ -736,7 +716,6 @@ alter table styledomainformat drop foreign key FK_StyleDomainFormat_1;
 alter table styledomainresource drop foreign key FK_StyleDomainResource_1;
 alter table user drop foreign key FK_User_1;
 alter table userip drop foreign key FK_Userip_1;
-alter table userip drop foreign key FK_Userip_2;
 alter table userroles drop foreign key FK_Userroles_1;
 alter table userroles drop foreign key FK_Userroles_2;
 
@@ -745,7 +724,6 @@ drop table contactinformation;
 drop table dimensions;
 drop table exceptions;
 drop table identifier;
-drop table ipaddresses;
 drop table layer;
 drop table layerdomainformat;
 drop table layerdomainresource;
@@ -771,7 +749,6 @@ rename table new_contactinformation to contactinformation;
 rename table new_dimensions to dimensions;
 rename table new_exceptions to exceptions;
 rename table new_identifier to identifier;
-rename table new_ipaddresses to ipaddresses;
 rename table new_layer to layer;
 rename table new_layerdomainformat to layerdomainformat;
 rename table new_layerdomainresource to layerdomainresource;
@@ -792,31 +769,25 @@ rename table new_userip to userip;
 rename table new_userroles to userroles;
 
 
-alter table attribution add CONSTRAINT LAYERID FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE ON UPDATE CASCADE;
---alter table contactinformation add CONSTRAINT symbol
+alter table attribution add CONSTRAINT FK_Attribution_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE ON UPDATE CASCADE;
 alter table dimensions add CONSTRAINT FK_Dimensions_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID);
 alter table exceptions add CONSTRAINT FK_Exceptions_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID);
 alter table identifier add CONSTRAINT FK_Identifier_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID);
---alter table ipaddresses add CONSTRAINT symbol;
 alter table layer add CONSTRAINT FK_Layer_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID); 
 alter table layer add CONSTRAINT FK_Layer_2 FOREIGN KEY (PARENTID) REFERENCES layer (LAYERID); 
 alter table layerdomainformat add CONSTRAINT FK_LayerDomainFormat_1 FOREIGN KEY (LDRID) REFERENCES layerdomainresource (LDRID);
 alter table layerdomainresource add CONSTRAINT FK_LayerDomainResource_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
 alter table layerkeywordlist add CONSTRAINT FK_LayerKeywordList_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
---alter table organization add CONSTRAINT symbol 
 alter table organizationlayer add CONSTRAINT FK_OrganizationLayer_1 FOREIGN KEY (ORGANIZATIONID) REFERENCES organization (ORGANIZATIONID);
 alter table organizationlayer add CONSTRAINT FK_OrganizationLayer_2 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID);
---alter table roles add CONSTRAINT symbol 
 alter table servicedomainformat add CONSTRAINT FK_ServiceDomainFormat_1 FOREIGN KEY (SDRID) REFERENCES servicedomainresource (SDRID) ON DELETE CASCADE;
 alter table servicedomainresource add CONSTRAINT FK_RequestDomainResource_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID) ON DELETE CASCADE;
---alter table serviceprovider add CONSTRAINT symbol 
 alter table serviceproviderkeywordlist add CONSTRAINT FK_ServiceProviderKeywordList_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID) ON DELETE CASCADE;
 alter table srs add CONSTRAINT FK_SRS_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
 alter table style add CONSTRAINT FK_Style_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
 alter table styledomainformat add CONSTRAINT FK_StyleDomainFormat_1 FOREIGN KEY (SDRID) REFERENCES styledomainresource (SDRID) ON DELETE CASCADE;
 alter table styledomainresource add CONSTRAINT FK_StyleDomainResource_1 FOREIGN KEY (STYLEID) REFERENCES style (STYLEID) ON DELETE CASCADE;
 alter table user add CONSTRAINT FK_User_1 FOREIGN KEY (ORGANIZATIONID) REFERENCES organization (ORGANIZATIONID);
-alter table userip add CONSTRAINT FK_userip_2 FOREIGN KEY (IPADDRESSID) REFERENCES ipaddresses (IPADDRESSID);
 alter table userip add CONSTRAINT FK_userip_1 FOREIGN KEY (USERID) REFERENCES user (USERID);
 alter table userroles add CONSTRAINT FK_userroles_2 FOREIGN KEY (ROLEID) REFERENCES roles (ROLEID);
 alter table userroles add CONSTRAINT FK_userroles_1 FOREIGN KEY (USERID) REFERENCES user (USERID);

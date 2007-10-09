@@ -31,7 +31,7 @@ public class User implements Principal {
     private Organization organization;
     
     private Set userroles;
-    private Set ipaddresses;
+    private Set userips;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -162,18 +162,18 @@ public class User implements Principal {
         return roles;
     }
 
-    public Set getIpaddresses() {
-        return ipaddresses;
+    public Set getUserips() {
+        return userips;
     }
 
-    public void setIpaddresses(Set ipaddresses) {
-        this.ipaddresses = ipaddresses;
+    public void setUserips(Set userips) {
+        this.userips = userips;
     }
     
-    public void addIpaddresses(IPAddresses ipaddress) {
-        if(ipaddresses == null) {
-            ipaddresses = new HashSet();
+    public void addUserips(Userip userip) {
+        if(userips == null) {
+            userips = new HashSet();
         }
-        ipaddresses.add(ipaddress);
+        userips.add(userip);
     }
 }

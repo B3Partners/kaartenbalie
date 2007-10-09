@@ -157,7 +157,7 @@ public abstract class WMSRequestHandler extends ManagedPersistence implements Re
             }
         }
         
-        validServiceProvider.addLayer(kaartenbalieTopLayer);
+        validServiceProvider.setTopLayer(kaartenbalieTopLayer);
         tx.commit();
         return validServiceProvider;
     }

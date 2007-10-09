@@ -25,7 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.IPAddresses;
+import nl.b3p.kaartenbalie.core.server.Userip;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -39,7 +39,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Session;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class DemoRegistrationAction extends UserAction implements KBConstants {
@@ -115,7 +114,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
          * the given username. If such a user exists we need to inform the user that
-         * this is not allowed.
+         * this is not allowed. 
          */
         User dbUser = (User)em.createQuery(
                 "from User u where " +
@@ -169,7 +168,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * In order to do this we need to get the SecurityRequestWrapper and set
          * this user as Principal in the requets.
          *
-         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise
+         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise 
          * the program will crash.
          */
         Principal principal = (Principal) user;
@@ -178,8 +177,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             srw.setUserPrincipal(principal);
         }
         
-        this.populateForm(user, dynaForm, request);
-        ActionForward action = super.save(mapping,dynaForm,request,response);
+        this.populateForm(user, dynaForm, request);        
+        ActionForward action = super.save(mapping,dynaForm,request,response);        
         return mapping.findForward(SAVESUCCES);
     }
     // </editor-fold>
@@ -212,9 +211,31 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         /*
          * Get all layers supported by this WMS server.
          */
-        return stdServiceProvider.getAllLayers();
+        //return new HashSet();
+        Layer topLayer = stdServiceProvider.getTopLayer();
+        Set newLayerSet = getSetStructure(topLayer, new HashSet());
+        newLayerSet.add(topLayer);
+        
+        return newLayerSet;
     }
     // </editor-fold>
+    
+    private Set getSetStructure(Layer layer, Set layerset) {
+        if (layer != null && layerset != null) {
+            Set layers = layer.getLayers();
+            if (layers != null) {
+                Iterator it = layers.iterator();
+                while (it.hasNext()) {
+                    Layer childLayer = (Layer)it.next();
+                    if(!layerset.contains(childLayer)) {
+                        layerset.add(childLayer);
+                    }
+                    getSetStructure(childLayer, layerset);
+                }
+            }
+        }
+        return layerset;
+    }
     
     /* Method which will fill-in the JSP form with the data of a given user.
      *
@@ -262,9 +283,9 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         }
         personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
         
-        IPAddresses ipa = new IPAddresses();
+        Userip ipa = new Userip();
         ipa.setIpaddress(registeredIP);
-        user.addIpaddresses(ipa);
+        user.addUserips(ipa);
         user.setPersonalURL(personalURL);
         
         List roles = em.createQuery("from Roles").getResultList();
@@ -285,7 +306,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
          * checked if a layer has any parents and if so this has to be checked recursively until there
-         * aren't any parents anymore. Each of the parents found have to be added to the list of layers
+         * aren't any parents anymore. Each of the parents found have to be added to the list of layers 
          * which are allowed to be requested.
          */
         //String [] selectedLayer;
@@ -295,7 +316,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();
         while(itselected.hasNext()) {
-            //for(int i = 0; i < size; i++) {
+        //for(int i = 0; i < size; i++) {
             int select = ((Layer)itselected.next()).getId().intValue();
             //int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
             Iterator it = layerList.iterator();
@@ -315,7 +336,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
          * the GetCapabilities request which is going to be sent to the client is valid. In all other cases
          * we need to give a warning that the GetCapabilities can have problems when used with certain viewers.
-         *
+         * 
          * In order to give the user the same warning as the supervisor and in order to keep the administration
          * up to date a boolean hasValidGetCapabilities will be set to false if a GetCapabilities is not stictly
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't

@@ -38,7 +38,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.IPAddresses;
+import nl.b3p.kaartenbalie.core.server.Userip;
 import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.codec.binary.Hex;
 import org.securityfilter.filter.SecurityRequestWrapper;
@@ -221,11 +221,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         Set newset = new HashSet();
         int size = registeredIP.length;
         for (int i = 0; i < size; i ++) {
-            IPAddresses ipa = new IPAddresses();
+            Userip ipa = new Userip();
             ipa.setIpaddress(registeredIP[i]);
             newset.add(ipa);
         }
-        user.setIpaddresses(compareSets(user.getIpaddresses(), newset));
+        user.setUserips(compareSets(user.getUserips(), newset));
         
         /*
          * Everything seems to be ok, so it's alright to save the information
@@ -247,7 +247,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
         
-        if (date.compareTo(user.getTimeout()) != 0) {
+        if (user.getTimeout() == null || date.compareTo(user.getTimeout()) != 0) {
             hashString = new String(Hex.encodeHex(md5hash));
         }
         
@@ -295,11 +295,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         
         Iterator it = oldset.iterator();
         while (it.hasNext()) {
-            IPAddresses oldIP = (IPAddresses) it.next();
+            Userip oldIP = (Userip) it.next();
             boolean same = false;
             Iterator newit = newset.iterator();
             while(newit.hasNext()) {
-                IPAddresses newIP = (IPAddresses) newit.next();
+                Userip newIP = (Userip) newit.next();
                 if(oldIP.compare(newIP)) {
                     same = true;
                     break;
@@ -312,7 +312,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         
         Iterator removeIt = tempRemoveSet.iterator();
         while (removeIt.hasNext()) {
-            IPAddresses removableIP = (IPAddresses) removeIt.next();
+            Userip removableIP = (Userip) removeIt.next();
             oldset.remove(removableIP);
             em.remove(removableIP);
         }
@@ -321,10 +321,10 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         Iterator newit = newset.iterator();
         while (newit.hasNext()) {
             boolean inlist = false;
-            IPAddresses newIP = (IPAddresses) newit.next();
+            Userip newIP = (Userip) newit.next();
             Iterator oldit = oldset.iterator();
             while (oldit.hasNext()) {
-                IPAddresses oldIP = (IPAddresses) oldit.next();
+                Userip oldIP = (Userip) oldit.next();
                 if(newIP.compare(oldIP)) {
                     inlist = true;
                 }
@@ -340,11 +340,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     }
     
     
-    private IPAddresses ipInList(Set ipaddresses, String address) {
+    private Userip ipInList(Set ipaddresses, String address) {
         if (!address.equals("")) {
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
-                IPAddresses ipaddress = (IPAddresses) it.next();
+                Userip ipaddress = (Userip) it.next();
                 if (similarAddress(ipaddress, address)) {
                     return ipaddress;
                 }
@@ -353,7 +353,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return null;
     }
     
-    private boolean similarAddress(IPAddresses ipaddress, String address) {
+    private boolean similarAddress(Userip ipaddress, String address) {
         return ipaddress.getIpaddress().equalsIgnoreCase(address);
     }
     
@@ -426,12 +426,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         
         dynaForm.set("currentaddress", request.getRemoteAddr());
         
-        List iplist = new ArrayList(user.getIpaddresses());
+        List iplist = new ArrayList(user.getUserips());
         request.setAttribute("iplist", iplist);
         
         String [] registeredIP = new String[iplist.size()];
         for (int i = 0; i < iplist.size(); i++) {
-            IPAddresses ipaddresses = (IPAddresses)iplist.get(i);
+            Userip ipaddresses = (Userip)iplist.get(i);
             registeredIP[i] = ipaddresses.getId().toString();
         }
         dynaForm.set("registeredIP", registeredIP);

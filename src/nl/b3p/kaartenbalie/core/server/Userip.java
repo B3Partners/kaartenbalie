@@ -1,5 +1,5 @@
 /*
- * @(#)IPAddresses.java
+ * @(#)Userip.java
  * @author N. de Goeij
  * @version 1.00, 25 september 2007
  *
@@ -10,27 +10,38 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
-public class IPAddresses {
+public class Userip {
     private Integer id;
     private String ipaddress;
+    private User user;
     
     public Integer getId() {
         return id;
     }
-
+    
     public void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getIpaddress() {
         return ipaddress;
     }
-
+    
     public void setIpaddress(String ipaddress) {
         this.ipaddress = ipaddress;
     }
     
-    public boolean compare(IPAddresses ipaddress) {
+    public User getUser() {
+        return user;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    public boolean compare(Userip ipaddress) {
         return this.getIpaddress().equals(ipaddress.getIpaddress());
     }
+    
+    
 }

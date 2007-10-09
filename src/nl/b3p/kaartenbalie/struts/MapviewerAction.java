@@ -94,9 +94,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         
-        JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
-        
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
@@ -109,6 +107,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
                 rootArray.put(parentObj);
             }
         }
+        
+        JSONObject root = new JSONObject();
         root.put("name","root");
         root.put("children", rootArray);
         request.setAttribute("layerList", root);

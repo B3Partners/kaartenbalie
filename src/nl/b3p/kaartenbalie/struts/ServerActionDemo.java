@@ -198,6 +198,7 @@ public class ServerActionDemo extends ServerAction {
          * Now we first need to save this serviceprovider.
          */
         populateServerObject(dynaForm, newServiceProvider);
+        // TODO: de layers komen  niet in de set van de sp
         newServiceProvider.setReviewed(true);
         if (newServiceProvider.getId() == null) {
             em.persist(newServiceProvider);
@@ -226,7 +227,9 @@ public class ServerActionDemo extends ServerAction {
             organizationLayers.add(((Layer)it.next()).clone());
         }
         
-        Set newLayerSet = newServiceProvider.getAllLayers();
+        Layer topLayer = newServiceProvider.getTopLayer();
+        Set newLayerSet = getSetStructure(topLayer, new HashSet());
+        newLayerSet.add(topLayer);
         Iterator newLayers = newLayerSet.iterator();
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
@@ -270,6 +273,23 @@ public class ServerActionDemo extends ServerAction {
     }
     // </editor-fold>
     
+    private Set getSetStructure(Layer layer, Set layerset) {
+        if (layer != null && layerset != null) {
+            Set layers = layer.getLayers();
+            if (layers != null) {
+                Iterator it = layers.iterator();
+                while (it.hasNext()) {
+                    Layer childLayer = (Layer)it.next();
+                    if(!layerset.contains(childLayer)) {
+                        layerset.add(childLayer);
+                    }
+                    getSetStructure(childLayer, layerset);
+                }
+            }
+        }
+        return layerset;
+    }
+        
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.

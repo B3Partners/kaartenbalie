@@ -13,7 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
-import nl.b3p.kaartenbalie.core.server.IPAddresses;
+import nl.b3p.kaartenbalie.core.server.Userip;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
@@ -358,10 +358,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String remoteaddress = request.getRemoteAddr();
                 boolean validip = false;
                 
-                Set ipaddresses = user.getIpaddresses();
+                Set ipaddresses = user.getUserips();
                 Iterator it = ipaddresses.iterator();
                 while (it.hasNext()) {
-                    IPAddresses ipaddress = (IPAddresses) it.next();
+                    Userip ipaddress = (Userip) it.next();
                     if(ipaddress.getIpaddress().equals(remoteaddress)) {
                         validip = true;
                         break;

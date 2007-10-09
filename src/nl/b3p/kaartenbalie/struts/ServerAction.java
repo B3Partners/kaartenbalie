@@ -218,6 +218,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
         
         populateServerObject(dynaForm, newServiceProvider);
+        // TODO: de layers komen niet in de set van de sp
+        //newServiceProvider.synchonizeServiceProvider();
         newServiceProvider.setReviewed(true);
         em.persist(newServiceProvider);
         em.flush();
@@ -277,7 +279,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                          * we can perform this check just by checking if the layer titles are
                          * the same.
                          */
-                        Layer newLayer = checkLayer(organizationLayer, newServiceProvider.getLayers());
+                        Set topLayerSet = new HashSet();
+                        topLayerSet.add(newServiceProvider.getTopLayer());
+                        Layer newLayer = checkLayer(organizationLayer, topLayerSet);
                         if (newLayer != null)
                             newOrganizationLayer.add(newLayer);
                     } else {
@@ -512,7 +516,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             
-            if(orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
+            if (orgLayer.getName()==null && layer.getName()==null && 
+                    orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
+                return layer;
+            
+            if (orgLayer.getName()!=null && layer.getName()!=null && 
+                    orgLayer.getName().equalsIgnoreCase(layer.getName()))
                 return layer;
             
             Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
