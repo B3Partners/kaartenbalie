@@ -5,8 +5,8 @@
 CREATE TABLE new_attribution (
   LAYERID int(11) NOT NULL,
   TITLE varchar(50),
-  ATTRIBUTIONURL varchar(150),
-  LOGOURL varchar(50),
+  ATTRIBUTIONURL varchar(4000),
+  LOGOURL varchar(4000),
   LOGOWIDTH varchar(50),
   LOGOHEIGHT varchar(50),
   PRIMARY KEY  (LAYERID)
@@ -148,7 +148,7 @@ CREATE TABLE new_identifier (
   IDENTIFIERID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL,
   AUTHORITYNAME varchar(50) NOT NULL,
-  AUTHORITYURL varchar(50) NOT NULL,
+  AUTHORITYURL varchar(4000) NOT NULL,
   PRIMARY KEY  (IDENTIFIERID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -193,15 +193,15 @@ CREATE TABLE new_layer (
   SERVICEPROVIDERID int(11),
   NAME varchar(50),
   TITLE varchar(200) NOT NULL,
-  ABSTRACTS mediumtext,
-  QUERYABLE varchar(50) default '0',
-  CASCADED varchar(50) default '0',
-  OPAQUE varchar(50) default '0',
-  NOSUBSETS varchar(50) default '0',
-  FIXEDWIDTH varchar(50) default '0',
-  FIXEDHEIGHT varchar(50) default '0',
-  SCALEHINTMIN varchar(50) default '0',
-  SCALEHINTMAX varchar(50) default '0',
+  ABSTRACTS text,
+  QUERYABLE varchar(50),
+  CASCADED varchar(50),
+  OPAQUE varchar(50),
+  NOSUBSETS varchar(50),
+  FIXEDWIDTH varchar(50),
+  FIXEDHEIGHT varchar(50),
+  SCALEHINTMIN varchar(50),
+  SCALEHINTMAX varchar(50),
   PARENTID int(11),
   METADATA text,
   PRIMARY KEY  (LAYERID)
@@ -248,7 +248,7 @@ insert into new_layer (
 
 CREATE TABLE new_layerdomainformat (
   LDRID int(11) NOT NULL,
-  FORMAT varchar(100) NOT NULL default '',
+  FORMAT varchar(100) NOT NULL,
   PRIMARY KEY  (LDRID,FORMAT)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -269,7 +269,7 @@ CREATE TABLE new_layerdomainresource (
   LDRID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL,
   DOMAIN varchar(50) NOT NULL,
-  URL varchar(100) NOT NULL,
+  URL varchar(4000) NOT NULL,
   PRIMARY KEY  (LDRID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -428,8 +428,8 @@ CREATE TABLE new_servicedomainresource (
   SDRID int(11) NOT NULL auto_increment,
   SERVICEPROVIDERID int(11) NOT NULL,
   DOMAIN varchar(50) NOT NULL,
-  GETURL varchar(100),
-  POSTURL varchar(100),
+  GETURL varchar(4000),
+  POSTURL varchar(4000),
   PRIMARY KEY  (SDRID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -456,11 +456,11 @@ CREATE TABLE new_serviceprovider (
   SERVICEPROVIDERID int(11) NOT NULL auto_increment,
   NAME varchar(60) NOT NULL,
   TITLE varchar(50) NOT NULL,
-  ABSTRACTS varchar(200),
-  FEES varchar(50),
-  ACCESSCONSTRAINTS varchar(50),
+  ABSTRACTS text,
+  FEES text,
+  ACCESSCONSTRAINTS text,
   GIVENNAME varchar(50) NOT NULL,
-  URL varchar(200) NOT NULL,
+  URL varchar(4000),
   UPDATEDDATE datetime NOT NULL,
   WMSVERSION varchar(50) NOT NULL,
   PRIMARY KEY  (SERVICEPROVIDERID)
@@ -559,9 +559,9 @@ CREATE TABLE new_style (
   LAYERID int(11) NOT NULL,
   NAME varchar(50) NOT NULL,
   TITLE varchar(50) NOT NULL,
-  ABSTRACTS varchar(50),
-  STYLEURL varchar(50) NOT NULL,
-  STYLESHEETURL varchar(50),
+  ABSTRACTS text,
+  STYLEURL varchar(4000),
+  STYLESHEETURL varchar(4000),
   PRIMARY KEY  (STYLEID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -611,7 +611,7 @@ CREATE TABLE new_styledomainresource (
   SDRID int(11) NOT NULL auto_increment,
   STYLEID int(11) NOT NULL,
   DOMAIN varchar(45) NOT NULL,
-  URL varchar(200) NOT NULL,
+  URL varchar(4000),
   WIDTH varchar(45),
   HEIGHT varchar(45),
   PRIMARY KEY  (SDRID)
@@ -648,7 +648,7 @@ CREATE TABLE new_user (
   PASSWORD varchar(50) NOT NULL,
   PERSONALURL varchar(4000),
   TIMEOUT datetime,
-  DEFAULTGETMAP varchar(2000),
+  DEFAULTGETMAP varchar(4000),
   PRIMARY KEY  (USERID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
