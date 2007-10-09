@@ -590,7 +590,7 @@ insert into new_style (
 
 CREATE TABLE new_styledomainformat (
   SDRID int(11) NOT NULL auto_increment,
-  FORMAT char(45) NOT NULL,
+  FORMAT varchar(45) NOT NULL,
   PRIMARY KEY  (SDRID,FORMAT)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
