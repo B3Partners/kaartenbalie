@@ -560,8 +560,6 @@ CREATE TABLE new_style (
   NAME varchar(50) NOT NULL,
   TITLE varchar(50) NOT NULL,
   ABSTRACTS text,
-  STYLEURL varchar(4000),
-  STYLESHEETURL varchar(4000),
   PRIMARY KEY  (STYLEID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -570,18 +568,14 @@ insert into new_style (
   LAYERID,
   NAME,
   TITLE,
-  ABSTRACTS,
-  STYLEURL,
-  STYLESHEETURL
+  ABSTRACTS
 	)
   select 
   STYLEID,
   LAYERID,
   NAME,
   TITLE,
-  ABSTRACTS,
-  STYLEURL,
-  STYLESHEETURL
+  ABSTRACTS
   from style;
 
 --
