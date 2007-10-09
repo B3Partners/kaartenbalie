@@ -547,7 +547,7 @@ insert into new_srs (
   cast(MINY as char(50)),
   cast(MAXY as char(50)),
   cast(RESX as char(50)),
-  cast(RESY as char(50)),
+  cast(RESY as char(50))
   from srs;
 
 --
