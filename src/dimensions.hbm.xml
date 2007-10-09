@@ -20,28 +20,28 @@
         <many-to-one name="layer" column="LAYERID" not-null="true"/>
         
         <property name="dimensionsName">
-            <column name="DIMENSIONSNAME"/>
+            <column name="DIMENSIONSNAME" length="50"/>
         </property>
         <property name="dimensionsUnit">
-            <column name="DIMENSIONSUNIT"/>
+            <column name="DIMENSIONSUNIT" length="50"/>
         </property>
         <property name="dimensionsUnitSymbol">
-            <column name="DIMENSIONSUNITSYMBOL"/>
+            <column name="DIMENSIONSUNITSYMBOL" length="50"/>
         </property>
         <property name="extentName">
-            <column name="EXTENTNAME"/>
+            <column name="EXTENTNAME" length="50"/>
         </property>
         <property name="extentDefaults">
-            <column name="EXTENTDEFAULTS"/>
+            <column name="EXTENTDEFAULTS" length="50"/>
         </property>
         <property name="extentNearestValue">
-            <column name="EXTENTNEARESTVALUE"/>
+            <column name="EXTENTNEARESTVALUE" length="50"/>
         </property>
         <property name="extentMultipleValues">
-            <column name="EXTENTMULTIPLEVALUES"/>
+            <column name="EXTENTMULTIPLEVALUES" length="50"/>
         </property>
         <property name="extentCurrent">
-            <column name="EXTENTCURRENT"/>
+            <column name="EXTENTCURRENT" length="50"/>
         </property>
     </class>
 </hibernate-mapping>

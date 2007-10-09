@@ -1,5 +1,4 @@
 /**
- * @(#)MyDatabase.java
  * @author C. van Lith
  * @version 1.00 2006/03/03
  *
@@ -11,16 +10,15 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.security.Principal;
+import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.securityfilter.realm.ExternalAuthenticatedRealm;
 import org.securityfilter.realm.SecurityRealmInterface;
 
-public class SecurityRealm implements SecurityRealmInterface, ExternalAuthenticatedRealm {
+public class SecurityRealm extends ManagedPersistence implements SecurityRealmInterface, ExternalAuthenticatedRealm {
     private final Log log = LogFactory.getLog(this.getClass());
     
     /** Checks wether an user, given his username and password, is allowed to use the system.
@@ -32,16 +30,17 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      */
     // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
-        Session sess = MyDatabase.getSessionFactory().getCurrentSession();
-        Transaction tx = sess.beginTransaction();
+
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
         try {
-            User user = (User)sess.createQuery(
+            User user = (User)em.createQuery(
                     "from User u where " +
                     "lower(u.username) = lower(:username) " +
                     "and lower(u.password) = lower(:password)")
                 .setParameter("username", username)
                 .setParameter("password", password)
-                .uniqueResult();
+                .getSingleResult();
             return user;
         } finally {
             tx.commit();
@@ -50,14 +49,14 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
     // </editor-fold>
     
     public Principal getAuthenticatedPrincipal(String username) {
-        Session sess = MyDatabase.getSessionFactory().getCurrentSession();
-        Transaction tx = sess.beginTransaction();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
         try {
-            User user = (User)sess.createQuery(
+            User user = (User)em.createQuery(
                     "from User u where " +
                     "lower(u.username) = lower(:username) ")
                 .setParameter("username", username)
-                .uniqueResult();
+                .getSingleResult();
             return user;
         } finally {
             tx.commit();

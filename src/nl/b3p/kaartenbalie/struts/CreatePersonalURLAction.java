@@ -3,7 +3,7 @@
  * @author N. de Goeij
  * @version 1.00 2006/11/08
  *
- * Purpose: a class for creating a personal URL for a user when he uses a program that doesn't 
+ * Purpose: a class for creating a personal URL for a user when he uses a program that doesn't
  * understand basis HTTP authentication.
  *
  * @copyright 2007 All rights reserved. B3Partners
@@ -33,7 +33,7 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Session; 
+import org.hibernate.Session;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
@@ -56,7 +56,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     
-     
+    
     //private String registeredIP;
     //private String personalURL;
     
@@ -75,7 +75,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         crudProp.setDefaultMessageKey("viewer.persoonlijkeurl.success");
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("viewer.persoonlijkeurl.failure");
-        map.put(GETIPADDRESS, crudProp);               
+        map.put(GETIPADDRESS, crudProp);
         return map;
     }
     // </editor-fold>
@@ -83,7 +83,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-         
+    
     /** Unspecified method which handles all incoming request that have no actions defined.
      *
      * @param mapping action mapping
@@ -215,7 +215,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             return getAlternateForward(mapping, request);
         }
         
-        Session sess = getHibernateSession();
+        
         
         String [] registeredIP = dynaForm.getStrings("registeredIP");
         Set newset = new HashSet();
@@ -225,7 +225,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             ipa.setIpaddress(registeredIP[i]);
             newset.add(ipa);
         }
-        user.setIpaddresses(compareSets(user.getIpaddresses(), newset, sess));
+        user.setIpaddresses(compareSets(user.getIpaddresses(), newset));
         
         /*
          * Everything seems to be ok, so it's alright to save the information
@@ -241,7 +241,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         String hashString = user.getPersonalURL().substring(user.getPersonalURL().lastIndexOf("/") + 1);
         
         
-        Random rd = new Random();        
+        Random rd = new Random();
         String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
@@ -273,8 +273,10 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         /*
          * Save the information
          */
-        sess.saveOrUpdate(user);
-        sess.flush();
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+        em.flush();
         
         Principal principal = request.getUserPrincipal();
         if (request instanceof SecurityRequestWrapper) {
@@ -287,7 +289,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     }
     // </editor-fold>
     
-    public Set compareSets(Set oldset, Set newset, Session sess) {        
+    public Set compareSets(Set oldset, Set newset) {
         //Eerst alle oude ip adressen verwijderd uit de lijst en uide database.
         Set tempRemoveSet = new HashSet();
         
@@ -312,7 +314,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         while (removeIt.hasNext()) {
             IPAddresses removableIP = (IPAddresses) removeIt.next();
             oldset.remove(removableIP);
-            sess.delete(removableIP);
+            em.remove(removableIP);
         }
         
         //Nu alle nieuwe adressen toevoegen aan de lijst en de database
@@ -329,7 +331,9 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             }
             if(!inlist) {
                 oldset.add(newIP);
-                sess.saveOrUpdate(newIP);
+                if (newIP.getId() == null) {
+                    em.persist(newIP);
+                }
             }
         }
         return oldset;
@@ -352,7 +356,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     private boolean similarAddress(IPAddresses ipaddress, String address) {
         return ipaddress.getIpaddress().equalsIgnoreCase(address);
     }
-        
+    
     /* Private method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -381,7 +385,6 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
         User user = null;
         
         Integer id = getID(dynaForm, request);
@@ -389,7 +392,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.get(User.class, new Integer(id.intValue()));
+            user = (User)em.find(User.class, new Integer(id.intValue()));
         }
         return user;
     }
@@ -397,7 +400,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
-    //-------------------------------------------------------------------------------------------------------    
+    //-------------------------------------------------------------------------------------------------------
     
     /* Method which will fill the JSP form with the data of a given service provider.
      *
@@ -413,13 +416,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-         
+        
         dynaForm.set("username", user.getUsername());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailaddress", user.getEmailAddress());
         dynaForm.set("role", user.getRolesAsString());
-        dynaForm.set("personalURL", user.getPersonalURL());        
+        dynaForm.set("personalURL", user.getPersonalURL());
         
         dynaForm.set("currentaddress", request.getRemoteAddr());
         
@@ -436,16 +439,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         Date timeout = user.getTimeout();
         if (timeout != null) {
-            String date = df.format(timeout); 
+            String date = df.format(timeout);
             dynaForm.set("timeout", date);
         } else {
             timeout = new Date();
-            String date = df.format(timeout); 
+            String date = df.format(timeout);
             dynaForm.set("timeout", date);
         }
         
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);
     }
-    // </editor-fold>  
+    // </editor-fold>
 }

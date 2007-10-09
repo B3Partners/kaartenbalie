@@ -16,7 +16,6 @@ package nl.b3p.kaartenbalie.service.servlet;
 import nl.b3p.kaartenbalie.core.server.IPAddresses;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
@@ -30,7 +29,6 @@ import java.util.Map;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,9 +37,10 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.KBConstants;
-import org.securityfilter.filter.SecurityRequestWrapper;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -53,9 +52,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public static final long serialVersionUID = 24362462L;
     private String format;
     private String inimageType;
-    
+    private EntityManager em;
     public static String CAPABILITIES_DTD = null;
-    
+    private static String dtd = "/dtd/capabilities_1_1_1.dtd";
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -67,7 +66,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        
+        em = ManagedPersistence.getEntityManager();
         // Zet de logger
         log = LogFactory.getLog(this.getClass());
         log.info("Initializing Call WMS Servlet");
@@ -99,7 +98,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 theUrl.append(serverPort);
             }
             theUrl.append(contextPath);
-            theUrl.append(MyDatabase.getDtd());
+            theUrl.append(dtd);
             CAPABILITIES_DTD = theUrl.toString();
         }
         
@@ -304,16 +303,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
                 // niet ingelogd dus, dan checken op token in url
-                Session sess = MyDatabase.currentSession();
-                Transaction tx = sess.beginTransaction();
+                EntityTransaction tx = em.getTransaction();
+                tx.begin();
                 try {
-                    user = (User)sess.createQuery(
+                    user = (User)em.createQuery(
                             "from User u where " +
                             "lower(u.username) = lower(:username) " +
                             "and lower(u.password) = lower(:password)")
                             .setParameter("username", username)
                             .setParameter("password", password)
-                            .uniqueResult();
+                            .getSingleResult();
                 } finally {
                     tx.commit();
                 }
@@ -336,14 +335,15 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             // niet ingelogd dus, dan checken op token in url
-            Session sess = MyDatabase.currentSession();
-            Transaction tx = sess.beginTransaction();
+
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
             try {
-                user = (User)sess.createQuery(
+                user = (User)em.createQuery(
                         "from User u where " +
                         "lower(u.personalURL) = lower(:personalURL) ")
                         .setParameter("personalURL", request.getRequestURL().toString())
-                        .uniqueResult();
+                        .getSingleResult();
             } finally {
                 tx.commit();
             }

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -153,7 +154,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * new Serviceprovider into the memory. Before we can take any action we need the users input to read
          * the variables.
          */
-        Session sess = getHibernateSession();
+        //Session sess = getHibernateSession();
         
         String url = dynaForm.getString("url");
         
@@ -218,8 +219,10 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         
         populateServerObject(dynaForm, newServiceProvider);
         newServiceProvider.setReviewed(true);
-        sess.saveOrUpdate(newServiceProvider);
-        sess.flush();
+        em.persist(newServiceProvider);
+        em.flush();
+        //sess.saveOrUpdate(newServiceProvider);
+        //sess.flush();
         
         /*
          * All tests have been completed succesfully.
@@ -247,7 +250,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
              *
              * After completing all organizations, we can delete the old serviceprovider.
              */
-            List orgList = sess.createQuery("from Organization").list();
+            List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
                 Set newOrganizationLayer = new HashSet();
@@ -288,13 +291,13 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 }
                 //vervang de oude set met layers in de organisatie voor de nieuwe set
                 org.setOrganizationLayer(newOrganizationLayer);
-                sess.saveOrUpdate(org);
-                sess.flush();
+                //sess.saveOrUpdate(org);
+                em.flush();
             }
             
             try {
-                sess.delete(oldServiceProvider);
-                sess.flush();
+                em.remove(oldServiceProvider);
+                em.flush();
             } catch (Exception e) {
                 log.error("Error deleting the old serviceprovider", e);
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -366,8 +369,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * enough to stop the search and give an error.
          */
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
-        Session sess = getHibernateSession();
-        List orgList = sess.createQuery("from Organization").list();
+        List orgList = em.createQuery("from Organization").getResultList();
         Iterator orgit = orgList.iterator();
         while (orgit.hasNext()) {
             Organization org = (Organization)orgit.next();
@@ -391,8 +393,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * form and will be thrown in the super class.
          *
          */
-        sess.delete(serviceProvider);
-        sess.flush();
+        em.remove(serviceProvider);
+        em.flush();
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -408,8 +410,11 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         
-        List serviceproviderlist = getHibernateSession().createQuery("from ServiceProvider").list();
+        EntityTransaction tx = em.getTransaction();
+        
+        List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
+        
     }
     // </editor-fold>
     
@@ -428,14 +433,13 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
         ServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);
         
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
-            serviceProvider = (ServiceProvider)session.get(ServiceProvider.class, new Integer(id.intValue()));
+            serviceProvider = (ServiceProvider)em.find(ServiceProvider.class, new Integer(id.intValue()));
         }
         return serviceProvider;
     }

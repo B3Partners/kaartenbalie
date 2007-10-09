@@ -87,12 +87,12 @@ public class MapviewerAction extends KaartenbalieCrudAction {
          * RE-LOGIN OF THE USER IS NOT USEFULL HERE SINCE THE USER DID NOT MAKE
          * ANY CHANGES, THE ADMINISTRATOR DID!!!!
          */
-        User user = (User)getHibernateSession().get(User.class, sesuser.getId());
+        User user = (User)em.find(User.class, sesuser.getId());
         if (sesuser==null)
             return;
                 
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
-        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
@@ -189,6 +189,10 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
             Layer organizationLayer = (Layer) it.next();
+            System.out.println("---" + layer);
+            System.out.println("---" + layer.getId());
+            System.out.println("---" + organizationLayer);
+            System.out.println("---" + organizationLayer.getId());
             if(layer.getId().equals(organizationLayer.getId())) {
                 return true;
             }

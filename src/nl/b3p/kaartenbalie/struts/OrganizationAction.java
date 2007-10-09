@@ -24,13 +24,11 @@ import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.Form;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -172,9 +170,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * form of an unknown or unsuspected form and will be thrown in the super
          * class.
          */
-        Session sess = getHibernateSession();
-        sess.saveOrUpdate(organization);
-        sess.flush();
+        if (organization.getId() == null) {
+            em.persist(organization);
+        }
+        em.flush();
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
@@ -244,9 +243,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          * Any other exception that might occur is in the form of an unknown or unsuspected
          * form and will be thrown in the super class.
          */
-        Session sess = getHibernateSession();
-        sess.delete(organization);
-        sess.flush();
+        
+        em.remove(organization);
+        em.flush();
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -275,7 +274,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
-        List organizationlist = getHibernateSession().createQuery("from Organization").list();
+        List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
     // </editor-fold>
@@ -295,22 +294,21 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
         Organization organization = null;
         Integer id = getID(dynaForm);
         
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            organization = (Organization)session.createQuery(
+            organization = (Organization)em.createQuery(
                     "from Organization o where " +
-                    "lower(o.id) = lower(:id)").setParameter("id", id).uniqueResult();
+                    "lower(o.id) = lower(:id)").setParameter("id", id).getSingleResult();
             
             if(organization == null) {
                 return null;
             }
             
-            List us = session.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).list();
+            List us = em.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).getResultList();
             Set users = new HashSet();
             users.addAll(us);
             organization.setUser(users);
@@ -397,8 +395,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("telephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("fax")));
         
-        List layerList = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.attribution").list();
+        List layerList = em.createQuery(
+                "from Layer l left join fetch l.attribution").getResultList();
         
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
@@ -476,7 +474,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
-        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
+        List serviceProviders =em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
+        
         
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
@@ -524,23 +523,24 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
-            JSONObject layerObj = this.layerToJSON(layer);
-            
+                JSONObject layerObj = this.layerToJSON(layer);
+                
             /* Before we are going to save the present object we can first use our object to recieve and store
              * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
              * If, on the other hand, this layer does have children then the method is called recursivly to
              * add these childs to the present layer we are working on.
              */
-            Set childLayers = layer.getLayers();
-            if (childLayers != null && !childLayers.isEmpty()) {
-                layerObj = createTreeList(childLayers, layerObj);
-            }
-            
+                Set childLayers = layer.getLayers();
+                if (childLayers != null && !childLayers.isEmpty()) {
+                    layerObj = createTreeList(childLayers, layerObj);
+                }
+                
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
-            parentArray.put(layerObj);
+                parentArray.put(layerObj);
+            
         }
         if (parentArray.length() > 0){
             parent.put("children", parentArray);
@@ -577,7 +577,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
+        
         JSONObject jsonLayer = new JSONObject();
+        System.out.println("----L0----" + layer);
+        System.out.println("----L1----" + layer.getUniqueName());
+        System.out.println("----L2----" + jsonLayer);
         jsonLayer.put("id", layer.getUniqueName());
         jsonLayer.put("name", layer.getTitle());
         jsonLayer.put("type", "layer");

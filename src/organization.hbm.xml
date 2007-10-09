@@ -21,50 +21,49 @@
             <many-to-many column="LAYERID" class="nl.b3p.wms.capabilities.Layer" lazy="false"/>
         </set>
         
-        
         <set name="user" lazy="false">
-            <key column="USERID" update="false"/>
+            <key column="ORGANIZATIONID" update="false"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
         </set>
         
         <property name="name">
-            <column name="NAME" />
+            <column name="NAME" default="0" length="50" not-null="true"/>
         </property>
         <property name="street">
-            <column name="STREET" />
+            <column name="STREET" default="0" length="50"/>
         </property>
         <property name="number">
-            <column name="NUMBER" />
+            <column name="NUMBER" default="0" length="5" />
         </property>
         <property name="addition">
-            <column name="ADDITION" />
+            <column name="ADDITION" length="10"/>
         </property>
         <property name="postalcode">
-            <column name="POSTALCODE" />
+            <column name="POSTALCODE" length="45"/>
         </property>
         <property name="province">
-            <column name="PROVINCE" />
+            <column name="PROVINCE" default="0" length="50"/>
         </property>
         <property name="country">
-            <column name="COUNTRY" />
+            <column name="COUNTRY" default="0" length="50"/>
         </property>
         <property name="postbox">
-            <column name="POSTBOX" />
+            <column name="POSTBOX" length="50"/>
         </property>
         <property name="billingAddress">
-            <column name="BILLINGADDRESS" />
+            <column name="BILLINGADDRESS" length="50"/>
         </property>
         <property name="visitorsAddress">
-            <column name="VISITORSADDRESS" />
+            <column name="VISITORSADDRESS" length="50"/>
         </property>
-        <property name="telephone">
-            <column name="TELEPHONE" />
+        <property name="telephone" >
+            <column name="TELEPHONE" default="0" length="50" not-null="true"/>
         </property>
         <property name="fax">
-            <column name="FAX" />
+            <column name="FAX" length="50"/>
         </property>
-        <property name="hasValidGetCapabilities">
-            <column name="HASVALIDGETCAPABILITIES" />
+        <property name="hasValidGetCapabilities" >
+            <column name="HASVALIDGETCAPABILITIES" not-null="true" sql-type="tinyint"/>
         </property>
     </class>
 </hibernate-mapping>

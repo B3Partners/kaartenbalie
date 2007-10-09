@@ -13,11 +13,13 @@
 
 <hibernate-mapping>
     <class name="nl.b3p.kaartenbalie.core.server.User" table="User">
-    	<id name="id" type="int" column="USERID" >
-            <generator class="native"/>
+    	<id name="id" type="int">
+            <column name="USERID" />
+            <generator class="native" />
         </id>
         
         <many-to-one name="organization" column="ORGANIZATIONID" not-null="true" insert="true" update="true" lazy="false"/>
+        
         
         <set name="userroles" table="Userroles" lazy="false">
             <key column="USERID"/>
@@ -30,28 +32,28 @@
         </set>
         
         <property name="firstName">
-            <column name="FIRSTNAME"/>
+            <column name="FIRSTNAME" not-null="true" default="0" length="50"/>
         </property>
         <property name="surname">
-            <column name="LASTNAME"/>
+            <column name="LASTNAME" not-null="true" default="0" length="50"/>
         </property>
         <property name="emailAddress">
-            <column name="EMAILADDRESS"/>
+            <column name="EMAILADDRESS" not-null="true" default="0" length="50"/>
         </property>
         <property name="username">
-            <column name="USERNAME"/>
+            <column name="USERNAME" not-null="true" default="0" length="50"/>
         </property>
         <property name="password">
-            <column name="PASSWORD"/>
+            <column name="PASSWORD" not-null="true" default="0" length="50"/>
         </property>
         <property name="personalURL">
-            <column name="PERSONALURL"/>
+            <column name="PERSONALURL" length="4000"/>
         </property>
         <property name="timeout">
             <column name="TIMEOUT"/>
         </property>
         <property name="defaultGetMap">
-            <column name="DEFAULTGETMAP"/>
+            <column name="DEFAULTGETMAP" length="4000"/>
         </property>
     </class>
 </hibernate-mapping>

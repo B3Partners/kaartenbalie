@@ -19,11 +19,11 @@
         
         <many-to-one name="layer" column="LAYERID" not-null="true"/>
         
-        <property name="authorityName">
-            <column name="AUTHORITYNAME"/>
+        <property name="authorityName" >
+            <column name="AUTHORITYNAME" not-null="true" length="50" default="0"/>
         </property>
         <property name="authorityURL">
-            <column name="AUTHORITYURL"/>
+            <column name="AUTHORITYURL" not-null="true" length="50" default="0"/>
         </property>
     </class>
 </hibernate-mapping>

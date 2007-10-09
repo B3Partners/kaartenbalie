@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import javax.persistence.EntityTransaction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.wms.capabilities.KBConstants;
@@ -34,8 +35,8 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.wms.capabilities.Switcher;
@@ -52,7 +53,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import java.util.HashMap;
 import nl.b3p.kaartenbalie.service.ImageManager;
 import nl.b3p.wms.capabilities.Roles;
 
@@ -62,7 +62,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
-public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
+public abstract class WMSRequestHandler extends ManagedPersistence implements RequestHandler, KBConstants {
     
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
@@ -77,10 +77,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     public ServiceProvider getServiceProvider() {
         
-        Session sess = MyDatabase.currentSession();
-        Transaction tx = sess.beginTransaction();
-        User dbUser = (User)sess.createQuery("from User u where " +
-                "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).uniqueResult();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+
+        
+        
+        User dbUser = (User)em.createQuery("from User u where " +
+                "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
         
         Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
         if (organizationLayers == null)
@@ -165,8 +168,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     protected ArrayList getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable) throws Exception {
         ArrayList spUrls = new ArrayList();
-        Session sess = MyDatabase.currentSession();
-        Transaction tx = sess.beginTransaction();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
         
         String topLayerId = null;
         int layerlength = layers.length;
@@ -188,11 +191,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
                         " AND tempTabel.LAYER_NAME = :layername";
                 
-                List sqlQuery = sess.createSQLQuery(query)
+                List sqlQuery = em.createNativeQuery(query)
                 .setParameter("orgId", orgId)
                 .setParameter("layerid", layerid)
                 .setParameter("layername", layername)
-                .list();
+                .getResultList();
                 if(sqlQuery.isEmpty()) {
                     throw new Exception(GETMAP_EXCEPTION);
                 }
@@ -217,7 +220,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 if(equalIds) {
                     layer_name = "," + layer_name;
                 } else {
-                    Layer layer = (Layer) sess.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).uniqueResult();
+                    Layer layer = (Layer) em.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).getSingleResult();
                     Layer topLayer = layer.getTopLayer();
                     topLayerId = topLayer.getId().toString();
                 }

@@ -19,19 +19,19 @@
         
         <many-to-one name="serviceProvider" column="SERVICEPROVIDERID" not-null="true"/>
        
-        <set name="formats" table="ServiceDomainFormat" lazy="false">
+        <set name="formats" lazy="false" table="ServiceDomainFormat">
             <key column="SDRID" not-null="true"/>
-            <element column="format" type="string" not-null="true"/>
+            <element column="format" type="string" not-null="true" length="100"/>
         </set>
         
         <property name="domain">
-            <column name="DOMAIN"/>
+            <column name="DOMAIN" not-null="true"  default="0" length="50"/>
         </property>
         <property name="getUrl">
-            <column name="GETURL"/>
+            <column name="GETURL" default="0" length="4000"/>
         </property>
         <property name="postUrl">
-            <column name="POSTURL"/>
+            <column name="POSTURL" length="4000"/>
         </property>
     </class>
 </hibernate-mapping>

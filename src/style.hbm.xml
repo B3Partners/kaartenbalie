@@ -25,13 +25,13 @@
         </set>
         
         <property name="name">
-            <column name="NAME"/>
+            <column name="NAME" not-null="true" default="0" length="50"/>
         </property>
         <property name="title">
-            <column name="TITLE"/>
+            <column name="TITLE" not-null="true" default="0" length="255"/>
         </property>
-        <property name="abstracts">
-            <column name="ABSTRACTS"/>
+        <property name="abstracts" type="text">
+            <column name="ABSTRACTS" check="50" length="65530"/>
         </property>
     </class>
 </hibernate-mapping>

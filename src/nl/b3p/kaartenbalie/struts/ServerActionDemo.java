@@ -37,7 +37,7 @@ import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
 public class ServerActionDemo extends ServerAction {
-
+    
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
@@ -129,9 +129,9 @@ public class ServerActionDemo extends ServerAction {
         
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
-         * saving the user input. This means that we can start checking if we are dealing with a new 
-         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a 
-         * new Serviceprovider into the memory. Before we can take any action we need the users input to read 
+         * saving the user input. This means that we can start checking if we are dealing with a new
+         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a
+         * new Serviceprovider into the memory. Before we can take any action we need the users input to read
          * the variables.
          */
         
@@ -154,15 +154,15 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-                
+        
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
          * to create some objects which we need to change the data if necessary.
-         */        
+         */
         ServiceProvider newServiceProvider = null;
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-
+        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -197,16 +197,18 @@ public class ServerActionDemo extends ServerAction {
         /*
          * Now we first need to save this serviceprovider.
          */
-        Session sess = getHibernateSession();
         populateServerObject(dynaForm, newServiceProvider);
         newServiceProvider.setReviewed(true);
-        sess.saveOrUpdate(newServiceProvider);
+        if (newServiceProvider.getId() == null) {
+            em.persist(newServiceProvider);
+        }
+        
         
         /*
          * Now the Serviceprovider is saved, we can add this provider
-         * to the organization of the user. Therefore we need to get 
+         * to the organization of the user. Therefore we need to get
          * this User.
-         */        
+         */
         User user = getUser(dynaForm, request, false);
         if (user == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -229,13 +231,18 @@ public class ServerActionDemo extends ServerAction {
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
         }
-                       
+        
         org.setOrganizationLayer(organizationLayers);
         user.setOrganization(org);
         
-        sess.saveOrUpdate(org);
-        sess.saveOrUpdate(user);
-        sess.flush();
+        if (org.getId() == null) {
+            em.persist(org);
+        }
+        
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+        em.flush();
         
         /*
          * Set the boolean that a map is already added to the system. Otherwise users
@@ -250,7 +257,7 @@ public class ServerActionDemo extends ServerAction {
          * In order to do this we need to get the SecurityRequestWrapper and set
          * this user as Principal in the requets.
          *
-         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise 
+         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise
          * the program will crash.
          */
         Principal principal = (Principal) user;
@@ -262,7 +269,7 @@ public class ServerActionDemo extends ServerAction {
         return mapping.findForward("nextPage");
     }
     // </editor-fold>
-        
+    
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -281,7 +288,7 @@ public class ServerActionDemo extends ServerAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)getHibernateSession().load(User.class, new Integer(id.intValue()));
+            user = (User)em.find(User.class, new Integer(id.intValue()));
         }
         return user;
     }

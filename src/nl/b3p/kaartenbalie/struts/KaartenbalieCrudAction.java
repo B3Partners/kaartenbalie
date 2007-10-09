@@ -11,10 +11,12 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
-import nl.b3p.kaartenbalie.service.MyDatabase;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -23,14 +25,19 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class KaartenbalieCrudAction extends CrudAction{
     
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
+    protected EntityManager em;
     
-    
+    public KaartenbalieCrudAction()
+    {
+        super();
+        em = ManagedPersistence.getEntityManager();
+        
+    }
     protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
         return mapping.findForward(FAILURE);
     }
@@ -40,10 +47,7 @@ public class KaartenbalieCrudAction extends CrudAction{
      * @return the current Hibernate Session
      */
     // <editor-fold defaultstate="" desc="getHibernateSession() method.">
-    protected Session getHibernateSession() {
-        return MyDatabase.currentSession();
-    }
-    // </editor-fold>
+     // </editor-fold>
     
     /** Execute method which handles all incoming request.
      *
@@ -60,15 +64,19 @@ public class KaartenbalieCrudAction extends CrudAction{
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
     throws Exception {
         
-        Session sess = getHibernateSession();
-        Transaction tx = sess.beginTransaction();
-        
+        //EntityManager crudEM = ManagedPersistence.getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();        
         ActionForward forward = null;
         String msg = null;
         
         try {
-            forward = super.execute(mapping, form, request, response);
+           forward = super.execute(mapping, form, request, response);
+            //throw new Exception("Lorem Ipsum");
+           
+            
             tx.commit();
+            
             return forward;
         } catch(Exception e) {
             tx.rollback();
@@ -96,11 +104,13 @@ public class KaartenbalieCrudAction extends CrudAction{
         }
         
         // Start tweede sessie om tenminste nog de lijsten op te halen
-        sess = getHibernateSession();
-        tx = sess.beginTransaction();
+        //sess = getHibernateSession();
+        //tx = sess.beginTransaction();
+        tx.begin();
         
         try {
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
+            //throw new Exception("Lorem Ipsum 2");
             tx.commit();
         } catch(Exception e) {
             tx.rollback();

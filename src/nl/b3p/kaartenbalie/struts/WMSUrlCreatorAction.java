@@ -95,7 +95,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         request.setAttribute("formatList",formats);
         
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
-        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         
         LayerValidator lv = new LayerValidator(organizationLayers);
         String[] alSrsen = lv.validateSRS();
@@ -212,9 +212,12 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         
         getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
         
-        Session session = this.getHibernateSession();
         user.setDefaultGetMap(getMap);
-        getHibernateSession().saveOrUpdate(user);
+        
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+        
         populateForm(getMap, dynaForm, request);
         return mapping.findForward("success");
     }

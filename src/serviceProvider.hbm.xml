@@ -31,47 +31,47 @@
             <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
         </set>
         
-        <set name="serviceProviderKeywordList" cascade="all" lazy="true">
+        <set name="serviceProviderKeywordList" cascade="all" lazy="true" table="serviceproviderkeywordlist">
             <key column="SERVICEPROVIDERID"/>
-            <element column="KEYWORD" type="string" not-null="true"/>
+            <element column="KEYWORD" type="string" not-null="true" length="50"/>
         </set>
      
-        <set name="domainResource" inverse="true" cascade="all" lazy="true">
+        <set name="domainResource" inverse="true" cascade="all" lazy="true" table="serviceDomainResource" >
             <key column="SERVICEPROVIDERID"/>
             <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
         </set>
         
-        <set name="exceptions" cascade="all" lazy="true">
+        <set name="exceptions" cascade="all" lazy="true" table="exceptions">
             <key column="SERVICEPROVIDERID"/>
-            <element column="FORMAT" type="string" not-null="true"/>
+            <element column="FORMAT" type="string" not-null="true" length="50"/>
         </set>
         
         <property name="name">
-            <column name="NAME" />
+            <column name="NAME" default="0" not-null="true" length="60"/>
         </property>
         <property name="title">
-            <column name="TITLE"/>
+            <column name="TITLE" default="0" not-null="true" length="255"/>
         </property>
-        <property name="abstracts">
-            <column name="ABSTRACTS"/>
+        <property name="abstracts" type="text">
+            <column name="ABSTRACTS" length="65530"/>
         </property>
-        <property name="fees">
-            <column name="FEES"/>
+        <property name="fees" type="text">
+            <column name="FEES" length="65530"/>
         </property>
-        <property name="accessConstraints">
-            <column name="ACCESSCONSTRAINTS"/>
+        <property name="accessConstraints" type="text">
+            <column name="ACCESSCONSTRAINTS" length="65530"/>
         </property>
         <property name="givenName">
-            <column name="GIVENNAME"/>
+            <column name="GIVENNAME" not-null="true" default="0" length="50"/>
         </property>
         <property name="url">
-            <column name="URL"/>
+            <column name="URL" default="0" not-null="true"  length="4000"/>
         </property>
         <property name="updatedDate">
-            <column name="UPDATEDDATE"/>
+            <column name="UPDATEDDATE" not-null="true" />
         </property>
         <property name="wmsVersion">
-            <column name="WMSVERSION"/>
+            <column name="WMSVERSION" not-null="true" default="0" length="50"/>
         </property>
     </class>
 </hibernate-mapping>

@@ -185,9 +185,13 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
         /*
          * Save the information
          */
-        Session sess = getHibernateSession();
-        sess.saveOrUpdate(sessionUser);
-        sess.flush(); 
+        
+        
+        if (sessionUser.getId() == null)
+        {
+            em.persist(sessionUser);
+        }
+        em.flush(); 
         this.loadUser(mapping, dynaForm, request, response, LIST, LIST);
         return super.save(mapping, dynaForm, request, response);
     }

@@ -61,15 +61,6 @@
         <load-on-startup>2</load-on-startup>
     </servlet>
     <servlet>
-        <servlet-name>mydatabase</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.MyDatabase</servlet-class>
-        <init-param>
-            <param-name>cache</param-name>
-            <param-value/>
-        </init-param>
-         <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>

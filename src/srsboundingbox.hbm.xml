@@ -20,25 +20,25 @@
         <many-to-one name="layer" column="LAYERID" not-null="true"/>
         
         <property name="srs">
-            <column name="SRS"/>
+            <column name="SRS" length="150"/>
         </property>
         <property name="minx">
-            <column name="MINX"/>
+            <column name="MINX" length="50"/>
         </property>
         <property name="maxx">
-            <column name="MAXX"/>
+            <column name="MAXX" length="50"/>
         </property>
         <property name="miny">
-            <column name="MINY"/>
+            <column name="MINY" length="50"/>
         </property>
         <property name="maxy">
-            <column name="MAXY"/>
+            <column name="MAXY" length="50"/>
         </property>
         <property name="resx">
-            <column name="RESX"/>
+            <column name="RESX" length="50"/>
         </property>
         <property name="resy">
-            <column name="RESY"/>
+            <column name="RESY" length="50"/>
         </property>
     </class>
 </hibernate-mapping>

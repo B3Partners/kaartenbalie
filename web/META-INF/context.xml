@@ -14,7 +14,6 @@
             maxActive="100"
             minEvictableIdleTimeMillis="10000"
             timeBetweenEvictionRunsMillis="60000"
-    />-->
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
@@ -27,7 +26,7 @@
             url="jdbc:mysql://localhost:3306/kaartenbalie"
             maxActive="100"
     />
-   <!--
+
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"

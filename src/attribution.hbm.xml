@@ -22,19 +22,19 @@
         <one-to-one name="layer" constrained="true" class="nl.b3p.wms.capabilities.Layer" />
         
         <property name="title">
-            <column name="TITLE"/>
+            <column name="TITLE" length="255" default="0"/>
         </property>
         <property name="attributionURL">
-            <column name="ATTRIBUTIONURL"/>
+            <column name="ATTRIBUTIONURL" default="0" length="150"/>
         </property>        
         <property name="logoURL">
-            <column name="LOGOURL"/>
+            <column name="LOGOURL" length="50"/>
         </property>
         <property name="logoWidth">
-            <column name="LOGOWIDTH"/>
+            <column name="LOGOWIDTH" length="50"/>
         </property>
         <property name="logoHeight">
-            <column name="LOGOHEIGHT"/>
+            <column name="LOGOHEIGHT" length="50"/>
         </property>
     </class>
 </hibernate-mapping>

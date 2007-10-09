@@ -11,6 +11,7 @@
 -->
 <hibernate-configuration>
 <session-factory>
+        <!-- No need for it anymore...
         <property name="connection.datasource">java:comp/env/jdbc/kaartenbalie</property>
                
         <property name="show_sql">false</property>
@@ -23,7 +24,9 @@
         <property name="current_session_context_class">thread</property>
         
         <property name="jdbc.batch_size">20</property>
+        -->
         <!-- Mapping files -->
+        <!-- No need for references to mappings files. Let EM scan for them instead..
         <mapping resource="attribution.hbm.xml"/>
         <mapping resource="contactInformation.hbm.xml"/>
         <mapping resource="organization.hbm.xml"/>
@@ -39,6 +42,9 @@
         <mapping resource="styleDomainResource.hbm.xml"/>
         <mapping resource="roles.hbm.xml"/>
         <mapping resource="ipaddresses.hbm.xml"/>
+        <mapping resource="report_serviceproviderrequest.hbm.xml"/>
+        <mapping resource="report_clientrequest.hbm.xml"/>
+        -->
 </session-factory>
 </hibernate-configuration>
 

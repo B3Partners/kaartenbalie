@@ -22,37 +22,37 @@
         <one-to-one name="serviceProvider" constrained="true" class="nl.b3p.wms.capabilities.ServiceProvider" />
         
         <property name="contactPerson">
-            <column name="CONTACTPERSON"/>
+            <column name="CONTACTPERSON" length="50"/>
         </property>
         <property name="contactPosition">
-            <column name="CONTACTPOSITION"/>
+            <column name="CONTACTPOSITION" length="50"/>
         </property>
         <property name="address">
-            <column name="ADDRESS"/>
+            <column name="ADDRESS" length="50"/>
         </property>
         <property name="addressType">
-            <column name="ADDRESSTYPE"/>
+            <column name="ADDRESSTYPE" length="50"/>
         </property>
         <property name="postcode">
-            <column name="POSTCODE"/>
+            <column name="POSTCODE" length="50"/>
         </property>
         <property name="city">
-            <column name="CITY"/>
+            <column name="CITY" length="50"/>
         </property>
         <property name="stateOrProvince">
-            <column name="STATEORPROVINCE"/>
+            <column name="STATEORPROVINCE" length="50"/>
         </property>
         <property name="country">
-            <column name="COUNTRY"/>
+            <column name="COUNTRY" length="50"/>
         </property>
         <property name="voiceTelephone">
-            <column name="VOICETELEPHONE"/>
+            <column name="VOICETELEPHONE" length="50"/>
         </property>
         <property name="fascimileTelephone">
-            <column name="FASCIMILETELEPHONE"/>
+            <column name="FASCIMILETELEPHONE" length="50"/>
         </property>
         <property name="emailAddress">
-            <column name="EMAILADDRESS"/>
+            <column name="EMAILADDRESS" length="50"/>
         </property>
     </class>
 </hibernate-mapping>

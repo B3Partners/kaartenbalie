@@ -115,14 +115,14 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
          * the given username. If such a user exists we need to inform the user that
-         * this is not allowed. 
+         * this is not allowed.
          */
-        Session sess = getHibernateSession();
-        User dbUser = (User)sess.createQuery(
+        User dbUser = (User)em.createQuery(
                 "from User u where " +
                 "lower(u.username) = lower(:username) ")
                 .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
-                .uniqueResult();
+                .getSingleResult();
+        
         
         if(dbUser != null && (dbUser.getId() != user.getId())) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -153,19 +153,23 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         if (organization == null) {
             organization = new Organization();
         }
-        organization.setOrganizationLayer(getLayerSet(request, sess));
+        organization.setOrganizationLayer(getLayerSet(request));
         populateRegistrationObject(request, dynaForm, user, organization);
-        sess.saveOrUpdate(organization);
+        if (organization.getId() == null) {
+            em.persist(organization);
+        }
         user.setOrganization(organization);
-        sess.saveOrUpdate(user);
-        sess.flush();
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+        em.flush();
         
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
          * this user as Principal in the requets.
          *
-         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise 
+         * ATTENTION: Be sure that the user set as Principal has an ID, otherwise
          * the program will crash.
          */
         Principal principal = (Principal) user;
@@ -174,8 +178,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             srw.setUserPrincipal(principal);
         }
         
-        this.populateForm(user, dynaForm, request);        
-        ActionForward action = super.save(mapping,dynaForm,request,response);        
+        this.populateForm(user, dynaForm, request);
+        ActionForward action = super.save(mapping,dynaForm,request,response);
         return mapping.findForward(SAVESUCCES);
     }
     // </editor-fold>
@@ -186,7 +190,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
      * @param session Session object for the database.
      */
     // <editor-fold defaultstate="" desc="getLayerSet(HttpServletRequest request, Session session) method.">
-    private Set getLayerSet(HttpServletRequest request, Session session) {
+    private Set getLayerSet(HttpServletRequest request) {
         /*
          * Because every new demo user has access to the predefined server which will
          * be supported by B3Partners we first need to get this WMS server from the database
@@ -197,18 +201,18 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
         String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
         
-        ServiceProvider stdServiceProvider = (ServiceProvider)session.createQuery(
+        ServiceProvider stdServiceProvider = (ServiceProvider)em.createQuery(
                 "from ServiceProvider sp where " +
                 "lower(sp.givenName) = lower(:givenName) " +
                 "and lower(sp.url) = lower(:url)")
                 .setParameter("givenName", serverName)
                 .setParameter("url", serverUrl)
-                .uniqueResult();
+                .getSingleResult();
         
         /*
          * Get all layers supported by this WMS server.
          */
-         return stdServiceProvider.getAllLayers();
+        return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
     
@@ -263,7 +267,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         user.addIpaddresses(ipa);
         user.setPersonalURL(personalURL);
         
-        List roles = getHibernateSession().createQuery("from Roles").list();
+        List roles = em.createQuery("from Roles").getResultList();
         Iterator roleIt = roles.iterator();
         while (roleIt.hasNext()) {
             Roles role = (Roles) roleIt.next();
@@ -275,13 +279,13 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
         
         
-        List layerList = getHibernateSession().createQuery(
-                "from Layer l left join fetch l.attribution").list();
+        List layerList = em.createQuery(
+                "from Layer l left join fetch l.attribution").getResultList();
         
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
          * checked if a layer has any parents and if so this has to be checked recursively until there
-         * aren't any parents anymore. Each of the parents found have to be added to the list of layers 
+         * aren't any parents anymore. Each of the parents found have to be added to the list of layers
          * which are allowed to be requested.
          */
         //String [] selectedLayer;
@@ -291,7 +295,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();
         while(itselected.hasNext()) {
-        //for(int i = 0; i < size; i++) {
+            //for(int i = 0; i < size; i++) {
             int select = ((Layer)itselected.next()).getId().intValue();
             //int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
             Iterator it = layerList.iterator();
@@ -311,7 +315,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
          * the GetCapabilities request which is going to be sent to the client is valid. In all other cases
          * we need to give a warning that the GetCapabilities can have problems when used with certain viewers.
-         * 
+         *
          * In order to give the user the same warning as the supervisor and in order to keep the administration
          * up to date a boolean hasValidGetCapabilities will be set to false if a GetCapabilities is not stictly
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't

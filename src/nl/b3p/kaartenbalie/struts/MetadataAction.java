@@ -62,7 +62,10 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		
 		Layer layer = getLayerByLayerId(id);
 		layer.setMetaData(metadata);
-		getHibernateSession().update(layer);
+		
+                //Possible TODO!
+                em.merge(layer);
+                //getHibernateSession().update(layer);
 		
 		showLayerTree(request);
 
@@ -70,11 +73,11 @@ public class MetadataAction extends KaartenbalieCrudAction {
     }
 	
 	private Layer getLayerByLayerId(Integer id) {
-        Layer layer = (Layer)getHibernateSession().createQuery(
+        Layer layer = (Layer)em.createQuery(
                     "from Layer l where " +
                     "(l.id) = lower(:id) ")
                 .setParameter("id", id)
-                .uniqueResult();
+                .getSingleResult();
 		
 		return layer;
 	}
@@ -134,7 +137,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
-        List serviceProviders = getHibernateSession().createQuery("from ServiceProvider sp order by sp.name").list();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         
         JSONObject root = new JSONObject(); 
         JSONArray rootArray = new JSONArray(); 

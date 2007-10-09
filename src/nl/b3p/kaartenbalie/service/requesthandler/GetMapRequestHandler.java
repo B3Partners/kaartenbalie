@@ -17,14 +17,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import nl.b3p.wms.capabilities.Layer;
+import javax.persistence.EntityTransaction;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.MyDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class GetMapRequestHandler extends WMSRequestHandler implements KBConstants {
     
@@ -92,8 +89,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         Map userdefinedParams = filterUserdefinedParams(parameters);
         
-        Session sess = MyDatabase.currentSession();
-        Transaction tx = sess.beginTransaction();        
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();      
         String givenSRS = (String)parameters.get(WMS_PARAM_SRS);        
         HashMap spMap = new HashMap();
         ArrayList urls = new ArrayList();
@@ -110,7 +107,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                         " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = :toplayer";
                 
                 boolean srsFound = false;
-                List sqlQuery = sess.createSQLQuery(query).setParameter("toplayer", sp_layerlist[3]).list();
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", sp_layerlist[3]).getResultList();
                 Iterator sqlIterator = sqlQuery.iterator();
                 while (sqlIterator.hasNext()) {
                     Object [] objecten = (Object [])sqlIterator.next();

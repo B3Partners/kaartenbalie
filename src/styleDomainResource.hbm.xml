@@ -19,22 +19,22 @@
         
         <many-to-one name="style" column="STYLEID" not-null="true"/>
         
-        <set name="formats" table="StyleDomainFormat" lazy="true">
+        <set name="formats" lazy="true" table="StyleDomainFormat">
             <key column="SDRID" not-null="true"/>
-            <element column="format" type="string" not-null="true"/>
+            <element column="format" type="string" not-null="true" length="45"/>
         </set>
 
         <property name="domain">
-            <column name="DOMAIN"/>
+            <column name="DOMAIN" length="45" not-null="true"/>
         </property>
         <property name="url">
-            <column name="URL"/>
+            <column name="URL" length="4000" not-null="true"/>
         </property>
         <property name="width">
-            <column name="WIDTH"/>
+            <column name="WIDTH" length="45"/>
         </property>
         <property name="height">
-            <column name="HEIGHT"/>
+            <column name="HEIGHT" length="45"/>
         </property>
     </class>
 </hibernate-mapping>

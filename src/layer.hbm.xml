@@ -13,10 +13,11 @@
 
 <hibernate-mapping>
     <class name="nl.b3p.wms.capabilities.Layer" table="Layer">
-    	<id name="id" type="int" column="LAYERID" >
-            <generator class="native"/>
+    	<id name="id" type="int" length="10">
+            <!-- sql-type="INTEGER UNSIGNED"-->
+            <column name="LAYERID"/>
+            <generator class="native" />
         </id>
-        
         
         <many-to-one name="parent" column="PARENTID" class="nl.b3p.wms.capabilities.Layer" />
         
@@ -32,12 +33,12 @@
             <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
         </set>
         
-        <set name="layerKeywordList" cascade="all">
+        <set name="layerKeywordList" cascade="all" table="layerkeywordlist">
             <key column="LAYERID"/>
-            <element column="KEYWORD" type="string" not-null="true"/>
+            <element column="KEYWORD" type="string" not-null="true" length="50"/>
         </set>
                 
-        <set name="styles" inverse="true" cascade="all">
+        <set name="styles" inverse="true" cascade="all" table="">
             <key column="LAYERID"/>
             <one-to-many class="nl.b3p.wms.capabilities.Style"/>
         </set>
@@ -70,40 +71,40 @@
         <many-to-one name="serviceProvider" column="SERVICEPROVIDERID" not-null="true"/><!--   /-->
                 
         <property name="name">
-            <column name="NAME"/>
+            <column name="NAME" length="200"/>
         </property>
         <property name="title">
-            <column name="TITLE"/>
+            <column name="TITLE"  not-null="true" length="255" default="0"/>
         </property>
-        <property name="abstracts">
-            <column name="ABSTRACTS"/>
+        <property name="abstracts" type="text">
+            <column name="ABSTRACTS" length="65530"/>
         </property>
         <property name="queryable">
-            <column name="QUERYABLE"/>
+            <column name="QUERYABLE" default="0" length="50" />
         </property>
         <property name="cascaded">
-            <column name="CASCADED"/>
+            <column name="CASCADED" default="0" length="50" />
         </property>
         <property name="opaque">
-            <column name="OPAQUE"/>
+            <column name="OPAQUE" default="0" length="50" />
         </property>
         <property name="nosubsets">
-            <column name="NOSUBSETS"/>
+            <column name="NOSUBSETS" default="0" length="50"/>
         </property>
         <property name="fixedWidth">
-            <column name="FIXEDWIDTH"/>
+            <column name="FIXEDWIDTH" default="0" length="50"/>
         </property>
         <property name="fixedHeight">
-            <column name="FIXEDHEIGHT"/>
+            <column name="FIXEDHEIGHT" default="0" length="50" />
         </property>
         <property name="scaleHintMin">
-            <column name="SCALEHINTMIN"/>
+            <column name="SCALEHINTMIN" default="0" length="50" />
         </property>
         <property name="scaleHintMax">
-            <column name="SCALEHINTMAX"/>
+            <column name="SCALEHINTMAX" default="0" length="50"/>
         </property>
-        <property name="metaData">
-            <column name="METADATA"/>
+        <property name="metaData" type="text">
+            <column name="METADATA" length="65530"/>
         </property>
     </class>
 </hibernate-mapping>

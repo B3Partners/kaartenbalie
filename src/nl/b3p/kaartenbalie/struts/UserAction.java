@@ -13,7 +13,7 @@ package nl.b3p.kaartenbalie.struts;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -25,7 +25,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
 public class UserAction extends KaartenbalieCrudAction {
     
@@ -134,7 +133,7 @@ public class UserAction extends KaartenbalieCrudAction {
          * No errors occured during validation and token check. Therefore we can get a new
          * user object if a we are dealing with new input of the user, otherwise we can change
          * the user object which is already know, because of it's id.
-         */                
+         */
         User user = getUser(dynaForm, request, true);
         if (user == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -148,18 +147,24 @@ public class UserAction extends KaartenbalieCrudAction {
          * the given username. If such a user exists we need to inform the user that
          * this is not allowed.
          */
-        Session sess = getHibernateSession();
-        User dbUser = (User)getHibernateSession().createQuery(
-                "from User u where " +
-                "lower(u.username) = lower(:username) ")
-                .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
-                .uniqueResult();
         
-        if(dbUser != null && (dbUser.getId() != user.getId())) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+        try {
+            User dbUser = (User)em.createQuery(
+                    "from User u where " +
+                    "lower(u.username) = lower(:username) ")
+                    .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
+                    .getSingleResult();
+            if(dbUser != null && (dbUser.getId() != user.getId())) {
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
+        } catch (NoResultException nre) {
+            //this is good!; This means that there are no other users in the DB with this username..
         }
+        
+        
+        
         
         /*
          * First get all the user input which need to be saved.
@@ -181,16 +186,18 @@ public class UserAction extends KaartenbalieCrudAction {
          * Once we have a (new or existing) user object we can fill this object with
          * the user input.
          */
-        populateUserObject(dynaForm, user, request);        
+        populateUserObject(dynaForm, user, request);
         
         /*
          * No errors occured so we can assume that all is good and we can safely
-         * save this user. Any other exception that might occur is in the form of 
+         * save this user. Any other exception that might occur is in the form of
          * an unknown or unsuspected form and will be thrown in the super class.
-         * 
+         *
          */
-        sess.saveOrUpdate(user);
-        sess.flush();        
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+        em.flush();
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
@@ -232,7 +239,7 @@ public class UserAction extends KaartenbalieCrudAction {
          * No errors occured during validation and token check. Therefore we can get
          * the selected user from the database. If this user is unknown in the database
          * something has gone wrong and we need to inform the user about it.
-         */                
+         */
         User user = getUser(dynaForm, request, false);
         if (user == null) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -241,9 +248,9 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         
         /*
-         * Before we start deleting, one last check is necessary. If a Administrator is going 
-         * to be deleted, we need to check if there is this object is not the administrator 
-         * which is currecntly logged in, because otherwise it could happen that the administrator 
+         * Before we start deleting, one last check is necessary. If a Administrator is going
+         * to be deleted, we need to check if there is this object is not the administrator
+         * which is currecntly logged in, because otherwise it could happen that the administrator
          * locks himself out of the system.
          */
         User sessionUser = (User) request.getUserPrincipal();
@@ -259,9 +266,8 @@ public class UserAction extends KaartenbalieCrudAction {
          * form and will be thrown in the super class.
          */
         populateUserObject(dynaForm, user, request);
-        Session sess = getHibernateSession();
-        sess.delete(user);
-        sess.flush();
+        em.remove(user);
+        em.flush();
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -276,13 +282,11 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        Session sess = getHibernateSession();
+        List userList = em.createQuery("from User").getResultList();
+        request.setAttribute("userlist", userList);
         
-        List userList = sess.createQuery("from User").list();
-        request.setAttribute("userlist", userList); 
-        
-        List organizationlist = sess.createQuery("from Organization").list();
-        request.setAttribute("organizationlist", organizationlist); 
+        List organizationlist = em.createQuery("from Organization").getResultList();
+        request.setAttribute("organizationlist", organizationlist);
     }
     // </editor-fold>
     
@@ -318,7 +322,6 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        Session session = getHibernateSession();
         User user = null;
         
         Integer id = getID(dynaForm);
@@ -326,7 +329,7 @@ public class UserAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
-            user = (User)session.get(User.class, new Integer(id.intValue()));
+            user = (User)em.find(User.class, new Integer(id.intValue()));
         }
         return user;
     }
@@ -342,10 +345,10 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
     private Organization getOrganization(Integer id) throws HibernateException {
-        Session sess = getHibernateSession();
-        return (Organization)sess.createQuery(
-                    "from Organization o where " +
-                    "lower(o.id) = lower(:id) ").setParameter("id", id).uniqueResult();
+        
+        return (Organization)em.createQuery(
+                "from Organization o where " +
+                "lower(o.id) = lower(:id) ").setParameter("id", id).getSingleResult();
     }
     // </editor-fold>
     
@@ -365,7 +368,7 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("password", user.getPassword());
         dynaForm.set("repeatpassword", user.getPassword());
         
-        List roles = getHibernateSession().createQuery("from Roles").list();
+        List roles = em.createQuery("from Roles").getResultList();
         request.setAttribute("userrolelist", roles);
         ArrayList roleSet = new ArrayList(user.getUserroles());
         String [] roleSelected = new String[roleSet.size()];
@@ -401,7 +404,7 @@ public class UserAction extends KaartenbalieCrudAction {
             user.setOrganization(this.getOrganization(FormUtils.StringToInteger(selectedOrg)));
         }
         user.setUserroles(null);
-        List roleList = getHibernateSession().createQuery("from Roles").list();
+        List roleList = em.createQuery("from Roles").getResultList();
         String [] roleSelected = dynaForm.getStrings("roleSelected");
         int size = roleSelected.length;
         for (int i = 0; i < size; i ++) {
