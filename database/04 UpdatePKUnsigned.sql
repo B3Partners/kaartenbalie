@@ -518,12 +518,12 @@ CREATE TABLE new_srs (
   SRSID int(11) NOT NULL auto_increment,
   LAYERID int(11) NOT NULL,
   SRS varchar(150),
-  MINX double,
-  MAXX double,
-  MINY double,
-  MAXY double,
-  RESX double,
-  RESY double,
+  MINX varchar(50),
+  MAXX varchar(50),
+  MINY varchar(50),
+  MAXY varchar(50),
+  RESX varchar(50),
+  RESY varchar(50),
   PRIMARY KEY  (SRSID)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -542,12 +542,12 @@ insert into new_srs (
   SRSID,
   LAYERID,
   SRS,
-  MINX,
-  MAXX,
-  MINY,
-  MAXY,
-  RESX,
-  RESY
+  cast(MINX as char(50)),
+  cast(MAXX as char(50)),
+  cast(MINY as char(50)),
+  cast(MAXY as char(50)),
+  cast(RESX as char(50)),
+  cast(RESY as char(50)),
   from srs;
 
 --
@@ -804,8 +804,8 @@ alter table dimensions add CONSTRAINT FK_Dimensions_1 FOREIGN KEY (LAYERID) REFE
 alter table exceptions add CONSTRAINT FK_Exceptions_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID);
 alter table identifier add CONSTRAINT FK_Identifier_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID);
 --alter table ipaddresses add CONSTRAINT symbol;
-alter table layer add CONSTRAINT FK45CE5313501F45F FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID); 
-alter table layer add CONSTRAINT FK45CE531F2BBFBEE FOREIGN KEY (PARENTID) REFERENCES layer (LAYERID); 
+alter table layer add CONSTRAINT FK_Layer_1 FOREIGN KEY (SERVICEPROVIDERID) REFERENCES serviceprovider (SERVICEPROVIDERID); 
+alter table layer add CONSTRAINT FK_Layer_2 FOREIGN KEY (PARENTID) REFERENCES layer (LAYERID); 
 alter table layerdomainformat add CONSTRAINT FK_LayerDomainFormat_1 FOREIGN KEY (LDRID) REFERENCES layerdomainresource (LDRID);
 alter table layerdomainresource add CONSTRAINT FK_LayerDomainResource_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
 alter table layerkeywordlist add CONSTRAINT FK_LayerKeywordList_1 FOREIGN KEY (LAYERID) REFERENCES layer (LAYERID) ON DELETE CASCADE;
