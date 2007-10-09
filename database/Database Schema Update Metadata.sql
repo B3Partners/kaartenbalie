@@ -1,1 +1,0 @@
-ALTER TABLE `kaartenbalie`.`layer` ADD COLUMN `METADATA` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci AFTER `PARENTID`;
