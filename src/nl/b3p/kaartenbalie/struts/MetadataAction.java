@@ -63,9 +63,9 @@ public class MetadataAction extends KaartenbalieCrudAction {
 		Layer layer = getLayerByLayerId(id);
 		layer.setMetaData(metadata);
 		
-                //Possible TODO!
-                em.merge(layer);
-                //getHibernateSession().update(layer);
+		//Possible TODO!
+		em.merge(layer);
+		//getHibernateSession().update(layer);
 		
 		showLayerTree(request);
 

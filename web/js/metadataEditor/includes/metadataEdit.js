@@ -21,7 +21,6 @@ function addLoadEvent(func) {
 
 function initWithXmlString() {
 	// if no metadata is present we start the editor with all elements empty
-	var metadataXML;
 	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
 		metadataXML = basicMetadataXML;
 	}

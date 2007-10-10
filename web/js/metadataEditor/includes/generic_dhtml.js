@@ -20,21 +20,23 @@ var MENU_Y_OFFSET = 3;
 
 
 // Show popup window that's embedded in code
-function showMenu(pElem) {
-	debug("showmenu");
+function showMenu(event) {
+	var element = getTarget(event);
+	element = element.parentNode;
+	debug("showMenu");
 	// is SPAN
-	if (pElem.tagName.toLowerCase() != "span") {
-		alert("This element isn't a \"span\". It's a " + pElem.tagName);
+	if (element.tagName.toLowerCase() != "span") {
+		alert("This element isn't a \"span\". It's a " + element.tagName);
 		return;
 	}
-	debug("Span found. # child nodes = " + pElem.childNodes.length);
+	//debug("Span found. # child nodes = " + element.childNodes.length);
 
 	//current value
-	var pList;
+	var list;
 	var listFound = false;
-	for (var i in pElem.childNodes) {
-		pList = pElem.childNodes[i];
-		if (pList.nodeType == Node.ELEMENT_NODE && pList.tagName.toLowerCase() == "ul") {
+	for (var i in element.childNodes) {
+		list = element.childNodes[i];
+		if (list.nodeType == Node.ELEMENT_NODE && list.tagName.toLowerCase() == "ul") {
 			listFound = true;
 			break;
 		}
@@ -46,16 +48,17 @@ function showMenu(pElem) {
 	}
 
 	// already displayed?
-	if (pList.style.display == "block") {
+	if (list.style.visibility == "visible") {
+		list.style.visibility = "hidden";
 		return;
 	}
 
 	// get image to use for positioning
-	var pImg;
+	var image;
 	var imageFound = false;
-	for (var i in pElem.childNodes) {
-		pImg = pElem.childNodes[i];
-		if (pImg.nodeType == Node.ELEMENT_NODE && pImg.tagName.toLowerCase() == "img") {
+	for (var i in element.childNodes) {
+		image = element.childNodes[i];
+		if (image.nodeType == Node.ELEMENT_NODE && image.tagName.toLowerCase() == "img") {
 			imageFound = true;
 			break;
 		}
@@ -66,36 +69,51 @@ function showMenu(pElem) {
 		return;
 	}
 	
-	debug("pImg.offsetLeft: " + pImg.offsetLeft);
-	debug("pImg.offsetTop: " + pImg.offsetTop);
+	/*debug("image.offsetLeft: " + image.offsetLeft);
+	debug("image.offsetTop: " + image.offsetTop);
 	debug("MENU_X_OFFSET: " + MENU_X_OFFSET);	
 	debug("MENU_Y_OFFSET: " + MENU_Y_OFFSET);		
-
+	*/
 	// show menu
-	//pList.style.left = pImg.offsetLeft + MENU_X_OFFSET;
-	//pList.style.top = pImg.offsetTop + MENU_Y_OFFSET;
-	//pList.style.display = "list-item";
-	pList.style.display = "inline";
-	//pList.onmouseout = hideMenu;
+	//list.style.left = image.offsetLeft + MENU_X_OFFSET;
+	//list.style.top = image.offsetTop + MENU_Y_OFFSET;
+	list.style.visibility = "visible";	
+	//list.onmouseout = hideMenu;
 	
-	debug("pList.style.left: " + pList.style.left);		
-	debug("pList.style.top: " + pList.style.top);
-	debug("pList.offsetLeft: " + pList.offsetLeft);		
-	debug("pList.offsetTop: " + pList.offsetTop);
-	for (var i in pList.childNodes)
-		debug(i + ": " + pList.childNodes[i]);
+	/*
+	debug("list.style.left: " + list.style.left);		
+	debug("list.style.top: " + list.style.top);
+	debug("list.offsetLeft: " + list.offsetLeft);		
+	debug("list.offsetTop: " + list.offsetTop);
+	for (var i in list.childNodes)
+		debug(i + ": " + list.childNodes[i]);
+	*/
 }
 
 
 // 2/05 Eric Compas;
 // Hide popup menu;
-function hideMenu(pElem) {
-	debug("hidemenu");
-	if (pElem.tagName.toLowerCase() == "ul") {
-		pElem.style.display = "none";
+function hideMenu(event) {
+	var element = getTarget(event);
+	debug("hideMenu");
+	debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
+	// test if not IE:
+	if (event != null && event != "" && event.currentTarget != null && event.currentTarget != "") {
+		// do w3c event model test:
+		if (element.tagName.toLowerCase() == "ul") {// && !element.contains(event.currentTarget)) {
+			debug("hide");
+			element.style.visibility = "hidden";
+		}
 	}
-	else {
-		alert("Cannot locate menu list (ul). Found tag = " + pElem.tagName);
+}
+
+function hideMenuIE(event) {
+	var element = getTarget(event);
+	debug("hideMenuIE");
+	debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
+	if (element.tagName.toLowerCase() == "ul") {
+		debug("hide");
+		element.style.visibility = "hidden";	
 	}
 }
 

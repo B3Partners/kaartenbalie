@@ -59,7 +59,8 @@ ul.menu {
 	border: 1px solid #999; 
 	position: absolute;  /* key attribute for hovering menu */
 	z-index: 9990; /* werkt niet helemaal lekker in IE */
-	display: none;
+	display: inline;
+	visibility: hidden;
 	list-style-type: none;
 }
 
