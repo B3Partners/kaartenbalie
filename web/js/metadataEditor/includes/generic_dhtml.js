@@ -21,16 +21,14 @@ var MENU_Y_OFFSET = 3;
 
 // Show popup window that's embedded in code
 function showMenu(event) {
-	var element = getTarget(event);
+	/*var element = getTarget(event);
 	element = element.parentNode;
-	debug("showMenu");
-	// is SPAN
-	if (element.tagName.toLowerCase() != "span") {
-		alert("This element isn't a \"span\". It's a " + element.tagName);
-		return;
-	}
-	//debug("Span found. # child nodes = " + element.childNodes.length);
+	var firstElem = element;
+	//debug("showMenu");
 
+	while (element.tagName.toLowerCase() != "span" && element.tagName.toLowerCase() != "html")
+		element = element.parentNode;
+	
 	//current value
 	var list;
 	var listFound = false;
@@ -69,54 +67,78 @@ function showMenu(event) {
 		return;
 	}
 	
-	/*debug("image.offsetLeft: " + image.offsetLeft);
-	debug("image.offsetTop: " + image.offsetTop);
-	debug("MENU_X_OFFSET: " + MENU_X_OFFSET);	
-	debug("MENU_Y_OFFSET: " + MENU_Y_OFFSET);		
-	*/
 	// show menu
 	//list.style.left = image.offsetLeft + MENU_X_OFFSET;
 	//list.style.top = image.offsetTop + MENU_Y_OFFSET;
-	list.style.visibility = "visible";	
+	_showMenu(list);
 	//list.onmouseout = hideMenu;
-	
-	/*
-	debug("list.style.left: " + list.style.left);		
-	debug("list.style.top: " + list.style.top);
-	debug("list.offsetLeft: " + list.offsetLeft);		
-	debug("list.offsetTop: " + list.offsetTop);
-	for (var i in list.childNodes)
-		debug(i + ": " + list.childNodes[i]);
-	*/
+	*/	
 }
 
 
 // 2/05 Eric Compas;
 // Hide popup menu;
 function hideMenu(event) {
-	var element = getTarget(event);
-	debug("hideMenu");
-	debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
+	/*var element = getTarget(event);
+	//debug("hideMenu");
+	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
 	// test if not IE:
 	if (event != null && event != "" && event.currentTarget != null && event.currentTarget != "") {
 		// do w3c event model test:
-		if (element.tagName.toLowerCase() == "ul") {// && !element.contains(event.currentTarget)) {
-			debug("hide");
-			element.style.visibility = "hidden";
+		var node = event.currentTarget;
+		var inside = false;
+		//debug("event.target: " + element.tagName);
+		//debug("event.currentTarget: " + event.currentTarget.tagName);		
+		while (node.tagName.toLowerCase() != "html") {
+			node = node.parentNode;
+			//debug("element: " + element.tagName);
+			//debug("searching node: " + node.tagName);
+			if (node == element)
+				inside = true;
 		}
-	}
+		//debug("inside: " + inside);
+		if (element.tagName.toLowerCase() == "ul" && !inside) {// && !element.contains(event.currentTarget)) {
+			_hideMenu(element);	
+		}
+	}*/
+}
+
+function keepMenu(event) {
+	/*
+	//debug("keepMenu");
+	//var element = getTarget(event);
+	//_showMenu(element);
+	showMenu(event);
+	//if (element.style.display != "none")
+	 */
 }
 
 function hideMenuIE(event) {
+	/*
 	var element = getTarget(event);
-	debug("hideMenuIE");
-	debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
+	//debug("hideMenuIE");
+	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
 	if (element.tagName.toLowerCase() == "ul") {
-		debug("hide");
-		element.style.visibility = "hidden";	
+		_hideMenu(element);		
 	}
+	*/
 }
 
+function _showMenu(element) {
+	/*
+	//debug("show");
+	//element.style.visibility = "visible";	
+	element.style.display = "inline";		
+	*/
+}
+
+function _hideMenu(element) {
+	/*
+	//debug("hide");
+	//element.style.visibility = "hidden";	
+	element.style.display = "none";		
+	*/
+}
 // 12/8/2004 Eric Compas
 //
 // Description:

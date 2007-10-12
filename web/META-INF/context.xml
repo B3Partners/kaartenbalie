@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie_wis">
-    <!-- Voor Tomcat 5.5
+	<!--
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
@@ -14,6 +14,8 @@
             maxActive="100"
             minEvictableIdleTimeMillis="10000"
             timeBetweenEvictionRunsMillis="60000"
+	/>
+	
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
@@ -23,10 +25,10 @@
             maxWait="5000"
             validationQuery="select now();"
             username="root"
-            url="jdbc:mysql://localhost:3306/kaartenbalie"
+            url="jdbc:mysql://localhost:3306/kaartenbalie_wis"
             maxActive="100"
-    />
-
+    />-->
+    <!-- Voor Tomcat 5.5
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"

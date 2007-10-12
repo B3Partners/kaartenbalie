@@ -73,7 +73,7 @@
 
     <global-forwards>
        <forward name="success"  path="/index.do"/>
-     </global-forwards>
+    </global-forwards>
 
     <action-mappings>
         <action path="/index" forward="base.beheer.index"/>

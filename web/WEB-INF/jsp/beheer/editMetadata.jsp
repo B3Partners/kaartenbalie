@@ -11,7 +11,8 @@
 
 		<script type="text/javascript">
 		/* <![CDATA[ */
-			var debugMode = true;
+			//var debugMode = true;
+			var debugMode = false;
 			
 			var layerId = "<c:out value="${metadataForm.map.id}"/>";
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";

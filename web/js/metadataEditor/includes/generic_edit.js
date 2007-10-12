@@ -322,7 +322,6 @@ function pickListKeyPress(element) {
 //   For "tab" key, stop editing, but don't go to next link (IE default)
 //   For "enter" key, stop editing if in INPUT edit box.
 //   For "escape" key, return to original value (toss out edits)
-//*******************************************************
 function checkKey(event) {
 	//debug("checkKey");
 	var element = getTarget(event);
@@ -478,8 +477,6 @@ function deleteSection(element, sectionPath) {
 	changeFlag(true);
 }
 
-// 2/21/2005 Eric Compas
-//
 // Description:
 //   Add a child section (compound element) below the current
 //   parent. Similar to AddSection code except adding as
@@ -516,7 +513,7 @@ function addChild(element, addName) {
 //   a new section (compound element) using an XSL transformation
 //   of a small chunk of XML code.
 function createSection(strAddName) {
-	//alert("strAddName=" + strAddName);
+	debug("strAddName=" + strAddName);
 
 	// get edit stylesheet file location from document
 	var pXSLSpan = document.getElementById("editStylesheetFile");
@@ -547,11 +544,13 @@ function createSection(strAddName) {
 	var sParentNodes, sNode;
 	//if (InStrRev(strAddName,"/") > 0) {
 	if (strAddName.lastIndexOf("/") > -1) {
-		//alert("AddSection: found parents");
+		debug("AddSection: found parents");
 		var sNodes, pNode, newNode;
 		//sParentNodes = Left(strAddName, InStrRev(strAddName,"/")-1);
 		sParentNodes = strAddName.substring(0, strAddName.lastIndexOf("/"));
-		//alert("AddSection: parent nodes = " + sParentNodes);
+		if (sParentNodes.indexOf("/") == 0)
+			sParentNodes = sParentNodes.substring(1);
+		debug("AddSection: parent nodes = " + sParentNodes);
 		pNode = tempXmlDoc.documentElement;
 		sNodes = sParentNodes;
 		while (sNodes != "") {
@@ -568,8 +567,8 @@ function createSection(strAddName) {
 				sNode = sNodes;
 				sNodes = "";
 			}
-			//alert("AddSection: sNode = " + sNode + ", sNodes = " + sNodes);
-			newNode = tempXmlDoc.createNode(1, sNode, "");
+			debug("AddSection: sNode = " + sNode + ", sNodes = " + sNodes);
+			newNode = tempXmlDoc.createElement(sNode);
 			pNode.appendChild(newNode);
 			pNode = newNode;
 		}
@@ -580,9 +579,9 @@ function createSection(strAddName) {
 	else {
 		sParentNodes = "";
 		sNode = strAddName;
-		//alert("AddSection:parent ! found " + strAddName);
+		debug("AddSection:parent not found " + strAddName);
 	}
-	//alert("xmlDoc = " + xmlDoc.xml);
+	debug("tempXmlDoc = " + tempXmlDoc.xml);
 	debug("sParentNodes = " + sParentNodes + ", sNode = " + sNode);
 	
 	
@@ -591,7 +590,7 @@ function createSection(strAddName) {
 	//var preXSLDoc = new ActiveXObject("MSXML2.DOMDocument");
 	//var strXSL = "<?xml version='1.0' encoding='ISO-8859-1'?>" +  "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<!-- inlude Add Templates library for stylesheet -->" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;
 	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;	
-	strXSL += "<xsl:template match='" + sParentNodes + "'>";
+	strXSL += "<xsl:template match='/root/" + sParentNodes + "'>";
 	
 	/*
 	//start of creating the XSL transform;
@@ -609,9 +608,9 @@ function createSection(strAddName) {
 
 	strXSL += "<xsl:copy><xsl:call-template name='add-" + sNode + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
 
-	debug("strXSL "+ strXSL);
+	//debug("strXSL "+ strXSL);
 
-	preXSLDoc = jsXML.createDOMDocument();
+	preXSLDoc = jsXML.createDOMDocument(true);
 	preXSLDoc.async = false;
 	preXSLDoc.loadXML(strXSL);
 	/*if (preXSLDoc.parseError.errorCode != 0) {
@@ -619,36 +618,49 @@ function createSection(strAddName) {
 		return null;
 	}*/
 	debug("preXSLDoc.xml = " + preXSLDoc.xml);
-	//tot hier ff testen
-	return;
 	// transform or "preprocess" it
 
 	//On Error Goto EH:
 	debug("hierna loopt ie vast");
-	var strPreXML = xmlDoc.transformNode(preXSLDoc);
-	debug("hier");
 	
-	var preXMLDoc = new ActiveXObject("MSXML2.DOMDocument");
+	var strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
+	
+	//var strPreXML = xmlDoc.transformNode(preXSLDoc);
+	
+	debug("OK niet dus");
+	
+	var preXMLDoc = jsXML.createDOMDocument();
+	preXMLDoc.async = false;
 	preXMLDoc.loadXML(strPreXML);
 	
-	if (preXMLDoc.parseError.errorCode != 0) {
-		alert("Error parsing the preprocessed XML file. Code=" +  preXMLDoc.parseError.errorCode + ", Desc=" +  preXMLDoc.parseError.reason);
-		return null;
-	}
+	//var preXMLDoc = new ActiveXObject("MSXML2.DOMDocument");
+	//preXMLDoc.loadXML(strPreXML);
+	
+	//if (preXMLDoc.parseError.errorCode != 0) {
+	//	alert("Error parsing the preprocessed XML file. Code=" +  preXMLDoc.parseError.errorCode + ", Desc=" +  preXMLDoc.parseError.reason);
+	//	return null;
+	//}
 
-	alert("preXMLDoc "+ preXMLDoc.xml);
+	debug("preXMLDoc = "+ preXMLDoc.xml);
 
+	var xslDoc = jsXML.createDOMDocument();
+	xslDoc.async = false;
+	xslDoc.loadXML(strEditXSLFile);
 
 	// transform the resulting xml with editable stylesheet
-	var xslDoc = new ActiveXObject("MSXML2.DOMDocument");
-	xslDoc.load(strEditXSLFile);
+	//var xslDoc = new ActiveXObject("MSXML2.DOMDocument");
+	//xslDoc.load(strEditXSLFile);
 	//alert("xslDoc.xml = " + Left(xslDoc.xml, 50) + "...");
 
 	//alert("preXMLDoc.xml = " + preXMLDoc.xml);
-	alert("xslDoc = "+ xslDoc.xml);
+	debug("xslDoc = "+ xslDoc.xml);
 
-	var strHTML = preXMLDoc.transformNode(xslDoc);
-	//alert("strHTML  " + strHTML);
+	// hergebruik!
+	var strHTML = xmlTransformer.transformToString(preXMLDoc, xslDoc);
+	
+	//var strHTML = preXMLDoc.transformNode(xslDoc);
+	
+	debug("strHTML = " + strHTML);
 	//htmlText.value = strHTML;
 	//prompt("transformed HTML", strHTML)
 
@@ -681,7 +693,8 @@ function createSection(strAddName) {
 	//objDIV.setAttribute "class", "section";
 
 	// insert HTML in div;
-	objDIV.innerHTML = strHTML;
+	objDIV.innerHTML = ""
+	objDIV.appendChild(strHTML);
 	//alert("objDIV.innerHTML" + objDIV.innerHTML);
 	//var fso, fsw;
 

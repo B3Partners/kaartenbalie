@@ -65,7 +65,8 @@ function initWithXmlString() {
 	xmlTransformer.setParameter("basePath", basePath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
-	xmlDocInit();
+	// initialiseren van tabs:
+	//xmlDocInit();
 }
 
 function saveChangesInXMLDom(newValue, path) {
