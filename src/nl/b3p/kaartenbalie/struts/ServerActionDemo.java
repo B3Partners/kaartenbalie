@@ -17,9 +17,11 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -37,13 +39,13 @@ import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
 public class ServerActionDemo extends ServerAction {
-    
+
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
     protected static final String MAP_ALREADY_ADDED = "demo.mapalreadyadded";
-    
+
     /** Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -63,7 +65,7 @@ public class ServerActionDemo extends ServerAction {
         return action;
     }
     // </editor-fold>
-    
+
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -77,6 +79,9 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+
+        EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -96,7 +101,7 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -110,7 +115,7 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Let us first check if a map is already added to the system. Otherwise users
          * could upload a nummerous amount of free maps. This is not what we tend to allow
@@ -126,7 +131,7 @@ public class ServerActionDemo extends ServerAction {
                 return getAlternateForward(mapping, request);
             }
         }
-        
+
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
          * saving the user input. This means that we can start checking if we are dealing with a new
@@ -134,7 +139,7 @@ public class ServerActionDemo extends ServerAction {
          * new Serviceprovider into the memory. Before we can take any action we need the users input to read
          * the variables.
          */
-        
+
         /*
          * First we need to check if the given url is conform the url standard.
          */
@@ -146,7 +151,7 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         try {
             url = checkWmsUrl(url);
         } catch (Exception e) {
@@ -154,7 +159,7 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
@@ -162,7 +167,7 @@ public class ServerActionDemo extends ServerAction {
          */
         ServiceProvider newServiceProvider = null;
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-        
+
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -187,13 +192,13 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, e.toString());
             return getAlternateForward(mapping, request);
         }
-        
+
         if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Now we first need to save this serviceprovider.
          */
@@ -203,8 +208,8 @@ public class ServerActionDemo extends ServerAction {
         if (newServiceProvider.getId() == null) {
             em.persist(newServiceProvider);
         }
-        
-        
+
+
         /*
          * Now the Serviceprovider is saved, we can add this provider
          * to the organization of the user. Therefore we need to get
@@ -216,7 +221,7 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Get the users organization and store the layers into this Organization.
          */
@@ -226,7 +231,7 @@ public class ServerActionDemo extends ServerAction {
         while (it.hasNext()) {
             organizationLayers.add(((Layer)it.next()).clone());
         }
-        
+
         Layer topLayer = newServiceProvider.getTopLayer();
         Set newLayerSet = getSetStructure(topLayer, new HashSet());
         newLayerSet.add(topLayer);
@@ -234,19 +239,19 @@ public class ServerActionDemo extends ServerAction {
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
         }
-        
+
         org.setOrganizationLayer(organizationLayers);
         user.setOrganization(org);
-        
+
         if (org.getId() == null) {
             em.persist(org);
         }
-        
+
         if (user.getId() == null) {
             em.persist(user);
         }
         em.flush();
-        
+
         /*
          * Set the boolean that a map is already added to the system. Otherwise users
          * could upload a nummerous amount of free maps. This is not what we tend to allow
@@ -254,7 +259,7 @@ public class ServerActionDemo extends ServerAction {
          */
         mapAdded = new Boolean(true);
         session.setAttribute("MapAdded", mapAdded);
-        
+
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
@@ -268,11 +273,11 @@ public class ServerActionDemo extends ServerAction {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
             srw.setUserPrincipal(principal);
         }
-        
+
         return mapping.findForward("nextPage");
     }
     // </editor-fold>
-    
+
     private Set getSetStructure(Layer layer, Set layerset) {
         if (layer != null && layerset != null) {
             Set layers = layer.getLayers();
@@ -289,7 +294,7 @@ public class ServerActionDemo extends ServerAction {
         }
         return layerset;
     }
-        
+
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -301,10 +306,12 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+
+        EntityManager em = getEntityManager();
         User user = null;
-        
+
         Integer id = getID(dynaForm);;
-        
+
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
@@ -313,5 +320,5 @@ public class ServerActionDemo extends ServerAction {
         return user;
     }
     // </editor-fold>
-    
+
 }

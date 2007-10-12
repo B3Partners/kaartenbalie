@@ -52,7 +52,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public static final long serialVersionUID = 24362462L;
     private String format;
     private String inimageType;
-    private EntityManager em;
     public static String CAPABILITIES_DTD = null;
     private static String dtd = "/dtd/capabilities_1_1_1.dtd";
     
@@ -66,7 +65,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        em = ManagedPersistence.getEntityManager();
         // Zet de logger
         log = LogFactory.getLog(this.getClass());
         log.info("Initializing Call WMS Servlet");
@@ -289,7 +287,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request, Map parameters, DataWrapper dw) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
-        
+        EntityManager em = getEntityManager();
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         
@@ -335,7 +333,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             // niet ingelogd dus, dan checken op token in url
-
+            
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -375,6 +373,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             }
         }
+        ManagedPersistence.closeEntityManager();
         return user;
     }
     // </editor-fold>
@@ -600,6 +599,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             // Decode and parse the authorization credentials
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
+    }
+    
+    public static EntityManager getEntityManager() {
+        return ManagedPersistence.getEntityManager();
     }
     
 }

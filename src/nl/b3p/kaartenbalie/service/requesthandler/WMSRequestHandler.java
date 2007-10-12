@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -62,7 +63,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
-public abstract class WMSRequestHandler extends ManagedPersistence implements RequestHandler, KBConstants {
+public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
@@ -72,14 +73,17 @@ public abstract class WMSRequestHandler extends ManagedPersistence implements Re
     private XMLReader parser;
     private static Stack stack = new Stack();
     private Switcher s;
+    protected EntityManager em;
     
-    public WMSRequestHandler() {}
+    public WMSRequestHandler() {
+        em = ManagedPersistence.createEntityManager();
+    }
     
     public ServiceProvider getServiceProvider() {
         
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-
+        
         
         
         User dbUser = (User)em.createQuery("from User u where " +

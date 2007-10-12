@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.security.Principal;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
@@ -18,9 +19,14 @@ import org.apache.commons.logging.LogFactory;
 import org.securityfilter.realm.ExternalAuthenticatedRealm;
 import org.securityfilter.realm.SecurityRealmInterface;
 
-public class SecurityRealm extends ManagedPersistence implements SecurityRealmInterface, ExternalAuthenticatedRealm {
+public class SecurityRealm implements SecurityRealmInterface, ExternalAuthenticatedRealm {
     private final Log log = LogFactory.getLog(this.getClass());
     
+    private EntityManager em;
+    
+    public SecurityRealm() {
+        em = ManagedPersistence.createEntityManager();
+    }
     /** Checks wether an user, given his username and password, is allowed to use the system.
      *
      * @param username String representing the username.
@@ -30,7 +36,6 @@ public class SecurityRealm extends ManagedPersistence implements SecurityRealmIn
      */
     // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
-
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
@@ -38,9 +43,9 @@ public class SecurityRealm extends ManagedPersistence implements SecurityRealmIn
                     "from User u where " +
                     "lower(u.username) = lower(:username) " +
                     "and lower(u.password) = lower(:password)")
-                .setParameter("username", username)
-                .setParameter("password", password)
-                .getSingleResult();
+                    .setParameter("username", username)
+                    .setParameter("password", password)
+                    .getSingleResult();
             return user;
         } finally {
             tx.commit();
@@ -55,8 +60,8 @@ public class SecurityRealm extends ManagedPersistence implements SecurityRealmIn
             User user = (User)em.createQuery(
                     "from User u where " +
                     "lower(u.username) = lower(:username) ")
-                .setParameter("username", username)
-                .getSingleResult();
+                    .setParameter("username", username)
+                    .getSingleResult();
             return user;
         } finally {
             tx.commit();

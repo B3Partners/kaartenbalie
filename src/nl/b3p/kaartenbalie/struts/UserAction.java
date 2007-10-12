@@ -13,11 +13,13 @@ package nl.b3p.kaartenbalie.struts;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
@@ -27,7 +29,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 
 public class UserAction extends KaartenbalieCrudAction {
-    
+
     private final static String SUCCESS = "success";
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
     protected static final String USER_NOTFOUND_ERROR_KEY = "error.usernotfound";
@@ -36,7 +38,7 @@ public class UserAction extends KaartenbalieCrudAction {
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -56,7 +58,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
-    
+
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -76,12 +78,12 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, USER_NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         populateUserForm(user, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
+
     /* Method for saving a new or updating an existing user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -95,6 +97,9 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        EntityManager em = getEntityManager();
+
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -114,7 +119,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -128,7 +133,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * No errors occured during validation and token check. Therefore we can get a new
          * user object if a we are dealing with new input of the user, otherwise we can change
@@ -140,14 +145,14 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /* CHECKING FOR UNIQUE USERNAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          * All the given input can be of any kind, but the username has to be unique.
          * Therefore we need to check with the database if there is already a user with
          * the given username. If such a user exists we need to inform the user that
          * this is not allowed.
          */
-        
+
         try {
             User dbUser = (User)em.createQuery(
                     "from User u where " +
@@ -162,16 +167,16 @@ public class UserAction extends KaartenbalieCrudAction {
         } catch (NoResultException nre) {
             //this is good!; This means that there are no other users in the DB with this username..
         }
-        
-        
-        
-        
+
+
+
+
         /*
          * First get all the user input which need to be saved.
          */
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
-        
+
         if(password != null && repeatpassword != null) {
             if(!password.equals(repeatpassword)) {
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -181,13 +186,13 @@ public class UserAction extends KaartenbalieCrudAction {
                 user.setPassword(password);
             }
         }
-        
+
         /*
          * Once we have a (new or existing) user object we can fill this object with
          * the user input.
          */
         populateUserObject(dynaForm, user, request);
-        
+
         /*
          * No errors occured so we can assume that all is good and we can safely
          * save this user. Any other exception that might occur is in the form of
@@ -201,7 +206,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
-    
+
     /* Method for deleting a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -215,6 +220,9 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        EntityManager em = getEntityManager();
+
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -234,7 +242,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * No errors occured during validation and token check. Therefore we can get
          * the selected user from the database. If this user is unknown in the database
@@ -246,7 +254,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Before we start deleting, one last check is necessary. If a Administrator is going
          * to be deleted, we need to check if there is this object is not the administrator
@@ -259,7 +267,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Otherwise we can assume that all is good and we can safely delete this user.
          * Any other exception that might occur is in the form of an unknown or unsuspected
@@ -271,7 +279,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
+
     /* Creates a list of all the users in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -281,19 +289,21 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
+
+        EntityManager em = getEntityManager();
         super.createLists(form, request);
         List userList = em.createQuery("from User").getResultList();
         request.setAttribute("userlist", userList);
-        
+
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
     // </editor-fold>
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Private method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -310,7 +320,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
-    
+
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -322,10 +332,13 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+
+        EntityManager em = getEntityManager();
+
         User user = null;
-        
+
         Integer id = getID(dynaForm);
-        
+
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
@@ -334,7 +347,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return user;
     }
     // </editor-fold>
-    
+
     /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -345,13 +358,16 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
     private Organization getOrganization(Integer id) throws HibernateException {
-        
+
+
+        EntityManager em = getEntityManager();
+
         return (Organization)em.createQuery(
                 "from Organization o where " +
                 "lower(o.id) = lower(:id) ").setParameter("id", id).getSingleResult();
     }
     // </editor-fold>
-    
+
     /* Method which will fill-in the JSP form with the data of a given user.
      *
      * @param user User object from which the information has to be printed.
@@ -360,6 +376,9 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+  
+        EntityManager em = getEntityManager();
+
         dynaForm.set("id", user.getId().toString());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
@@ -367,7 +386,7 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("username", user.getUsername());
         dynaForm.set("password", user.getPassword());
         dynaForm.set("repeatpassword", user.getPassword());
-        
+
         List roles = em.createQuery("from Roles").getResultList();
         request.setAttribute("userrolelist", roles);
         ArrayList roleSet = new ArrayList(user.getUserroles());
@@ -377,14 +396,14 @@ public class UserAction extends KaartenbalieCrudAction {
             roleSelected[i] = role.getId().toString();
         }
         dynaForm.set("roleSelected", roleSelected);
-        
+
         if(user.getOrganization() != null) {
             dynaForm.set("selectedOrganization", user.getOrganization().getId().toString());
         }
         //dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
-    
+
     /* Method that fills a user object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -393,12 +412,15 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
     protected void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
+
+
+        EntityManager em = getEntityManager();
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setSurname(FormUtils.nullIfEmpty(dynaForm.getString("surname")));
         user.setEmailAddress(FormUtils.nullIfEmpty(dynaForm.getString("emailAddress")));
         user.setUsername(FormUtils.nullIfEmpty(dynaForm.getString("username")));
         user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
-        
+
         String selectedOrg = dynaForm.getString("selectedOrganization");
         if(selectedOrg != null) {
             user.setOrganization(this.getOrganization(FormUtils.StringToInteger(selectedOrg)));

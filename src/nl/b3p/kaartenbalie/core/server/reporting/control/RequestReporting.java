@@ -32,23 +32,23 @@ public class RequestReporting {
     public RequestReporting(User user) {
         this();
         if (user != null) {
-            
+
             this.user = (User) em.find(User.class, user.getId());
         }
-        
+
     }
-    
+
     public void clean() {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         em.createQuery("DELETE FROM ServiceProviderRequest").executeUpdate();
         em.createQuery("DELETE FROM ClientRequest").executeUpdate();
         tx.commit();
-        
+
     }
-    
+
     public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser) throws Exception{
-        
+
         EntityTransaction tx = em.getTransaction();
         if (tx.isActive() || clientRequest != null) {
             throw new Exception("Cannot start a new clientRequest without ending one first.");
@@ -63,15 +63,15 @@ public class RequestReporting {
             e.printStackTrace();
         }
     }
-    
+
     public void addServiceProviderRequest(String sprClassName, Map parameterMap) throws Exception{
         Class sprClass = Class.forName(sprPackage + "." + sprClassName);
         try {
-            
+
             if (!ServiceProviderRequest.class.isAssignableFrom(sprClass)) {
                 throw new Exception(sprClass.getSimpleName() + " is not a member of the ServiceProviderRequest family tree.");
             }
-            
+
             Object sprObject = sprClass.newInstance();
             Iterator iterParamMap = parameterMap.keySet().iterator();
             while(iterParamMap.hasNext()) {
@@ -85,7 +85,7 @@ public class RequestReporting {
             }
             Method methodCR = sprObject.getClass().getMethod("setClientRequest", new Class[]{ClientRequest.class});
             methodCR.invoke(sprObject,new Object[]{clientRequest});
-            
+
             em.persist(sprObject);
         } catch (NoSuchMethodException ex) {
             Method[] methodList = sprClass.getMethods();
@@ -95,7 +95,7 @@ public class RequestReporting {
                 if (method.getName().startsWith("set") && !method.getName().equalsIgnoreCase("setid") && !method.getName().equalsIgnoreCase("setClientRequest")) {
                     String methodName = method.getName();
                     methodName = methodName.substring(3,methodName.length());
-                    
+
                     Class[] parameterTypes = method.getParameterTypes();
                     validMessage += methodName + "(";
                     for (int j = 0; j < parameterTypes.length; j++) {
@@ -107,14 +107,14 @@ public class RequestReporting {
             throw new Exception(ex.getMessage() + "\n" + validMessage);
         }
     }
-    
+
     public void endClientRequest(int bytesSendToUser, long totalResponseTime) throws Exception{
         EntityTransaction tx = em.getTransaction();
-        
+
         if (!tx.isActive() || clientRequest == null) {
             throw new Exception("Cannot end a clientRequest without starting it first.");
         }
-        
+
         try {
             clientRequest.setBytesSendToUser(new Integer(bytesSendToUser));
             clientRequest.setTotalResponseTime(new Long(totalResponseTime));
@@ -125,34 +125,33 @@ public class RequestReporting {
             tx.rollback();
         }
     }
-    
-    
-    
-    
+
+
+
+
     public void getUsers() {
         EntityManager em = ManagedPersistence.getEntityManager();
-        System.out.println(em.createQuery("FROM User").getResultList().size());
     }
-    
-    
+
+
     public static void main(String [ ] args) throws Exception {
-        
+
         RequestReporting rr = new RequestReporting();
         /*
         rr.clean();
-        
+
         for (int i = 0; i< 50; i++) {
             TestThread t = new TestThread();
             t.start();
         }
          */
-        
-        
+
+
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 }

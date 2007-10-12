@@ -21,10 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
@@ -44,23 +46,23 @@ import org.apache.commons.codec.binary.Hex;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class CreatePersonalURLAction extends KaartenbalieCrudAction implements KBConstants  {
-    
+
     /* forward name="success" path="" */
     private static Log log = LogFactory.getLog(CreatePersonalURLAction.class);
     private final static String SUCCESS = "success";
     private final static String GETIPADDRESS = "getIpAddress";
-    
+
     protected static final String DATE_PARSE_ERROR_KEY = "error.dateparse";
     protected static final String DATE_INPUT_ERROR_KEY = "error.dateinput";
     protected static final String AUTHORISATION_ERROR_KEY = "error.authorization";
     protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
-    
-    
+
+
     //private String registeredIP;
     //private String personalURL;
-    
-    
+
+
     /*
      * Which in which self specified ActionMethods can be added to a Map of ActionMethods which will be returned.
      *
@@ -79,11 +81,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return map;
     }
     // </editor-fold>
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /** Unspecified method which handles all incoming request that have no actions defined.
      *
      * @param mapping action mapping
@@ -100,7 +102,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return populateUserForm(mapping, dynaForm, request, response, LIST, LIST);
     }
     // </editor-fold>
-    
+
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -117,7 +119,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return populateUserForm(mapping, dynaForm, request, response, EDIT, LIST);
     }
     // </editor-fold>
-    
+
     /**
      * Ability to cancel an action
      *
@@ -135,7 +137,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return populateUserForm(mapping, dynaForm, request, response, LIST, EDIT);
     }
     // </editor-fold>
-    
+
     /** Save method which creates a unique IP address for the user and saves this address into the database.
      *
      * @param mapping action mapping
@@ -149,6 +151,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws NoSuchAlgorithmException, Exception {
+        EntityManager em = getEntityManager();
+
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -169,7 +173,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -184,7 +188,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         User user = getUser(dynaForm, request, false);
         if(user == null) {
             populateUserForm(mapping, dynaForm, request, response, EDIT, EDIT);
@@ -192,7 +196,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * First get all the user input which need to be saved.
          */
@@ -207,16 +211,16 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, DATE_PARSE_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         if (date.compareTo(new java.util.Date()) < 0) {
             populateUserForm(mapping, dynaForm, request, response, EDIT, EDIT);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, DATE_INPUT_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
-        
-        
+
+
+
         String [] registeredIP = dynaForm.getStrings("registeredIP");
         Set newset = new HashSet();
         int size = registeredIP.length;
@@ -226,7 +230,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             newset.add(ipa);
         }
         user.setUserips(compareSets(user.getUserips(), newset));
-        
+
         /*
          * Everything seems to be ok, so it's alright to save the information
          * First we need to create a personal URL based on the information from the user
@@ -236,40 +240,40 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
-        
-        
+
+
         String hashString = user.getPersonalURL().substring(user.getPersonalURL().lastIndexOf("/") + 1);
-        
-        
+
+
         Random rd = new Random();
         String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
-        
+
         if (user.getTimeout() == null || date.compareTo(user.getTimeout()) != 0) {
             hashString = new String(Hex.encodeHex(md5hash));
         }
-        
+
         String personalURL = protocol + "://" + requestServerName;
         if(port != 80) {
             personalURL += ":" + port;
         }
         personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hashString;
-        
+
         /*
          * Set the new information in the userobject
          */
         user.setPersonalURL(personalURL);
         user.setTimeout(date);
-        
+
         /*
          * Check if this user gets a valid capability when using this personalURL
          */
         if(!user.getOrganization().getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
         }
-        
+
         /*
          * Save the information
          */
@@ -277,22 +281,24 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             em.persist(user);
         }
         em.flush();
-        
+
         Principal principal = request.getUserPrincipal();
         if (request instanceof SecurityRequestWrapper) {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
             srw.setUserPrincipal(user);
         }
-        
+
         populateUserForm(mapping, dynaForm, request, response, LIST, LIST);
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
+
     public Set compareSets(Set oldset, Set newset) {
+
+        EntityManager em = getEntityManager();
         //Eerst alle oude ip adressen verwijderd uit de lijst en uide database.
         Set tempRemoveSet = new HashSet();
-        
+
         Iterator it = oldset.iterator();
         while (it.hasNext()) {
             Userip oldIP = (Userip) it.next();
@@ -309,14 +315,14 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
                 tempRemoveSet.add(oldIP);
             }
         }
-        
+
         Iterator removeIt = tempRemoveSet.iterator();
         while (removeIt.hasNext()) {
             Userip removableIP = (Userip) removeIt.next();
             oldset.remove(removableIP);
             em.remove(removableIP);
         }
-        
+
         //Nu alle nieuwe adressen toevoegen aan de lijst en de database
         Iterator newit = newset.iterator();
         while (newit.hasNext()) {
@@ -338,8 +344,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         }
         return oldset;
     }
-    
-    
+
+
     private Userip ipInList(Set ipaddresses, String address) {
         if (!address.equals("")) {
             Iterator it = ipaddresses.iterator();
@@ -352,11 +358,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         }
         return null;
     }
-    
+
     private boolean similarAddress(Userip ipaddress, String address) {
         return ipaddress.getIpaddress().equalsIgnoreCase(address);
     }
-    
+
     /* Private method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -373,7 +379,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return ((User) request.getUserPrincipal()).getId();
     }
     // </editor-fold>
-    
+
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -385,10 +391,13 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+
+        EntityManager em = getEntityManager();
+
         User user = null;
-        
+
         Integer id = getID(dynaForm, request);
-        
+
         if(null == id && createNew) {
             user = new User();
         } else if (null != id) {
@@ -397,11 +406,11 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         return user;
     }
     // </editor-fold>
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Method which will fill the JSP form with the data of a given service provider.
      *
      * @param serviceProvider ServiceProvider object from which the information has to be printed.
@@ -416,26 +425,26 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         dynaForm.set("username", user.getUsername());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailaddress", user.getEmailAddress());
         dynaForm.set("role", user.getRolesAsString());
         dynaForm.set("personalURL", user.getPersonalURL());
-        
+
         dynaForm.set("currentaddress", request.getRemoteAddr());
-        
+
         List iplist = new ArrayList(user.getUserips());
         request.setAttribute("iplist", iplist);
-        
+
         String [] registeredIP = new String[iplist.size()];
         for (int i = 0; i < iplist.size(); i++) {
             Userip ipaddresses = (Userip)iplist.get(i);
             registeredIP[i] = ipaddresses.getId().toString();
         }
         dynaForm.set("registeredIP", registeredIP);
-        
+
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         Date timeout = user.getTimeout();
         if (timeout != null) {
@@ -446,7 +455,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             String date = df.format(timeout);
             dynaForm.set("timeout", date);
         }
-        
+
         prepareMethod(dynaForm, request, def, alt);
         return mapping.findForward(SUCCESS);
     }

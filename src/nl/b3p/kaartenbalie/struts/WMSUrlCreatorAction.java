@@ -15,9 +15,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -35,9 +37,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
-    
+
     private static final Log log = LogFactory.getLog(WMSUrlCreatorAction.class);
-    
+
     protected static final String GETCAPABILITIES = "getCapabilities";
     protected static final String GETMAP = "getMapUrl";
     protected static final String DEFAULTVERSION = "1.1.1";
@@ -45,13 +47,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
     protected static final String UNKNOWN_DB_USER_ERROR_KEY = "error.dbuser";
     protected static final String NO_LAYERS_SELECTED_ERROR_KEY = "error.nolayer";
-    
+
     private static final String EXTRAREQUESTDATA="&VERSION=1.1.1&STYLES=&EXCEPTIONS=INIMAGE&WRAPDATELINE=true&BGCOLOR=0xF0F0F0";
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -71,7 +73,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
-    
+
     /* Creates a list with all visible layers for the user and sets a couple of settings to the screen.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -82,10 +84,11 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
-        
+
+        EntityManager em = getEntityManager();
         User user = (User) request.getUserPrincipal();
         form.set("personalUrl", user.getPersonalURL());
-        
+
         String[] formats=new String[5];
         formats[0]="image/gif";
         formats[1]="image/png";
@@ -93,21 +96,21 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         formats[3]="image/bmp";
         formats[4]="image/tiff";
         request.setAttribute("formatList",formats);
-        
+
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
-        
+
         LayerValidator lv = new LayerValidator(organizationLayers);
         String[] alSrsen = lv.validateSRS();
         request.setAttribute("projectieList",alSrsen);
-        
+
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
-        
+
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
-            
+
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             HashSet set= new HashSet();
             set.add(sp.getTopLayer());
@@ -121,7 +124,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         request.setAttribute("layerList", root);
     }
     // </editor-fold>
-    
+
     /* Method which calculates the specific GetMap URL for the user given the input from the from.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -135,6 +138,9 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+
+        EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new GetMap URL, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -154,7 +160,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -168,7 +174,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         //Create the String
         String[] layers     = (String[])dynaForm.get("sortedLayers");
         String projectie    = (String)  dynaForm.get("selectedProjectie");
@@ -177,13 +183,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         Integer width       = (Integer) dynaForm.get("width");
         String format       = (String)  dynaForm.get("selectedFormat");
         String pUrl         = (String)  dynaForm.get("personalUrl");
-        
+
         if(layers.length == 0) {
             prepareMethod(dynaForm, request, LIST, LIST);
             addAlternateMessage(mapping, request, NO_LAYERS_SELECTED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * Get the URL to start with
          */
@@ -193,15 +199,15 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         String getMap = user.getPersonalURL();
-        
+
         /*
          * Add the rest of the parameters
          */
         getMap += "?REQUEST=GetMap";
         getMap+="&LAYERS=";
-        
+
         for (int i = 0; i < layers.length; i++){
             if (i == 0)
                 getMap += layers[i];
@@ -209,24 +215,24 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
                 getMap += "," + layers[i];
             }
         }
-        
+
         getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
-        
+
         user.setDefaultGetMap(getMap);
-        
+
         if (user.getId() == null) {
             em.persist(user);
         }
-        
+
         populateForm(getMap, dynaForm, request);
         return mapping.findForward("success");
     }
     // </editor-fold>
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -243,22 +249,22 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
         map.put(GETCAPABILITIES, crudProp);
-        
+
         crudProp = new ExtendedMethodProperties(GETMAP);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
         map.put(GETMAP, crudProp);
-        
+
         return map;
     }
     // </editor-fold>
-    
+
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    
+
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -288,7 +294,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         form.set("defaultGetMap", getMap);
     }
     // </editor-fold>
-    
+
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
      *
@@ -318,13 +324,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
                 /* When the visibility check has turned out to be ok. we start adding this layer to
                  * the list of layers.
                  */
-                
+
                 /* When we have retrieved this array we are able to save our object we are working with
                  * at the moment. This object is our present layer object. This object first needs to be
                  * transformed into a JSONObject, which we do by calling the method to do so.
                  */
                 JSONObject layerObj = this.layerToJSON(layer);
-                
+
                 /* Before we are going to save the present object we can first use our object to recieve and store
                  * any information which there might be for the child layers. First we check if the set of layers
                  * is not empty, because if it is, no effort has to be taken.
@@ -335,13 +341,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
                 if (childLayers != null && !childLayers.isEmpty()) {
                     layerObj = createTreeList(childLayers, organizationLayers, layerObj);
                 }
-                
+
                 /* After creating the JSONObject for this layer and if necessary, filling this
                  * object with her childs, we can add this JSON layer object back into its parent array.
                  */
                 parentArray.put(layerObj);
-                
-                
+
+
             }
         }
         if (parentArray.length()>0){
@@ -350,7 +356,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         return parent;
     }
     // </editor-fold>
-    
+
     /* Method which checks if a certain layer is allowed to be shown on the screen.
      *
      * @param layer Layer object that has to be checked
@@ -370,7 +376,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         return false;
     }
     // </editor-fold>
-    
+
     /* Creates a JSON object from the ServiceProvider with its given name and id.
      *
      * @param serviceProvider The ServiceProvider object which has to be converted
@@ -388,7 +394,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         return root;
     }
     // </editor-fold>
-    
+
     /* Creates a JSON object from the Layer with its given name and id.
      *
      * @param layer The Layer object which has to be converted

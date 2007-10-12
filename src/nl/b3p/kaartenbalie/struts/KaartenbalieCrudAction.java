@@ -30,12 +30,10 @@ public class KaartenbalieCrudAction extends CrudAction{
     
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
-    protected EntityManager em;
     
-    public KaartenbalieCrudAction()
-    {
+    public KaartenbalieCrudAction() {
         super();
-        em = ManagedPersistence.getEntityManager();
+        
         
     }
     protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
@@ -47,7 +45,7 @@ public class KaartenbalieCrudAction extends CrudAction{
      * @return the current Hibernate Session
      */
     // <editor-fold defaultstate="" desc="getHibernateSession() method.">
-     // </editor-fold>
+    // </editor-fold>
     
     /** Execute method which handles all incoming request.
      *
@@ -64,19 +62,17 @@ public class KaartenbalieCrudAction extends CrudAction{
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
     throws Exception {
         
+        EntityManager em = getEntityManager();
         //EntityManager crudEM = ManagedPersistence.getEntityManager();
         EntityTransaction tx = em.getTransaction();
-        tx.begin();        
+        tx.begin();
         ActionForward forward = null;
         String msg = null;
         
         try {
-           forward = super.execute(mapping, form, request, response);
-            //throw new Exception("Lorem Ipsum");
-           
-            
+            forward = super.execute(mapping, form, request, response);
             tx.commit();
-            
+            ManagedPersistence.closeEntityManager();
             return forward;
         } catch(Exception e) {
             tx.rollback();
@@ -118,7 +114,14 @@ public class KaartenbalieCrudAction extends CrudAction{
             addAlternateMessage(mapping, request, null, e.toString());
         }
         //addAlternateMessage(mapping, request, null, message);
+        ManagedPersistence.closeEntityManager();
         return getAlternateForward(mapping, request);
     }
+    
+    public static EntityManager getEntityManager() {
+        return ManagedPersistence.getEntityManager();
+    }
+    
+    
     // </editor-fold>
 }

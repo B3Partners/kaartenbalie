@@ -48,10 +48,8 @@ public class TestThread extends Thread {
                 rr.addServiceProviderRequest("WMSRequest", paramMap);
                 rr.endClientRequest(2048,0);
                 long endTime = System.currentTimeMillis();
-                //System.out.println(i + ":  Duration:" + (endTime - startTime));
                 totalTime += (endTime - startTime);
             }
-            System.out.println("Totaal time for " + records + " records: " + totalTime + "ms, Average = " + (totalTime / records) + "ms");
              **/
         } catch (Exception ex) {
             ex.printStackTrace();
