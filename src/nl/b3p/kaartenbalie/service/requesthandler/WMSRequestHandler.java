@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.Stack;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.wms.capabilities.KBConstants;
@@ -41,10 +43,8 @@ import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.wms.capabilities.Switcher;
-import org.hibernate.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Transaction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -79,16 +79,19 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         em = ManagedPersistence.createEntityManager();
     }
     
-    public ServiceProvider getServiceProvider() {
+    public ServiceProvider getServiceProvider() throws Exception {
         
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         
-        
-        
-        User dbUser = (User)em.createQuery("from User u where " +
-                "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
-        
+        User dbUser = null;
+        try {
+            dbUser = (User)em.createQuery("from User u where " +
+                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
+        } catch (NoResultException nre) {
+            throw new Exception("No serviceprovider for user found.");
+        }
+
         Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
         if (organizationLayers == null)
             return null;
@@ -175,6 +178,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         
+        Map toplayerMap = new HashMap();
+        List toplayerQuery = em.createNativeQuery("SELECT l.serviceproviderid, l.layerid FROM layer l WHERE l.parentid IS NULL").getResultList();
+        Iterator toplayerit = toplayerQuery.iterator();
+        while (toplayerit.hasNext()) {
+            Object [] objecten = (Object [])toplayerit.next();
+            Integer spid = (Integer)objecten[0];
+            Integer tlid = (Integer)objecten[1];
+            toplayerMap.put(spid, tlid);
+        }
+        
+        
         String topLayerId = null;
         int layerlength = layers.length;
         if(layerlength >= 1) {
@@ -224,9 +238,16 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 if(equalIds) {
                     layer_name = "," + layer_name;
                 } else {
-                    Layer layer = (Layer) em.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).getSingleResult();
-                    Layer topLayer = layer.getTopLayer();
-                    topLayerId = topLayer.getId().toString();
+                    //Layer layer = (Layer) em.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).getSingleResult();
+                    //Layer topLayer = layer.getTopLayer();
+                    //topLayerId = topLayer.getId().toString();
+                    
+                    //Deze query kan ook eenmalig uitgevoerd worden met een Map waarin de verschillende spids als key functioneren voor de
+                    //toplayer ids. Dan moet de query wel buiten de for loop aangeroepen worden en met behulp van een while kan dan een map
+                    //aangemaakt worden.
+                    //Integer id = (Integer)em.createNativeQuery("SELECT l.layerid FROM layer l WHERE l.parentid IS NULL AND l.serviceproviderid = :spid")
+                    //    .setParameter("spid", serviceprovider_id).getResultList().get(0);
+                    topLayerId = ((Integer)toplayerMap.get(serviceprovider_id)).toString();//id.toString();
                 }
                 
                 //TODO:

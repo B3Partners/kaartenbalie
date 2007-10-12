@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.struts.action.ActionErrors;
@@ -166,6 +165,7 @@ public class UserAction extends KaartenbalieCrudAction {
             }
         } catch (NoResultException nre) {
             //this is good!; This means that there are no other users in the DB with this username..
+            //therefore nothing has to be done here.
         }
 
 
@@ -358,13 +358,8 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
     private Organization getOrganization(Integer id) throws HibernateException {
-
-
         EntityManager em = getEntityManager();
-
-        return (Organization)em.createQuery(
-                "from Organization o where " +
-                "lower(o.id) = lower(:id) ").setParameter("id", id).getSingleResult();
+        return (Organization)em.find(Organization.class, id);
     }
     // </editor-fold>
 

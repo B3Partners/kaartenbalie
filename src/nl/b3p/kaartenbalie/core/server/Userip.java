@@ -10,6 +10,9 @@
 
 package nl.b3p.kaartenbalie.core.server;
 
+import java.util.Iterator;
+import java.util.Set;
+
 public class Userip {
     private Integer id;
     private String ipaddress;
@@ -41,6 +44,17 @@ public class Userip {
     
     public boolean compare(Userip ipaddress) {
         return this.getIpaddress().equals(ipaddress.getIpaddress());
+    }
+    
+    public boolean inList(Set addresses) {
+        Iterator it = addresses.iterator();
+        while (it.hasNext()) {
+            Userip setip = (Userip) it.next();
+            if(this.compare(setip)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     

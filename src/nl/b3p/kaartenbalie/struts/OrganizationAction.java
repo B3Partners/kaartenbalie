@@ -15,10 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -310,18 +310,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            organization = (Organization)em.createQuery(
-                    "from Organization o where " +
-                    "lower(o.id) = lower(:id)").setParameter("id", id).getSingleResult();
-            //log.debug("Lorem Ipsum" + organization.getOrganizationLayer().size());
-            if(organization == null) {
-                return null;
-            }
-
-            List us = em.createQuery("from User u where u.organization = :organization").setParameter("organization", organization).getResultList();
-            Set users = new HashSet();
-            users.addAll(us);
-            organization.setUser(users);
+            organization = (Organization)em.find(Organization.class, id);
         }
 
         return organization;
@@ -497,10 +486,19 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             ServiceProvider sp = (ServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             HashSet set= new HashSet();
-            set.add(sp.getTopLayer());
-            parentObj = createTreeList(set, parentObj);
-            if (parentObj.has("children")){
-                rootArray.put(parentObj);
+            Layer topLayer = sp.getTopLayer();
+            if (topLayer != null) {
+                set.add(topLayer);
+                parentObj = createTreeList(set, parentObj);
+                if (parentObj.has("children")){
+                    rootArray.put(parentObj);
+                }
+            } else {
+                String name = sp.getGivenName();
+                if(name == null) {
+                    name = "onbekend";
+                }
+                log.debug("Toplayer is null voor serviceprovider: " + name);
             }
         }
 

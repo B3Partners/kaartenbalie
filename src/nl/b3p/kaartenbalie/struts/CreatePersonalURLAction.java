@@ -227,6 +227,7 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         for (int i = 0; i < size; i ++) {
             Userip ipa = new Userip();
             ipa.setIpaddress(registeredIP[i]);
+            ipa.setUser(user);
             newset.add(ipa);
         }
         user.setUserips(compareSets(user.getUserips(), newset));
@@ -294,25 +295,14 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
     // </editor-fold>
 
     public Set compareSets(Set oldset, Set newset) {
-
         EntityManager em = getEntityManager();
-        //Eerst alle oude ip adressen verwijderd uit de lijst en uide database.
+        
         Set tempRemoveSet = new HashSet();
-
         Iterator it = oldset.iterator();
         while (it.hasNext()) {
-            Userip oldIP = (Userip) it.next();
-            boolean same = false;
-            Iterator newit = newset.iterator();
-            while(newit.hasNext()) {
-                Userip newIP = (Userip) newit.next();
-                if(oldIP.compare(newIP)) {
-                    same = true;
-                    break;
-                }
-            }
-            if (!same) {
-                tempRemoveSet.add(oldIP);
+            Userip userip = (Userip) it.next();
+            if(!userip.inList(newset)) {
+                tempRemoveSet.add(userip);
             }
         }
 
@@ -323,23 +313,14 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             em.remove(removableIP);
         }
 
-        //Nu alle nieuwe adressen toevoegen aan de lijst en de database
         Iterator newit = newset.iterator();
         while (newit.hasNext()) {
-            boolean inlist = false;
-            Userip newIP = (Userip) newit.next();
-            Iterator oldit = oldset.iterator();
-            while (oldit.hasNext()) {
-                Userip oldIP = (Userip) oldit.next();
-                if(newIP.compare(oldIP)) {
-                    inlist = true;
+            Userip userip = (Userip) newit.next();
+            if(!userip.inList(oldset)) {
+                if (userip.getId() == null) {
+                    em.persist(userip);
                 }
-            }
-            if(!inlist) {
-                oldset.add(newIP);
-                if (newIP.getId() == null) {
-                    em.persist(newIP);
-                }
+                oldset.add(userip);
             }
         }
         return oldset;

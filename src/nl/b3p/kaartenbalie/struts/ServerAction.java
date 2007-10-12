@@ -222,8 +222,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
 
         populateServerObject(dynaForm, newServiceProvider);
-        // TODO: de layers komen niet in de set van de sp
-        //newServiceProvider.synchonizeServiceProvider();
         newServiceProvider.setReviewed(true);
         em.persist(newServiceProvider);
         em.flush();

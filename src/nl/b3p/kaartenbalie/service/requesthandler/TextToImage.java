@@ -28,10 +28,6 @@ import nl.b3p.wms.capabilities.KBConstants;
 public class TextToImage implements KBConstants {
     private String imageType;
     
-    /** Creates a new instance of TextToImage */
-    public TextToImage() {
-    }
-    
     public void createImage(String message, String imageType, DataWrapper data) throws IOException {
         Map parameters = data.getParameters();        
         this.imageType = imageType;
@@ -44,8 +40,6 @@ public class TextToImage implements KBConstants {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         FontRenderContext fc = g2.getFontRenderContext();
         
-        Rectangle2D bounds = font.getStringBounds(message, fc);
-
         // calculate the size of the text
         int width = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
         int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
@@ -66,7 +60,7 @@ public class TextToImage implements KBConstants {
         int x = 0;
         while (it.hasNext()) {
             String sentence = (String) it.next();
-            g2.drawString(sentence, 0, x + 30);//(int)-bounds.getY());
+            g2.drawString(sentence, 0, x + 30);
             x += 15;
         }
                 
@@ -79,7 +73,6 @@ public class TextToImage implements KBConstants {
         
         ImageIO.write(buffer, imageType, baos);
         data.write(baos);
-        //return baos;
     }
     
     private ArrayList cutMessage(String message, int width, int height) {

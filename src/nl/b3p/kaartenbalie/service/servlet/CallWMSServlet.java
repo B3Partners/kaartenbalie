@@ -33,12 +33,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.KBConstants;
 import org.w3c.dom.CDATASection;
@@ -113,6 +112,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             //Get the information about the user performing the request
             //if the user doesn't exist the method will throw an exception
+            log.debug("AANWEZIG");
             user = checkLogin(request, parameters, data);
             
             //Setting the header for this specific user so that any action
@@ -311,6 +311,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                             .setParameter("username", username)
                             .setParameter("password", password)
                             .getSingleResult();
+                } catch (NoResultException nre) {
+                    //Here nothing to do, because user gets second chance if this login fails.
                 } finally {
                     tx.commit();
                 }
@@ -337,40 +339,39 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
+                String url = request.getRequestURL().toString();
                 user = (User)em.createQuery(
                         "from User u where " +
                         "lower(u.personalURL) = lower(:personalURL) ")
                         .setParameter("personalURL", request.getRequestURL().toString())
                         .getSingleResult();
+            } catch (NoResultException nre) {
+                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             } finally {
                 tx.commit();
             }
             
-            if (user!=null) {
-                java.util.Date date = user.getTimeout();
-                
-                if (date.compareTo(new java.util.Date()) <= 0) {
-                    throw new AccessDeniedException("Personal URL key has expired!");
+            java.util.Date date = user.getTimeout();
+
+            if (date.compareTo(new java.util.Date()) <= 0) {
+                throw new AccessDeniedException("Personal URL key has expired!");
+            }
+
+            String remoteaddress = request.getRemoteAddr();
+            boolean validip = false;
+
+            Set ipaddresses = user.getUserips();
+            Iterator it = ipaddresses.iterator();
+            while (it.hasNext()) {
+                Userip ipaddress = (Userip) it.next();
+                if(ipaddress.getIpaddress().equals(remoteaddress)) {
+                    validip = true;
+                    break;
                 }
-                
-                String remoteaddress = request.getRemoteAddr();
-                boolean validip = false;
-                
-                Set ipaddresses = user.getUserips();
-                Iterator it = ipaddresses.iterator();
-                while (it.hasNext()) {
-                    Userip ipaddress = (Userip) it.next();
-                    if(ipaddress.getIpaddress().equals(remoteaddress)) {
-                        validip = true;
-                        break;
-                    }
-                }
-                
-                if(!validip) {
-                    throw new AccessDeniedException("Personal URL not usuable for this IP address!");
-                }
-            } else {
-                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
+            }
+
+            if(!validip) {
+                throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
         ManagedPersistence.closeEntityManager();

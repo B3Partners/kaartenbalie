@@ -12,6 +12,7 @@ package nl.b3p.kaartenbalie.service;
 import java.security.Principal;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import org.apache.commons.logging.Log;
@@ -47,6 +48,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                     .setParameter("password", password)
                     .getSingleResult();
             return user;
+        } catch (NoResultException nre) {
+            return null;
         } finally {
             tx.commit();
         }
@@ -63,6 +66,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                     .setParameter("username", username)
                     .getSingleResult();
             return user;
+        } catch (NoResultException nre) {
+            return null;
         } finally {
             tx.commit();
         }

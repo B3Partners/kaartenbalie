@@ -10,20 +10,14 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -76,15 +70,17 @@ public class MetadataAction extends KaartenbalieCrudAction {
     }
 
     private Layer getLayerByLayerId(Integer id) {
-
         EntityManager em = getEntityManager();
-        Layer layer = (Layer)em.createQuery(
+        
+        try {
+            return (Layer)em.createQuery(
                 "from Layer l where " +
                 "(l.id) = lower(:id) ")
                 .setParameter("id", id)
                 .getSingleResult();
-
-        return layer;
+        } catch (NoResultException nre) {
+                return null;
+        }
     }
 
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {

@@ -23,6 +23,7 @@
     var cal = new CalendarPopup("calDiv");
     cal.setCssPrefix("calcss_");
 </script>
+
 <html:javascript formName="profileForm" staticJavascript="false"/>
 <html:form action="/showProfile" onsubmit="return validateProfileForm(this)" focus="timeout">
     <html:hidden property="action"/>
@@ -65,11 +66,7 @@
             </tr>
             
             <c:choose>
-                <c:when test="${form.map.registeredIP != null}">
-                    <tr>
-                        <td>IP adres:</td>
-                        <td><c:out value="${form.map.registeredIP}"/></td>
-                    </tr>
+                <c:when test="${form.map.personalURL != null}">
                     <tr>
                         <td>Pers. URL:</td>
                         <td><c:out value="${form.map.personalURL}"/></td>
@@ -77,15 +74,16 @@
                 </c:when>
                 <c:otherwise>
                     <tr>
-                        <td>IP adres:</td>
-                        <td>Nog geen IP adres geregistreerd.</td>
-                    </tr>
-                    <tr>
                         <td>Pers. URL:</td>
                         <td>Nog geen URL aangemaakt.</td>
                     </tr>
                 </c:otherwise>
             </c:choose>
+            
+            <tr>
+                <td>Huidig IP adres:</td>
+                <td><c:out value="${form.map.currentaddress}"/></td>
+            </tr>
         </table>
     </div>
     
@@ -110,11 +108,18 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                        <td><html:text property="registeredIP"/>
-                        <html:submit property="getIpAddress" styleClass="knop">
-                            <fmt:message key="button.getipaddress"/>
-                        </html:submit>
+                        <table id='iptable'>
+                        <tbody>
+                            <c:forEach var="nIP" varStatus="status" items="${iplist}">
+                                <tr>
+                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
+                                    <td>
+                                        <html:text property="registeredIP" value="${nIP.ipaddress}"/>
+                                    </td>
+                                </tr>
+                            </c:forEach> 
+                        </tbody>
+                    </table>
                     </tr>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>

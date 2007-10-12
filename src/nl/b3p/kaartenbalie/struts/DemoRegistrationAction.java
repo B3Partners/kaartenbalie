@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -33,7 +34,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.struts.action.ActionErrors;
@@ -120,17 +120,20 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * the given username. If such a user exists we need to inform the user that
          * this is not allowed.
          */
-        User dbUser = (User)em.createQuery(
-                "from User u where " +
-                "lower(u.username) = lower(:username) ")
-                .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
-                .getSingleResult();
-
-
-        if(dbUser != null && (dbUser.getId() != user.getId())) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+        try {
+            User dbUser = (User)em.createQuery(
+                    "from User u where " +
+                    "lower(u.username) = lower(:username) ")
+                    .setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username")))
+                    .getSingleResult();
+            if(dbUser != null && (dbUser.getId() != user.getId())) {
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
+        } catch (NoResultException nre) {
+            //this is good!; This means that there are no other users in the DB with this username..
+            //therefore nothing has to be done here.
         }
 
         /*
@@ -207,13 +210,18 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
         String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
 
-        ServiceProvider stdServiceProvider = (ServiceProvider)em.createQuery(
-                "from ServiceProvider sp where " +
-                "lower(sp.givenName) = lower(:givenName) " +
-                "and lower(sp.url) = lower(:url)")
-                .setParameter("givenName", serverName)
-                .setParameter("url", serverUrl)
-                .getSingleResult();
+        ServiceProvider stdServiceProvider = null;
+        try { 
+            stdServiceProvider = (ServiceProvider)em.createQuery(
+                    "from ServiceProvider sp where " +
+                    "lower(sp.givenName) = lower(:givenName) " +
+                    "and lower(sp.url) = lower(:url)")
+                    .setParameter("givenName", serverName)
+                    .setParameter("url", serverUrl)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
 
         /*
          * Get all layers supported by this WMS server.

@@ -240,9 +240,9 @@ public class ChangeProfileAction extends KaartenbalieCrudAction implements KBCon
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("username", user.getUsername());
         dynaForm.set("role", user.getRolesAsString());
-        //dynaForm.set("newpassword", user.getPassword());
-        //dynaForm.set("newpasswordretyped", user.getPassword());
         dynaForm.set("emailaddress", user.getEmailAddress());
+        dynaForm.set("newpassword", "");
+        dynaForm.set("newpasswordretyped", "");
     }
     // </editor-fold>
 }

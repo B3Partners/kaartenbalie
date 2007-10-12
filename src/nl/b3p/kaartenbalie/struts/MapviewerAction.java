@@ -102,13 +102,21 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
-
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             HashSet set= new HashSet();
-            set.add(sp.getTopLayer());
-            parentObj = createTreeList(set, organizationLayers, parentObj);
-            if (parentObj.has("children")){
-                rootArray.put(parentObj);
+            Layer topLayer = sp.getTopLayer();
+            if (topLayer != null) {
+                set.add(topLayer);
+                parentObj = createTreeList(set, organizationLayers, parentObj);
+                if (parentObj.has("children")){
+                    rootArray.put(parentObj);
+                }
+            } else {
+                String name = sp.getGivenName();
+                if(name == null) {
+                    name = "onbekend";
+                }
+                log.debug("Toplayer is null voor serviceprovider: " + name);
             }
         }
 
@@ -193,7 +201,6 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
             Layer organizationLayer = (Layer) it.next();
-
             if(layer.getId().equals(organizationLayer.getId())) {
                 return true;
             }
