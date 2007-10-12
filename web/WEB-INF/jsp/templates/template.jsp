@@ -11,7 +11,7 @@
         
         <title>Kaartenbalie</title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
-        <link href="<html:rewrite page='/styles/mnp_nieuw.css' module='' />" type="text/css" rel="stylesheet" />
+        <link href="<html:rewrite page='/styles/selectcss' module='' />" type="text/css" rel="stylesheet" />
         <!--[if IE 6]>
         <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
