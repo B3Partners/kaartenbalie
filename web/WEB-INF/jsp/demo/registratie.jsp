@@ -4,11 +4,13 @@
 
 <html:form action="/registration" onsubmit="return validateRegistrationForm(this)" focus="firstname">
     <div id='democontent'>
-    <div id="democontentheader">Registratie pagina</div>
-    <div id="democontenttext">    
-    Voordat u gebruik kunt maken van de Kaartenbalie Demo
-    geldt dat u zich eerst moet registreren. Zodra u geregistreerd bent als gebruiker
-    heeft u toegang tot het materiaal dat op kaartenbalie aangeboden wordt.
+        <div id="democontentheader">Registratie pagina</div>
+        <div id="democontenttext">    
+            Voordat u gebruik kunt maken van de Kaartenbalie Demo
+            geldt dat u zich eerst moet registreren. Zodra u geregistreerd bent als gebruiker
+            heeft u toegang tot het materiaal dat op kaartenbalie aangeboden wordt.
+        </div>
+    </div>
     
     <div id="demoheader3">Uw Gegevens</div>
     <c:if test="${not empty message}">
@@ -63,3 +65,6 @@
         </tr>
     </table>
 </html:form>
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>

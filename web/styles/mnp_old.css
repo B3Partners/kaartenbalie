@@ -20,14 +20,11 @@
 
 body {
     color: #000;
-    background-color: White;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
+    background-color: #fff;
 }
 
 #bodycontent {
-    background-color: White; 
+    background-color: #E5E9F2;
     
 }
 
@@ -35,128 +32,47 @@ body {
     background-color: #FFF;
     background-image:  url(../images/siteImages/background.jpg);
     background-repeat: repeat-y;
-    width: 100%;
 }
 
 #banner {
-    width: 206px;
-    height: 99px;
-    padding: 0px;
-    background-image: url(../images/mnp/banner_left.gif);
-    background-repeat: repeat;
-    border: 0px none White;
+    background-color: #FFFFFF;
 }
 
 #balk div a {
-    color: White;
+    color: #002B7C;
 }
 
 #balk {
-    background-image: url(../images/mnp/banner_right.gif);
-    background-repeat: repeat;
-    border: 0px none White;
-    text-align: left;
-    width: 100%;
-    height: 99px;
-}
-
-#balk div {
-    padding: 0px;
-}
-
-.loginlink {
-    padding: 0px;
-    float: right;
-    margin-top: 20px;
-    margin-right: 15px;
-}
-
-#banner {
-    float: left;
-}
-
-#menudiv {
-    position: absolute;
-    right: 50%;
-    margin-right: -522px;
+    background-image: url(../images/mnp/navbar.gif);
+    background-repeat: repeat-x;
+    border-bottom: 1px solid #FFFFFF;
+    text-align: right;
 }
 
 #nav {
-    background-color: transparent;
-    padding-top: 0px;
-    color: none;
-    
-    width: 700px;
-    float: right;
-    margin-top: 55px;
-}
-
-#nav center {
-    display: none;
-}
-
-#nav p {
-    margin: 0px;
-    padding: 0px;
-}
-
-#nav-menu {
-    margin-top: 3px;
-    float: right;
-    margin-right: 40px;
-}
-
-
-#nav-menu  a, #nav-menu  a:link, #nav-menu  a:active, #nav-menu  a:visited, #nav-menu  a:hover {
-  text-decoration: none;
-  display: block;
-  padding-top: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  height: 21px;
-  border: 0px none White;
-  border-left: 1px solid #002B7C;
-  border-top: 1px solid #002B7C;
-  border-right: 1px solid #002B7C;
-  color: #002B7C;
-  margin: 0px;
-  margin-left: 0px;
-  float: left;
-  font-weight: bold;
-  background-color: #B0C900;
-}
-
-#nav-menu a:hover {
-    text-decoration: underline;
+    background-color: #E5E9F2;
+    padding-top: 1em;
+    color: #002B7C;
 }
 
 #content {
     background-color: #FFFFFF;
-    width: 950px;
-    margin-left: auto;
-    margin-right: auto;
-    background-image: url(../images/mnp/maindiv_bg.gif);
-    background-repeat: repeat-y;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-bottom: 15px;
 }
 
 #footer {
     background-image: url(../images/mnp/footer.gif);
-    background-repeat: repeat;
-    border: 0px none White;
-    text-align: right;
-    width: 100%;
     height: 20px;
+    background-repeat: repeat-x;
+    text-align: right;
+    border-top: 1px solid #FFFFFF;
 }
 
 #footertext {
-    color: #ffffff;
+    color: #002B7C;
 }
 
 #footertext a {
-    color: #FFFFFF;
+    color: #002B7C;
 }
 
 table {
@@ -218,6 +134,39 @@ div.smallTableContainer {
     font-style: inherit;
     text-align: left;
 }
+
+#nav-menu {
+  border-top: 1px solid White
+}
+
+#nav-menu ul 
+{  
+    list-style: none;
+}
+
+#nav-menu ul li {
+  background-color: #E5E9F2;
+  border-bottom: 1px solid #ffffff;
+  color: #002B7C;
+} 
+
+#nav-menu ul li a, #nav-menu ul li a:link, #nav-menu ul li a:active, #nav-menu ul li a:visited, #nav-menu ul li a:hover {
+  text-align: left;
+  vertical-align: middle;
+  color: #002B7C;
+  padding: 4px 0px 3px 18px;
+  text-decoration: none;
+  background-image: url(../images/mnp/pijltje_lichtblauw.gif);
+  background-repeat: no-repeat;
+  background-position: 5px 7px;
+  font-weight: normal;
+}
+
+#nav-menu ul li a:hover {
+    color: #002B7C;
+    background-color: #CED6E6;
+    background-image: url(../images/mnp/pijltje_donkerblauw.gif);
+}
  
 .intellitextLink {
     border-bottom: darkgreen 1px solid;
@@ -231,7 +180,7 @@ div.smallTableContainer {
     background-color: transparent;
 }
 .containerdiv {
-    border: 0px none White;
+    border: 1px solid #F4F5F9;
 }
 
 #tableContainer {
@@ -280,45 +229,7 @@ div.smallTableContainer {
 .mapInfo{
     background-color: #ffffff; 
 }
-
 #kopImage {
+    height: 124px;
     background-image: url(../images/mnp/mnp_kop.gif);
-    width: 1000px;
-    height: 99px;
-    padding: 0px;
-    margin: 0px;
-
-    height: 99px;
-    position: absolute;
-    top: 0px;
-    left: 50%;
-    margin-left: -480px;
 }
-
-#content_c {
-    padding-top: 1em;
-    padding-left: 25px;
-    padding-right: 2em;
-    background-color: #FFFFFF;
-    min-height: 300px;
-    display: block;
-    position: auto;
-}
-
-#initiatief {
-    width: 1000px;
-    height: 20px;
-    background-image: url(../images/mnp/footer.gif);
-    float: right;
-    position: relative;
-    top: 0px;
-    right: 50%;
-    margin-right: -520px;
-}
-
-.knoppen {
-    float: left;
-    clear: left;
-}
-
-/* Stijl voor de content */

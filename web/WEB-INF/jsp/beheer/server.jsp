@@ -47,60 +47,65 @@
         </div>
     </div>
     
-    <c:choose>
-        <c:when test="${action != 'list'}">
-            <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
-                <table>
-                    <c:choose>
-                        <c:when test="${not empty mainid}">
-                            <tr>
-                                <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                                <td><html:text property="givenName" readonly="true" /></td>
-                            </tr>
-                            <tr>
-                                <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                                <td><html:text property="url" size="75" readonly="true" /></td>
-                            </tr>
-                        </c:when>
-                        <c:otherwise>
-                            <tr>
-                                <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                                <td><html:text property="givenName" /></td>
-                            </tr>
-                            <tr>
-                                <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                                <td><html:text property="url" size="75" /></td>
-                            </tr>
-                        </c:otherwise>
-                    </c:choose>
-                </table>
-            </div>
-            <div class="knoppen">
-                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.cancel"/>
-                </html:cancel>
-                <c:if test="${empty mainid}">
-                    <html:submit property="save" accesskey="s" styleClass="knop">
-                        <fmt:message key="button.save"/>
+    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
+        <c:choose>
+            <c:when test="${action != 'list'}">
+
+                    <table>
+                        <c:choose>
+                            <c:when test="${not empty mainid}">
+                                <tr>
+                                    <td><B><fmt:message key="beheer.serverName"/>:</B></td>
+                                    <td><html:text property="givenName" readonly="true" /></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                                    <td><html:text property="url" size="75" readonly="true" /></td>
+                                </tr>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.serverName"/>:</B></td>
+                                    <td><html:text property="givenName" /></td>
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                                    <td><html:text property="url" size="75" /></td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
+                    </table>
+
+                <div class="knoppen">
+                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.cancel"/>
+                    </html:cancel>
+                    <c:if test="${empty mainid}">
+                        <html:submit property="save" accesskey="s" styleClass="knop">
+                            <fmt:message key="button.save"/>
+                        </html:submit>
+                    </c:if>
+                    <c:if test="${not empty mainid}">
+                        <html:submit property="save" accesskey="s" styleClass="knop">
+                            <fmt:message key="button.update"/>
+                        </html:submit>
+                        <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                            <fmt:message key="button.remove"/>
+                        </html:submit>
+                    </c:if>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <html:hidden property="givenName"/>
+                <div class="knoppen">
+                    <html:submit property="create" accesskey="n" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.new"/>
                     </html:submit>
-                </c:if>
-                <c:if test="${not empty mainid}">
-                    <html:submit property="save" accesskey="s" styleClass="knop">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
-                    <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.remove"/>
-                    </html:submit>
-                </c:if>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <html:hidden property="givenName"/>
-            <div class="knoppen">
-                <html:submit property="create" accesskey="n" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.new"/>
-                </html:submit>
-            </div>
-        </c:otherwise>
-    </c:choose>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+        &nbsp;
+    </div>
 </html:form>

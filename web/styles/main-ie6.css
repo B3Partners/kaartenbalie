@@ -1,5 +1,5 @@
 #content {
-    height: 220px;
+    height: 300px;
 }
 
 #tableContainer {
@@ -8,4 +8,18 @@
 
 .containerdiv {
     width: 760px;
+}
+
+#menudiv {
+    margin-right: -562px;
+}
+
+#initiatief {
+    position: fixed;
+    margin-right: 75px;
+}
+
+#copyright {
+    position: fixed;
+    margin-left: 75px;
 }

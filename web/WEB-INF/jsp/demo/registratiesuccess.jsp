@@ -7,19 +7,20 @@
     <html:hidden property="id" />
     
     <div id='democontent'>
-    <div id="democontentheader">Registratie pagina</div>
-    <div id="democontenttext">
-    
-    <div id="tooltipBox" 
-         onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
-         onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
-         style="z-index:5000;position:absolute;cursor:pointer;">
+        <div id="democontentheader">Registratie pagina</div>
+        <div id="democontenttext">
+            
+            <div id="tooltipBox" 
+                 onMouseOver="clearAdInterval();highlightAd('itxtTbl');" 
+                 onMouseOut="hideAd();unHighlightAd('itxtTbl');" 
+                 style="z-index:5000;position:absolute;cursor:pointer;">
+            </div>
+            
+            Uw registratie is gelukt. Hieronder vindt u een overzicht van uw gegevens zoals u deze tijdens de
+            registratiestap heeft opgegeven. Daarnaast vindt u hier meteen uw persoonlijke URL. Hiermee kunt
+            u het kaartmateriaal ook via uw eigen GIS viewer opvragen.
+        </div>
     </div>
-    
-    Uw registratie is gelukt. Hieronder vindt u een overzicht van uw gegevens zoals u deze tijdens de
-    registratiestap heeft opgegeven. Daarnaast vindt u hier meteen uw persoonlijke URL. Hiermee kunt
-    u het kaartmateriaal ook via uw eigen GIS viewer opvragen.
-    
     <div id="demoheader3">Uw gegegevens</div>
     <table>
         <tr>
@@ -53,3 +54,6 @@
     <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do?layers=17_basis_nl*16_bebouwdekom_nl' module='' />'" value="<fmt:message key="button.toviewer"/>" >
     <br>
 </html:form>
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>

@@ -45,7 +45,7 @@
             </tr>
         </table>
     </div>   
-    <div id="groupDetails" style="clear: left; padding-top: 15px;">
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 200px;">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <table>
@@ -81,5 +81,7 @@
             </c:otherwise>
         </c:choose>
     </div>
-    
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+        &nbsp;
+    </div>
 </html:form>

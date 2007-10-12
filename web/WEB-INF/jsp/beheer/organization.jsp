@@ -53,9 +53,10 @@
         </div>
     </div>
     
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
     <c:choose>
         <c:when test="${action != 'list'}">
-            <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
+
                 <table >
                     <tr>
                         <td width="300" valign="top">
@@ -121,7 +122,7 @@
                         </td>
                     </tr>
                 </table>
-            </div>
+
             <div class="knoppen">
                 <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.cancel"/>
@@ -149,7 +150,12 @@
                 </html:submit>
             </div>
         </c:otherwise>
-    </c:choose>    
+    </c:choose>
+    </div>
+    
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+        &nbsp;
+    </div>
     
     <script type="text/javascript">
     <c:if test = "${not empty layerList}">

@@ -87,9 +87,10 @@
         </table>
     </div>
     
+    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
     <c:choose>
         <c:when test="${action != 'list'}">
-            <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
+            
                 <table>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
@@ -126,7 +127,7 @@
                         <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
                     </tr>
                 </table>
-            </div>
+            
             <div class="knoppen">
                 <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.cancel"/>
@@ -145,5 +146,9 @@
             </div>
         </c:otherwise>
     </c:choose>
+    </div>
     
 </html:form>
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>

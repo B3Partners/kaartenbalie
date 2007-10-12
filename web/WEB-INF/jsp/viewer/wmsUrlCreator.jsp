@@ -210,4 +210,7 @@
             </div>
         </c:otherwise>
     </c:choose> 
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+        &nbsp;
+    </div>
 </html:form>

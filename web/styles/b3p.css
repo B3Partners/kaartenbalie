@@ -20,11 +20,14 @@
 
 body {
     color: #000;
-    background-color: #fff;
+    background-color: #FFF0C5;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
 }
 
 #bodycontent {
-    background-color: #E9F1F7;
+    background-color: #FFF0C5; 
     
 }
 
@@ -32,10 +35,16 @@ body {
     background-color: #FFF;
     background-image:  url(../images/siteImages/background.jpg);
     background-repeat: repeat-y;
+    width: 100%;
 }
 
 #banner {
-    background-color: #FFFFFF;
+    width: 206px;
+    height: 50px;
+    padding: 0px;
+    background-image: url(../images/kaartenbalie/bovenbalk.gif);
+    background-repeat: repeat;
+    border: 0px none White;
 }
 
 #balk div a {
@@ -43,27 +52,102 @@ body {
 }
 
 #balk {
-    background-image: url(../images/siteImages/bg_header.gif);
-    background-repeat: repeat-x;
-    border-bottom: 1px solid #FFFFFF;
-    text-align: right;
+    background-image: url(../images/kaartenbalie/bovenbalk.gif);
+    background-repeat: repeat;
+    border: 0px none White;
+    text-align: left;
+    width: 100%;
+    height: 50px;
+}
+
+#balk div {
+    padding: 0px;
+}
+
+.loginlink {
+    padding: 0px;
+    float: right;
+    margin-top: 20px;
+    margin-right: 15px;
+}
+
+#banner {
+    float: left;
+}
+
+#menudiv {
+    position: absolute;
+    right: 50%;
+    margin-right: -522px;
 }
 
 #nav {
-    background-color: #E9F1F7;
-    padding-top: 1em;
-    color: #005A9C;
+    background-color: transparent;
+    padding-top: 0px;
+    color: none;
+    
+    width: 700px;
+    float: right;
+    margin-top: 6px;
+}
+
+#nav center {
+    display: none;
+}
+
+#nav p {
+    margin: 0px;
+    padding: 0px;
+}
+
+#nav-menu {
+    margin-top: 3px;
+    float: right;
+    margin-right: 40px;
+}
+
+
+#nav-menu  a, #nav-menu  a:link, #nav-menu  a:active, #nav-menu  a:visited, #nav-menu  a:hover {
+  text-decoration: none;
+  display: block;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 21px;
+  border: 0px none White;
+  border-left: 1px solid #A0D9FF;
+  border-top: 1px solid #A0D9FF;
+  border-right: 1px solid #102F44;
+  color: #A0D9FF;
+  margin: 0px;
+  margin-left: 0px;
+  float: left;
+  font-weight: bold;
+}
+
+#nav-menu a:hover {
+    text-decoration: underline;
 }
 
 #content {
     background-color: #FFFFFF;
+    width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+    background-image: url(../images/kaartenbalie/maindiv_bg.gif);
+    background-repeat: repeat-y;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
 }
 
 #footer {
-    background-image: url(../images/siteImages/bg_header.gif);
-    background-repeat: repeat-x;
+    background-image: url(../images/kaartenbalie/onderbalk.gif);
+    background-repeat: repeat;
+    border: 0px none White;
     text-align: right;
-    border-top: 1px solid #FFFFFF;
+    width: 100%;
+    height: 50px;
 }
 
 #footertext {
@@ -133,31 +217,6 @@ div.smallTableContainer {
     font-style: inherit;
     text-align: left;
 }
-
-#nav-menu ul 
-{  
-    list-style: none;
-}
-
-#nav-menu ul li {
-  background-color: #1C6CA7;
-  border-bottom: 1px solid #ffffff;
-  color: #ffffff;
-} 
-
-#nav-menu ul li a, #nav-menu ul li a:link, #nav-menu ul li a:active, #nav-menu ul li a:visited, #nav-menu ul li a:hover {
-  text-align: left;
-  vertical-align: middle;
-  color: #ffffff;
-  background-image: url(../images/siteImages/navigbol.gif);
-  background-position: right center;
-  background-repeat: no-repeat;
-}
-
-#nav-menu ul li a:hover {
-    color: #1C6CA7; 
-    background-color: #FFD96B;
-}
  
 .intellitextLink {
     border-bottom: darkgreen 1px solid;
@@ -171,7 +230,7 @@ div.smallTableContainer {
     background-color: transparent;
 }
 .containerdiv {
-    border: 1px solid #F4F5F9;
+    border: 0px none White;
 }
 
 #tableContainer {
@@ -220,6 +279,129 @@ div.smallTableContainer {
 .mapInfo{
     background-color: #ffffff; 
 }
+
 #kopImage {
-    background-image: url(../images/siteImages/kop.jpg);
+    background-image: url(../images/kaartenbalie/kaartenbalielogo.gif);
+    width: 206px;
+    height: 50px;
+    padding: 0px;
+    margin: 0px;
+
+    height: 50px;
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    margin-left: -480px;
+}
+
+#content_c {
+    padding-top: 1em;
+    padding-left: 25px;
+    padding-right: 2em;
+    background-color: #FFFFFF;
+    min-height: 300px;
+    display: block;
+    position: auto;
+}
+
+#initiatief {
+    width: 334px;
+    height: 50px;
+    background-image: url(../images/kaartenbalie/initiatief.gif);
+    float: right;
+    position: relative;
+    top: 0px;
+    right: 50%;
+    margin-right: -500px;
+}
+
+#copyright {
+    width: 120px;
+    height: 50px;
+    background-image: url(../images/kaartenbalie/copyright.gif);
+    float: left;
+    position: relative;
+    top: 0px;
+    left: 50%;
+    margin-left: -480px;
+}
+
+.knoppen {
+    float: left;
+    clear: left;
+}
+
+/* Stijl voor de content */
+#content_c, #content_c h1, #content_c h2, #content_c div, #content_c td, #content_c th, #content_c a, #content_c li {
+    color: #196299;
+}
+
+#content_c hr {
+    color: #196299;
+}
+
+#content_c {
+    padding: 8px;
+}
+
+#content_c .kolomtabel td {
+    padding: 15px;
+    width: 430px;
+    overflow: visible;
+}
+
+#content_c h1 {
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    font-style: normal;
+    margin-left: 0px;
+    margin-bottom: 15px;
+}
+
+#content_c h2 {
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    font-style: normal;
+    margin-bottom: 0px;
+    margin-top: 15px;
+}
+
+#content_c div h2 {
+    margin-top: 0px;
+}
+
+#content_c a {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+#content_c a:hover {
+    color: #FFD207;
+}
+
+#content_c .presentation_table {
+    border: 1px solid #196096;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#content_c .presentation_table td {
+    border: 1px solid #196096;
+    padding: 5px;
+    background-color: #E7EEF4;
+    width: auto;
+}
+
+#content_c .presentation_table th {
+    background-color: #196096;
+    color: White;
+    font-weight: bold;
+    padding: 5px;
+}
+
+#content_c td ul {
+    margin: 0px;
+    padding-left: 18px;
 }

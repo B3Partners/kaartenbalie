@@ -6,3 +6,10 @@
     margin-bottom: 5px;
     width: 760px;
 }
+
+#initiatief {
+    float: left;
+    left: 50%;
+    right: auto;
+    margin-left: 160px;
+}

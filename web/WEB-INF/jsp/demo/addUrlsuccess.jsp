@@ -68,3 +68,6 @@
         <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
     </div>
 </div>
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>

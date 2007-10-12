@@ -84,12 +84,12 @@
     <input type="button" value="Vernieuw" onclick="reloadLayers()"/>
 </div>
 
-<div class="mapInfo">
+<div class="mapInfo" style="float: left; clear: left; width: 300px;">
     <div id="currentCoordinates"></div>
     <div id="currentScale"></div>
 </div>
 
-<div>
+<div style="float: left; clear: left; width: 300px;">
     <br /><b>Volgorde</b><br>
     Bepaal hieronder de volgorde van de kaarten.<br />Selecteer een kaart en verplaats het met de knoppen.
     <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
@@ -233,4 +233,7 @@
         }       
     </c:if>
 </script>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />">
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>

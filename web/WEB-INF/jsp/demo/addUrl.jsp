@@ -101,5 +101,6 @@
         </html:form>
     </div>
 </div>
-
-
+<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    &nbsp;
+</div>
