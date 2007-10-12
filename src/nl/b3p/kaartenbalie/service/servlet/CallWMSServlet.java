@@ -102,7 +102,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         DataWrapper data = new DataWrapper(response);
         User user = null;
         
-        log.info("Request: " + request.getServletPath() + request.getPathInfo() + request.getQueryString());
+        log.info("Request: " + request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString());
         try {
             //Create a map with parameters of of request parameters given
             //with the request of this user and transforms each of these
