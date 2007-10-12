@@ -13,7 +13,7 @@ insert into userip (
   select 
   USERID,
   IPADDRESS
-  from user;
+  from user WHERE IPADDRESS IS NOT NULL;
 
 alter table userip add CONSTRAINT FK_Userip_1 FOREIGN KEY (USERID) REFERENCES user (USERID);
 
