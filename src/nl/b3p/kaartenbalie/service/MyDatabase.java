@@ -10,11 +10,8 @@
 
 package nl.b3p.kaartenbalie.service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import org.apache.commons.logging.Log;

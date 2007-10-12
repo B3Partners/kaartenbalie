@@ -14,10 +14,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {

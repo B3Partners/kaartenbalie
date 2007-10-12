@@ -9,9 +9,6 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain;
 
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
 /**
  *
  * @author Chris Kramer

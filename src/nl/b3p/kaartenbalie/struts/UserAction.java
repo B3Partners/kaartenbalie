@@ -407,8 +407,6 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
     protected void populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) {
-
-
         EntityManager em = getEntityManager();
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setSurname(FormUtils.nullIfEmpty(dynaForm.getString("surname")));
@@ -417,7 +415,7 @@ public class UserAction extends KaartenbalieCrudAction {
         user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
 
         String selectedOrg = dynaForm.getString("selectedOrganization");
-        if(selectedOrg != null) {
+        if(selectedOrg != null && !selectedOrg.equals("")) {
             user.setOrganization(this.getOrganization(FormUtils.StringToInteger(selectedOrg)));
         }
         user.setUserroles(null);

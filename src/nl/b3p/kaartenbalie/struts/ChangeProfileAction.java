@@ -15,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
@@ -24,7 +23,6 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Session;
 import java.security.NoSuchAlgorithmException;
 
 public class ChangeProfileAction extends KaartenbalieCrudAction implements KBConstants  {

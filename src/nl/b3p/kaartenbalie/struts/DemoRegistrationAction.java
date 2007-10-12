@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -34,8 +35,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
@@ -159,17 +159,21 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         if (organization == null) {
             organization = new Organization();
         }
-        organization.setOrganizationLayer(getLayerSet(request));
+        
+        Set layers = getLayerSet(request);           
+        organization.setOrganizationLayer(new HashSet(layers));
         populateRegistrationObject(request, dynaForm, user, organization);
+        
         if (organization.getId() == null) {
             em.persist(organization);
         }
+        
         user.setOrganization(organization);
         if (user.getId() == null) {
             em.persist(user);
         }
         em.flush();
-
+                
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
@@ -178,6 +182,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * ATTENTION: Be sure that the user set as Principal has an ID, otherwise
          * the program will crash.
          */
+        
         Principal principal = (Principal) user;
         if (request instanceof SecurityRequestWrapper) {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
@@ -185,7 +190,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         }
 
         this.populateForm(user, dynaForm, request);
-        ActionForward action = super.save(mapping,dynaForm,request,response);
+        
+        //ActionForward action = super.save(mapping,dynaForm,request,response);
         return mapping.findForward(SAVESUCCES);
     }
     // </editor-fold>
@@ -197,7 +203,6 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="getLayerSet(HttpServletRequest request, Session session) method.">
     private Set getLayerSet(HttpServletRequest request) {
-
         EntityManager em = getEntityManager();
 
         /*
@@ -222,35 +227,9 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         } catch (NoResultException nre) {
             return null;
         }
-
-        /*
-         * Get all layers supported by this WMS server.
-         */
-        //return new HashSet();
-        Layer topLayer = stdServiceProvider.getTopLayer();
-        Set newLayerSet = getSetStructure(topLayer, new HashSet());
-        newLayerSet.add(topLayer);
-
-        return newLayerSet;
+        return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
-
-    private Set getSetStructure(Layer layer, Set layerset) {
-        if (layer != null && layerset != null) {
-            Set layers = layer.getLayers();
-            if (layers != null) {
-                Iterator it = layers.iterator();
-                while (it.hasNext()) {
-                    Layer childLayer = (Layer)it.next();
-                    if(!layerset.contains(childLayer)) {
-                        layerset.add(childLayer);
-                    }
-                    getSetStructure(childLayer, layerset);
-                }
-            }
-        }
-        return layerset;
-    }
 
     /* Method which will fill-in the JSP form with the data of a given user.
      *
@@ -278,7 +257,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
     // <editor-fold defaultstate="" desc="populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) method.">
     private void populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         populateUserObject(dynaForm, user, request);
-
+        
         EntityManager em = getEntityManager();
 
         SimpleDateFormat df         = new SimpleDateFormat("yyyy/MM/dd");
@@ -288,23 +267,26 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
-
-        String toBeHashedString = registeredIP + user.getUsername() + user.getPassword() + df.format(new Date());
+        
+        
+        Random rd = new Random();
+        String toBeHashedString = user.getUsername() + user.getPassword() + df.format(new Date()) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
-        BigInteger hash = new BigInteger(1, md.digest());
+        byte[] md5hash = md.digest();
 
         String personalURL = protocol + "://" + requestServerName;
         if(port != 80) {
             personalURL += ":" + port;
         }
-        personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + hash.toString( 16 );
+        personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + new String(Hex.encodeHex(md5hash));
 
         Userip ipa = new Userip();
         ipa.setIpaddress(registeredIP);
         user.addUserips(ipa);
         user.setPersonalURL(personalURL);
-
+        
+        user.setUserroles(null);
         List roles = em.createQuery("from Roles").getResultList();
         Iterator roleIt = roles.iterator();
         while (roleIt.hasNext()) {
@@ -312,21 +294,21 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             if (role.getRole().equalsIgnoreCase("demogebruiker"))
                 user.addUserRole(role);
         }
-
+        
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-
-
+        
+        /*
         List layerList = em.createQuery(
                 "from Layer l left join fetch l.attribution").getResultList();
-
+        */
         /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
          * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
          * checked if a layer has any parents and if so this has to be checked recursively until there
          * aren't any parents anymore. Each of the parents found have to be added to the list of layers
          * which are allowed to be requested.
          */
-        //String [] selectedLayer;
+        /*
         Set selectedLayers = organization.getOrganizationLayer();
         Iterator itselected = selectedLayers.iterator();
         //int size = selectedLayers.length;
@@ -347,7 +329,6 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
                 }
             }
         }
-
         /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
          * Some might have compatibility some others not. To make sure this wont give any problems, we need to
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
@@ -359,10 +340,14 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
          * work properly.
          */
+        /*
         LayerValidator lv = new LayerValidator(layers);
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
+        */
 
-        organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
+        
+        organization.setHasValidGetCapabilities(true);//lv.validate() && spv.validate());
+        
     }
     // </editor-fold>
 

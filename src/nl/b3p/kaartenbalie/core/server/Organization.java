@@ -12,7 +12,6 @@ package nl.b3p.kaartenbalie.core.server;
 
 import java.util.HashSet;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.*;
 import nl.b3p.wms.capabilities.Layer;
 
 public class Organization {

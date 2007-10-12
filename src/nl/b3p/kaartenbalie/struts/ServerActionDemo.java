@@ -21,7 +21,6 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -34,7 +33,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Session;
 import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
@@ -231,11 +229,8 @@ public class ServerActionDemo extends ServerAction {
         while (it.hasNext()) {
             organizationLayers.add(((Layer)it.next()).clone());
         }
-
-        Layer topLayer = newServiceProvider.getTopLayer();
-        Set newLayerSet = getSetStructure(topLayer, new HashSet());
-        newLayerSet.add(topLayer);
-        Iterator newLayers = newLayerSet.iterator();
+        
+        Iterator newLayers = newServiceProvider.getAllLayers().iterator();
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
         }
@@ -277,23 +272,6 @@ public class ServerActionDemo extends ServerAction {
         return mapping.findForward("nextPage");
     }
     // </editor-fold>
-
-    private Set getSetStructure(Layer layer, Set layerset) {
-        if (layer != null && layerset != null) {
-            Set layers = layer.getLayers();
-            if (layers != null) {
-                Iterator it = layers.iterator();
-                while (it.hasNext()) {
-                    Layer childLayer = (Layer)it.next();
-                    if(!layerset.contains(childLayer)) {
-                        layerset.add(childLayer);
-                    }
-                    getSetStructure(childLayer, layerset);
-                }
-            }
-        }
-        return layerset;
-    }
 
     /* Method which returns the user with a specified id or a new user if no id is given.
      *
