@@ -161,13 +161,14 @@
         }
         
         //check the selected layers
+        var layers = undefined;
         <c:if test="${not empty checkedLayers}">
             var layerstring="${checkedLayers}";
-            var layers=layerstring.split(",");
+            layers=layerstring.split(",");
         </c:if>    
         
         function isLayerChecked(id) {
-            if(!layers) {
+            if(layers == undefined) {
                 return false;
             }
             for(var i = 0; i < layers.length; i++) {
