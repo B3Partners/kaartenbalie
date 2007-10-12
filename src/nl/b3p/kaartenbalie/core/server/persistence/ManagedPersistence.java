@@ -21,10 +21,14 @@ public class ManagedPersistence {
     private static EntityManagerFactory emf;
     private static ThreadLocal tlEM = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
+    
+    
+    /* 
+     * This initializes the EntityManagerFactory. Very useful!
+     */
     static {
         emf = Persistence.createEntityManagerFactory(getPersistenceUnitName());
     }
-
     
     /*
      * This function will load the right persistenceunit from the persistenceunit.properties file. It will search
@@ -47,6 +51,8 @@ public class ManagedPersistence {
             return defaultKaartenbaliePU;
         }
     }
+
+    
     public static void closeEmf() {
         emf.close();
     }
@@ -54,7 +60,11 @@ public class ManagedPersistence {
     public static EntityManagerFactory getEntityManagerFactory() {
         return emf;
     }
-    
+
+    /*
+     * Use this function where a ThreadLocal entityManager is not required i.e. in 
+     * controller classes and non servlet classes.
+     */
     public static EntityManager createEntityManager() {
         return emf.createEntityManager();
     }
@@ -66,7 +76,6 @@ public class ManagedPersistence {
     * support for multiple EntityManagers at this time. This last feature can be easily implemented by registering
     * a hashmap in the ThreadLocal.
     */
-    
     public static EntityManager getEntityManager() {
         EntityManager localEm = (EntityManager) tlEM.get();
         if (localEm == null) {
@@ -76,15 +85,16 @@ public class ManagedPersistence {
         return localEm;
     }
     
+    /* 
+     * Always close your entitymanager when you're done with it. Else you might stumble into awkward situations where
+     * multiple calls are done on the same entitymanager
+     */
     public static void closeEntityManager() {
         EntityManager localEm = (EntityManager) tlEM.get();
         if (localEm != null) {
             localEm.close();
             tlEM.set(null);
         }
-    }
-    public static void main(String [] args) throws Exception {
-        
     }
     
 }
