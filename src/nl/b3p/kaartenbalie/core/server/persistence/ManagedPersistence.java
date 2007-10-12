@@ -9,9 +9,9 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.InetAddress;
+import java.net.URL;
+import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -20,10 +20,33 @@ public class ManagedPersistence {
     
     private static EntityManagerFactory emf;
     private static ThreadLocal tlEM = new ThreadLocal();
+    private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     static {
-        emf = Persistence.createEntityManagerFactory("kaartenbaliePU");
+        emf = Persistence.createEntityManagerFactory(getPersistenceUnitName());
     }
+
     
+    /*
+     * This function will load the right persistenceunit from the persistenceunit.properties file. It will search
+     * the propertiesfile for a property that matches the computers hostname. This way, there is no need to edit 
+     * persistenceunits for everyone individually. If you want to change your persistence unit, look up the properties
+     * file and add or change the mapping that belongs to you.
+     */
+    public static String getPersistenceUnitName() {
+        Properties props = new java.util.Properties();
+        URL url = ClassLoader.getSystemResource("persistenceunit.properties");
+        try {
+            props.load(url.openStream());
+            String result =  (String) props.get(InetAddress.getLocalHost().getHostName());
+            if (result == null) {
+                throw new Exception("Property for hostname not found. Using default.") ;
+            }
+            return result;
+            
+        } catch (Exception e) {
+            return defaultKaartenbaliePU;
+        }
+    }
     public static void closeEmf() {
         emf.close();
     }

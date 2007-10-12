@@ -16,7 +16,7 @@
         <id name="id" type="int" column="ORGANIZATIONID" >
             <generator class="native"/>
         </id>
-        <set name="organizationLayer" table="OrganizationLayer" lazy="false">
+        <set name="organizationLayer" table="OrganizationLayer" lazy="false" order-by="LAYERID ASC">
             <key column="ORGANIZATIONID"/>
             <many-to-many column="LAYERID" class="nl.b3p.wms.capabilities.Layer" lazy="false"/>
         </set>

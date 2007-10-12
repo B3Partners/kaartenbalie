@@ -282,4 +282,6 @@
         
     </c:if>
     </script>
+    
+    ${checkedLayers}
 </html:form>

@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import nl.b3p.kaartenbalie.core.server.reporting.control.TestThread;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ClientRequest;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -136,7 +135,14 @@ public class RequestReporting {
 
     public static void main(String [ ] args) throws Exception {
 
-        RequestReporting rr = new RequestReporting();
+        
+        System.out.println(ManagedPersistence.getPersistenceUnitName());
+        
+        
+        System.exit(0);
+       // RequestReporting rr = new RequestReporting();
+        
+        
         /*
         rr.clean();
 
