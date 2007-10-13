@@ -187,7 +187,7 @@ public class ServerActionDemo extends ServerAction {
         } catch (Exception e) {
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, e.toString());
+            addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
 

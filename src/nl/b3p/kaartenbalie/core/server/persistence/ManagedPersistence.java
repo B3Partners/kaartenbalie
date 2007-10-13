@@ -15,15 +15,18 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ManagedPersistence {
     
+    private static final Log log = LogFactory.getLog(ManagedPersistence.class);
     private static EntityManagerFactory emf;
     private static ThreadLocal tlEM = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     
     
-    /* 
+    /*
      * This initializes the EntityManagerFactory. Very useful!
      */
     static {
@@ -32,26 +35,33 @@ public class ManagedPersistence {
     
     /*
      * This function will load the right persistenceunit from the persistenceunit.properties file. It will search
-     * the propertiesfile for a property that matches the computers hostname. This way, there is no need to edit 
+     * the propertiesfile for a property that matches the computers hostname. This way, there is no need to edit
      * persistenceunits for everyone individually. If you want to change your persistence unit, look up the properties
      * file and add or change the mapping that belongs to you.
      */
     public static String getPersistenceUnitName() {
         Properties props = new java.util.Properties();
+        String result = null;
+        String hostName = null;
+        // TODO: volgende werkt niet op vista!
         URL url = ClassLoader.getSystemResource("persistenceunit.properties");
-        try {
-            props.load(url.openStream());
-            String result =  (String) props.get(InetAddress.getLocalHost().getHostName());
-            if (result == null) {
-                throw new Exception("Property for hostname not found. Using default.") ;
+        if (url!=null) {
+            try {
+                props.load(url.openStream());
+                hostName = InetAddress.getLocalHost().getHostName();
+                result =  (String) props.get(hostName);
+            } catch (Exception e) {
+                log.error("error finding persistence unit: ", e);
             }
-            return result;
-            
-        } catch (Exception e) {
-            return defaultKaartenbaliePU;
         }
+        if (result == null)
+            result = defaultKaartenbaliePU;
+        if (hostName == null)
+            hostName = "unknown";
+        log.info("For host: " + hostName + " using persistence unit " + result);
+        return result;
     }
-
+    
     
     public static void closeEmf() {
         emf.close();
@@ -60,9 +70,9 @@ public class ManagedPersistence {
     public static EntityManagerFactory getEntityManagerFactory() {
         return emf;
     }
-
+    
     /*
-     * Use this function where a ThreadLocal entityManager is not required i.e. in 
+     * Use this function where a ThreadLocal entityManager is not required i.e. in
      * controller classes and non servlet classes.
      */
     public static EntityManager createEntityManager() {
@@ -85,7 +95,7 @@ public class ManagedPersistence {
         return localEm;
     }
     
-    /* 
+    /*
      * Always close your entitymanager when you're done with it. Else you might stumble into awkward situations where
      * multiple calls are done on the same entitymanager
      */

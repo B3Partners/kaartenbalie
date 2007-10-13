@@ -175,7 +175,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             url = checkWmsUrl(url);
         } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, e.getMessage());
+            addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
 
@@ -209,7 +209,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         } catch (Exception e) {
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, e.toString());
+            addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
 
@@ -305,7 +305,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             } catch (Exception e) {
                 log.error("Error deleting the old serviceprovider", e);
                 prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, e.toString());
+                addAlternateMessage(mapping, request, null, e.getMessage());
                 return getAlternateForward(mapping, request);
             }
         }
