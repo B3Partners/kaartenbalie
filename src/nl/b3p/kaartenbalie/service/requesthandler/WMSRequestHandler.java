@@ -91,69 +91,67 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         } catch (NoResultException nre) {
             throw new Exception("No serviceprovider for user found.");
         }
-
+        
+        Set serviceproviders = null;
+        Layer kaartenbalieTopLayer = null;
+        
         Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
-        if (organizationLayers == null)
-            return null;
-        
-        LayerValidator lv = new LayerValidator(organizationLayers);
-        Layer kaartenbalieTopLayer = new Layer();
-        kaartenbalieTopLayer.setTitle(TOPLAYERNAME);
-        kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
-        
-        Set serviceproviders = new HashSet();
-        Iterator orgIt = organizationLayers.iterator();
-        while(orgIt.hasNext()) {
-            Layer tempLayer = (Layer)orgIt.next();
-            ServiceProvider sp = tempLayer.getServiceProvider();
-            if(!serviceproviders.contains(sp))
-                serviceproviders.add(sp);
-        }
-        if (serviceproviders.isEmpty())
-            return null;
-        
-        Set topLayers = new HashSet();
-        Set orgLayerIds = new HashSet();
-        Iterator layerIt = organizationLayers.iterator();
-        while (layerIt.hasNext()) {
-            Layer orgLayer = (Layer) layerIt.next();
-            orgLayerIds.add(orgLayer.getId());
-            Layer topLayer = orgLayer.getTopLayer();
-            if(!topLayers.contains(topLayer)) {
-                topLayers.add(topLayer);
+        if (organizationLayers != null && !organizationLayers.isEmpty()) {
+            
+            serviceproviders = new HashSet();
+            Set topLayers = new HashSet();
+            Set orgLayerIds = new HashSet();
+            Iterator it = organizationLayers.iterator();
+            while(it.hasNext()) {
+                Layer layer = (Layer)it.next();
+                orgLayerIds.add(layer.getId());
+                Layer topLayer = layer.getTopLayer();
+                if(!topLayers.contains(topLayer))
+                    topLayers.add(topLayer);
+                ServiceProvider sp = layer.getServiceProvider();
+                if(!serviceproviders.contains(sp))
+                    serviceproviders.add(sp);
             }
-        }
-        
-        Iterator tlId= topLayers.iterator();
-        while (tlId.hasNext()) {
-            Layer layer = (Layer)tlId.next();
-            Layer layerCloned = (Layer)layer.clone();
-            Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
-            // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
-            boolean layerAuthorized = orgLayerIds.contains(layer.getId());
-            if (!layerAuthorized && (authSubLayers==null || authSubLayers.isEmpty()))
-                continue;
-            layerCloned.setLayers(authSubLayers);
-            // layer alleen als placeholder indien niet toegankelijk maar wel toegankelijke sublayers heeft
-            if (!layerAuthorized)
-                layerCloned.setName(null);
-            if (authSubLayers==null)
-                authSubLayers = new HashSet();
-            kaartenbalieTopLayer.addLayer(layerCloned);
-        }
-        
-        // Valideer SRS van toplayers
-        lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
-        String [] supportedSRS = lv.validateSRS();
-        for (int i=0; i < supportedSRS.length; i++){
-            SrsBoundingBox srsbb= new SrsBoundingBox();
-            srsbb.setSrs(supportedSRS[i]);
-            kaartenbalieTopLayer.addSrsbb(srsbb);
+            
+            if (!topLayers.isEmpty()) {
+                kaartenbalieTopLayer = new Layer();
+                kaartenbalieTopLayer.setTitle(TOPLAYERNAME);
+                LayerValidator lv = new LayerValidator(organizationLayers);
+                kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
+                
+                Iterator tlId= topLayers.iterator();
+                while (tlId.hasNext()) {
+                    Layer layer = (Layer)tlId.next();
+                    Layer layerCloned = (Layer)layer.clone();
+                    Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
+                    // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
+                    boolean layerAuthorized = orgLayerIds.contains(layer.getId());
+                    if (!layerAuthorized && (authSubLayers==null || authSubLayers.isEmpty()))
+                        continue;
+                    layerCloned.setLayers(authSubLayers);
+                    // layer alleen als placeholder indien niet toegankelijk maar wel toegankelijke sublayers heeft
+                    if (!layerAuthorized)
+                        layerCloned.setName(null);
+                    if (authSubLayers==null)
+                        authSubLayers = new HashSet();
+                    kaartenbalieTopLayer.addLayer(layerCloned);
+                }
+                
+                // Valideer SRS van toplayers
+                lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
+                String [] supportedSRS = lv.validateSRS();
+                for (int i=0; i < supportedSRS.length; i++){
+                    SrsBoundingBox srsbb= new SrsBoundingBox();
+                    srsbb.setSrs(supportedSRS[i]);
+                    kaartenbalieTopLayer.addSrsbb(srsbb);
+                }
+            }
         }
         
         // Creeer geldige service provider
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+        validServiceProvider.setTopLayer(kaartenbalieTopLayer);
         
         Set roles = dbUser.getUserroles();
         if (roles!=null) {
@@ -164,7 +162,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
         
-        validServiceProvider.setTopLayer(kaartenbalieTopLayer);
         tx.commit();
         return validServiceProvider;
     }

@@ -3,7 +3,7 @@
  * @author R. Braam
  * @version 1.00 2007/03/02
  *
- * Purpose: the function of this class is to create a list of url's which direct to the right servers that 
+ * Purpose: the function of this class is to create a list of url's which direct to the right servers that
  * have the desired layers for the WMS GetCapabilities request.
  *
  * @copyright 2007 All rights reserved. B3Partners
@@ -27,7 +27,7 @@ public class ServiceProviderValidator implements KBConstants {
     
     private Set serviceProviders;
     
-    /** 
+    /**
      * Create a ServiceProvider object which has only Capabilities and Formats which are supported by all ServiceProviders.
      *
      * @return a valid ServiceProvider object.
@@ -38,7 +38,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Create a ServiceProvider object which has only Capabilities and Formats which are supported by all ServiceProviders.
      *
      * @return a valid ServiceProvider object.
@@ -48,47 +48,49 @@ public class ServiceProviderValidator implements KBConstants {
         ServiceProvider newSP = new ServiceProvider();
         this.fillServiceProviderConstants(newSP);
         
-        //create a set with domain resources which apply to all valid statements.
-        String [] domains = this.validateDomains();
         Set resources = new HashSet();
-        for (int i = 0; i < domains.length; i++) {
-            String domain = domains[i];
-            if(domain != null && domain != "null") {
-                String [] f = this.validateFormats(domain);
-
-                ServiceDomainResource sdr = new ServiceDomainResource();
-                sdr.setDomain(domain);
-                Set formats = new HashSet();
-                for(int j = 0; j < f.length; j++) {
-                    if (f[j] != null && f[j] != "null")
-                        formats.add(f[j]);
+        if (serviceProviders!=null && !serviceProviders.isEmpty()) {
+            //create a set with domain resources which apply to all valid statements.
+            String [] domains = this.validateDomains();
+            for (int i = 0; i < domains.length; i++) {
+                String domain = domains[i];
+                if(domain != null && !"null".equalsIgnoreCase(domain)) {
+                    String [] f = this.validateFormats(domain);
+                    
+                    ServiceDomainResource sdr = new ServiceDomainResource();
+                    sdr.setDomain(domain);
+                    Set formats = new HashSet();
+                    for(int j = 0; j < f.length; j++) {
+                        if (f[j] != null && !"null".equalsIgnoreCase(f[j]))
+                            formats.add(f[j]);
+                    }
+                    sdr.setFormats(formats);
+                    sdr.setServiceProvider(newSP);
+                    sdr.setGetUrl(CONTACT_WEBSITE);
+                    sdr.setPostUrl(CONTACT_WEBSITE);
+                    resources.add(sdr);
                 }
-                sdr.setFormats(formats);
-                sdr.setServiceProvider(newSP);
-                sdr.setGetUrl("http://www.b3p.nl/");
-                sdr.setPostUrl("http://www.b3p.nl/");
-                resources.add(sdr);
             }
         }
-        
         if (resources.isEmpty()) {
             resources = getDefaultResources();
         }
         newSP.setDomainResource(resources);
         
-        //Now we still need to check for the right Exception formats.....
-        String [] exceptions = this.validateExceptions();
         Set exception = new HashSet();
-        for(int j = 0; j < exceptions.length; j++) {
-            if (exceptions[j] != null && exceptions[j] != "null")
-                exception.add(exceptions[j]);
+        if (serviceProviders!=null && !serviceProviders.isEmpty()) {
+            //Now we still need to check for the right Exception formats.....
+            String [] exceptions = this.validateExceptions();
+            for(int j = 0; j < exceptions.length; j++) {
+                if (exceptions[j] != null && !"null".equalsIgnoreCase(exceptions[j]))
+                    exception.add(exceptions[j]);
+            }
         }
-        
         if(exception.isEmpty()) {
             exception = getDefaultException();
         }
-        
         newSP.setExceptions(exception);
+        
         return newSP;
     }
     // </editor-fold>
@@ -97,7 +99,7 @@ public class ServiceProviderValidator implements KBConstants {
         Set exception = new HashSet();
         exception.add("application/vnd.ogc.se_xml");
         exception.add("application/vnd.ogc.se_inimage");
-        exception.add("application/vnd.ogc.se_blank");       
+        exception.add("application/vnd.ogc.se_blank");
         return exception;
     }
     
@@ -132,7 +134,7 @@ public class ServiceProviderValidator implements KBConstants {
         return resources;
     }
     
-    /** 
+    /**
      * Fill the serviceprovider object with predefined static constants.
      *
      * @param serviceProvider The ServiceProvider object that has to be filled.
@@ -163,7 +165,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a GetMap Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetMap Capability.
@@ -171,14 +173,14 @@ public class ServiceProviderValidator implements KBConstants {
     // <editor-fold defaultstate="" desc="validateGetMapFormat() method.">
     public boolean validate() {
         return (validateFormats(KBConstants.WMS_REQUEST_GetMap).length > 0) &&
-               (validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0) &&
-               (validateFormats(KBConstants.WMS_REQUEST_GetFeatureInfo).length > 0) &&
-               (validateFormats(KBConstants.WMS_REQUEST_DescribeLayer).length > 0) &&
-               (validateFormats(KBConstants.WMS_REQUEST_GetLegendGraphic).length > 0);
+                (validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0) &&
+                (validateFormats(KBConstants.WMS_REQUEST_GetFeatureInfo).length > 0) &&
+                (validateFormats(KBConstants.WMS_REQUEST_DescribeLayer).length > 0) &&
+                (validateFormats(KBConstants.WMS_REQUEST_GetLegendGraphic).length > 0);
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a GetMap Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetMap Capability.
@@ -189,7 +191,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a GetCapabilities Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetCapabilities Capability.
@@ -200,7 +202,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a GetFeatureInfo Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetFeatureInfo Capability.
@@ -211,7 +213,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a DescribeLayer Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a DescribeLayer Capability.
@@ -222,7 +224,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check whether the set of ServiceProviders all have a GetLegendGraphic Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetLegendGraphic Capability.
@@ -233,7 +235,7 @@ public class ServiceProviderValidator implements KBConstants {
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check the domains that are supported by all the Serviceproviders.
      *
      * @return String[] with only the domains supported by all the serviceproviders.
@@ -248,13 +250,13 @@ public class ServiceProviderValidator implements KBConstants {
             while(exceptionIterator.hasNext()) {
                 String exception = (String)exceptionIterator.next();
                 hashmapFilter(hm, exception);
-            }            
+            }
         }
         return formats(hm);
     }
-    // </editor-fold>    
+    // </editor-fold>
     
-    /** 
+    /**
      * Check the domains that are supported by all the Serviceproviders.
      *
      * @return String[] with only the domains supported by all the serviceproviders.
@@ -270,13 +272,13 @@ public class ServiceProviderValidator implements KBConstants {
                 ServiceDomainResource sdr = (ServiceDomainResource)domainResourceIterator.next();
                 String domain = sdr.getDomain();
                 hashmapFilter(hm, domain);
-            }            
+            }
         }
         return formats(hm);
     }
     // </editor-fold>
     
-    /** 
+    /**
      * Check the formats that are supported by all the serviceproviders
      *
      * @param domain The name of the domain to be checked.
@@ -300,7 +302,7 @@ public class ServiceProviderValidator implements KBConstants {
                         hashmapFilter(hm, format);
                     }
                 }
-            }            
+            }
         }
         return formats(hm);
     }
@@ -321,7 +323,7 @@ public class ServiceProviderValidator implements KBConstants {
             Map.Entry entry = (Map.Entry)it.next();
             int i = ((Integer)entry.getValue()).intValue();
             if (i >= serviceProviders.size()) {
-                supportedFormats.add((String)entry.getKey());                
+                supportedFormats.add((String)entry.getKey());
             }
         }
         String [] formats = new String[supportedFormats.size() + 1];
@@ -350,7 +352,7 @@ public class ServiceProviderValidator implements KBConstants {
     public Set getServiceProviders() {
         return serviceProviders;
     }
-
+    
     public void setServiceProviders(Set serviceProviders) {
         this.serviceProviders = serviceProviders;
     }

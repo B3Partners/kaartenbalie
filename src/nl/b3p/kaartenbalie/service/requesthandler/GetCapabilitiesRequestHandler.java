@@ -54,7 +54,6 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         url = (String) parameters.get(KB_PERSONAL_URL);
                 
         ServiceProvider s = getServiceProvider();
-        s.setAllRoles(user.getUserroles());
         s.overwriteURL(url);
         
         ByteArrayOutputStream output = null;
