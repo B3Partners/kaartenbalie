@@ -9,6 +9,11 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
+import java.util.HashMap;
+import java.util.Map;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSRequest;
+
 /**
  *
  * @author Chris Kramer

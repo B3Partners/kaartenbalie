@@ -44,11 +44,11 @@ public class RequestReporting {
         
     }
     
-    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser) throws Exception{
+    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser) {
         
         EntityTransaction tx = em.getTransaction();
         if (tx.isActive() || clientRequest != null) {
-            throw new Exception("Cannot start a new clientRequest without ending one first.");
+            throw new Error("Cannot start a new clientRequest without ending one first.");
         }
         tx.begin();
         try {
@@ -114,11 +114,11 @@ public class RequestReporting {
         
     }
     
-    public void endClientRequest(int bytesSendToUser, long totalResponseTime) throws Exception{
+    public void endClientRequest(int bytesSendToUser, long totalResponseTime) {
         EntityTransaction tx = em.getTransaction();
         
         if (!tx.isActive() || clientRequest == null) {
-            throw new Exception("Cannot end a clientRequest without starting it first.");
+            throw new Error("Cannot end a clientRequest without starting it first.");
         }
         
         try {

@@ -112,17 +112,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         DataWrapper data = new DataWrapper(response);
         User user = null;
-        String completeRequest = request.getServletPath() + request.getPathInfo() + request.getQueryString();
+        String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
         log.info("Request: " + completeRequest);
-        
-        log.info("Request: " + request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString());
         RequestReporting rr = new RequestReporting(user);
         data.setRequestReporting(rr);
-        try {
-            rr.startClientRequest(completeRequest, request.getContentLength());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        rr.startClientRequest(completeRequest, request.getContentLength());
         
         try {
             
@@ -271,11 +265,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
             }
         }
-        try {
-            rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
     }
     // </editor-fold>
     
