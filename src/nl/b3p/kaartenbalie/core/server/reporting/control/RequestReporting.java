@@ -144,7 +144,6 @@ public class RequestReporting {
     public static void main(String [ ] args) throws Exception {
         
         
-        System.out.println(ManagedPersistence.getPersistenceUnitName());
         RequestReporting rr = new RequestReporting();
         
         rr.clean();
