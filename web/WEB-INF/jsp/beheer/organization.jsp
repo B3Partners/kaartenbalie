@@ -166,25 +166,6 @@
             treeview_toggleItemChildren(DOMItemId);
         }
         
-        //check the selected layers
-        var layers = undefined;
-        <c:if test="${not empty checkedLayers}">
-            var layerstring="${checkedLayers}";
-            layers=layerstring.split(",");
-        </c:if>    
-        
-        function isLayerChecked(id) {
-            if(layers == undefined) {
-                return false;
-            }
-            for(var i = 0; i < layers.length; i++) {
-                if(layers[i] == id) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        
         function createLabel(container, item) {
             var div = document.createElement("div");
             var vink= document.createElement("input");
@@ -196,7 +177,6 @@
                 vink.id=item.id;
                 vink.layerType=item.type;
                 vink.className="layerVink";
-                vink.checked = isLayerChecked(item.id);
                 container.appendChild(vink);
             }
             
@@ -280,7 +260,21 @@
             }
         
         }
-
+        
+        //check the selected layers
+        <c:if test="${not empty checkedLayers}">
+            var layerstring="${checkedLayers}";
+            var layers=layerstring.split(",");
+            for (var i=0; i < layers.length; i++){
+                var element=document.getElementById(layers[i]);
+                if (element){
+                    element.checked=true;
+                    
+                }
+                
+            }
+        </c:if>
+        
         function mainMap_onUpdateProgress(){
             setMapInfo();
         }
