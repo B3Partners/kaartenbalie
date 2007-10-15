@@ -18,7 +18,7 @@
         
         
         
-        <property name="clientRequestURI" column="clr_clientRequestURI" length="512"/>
+        <property name="clientRequestURI" column="clr_clientRequestURI" length="4000"/>
         <property name="timeStamp" column="clr_timeStamp"/>
         <property name="bytesReceivedFromUser" column="clr_bytesReceivedFromUser"/>
         <property name="bytesSendToUser" column="clr_bytesSendToUser"/>

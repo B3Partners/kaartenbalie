@@ -99,6 +99,7 @@ public class ImageCollector extends Thread implements KBConstants {
              * further tries to download the image will be useless.
              */
             int statusCode = client.executeMethod(method);
+            getLocalParameterMap().put("BytesSend", new Long(url.getBytes().length));
             getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
@@ -120,7 +121,7 @@ public class ImageCollector extends Thread implements KBConstants {
             //log.info("Downloaded and stored image of url: " + getUrl());
             
             
-            setBufferedImage(KBImageTool.readImage(method, mime));
+            setBufferedImage(KBImageTool.readImage(method, mime, getLocalParameterMap()));
             
             Header[] headers = method.getResponseHeaders();
             

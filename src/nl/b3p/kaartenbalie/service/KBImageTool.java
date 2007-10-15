@@ -13,8 +13,10 @@ package nl.b3p.kaartenbalie.service;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
@@ -45,7 +47,7 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
-    public static BufferedImage readImage(GetMethod method, String mime) throws Exception {
+    public static BufferedImage readImage(GetMethod method, String mime, Map parameterMap) throws Exception {
         String mimeType = getMimeType(mime);
     	if (mimeType == null)
     		throw new Exception ("unsupported mime type: " + mime);
@@ -54,9 +56,12 @@ public class KBImageTool {
         if (ir == null)
             throw new Exception ("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
         
-        ImageInputStream stream = ImageIO.createImageInputStream(method.getResponseBodyAsStream());
+        byte[] imageData = method.getResponseBody();
+        ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(imageData));
         ir.setInput(stream, true);
+        parameterMap.put("BytesReceived", new Long(imageData.length));
         return ir.read(0);
+        
     }
     // </editor-fold>
     

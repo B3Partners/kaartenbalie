@@ -117,7 +117,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         log.info("Request: " + completeRequest);
         RequestReporting rr = new RequestReporting(user);
         data.setRequestReporting(rr);
-        rr.startClientRequest(completeRequest, request.getContentLength());
+        rr.startClientRequest(completeRequest, completeRequest.getBytes().length);
         
         try {
             
