@@ -19,8 +19,8 @@
 </script>
 
 
-<script type="text/javascript">    
-    function addRow()
+<script type="text/javascript">
+    function addRow() 
     {
         if (!document.getElementsByTagName) {
             return;
@@ -37,20 +37,20 @@
         }
         
         var tBodiesObj = document.getElementById('iptable').tBodies[0];    
-        row=document.createElement("TR");
+        row = document.createElement("TR");
         cell0 = document.createElement("TD");
         cell0.innerHTML = '<fmt:message key="viewer.persoonlijkeurl.registeredip"/>:'; 
         cell1 = document.createElement("TD");
         textnode1=document.createTextNode(content);
 
         var newTextField = document.createElement('input');
-        newTextField.setAttribute('type','text');
-        newTextField.setAttribute('id','registeredIP');
-        newTextField.setAttribute('name','registeredIP');
+        newTextField.type = "text";
+        newTextField.id = "registeredIP";
+        newTextField.name = "registeredIP";
         
-        var newButton = document.createElement('button');
+        var newButton = document.createElement('button');        
         var lastRow = tbl.rows.length;
-        newButton.setAttribute('onClick','removeRow(this); return false;');
+        newButton.onclick= new Function("removeRow(this); return false;")
         newButton.innerHTML = '-';
         cell1.appendChild(newTextField);
         cell1.innerHTML += '&nbsp;';
@@ -60,16 +60,13 @@
         tBodiesObj.appendChild(row);  
     }
     
-    //
-    function removeRow(buttonClicked)
-    {
+    function removeRow(buttonClicked) {
         var parent = buttonClicked;
         while (parent.tagName != 'TR') {
-            //alert(parent.tagName);
             parent = parent.parentNode;
         }
+        
         var tbl = parent.parentNode;
-        //tbl.removeChild( parent );
         
         var lastRow = tbl.rows.length;
         if (lastRow > 1) { 
@@ -204,7 +201,7 @@
         <c:otherwise>
             <html:hidden property="timeout" />
             <div class="knoppen">
-                <html:submit property="edit" accesskey="n" styleClass="knop">
+                <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.edit"/>
                 </html:submit>
             </div>

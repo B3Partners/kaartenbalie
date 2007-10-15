@@ -222,10 +222,12 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         Set newset = new HashSet();
         int size = registeredIP.length;
         for (int i = 0; i < size; i ++) {
-            Userip ipa = new Userip();
-            ipa.setIpaddress(registeredIP[i]);
-            ipa.setUser(user);
-            newset.add(ipa);
+            if (registeredIP[i]!=null && registeredIP[i].length()>0){
+                Userip ipa = new Userip();
+                ipa.setIpaddress(registeredIP[i]);
+                ipa.setUser(user);
+                newset.add(ipa);
+            }
         }
         user.setUserips(compareSets(user.getUserips(), newset));
 
@@ -238,18 +240,20 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         String contextPath          = request.getContextPath();
         int port                    = request.getServerPort();
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
-
-
-        String hashString = user.getPersonalURL().substring(user.getPersonalURL().lastIndexOf("/") + 1);
-
-
+        
+        String persURL = user.getPersonalURL();
+        String hashString = "";
+        if(persURL != null && !persURL.equals("")) {
+            hashString = user.getPersonalURL().substring(user.getPersonalURL().lastIndexOf("/") + 1);
+        }
+        
         Random rd = new Random();
         String toBeHashedString = user.getUsername() + user.getPassword() + df.format(date) + rd.nextLong();
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
 
-        if (user.getTimeout() == null || date.compareTo(user.getTimeout()) != 0) {
+        if (user.getTimeout() == null || date.compareTo(user.getTimeout()) != 0 && !hashString.equals("")) {
             hashString = new String(Hex.encodeHex(md5hash));
         }
 

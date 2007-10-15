@@ -297,6 +297,9 @@ public class UserAction extends KaartenbalieCrudAction {
 
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
+        
+        List roles = em.createQuery("from Roles").getResultList();
+        request.setAttribute("userrolelist", roles);
     }
     // </editor-fold>
 
