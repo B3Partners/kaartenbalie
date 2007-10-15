@@ -31,19 +31,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MetadataAction extends KaartenbalieCrudAction {
-
+    
     private final static Log log = LogFactory.getLog(MetadataAction.class);
-
+    
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         showLayerTree(request);
         return mapping.findForward(SUCCESS);
     }
-
+    
     private void showLayerTree(HttpServletRequest request) throws Exception {
         JSONObject root = this.createTree();
         request.setAttribute("layerList", root);
     }
-
+    
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String layerIdAndName = (String)dynaForm.get("id");
         Integer id = new Integer(Integer.parseInt(layerIdAndName.substring(0, layerIdAndName.indexOf("_"))));
@@ -51,38 +51,38 @@ public class MetadataAction extends KaartenbalieCrudAction {
         populateMetadataEditorForm(layer, dynaForm, request);
         return mapping.findForward(SUCCESS);
     }
-
+    
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-          EntityManager em = getEntityManager();
+        EntityManager em = getEntityManager();
         Integer id = new Integer(Integer.parseInt((String)dynaForm.get("id")));
         String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
-
+        
         Layer layer = getLayerByLayerId(id);
         layer.setMetaData(metadata);
-
+        
         //Possible TODO!
         em.merge(layer);
         //getHibernateSession().update(layer);
-
+        
         showLayerTree(request);
-
+        
         return getDefaultForward(mapping, request);
     }
-
+    
     private Layer getLayerByLayerId(Integer id) {
         EntityManager em = getEntityManager();
         
         try {
             return (Layer)em.createQuery(
-                "from Layer l where " +
-                "(l.id) = lower(:id) ")
-                .setParameter("id", id)
-                .getSingleResult();
+                    "from Layer l where " +
+                    "(l.id) = lower(:id) ")
+                    .setParameter("id", id)
+                    .getSingleResult();
         } catch (NoResultException nre) {
-                return null;
+            return null;
         }
     }
-
+    
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", layer.getId().toString());
         dynaForm.set("name", layer.getTitle());
@@ -94,7 +94,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         String escapedMetadata = StringEscapeUtils.escapeXml(metadata);
         dynaForm.set("metadata", metadata);
     }
-
+    
     /** Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
@@ -106,14 +106,14 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private String findLayer(String layerToBeFound, Set layers) {
         if (layers==null || layers.isEmpty())
             return null;
-
+        
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             String identity = layer.getUniqueName();
             if(identity.equalsIgnoreCase(layerToBeFound))
                 return layer.getName();
-
+            
             String foundLayer = findLayer(layerToBeFound, layer.getLayers());
             if (foundLayer != null)
                 return foundLayer;
@@ -121,13 +121,13 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return null;
     }
     // </editor-fold>
-
-
-
+    
+    
+    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Creates a JSON tree from a list of serviceproviders from the database.
      *
      * @param layers Set of layers from which the part of the tree ahs to be build
@@ -138,22 +138,25 @@ public class MetadataAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
-
+        
         EntityManager em = getEntityManager();
         List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
-
+        
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
-
+        
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet set= new HashSet();
-            set.add(sp.getTopLayer());
-            parentObj = createTreeList(set, parentObj);
-            if (parentObj.has("children")){
-                rootArray.put(parentObj);
+            Layer topLayer = sp.getTopLayer();
+            if (topLayer!=null) {
+                HashSet set= new HashSet();
+                set.add(topLayer);
+                parentObj = createTreeList(set, parentObj);
+                if (parentObj.has("children")){
+                    rootArray.put(parentObj);
+                }
             }
         }
         root.put("name","root");
@@ -161,7 +164,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return root;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
      *
@@ -183,13 +186,13 @@ public class MetadataAction extends KaartenbalieCrudAction {
              * list of layer objects.
              */
             Layer layer = (Layer)layerIterator.next();
-
+            
             /* When we have retrieved this array we are able to save our object we are working with
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
             JSONObject layerObj = this.layerToJSON(layer);
-
+            
             /* Before we are going to save the present object we can first use our object to recieve and store
              * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
@@ -200,7 +203,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
             }
-
+            
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
@@ -212,7 +215,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return parent;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON object from the ServiceProvider with its given name and id.
      *
      * @param serviceProvider The ServiceProvider object which has to be converted
@@ -230,7 +233,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return root;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON object from the Layer with its given name and id.
      *
      * @param layer The Layer object which has to be converted
