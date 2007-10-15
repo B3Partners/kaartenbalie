@@ -9,6 +9,8 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain;
 
+import java.util.Date;
+
 /**
  *
  * @author Chris Kramer
@@ -24,13 +26,15 @@ public class ServiceProviderRequest {
     private Integer responseStatus;
     private Long requestResponseTime;
     private String providerRequestURI;
-    
+    private Date timeStamp;
     //Relational Mappings
     private ClientRequest clientRequest;
     
     public ServiceProviderRequest() {
+        timeStamp = new Date();
     }
     public ServiceProviderRequest(ClientRequest clientRequest) {
+        this();
         this.setClientRequest(clientRequest);
     }
     
@@ -51,7 +55,7 @@ public class ServiceProviderRequest {
         this.clientRequest = clientRequest;
     }
     
-
+    
     
     
     public Integer getResponseStatus() {
@@ -70,32 +74,40 @@ public class ServiceProviderRequest {
         this.providerRequestURI = providerRequestURI;
     }
     
-
+    
     public Long getRequestResponseTime() {
         return requestResponseTime;
     }
-
+    
     public void setRequestResponseTime(Long requestResponseTime) {
         this.requestResponseTime = requestResponseTime;
     }
-
+    
     public Long getBytesSend() {
         return bytesSend;
     }
-
+    
     public void setBytesSend(Long bytesSend) {
         this.bytesSend = bytesSend;
     }
-
+    
     public Long getBytesReceived() {
         return bytesReceived;
     }
-
+    
     public void setBytesReceived(Long bytesReceived) {
         this.bytesReceived = bytesReceived;
     }
-
- 
+    
+    public Date getTimeStamp() {
+        return timeStamp;
+    }
+    
+    public void setTimeStamp(Date timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+    
+    
     
     
     

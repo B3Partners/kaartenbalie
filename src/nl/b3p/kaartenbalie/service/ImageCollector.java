@@ -124,11 +124,7 @@ public class ImageCollector extends Thread implements KBConstants {
             
             Header[] headers = method.getResponseHeaders();
             
-            for (int i = 0; i< headers.length; i++)
-            {
-                //System.out.println(headers[i].getName() + ":" + headers[i].getValue());
-            }
-            
+           
             
             setStatus(COMPLETED);
         } catch (Exception ex) {

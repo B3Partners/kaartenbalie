@@ -62,8 +62,9 @@ public class RequestReporting {
     }
     
     public void addServiceProviderRequest(Class sprClass, Map parameterMap) throws Exception{
-        System.out.println("ParameterMap:" + parameterMap);
         try {
+            
+            
             
             if (!ServiceProviderRequest.class.isAssignableFrom(sprClass)) {
                 throw new Exception(sprClass.getSimpleName() + " is not a member of the ServiceProviderRequest family tree.");

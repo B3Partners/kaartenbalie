@@ -33,6 +33,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -369,9 +370,20 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data recieved from the url can be directly transported to the client.
          */
+        
+        RequestReporting rr = dw.getRequestReporting();
+        HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
+        
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
+        
+        /*
+         *        localParameterMap.put("RequestResponseTime", new Long(operationEnd.getTime() - operationStart.getTime());
+         
+         */
+        localParameterMap.put("ProviderRequestURI", url);
+        
         
         String rhValue = "";
         
@@ -380,7 +392,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             int statusCode = client.executeMethod(method);
             long time = System.currentTimeMillis() - startTime;
             dw.setHeader("X-Kaartenbalie-debug1", String.valueOf(time));
-            
+            localParameterMap.put("ResponseStatus", new Integer(statusCode));
+            localParameterMap.put("RequestResponseTime", new Long(time));   
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
@@ -401,6 +414,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         } catch (IOException e) {
             log.error("Fatal transport error: " + e.getMessage());
             throw new IOException("Fatal transport error: " + e.getMessage());
+        } catch (Exception e) {
+            throw e;
         } finally {
             method.releaseConnection();
         }
