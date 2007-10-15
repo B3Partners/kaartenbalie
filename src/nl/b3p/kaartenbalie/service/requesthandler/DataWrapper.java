@@ -11,9 +11,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,14 +25,13 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DataWrapper {
     private static final Log log = LogFactory.getLog(DataWrapper.class);
-
+    
     private String contentType;
     private String errorContentType;
     private String contentEncoding;
     private String responseMessage;
     private int  responseCode;
     private int  contentLength;
-    private byte[] data;
     private HttpServletResponse response;
     private OutputStream sos;
     private String contentDisposition;
@@ -38,15 +39,22 @@ public class DataWrapper {
     private long startTime;
     private long endTime;
     
+    //Use for reporting...
+    private RequestReporting requestReporting;
+    private Map requestParameterMap;
+    private Class requestClassType;
+    
+    
     public DataWrapper(HttpServletResponse response) throws IOException {
         this.response = response;
         this.sos = response.getOutputStream();
+        this.requestParameterMap = new HashMap();
     }
-
+    
     public String getContentType() {
-        return response.getContentType();        
+        return response.getContentType();
     }
-
+    
     public void setContentType(String contentType) {
         response.setContentType(contentType);
     }
@@ -54,7 +62,7 @@ public class DataWrapper {
     public String getErrorContentType() {
         return errorContentType;
     }
-
+    
     public void setErrorContentType(String errorContentType) {
         this.errorContentType = errorContentType;
     }
@@ -77,12 +85,17 @@ public class DataWrapper {
     
     private void setContentLength(int lenght) {
         response.setContentLength(lenght);
+        this.contentLength = lenght;
+        
     }
     
+    public int getContentLength() {
+        return contentLength;
+    }
     public void setDateHeader(String name, long date) {
         response.setDateHeader(name, date);
     }
-
+    
     public void setHeader(String name, String value) {
         response.setHeader(name, value);
     }
@@ -127,28 +140,56 @@ public class DataWrapper {
             }
         }
     }
-
+    
     public long getStartTime() {
         return startTime;
     }
-
+    
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
-
+    
     public long getEndTime() {
         return endTime;
     }
-
+    
     public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
-
+    
     public Map getParameters() {
         return parameters;
     }
-
+    
     public void setParameters(Map parameters) {
         this.parameters = parameters;
     }
+    
+    public RequestReporting getRequestReporting() {
+        return requestReporting;
+    }
+    
+    public void setRequestReporting(RequestReporting requestReporting) {
+        this.requestReporting = requestReporting;
+    }
+    
+    public Class getRequestClassType() {
+        return requestClassType;
+    }
+    
+    public void setRequestClassType(Class requestClassType) {
+        this.requestClassType = requestClassType;
+    }
+    
+    
+    public Map getRequestParameterMap() {
+        return requestParameterMap;
+    }
+    
+    public void setRequestParameter(String key, Object object) {
+        this.requestParameterMap.put(key, object);
+    }
+    
+    
+    
 }

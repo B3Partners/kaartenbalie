@@ -54,6 +54,7 @@ public class KBImageTool {
         if (ir == null)
             throw new Exception ("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
         
+        
         ImageInputStream stream = ImageIO.createImageInputStream(method.getResponseBodyAsStream());
         ir.setInput(stream, true);
         return ir.read(0);

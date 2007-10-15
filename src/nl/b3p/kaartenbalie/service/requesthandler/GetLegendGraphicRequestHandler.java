@@ -146,4 +146,5 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         getOnlineData(dw, urls, false, WMS_REQUEST_GetLegendGraphic);
     }
     // </editor-fold>
+
 }

@@ -97,4 +97,6 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dw.write(output);
     }
     // </editor-fold>
+
+
 }

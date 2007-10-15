@@ -19,9 +19,10 @@ public class ServiceProviderRequest {
     private Integer id;
     
     //Data fields
-    private Integer bytesSend;
-    private Integer bytesReceived;
+    private Long bytesSend;
+    private Long bytesReceived;
     private Integer responseStatus;
+    private Long requestResponseTime;
     private String providerRequestURI;
     
     //Relational Mappings
@@ -30,7 +31,7 @@ public class ServiceProviderRequest {
     public ServiceProviderRequest() {
     }
     public ServiceProviderRequest(ClientRequest clientRequest) {
-        this.clientRequest = clientRequest;
+        this.setClientRequest(clientRequest);
     }
     
     public Integer getId() {
@@ -50,13 +51,7 @@ public class ServiceProviderRequest {
         this.clientRequest = clientRequest;
     }
     
-    public Integer getBytesSend() {
-        return bytesSend;
-    }
-    
-    public void setBytesSend(Integer bytesSend) {
-        this.bytesSend = bytesSend;
-    }
+
     
     
     public Integer getResponseStatus() {
@@ -75,14 +70,32 @@ public class ServiceProviderRequest {
         this.providerRequestURI = providerRequestURI;
     }
     
-    public Integer getBytesReceived() {
+
+    public Long getRequestResponseTime() {
+        return requestResponseTime;
+    }
+
+    public void setRequestResponseTime(Long requestResponseTime) {
+        this.requestResponseTime = requestResponseTime;
+    }
+
+    public Long getBytesSend() {
+        return bytesSend;
+    }
+
+    public void setBytesSend(Long bytesSend) {
+        this.bytesSend = bytesSend;
+    }
+
+    public Long getBytesReceived() {
         return bytesReceived;
     }
-    
-    public void setBytesReceived(Integer bytesReceived) {
+
+    public void setBytesReceived(Long bytesReceived) {
         this.bytesReceived = bytesReceived;
     }
-    
+
+ 
     
     
     

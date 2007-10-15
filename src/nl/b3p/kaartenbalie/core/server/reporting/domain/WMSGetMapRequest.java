@@ -20,6 +20,7 @@ public class WMSGetMapRequest extends WMSRequest{
     private Integer width;
     private Integer height;
     private String format;
+    private String boundingBox;
     public WMSGetMapRequest() {
         super();
     }
@@ -40,21 +41,29 @@ public class WMSGetMapRequest extends WMSRequest{
     public void setFormat(String format) {
         this.format = format;
     }
-
+    
     public Integer getWidth() {
         return width;
     }
-
+    
     public void setWidth(Integer width) {
         this.width = width;
     }
-
+    
     public Integer getHeight() {
         return height;
     }
-
+    
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    public String getBoundingBox() {
+        return boundingBox;
+    }
+
+    public void setBoundingBox(String boundingBox) {
+        this.boundingBox = boundingBox;
     }
     
     

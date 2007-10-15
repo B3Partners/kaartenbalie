@@ -33,4 +33,5 @@ public class GetStylesRequestHandler extends WMSRequestHandler {
         return;
     }
     // </editor-fold>
+    
 }

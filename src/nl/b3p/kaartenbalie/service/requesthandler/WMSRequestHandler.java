@@ -305,7 +305,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                ImageManager imagemanager = new ImageManager(urls);
+                
+                ImageManager imagemanager = new ImageManager(urls, dw.getRequestParameterMap());
                 imagemanager.process();
                 imagemanager.sendCombinedImages(dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {

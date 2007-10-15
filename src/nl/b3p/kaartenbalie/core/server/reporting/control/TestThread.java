@@ -25,7 +25,7 @@ public class TestThread extends Thread {
             long totalTime = 0;
             int records = 100;
             RequestReporting rr = new RequestReporting(null);
-            /*
+            
             for (int i = 0; i< records; i++) {
                 
                 long startTime = System.currentTimeMillis();
@@ -37,15 +37,16 @@ public class TestThread extends Thread {
                 paramMap.put("BytesReceived", new Integer(4096*8));
                 paramMap.put("ResponseStatus", new Integer(404));
                 paramMap.put("ProviderRequestURI", new String("www.google.nl"));
-                rr.addServiceProviderRequest("ServiceProviderRequest", paramMap);
+                rr.addServiceProviderRequest(ServiceProviderRequest.class, paramMap);
                 paramMap.put("WmsVersion", new String("1.0.0"));
                 //paramMap.put("ClientRequest", new Integer(100));
-                rr.addServiceProviderRequest("WMSRequest", paramMap);
+                rr.addServiceProviderRequest(WMSRequest.class, paramMap);
                 rr.endClientRequest(2048,0);
                 long endTime = System.currentTimeMillis();
                 totalTime += (endTime - startTime);
             }
-             **/
+            System.out.println("Total time for " + records + " is " + (totalTime /1000) + " seconds, thats " + (totalTime / records) +  " ms per record.");
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }

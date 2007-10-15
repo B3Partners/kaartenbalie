@@ -14,6 +14,10 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import nl.b3p.kaartenbalie.core.server.Userip;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetCapabilitiesRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetFeatureInfoRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetLegendGraphicRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetMapRequest;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
@@ -39,6 +43,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.wms.capabilities.KBConstants;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -81,6 +86,12 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //TODO; make this smarter!!;
+        //This is the dataset required for reporting...
+        long startTime = System.currentTimeMillis();
+        int totalDatasize = 0;
+        
+        
         if (CAPABILITIES_DTD == null) {
             String scheme = request.getScheme();
             String serverName = request.getServerName();
@@ -101,9 +112,20 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         DataWrapper data = new DataWrapper(response);
         User user = null;
+        String completeRequest = request.getServletPath() + request.getPathInfo() + request.getQueryString();
+        log.info("Request: " + completeRequest);
         
         log.info("Request: " + request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString());
+        RequestReporting rr = new RequestReporting(user);
+        data.setRequestReporting(rr);
         try {
+            rr.startClientRequest(completeRequest, request.getContentLength());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        try {
+            
             //Create a map with parameters of of request parameters given
             //with the request of this user and transforms each of these
             //parameters and their keys into uppercase values.
@@ -129,6 +151,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //are needed at several places in the application.
             parameters.put(KB_USER, user);
             parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
+            
+            //End the clientRequest
             
             //Finally call the parse and request method.
             parseRequestAndData(data, parameters);
@@ -244,7 +268,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
                 data.setContentType("application/vnd.ogc.se_xml");
                 data.write(output);
+                
             }
+        }
+        try {
+            rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
     // </editor-fold>
@@ -448,8 +478,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
             requestHandler = new GetCapabilitiesRequestHandler();
             reqParams = PARAMS_GetCapabilities;
+            data.setRequestClassType(WMSGetCapabilitiesRequest.class);
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-            
+            data.setRequestClassType(WMSGetMapRequest.class);            
             //Att all time set the error contenttype at first....
             String format = (String) parameters.get(WMS_PARAM_FORMAT);
             String inimageType = null;
@@ -457,13 +488,15 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 inimageType = format;
             }
             data.setErrorContentType(inimageType);
-            
+
             requestHandler = new GetMapRequestHandler();
             reqParams = PARAMS_GetMap;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+            data.setRequestClassType(WMSGetFeatureInfoRequest.class);
             requestHandler = new GetFeatureInfoRequestHandler();
             reqParams = PARAMS_GetFeatureInfo;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+            data.setRequestClassType(WMSGetLegendGraphicRequest.class);
             requestHandler = new GetLegendGraphicRequestHandler();
             reqParams = PARAMS_GetLegendGraphic;
         }
@@ -490,6 +523,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
          * All clear, we can continue!
          */
         requestHandler.getRequest(data, parameters);
+        
     }
     // </editor-fold>
     

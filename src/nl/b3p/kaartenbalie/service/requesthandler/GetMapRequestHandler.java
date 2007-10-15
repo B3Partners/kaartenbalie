@@ -40,7 +40,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
     public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        /* 
+        /*
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
          * with the GetMap functionality before the outputformat is set then the standard output
@@ -90,20 +90,35 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         Map userdefinedParams = filterUserdefinedParams(parameters);
         
         EntityTransaction tx = em.getTransaction();
-        tx.begin();      
-        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);        
+        tx.begin();
+        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);
         HashMap spMap = new HashMap();
         ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
+        
+        /*
+         * Set the basic fields for reporting... Other fields will be added later on in the threaded Image collector.
+         * These are all common...
+         */
+        
+        
+        dw.setRequestParameter("WmsVersion", (String)parameters.get(WMS_VERSION));
+        dw.setRequestParameter("Srs", null);
+        dw.setRequestParameter("Width", new Integer(width));
+        dw.setRequestParameter("Height",new Integer(height));
+        dw.setRequestParameter("Format", (String)parameters.get(WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", (String)parameters.get(WMS_PARAM_BBOX));
+        
+        
         while (it.hasNext()) {
             String [] sp_layerlist = (String []) it.next();
             
             //Eerst controle of deze spid al geweest is.... en als niet dan controleren of SRS ok is
             if(!spMap.containsKey(sp_layerlist[0])) {
-                String query = 
-                        "SELECT DISTINCT temptabel.LAYERID, srs.SRS FROM srs INNER JOIN (" + 
-                        " SELECT layer.LAYERID, layer.PARENTID FROM layer WHERE layer.PARENTID IS NULL)" + 
-                        " AS temptabel ON temptabel.LAYERID = srs.LAYERID" + 
+                String query =
+                        "SELECT DISTINCT temptabel.LAYERID, srs.SRS FROM srs INNER JOIN (" +
+                        " SELECT layer.LAYERID, layer.PARENTID FROM layer WHERE layer.PARENTID IS NULL)" +
+                        " AS temptabel ON temptabel.LAYERID = srs.LAYERID" +
                         " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = :toplayer";
                 
                 boolean srsFound = false;
@@ -133,41 +148,42 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append(WMS_REQUEST);
             url.append("=");
             url.append(WMS_REQUEST_GetMap);
-
+            
             url.append("&");
             url.append(WMS_PARAM_BBOX);
             url.append("=");
             url.append((String)parameters.get(WMS_PARAM_BBOX));
-
+            
             url.append("&");
             url.append(WMS_PARAM_SRS);
             url.append("=");
             url.append((String)parameters.get(WMS_PARAM_SRS));
-
+            
             url.append("&");
             url.append(WMS_PARAM_TRANSPARENT);
             url.append("=");
             url.append(WMS_PARAM_TRANSPARENT_TRUE);
-
+            
             url.append("&");
             url.append(WMS_PARAM_FORMAT);
             url.append("=");
             url.append((String)parameters.get(WMS_PARAM_FORMAT));
-
+            
             url.append("&");
             url.append(WMS_PARAM_WIDTH);
             url.append("=");
             url.append((String)parameters.get(WMS_PARAM_WIDTH));
-
+            
             url.append("&");
             url.append(WMS_PARAM_HEIGHT);
             url.append("=");
             url.append((String)parameters.get(WMS_PARAM_HEIGHT));
-
+            
             url.append("&");
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
             url.append(sp_layerlist[2]);
+            
             
             Iterator it2 = userdefinedParams.keySet().iterator();
             String urlstring=url.toString();
@@ -206,7 +222,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             String param = (String) it.next();
             if (map.containsKey(param)) {
                 map.remove(param);
-            }            
+            }
         }
         List nonRequiredParamsGetMap = NON_REQUIRED_PARAMS_GetMap;
         it = nonRequiredParamsGetMap.iterator();
@@ -214,9 +230,14 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             String param = (String) it.next();
             if (map.containsKey(param)) {
                 map.remove(param);
-            }            
-        }           
+            }
+        }
         return map;
+    }
+    
+    public Map getReportingMap() throws Exception {
+        //TODO
+        return null;
     }
     
     

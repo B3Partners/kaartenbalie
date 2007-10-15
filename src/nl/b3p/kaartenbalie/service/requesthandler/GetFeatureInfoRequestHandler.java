@@ -131,4 +131,5 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         getOnlineData(dw, urls, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>
+
 }

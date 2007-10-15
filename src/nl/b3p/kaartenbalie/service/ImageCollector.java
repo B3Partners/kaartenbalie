@@ -14,10 +14,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Switcher;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -50,10 +53,24 @@ public class ImageCollector extends Thread implements KBConstants {
     private String url = null;
     private static Stack stack = new Stack();
     
+    
+    /* User for reporting! */
+    private Map localParameterMap;
+    
+    
+    
+    
     public ImageCollector(String url) {
         this.url = url;
+        
         this.setMessage("Download status is still active.");
     }
+    public ImageCollector(String url, Map paramSourceMap) {
+        this(url);
+        localParameterMap = new HashMap(paramSourceMap);
+        getLocalParameterMap().put("ProviderRequestURI", url);
+    }
+    
     
     public void processNew() throws InterruptedException {
         status = ACTIVE;
@@ -82,6 +99,7 @@ public class ImageCollector extends Thread implements KBConstants {
              * further tries to download the image will be useless.
              */
             int statusCode = client.executeMethod(method);
+            getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
@@ -92,6 +110,7 @@ public class ImageCollector extends Thread implements KBConstants {
              * about the data.
              */
             String mime = method.getResponseHeader("Content-Type").getValue();
+            
             if (mime.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                 InputStream is = method.getResponseBodyAsStream();
                 String body = getServiceException(is);
@@ -99,7 +118,17 @@ public class ImageCollector extends Thread implements KBConstants {
             }
             
             //log.info("Downloaded and stored image of url: " + getUrl());
+            
+            
             setBufferedImage(KBImageTool.readImage(method, mime));
+            
+            Header[] headers = method.getResponseHeaders();
+            
+            for (int i = 0; i< headers.length; i++)
+            {
+                //System.out.println(headers[i].getName() + ":" + headers[i].getValue());
+            }
+            
             
             setStatus(COMPLETED);
         } catch (Exception ex) {
@@ -111,6 +140,7 @@ public class ImageCollector extends Thread implements KBConstants {
         }
         
         setOperationEnd(new Date());
+        getLocalParameterMap().put("RequestResponseTime", new Long(operationEnd.getTime() - operationStart.getTime()));
         return;
     }
     
@@ -205,5 +235,9 @@ public class ImageCollector extends Thread implements KBConstants {
         }
     }
     // </editor-fold>
+    
+    public Map getLocalParameterMap() {
+        return localParameterMap;
+    }
     
 }

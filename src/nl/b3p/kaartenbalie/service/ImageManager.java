@@ -13,6 +13,8 @@ package nl.b3p.kaartenbalie.service;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,13 +29,13 @@ public class ImageManager {
     private final Log log = LogFactory.getLog(this.getClass());
     private ArrayList ics = new ArrayList();
     
-    public ImageManager(ArrayList urls) {
+    public ImageManager(ArrayList urls, Map parameterMap) {
         if (urls==null || urls.isEmpty())
             return;
         Iterator it = urls.iterator();
         while (it.hasNext()) {
             String url = (String) it.next();
-            ImageCollector ic = new ImageCollector(url);
+            ImageCollector ic = new ImageCollector(url, parameterMap);
             ics.add(ic);
         }
     }
@@ -70,6 +72,9 @@ public class ImageManager {
         // image niet goed is opgehaald.
         ImageCollector ic = null;
         Iterator it = ics.iterator();
+        
+        Class requestClassType = dw.getRequestClassType();
+        RequestReporting rr = dw.getRequestReporting();
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();
             int status = ic.getStatus();
@@ -81,6 +86,9 @@ public class ImageManager {
                     throw new Exception(ic.getMessage() + " Download aborted.");
                 }                
             }
+            /* Do some reporting! */
+            rr.addServiceProviderRequest(requestClassType, ic.getLocalParameterMap());
+            
         }
         
         BufferedImage [] allImages = new BufferedImage[ics.size()];
