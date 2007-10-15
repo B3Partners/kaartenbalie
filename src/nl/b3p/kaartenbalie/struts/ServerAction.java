@@ -37,11 +37,11 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
 
 public class ServerAction extends KaartenbalieCrudAction implements KBConstants {
-
+    
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerAction.class);
-
+    
     protected static final String MISSING_SEPARATOR_ERRORKEY = "error.missingseparator";
     protected static final String MISSING_QUESTIONMARK_ERRORKEY = "error.missingquestionmark";
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
@@ -50,11 +50,11 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
     protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -74,7 +74,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
-
+    
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -94,12 +94,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, SP_NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         populateServiceProviderForm(serviceprovider, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -113,7 +113,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
- 
+        
         EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
@@ -134,7 +134,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -148,7 +148,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
          * saving the user input. This means that we can start checking if we are dealing with a new
@@ -157,9 +157,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * the variables.
          */
         //Session sess = getHibernateSession();
-
+        
         String url = dynaForm.getString("url");
-
+        
         /*
          * First we need to check if the given url is realy an url.
          */
@@ -170,7 +170,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         try {
             url = checkWmsUrl(url);
         } catch (Exception e) {
@@ -178,7 +178,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
@@ -187,7 +187,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-
+        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -212,20 +212,20 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
-
+        
         if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         populateServerObject(dynaForm, newServiceProvider);
         newServiceProvider.setReviewed(true);
         em.persist(newServiceProvider);
         em.flush();
         //sess.saveOrUpdate(newServiceProvider);
         //sess.flush();
-
+        
         /*
          * All tests have been completed succesfully.
          * We have now a newServiceProvider object and all we need to check
@@ -298,7 +298,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 //sess.saveOrUpdate(org);
                 em.flush();
             }
-
+            
             try {
                 em.remove(oldServiceProvider);
                 em.flush();
@@ -309,12 +309,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 return getAlternateForward(mapping, request);
             }
         }
-
+        
         dynaForm.set("id", null);
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -328,7 +328,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
         EntityManager em = getEntityManager();
         /*
          * Before we can start deleting a serviceprovider, we first need to check if the given token
@@ -349,7 +349,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * Get the serviceprovider which is given in the form. If for some reason this
          * ServiceProvider doesn't exist anymore in the database then we need to catch
@@ -361,10 +361,10 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * Instead of letting the Database decide if it is allowed to delete a serviceprovider
-         * we can decide this our selfs. All there has to be done is checking if there are
+         * we can decide this ourselves. All there has to be done is checking if there are
          * still rights connected to this serviceprovider. Since the rights to a certain layer
          * are going from bottom to top (this means if a sub layer is set with right that all
          * the superlayers of this sublayer also are set with the same rights) all we have to
@@ -375,23 +375,26 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * enough to stop the search and give an error.
          */
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
-        List orgList = em.createQuery("from Organization").getResultList();
-        Iterator orgit = orgList.iterator();
-        while (orgit.hasNext()) {
-            Organization org = (Organization)orgit.next();
-            Set orgLayers = org.getOrganizationLayer();
-            Iterator orgLayerIterator = orgLayers.iterator();
-            while (orgLayerIterator.hasNext()) {
-                Layer organizationLayer = (Layer)orgLayerIterator.next();
-                Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
-                if (organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
-                    prepareMethod(dynaForm, request, LIST, EDIT);
-                    addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
-                    return getAlternateForward(mapping, request);
+        if (serviceProviderTopLayer!=null) {
+            List orgList = em.createQuery("from Organization").getResultList();
+            Iterator orgit = orgList.iterator();
+            while (orgit.hasNext()) {
+                Organization org = (Organization)orgit.next();
+                Set orgLayers = org.getOrganizationLayer();
+                Iterator orgLayerIterator = orgLayers.iterator();
+                while (orgLayerIterator.hasNext()) {
+                    Layer organizationLayer = (Layer)orgLayerIterator.next();
+                    Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
+                    if (organizationLayerTopLayer!=null && 
+                            organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
+                        prepareMethod(dynaForm, request, LIST, EDIT);
+                        addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
+                        return getAlternateForward(mapping, request);
+                    }
                 }
             }
         }
-
+        
         /*
          * If no errors occured and no right were set anymore to this serviceprovider
          * we can assume that all is good and we can safely delete this serviceproiver.
@@ -404,7 +407,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Creates a list of all the service providers in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -415,20 +418,20 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-
+        
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
-
+        
         List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
-
+        
     }
     // </editor-fold>
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Method which returns the service provider with a specified id or a new object if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -440,12 +443,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-
-
+        
+        
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);
-
+        
         if(null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
@@ -454,7 +457,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return serviceProvider;
     }
     // </editor-fold>
-
+    
     /* Method that fills a serive provider object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -469,11 +472,11 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
     }
     // </editor-fold>
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -490,7 +493,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
-
+    
     /* Method which will fill the JSP form with the data of a given service provider.
      *
      * @param serviceProvider ServiceProvider object from which the information has to be printed.
@@ -505,7 +508,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
     }
     // </editor-fold>
-
+    
     /* Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
@@ -517,19 +520,19 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     private Layer checkLayer(Layer orgLayer, Set layers) {
         if (layers==null || layers.isEmpty())
             return null;
-
+        
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
-
+            
             if (orgLayer.getName()==null && layer.getName()==null &&
                     orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
                 return layer;
-
+            
             if (orgLayer.getName()!=null && layer.getName()!=null &&
                     orgLayer.getName().equalsIgnoreCase(layer.getName()))
                 return layer;
-
+            
             Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
             if (foundLayer != null)
                 return foundLayer;
@@ -537,12 +540,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return null;
     }
     // </editor-fold>
-
+    
     private String getUrlWithoutParams(String url) {
         int qpos = url.lastIndexOf("?");
         if (url.length()==qpos+1)
             return url;
-
+        
         StringBuffer trimmedUrl = new StringBuffer(url.substring(0, qpos));
         trimmedUrl.append("?");
         String theParams = url.substring(qpos + 1);
@@ -565,9 +568,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
         return trimmedUrl.toString();
     }
-
+    
     protected String checkWmsUrl(String url) throws Exception {
-
+        
         /*
          * If the URL is valid we need to check if it complies with the WMS standard
          * This means that it should have at least an '?' or a '&' at the end of the
@@ -576,33 +579,33 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
          * KB to be able to perform the request.
          */
-
+        
         int length = url.length();
-
+        
         boolean hasLastQuest = false;
         int lastQuest = url.lastIndexOf("?");
         if (lastQuest >= 0 || length == lastQuest + 1) {
             hasLastQuest = true;
         }
-
+        
         boolean hasLastAmper = false;
         int lastAmper = url.lastIndexOf("&");
         if ((lastAmper >= 0 && length == lastAmper + 1) || length == lastQuest + 1) {
             hasLastAmper = true;
         }
-
+        
         if (!hasLastQuest)
             throw new Exception(MISSING_QUESTIONMARK_ERRORKEY);
-
+        
         if (!hasLastAmper)
             throw new Exception(MISSING_SEPARATOR_ERRORKEY);
-
+        
         //Maybe some parameters have been given. We need to check which params still
         //need to be added.
         boolean req = false;
         boolean version = false;
         boolean service = false;
-
+        
         String paramURL = url.substring(lastQuest + 1);
         String [] params = paramURL.split("&");
         for (int i = 0; i < params.length; i++) {
@@ -617,7 +620,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 }
             }
         }
-
+        
         if (!req) {
             url += WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
         }
@@ -627,7 +630,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         if (!service) {
             url += WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
         }
-
+        
         return url;
     }
 }
