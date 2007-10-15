@@ -15,6 +15,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -29,13 +30,13 @@ import org.apache.commons.logging.LogFactory;
 
 public class KBImageTool {
     
-     private static final Log log = LogFactory.getLog(KBImageTool.class);
-     private BufferedImage bi;
-     
-     private static final String TIFF  = "image/tiff";
-     private static final String GIF   = "image/gif";
-     private static final String JPEG  = "image/jpeg";
-     private static final String PNG   = "image/png";
+    private static final Log log = LogFactory.getLog(KBImageTool.class);
+    private BufferedImage bi;
+    
+    private static final String TIFF  = "image/tiff";
+    private static final String GIF   = "image/gif";
+    private static final String JPEG  = "image/jpeg";
+    private static final String PNG   = "image/png";
     
     /** Reads an image from an http input stream.
      *
@@ -49,18 +50,25 @@ public class KBImageTool {
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
     public static BufferedImage readImage(GetMethod method, String mime, Map parameterMap) throws Exception {
         String mimeType = getMimeType(mime);
-    	if (mimeType == null)
-    		throw new Exception ("unsupported mime type: " + mime);
-    	
+        if (mimeType == null)
+            throw new Exception("unsupported mime type: " + mime);
+        
         ImageReader ir = getReader(mimeType);
         if (ir == null)
-            throw new Exception ("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
+            throw new Exception("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
         
-        //byte[] imageData = method.getResponseBody();
-        //ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(imageData));
-        ImageInputStream stream = ImageIO.createImageInputStream(method.getResponseBodyAsStream());
+        //TODO Make smarter.. Possibly faster... But keep reporting!
+        InputStream is = method.getResponseBodyAsStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int bytesRead = 0;
+        while ((bytesRead = is.read()) != -1) {
+            baos.write(bytesRead);
+        }
+        parameterMap.put("BytesReceived", new Long(baos.size()));
+        ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);
-        //parameterMap.put("BytesReceived", new Long(imageData.length));
+        
+        
         return ir.read(0);
         
     }
@@ -77,8 +85,8 @@ public class KBImageTool {
     // <editor-fold defaultstate="" desc="writeImage(BufferedImage [] images, String mime, DataWrapper dw) method.">
     public static void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
         String mimeType = getMimeType(mime);
-    	if (mimeType == null)
-    		throw new Exception ("unsupported mime type: " + mime);
+        if (mimeType == null)
+            throw new Exception("unsupported mime type: " + mime);
         
         BufferedImage bufferedImage = combineImages(images, mime);
         if(mime.equals(TIFF)) {
@@ -118,7 +126,7 @@ public class KBImageTool {
         //log.info("Writing JPG, GIF or PNG using ImageIO.write");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageOutputStream ios = ImageIO.createImageOutputStream(baos);
-        ImageIO.write(bufferedImage, extension, ios);        
+        ImageIO.write(bufferedImage, extension, ios);
         dw.write(baos);
         ios.flush();
         ios.close();
@@ -190,7 +198,7 @@ public class KBImageTool {
         return newBufIm;
     }
     // </editor-fold>
-                
+    
     /** Private method which seeks through the supported MIME types to check if
      * a certain MIME is supported.
      *
@@ -200,10 +208,10 @@ public class KBImageTool {
      */
     // <editor-fold defaultstate="" desc="getMimeType(String mime) method.">
     private static String getMimeType(String mime) {
-    	String [] mimeTypes = ImageIO.getReaderMIMETypes();
+        String [] mimeTypes = ImageIO.getReaderMIMETypes();
         for (int i = 0; i < mimeTypes.length; i++)
             if (mimeTypes[i].equalsIgnoreCase(mime))
-                return mimeTypes[i];        
+                return mimeTypes[i];
         return null;
     }
     // </editor-fold>
@@ -224,7 +232,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
-        
+    
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME. This method checks spe-
      * cifically for JPG or PNG images because Sun's Java supports two kind of readers

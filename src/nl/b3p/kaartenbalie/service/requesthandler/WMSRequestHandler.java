@@ -311,6 +311,9 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 imagemanager.process();
                 imagemanager.sendCombinedImages(dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+                RequestReporting rr = dw.getRequestReporting();
+                
+                int totalDataSend = 0;
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo
                  * responses into one document. This document has the same layout as the recieved
@@ -330,9 +333,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
                 rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 Document source = null;
+                HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
                 for (int i = 0; i < urls.size(); i++) {
-                    source = builder.parse( (String)urls.get(i) );
+                    String url = (String)urls.get(i);
+                    source = builder.parse( url );
                     copyElements(source, destination);
+                    localParameterMap.put("BytesSend", new Long(url.getBytes().length));
+                    localParameterMap.put("ProviderRequestURI", url);                    
+                    //TODO Make smarter and more complete!
+                    localParameterMap.put("BytesReceived", new Long(-1));
+                     localParameterMap.put("ResponseStatus", new Integer(-1));
+                    rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
                 }
                 
                 OutputFormat format = new OutputFormat(destination);
@@ -340,6 +351,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 XMLSerializer serializer = new XMLSerializer(baos, format);
                 serializer.serialize(destination);
                 dw.write(baos);
+                
+                
             }
         } else {
             if(!urls.isEmpty()) {
@@ -377,13 +390,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
-        
-        /*
-         *        localParameterMap.put("RequestResponseTime", new Long(operationEnd.getTime() - operationStart.getTime());
-         
-         */
         localParameterMap.put("ProviderRequestURI", url);
-        
+        localParameterMap.put("BytesSend", new Long(url.getBytes().length));
         
         String rhValue = "";
         
@@ -393,7 +401,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             long time = System.currentTimeMillis() - startTime;
             dw.setHeader("X-Kaartenbalie-debug1", String.valueOf(time));
             localParameterMap.put("ResponseStatus", new Integer(statusCode));
-            localParameterMap.put("RequestResponseTime", new Long(time));   
+            localParameterMap.put("RequestResponseTime", new Long(time));
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
@@ -408,6 +416,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             
             dw.setContentType(rhValue);
             dw.write(method.getResponseBodyAsStream());
+            localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
         } catch (HttpException e) {
             log.error("Fatal protocol violation: " + e.getMessage());
             throw new HttpException("Fatal protocol violation: " + e.getMessage());
@@ -419,6 +428,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         } finally {
             method.releaseConnection();
         }
+        rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
     }
     // </editor-fold>
     
