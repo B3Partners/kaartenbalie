@@ -142,26 +142,27 @@
     </div>
     
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
-    <c:choose>
-        <c:when test="${action != 'list'}">
-        
-            <table>
-                <tr>
-                    <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
-                    <td>
-                        
-                        <html:text property="timeout" styleId="cal_date"/> &nbsp;
-                        <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                             style="cursor: pointer; border: 1px solid red;" 
-                             title="Date selector"
-                             alt="Date selector"
-                             onmouseover="this.style.background='red';" 
-                             onmouseout="this.style.background=''"
-                             onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
-                             name="cal-button"
-                        />
-                    </td>
-                </tr>
+        <c:choose>
+            <c:when test="${action != 'list'}">
+                
+                <table>
+                    <tr>
+                        <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
+                        <td>
+                            
+                            <html:text property="timeout" styleId="cal_date"/> &nbsp;
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                 style="cursor: pointer; border: 1px solid red;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                                 name="cal-button"
+                            />
+                        </td>
+                    </tr>
+                    <%--
                 <tr>
                     <table id='iptable'>
                         <tbody>
@@ -183,30 +184,79 @@
                         <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
                     </td>
                 </tr>
-                <tr>
-                    <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
-                    <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
-                </tr>
-            </table>
-        
-            <div class="knoppen">
-                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.cancel"/>
-                </html:cancel>
-                <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                    <fmt:message key="button.update"/>
-                </html:submit>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <html:hidden property="timeout" />
-            <div class="knoppen">
-                <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.edit"/>
-                </html:submit>
-            </div>
-        </c:otherwise>
-    </c:choose>
+                --%>
+                    <%-- dit stukje moet dus nog vervangen worden --%>
+                    <tr>
+                        <table id='iptable'>
+                            <tbody>
+                                <tr>
+                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>1:</td> 
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${fn:length(iplist)>0}">
+                                                <html:text property="registeredIP" value="${iplist[0].ipaddress}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <html:text property="registeredIP" value=""/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>2:</td> 
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${fn:length(iplist)>1}">
+                                                <html:text property="registeredIP" value="${iplist[1].ipaddress}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <html:text property="registeredIP" value=""/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>3:</td> 
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${fn:length(iplist)>2}">
+                                                <html:text property="registeredIP" value="${iplist[2].ipaddress}"/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <html:text property="registeredIP" value=""/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </tr>
+                    <%-- tot hier --%>
+                
+                    <tr>
+                        <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
+                        <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
+                    </tr>
+                </table>
+                
+                <div class="knoppen">
+                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.cancel"/>
+                    </html:cancel>
+                    <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
+                        <fmt:message key="button.update"/>
+                    </html:submit>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <html:hidden property="timeout" />
+                <div class="knoppen">
+                    <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.edit"/>
+                    </html:submit>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
         &nbsp;
