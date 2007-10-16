@@ -20,33 +20,36 @@
 
 
 <script type="text/javascript">
-    function addRow() 
-    {
+    var count=0;
+    var iplist="${form.map.registeredIP}";
+    function addRow(evalue) 
+    {        
         if (!document.getElementsByTagName) {
             return;
         }
         
         var tbl = document.getElementById('iptable');
-        var elements = document.getElementsByName('registeredIP');
-        var length = tbl.rows.length - 1;
-        for(i = 1; i <= length; i++) {
-            if (elements[i].value.length <= 0) {
-                alert('Veld is leeg');
-                return;
+        var elements = document.getElementsByName('regip');        
+        if (elements.length>0){
+            for(i = 0; i < elements.length; i++) {
+                if (elements[i].value.length <= 0) {
+                    alert('Veld is leeg');
+                    return;
+                }
             }
         }
-        
         var tBodiesObj = document.getElementById('iptable').tBodies[0];    
         row = document.createElement("TR");
         cell0 = document.createElement("TD");
         cell0.innerHTML = '<fmt:message key="viewer.persoonlijkeurl.registeredip"/>:'; 
         cell1 = document.createElement("TD");
         textnode1=document.createTextNode(content);
-
+        count++;
         var newTextField = document.createElement('input');
         newTextField.type = "text";
-        newTextField.id = "registeredIP";
-        newTextField.name = "registeredIP";
+        newTextField.id = "regip"+count;
+        newTextField.name = "regip";
+        
         
         var newButton = document.createElement('button');        
         var lastRow = tbl.rows.length;
@@ -58,6 +61,10 @@
         row.appendChild(cell0);
         row.appendChild(cell1);
         tBodiesObj.appendChild(row);  
+        //als object is aangemaakt het eventueel meegegeven ipadres invullen
+        if (evalue && evalue.length>0){            
+            document.getElementById("regip"+count).value=evalue;
+        }
     }
     
     function removeRow(buttonClicked) {
@@ -74,6 +81,27 @@
         } else {
             alert('U dient minimaal een IP adres op te geven!');
         }
+    }
+    function doCustomSubmit(){
+        var ipadresses="";
+        for(i = 0; i <= count; i++){
+            var element=document.getElementById("regip"+i);
+            if(element && element.value.length>0){
+                var val=element.value;
+                var val=val.replace(",",".");
+                if (ipadresses.length>0){
+                    ipadresses+=",";
+                }
+                ipadresses+=val;
+            }
+        }
+        if (ipadresses.length>0){
+            document.getElementById("registeredIP").value=ipadresses;
+        }
+        document.getElementById("hiddenSaveField").name="save";
+        document.getElementById("hiddenSaveField").value="s";
+        document.forms[0].submit();
+        
     }
     
 </script>
@@ -141,111 +169,56 @@
         </table>
     </div>
     
-    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
-        <c:choose>
-            <c:when test="${action != 'list'}">
-                
-                <table>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
-                        <td>
-                            
-                            <html:text property="timeout" styleId="cal_date"/> &nbsp;
-                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                                 style="cursor: pointer; border: 1px solid red;" 
-                                 title="Date selector"
-                                 alt="Date selector"
-                                 onmouseover="this.style.background='red';" 
-                                 onmouseout="this.style.background=''"
-                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
-                                 name="cal-button"
-                            />
-                        </td>
-                    </tr>
-                    <%--
-                <tr>
-                    <table id='iptable'>
-                        <tbody>
-                            <c:forEach var="nIP" varStatus="status" items="${iplist}">
-                                <tr>
-                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                                    <td>
-                                        <html:text property="registeredIP" value="${nIP.ipaddress}"/>
-                                        <button onClick='removeRow(this); return false;'>-</button>
-                                    </td>
-                                </tr>
-                            </c:forEach> 
-                        </tbody>
-                    </table>
-                </tr>
-                <tr>
-                    <td>&nbsp;</td>
-                    <td>
-                        <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
-                    </td>
-                </tr>
-                --%>
-                    <%-- dit stukje moet dus nog vervangen worden --%>
-                    <tr>
-                        <table id='iptable'>
-                            <tbody>
-                                <tr>
-                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>1:</td> 
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(iplist)>0}">
-                                                <html:text property="registeredIP" value="${iplist[0].ipaddress}"/>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <html:text property="registeredIP" value=""/>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>2:</td> 
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(iplist)>1}">
-                                                <html:text property="registeredIP" value="${iplist[1].ipaddress}"/>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <html:text property="registeredIP" value=""/>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>3:</td> 
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(iplist)>2}">
-                                                <html:text property="registeredIP" value="${iplist[2].ipaddress}"/>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <html:text property="registeredIP" value=""/>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                            </tbody>
+            <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
+                    <c:choose>
+                    <c:when test="${action != 'list'}">                 
+                    <table>
+                        <tr>
+                            <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
+                            <td>
+                                
+                                <html:text property="timeout" styleId="cal_date"/> &nbsp;
+                                <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                     style="cursor: pointer; border: 1px solid red;" 
+                                     title="Date selector"
+                                     alt="Date selector"
+                                     onmouseover="this.style.background='red';" 
+                                     onmouseout="this.style.background=''"
+                                     onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                                     name="cal-button"
+                                />
+                            </td>
+                        </tr>
+                        <html:hidden property="registeredIP" styleId="registeredIP"/>
+                        <input type="hidden" id="hiddenSaveField"/>
                         </table>
-                    </tr>
-                    <%-- tot hier --%>
-                
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
-                        <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
-                    </tr>
-                </table>
+                        <div class="scrollDiv">
+                            <table>
+                                <tr>                            
+                                    <table id='iptable'>
+                                        <tbody>                                    
+                                        </tbody>
+                                    </table>                            
+                                </tr>
+                            </table>
+                        </div>
+                        <table>
+                        <tr align="left">                            
+                            <td>
+                                <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
+                            </td>
+                        </tr>                
+                        <tr>
+                            <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
+                            <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
+                        </tr>
+                        </table>
                 
                 <div class="knoppen">
                     <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.cancel"/>
-                    </html:cancel>
-                    <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
+                    </html:cancel>                    
+                    <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.update"/>"/>
                 </div>
             </c:when>
             <c:otherwise>
@@ -262,3 +235,11 @@
         &nbsp;
     </div>
 </html:form>
+<script type="text/javascript">
+   if (iplist!=null && iplist.length>0){        
+        var tokens=iplist.split(",");        
+        for (var b=0;b < tokens.length; b++){            
+            addRow(tokens[b]);
+        }
+    }
+</script>

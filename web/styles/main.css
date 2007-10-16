@@ -191,7 +191,13 @@ H5 {
 #footertext a {
     color: #FFFFFF;
 }
-
+.scrollDiv{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 400px;
+    height: 200px;
+    overflow: auto;
+}
 /* Below are the styles for creating a scrollable table */
 body {
     padding-right: 0px;

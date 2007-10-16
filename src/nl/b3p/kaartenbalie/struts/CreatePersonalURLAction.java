@@ -217,16 +217,18 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         }
 
 
-
-        String [] registeredIP = dynaForm.getStrings("registeredIP");
+        String regip=dynaForm.getString("registeredIP");
         Set newset = new HashSet();
-        int size = registeredIP.length;
-        for (int i = 0; i < size; i ++) {
-            if (registeredIP[i]!=null && registeredIP[i].length()>0){
-                Userip ipa = new Userip();
-                ipa.setIpaddress(registeredIP[i]);
-                ipa.setUser(user);
-                newset.add(ipa);
+        if (regip.length()>0){
+            String [] registeredIP = regip.split(",");            
+            int size = registeredIP.length;
+            for (int i = 0; i < size; i ++) {
+                if (registeredIP[i]!=null && registeredIP[i].length()>0){
+                    Userip ipa = new Userip();
+                    ipa.setIpaddress(registeredIP[i]);
+                    ipa.setUser(user);
+                    newset.add(ipa);
+                }
             }
         }
         user.setUserips(compareSets(user.getUserips(), newset));
@@ -407,7 +409,8 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        EntityManager em=super.getEntityManager();
+        user=(User) em.createQuery("from User u where u.id = :id").setParameter("id",user.getId()).getSingleResult();
         dynaForm.set("username", user.getUsername());
         dynaForm.set("firstname", user.getFirstName());
         dynaForm.set("surname", user.getSurname());
@@ -418,12 +421,14 @@ public class CreatePersonalURLAction extends KaartenbalieCrudAction implements K
         dynaForm.set("currentaddress", request.getRemoteAddr());
 
         List iplist = new ArrayList(user.getUserips());
-        request.setAttribute("iplist", iplist);
+        //request.setAttribute("iplist", iplist);
 
-        String [] registeredIP = new String[iplist.size()];
+        String registeredIP = new String();
         for (int i = 0; i < iplist.size(); i++) {
             Userip ipaddresses = (Userip)iplist.get(i);
-            registeredIP[i] = ipaddresses.getId().toString();
+            if (registeredIP.length()>0)
+                registeredIP+=",";
+            registeredIP+= ipaddresses.getIpaddress();
         }
         dynaForm.set("registeredIP", registeredIP);
 
