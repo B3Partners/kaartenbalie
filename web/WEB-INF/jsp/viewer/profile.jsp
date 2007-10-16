@@ -74,7 +74,7 @@
             <c:otherwise>
                 <html:hidden property="newpassword" />
                 <div class="knoppen">
-                    <html:submit property="edit" accesskey="n" styleClass="knop">
+                    <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.edit"/>
                     </html:submit>
                 </div>
