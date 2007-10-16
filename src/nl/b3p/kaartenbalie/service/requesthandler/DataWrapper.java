@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.SendDataOperation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -130,6 +131,11 @@ public class DataWrapper {
     }
     
     public void write(ByteArrayOutputStream baos) throws IOException {
+        //Logging the dataspeed...
+        Map parameterMap = new HashMap();
+        parameterMap.put("DataSize", new Long(baos.size()));
+        long startTime = System.currentTimeMillis();
+        // Log initialized, now start the operation...
         this.setContentLength(baos.size());
         try {
             sos.write(baos.toByteArray());
@@ -139,6 +145,10 @@ public class DataWrapper {
                 sos.close();
             }
         }
+        // Operation done.. now write the log...
+        parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
+        requestReporting.addRequestOperation(SendDataOperation.class,parameterMap);
+        
     }
     
     public long getStartTime() {

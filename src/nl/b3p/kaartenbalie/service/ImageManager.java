@@ -12,9 +12,11 @@ package nl.b3p.kaartenbalie.service;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,11 +72,16 @@ public class ImageManager {
     public void sendCombinedImages(DataWrapper dw) throws Exception {
         //TODO beslissen of we plaatje gaan sturen als een van de onderliggende
         // image niet goed is opgehaald.
+        
+        
         ImageCollector ic = null;
         Iterator it = ics.iterator();
         
         Class requestClassType = dw.getRequestClassType();
         RequestReporting rr = dw.getRequestReporting();
+
+        
+        
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();
             int status = ic.getStatus();
@@ -84,7 +91,7 @@ public class ImageManager {
                     throw new Exception(ic.getMessage());
                 } else {
                     throw new Exception(ic.getMessage() + " Download aborted.");
-                }                
+                }
             }
             /* Do some reporting! */
             rr.addServiceProviderRequest(requestClassType, ic.getLocalParameterMap());
@@ -99,6 +106,7 @@ public class ImageManager {
         //log.debug("Image collection retrieved from providers");
         
         KBImageTool kbi = new KBImageTool();
+
         kbi.writeImage(allImages, "image/png", dw);
     }
     

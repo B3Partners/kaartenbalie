@@ -38,8 +38,8 @@ public class TestThread extends Thread {
                 
                 
                 Map paramMap = new HashMap();
-                paramMap.put("BytesSend", new Integer(4096));
-                paramMap.put("BytesReceived", new Integer(4096*8));
+                paramMap.put("BytesSend", new Long(4096));
+                paramMap.put("BytesReceived", new Long(4096*8));
                 paramMap.put("ResponseStatus", new Integer(404));
                 paramMap.put("ProviderRequestURI", new String("www.google.nl"));
                 rr.addServiceProviderRequest(ServiceProviderRequest.class, paramMap);

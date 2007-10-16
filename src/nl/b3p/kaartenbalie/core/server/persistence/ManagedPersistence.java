@@ -30,36 +30,7 @@ public class ManagedPersistence {
      * This initializes the EntityManagerFactory. Very useful!
      */
     static {
-        emf = Persistence.createEntityManagerFactory(getPersistenceUnitName());
-    }
-    
-    /*
-     * This function will load the right persistenceunit from the persistenceunit.properties file. It will search
-     * the propertiesfile for a property that matches the computers hostname. This way, there is no need to edit
-     * persistenceunits for everyone individually. If you want to change your persistence unit, look up the properties
-     * file and add or change the mapping that belongs to you.
-     */
-    public static String getPersistenceUnitName() {
-        Properties props = new java.util.Properties();
-        String result = null;
-        String hostName = null;
-        // TODO: volgende werkt niet op vista!
-        URL url = ClassLoader.getSystemResource("persistenceunit.properties");
-        if (url!=null) {
-            try {
-                props.load(url.openStream());
-                hostName = InetAddress.getLocalHost().getHostName();
-                result =  (String) props.get(hostName);
-            } catch (Exception e) {
-                log.error("error finding persistence unit: ", e);
-            }
-        }
-        if (result == null)
-            result = defaultKaartenbaliePU;
-        if (hostName == null)
-            hostName = "unknown";
-        log.info("For host: " + hostName + " using persistence unit " + result);
-        return result;
+        emf = Persistence.createEntityManagerFactory(defaultKaartenbaliePU);
     }
     
     

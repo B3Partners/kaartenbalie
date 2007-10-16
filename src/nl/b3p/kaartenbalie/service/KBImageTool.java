@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -23,6 +24,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
@@ -84,11 +87,23 @@ public class KBImageTool {
      */
     // <editor-fold defaultstate="" desc="writeImage(BufferedImage [] images, String mime, DataWrapper dw) method.">
     public static void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
+        
         String mimeType = getMimeType(mime);
         if (mimeType == null)
             throw new Exception("unsupported mime type: " + mime);
         
+        //Logging the combine operation speed...
+        RequestReporting rr = dw.getRequestReporting();
+        Map parameterMap = new HashMap();
+        parameterMap.put("NumberOfImages", new Integer(images.length));
+        long startTime = System.currentTimeMillis();
+        // Log initialized, now start the operation...
         BufferedImage bufferedImage = combineImages(images, mime);
+        
+        // Operation done.. now write the log...
+        parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
+        rr.addRequestOperation(CombineImagesOperation.class,parameterMap);
+        
         if(mime.equals(TIFF)) {
             writeTIFFImage(bufferedImage, dw);
         } else {
