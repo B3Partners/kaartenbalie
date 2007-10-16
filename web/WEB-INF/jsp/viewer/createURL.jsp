@@ -51,10 +51,10 @@
         newTextField.name = "regip";
         
         
-        var newButton = document.createElement('button');        
-        var lastRow = tbl.rows.length;
+        var newButton = document.createElement('input');
+        newButton.type="button";
         newButton.onclick= new Function("removeRow(this); return false;")
-        newButton.innerHTML = '-';
+        newButton.value = '-';
         cell1.appendChild(newTextField);
         cell1.innerHTML += '&nbsp;';
         cell1.appendChild(newButton);
@@ -85,7 +85,7 @@
     function doCustomSubmit(){
         var ipadresses="";
         for(i = 0; i <= count; i++){
-            var element=document.getElementById("regip"+i);
+            var element=document.getElementById("regip"+i);            
             if(element && element.value.length>0){
                 var val=element.value;
                 var val=val.replace(",",".");
@@ -196,7 +196,7 @@
                             <table>
                                 <tr>                            
                                     <table id='iptable'>
-                                        <tbody>                                    
+                                        <tbody>
                                         </tbody>
                                     </table>                            
                                 </tr>
@@ -205,7 +205,7 @@
                         <table>
                         <tr align="left">                            
                             <td>
-                                <button onClick='addRow(); return false;'>Voeg IP adres toe</button><P>
+                                <input type="button" onClick='addRow(); return false' value="Voeg IP adres toe"/><P>
                             </td>
                         </tr>                
                         <tr>
@@ -236,10 +236,12 @@
     </div>
 </html:form>
 <script type="text/javascript">
-   if (iplist!=null && iplist.length>0){        
-        var tokens=iplist.split(",");        
-        for (var b=0;b < tokens.length; b++){            
-            addRow(tokens[b]);
+   <c:if test="${action != 'list'}">
+       if (iplist!=null && iplist.length>0){        
+            var tokens=iplist.split(",");        
+            for (var b=0;b < tokens.length; b++){            
+                addRow(tokens[b]);
+            }
         }
-    }
+   </c:if>
 </script>
