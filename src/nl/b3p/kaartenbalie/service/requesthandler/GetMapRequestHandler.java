@@ -107,7 +107,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         List spUrls = getSeviceProviderURLS(layers, orgId, false);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
-            throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
+            throw new Exception(GETMAP_EXCEPTION);
         }
         
         EntityTransaction tx = em.getTransaction();

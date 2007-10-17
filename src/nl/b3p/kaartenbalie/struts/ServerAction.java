@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -217,100 +219,42 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
-        }
+        }        
         
-        populateServerObject(dynaForm, newServiceProvider);
-        newServiceProvider.setReviewed(true);
-        em.persist(newServiceProvider);
-        em.flush();
-        //sess.saveOrUpdate(newServiceProvider);
-        //sess.flush();
+        List organizations = em.createQuery("from Organization o").getResultList();
         
-        /*
-         * All tests have been completed succesfully.
-         * We have now a newServiceProvider object and all we need to check
-         * is if this serviceprovider has been changed or newly added. The
-         * easiest way of doing so, is by checking the id.
-         */
         if(oldServiceProvider != null) {
-            /* Before we can start, we need to save the new serviceprovider.
-             *
-             * Then we need to call for a list with organizations.
-             * We walk through this list and for each organization in the
-             * list we need to check if this organization has connections
-             * with the old serviceprovider.
-             *
-             * The following steps have to be made:
-             * With each layer belonging to a certain organization check if this
-             * layer belongs to the old serviceprovider.
-             *      if not -> save the layer in a new set and go to the next layer
-             *      if yes -> check if the old layer also appears in the list of layers
-             *                of the new serviceprovider.
-             *          if not -> don't do anything. Just skip this layer, it will not be saved into the new set.
-             *          if yes -> add the new layer in the new set of layers for this organization.
-             * When all is done save the organization and go on with the next one.
-             *
-             * After completing all organizations, we can delete the old serviceprovider.
-             */
-            List orgList = em.createQuery("from Organization").getResultList();
-            Iterator orgit = orgList.iterator();
-            while (orgit.hasNext()) {
-                Set newOrganizationLayer = new HashSet();
-                Organization org = (Organization)orgit.next();
-                Set orgLayers = org.getOrganizationLayer();
-                Iterator layerit = orgLayers.iterator();
-                while (layerit.hasNext()) {
-                    /*
-                     * We are now iterating over a set of layers which belong to one organization.
-                     * Each of these layers have specified which serviceprovider they belong to.
-                     * So we can check if the id of the layer serviceprovider is the same as the
-                     * id of the old serviceprovider from above.
-                     */
-                    Layer organizationLayer = (Layer)layerit.next();
-                    ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
-                    if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
-                        /* It is for sure that the layer belongs to the old servideprovider.
-                         * So now we need to check if this same layer is still available in
-                         * the new serviceprovider. If this is true then we need to add this
-                         * layer again to the new list with layer rights for  this organization.
-                         * Otherwise we don't have to do anything.
-                         * Since this layer belongs to the old serviceprovider we don't have to
-                         * be affraid that we are checking against the wrong items. Therefore
-                         * we can perform this check just by checking if the layer titles are
-                         * the same.
-                         */
-                        Set topLayerSet = new HashSet();
-                        topLayerSet.add(newServiceProvider.getTopLayer());
-                        Layer newLayer = checkLayer(organizationLayer, topLayerSet);
-                        if (newLayer != null)
-                            newOrganizationLayer.add(newLayer);
-                    } else {
-                        /* The layer doesn't belong to the old serviceprovider.
-                         * Therefore not much has to be done. We only need to
-                         * add this layer again back to the list with layer-
-                         * rights.
-                         */
-                        newOrganizationLayer.add(organizationLayer);
+            oldServiceProvider.copyElements(newServiceProvider, em);
+            
+            Set removeLayers = new HashSet();
+            //hier eerst alle organisatie layers die niet meer bestaan uit de lijst verwijderen....
+            Iterator orgit = organizations.iterator();
+            while(orgit.hasNext()) {
+                Organization org = (Organization) orgit.next();
+                Set orglayers = org.getOrganizationLayer();
+                Iterator orglayerit = orglayers.iterator();
+                while (orglayerit.hasNext()) {
+                    Layer orglayer = (Layer)orglayerit.next();
+                    Set splayers = oldServiceProvider.getAllLayers();
+                    if(!splayers.contains(orglayer)) {
+                        removeLayers.add(orglayer);
                     }
                 }
-                //vervang de oude set met layers in de organisatie voor de nieuwe set
-                org.setOrganizationLayer(newOrganizationLayer);
-                //sess.saveOrUpdate(org);
-                em.flush();
-            }
-            
-            try {
-                em.remove(oldServiceProvider);
-                em.flush();
-            } catch (Exception e) {
-                log.error("Error deleting the old serviceprovider", e);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, null, e.getMessage());
-                return getAlternateForward(mapping, request);
-            }
+                
+                Iterator removeit = removeLayers.iterator();
+                while(removeit.hasNext()) {
+                    orglayers.remove(removeit.next());
+                }
+                //em.merge(org);
+            }            
+            populateServerObject(dynaForm, oldServiceProvider);
+            em.merge(oldServiceProvider);
+        } else {
+            oldServiceProvider = newServiceProvider;
+            populateServerObject(dynaForm, oldServiceProvider);
+            em.persist(oldServiceProvider);
         }
-        
-        dynaForm.set("id", null);
+        em.flush();        
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -466,7 +410,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
-        serviceProvider.setUrl(getUrlWithoutParams(dynaForm.getString("url")));
+        serviceProvider.setUrl(dynaForm.getString("url"));
+        //serviceProvider.setUrl(getUrlWithoutParams(dynaForm.getString("url")));
         if (serviceProvider.getId() == null) {
             serviceProvider.setUpdatedDate(new Date());
         }

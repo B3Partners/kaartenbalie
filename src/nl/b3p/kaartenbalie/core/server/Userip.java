@@ -42,7 +42,7 @@ public class Userip {
         this.user = user;
     }
     
-    public boolean compare(Userip ipaddress) {
+    public boolean equals(Userip ipaddress) {
         return this.getIpaddress().equals(ipaddress.getIpaddress());
     }
     
@@ -50,12 +50,10 @@ public class Userip {
         Iterator it = addresses.iterator();
         while (it.hasNext()) {
             Userip setip = (Userip) it.next();
-            if(this.compare(setip)) {
+            if(this.equals(setip)) {
                 return true;
             }
         }
         return false;
     }
-    
-    
 }

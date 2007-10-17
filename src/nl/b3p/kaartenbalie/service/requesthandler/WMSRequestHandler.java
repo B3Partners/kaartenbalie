@@ -201,6 +201,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
+        
+        
+        List eventualSPList = new ArrayList();
+        //List spList = null;
         if(layers.length >= 1) {
             for (int i = 0; i < layers.length; i++) {
                 
@@ -244,14 +248,39 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
                     // Haal de vooraf opgehaalde sp info er bij.
                     // Hier worden nu ook de layers aan toegevoegd.
-                    Map spInfo = (Map) toplayerMap.get(serviceprovider_id);
-                    StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
-                    if (sp_layerlist==null) {
-                        sp_layerlist = new StringBuffer(layerName);
-                        spInfo.put("layersList",sp_layerlist);
+                    boolean emptylist = eventualSPList.isEmpty();
+                    boolean equalIds = false;
+                    if(!emptylist) {
+                        Map spInfo = (Map) eventualSPList.get(eventualSPList.size() - 1);
+                        Integer spId = (Integer)spInfo.get("spId");
+                        equalIds = spId.equals(serviceprovider_id);
+                    }
+                    
+                    if (equalIds) {
+                        Map spInfo = (Map) eventualSPList.get(eventualSPList.size() - 1);
+                        StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+                        if (sp_layerlist==null) {
+                            sp_layerlist = new StringBuffer(layerName);
+                            spInfo.put("layersList",sp_layerlist);
+                        } else {
+                            sp_layerlist.append(",");
+                            sp_layerlist.append(layerName);
+                        }
                     } else {
-                        sp_layerlist.append(",");
-                        sp_layerlist.append(layerName);
+                        Iterator it = toplayerMap.values().iterator();
+                        while (it.hasNext()) {
+                            Map spInfo = (Map)it.next();
+                            Integer spId = (Integer)spInfo.get("spId");
+                            if(spId.equals(serviceprovider_id)) {
+                                Map newSpInfo = new HashMap();
+                                newSpInfo.put("spId", spInfo.get("spId"));
+                                newSpInfo.put("tlId", spInfo.get("tlId"));
+                                newSpInfo.put("spUrl", spInfo.get("spUrl"));
+                                StringBuffer sp_layerlist = new StringBuffer(layerName);
+                                newSpInfo.put("layersList",sp_layerlist);
+                                eventualSPList.add(newSpInfo);
+                            }
+                        }
                     }
                 }
             }
@@ -260,20 +289,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             throw new Exception(GETMAP_EXCEPTION);
         }
         tx.commit();
-        
-        // Alleen die sp's doorgeven, die layers hebben
-        List spList = null;
-        Iterator it = toplayerMap.values().iterator();
-        while (it.hasNext()) {
-            Map spInfo = (Map)it.next();
-            StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
-            if (sp_layerlist!=null && sp_layerlist.length()!=0) {
-                if (spList==null)
-                    spList = new ArrayList();
-                spList.add(spInfo);
-            }
-        }
-        return spList;
+        return eventualSPList;
     }
     
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
