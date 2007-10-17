@@ -14,11 +14,16 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     
+    private static final Log log = LogFactory.getLog(GetFeatureInfoRequestHandler.class);
+
     // <editor-fold defaultstate="" desc="default GetFeatureInfoRequestHandler() constructor.">
     public GetFeatureInfoRequestHandler() {}
     // </editor-fold>
@@ -56,14 +61,19 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         url = (String) parameters.get(KB_PERSONAL_URL);
         String [] layers = ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
         
-        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, true);        
+        List spUrls = getSeviceProviderURLS(layers, orgId, true);        
+        if(spUrls==null || spUrls.isEmpty()) {            
+            log.error("No urls qualify for request.");
+            throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
+        }
         ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
-            String [] sp_layerlist = (String []) it.next();            
+            Map spInfo = (Map) it.next();
+            StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
             
             StringBuffer url = new StringBuffer();
-            url.append(sp_layerlist[1]);
+            url.append((String)spInfo.get("spUrl"));
             url.append(WMS_VERSION);
             url.append("=");
             url.append((String)parameters.get(WMS_VERSION));
@@ -100,7 +110,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             url.append("&");
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
-            url.append(sp_layerlist[2]);
+            url.append(layersList);
             url.append("&");
             url.append(WMS_PARAM_SRS);
             url.append("=");
@@ -120,13 +130,9 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             url.append("&");
             url.append(WMS_PARAM_QUERY_LAYERS);
             url.append("=");
-            url.append(sp_layerlist[2]);
+            url.append(layersList);
             urls.add(url.toString());            
         }        
-        
-        if(urls == null) {            
-            throw new Exception("msWMSFeatureInfo(): WMS server error. Requested layer(s) are not queryable.");
-        }
         
         getOnlineData(dw, urls, false, WMS_REQUEST_GetFeatureInfo);
     }

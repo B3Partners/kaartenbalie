@@ -62,22 +62,37 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
         int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
         if(width < 1 || height < 1 || width > 2048 || height > 2048) {
-            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Image size out of range, WIDTH and HEIGHT must be between 1 and 2048 pixels.");
+            log.error("Image wrong size: width, height: " + width + ", " + height);
+            throw new Exception(IMAGE_SIZE_EXCEPTION);
         }
         
         String [] boxx = ((String)parameters.get(WMS_PARAM_BBOX)).split(",");
         if(boxx.length < 4) {
-            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid values for BBOX.");
+            log.error("BBOX wrong size: " + boxx.length);
+            throw new Exception(BBOX_EXCEPTION);
         }
         
-        double minx = Double.parseDouble(boxx[0]);
-        double miny = Double.parseDouble(boxx[1]);
-        double maxx = Double.parseDouble(boxx[2]);
-        double maxy = Double.parseDouble(boxx[3]);
-        
-        if (minx > maxx || miny > maxy) {
-            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid values for BBOX.");
+        double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
+        try {
+            minx = Double.parseDouble(boxx[0]);
+            miny = Double.parseDouble(boxx[1]);
+            maxx = Double.parseDouble(boxx[2]);
+            maxy = Double.parseDouble(boxx[3]);
+            if (minx > maxx || miny > maxy) {
+                throw new Exception("");
+            }
+        } catch (Exception e) {
+            log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
+            throw new Exception(BBOX_EXCEPTION);
         }
+        dw.setRequestParameter("Width", new Integer(width));
+        dw.setRequestParameter("Height",new Integer(height));
+        
+        dw.setRequestParameter("WmsVersion", (String)parameters.get(WMS_VERSION));
+        dw.setRequestParameter("Srs", null);
+        dw.setRequestParameter("Format", (String)parameters.get(WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", (String)parameters.get(WMS_PARAM_BBOX));
+        
         
         user = (User) parameters.get(KB_USER);
         Integer orgId = user.getOrganization().getId();
@@ -85,62 +100,46 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         url = (String) parameters.get(KB_PERSONAL_URL);
         String [] layers = ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
         
-        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, false);
-        
         Map userdefinedParams = filterUserdefinedParams(parameters);
+        
+        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);
+        
+        List spUrls = getSeviceProviderURLS(layers, orgId, false);
+        if(spUrls==null || spUrls.isEmpty()) {
+            log.error("No urls qualify for request.");
+            throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
+        }
         
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);
-        HashMap spMap = new HashMap();
+        
         ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
-        
-        /*
-         * Set the basic fields for reporting... Other fields will be added later on in the threaded Image collector.
-         * These are all common...
-         */
-        
-        
-        dw.setRequestParameter("WmsVersion", (String)parameters.get(WMS_VERSION));
-        dw.setRequestParameter("Srs", null);
-        dw.setRequestParameter("Width", new Integer(width));
-        dw.setRequestParameter("Height",new Integer(height));
-        dw.setRequestParameter("Format", (String)parameters.get(WMS_PARAM_FORMAT));
-        dw.setRequestParameter("BoundingBox", (String)parameters.get(WMS_PARAM_BBOX));
-        
-        
         while (it.hasNext()) {
-            String [] sp_layerlist = (String []) it.next();
+            Map spInfo = (Map) it.next();
+            StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
             
-            //Eerst controle of deze spid al geweest is.... en als niet dan controleren of SRS ok is
-            if(!spMap.containsKey(sp_layerlist[0])) {
-                String query =
-                        "SELECT DISTINCT temptabel.LAYERID, srs.SRS FROM srs INNER JOIN (" +
-                        " SELECT layer.LAYERID, layer.PARENTID FROM layer WHERE layer.PARENTID IS NULL)" +
-                        " AS temptabel ON temptabel.LAYERID = srs.LAYERID" +
-                        " AND srs.SRS IS NOT NULL AND temptabel.LAYERID = :toplayer";
-                
-                boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", sp_layerlist[3]).getResultList();
-                Iterator sqlIterator = sqlQuery.iterator();
-                while (sqlIterator.hasNext()) {
-                    Object [] objecten = (Object [])sqlIterator.next();
-                    String srs = (String) objecten[1];
-                    if(srs.equals(givenSRS)) {
-                        srsFound = true;
-                    }
+            String query = "select distinct srs.srs from layer, srs " +
+                    "where layer.layerid = srs.layerid and " +
+                    "srs.srs is not null and " +
+                    "layer.layerid = :toplayer";
+            
+            boolean srsFound = false;
+            List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("tlId")).getResultList();
+            Iterator sqlIterator = sqlQuery.iterator();
+            while (sqlIterator.hasNext()) {
+                String srs = (String)sqlIterator.next();
+                if(srs.equals(givenSRS)) {
+                    srsFound = true;
                 }
-                
-                if(srsFound) {
-                    spMap.put(sp_layerlist[3], new Boolean(true));
-                } else {
-                    throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid SRS given : SRS must be valid for all requested layers.");
-                }
+            }
+            if(!srsFound) {
+                log.error("No suitable srs found.");
+                throw new Exception(SRS_EXCEPTION);
             }
             
             StringBuffer url = new StringBuffer();
-            url.append(sp_layerlist[1]);
+            url.append((String)spInfo.get("spUrl"));
             url.append(WMS_VERSION);
             url.append("=");
             url.append((String)parameters.get(WMS_VERSION));
@@ -182,7 +181,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append("&");
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
-            url.append(sp_layerlist[2]);
+            url.append(layersList);
             
             
             Iterator it2 = userdefinedParams.keySet().iterator();
@@ -194,20 +193,11 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 urlstring+=key;
                 urlstring+="=";
                 urlstring+=value.replaceAll("=", "%3D");
-                /*url.append("&");
-                url.append(key);
-                url.append("=");
-                value=value.replaceAll("=", "%3D");
-                url.append(value);*/
-                
             }
             urls.add(urlstring.replaceAll(" ", "%20"));
         }
         tx.commit();
         
-        if(urls == null) {
-            throw new Exception("msWMSLoadGetMapParams(): WMS server error. Invalid layer(s) given in the LAYERS parameter.");
-        }
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>

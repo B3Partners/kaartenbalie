@@ -12,10 +12,15 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
+    
+    private static final Log log = LogFactory.getLog(GetLegendGraphicRequestHandler.class);
     
     // <editor-fold defaultstate="" desc="default GetLegendGraphicRequestHandler() constructor.">
     public GetLegendGraphicRequestHandler() {}
@@ -56,17 +61,21 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         url = (String) parameters.get(KB_PERSONAL_URL);
         String [] layers = ((String) parameters.get(WMS_PARAM_LAYER)).split(",");
         if(layers.length != 1) {
+            log.error("Only one layer for legend graphic.");
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
-        ArrayList spUrls = getSeviceProviderURLS(layers, orgId, false);
-        if(spUrls == null) {
+        List spUrls = getSeviceProviderURLS(layers, orgId, false);
+        if(spUrls == null || spUrls.size()!=1) {
+            throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+        }
+        Map spInfo = (Map)spUrls.get(0);
+         if(spInfo == null) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
-        String [] details = (String[])spUrls.get(0);
         StringBuffer serviceProviderUrl = new StringBuffer();
-        serviceProviderUrl.append(details[1]);        
+        serviceProviderUrl.append((String)spInfo.get("spUrl"));        
         serviceProviderUrl.append(WMS_VERSION);
         serviceProviderUrl.append("=");
         serviceProviderUrl.append((String)parameters.get(WMS_VERSION));
@@ -77,7 +86,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_PARAM_LAYER);
         serviceProviderUrl.append("=");
-        serviceProviderUrl.append(details[2]);
+        serviceProviderUrl.append((StringBuffer)spInfo.get("layersList"));
 
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_PARAM_STYLE);

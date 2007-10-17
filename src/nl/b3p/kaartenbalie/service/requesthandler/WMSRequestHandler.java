@@ -171,115 +171,109 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     //deze methode werkt sneller en efficienter dan de bovenstaande getserviceprovider
     //methode in combinatie met de code voor controle van layer rechten.
     
-    protected ArrayList getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable) throws Exception {
-        ArrayList spUrls = new ArrayList();
+    protected List getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable) throws Exception {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         
+        // Hier komt elke sp precies een keer uit als tenminste de database
+        // correct is en er maar een toplayer (parent==null) is!
         Map toplayerMap = new HashMap();
-        List toplayerQuery = em.createNativeQuery("SELECT l.serviceproviderid, l.layerid FROM layer l WHERE l.parentid IS NULL").getResultList();
+        String query = "select l.serviceproviderid, l.layerid, sp.url " +
+                "from layer l, serviceprovider sp " +
+                "where l.parentid IS NULL and " +
+                "l.serviceproviderid = sp.serviceproviderid";
+        List toplayerQuery = em.createNativeQuery(query).getResultList();
+        if (toplayerQuery==null || toplayerQuery.isEmpty()) {
+            log.error("no toplayers found!");
+            throw new Exception(GETMAP_EXCEPTION);
+        }
+        
         Iterator toplayerit = toplayerQuery.iterator();
         while (toplayerit.hasNext()) {
             Object [] objecten = (Object [])toplayerit.next();
-            Integer spid = (Integer)objecten[0];
-            Integer tlid = (Integer)objecten[1];
-            toplayerMap.put(spid, tlid);
+            Map spInfo = new HashMap();
+            spInfo.put("spId", (Integer)objecten[0]);
+            spInfo.put("tlId", (Integer)objecten[1]);
+            spInfo.put("spUrl", (String)objecten[2]);
+            toplayerMap.put(spInfo.get("spId"), spInfo);
         }
         
-        
-        String topLayerId = null;
-        int layerlength = layers.length;
-        if(layerlength >= 1) {
+        // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
+        // er voldoende rechten zijn voor de kaart en of aan
+        // de queryable voorwaarde is voldaan
+        if(layers.length >= 1) {
             for (int i = 0; i < layers.length; i++) {
-                String layerid = "";
-                String layername = "";
-                try {
-                    layerid = layers[i].substring(0, layers[i].indexOf("_"));
-                    layername = layers[i].substring(layers[i].indexOf("_") + 1, layers[i].length());
-                } catch (Exception e) {
+                
+                // Check of layers[i] juiste format heeft
+                int pos = layers[i].indexOf("_");
+                if (pos==-1 || layers[i].length()<=pos+1) {
+                    log.error("layer not valid: " + layers[i]);
                     throw new Exception(GETMAP_EXCEPTION);
                 }
-                String query =
-                        "SELECT tempTabel.LAYER_ID, tempTabel.LAYER_NAME, tempTabel.LAYER_QUERYABLE, serviceprovider.SERVICEPROVIDERID, serviceprovider.URL" +
-                        " FROM serviceprovider INNER JOIN (SELECT layer.LAYERID AS LAYER_ID, layer.NAME AS LAYER_NAME," +
-                        " layer.QUERYABLE AS LAYER_QUERYABLE, layer.SERVICEPROVIDERID AS LAYER_SPID FROM layer JOIN" +
-                        " organizationlayer ON organizationlayer.LAYERID = layer.LAYERID AND organizationlayer.ORGANIZATIONID = :orgId" +
-                        " ) AS tempTabel ON tempTabel.LAYER_SPID = serviceprovider.SERVICEPROVIDERID AND tempTabel.LAYER_ID = :layerid" +
-                        " AND tempTabel.LAYER_NAME = :layername";
+                String layerCode = layers[i].substring(0, pos);
+                String layerName = layers[i].substring(pos + 1);
+                if (layerCode.length()==0 || layerName.length()==0) {
+                    log.error("layer name or code not valid: " + layerCode + ", " + layerName);
+                    throw new Exception(GETMAP_EXCEPTION);
+                }
                 
+                // Check of voldoende rechten op layer bestaan en ophalen url
+                // TODO niet op layer id testen, maar op service provider code
+                //"serviceprovider.code = :layerCode" +
+                query = "select layer.queryable, layer.serviceproviderid " +
+                        "from layer, organizationlayer, serviceprovider " +
+                        "where organizationlayer.layerid = layer.layerid and " +
+                        "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
+                        "organizationlayer.organizationid = :orgId and " +
+                        "layer.name = :layerName and " +
+                        "layer.layerid = :layerCode ";
                 List sqlQuery = em.createNativeQuery(query)
                 .setParameter("orgId", orgId)
-                .setParameter("layerid", layerid)
-                .setParameter("layername", layername)
+                .setParameter("layerName", layerName)
+                .setParameter("layerCode", layerCode)
                 .getResultList();
                 if(sqlQuery.isEmpty()) {
+                    log.error("layer not valid or no rights, name: " + layers[0]);
                     throw new Exception(GETMAP_EXCEPTION);
                 }
                 Object [] objecten = (Object [])sqlQuery.get(0);
+                String layer_queryable      = (String)objecten[0];
+                Integer serviceprovider_id  = (Integer)objecten[1];
                 
-                Integer layer_id            = (Integer)objecten[0];
-                String layer_name           = (String)objecten[1];
-                String layer_queryable      = (String)objecten[2];
-                Integer serviceprovider_id  = (Integer)objecten[3];
-                String serviceprovider_url  = (String)objecten[4];
-                
-                
-                String [] sp_layerlist = null;
-                boolean spUrlsEmpty = spUrls.isEmpty();
-                boolean equalIds = false;
-                if(!spUrlsEmpty) {
-                    sp_layerlist = (String []) spUrls.get(spUrls.size() - 1);
-                    equalIds = sp_layerlist[0].equals(serviceprovider_id.toString());
-                }
-                
-                
-                if(equalIds) {
-                    layer_name = "," + layer_name;
-                } else {
-                    //Layer layer = (Layer) em.createQuery("from Layer where id = :layerid").setParameter("layerid", layer_id).getSingleResult();
-                    //Layer topLayer = layer.getTopLayer();
-                    //topLayerId = topLayer.getId().toString();
-                    
-                    //Deze query kan ook eenmalig uitgevoerd worden met een Map waarin de verschillende spids als key functioneren voor de
-                    //toplayer ids. Dan moet de query wel buiten de for loop aangeroepen worden en met behulp van een while kan dan een map
-                    //aangemaakt worden.
-                    //Integer id = (Integer)em.createNativeQuery("SELECT l.layerid FROM layer l WHERE l.parentid IS NULL AND l.serviceproviderid = :spid")
-                    //    .setParameter("spid", serviceprovider_id).getResultList().get(0);
-                    topLayerId = ((Integer)toplayerMap.get(serviceprovider_id)).toString();//id.toString();
-                }
-                
-                //TODO:
-                //onderstaande klopt niet helemaal... stel er komt een layer die bij dezelfde serviceprovider hoort
-                //dan wordt deze layer wel met behulp van de if aan deze urls toegevoegd, maar de layer_id blijft gewoon
-                //staan op het id dat door de eerste layer gegeven werd.
-                //daarnaast mmoet er per layer bij komen te staan of deze layer queryable is....
-                
-                
-                if (checkForQueryable) {
-                    if(layer_queryable.equals("1")) {
-                        if(!spUrlsEmpty && equalIds) {
-                            sp_layerlist[2] += (layer_name);
-                            spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
-                        } else {
-                            sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
-                            spUrls.add(sp_layerlist);
-                        }
-                    }
-                } else {
-                    if(!spUrlsEmpty && equalIds) {
-                        sp_layerlist[2] += (layer_name);
-                        spUrls.set(spUrls.indexOf(sp_layerlist), sp_layerlist);
+                // layer toevoegen aan sp indien queryable voorwaarde ok
+                if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
+                    // Haal de vooraf opgehaalde sp info er bij.
+                    // Hier worden nu ook de layers aan toegevoegd.
+                    Map spInfo = (Map) toplayerMap.get(serviceprovider_id);
+                    StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+                    if (sp_layerlist==null) {
+                        sp_layerlist = new StringBuffer(layerName);
+                        spInfo.put("layersList",sp_layerlist);
                     } else {
-                        sp_layerlist = new String []{serviceprovider_id.toString(), serviceprovider_url, (layer_name), topLayerId};
-                        spUrls.add(sp_layerlist);
+                        sp_layerlist.append(",");
+                        sp_layerlist.append(layerName);
                     }
                 }
             }
         } else {
+            log.error("No layers found!");
             throw new Exception(GETMAP_EXCEPTION);
         }
         tx.commit();
-        return spUrls;
+        
+        // Alleen die sp's doorgeven, die layers hebben
+        List spList = null;
+        Iterator it = toplayerMap.values().iterator();
+        while (it.hasNext()) {
+            Map spInfo = (Map)it.next();
+            StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+            if (sp_layerlist!=null && sp_layerlist.length()!=0) {
+                if (spList==null)
+                    spList = new ArrayList();
+                spList.add(spInfo);
+            }
+        }
+        return spList;
     }
     
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
@@ -339,10 +333,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     source = builder.parse( url );
                     copyElements(source, destination);
                     localParameterMap.put("BytesSend", new Long(url.getBytes().length));
-                    localParameterMap.put("ProviderRequestURI", url);                    
+                    localParameterMap.put("ProviderRequestURI", url);
                     //TODO Make smarter and more complete!
                     localParameterMap.put("BytesReceived", new Long(-1));
-                     localParameterMap.put("ResponseStatus", new Integer(-1));
+                    localParameterMap.put("ResponseStatus", new Integer(-1));
                     rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
                 }
                 
@@ -403,6 +397,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             localParameterMap.put("ResponseStatus", new Integer(statusCode));
             localParameterMap.put("RequestResponseTime", new Long(time));
             if (statusCode != HttpStatus.SC_OK) {
+                log.error("Error connecting to server. Status code: " + statusCode);
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
             
@@ -411,6 +406,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                 InputStream is = method.getResponseBodyAsStream();
                 String body = getServiceException(is);
+                log.error("xml error response for request identified by: " + dw.getParameters().toString());
                 throw new Exception(body);
             }
             

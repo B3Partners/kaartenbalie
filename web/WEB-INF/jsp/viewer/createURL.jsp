@@ -192,7 +192,7 @@
                         <html:hidden property="registeredIP" styleId="registeredIP"/>
                         <input type="hidden" id="hiddenSaveField"/>
                         </table>
-                        <div class="scrollDiv">
+                        <div class="ipDiv">
                             <table>
                                 <tr>                            
                                     <table id='iptable'>

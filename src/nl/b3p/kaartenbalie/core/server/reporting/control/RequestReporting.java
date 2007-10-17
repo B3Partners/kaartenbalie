@@ -77,7 +77,7 @@ public class RequestReporting {
             clientRequest = new ClientRequest();
             clientRequest.setClientRequestURI(clientRequestURI);
             clientRequest.setBytesReceivedFromUser(new Integer(bytesReceivedFromUser));
-            em.persist(clientRequest);
+//            em.persist(clientRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,14 +87,14 @@ public class RequestReporting {
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
         Object reflectedObject = RequestReporting.createPOJOByReflection(ServiceProviderRequest.class, sprClass, parameterMap, overriddenParameters, usServiceProviderRequest);
-        em.persist(reflectedObject);
+//        em.persist(reflectedObject);
     }
     
     public void addRequestOperation(Class rqoClass, Map parameterMap){
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
         Object reflectedObject = RequestReporting.createPOJOByReflection(RequestOperation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
-        em.persist(reflectedObject);
+//        em.persist(reflectedObject);
     }
     
     
