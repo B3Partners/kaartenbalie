@@ -39,7 +39,7 @@ function initWithXmlString() {
 	var ppXslDoc = jsXML.createDOMDocument(true);
 	ppXslDoc.async = false;
 	ppXslDoc.load(preprocessorFullPath);
-	//debug("preprocessorFullPath: " + preprocessorFullPath);
+	debug("preprocessorFullPath: " + preprocessorFullPath);
 	
 	//debug("Preprocessor:");
 	//debug(ppXslDoc.xml);

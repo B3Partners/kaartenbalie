@@ -11,13 +11,17 @@ XML.Transformer = function(stylesheet) {
 	this.stylesheet = stylesheet;
 	if (typeof XSLTProcessor != "undefined") {
 		this.processor = new XSLTProcessor();
+		//debug("voor creëren FF proc");		
 		this.processor.importStylesheet(this.stylesheet);
+		//debug("na creëren FF proc");		
 	}
 	else if (typeof ActiveXObject != "undefined") { //!!window.ActiveX
 		var xslt = new ActiveXObject("Msxml2.XSLTemplate.3.0");
+		//debug("voor toevoegen sheet IE");
 		xslt.stylesheet = stylesheet;
-		
+		//debug("voor creëren IE proc");
 		this.processor = xslt.createProcessor();
+		//debug("na creëren IE proc");		
 	}
 	else {
 		alert("No suitable XSLT Processor found for your browser. Please use either IE or Firefox.");

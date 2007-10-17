@@ -101,7 +101,7 @@
         <url-pattern>/styles/selectcss</url-pattern>
     </servlet-mapping>
     <!-- EINDE Select CSS Servlet -->
-    
+	
     <servlet>
         <servlet-name>FlamingoConfigServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>

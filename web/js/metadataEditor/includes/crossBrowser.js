@@ -128,6 +128,8 @@ function debug(msg) {
 		var p = document.createElement("p");
 		
 		p.appendChild(document.createTextNode(msg));
+		p.appendChild(document.createElement("br"));		
+		p.appendChild(document.createElement("br"));				
 		debug.box.appendChild(p);
 	}
 

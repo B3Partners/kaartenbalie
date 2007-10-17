@@ -11,15 +11,14 @@
 
 		<script type="text/javascript">
 		/* <![CDATA[ */
-			//var debugMode = true;
-			var debugMode = false;
+			var debugMode = true;
+			//var debugMode = false;
 			
 			var layerId = "<c:out value="${metadataForm.map.id}"/>";
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";
 			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
 			var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-16\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
-			//var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-16\"?&gt;&lt;MD_Metadata&gt; &lt;test/&gt; &lt;/MD_Metadata&gt;";
 			
 			var xslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
 			var preprocessorFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";			
@@ -64,7 +63,7 @@
 		<div class="hidden">
 			<!-- location of the edit and add templates stylesheets (used by Add Section code) -->
 			<span id="editStylesheetFile"><html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' /></span>
-			<span id="addStylesheetFile"><html:rewrite page='/js/metadataEditor/Preprocessors/metadataEditPreprocessorTemplates.xsl' module='' /></span>
+			<span id="addStylesheetFile"><html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessorTemplates.xsl' module='' /></span>
 
 			<!-- plus/minus images used for expanding/collapsing sections -->
 			<img id="plus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />"></img>

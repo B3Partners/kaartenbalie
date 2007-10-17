@@ -21,7 +21,7 @@ var MENU_Y_OFFSET = 3;
 
 // Show popup window that's embedded in code
 function showMenu(event) {
-	/*var element = getTarget(event);
+	var element = getTarget(event);
 	element = element.parentNode;
 	var firstElem = element;
 	//debug("showMenu");
@@ -71,15 +71,14 @@ function showMenu(event) {
 	//list.style.left = image.offsetLeft + MENU_X_OFFSET;
 	//list.style.top = image.offsetTop + MENU_Y_OFFSET;
 	_showMenu(list);
-	//list.onmouseout = hideMenu;
-	*/	
+	//list.onmouseout = hideMenu;	
 }
 
 
 // 2/05 Eric Compas;
 // Hide popup menu;
 function hideMenu(event) {
-	/*var element = getTarget(event);
+	var element = getTarget(event);
 	//debug("hideMenu");
 	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
 	// test if not IE:
@@ -100,44 +99,36 @@ function hideMenu(event) {
 		if (element.tagName.toLowerCase() == "ul" && !inside) {// && !element.contains(event.currentTarget)) {
 			_hideMenu(element);	
 		}
-	}*/
+	}
 }
 
 function keepMenu(event) {
-	/*
 	//debug("keepMenu");
 	//var element = getTarget(event);
 	//_showMenu(element);
 	showMenu(event);
 	//if (element.style.display != "none")
-	 */
 }
 
 function hideMenuIE(event) {
-	/*
 	var element = getTarget(event);
 	//debug("hideMenuIE");
 	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
 	if (element.tagName.toLowerCase() == "ul") {
 		_hideMenu(element);		
 	}
-	*/
 }
 
 function _showMenu(element) {
-	/*
 	//debug("show");
 	//element.style.visibility = "visible";	
 	element.style.display = "inline";		
-	*/
 }
 
 function _hideMenu(element) {
-	/*
 	//debug("hide");
 	//element.style.visibility = "hidden";	
 	element.style.display = "none";		
-	*/
 }
 // 12/8/2004 Eric Compas
 //
@@ -212,8 +203,8 @@ function expandNode(pElem) {
 //          = false, collapses all
 /*
 function expandAll(bExpand) {
-	//On Error Resume Next; //EvdP: ??
-
+	//On Error Resume Next;
+ 
 	// get all div elements in document and loop through them
 	var pDIVElements = document.getElementsByTagName("div");
 

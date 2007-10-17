@@ -529,13 +529,14 @@ function createSection(strAddName) {
 		alert("Error locating add templates stylesheet file.");
 		return null;
 	}
-	var strAddXSLFile = getElementInnerText(pXSLSpan);
+	var strAddXSLFile = "http://localhost:8084" + getElementInnerText(pXSLSpan);
 
 	//alert("strAddXSLFile=" + strAddXSLFile + ", strEditXSLFile=" + strEditXSLFile);
 
 	// create blank XML document
 	var tempXmlDoc = jsXML.createDOMDocument();
 	tempXmlDoc.async = false;
+	//preXSLDoc.resolveExternals = true; // nodig om in MSXML 6.0 de include files te kunnen laden
 	tempXmlDoc.loadXML("<root/>");
 
 	
@@ -587,8 +588,6 @@ function createSection(strAddName) {
 	
 	// create stylesheet to transform, or "preprocess" it;
 	// this will add the appropriate blank XML elements;
-	//var preXSLDoc = new ActiveXObject("MSXML2.DOMDocument");
-	//var strXSL = "<?xml version='1.0' encoding='ISO-8859-1'?>" +  "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<!-- inlude Add Templates library for stylesheet -->" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;
 	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;	
 	strXSL += "<xsl:template match='/root/" + sParentNodes + "'>";
 	
@@ -612,20 +611,24 @@ function createSection(strAddName) {
 
 	preXSLDoc = jsXML.createDOMDocument(true);
 	preXSLDoc.async = false;
+	//preXSLDoc.resolveExternals = true; // nodig om in MSXML 6.0 de include files te kunnen laden
 	preXSLDoc.loadXML(strXSL);
-	/*if (preXSLDoc.parseError.errorCode != 0) {
-		alert("Error parsing the preprocesser XSL file. Code=" +  preXSLDoc.parseError.errorCode + ", Desc=" +  preXSLDoc.parseError.reason);
+	/*if (preXSLDoc.parseError && preXSLDoc.parseError.errorCode != 0) {
+		alert("Error parsing the preprocessor XSL file. Code=" +  preXSLDoc.parseError.errorCode + ", Desc=" +  preXSLDoc.parseError.reason);
 		return null;
 	}*/
+	
 	debug("preXSLDoc.xml = " + preXSLDoc.xml);
 	// transform or "preprocess" it
+	
+	//debug("tempXmlDoc.resolveExternals: " + (tempXmlDoc.resolveExternals === true));
+	//debug("preXSLDoc.resolveExternals: " + (preXSLDoc.resolveExternals === true));	
 
 	//On Error Goto EH:
 	debug("hierna loopt ie vast");
 	
-	var strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
-	
-	//var strPreXML = xmlDoc.transformNode(preXSLDoc);
+	var strPreXML;
+	strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
 	
 	debug("OK niet dus");
 	
@@ -645,7 +648,7 @@ function createSection(strAddName) {
 
 	var xslDoc = jsXML.createDOMDocument();
 	xslDoc.async = false;
-	xslDoc.loadXML(strEditXSLFile);
+	xslDoc.load(strEditXSLFile);
 
 	// transform the resulting xml with editable stylesheet
 	//var xslDoc = new ActiveXObject("MSXML2.DOMDocument");
@@ -684,17 +687,17 @@ function createSection(strAddName) {
 
 	//get rid of the rest (shouldn't be needed);
 	//strHTML = Right(strHTML, Len(strHTML) - InStr(strHTML,"<div class=""folder""") + 1);
-	strHTML = strHTML.substring(strHTML.indexOf("<div class=\"folder\""));
+	strHTML = strHTML.substring(strHTML.indexOf("<div class=\"section\""));
 
-	//alert("strHTML (edited2) = " + strHTML);
+	debug("strHTML (edited2) = " + strHTML);
 
 	// create div to place html within;
 	var objDIV = document.createElement("div");
 	//objDIV.setAttribute "class", "section";
 
 	// insert HTML in div;
-	objDIV.innerHTML = ""
-	objDIV.appendChild(strHTML);
+	objDIV.innerHTML = strHTML;//"";
+	//objDIV.appendChild(strHTML);
 	//alert("objDIV.innerHTML" + objDIV.innerHTML);
 	//var fso, fsw;
 
