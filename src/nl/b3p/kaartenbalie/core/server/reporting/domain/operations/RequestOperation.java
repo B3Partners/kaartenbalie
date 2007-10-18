@@ -7,15 +7,16 @@
  * and open the template in the editor.
  */
 
-package nl.b3p.kaartenbalie.core.server.reporting.domain;
+package nl.b3p.kaartenbalie.core.server.reporting.domain.operations;
 
 import java.util.Date;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 
 /**
  *
  * @author Chris Kramer
  */
-public class RequestOperation {
+public abstract class RequestOperation {
     
     private Integer id;
     private Date timeStamp;

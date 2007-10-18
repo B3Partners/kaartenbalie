@@ -25,7 +25,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.CombineImagesOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;

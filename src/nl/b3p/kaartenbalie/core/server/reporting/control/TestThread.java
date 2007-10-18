@@ -11,8 +11,10 @@ package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.util.HashMap;
 import java.util.Map;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.ServiceProviderRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 
 /**
  *
@@ -29,8 +31,8 @@ public class TestThread extends Thread {
         try {
             long totalTime = 0;
             int records = 100;
-            RequestReporting rr = new RequestReporting(null);
             
+            RequestReporting rr = new RequestReporting(null);
             for (int i = 0; i< records; i++) {
                 
                 long startTime = System.currentTimeMillis();
@@ -42,10 +44,10 @@ public class TestThread extends Thread {
                 paramMap.put("BytesReceived", new Long(4096*8));
                 paramMap.put("ResponseStatus", new Integer(404));
                 paramMap.put("ProviderRequestURI", new String("www.google.nl"));
-                rr.addServiceProviderRequest(ServiceProviderRequest.class, paramMap);
+                rr.addServiceProviderRequest(WMSGetFeatureInfoRequest.class, paramMap);
                 paramMap.put("WmsVersion", new String("1.0.0"));
                 //paramMap.put("ClientRequest", new Integer(100));
-                rr.addServiceProviderRequest(WMSRequest.class, paramMap);
+                rr.addServiceProviderRequest(WMSGetMapRequest.class, paramMap);
                 rr.endClientRequest(2048,0);
                 long endTime = System.currentTimeMillis();
                 totalTime += (endTime - startTime);

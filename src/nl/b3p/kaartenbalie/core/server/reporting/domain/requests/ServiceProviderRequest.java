@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package nl.b3p.kaartenbalie.core.server.reporting.domain;
+package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
 import java.util.Date;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author Chris Kramer
  */
-public class ServiceProviderRequest {
+public abstract class ServiceProviderRequest {
     
     
     private Integer id;

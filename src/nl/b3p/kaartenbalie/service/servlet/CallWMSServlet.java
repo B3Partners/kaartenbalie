@@ -14,10 +14,10 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import nl.b3p.kaartenbalie.core.server.Userip;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetCapabilitiesRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetFeatureInfoRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetLegendGraphicRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.WMSGetMapRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;

@@ -31,6 +31,7 @@
             <one-to-many class="nl.b3p.kaartenbalie.core.server.Userip"/>
         </set>
         
+        
         <property name="firstName">
             <column name="FIRSTNAME" not-null="true" default="0" length="50"/>
         </property>

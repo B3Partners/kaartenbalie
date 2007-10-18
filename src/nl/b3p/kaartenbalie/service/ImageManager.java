@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.CombineImagesOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

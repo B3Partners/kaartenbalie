@@ -7,16 +7,16 @@
  * and open the template in the editor.
  */
 
-package nl.b3p.kaartenbalie.core.server.reporting.domain;
+package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
 /**
  *
  * @author Chris Kramer
  */
-public class WMSGetCapabilitiesRequest extends WMSRequest {
+public class WMSGetLegendGraphicRequest extends WMSRequest {
     
     /** Creates a new instance of WMSGetCapabilitiesRequest */
-    public WMSGetCapabilitiesRequest() {
+    public WMSGetLegendGraphicRequest() {
     }
     
 }

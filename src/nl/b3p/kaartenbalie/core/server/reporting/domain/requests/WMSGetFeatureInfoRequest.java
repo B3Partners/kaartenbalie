@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package nl.b3p.kaartenbalie.core.server.reporting.domain;
+package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
 /**
  *

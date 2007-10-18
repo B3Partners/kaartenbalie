@@ -17,13 +17,18 @@ import org.hibernate.dialect.MySQL5InnoDBDialect;
  */
 public class CustomDBDialect extends MySQL5InnoDBDialect {
     
-    /** Creates a new instance of CustomDBDialect */
+    
     public CustomDBDialect() {
-}
+    }
+    
+    /* 
+     * There have been some issues with the table creation. This was the only sollution that actually worked. Please note that
+     * when switching database types this code should be reviewed again.
+     */
     public String getTableTypeString() {
         return " ENGINE=InnoDB DEFAULT CHARSET=utf8";
     }
-
-
+    
+    
     
 }
