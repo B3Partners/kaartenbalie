@@ -38,6 +38,9 @@
             <field property="serviceProviderUrl" depends="required, maxlength"> <!-- required -->
                 <arg0 key="beheer.serviceProviderUrl"/>
             </field>
+            <field property="abbr" depends="required"> <!-- required -->
+                <arg0 key="beheer.serviceProviderAbbr"/>
+            </field>
         </form>
         
         <form name="organizationForm">

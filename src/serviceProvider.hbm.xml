@@ -49,6 +49,9 @@
         <property name="name">
             <column name="NAME" default="0" not-null="true" length="60"/>
         </property>
+        <property name="abbr">
+            <column name="ABBR" default="0" not-null="true" length="60"/>
+        </property>
         <property name="title">
             <column name="TITLE" default="0" not-null="true" length="255"/>
         </property>

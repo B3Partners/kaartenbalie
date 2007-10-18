@@ -33,6 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
 
@@ -142,6 +144,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * JavaScript can be disabled by the browser/user.
          */
         ActionErrors errors = dynaForm.validate(mapping, request);
+        if (!isAbbrUnique(request)) {
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("error.abbr.notunique"));
+        }
         if(!errors.isEmpty()) {
             super.addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -223,8 +228,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         newServiceProvider.setReviewed(true);
         em.persist(newServiceProvider);
         em.flush();
-        //sess.saveOrUpdate(newServiceProvider);
-        //sess.flush();
         
         /*
          * All tests have been completed succesfully.
@@ -232,28 +235,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * is if this serviceprovider has been changed or newly added. The
          * easiest way of doing so, is by checking the id.
          */
-
-        
         if(oldServiceProvider != null) {
-            /* Before we can start, we need to save the new serviceprovider.
-             *
-             * Then we need to call for a list with organizations.
+            /* Then we need to call for a list with organizations.
              * We walk through this list and for each organization in the
              * list we need to check if this organization has connections
              * with the old serviceprovider.
-             *
-             * The following steps have to be made:
-             * With each layer belonging to a certain organization check if this
-             * layer belongs to the old serviceprovider.
-             *      if not -> save the layer in a new set and go to the next layer
-             *      if yes -> check if the old layer also appears in the list of layers
-             *                of the new serviceprovider.
-             *          if not -> don't do anything. Just skip this layer, it will not be saved into the new set.
-             *          if yes -> add the new layer in the new set of layers for this organization.
-             * When all is done save the organization and go on with the next one.
-             *
-             * After completing all organizations, we can delete the old serviceprovider.
-             */
+              */
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
@@ -262,42 +249,20 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 Set orgLayers = org.getOrganizationLayer();
                 Iterator layerit = orgLayers.iterator();
                 while (layerit.hasNext()) {
-                    /*
-                     * We are now iterating over a set of layers which belong to one organization.
-                     * Each of these layers have specified which serviceprovider they belong to.
-                     * So we can check if the id of the layer serviceprovider is the same as the
-                     * id of the old serviceprovider from above.
-                     */
                     Layer organizationLayer = (Layer)layerit.next();
                     ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
                     if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
-                        /* It is for sure that the layer belongs to the old servideprovider.
-                         * So now we need to check if this same layer is still available in
-                         * the new serviceprovider. If this is true then we need to add this
-                         * layer again to the new list with layer rights for  this organization.
-                         * Otherwise we don't have to do anything.
-                         * Since this layer belongs to the old serviceprovider we don't have to
-                         * be affraid that we are checking against the wrong items. Therefore
-                         * we can perform this check just by checking if the layer titles are
-                         * the same.
-                         */
                         Set topLayerSet = new HashSet();
                         topLayerSet.add(newServiceProvider.getTopLayer());
                         Layer newLayer = checkLayer(organizationLayer, topLayerSet);
                         if (newLayer != null)
                             newOrganizationLayer.add(newLayer);
                     } else {
-                        /* The layer doesn't belong to the old serviceprovider.
-                         * Therefore not much has to be done. We only need to
-                         * add this layer again back to the list with layer-
-                         * rights.
-                         */
                         newOrganizationLayer.add(organizationLayer);
                     }
                 }
                 //vervang de oude set met layers in de organisatie voor de nieuwe set
                 org.setOrganizationLayer(newOrganizationLayer);
-                //sess.saveOrUpdate(org);
                 em.flush();
             }
             
@@ -387,7 +352,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                 while (orgLayerIterator.hasNext()) {
                     Layer organizationLayer = (Layer)orgLayerIterator.next();
                     Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
-                    if (organizationLayerTopLayer!=null && 
+                    if (organizationLayerTopLayer!=null &&
                             organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
                         prepareMethod(dynaForm, request, LIST, EDIT);
                         addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
@@ -468,10 +433,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
-        serviceProvider.setUrl(getUrlWithoutParams(dynaForm.getString("url")));
-        if (serviceProvider.getId() == null) {
-            serviceProvider.setUpdatedDate(new Date());
-        }
+        serviceProvider.setUrl(dynaForm.getString("url"));
+        serviceProvider.setUpdatedDate(new Date());
+        serviceProvider.setAbbr(dynaForm.getString("abbr"));
     }
     // </editor-fold>
     
@@ -508,6 +472,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         dynaForm.set("givenName", serviceProvider.getGivenName());
         dynaForm.set("url", serviceProvider.getUrl());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
+        dynaForm.set("abbr", serviceProvider.getAbbr());
     }
     // </editor-fold>
     
@@ -634,5 +599,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
         
         return url;
+    }
+
+    private boolean isAbbrUnique(HttpServletRequest request) {
+        return true;
     }
 }

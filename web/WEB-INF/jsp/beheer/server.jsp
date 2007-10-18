@@ -19,7 +19,8 @@
         <b>Server tabel:</b>
         <div class="serverRijTitel">
             <div style="width: 100px;">Naam</div>
-            <div style="width: 400px;">URL</div>
+            <div style="width: 60px;">Afkorting</div>
+            <div style="width: 340px;">URL</div>
             <div style="width: 150px;">Datum laatste update</div>
         </div>
         
@@ -36,7 +37,10 @@
                             <c:out value="${nServiceProvider.givenName}"/>
                         </html:link>
                     </div>
-                    <div style="width: 400px;" title="<c:out value="${nServiceProvider.url}"/>">
+                    <div style="width: 60px;" title="<c:out value="${nServiceProvider.abbr}"/>">
+                        <c:out value="${nServiceProvider.abbr}"/>
+                    </div>
+                    <div style="width: 340px;" title="<c:out value="${nServiceProvider.url}"/>">
                         <c:out value="${nServiceProvider.url}"/>
                     </div>
                     <div style="width: 150px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.updatedDate}"/>">
@@ -50,32 +54,22 @@
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
         <c:choose>
             <c:when test="${action != 'list'}">
-
-                    <table>
-                        <c:choose>
-                            <c:when test="${not empty mainid}">
-                                <tr>
-                                    <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                                    <td><html:text property="givenName" readonly="true" /></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                                    <td><html:text property="url" size="75" readonly="true" /></td>
-                                </tr>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                                    <td><html:text property="givenName" /></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                                    <td><html:text property="url" size="75" /></td>
-                                </tr>
-                            </c:otherwise>
-                        </c:choose>
-                    </table>
-
+                
+                <table>
+                    <tr>
+                        <td><B><fmt:message key="beheer.serverName"/>:</B></td>
+                        <td><html:text property="givenName" size="15" maxlength="60"/></td>
+                    </tr>
+                    <tr>
+                        <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
+                        <td><html:text property="abbr" size="5" maxlength="60"/></td>
+                    </tr>
+                    <tr>
+                        <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                        <td><html:text property="url" size="75" /></td>
+                    </tr>
+                </table>
+                
                 <div class="knoppen">
                     <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.cancel"/>

@@ -1,0 +1,1 @@
+﻿alter table serviceprovider add column ABBR VARCHAR(60) default "0" NOT NULL;
