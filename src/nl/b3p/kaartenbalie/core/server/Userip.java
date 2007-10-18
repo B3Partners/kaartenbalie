@@ -43,10 +43,14 @@ public class Userip {
     }
     
     public boolean equals(Userip ipaddress) {
+        if (ipaddress==null)
+            return false;
         return this.getIpaddress().equals(ipaddress.getIpaddress());
     }
     
     public boolean inList(Set addresses) {
+        if (addresses==null)
+            return false;
         Iterator it = addresses.iterator();
         while (it.hasNext()) {
             Userip setip = (Userip) it.next();

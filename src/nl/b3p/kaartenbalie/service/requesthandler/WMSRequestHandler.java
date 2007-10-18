@@ -201,8 +201,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
-        
-        
         List eventualSPList = new ArrayList();
         //List spList = null;
         if(layers.length >= 1) {
@@ -243,44 +241,37 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 Object [] objecten = (Object [])sqlQuery.get(0);
                 String layer_queryable      = (String)objecten[0];
                 Integer serviceprovider_id  = (Integer)objecten[1];
+                if (serviceprovider_id==null)
+                    continue;
                 
                 // layer toevoegen aan sp indien queryable voorwaarde ok
                 if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                    // Haal de vooraf opgehaalde sp info er bij.
-                    // Hier worden nu ook de layers aan toegevoegd.
-                    boolean emptylist = eventualSPList.isEmpty();
-                    boolean equalIds = false;
-                    if(!emptylist) {
-                        Map spInfo = (Map) eventualSPList.get(eventualSPList.size() - 1);
-                        Integer spId = (Integer)spInfo.get("spId");
-                        equalIds = spId.equals(serviceprovider_id);
+                    // Haal de laatst opgehaalde sp info er bij.
+                    // Hier worden nu ook de layers aan toegevoegd indien
+                    // zelfde sp, anders nieuwe sp aanmaken en list toevoegen
+                    Map spInfo = null;
+                    int size = eventualSPList.size();
+                    if (size>0) {
+                        Map lastSpInfo = (Map) eventualSPList.get(size - 1);
+                        Integer spId = (Integer)lastSpInfo.get("spId");
+                        if (spId!=null && spId.intValue()==serviceprovider_id.intValue())
+                            spInfo = lastSpInfo;
                     }
-                    
-                    if (equalIds) {
-                        Map spInfo = (Map) eventualSPList.get(eventualSPList.size() - 1);
-                        StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
-                        if (sp_layerlist==null) {
-                            sp_layerlist = new StringBuffer(layerName);
-                            spInfo.put("layersList",sp_layerlist);
-                        } else {
-                            sp_layerlist.append(",");
-                            sp_layerlist.append(layerName);
-                        }
+                    if (spInfo == null) {
+                        spInfo = new HashMap();
+                        Map tlSpInfo = (Map)toplayerMap.get(serviceprovider_id);
+                        spInfo.put("spId", tlSpInfo.get("spId"));
+                        spInfo.put("tlId", tlSpInfo.get("tlId"));
+                        spInfo.put("spUrl", tlSpInfo.get("spUrl"));
+                        eventualSPList.add(spInfo);
+                    }
+                    StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+                    if (sp_layerlist==null) {
+                        sp_layerlist = new StringBuffer(layerName);
+                        spInfo.put("layersList",sp_layerlist);
                     } else {
-                        Iterator it = toplayerMap.values().iterator();
-                        while (it.hasNext()) {
-                            Map spInfo = (Map)it.next();
-                            Integer spId = (Integer)spInfo.get("spId");
-                            if(spId.equals(serviceprovider_id)) {
-                                Map newSpInfo = new HashMap();
-                                newSpInfo.put("spId", spInfo.get("spId"));
-                                newSpInfo.put("tlId", spInfo.get("tlId"));
-                                newSpInfo.put("spUrl", spInfo.get("spUrl"));
-                                StringBuffer sp_layerlist = new StringBuffer(layerName);
-                                newSpInfo.put("layersList",sp_layerlist);
-                                eventualSPList.add(newSpInfo);
-                            }
-                        }
+                        sp_layerlist.append(",");
+                        sp_layerlist.append(layerName);
                     }
                 }
             }
