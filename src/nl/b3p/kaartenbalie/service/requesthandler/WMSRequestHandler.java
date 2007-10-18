@@ -220,15 +220,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
                 
                 // Check of voldoende rechten op layer bestaan en ophalen url
-                // TODO niet op layer id testen, maar op service provider code
-                //"serviceprovider.code = :layerCode" +
                 query = "select layer.queryable, layer.serviceproviderid " +
                         "from layer, organizationlayer, serviceprovider " +
                         "where organizationlayer.layerid = layer.layerid and " +
                         "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
                         "organizationlayer.organizationid = :orgId and " +
                         "layer.name = :layerName and " +
-                        "layer.layerid = :layerCode ";
+                        "serviceprovider.abbr = :layerCode";
                 List sqlQuery = em.createNativeQuery(query)
                 .setParameter("orgId", orgId)
                 .setParameter("layerName", layerName)

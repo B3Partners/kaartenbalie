@@ -399,14 +399,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         List layerList = em.createQuery(
                 "from Layer l left join fetch l.attribution").getResultList();
 
-        /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
-         * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
-         * checked if a layer has any parents and if so this has to be checked recursively until there
-         * aren't any parents anymore. Each of the parents found have to be added to the list of layers
-         * which are allowed to be requested.
-         *
-         * TODO: beschrijving klopt niet meer
-         */
         int size = selectedLayers.length;
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();
@@ -420,6 +412,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                     ServiceProvider sp = layer.getServiceProvider();
                     if (!serviceProviders.contains(sp))
                         serviceProviders.add(sp);
+                    //TODO waarom is dit uitgecomment?
 //                    layers = getAllParentLayers(layer,  layers );
 //                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
                     break;
