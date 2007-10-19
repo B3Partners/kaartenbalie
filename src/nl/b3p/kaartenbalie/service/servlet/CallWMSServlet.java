@@ -13,7 +13,6 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
-import nl.b3p.kaartenbalie.core.server.Userip;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
@@ -384,8 +383,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             Set ipaddresses = user.getUserips();
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
-                Userip ipaddress = (Userip) it.next();
-                if(ipaddress.getIpaddress().equals(remoteaddress)) {
+                String ipaddress = (String) it.next();
+                if(ipaddress.equalsIgnoreCase(remoteaddress)) {
                     validip = true;
                     break;
                 }

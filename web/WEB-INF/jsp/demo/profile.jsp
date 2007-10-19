@@ -4,18 +4,13 @@
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
+
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <!-- Scripts and settings for the calendar function -->
 <html:link href="calendar-brown" title="summer" />
 
-<%--
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar.js' module='' />"/>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-en.js' module='' />"/>
-<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar-setup.js' module='' />"/>
-<link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar-brown.css' module='' />" title="calendar-brown" />
---%>
 <div id="calDiv" style="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
@@ -88,9 +83,9 @@
     </div>
     
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
-    <c:choose>
-        <c:when test="${action != 'list'}">
-            
+        <c:choose>
+            <c:when test="${action != 'list'}">
+                
                 <table>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
@@ -108,47 +103,32 @@
                             />
                         </td>
                     </tr>
-                    <tr>
-                        <table id='iptable'>
-                        <tbody>
-                            <c:forEach var="nIP" varStatus="status" items="${iplist}">
-                                <tr>
-                                    <td><fmt:message key="viewer.persoonlijkeurl.registeredip"/>:</td> 
-                                    <td>
-                                        <html:text property="registeredIP" value="${nIP.ipaddress}"/>
-                                    </td>
-                                </tr>
-                            </c:forEach> 
-                        </tbody>
-                    </table>
-                    </tr>
-                    <tr>
+                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
                         <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
                     </tr>
                 </table>
-            
-            <div class="knoppen">
-                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.cancel"/>
-                </html:cancel>
-                <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                    <fmt:message key="button.update"/>
-                </html:submit>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <html:hidden property="timeout" />
-            <div class="knoppen">
-                <html:submit property="edit" accesskey="n" styleClass="knop">
-                    <fmt:message key="button.edit"/>
-                </html:submit>
-            </div>
-        </c:otherwise>
-    </c:choose>
+                
+                <div class="knoppen">
+                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.cancel"/>
+                    </html:cancel>
+                    <html:submit property="save" accesskey="s" styleClass="knop">
+                        <fmt:message key="button.update"/>
+                    </html:submit>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <html:hidden property="timeout" />
+                <div class="knoppen">
+                    <html:submit property="edit" accesskey="n" styleClass="knop">
+                        <fmt:message key="button.edit"/>
+                    </html:submit>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
-    
+    <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+        &nbsp;
+    </div>   
 </html:form>
-<div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
-    &nbsp;
-</div>

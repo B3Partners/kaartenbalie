@@ -26,9 +26,9 @@
             <many-to-many column="ROLEID" class="nl.b3p.wms.capabilities.Roles" lazy="false"/>
         </set>
         
-        <set name="userips" lazy="false" cascade="all">
-            <key column="USERID" update="false"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.Userip"/>
+        <set name="userips" cascade="all" table="userip">
+            <key column="USERID"/>
+            <element column="IPADDRESS" type="string" length="45" not-null="true"/>
         </set>
         
         

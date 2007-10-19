@@ -52,9 +52,6 @@
         </form>
         
         <form name="profileForm">
-            <field property="registeredIP" depends="required"> <!-- required -->
-                <arg0 key="viewer.persoonlijkeurl.registeredip"/>
-            </field>
             <field property="timeout" depends="required, date"> <!-- required -->
                 <arg0 key="viewer.persoonlijkeurl.timeout"/>
                 <var>

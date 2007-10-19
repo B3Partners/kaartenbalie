@@ -35,17 +35,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class OrganizationAction extends KaartenbalieCrudAction {
-
+    
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -65,7 +65,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
-
+    
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -85,12 +85,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, ORG_NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         populateOrganizationForm(organization, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Method for saving a new organization from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -104,7 +104,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-
+        
         EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
@@ -125,7 +125,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -139,7 +139,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * No errors occured during validation and token check. Therefore we can get a new
          * organization object if a we are dealing with new input of the user, otherwise we
@@ -151,14 +151,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * Once we have a (new or existing) organization object we can fill this object with
          * the user input.
          */
-        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
-        populateOrganizationObject(dynaForm, organization, selectedLayers);
-
+        populateOrganizationObject(dynaForm, organization);
+        
         /*
          * A warning has to be given if the organization has an invalid capability with the
          * selected layers.
@@ -166,7 +165,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if(!organization.getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }
-
+        
         /*
          * No errors occured so we can assume that all is good and we can safely
          * save this organization. Any other exception that might occur is in the
@@ -180,7 +179,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
-
+    
     /* Method for deleting an organization selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -194,7 +193,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-
+        
         EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
@@ -215,7 +214,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * No errors occured during validation and token check. Therefore we can get
          * the selected user from the database. If this user is unknown in the database
@@ -227,10 +226,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
-        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
-        populateOrganizationObject(dynaForm, organization, selectedLayers);
-
+        
+        populateOrganizationObject(dynaForm, organization);
+        
         /*
          * Instead of letting the Database decide if it is allowed to delete an organization
          * we can decide this our selfs. All there has to be done is checking if there are
@@ -242,19 +240,19 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, ORGANIZATION_LINKED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * Otherwise we can assume that all is good and we can safely delete this organization.
          * Any other exception that might occur is in the form of an unknown or unsuspected
          * form and will be thrown in the super class.
          */
-
+        
         em.remove(organization);
         em.flush();
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -268,7 +266,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return super.create(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
+    
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -279,17 +277,17 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
-
+        
         EntityManager em = getEntityManager();
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
     // </editor-fold>
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-
+    
     /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -301,21 +299,21 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-
+        
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);
-
+        
         if(null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
             organization = (Organization)em.find(Organization.class, id);
         }
-
+        
         return organization;
     }
     // </editor-fold>
-
+    
     /* Method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -332,7 +330,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
-
+    
     /* Method which will fill the JSP form with the data of  a given organization.
      *
      * @param organization Organization object from which the information has to be printed.
@@ -354,7 +352,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("visitorsAddress", organization.getVisitorsAddress());
         dynaForm.set("telephone", organization.getTelephone());
         dynaForm.set("fax", organization.getFax());
-
+        
         Set l = organization.getOrganizationLayer();
         Object [] organizationLayer = l.toArray();
         String checkedLayers = "";
@@ -371,7 +369,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
     }
     // </editor-fold>
-
+    
     /* Method that fills an organization object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -380,8 +378,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param selectedLayers String array with the selected layers for this organization
      */
     // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] selectedLayers) method.">
-    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, String [] selectedLayers) {
-
+    private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization) throws Exception {
+        
         EntityManager em = getEntityManager();
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("street")));
@@ -395,31 +393,22 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("visitorsAddress")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("telephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("fax")));
-
-        List layerList = em.createQuery(
-                "from Layer l left join fetch l.attribution").getResultList();
-
-        int size = selectedLayers.length;
+        
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();
+        
+        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        int size = selectedLayers.length;
         for(int i = 0; i < size; i++) {
-            int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
-            Iterator it = layerList.iterator();
-            while (it.hasNext()) {
-                Layer layer = (Layer)it.next();
-                if (layer.getId().intValue() == select) {
-                    layers.add(layer);
-                    ServiceProvider sp = layer.getServiceProvider();
-                    if (!serviceProviders.contains(sp))
-                        serviceProviders.add(sp);
-                    //TODO waarom is dit uitgecomment?
-//                    layers = getAllParentLayers(layer,  layers );
-//                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
-                    break;
-                }
-            }
+            Layer l = getLayerByUniquename(selectedLayers[i]);
+            if (l==null)
+                continue;
+            layers.add(l);
+            ServiceProvider sp = l.getServiceProvider();
+            if (!serviceProviders.contains(sp))
+                serviceProviders.add(sp);
         }
-
+        
         /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
          * Some might have compatibility some others not. To make sure this wont give any problems, we need to
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
@@ -433,31 +422,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          */
         LayerValidator lv = new LayerValidator(layers);
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
-
+        
         organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
         organization.setOrganizationLayer(layers);
     }
     // </editor-fold>
-
-    /* Creates a list with the available layers.
-     *
-     * @param layer The layer of which we have to find the parent layers.
-     * @param layers Set <Layer> with all direct and indirect parental layers..
-     *
-     * @return the same set Set <Layer> as given.
-     */
-    // <editor-fold defaultstate="" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
-    private Set getAllParentLayers(Layer layer, Set layers) {
-        if(layer.getParent() != null) {
-            layers.add(layer);
-            this.getAllParentLayers(layer.getParent(), layers);
-        } else {
-            layers.add(layer);
-        }
-        return layers;
-    }
-    // </editor-fold>
-
+    
     /* Creates a JSON tree from a list of serviceproviders from the database.
      *
      * @param layers Set of layers from which the part of the tree ahs to be build
@@ -468,10 +438,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
-
+        
         EntityManager em = getEntityManager();
-        List serviceProviders =em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
-
+        List serviceProviders =em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
+        
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
@@ -493,14 +463,14 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 log.debug("Toplayer is null voor serviceprovider: " + name);
             }
         }
-
+        
         JSONObject root = new JSONObject();
         root.put("name","root");
         root.put("children", rootArray);
         return root;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
      *
@@ -522,13 +492,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              * list of layer objects.
              */
             Layer layer = (Layer)layerIterator.next();
-
+            
             /* When we have retrieved this array we are able to save our object we are working with
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
             JSONObject layerObj = this.layerToJSON(layer);
-
+            
             /* Before we are going to save the present object we can first use our object to recieve and store
              * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
@@ -539,12 +509,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
             }
-
+            
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
             parentArray.put(layerObj);
-
+            
         }
         if (parentArray.length() > 0){
             parent.put("children", parentArray);
@@ -552,7 +522,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return parent;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON object from the ServiceProvider with its given name and id.
      *
      * @param serviceProvider The ServiceProvider object which has to be converted
@@ -570,7 +540,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return root;
     }
     // </editor-fold>
-
+    
     /* Creates a JSON object from the Layer with its given name and id.
      *
      * @param layer The Layer object which has to be converted
@@ -581,7 +551,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
-
+        
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getUniqueName());
         jsonLayer.put("name", layer.getTitle());

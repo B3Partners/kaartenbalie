@@ -11,12 +11,17 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
 import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -121,6 +126,46 @@ public class KaartenbalieCrudAction extends CrudAction{
         return ManagedPersistence.getEntityManager();
     }
     
+    public Layer getLayerByUniquename(String uniqueName) throws Exception {
+        EntityManager em = getEntityManager();
+        
+        // Check of selectedLayers[i] juiste format heeft
+        int pos = uniqueName.indexOf("_");
+        if (pos==-1 || uniqueName.length()<=pos+1) {
+            log.error("layer not valid: " + uniqueName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+        }
+        String spAbbr = uniqueName.substring(0, pos);
+        String layerName = uniqueName.substring(pos + 1);
+        if (spAbbr.length()==0 || layerName.length()==0) {
+            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+        }
+        
+        String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
+        Layer l = (Layer)em.createQuery(query)
+        .setParameter("layerName", layerName)
+        .setParameter("spAbbr", spAbbr)
+        .getSingleResult();
+        
+        return l;
+    }
     
-    // </editor-fold>
+    public String findLayer(String layerToBeFound, Set layers) {
+        if (layers==null || layers.isEmpty())
+            return null;
+        
+        Iterator it = layers.iterator();
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            String identity = layer.getUniqueName();
+            if(identity.equalsIgnoreCase(layerToBeFound))
+                return layer.getName();
+            
+            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
+            if (foundLayer != null)
+                return foundLayer;
+        }
+        return null;
+    }
 }

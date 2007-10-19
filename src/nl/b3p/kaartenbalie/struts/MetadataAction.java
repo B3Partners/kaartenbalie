@@ -45,19 +45,18 @@ public class MetadataAction extends KaartenbalieCrudAction {
     }
     
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String layerIdAndName = (String)dynaForm.get("id");
-        Integer id = new Integer(Integer.parseInt(layerIdAndName.substring(0, layerIdAndName.indexOf("_"))));
-        Layer layer = getLayerByLayerId(id);
+        String layerUniqueName = (String)dynaForm.get("id");
+        Layer layer = getLayerByUniquename(layerUniqueName);
         populateMetadataEditorForm(layer, dynaForm, request);
         return mapping.findForward(SUCCESS);
     }
     
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
-        Integer id = new Integer(Integer.parseInt((String)dynaForm.get("id")));
-        String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
+        String layerUniqueName = (String)dynaForm.get("id");
+        Layer layer = getLayerByUniquename(layerUniqueName);
         
-        Layer layer = getLayerByLayerId(id);
+        String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
         layer.setMetaData(metadata);
         
         //Possible TODO!
@@ -69,22 +68,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return getDefaultForward(mapping, request);
     }
     
-    private Layer getLayerByLayerId(Integer id) {
-        EntityManager em = getEntityManager();
-        
-        try {
-            return (Layer)em.createQuery(
-                    "from Layer l where " +
-                    "(l.id) = lower(:id) ")
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (NoResultException nre) {
-            return null;
-        }
-    }
-    
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        dynaForm.set("id", layer.getId().toString());
+        dynaForm.set("id", layer.getUniqueName());
         dynaForm.set("name", layer.getTitle());
         String metadata = layer.getMetaData();
         if (metadata != null) {
@@ -95,35 +80,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         dynaForm.set("metadata", metadata);
     }
     
-    /** Tries to find a specified layer given for a certain ServiceProvider.
-     *
-     * @param layers the set with layers which the method has to surch through
-     * @param layerToBeFound the layer to be found
-     *
-     * @return string with the name of the found layer or null if no layer was found
-     */
-    // <editor-fold defaultstate="" desc="findLayer(String layerToBeFound, Set layers) method.">
-    private String findLayer(String layerToBeFound, Set layers) {
-        if (layers==null || layers.isEmpty())
-            return null;
-        
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getUniqueName();
-            if(identity.equalsIgnoreCase(layerToBeFound))
-                return layer.getName();
-            
-            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
-            if (foundLayer != null)
-                return foundLayer;
-        }
-        return null;
-    }
-    // </editor-fold>
-    
-    
-    
+     
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------

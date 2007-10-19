@@ -28,7 +28,6 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.Userip;
 import nl.b3p.wms.capabilities.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -44,15 +43,14 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class DemoRegistrationAction extends UserAction implements KBConstants {
-
+    
     /* forward name="success" path="" */
     private final static String SUCCESS = "success";
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
-    protected static final String PREDEFINED_SERVER = "demo.serverurl";
-    protected static final String PREDEFINED_SERVER_NAME = "demo.servername";
+    protected static final String PREDEFINED_SP_ABBR = "demo.spabbr";
     protected static final String SAVESUCCES = "savesucceeded";
     protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
-
+    
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -67,7 +65,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
-
+        
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -87,7 +85,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -101,7 +99,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /*
          * No errors occured during validation and token check. Therefore we can get a new
          * user object if a we are dealing with new input of the user, otherwise we can change
@@ -113,12 +111,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        
         /* CHECKING FOR UNIQUE USERNAME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-         * All the given input can be of any kind, but the username has to be unique.
-         * Therefore we need to check with the database if there is already a user with
-         * the given username. If such a user exists we need to inform the user that
-         * this is not allowed.
          */
         try {
             User dbUser = (User)em.createQuery(
@@ -135,13 +129,13 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             //this is good!; This means that there are no other users in the DB with this username..
             //therefore nothing has to be done here.
         }
-
+        
         /*
          * First get all the user input which need to be saved.
          */
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
-
+        
         if(password != null && repeatpassword != null) {
             if(!password.equals(repeatpassword)) {
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -151,7 +145,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
                 user.setPassword(password);
             }
         }
-
+        
         /*
          * All checks have been performed. Now we can save the user and his organization.
          */
@@ -160,20 +154,23 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             organization = new Organization();
         }
         
-        Set layers = getLayerSet(request);           
-        organization.setOrganizationLayer(new HashSet(layers));
+        Set layers = getStandardDemoLayerSet(request);
+        if (layers!=null) {
+            organization.setOrganizationLayer(new HashSet(layers));
+            // We nemen aan dat de standard set ok is
+            organization.setHasValidGetCapabilities(true);
+        }
         populateRegistrationObject(request, dynaForm, user, organization);
         
         if (organization.getId() == null) {
             em.persist(organization);
         }
-        
-        user.setOrganization(organization);
         if (user.getId() == null) {
             em.persist(user);
         }
+        
         em.flush();
-                
+        
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
@@ -188,23 +185,23 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
             srw.setUserPrincipal(principal);
         }
-
+        
         this.populateForm(user, dynaForm, request);
         
         //ActionForward action = super.save(mapping,dynaForm,request,response);
         return mapping.findForward(SAVESUCCES);
     }
     // </editor-fold>
-
+    
     /* Method which will fill-in the JSP form with the data of a given user.
      *
      * @param request The HTTP Request we are processing.
      * @param session Session object for the database.
      */
-    // <editor-fold defaultstate="" desc="getLayerSet(HttpServletRequest request, Session session) method.">
-    private Set getLayerSet(HttpServletRequest request) {
+    // <editor-fold defaultstate="" desc="getStandardDemoLayerSet(HttpServletRequest request, Session session) method.">
+    private Set getStandardDemoLayerSet(HttpServletRequest request) {
         EntityManager em = getEntityManager();
-
+        
         /*
          * Because every new demo user has access to the predefined server which will
          * be supported by B3Partners we first need to get this WMS server from the database
@@ -212,17 +209,14 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
          */
         MessageResources messages = getResources(request);
         Locale locale = getLocale(request);
-        String serverName = messages.getMessage(locale, PREDEFINED_SERVER_NAME);
-        String serverUrl  = messages.getMessage(locale, PREDEFINED_SERVER);
-
+        String spAbbr = messages.getMessage(locale, PREDEFINED_SP_ABBR);
+        
         ServiceProvider stdServiceProvider = null;
-        try { 
+        try {
             stdServiceProvider = (ServiceProvider)em.createQuery(
                     "from ServiceProvider sp where " +
-                    "lower(sp.givenName) = lower(:givenName) " +
-                    "and lower(sp.url) = lower(:url)")
-                    .setParameter("givenName", serverName)
-                    .setParameter("url", serverUrl)
+                    "lower(sp.abbr) = lower(:abbr) ")
+                    .setParameter("abbr", spAbbr)
                     .getSingleResult();
         } catch (NoResultException nre) {
             return null;
@@ -230,7 +224,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
-
+    
     /* Method which will fill-in the JSP form with the data of a given user.
      *
      * @param user User object from which the information has to be printed.
@@ -245,8 +239,8 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
 //        dynaForm.set("selectedRole", user.getRole());
     }
     // </editor-fold>
-
-
+    
+    
     /** Method that fills a user and organization object with the user input from the forms.
      *
      * @param request The HTTP Request we are processing.
@@ -259,7 +253,7 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         populateUserObject(dynaForm, user, request);
         
         EntityManager em = getEntityManager();
-
+        
         SimpleDateFormat df         = new SimpleDateFormat("yyyy/MM/dd");
         String registeredIP         = request.getRemoteAddr();
         String protocolAndVersion   = request.getProtocol();
@@ -274,16 +268,14 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
         md.update(toBeHashedString.getBytes(CHARSET));
         byte[] md5hash = md.digest();
-
+        
         String personalURL = protocol + "://" + requestServerName;
         if(port != 80) {
             personalURL += ":" + port;
         }
         personalURL += contextPath + "/" + WMS_SERVICE_WMS.toLowerCase() + "/" + new String(Hex.encodeHex(md5hash));
-
-        Userip ipa = new Userip();
-        ipa.setIpaddress(registeredIP);
-        user.addUserips(ipa);
+        
+        user.addUserips(registeredIP);
         user.setPersonalURL(personalURL);
         
         user.setUserroles(null);
@@ -291,82 +283,17 @@ public class DemoRegistrationAction extends UserAction implements KBConstants {
         Iterator roleIt = roles.iterator();
         while (roleIt.hasNext()) {
             Roles role = (Roles) roleIt.next();
-            if (role.getRole().equalsIgnoreCase("demogebruiker"))
+            if (role.getRole().equalsIgnoreCase("demogebruiker")) {
                 user.addUserRole(role);
+            }
         }
         
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
         
-        /*
-        List layerList = em.createQuery(
-                "from Layer l left join fetch l.attribution").getResultList();
-        */
-        /* If a user selects layers from the treeview. He/she selects only sublayers. Because the parent
-         * layers are not automaticaly selected too, we need to do this ourselfs. Therefore there must be
-         * checked if a layer has any parents and if so this has to be checked recursively until there
-         * aren't any parents anymore. Each of the parents found have to be added to the list of layers
-         * which are allowed to be requested.
-         */
-        /*
-        Set selectedLayers = organization.getOrganizationLayer();
-        Iterator itselected = selectedLayers.iterator();
-        //int size = selectedLayers.length;
-        Set layers = new HashSet();
-        Set serviceProviders = new HashSet();
-        while(itselected.hasNext()) {
-            //for(int i = 0; i < size; i++) {
-            int select = ((Layer)itselected.next()).getId().intValue();
-            //int select = Integer.parseInt(selectedLayers[i].substring(0, selectedLayers[i].indexOf("_")));
-            Iterator it = layerList.iterator();
-            while (it.hasNext()) {
-                Layer layer = (Layer)it.next();
-                if (layer.getId().intValue() == select) {
-                    //layers.add(layer);
-                    layers = getAllParentLayers(layer,  layers );
-                    serviceProviders.add(layer.getTopLayer().getServiceProvider());
-                    break;
-                }
-            }
-        }
-        /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
-         * Some might have compatibility some others not. To make sure this wont give any problems, we need to
-         * check which formats and srs's are the same. If and only if this complies we can say for sure that
-         * the GetCapabilities request which is going to be sent to the client is valid. In all other cases
-         * we need to give a warning that the GetCapabilities can have problems when used with certain viewers.
-         *
-         * In order to give the user the same warning as the supervisor and in order to keep the administration
-         * up to date a boolean hasValidGetCapabilities will be set to false if a GetCapabilities is not stictly
-         * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
-         * work properly.
-         */
-        /*
-        LayerValidator lv = new LayerValidator(layers);
-        ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
-        */
-
-        
-        organization.setHasValidGetCapabilities(true);//lv.validate() && spv.validate());
+        user.setOrganization(organization);
         
     }
     // </editor-fold>
-
-    /* Creates a list with the available layers.
-     *
-     * @param layer The layer of which we have to find the parent layers.
-     * @param layers Set <Layer> with all direct and indirect parental layers..
-     *
-     * @return the same set Set <Layer> as given.
-     */
-    // <editor-fold defaultstate="" desc="getAllParentLayers(Layer layer, Set <Layer> layers) method.">
-    private Set getAllParentLayers(Layer layer, Set layers) {
-        if(layer.getParent() != null) {
-            layers.add(layer);
-            this.getAllParentLayers(layer.getParent(), layers);
-        } else {
-            layers.add(layer);
-        }
-        return layers;
-    }
-    // </editor-fold>
+    
 }

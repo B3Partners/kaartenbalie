@@ -37,55 +37,55 @@ public class User implements Principal {
     public Integer getId() {
         return id;
     }
-
+    
     private void setId(Integer id) {
         this.id = id;
     }
-
+    
     public String getFirstName() {
         return firstName;
     }
-
+    
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
-
+    
     public String getSurname() {
         return surname;
     }
-
+    
     public void setSurname(String surname) {
         this.surname = surname;
     }
-
+    
     public String getEmailAddress() {
         return emailAddress;
     }
-
+    
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
     }
-
+    
     public String getUsername() {
         return username;
     }
-
+    
     public void setUsername(String username) {
         this.username = username;
     }
-
+    
     public String getPassword() {
         return password;
     }
-
+    
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
     public Organization getOrganization() {
         return organization;
     }
-
+    
     public void setOrganization(Organization organization) {
         this.organization = organization;
     }
@@ -94,19 +94,19 @@ public class User implements Principal {
     public String getName() {
         return username;
     }
-
+    
     public String getPersonalURL() {
         return personalURL;
     }
-
+    
     public void setPersonalURL(String personalURL) {
         this.personalURL = personalURL;
     }
-
+    
     public Date getTimeout() {
         return timeout;
     }
-
+    
     public void setTimeout(Date timeout) {
         this.timeout = timeout;
     }
@@ -119,16 +119,16 @@ public class User implements Principal {
         defaultGetMap=s;
     }
     // </editor-fold>
-
+    
     public Set getUserroles() {
         return userroles;
     }
-
+    
     public void setUserroles(Set userroles) {
         this.userroles = userroles;
     }
     
-    public void addUserRole (Roles role) {
+    public void addUserRole(Roles role) {
         if(userroles == null) {
             userroles = new HashSet();
         }
@@ -161,16 +161,16 @@ public class User implements Principal {
         }
         return roles;
     }
-
+    
     public Set getUserips() {
         return userips;
     }
-
+    
     public void setUserips(Set userips) {
         this.userips = userips;
     }
     
-    public void addUserips(Userip userip) {
+    public void addUserips(String userip) {
         if(userips == null) {
             userips = new HashSet();
         }
