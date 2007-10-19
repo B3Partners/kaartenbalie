@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -52,6 +53,9 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
     protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
+    protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
+    
+    
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -144,13 +148,16 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          * JavaScript can be disabled by the browser/user.
          */
         ActionErrors errors = dynaForm.validate(mapping, request);
-        if (!isAbbrUnique(request)) {
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("error.abbr.notunique"));
-        }
         if(!errors.isEmpty()) {
             super.addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        if (!isAbbrUnique(dynaForm, em)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
@@ -601,7 +608,19 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return url;
     }
 
-    private boolean isAbbrUnique(HttpServletRequest request) {
-        return true;
+    private boolean isAbbrUnique(DynaValidatorForm dynaForm, EntityManager em) {
+        try {
+            ServiceProvider dbSp = (ServiceProvider)em.createQuery(
+                    "from ServiceProvider sp where " +
+                    "lower(sp.abbr) = lower(:abbr) ")
+                    .setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr")))
+                    .getSingleResult();
+            if(dbSp != null) {
+                return false;
+            }
+        } catch (NoResultException nre) {
+            return true;
+        }
+        return false;
     }
 }

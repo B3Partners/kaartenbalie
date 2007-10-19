@@ -1,1 +1,5 @@
-﻿alter table serviceprovider add column ABBR VARCHAR(60) default "0" NOT NULL;
+ALTER TABLE serviceprovider ADD COLUMN ABBR VARCHAR(60);
+
+UPDATE serviceprovider SET ABBR = SERVICEPROVIDERID;
+
+ALTER TABLE serviceprovider MODIFY COLUMN ABBR VARCHAR(60) NOT NULL UNIQUE;
