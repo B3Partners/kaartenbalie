@@ -129,6 +129,12 @@ public class ServerActionDemo extends ServerAction {
                 return getAlternateForward(mapping, request);
             }
         }
+        
+        if (!isAbbrUnique(null, dynaForm, em)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
 
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
@@ -196,6 +202,8 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
+        
+        
 
         /*
          * Now we first need to save this serviceprovider.

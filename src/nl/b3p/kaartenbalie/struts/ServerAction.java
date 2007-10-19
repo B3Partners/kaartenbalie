@@ -610,19 +610,24 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return url;
     }
 
-    private boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
+    protected boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider)em.createQuery(
                     "from ServiceProvider sp where " +
                     "lower(sp.abbr) = lower(:abbr) ")
                     .setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr")))
                     .getSingleResult();
-            if(dbSp != null && !dbSp.getId().equals(sp.getId())) {
-                return false;
+            
+            if(dbSp != null){
+                if(sp != null){
+                    if(dbSp.getId().equals(sp.getId())){
+                        return true;
+                    }
+                }
             }
+            return false;
         } catch (NoResultException nre) {
             return true;
         }
-        return true;
     }
 }
