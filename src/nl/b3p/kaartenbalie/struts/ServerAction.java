@@ -155,11 +155,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        if (!isAbbrUnique(dynaForm, em)) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
+        
         
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
@@ -199,6 +195,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+        
+        if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
         
         /*
          * This request can lead to several problems.
@@ -608,19 +610,19 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return url;
     }
 
-    private boolean isAbbrUnique(DynaValidatorForm dynaForm, EntityManager em) {
+    private boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider)em.createQuery(
                     "from ServiceProvider sp where " +
                     "lower(sp.abbr) = lower(:abbr) ")
                     .setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr")))
                     .getSingleResult();
-            if(dbSp != null) {
+            if(dbSp != null && !dbSp.getId().equals(sp.getId())) {
                 return false;
             }
         } catch (NoResultException nre) {
             return true;
         }
-        return false;
+        return true;
     }
 }
