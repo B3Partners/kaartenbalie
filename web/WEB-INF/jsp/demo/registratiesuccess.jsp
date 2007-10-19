@@ -51,8 +51,7 @@
     met eigen kaartmateriaal.<br><br>
     
     <input type="button" onclick="javascript:window.location.href='voegurltoe.do?userid=${form.map.id}'" value="<fmt:message key="button.addmap"/>">
-    <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do?layers=17_basis_nl*16_bebouwdekom_nl' module='' />'" value="<fmt:message key="button.toviewer"/>" >
-    <br>
+    <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
 </html:form>
 <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
     &nbsp;

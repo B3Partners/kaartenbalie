@@ -36,6 +36,7 @@
             <form-property name="givenName" type="java.lang.String"/>
             <form-property name="url" type="java.lang.String"/>
             <form-property name="updatedDate" type="java.lang.String"/>
+            <form-property name="abbr" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="mapviewerForm" type="org.apache.struts.validator.DynaValidatorForm">
@@ -92,11 +93,6 @@
             <forward name="nextPage" path="base.demo.addUrlsuccessfull"/>
             <forward name="failure" path="base.demo.addUrl"/>
             <forward name="automatic" path="base.demo.mapviewer"/>
-        </action>
-        
-        <action path="/mapviewer" name="mapviewerForm" type="nl.b3p.kaartenbalie.struts.MapviewerAction" scope="request" validate="false">  
-            <forward name="success" path="base.demo.mapviewer"/>
-            <forward name="failure" path="base.demo.index"/>
         </action>
         
         <action path="/showProfile" name="profileForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  

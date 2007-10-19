@@ -98,6 +98,9 @@
             <li>Stap 4: U kunt werken met de demoviewer</li>
         </ul>
         <br>
-        
+        Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande button gelijk naar de viewer. Deze viewer
+        is een nieuwe uitgebreide viewer die onderdeel uitmaakt van de B3Partners GIS Suite.
+        <br>
+        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
     </div>
 </div>

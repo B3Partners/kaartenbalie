@@ -66,11 +66,11 @@
             <table>
                 <tr>
                     <td><B><fmt:message key="demo.serverName"/>:</B></td>
-                    <td>
-                        
-                        <html:text property="givenName" />
-                        
-                    </td>
+                    <td><html:text property="givenName" /></td>
+                </tr>
+                <tr>
+                    <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
+                    <td><html:text property="abbr" size="5" maxlength="60"/></td>
                 </tr>
                 <tr>
                     <td><B><fmt:message key="demo.serverURL"/>:</B></td>
@@ -93,7 +93,7 @@
                         <html:submit property="save" >
                             <fmt:message key="button.add"/>
                         </html:submit>
-                        <input type="button" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do?layers=17_basis_nl*16_bebouwdekom_nl' module='' />'" value="<fmt:message key="button.toviewer"/>" > 
+                        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
                     </td>
                     <td align="left"></td>
                 </tr>

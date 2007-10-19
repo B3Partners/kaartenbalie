@@ -65,7 +65,7 @@
         viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen. Het materiaal dat door u
         aan Kaartenbalie toegevoegd is kan alleen door u bekeken worden. Kaartenbalie is opgezet met veiligheid in het 
         achterhoofd.<br><br>
-        <input type="button" value="Naar de viewer" onclick="javascript:window.location.href='<html:rewrite page='/demo/mapviewer.do' module='' />'">
+        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
     </div>
 </div>
 <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
