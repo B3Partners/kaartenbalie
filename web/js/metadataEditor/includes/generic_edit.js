@@ -515,51 +515,26 @@ function addChild(element, addName) {
 function createSection(strAddName) {
 	debug("strAddName=" + strAddName);
 
-	// get edit stylesheet file location from document
-	var pXSLSpan = document.getElementById("editStylesheetFile");
-	if (pXSLSpan == null) {
-		alert("Error locating editable stylesheet file.");
-		return null;
-	}
-	var strEditXSLFile = getElementInnerText(pXSLSpan);
-
-	// get add templates stylesheet file location from document
-	pXSLSpan = document.getElementById("addStylesheetFile");
-	if (pXSLSpan == null) {
-		alert("Error locating add templates stylesheet file.");
-		return null;
-	}
-	var strAddXSLFile = "http://localhost:8084" + getElementInnerText(pXSLSpan);
-
-	//alert("strAddXSLFile=" + strAddXSLFile + ", strEditXSLFile=" + strEditXSLFile);
-
 	// create blank XML document
 	var tempXmlDoc = jsXML.createDOMDocument();
 	tempXmlDoc.async = false;
-	//preXSLDoc.resolveExternals = true; // nodig om in MSXML 6.0 de include files te kunnen laden
-	tempXmlDoc.loadXML("<root/>");
+	tempXmlDoc.loadXML("<MD_Metadata xmlns='http://www.isotc211.org/2005/gmd'/>");
 
-	
 	// add blank parent elements (if they exist)
 	// (needed if "full path" transformations used)
 	var sParentNodes, sNode;
-	//if (InStrRev(strAddName,"/") > 0) {
 	if (strAddName.lastIndexOf("/") > -1) {
-		debug("AddSection: found parents");
+		debug("addSection: found parents");
 		var sNodes, pNode, newNode;
-		//sParentNodes = Left(strAddName, InStrRev(strAddName,"/")-1);
 		sParentNodes = strAddName.substring(0, strAddName.lastIndexOf("/"));
 		if (sParentNodes.indexOf("/") == 0)
 			sParentNodes = sParentNodes.substring(1);
-		debug("AddSection: parent nodes = " + sParentNodes);
+		debug("addSection: parent nodes = " + sParentNodes);
 		pNode = tempXmlDoc.documentElement;
 		sNodes = sParentNodes;
 		while (sNodes != "") {
-			//if (InStr(sNodes,"/") > 0) {
 			if (sNodes.indexOf("/") > -1) {
 				// get next parent
-				//sNode = Left(sNodes, InStr(sNodes,"/") - 1);
-				//sNodes = Right(sNodes, Len(sNodes) - InStr(sNodes,"/"));
 				sNode = sNodes.substring(0, sNodes.indexOf("/"));
 				sNodes = sNodes.substring(sNodes.indexOf("/") + 1);
 			}
@@ -568,276 +543,104 @@ function createSection(strAddName) {
 				sNode = sNodes;
 				sNodes = "";
 			}
-			debug("AddSection: sNode = " + sNode + ", sNodes = " + sNodes);
-			newNode = tempXmlDoc.createElement(sNode);
-			pNode.appendChild(newNode);
-			pNode = newNode;
+			sNode = sNode.substring(sNode.lastIndexOf("gmd:") + 4);
+			debug("addSection: sNode = " + sNode + ", sNodes = " + sNodes);
+			if (sNode !== "MD_Metadata") {
+				newNode = tempXmlDoc.createElement(sNode);
+				pNode.appendChild(newNode);
+				pNode = newNode;
+			}
 		}
 		
-		//sNode = Right(strAddName, Len(strAddName) - InStrRev(strAddName,"/"));
-		sNode = strAddName.substring(strAddName.lastIndexOf("/") + 1);
+		sNode = strAddName.substring(strAddName.lastIndexOf("/gmd:") + 5);
 	}
 	else {
 		sParentNodes = "";
 		sNode = strAddName;
-		debug("AddSection:parent not found " + strAddName);
+		debug("addSection:parent not found " + strAddName);
 	}
+
 	debug("tempXmlDoc = " + tempXmlDoc.xml);
 	debug("sParentNodes = " + sParentNodes + ", sNode = " + sNode);
 	
-	
 	// create stylesheet to transform, or "preprocess" it;
 	// this will add the appropriate blank XML elements;
-	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + strAddXSLFile + "'/>" ;	
-	strXSL += "<xsl:template match='/root/" + sParentNodes + "'>";
-	
-	/*
-	//start of creating the XSL transform;
-	if (sParentNodes != "") {
-		strXSL += "<xsl:template match='" + sParentNodes + "'>";
-	}
-	else {
-		strXSL += "<xsl:template match='/'/>";
-		strXSL += "<xsl:template match='" + strAddName + "'>";
-	}
-	*/
-	//alert("strXSL : "+ strXSL);
-	//alert("sNode =  "+sNode);
-
-
+	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:gmd='http://www.isotc211.org/2005/gmd' exclude-result-prefixes='gmd'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + baseURL + preprocessorTemplatesXslFullPath + "'/>" ;	
+	strXSL += "<xsl:template match='" + sParentNodes + "'>";		
 	strXSL += "<xsl:copy><xsl:call-template name='add-" + sNode + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
 
 	//debug("strXSL "+ strXSL);
 
 	preXSLDoc = jsXML.createDOMDocument(true);
 	preXSLDoc.async = false;
-	//preXSLDoc.resolveExternals = true; // nodig om in MSXML 6.0 de include files te kunnen laden
 	preXSLDoc.loadXML(strXSL);
-	/*if (preXSLDoc.parseError && preXSLDoc.parseError.errorCode != 0) {
-		alert("Error parsing the preprocessor XSL file. Code=" +  preXSLDoc.parseError.errorCode + ", Desc=" +  preXSLDoc.parseError.reason);
-		return null;
-	}*/
 	
 	debug("preXSLDoc.xml = " + preXSLDoc.xml);
 	// transform or "preprocess" it
 	
-	//debug("tempXmlDoc.resolveExternals: " + (tempXmlDoc.resolveExternals === true));
-	//debug("preXSLDoc.resolveExternals: " + (preXSLDoc.resolveExternals === true));	
-
-	//On Error Goto EH:
-	debug("hierna loopt ie vast");
-	
-	var strPreXML;
-	strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
-	
-	debug("OK niet dus");
+	var strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
+	debug("strPreXML: " + strPreXML);
 	
 	var preXMLDoc = jsXML.createDOMDocument();
 	preXMLDoc.async = false;
 	preXMLDoc.loadXML(strPreXML);
 	
-	//var preXMLDoc = new ActiveXObject("MSXML2.DOMDocument");
-	//preXMLDoc.loadXML(strPreXML);
-	
-	//if (preXMLDoc.parseError.errorCode != 0) {
-	//	alert("Error parsing the preprocessed XML file. Code=" +  preXMLDoc.parseError.errorCode + ", Desc=" +  preXMLDoc.parseError.reason);
-	//	return null;
-	//}
-
 	debug("preXMLDoc = "+ preXMLDoc.xml);
 
-	var xslDoc = jsXML.createDOMDocument();
-	xslDoc.async = false;
-	xslDoc.load(strEditXSLFile);
+	var addElementsXslDoc = jsXML.createDOMDocument(true);
+	addElementsXslDoc.async = false;
+	addElementsXslDoc.load(addElementsXslFullPath);
 
-	// transform the resulting xml with editable stylesheet
-	//var xslDoc = new ActiveXObject("MSXML2.DOMDocument");
-	//xslDoc.load(strEditXSLFile);
-	//alert("xslDoc.xml = " + Left(xslDoc.xml, 50) + "...");
+	debug("addElementsXslDoc = " + addElementsXslDoc.xml);
 
-	//alert("preXMLDoc.xml = " + preXMLDoc.xml);
-	debug("xslDoc = "+ xslDoc.xml);
-
-	// hergebruik!
-	var strHTML = xmlTransformer.transformToString(preXMLDoc, xslDoc);
-	
-	//var strHTML = preXMLDoc.transformNode(xslDoc);
+	var addElementsXmlTransformer = new XML.Transformer(addElementsXslDoc);
+	addElementsXmlTransformer.setParameter("basePath", baseFullPath);
+	var strHTML = addElementsXmlTransformer.transformToString(preXMLDoc);
 	
 	debug("strHTML = " + strHTML);
-	//htmlText.value = strHTML;
-	//prompt("transformed HTML", strHTML)
+	
+	var resultAsXML = jsXML.createDOMDocument();
+	resultAsXML.async = false;
+	resultAsXML.loadXML(strHTML);
+	
+	//debug("resultAsXML = " + resultAsXML.xml);
+	
+	var section = findSectionDiv(resultAsXML);
+	
+	debug("section: " + section.xml);
+	
+	return section;
+}
 
-	//oFile.Write strHTML;
-
-	//get rid of <?xml?> tag, if(present;
-	if (strHTML.indexOf("<?xml") > -1) {
-		//strHTML = Right(strHTML, strHTML.length - strHTML.indexOf(">"));
-		strHTML = strHTML.substring(strHTML.indexOf(">") + 1);
-	}
-
-	//alert("strHTML (edited1) = " + strHTML);
-
-	//get rid of <!DOCTYPE> tag, if(present;
-	if (strHTML.indexOf("<!DOCTYPE") > -1) {
-		//strHTML = Right(strHTML, strHTML.length - strHTML.indexOf(">"));
-		strHTML = strHTML.substring(strHTML.indexOf(">") + 1);
-	}
-
-	//alert("strHTML (edited2) = " + strHTML);
-
-	//get rid of the rest (shouldn't be needed);
-	//strHTML = Right(strHTML, Len(strHTML) - InStr(strHTML,"<div class=""folder""") + 1);
-	strHTML = strHTML.substring(strHTML.indexOf("<div class=\"section\""));
-
-	debug("strHTML (edited2) = " + strHTML);
-
-	// create div to place html within;
-	var objDIV = document.createElement("div");
-	//objDIV.setAttribute "class", "section";
-
-	// insert HTML in div;
-	objDIV.innerHTML = strHTML;//"";
-	//objDIV.appendChild(strHTML);
-	//alert("objDIV.innerHTML" + objDIV.innerHTML);
-	//var fso, fsw;
-
-	//Set fso = new ActiveXObject("Scripting.FileSystemObject");
-	//set fsw = fso.CreateTextFile( "D:\metadata_strHTML.xml",True);
-	//fsw.write strHTML;
-
-	// remove more stuff - get the correct content DIV;
-	var objContentDIV;
-	if(sParentNodes == ""){
-		//Set objContentDIV = document.createElement("div");
-		//objDIV.setAttribute "class", "section";
-		//alert("objDIV.childNodes(0).outerHTML = " + objDIV.childNodes(0).outerHTML);
-		//alert("objDIV.childNodes(0).childNodes(1).outerHTML = " + objDIV.childNodes(0).childNodes(1).outerHTML);
-		//alert("objDIV.childNodes(0).childNodes(0).childNodes(1).outerHTML = " + objDIV.childNodes(0).childNodes(0).childNodes(1).outerHTML);
-		//Set objContentDIV = objDIV.childNodes(0).childNodes(1);
-		//Set objContentDIV = objDIV.childNodes(0);
-		//alert("Child Nodes " + objDIV.childNodes(0));
-		objContentDIV = objDIV;
-		//alert("NO Parent Insert");
-	}
-	else {
-		var fsx, fsy;
-
-		//Set fso = new ActiveXObject("Scripting.FileSystemObject");
-		//set fsx = fso.CreateTextFile( "D:\metadata_logs.xml",True);
-		//set fsy = fso.CreateTextFile( "D:\metadata_logs_childnodes.xml",True);
-		//fsw.write("This is a test");
-		//fsw.close;
-
-		// search for DIV with correct section-path;
-		//alert("Loop");
-		var objTemp = objDIV.childNodes[0];
-		//alert("strAddName " + strAddName);
-		//alert("objDIV.innerHTML " + objDIV.innerHTML);
-		//fsx.writeline(strAddName);
-		//fsx.writeline("");
-		//fsx.writeline("");
-		//fsx.writeline("");
-		//fsx.writeline("");
-
-		var varAddName, totalCount;
-		totalCount = 1;
-		while (objTemp != null) {
-			//fsx.writeline("TOTAL COUNT = "+totalCount);
-			//fsx.writeline (objTemp.innerHTML);
-			//fsx.writeline (objTemp.outerHTML);
-			//fsx.writeline("");
-			//fsx.writeline("");
-
-			//alert("objTemp.outerHTML = " + objTemp.outerHTML);
-			//alert("objTemp.innerHTML = " + objTemp.innerHTML);
-			//if(objTemp.getAttribute("section-path") is ! Null)){
-			//alert("section-path " +objTemp.getAttribute("section-path"));
-			//}
-
-			varAddName = objTemp.getAttribute("section-path");
-			//
-			if (varAddName == strAddName) {
-				//fsx.writeline("");
-				//fsx.writeline("MATCH");
-				//fsx.writeline("")   'if(! isNull(varAddName)){
-				objContentDIV = objTemp;
-				break;
+function findSectionDiv(parent) {
+	debug("parent.nodeName: " + parent.nodeName);	
+	for (var childIndex in parent.childNodes) {
+		var child = parent.childNodes[childIndex];
+		debug("child.nodeName: " + child.nodeName);
+		if (child.nodeType == Node.ELEMENT_NODE && child.nodeName.toLowerCase() == "div") {
+			var firstSectionFound = findSectionDivInAttributes(child);
+			if (firstSectionFound) {
+				return child;
 			}
-			
-			
-			//onderstaande doet niets (alles was al uitgecommentarieerd)
-			/*
-			var oNodeList = objTemp.childNodes;
-
-			if (oNodeList != null) {
-				// alert("null");
-				//}else{
-				var obj, i;
-				if (oNodeList.length > 0) {
-					//fsy.writeline("####################### NEW############################");
-
-					//i = 0;
-
-					For Each obj in oNodeList    ;
-
-					//if(! isNull(obj.getAttribute("section-path"))){
-					//alert("section-path: "+ obj.getAttribute("section-path"));
-					//}else{
-					//alert("section-path: null");
-					//}
-
-					//fsy.writeline ("********************   " + i+ "  **************************");
-					//fsy.writeline (obj.outerHTML);
-					//fsy.writeline("");
-					//fsy.writeline("");
-
-
-					//i= i+1;
-					Next;
-				}
-			}*/
-
-			var listNodes, listNode, divNode;
-
-			listNodes = objTemp.childNodes;
-			divNode = "DIV";
-
-			//for (i=0; i<listNodes; i++) {
-			//for each listNode in listNodes;
-				//fsx.writeline("");
-				//fsx.writeline(listNode);
-				//fsx.writeline("");
-				//fsx.writeline(listNode.outerHTML);
-				//fsx.writeline("");
-				//''WORKING ON THE FOR each loop;
-			for (var childIndex in listNodes) {
-				listNode = listNodes[childIndex];
-				if (listNode.nodeType == 1) {
-					if (listNode.outerHTML.indexOf("DIV") > -1) {
-						objTemp = listNode;
-						break;
-					}
-				}
+			else {
+				var foundSectionDiv = findSectionDiv(child);
+				if (foundSectionDiv != null)
+					return foundSectionDiv;
 			}
-
-			//if(! isSet){
-			//'Set objTemp = objTemp.childNodes(1);
-			//}
-
-			totalCount++;
 		}
-
-
 	}
+	return null;
+}
 
-	//fsx.writeline(objContentDIV.innerHTML);
-
-	//fsw.close;
-	//fsx.close;
-	//fsy.close;
-
-
-	//return value;
-	return objContentDIV;
+function findSectionDivInAttributes(child) {
+	for (var attributeIndex in child.attributes) {
+		var attribute = child.attributes[attributeIndex];
+		debug("attribute.nodeName: " + attribute.nodeName);			
+		debug("attribute.nodeValue: " + attribute.nodeValue);						
+		if (attribute.nodeName == "class" && attribute.nodeValue == "section") {
+			return true;
+		}
+	}
+	return false;
 }
 

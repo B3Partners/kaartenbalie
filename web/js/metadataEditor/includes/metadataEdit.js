@@ -20,6 +20,8 @@ function addLoadEvent(func) {
 }
 
 function initWithXmlString() {
+	debug("baseURL: " + baseURL);
+	
 	// if no metadata is present we start the editor with all elements empty
 	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
 		metadataXML = basicMetadataXML;
@@ -38,8 +40,8 @@ function initWithXmlString() {
 	//var freeThreadedIfPossible = true;
 	var ppXslDoc = jsXML.createDOMDocument(true);
 	ppXslDoc.async = false;
-	ppXslDoc.load(preprocessorFullPath);
-	debug("preprocessorFullPath: " + preprocessorFullPath);
+	ppXslDoc.load(preprocessorXslFullPath);
+	debug("preprocessorXslFullPath: " + preprocessorXslFullPath);
 	
 	//debug("Preprocessor:");
 	//debug(ppXslDoc.xml);
@@ -56,13 +58,13 @@ function initWithXmlString() {
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
 	xslDoc.async = false;
-	xslDoc.load(xslFullPath);
+	xslDoc.load(mainXslFullPath);
 	
 	//debug("Xsl:");
 	//debug(xslDoc.xml);
 	
 	xmlTransformer = new XML.Transformer(xslDoc);
-	xmlTransformer.setParameter("basePath", basePath);
+	xmlTransformer.setParameter("basePath", baseFullPath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 	
 	// initialiseren van tabs:

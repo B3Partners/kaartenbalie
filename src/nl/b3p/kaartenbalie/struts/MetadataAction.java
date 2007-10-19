@@ -85,6 +85,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         String escapedMetadata = StringEscapeUtils.escapeXml(metadata);
         dynaForm.set("metadata", metadata);
+		StringBuffer buffer = request.getRequestURL();
     }
     
      

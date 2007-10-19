@@ -1,9 +1,3 @@
-<root>
-	<MD_Metadata>
-		<identificationInfo>
-			<MD_DataIdentification>
-				<pointOfContact/>
-			</MD_DataIdentification>
-		</identificationInfo>
-	</MD_Metadata>
-</root>
+<MD_Metadata xmlns="http://www.isotc211.org/2005/gmd">
+	<contact/>
+</MD_Metadata>
