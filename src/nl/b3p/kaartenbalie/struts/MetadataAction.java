@@ -46,7 +46,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String layerUniqueName = (String)dynaForm.get("id");
-        Layer layer = getLayerByUniquename(layerUniqueName);
+        Layer layer = getLayerByUniqueName(layerUniqueName);
         populateMetadataEditorForm(layer, dynaForm, request);
         return mapping.findForward(SUCCESS);
     }
@@ -54,7 +54,12 @@ public class MetadataAction extends KaartenbalieCrudAction {
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
         String layerUniqueName = (String)dynaForm.get("id");
-        Layer layer = getLayerByUniquename(layerUniqueName);
+        Layer layer = getLayerByUniqueName(layerUniqueName);
+        if (layer==null) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
         
         String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
         layer.setMetaData(metadata);
@@ -69,6 +74,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
     }
     
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        if (layer==null)
+            return;
         dynaForm.set("id", layer.getUniqueName());
         dynaForm.set("name", layer.getTitle());
         String metadata = layer.getMetaData();

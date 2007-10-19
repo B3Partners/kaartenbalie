@@ -126,7 +126,7 @@ public class KaartenbalieCrudAction extends CrudAction{
         return ManagedPersistence.getEntityManager();
     }
     
-    public Layer getLayerByUniquename(String uniqueName) throws Exception {
+    public Layer getLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
         
         // Check of selectedLayers[i] juiste format heeft
@@ -143,12 +143,14 @@ public class KaartenbalieCrudAction extends CrudAction{
         }
         
         String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
-        Layer l = (Layer)em.createQuery(query)
+        List ll = em.createQuery(query)
         .setParameter("layerName", layerName)
         .setParameter("spAbbr", spAbbr)
-        .getSingleResult();
+        .getResultList();
         
-        return l;
+        if (ll==null || ll.isEmpty())
+            return null;
+        return (Layer)ll.get(0);
     }
     
     public String findLayer(String layerToBeFound, Set layers) {

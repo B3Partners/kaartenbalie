@@ -400,7 +400,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
         int size = selectedLayers.length;
         for(int i = 0; i < size; i++) {
-            Layer l = getLayerByUniquename(selectedLayers[i]);
+            Layer l = getLayerByUniqueName(selectedLayers[i]);
             if (l==null)
                 continue;
             layers.add(l);
