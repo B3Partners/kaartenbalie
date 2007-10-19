@@ -3,10 +3,7 @@
   <persistence-unit name="defaultKaartenbaliePU" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <properties>
-      <property name="hibernate.connection.username" value="kaartenbalie_wis"/>
-      <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
-      <property name="hibernate.connection.password" value="XnigASDNggds"/>
-      <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/kaartenbalie_wis?characterEncoding=UTF-8"/>
+      <property name="hibernate.connection.datasource" value="java:comp/env/jdbc/kaartenbalie"/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <!--property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/-->
       <property name="hibernate.dialect" value="nl.b3p.kaartenbalie.core.server.persistence.CustomDBDialect"/>
