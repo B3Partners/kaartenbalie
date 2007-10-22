@@ -31,9 +31,7 @@ public class RequestReporting {
     private EntityManager em;
     private static List usServiceProviderRequest;
     private static List usRequestOperation;
-    private long reportStopwatch = 0;
-    private long lapTimer;
-    
+    private long operationStartTime;
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
@@ -52,8 +50,7 @@ public class RequestReporting {
         usRequestOperation.add(new String("setId"));
     }
     
-    public static void setReporting(boolean state)
-    {
+    public static void setReporting(boolean state) {
         enableReporting = state;
     }
     private RequestReporting() {
@@ -91,7 +88,7 @@ public class RequestReporting {
      * This is your init for to create a new RequestReport. Call it whenever you feel like starting a new
      * clientreport! You cannot make multiple reports at once though.
      */
-    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser) {
+    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime) {
         if (!enableReporting) return;
         EntityTransaction tx = em.getTransaction();
         if (transactionActive()) {
@@ -102,12 +99,16 @@ public class RequestReporting {
             clientRequest = new ClientRequest();
             clientRequest.setClientRequestURI(clientRequestURI);
             clientRequest.setBytesReceivedFromUser(new Integer(bytesReceivedFromUser));
+            this.operationStartTime = operationStartTime;
             em.persist(clientRequest);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    public long getMSSinceStart() {
+        return (System.currentTimeMillis() - operationStartTime);
+    }
     /*
      * The function addServiceProvider request makes use of the reflection method described below. It is used to log
      * every call to a ServiceProvider. It should contain a parameterMap that matches the setters of the specified

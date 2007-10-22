@@ -36,7 +36,7 @@ public class TestThread extends Thread {
             for (int i = 0; i< records; i++) {
                 
                 long startTime = System.currentTimeMillis();
-                rr.startClientRequest("http://www.google.nl",1024);
+                rr.startClientRequest("http://www.google.nl",1024, System.currentTimeMillis());
                 
                 
                 Map paramMap = new HashMap();

@@ -46,6 +46,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
          * with the GetMap functionality before the outputformat is set then the standard output
          * format would be used.
          */
+        Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
         String format = (String) parameters.get(WMS_PARAM_FORMAT);
         dw.setContentType(format);
         
@@ -85,13 +86,14 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
             throw new Exception(BBOX_EXCEPTION);
         }
+        dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
         dw.setRequestParameter("Width", new Integer(width));
         dw.setRequestParameter("Height",new Integer(height));
-        
         dw.setRequestParameter("WmsVersion", (String)parameters.get(WMS_VERSION));
         dw.setRequestParameter("Srs", null);
         dw.setRequestParameter("Format", (String)parameters.get(WMS_PARAM_FORMAT));
         dw.setRequestParameter("BoundingBox", (String)parameters.get(WMS_PARAM_BBOX));
+        
         
         
         user = (User) parameters.get(KB_USER);

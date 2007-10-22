@@ -116,7 +116,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         log.info("Request: " + completeRequest);
         RequestReporting rr = new RequestReporting(user);
         data.setRequestReporting(rr);
-        rr.startClientRequest(completeRequest, completeRequest.getBytes().length);
+        rr.startClientRequest(completeRequest, completeRequest.getBytes().length, startTime);
         
         try {
             
@@ -372,14 +372,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             java.util.Date date = user.getTimeout();
-
+            
             if (date.compareTo(new java.util.Date()) <= 0) {
                 throw new AccessDeniedException("Personal URL key has expired!");
             }
-
+            
             String remoteaddress = request.getRemoteAddr();
             boolean validip = false;
-
+            
             Set ipaddresses = user.getUserips();
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
@@ -389,7 +389,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     break;
                 }
             }
-
+            
             if(!validip) {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
@@ -470,7 +470,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             reqParams = PARAMS_GetCapabilities;
             data.setRequestClassType(WMSGetCapabilitiesRequest.class);
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-            data.setRequestClassType(WMSGetMapRequest.class);            
+            data.setRequestClassType(WMSGetMapRequest.class);
             //Att all time set the error contenttype at first....
             String format = (String) parameters.get(WMS_PARAM_FORMAT);
             String inimageType = null;
@@ -478,7 +478,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 inimageType = format;
             }
             data.setErrorContentType(inimageType);
-
+            
             requestHandler = new GetMapRequestHandler();
             reqParams = PARAMS_GetMap;
         } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {

@@ -134,6 +134,7 @@ public class DataWrapper {
         //Logging the dataspeed...
         Map parameterMap = new HashMap();
         parameterMap.put("DataSize", new Long(baos.size()));
+        parameterMap.put("MsSinceRequestStart", new Long(requestReporting.getMSSinceStart()));
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
         this.setContentLength(baos.size());

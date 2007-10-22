@@ -305,7 +305,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
-                
+                /*
+                 * Log the time in ms from the start of the clientrequest.. (Reporting)
+                 */
+
                 ImageManager imagemanager = new ImageManager(urls, dw.getRequestParameterMap());
                 imagemanager.process();
                 imagemanager.sendCombinedImages(dw);
@@ -339,6 +342,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     copyElements(source, destination);
                     localParameterMap.put("BytesSend", new Long(url.getBytes().length));
                     localParameterMap.put("ProviderRequestURI", url);
+                    localParameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
                     //TODO Make smarter and more complete!
                     localParameterMap.put("BytesReceived", new Long(-1));
                     localParameterMap.put("ResponseStatus", new Integer(-1));

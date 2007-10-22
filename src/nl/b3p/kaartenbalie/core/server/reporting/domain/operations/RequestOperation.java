@@ -19,12 +19,10 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 public abstract class RequestOperation {
     
     private Integer id;
-    private Date timeStamp;
-    private Long msAfterClrRequest;
+    private Long msSinceRequestStart;
     private Long duration;
     private ClientRequest clientRequest;
     public RequestOperation() {
-        setTimeStamp(new Date());
     }
     public RequestOperation(ClientRequest clientRequest){
         this();
@@ -38,15 +36,7 @@ public abstract class RequestOperation {
     public void setId(Integer id) {
         this.id = id;
     }
-    
-    public Date getTimeStamp() {
-        return timeStamp;
-    }
-    
-    public void setTimeStamp(Date timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-    
+   
     public Long getDuration() {
         return duration;
     }
@@ -61,6 +51,14 @@ public abstract class RequestOperation {
 
     public void setClientRequest(ClientRequest clientRequest) {
         this.clientRequest = clientRequest;
+    }
+
+    public Long getMsSinceRequestStart() {
+        return msSinceRequestStart;
+    }
+
+    public void setMsSinceRequestStart(Long msSinceRequestStart) {
+        this.msSinceRequestStart = msSinceRequestStart;
     }
     
     

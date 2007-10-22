@@ -26,12 +26,11 @@ public abstract class ServiceProviderRequest {
     private Integer responseStatus;
     private Long requestResponseTime;
     private String providerRequestURI;
-    private Date timeStamp;
+    private Long msSinceRequestStart;
     //Relational Mappings
     private ClientRequest clientRequest;
     
     public ServiceProviderRequest() {
-        timeStamp = new Date();
     }
     public ServiceProviderRequest(ClientRequest clientRequest) {
         this();
@@ -98,13 +97,13 @@ public abstract class ServiceProviderRequest {
     public void setBytesReceived(Long bytesReceived) {
         this.bytesReceived = bytesReceived;
     }
-    
-    public Date getTimeStamp() {
-        return timeStamp;
+
+    public Long getMsSinceRequestStart() {
+        return msSinceRequestStart;
     }
-    
-    public void setTimeStamp(Date timeStamp) {
-        this.timeStamp = timeStamp;
+
+    public void setMsSinceRequestStart(Long msSinceRequestStart) {
+        this.msSinceRequestStart = msSinceRequestStart;
     }
     
     

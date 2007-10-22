@@ -95,6 +95,8 @@ public class KBImageTool {
         //Logging the combine operation speed...
         RequestReporting rr = dw.getRequestReporting();
         Map parameterMap = new HashMap();
+        
+        
         parameterMap.put("NumberOfImages", new Integer(images.length));
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
