@@ -24,7 +24,7 @@ public class MyDatabase extends HttpServlet {
     private static Log log = LogFactory.getLog(MyDatabase.class);
     private static Random rg = null;
     private static String cachePath = null;
-    private static SessionFactory sessionFactory;
+    //private static SessionFactory sessionFactory;
     private static String hibernateInitExceptionMessage;
     private static String dtd = "/dtd/capabilities_1_1_1.dtd";
     
@@ -74,8 +74,8 @@ public class MyDatabase extends HttpServlet {
         java.beans.Introspector.flushCaches();
         
         /* sluit Hibernate af */
-        log.info("closing Hibernate SessionFactory");
-        sessionFactory.close();
+        //log.info("closing Hibernate SessionFactory");
+        //sessionFactory.close();
         
         LogManager.shutdown();
         LogFactory.releaseAll();
@@ -88,7 +88,7 @@ public class MyDatabase extends HttpServlet {
      */
     // <editor-fold defaultstate="" desc="initHibernate() method.">
     public static void initHibernate() throws Exception {
-        
+        /*
         try {
             // Create the SessionFactory
             sessionFactory = new org.hibernate.cfg.Configuration().configure().buildSessionFactory();
@@ -102,32 +102,39 @@ public class MyDatabase extends HttpServlet {
             }
             throw ex;
         }
+         */
     }
     // </editor-fold>
     
     /** Returns the SessionFactory of Hibernate.
      */
     // <editor-fold defaultstate="" desc="getSessionFactory() method.">
+    /*
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
+     */
     // </editor-fold>
     
     /** Returns the current session of Hibernate.
      */
     // <editor-fold defaultstate="" desc="currentSession() method.">
+    /*
     public static Session currentSession() {
         return getSessionFactory().getCurrentSession();
     }
+     */
     // </editor-fold>
     
     /** Closes the current session of Hibernate.
      */
     // <editor-fold defaultstate="" desc="closeSession() method.">
+  /*
     public static void closeSession() {
         currentSession().close();
         return;
     }
+   */
     // </editor-fold>
     
     /** Returns the local path of a filename.

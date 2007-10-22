@@ -24,13 +24,15 @@ public class ManagedPersistence {
     private static EntityManagerFactory emf;
     private static ThreadLocal tlEM = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
-    
+    private static String nonServletKaartenbaliePU = "nonServletPU";
     
     /*
      * This initializes the EntityManagerFactory. Very useful!
      */
     static {
-        emf = Persistence.createEntityManagerFactory(defaultKaartenbaliePU);
+        String activePU = defaultKaartenbaliePU;
+        //String activePU = nonServletKaartenbaliePU;
+        emf = Persistence.createEntityManagerFactory(activePU);
     }
     
     
