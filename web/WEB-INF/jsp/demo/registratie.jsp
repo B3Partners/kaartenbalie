@@ -7,8 +7,8 @@
         <div id="democontentheader">Registratie pagina</div>
         <div id="democontenttext">    
             Voordat u gebruik kunt maken van de Kaartenbalie Demo
-            geldt dat u zich eerst moet registreren. Zodra u geregistreerd bent als gebruiker
-            heeft u toegang tot het materiaal dat op kaartenbalie aangeboden wordt.
+            dient u zich eerst te registreren. Zodra u geregistreerd bent als gebruiker
+            heeft u toegang tot enige testkaarten.
         </div>
     </div>
     

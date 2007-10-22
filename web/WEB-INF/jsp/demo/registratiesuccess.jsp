@@ -46,7 +46,9 @@
     <div id="demoheader3">De volgende stap</div>
     Kaartenbalie biedt u de mogelijheid om naast het kaartmateriaal dat standaard aangeboden wordt, zelf ook
     kaartmateriaal toe te voegen aan de Kaartenbalie, om zo een beter idee te krijgen van de werking van de 
-    Kaartenbalie. Indien u geen kaart toe wilt voegen kunt u ook direct naar de viewer gaan door op de button
+    Kaartenbalie. U kunt bij deze demo alleen WMS servers toevoegen. Het is dus niet mogelijk om Autocad of Microstation
+    tekeningen toe te voegen.<br><br>
+    Indien u geen kaart toe wilt voegen kunt u ook direct naar de viewer gaan door op de button
     <b>Naar de viewer</b> te klikken. Anders kunt u met de button <b>Voeg kaart toe</b> zelf een WMS server toevoegen
     met eigen kaartmateriaal.<br><br>
     
