@@ -23,10 +23,8 @@ import org.securityfilter.realm.SecurityRealmInterface;
 public class SecurityRealm implements SecurityRealmInterface, ExternalAuthenticatedRealm {
     private final Log log = LogFactory.getLog(this.getClass());
     
-    private EntityManager em;
     
     public SecurityRealm() {
-        em = ManagedPersistence.createEntityManager();
     }
     /** Checks wether an user, given his username and password, is allowed to use the system.
      *
@@ -37,6 +35,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      */
     // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
+        EntityManager em = ManagedPersistence.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
@@ -52,11 +51,14 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             return null;
         } finally {
             tx.commit();
+            em.close();
         }
+        
     }
     // </editor-fold>
     
     public Principal getAuthenticatedPrincipal(String username) {
+        EntityManager em = ManagedPersistence.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
@@ -70,7 +72,9 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             return null;
         } finally {
             tx.commit();
+            em.close();
         }
+        
     }
     
     /** Checks if a user is in the given role. A role represents a level of priviliges.

@@ -20,6 +20,7 @@ public abstract class RequestOperation {
     
     private Integer id;
     private Date timeStamp;
+    private Long msAfterClrRequest;
     private Long duration;
     private ClientRequest clientRequest;
     public RequestOperation() {

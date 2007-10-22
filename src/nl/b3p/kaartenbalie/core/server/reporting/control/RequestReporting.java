@@ -37,7 +37,7 @@ public class RequestReporting {
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
-    private static boolean enableReporting = true;
+    private static boolean enableReporting = false;
     
     /* These are static sets used for the reflectionfunction. It makes sure that it isnt possible to the Id and client
      * requestvalues for the ServiceProviderRequests and RequestOperations.
@@ -52,6 +52,10 @@ public class RequestReporting {
         usRequestOperation.add(new String("setId"));
     }
     
+    public static void setReporting(boolean state)
+    {
+        enableReporting = state;
+    }
     private RequestReporting() {
         em = ManagedPersistence.createEntityManager();
     }
@@ -254,10 +258,11 @@ public class RequestReporting {
     
     public static void main(String [] args) throws Exception {
         
-        ManagedPersistence.closeEmf();
+        ManagedPersistence.openEntityManagerFactory(ManagedPersistence.nonServletKaartenbaliePU);
         EntityManager em = ManagedPersistence.createEntityManager();
         User user = (User) em.find(User.class, new Integer(1) );
         RequestReporting rr = new RequestReporting(user);
+        rr.setReporting(false);
         rr.clean();
         TestThread tt = new TestThread();
         tt.start();
