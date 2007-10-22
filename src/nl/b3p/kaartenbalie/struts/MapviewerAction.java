@@ -81,7 +81,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         EntityManager em = getEntityManager();
 
         User sesuser = (User) request.getUserPrincipal();
-
+        if (sesuser==null)
+            return;
         /*
          * THIS LINE CAN NOT BE REMOVED. THIS IS NOT REDUNDANT!!!!
          * IF A ADMINISTRATOR CHANGES THE RIGHTS AND WE WORK WITH A SESSION USER
@@ -91,7 +92,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
          * ANY CHANGES, THE ADMINISTRATOR DID!!!!
          */
         User user = (User)em.find(User.class, sesuser.getId());
-        if (sesuser==null)
+        if (user==null)
             return;
 
         Set organizationLayers = user.getOrganization().getOrganizationLayer();

@@ -16,7 +16,6 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Servers</H1>
         
-        <b>Server tabel:</b>
         <div class="serverRijTitel">
             <div style="width: 100px;">Naam</div>
             <div style="width: 60px;">Afkorting</div>
@@ -32,18 +31,18 @@
         <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px"> 
             <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                 <div class="serverRij">
-                    <div style="width: 100px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.givenName}"/>">
+                    <div style="width: 100px;" class="vakSpeciaal">
                         <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
                             <c:out value="${nServiceProvider.givenName}"/>
                         </html:link>
                     </div>
-                    <div style="width: 60px;" title="<c:out value="${nServiceProvider.abbr}"/>">
+                    <div style="width: 60px;">
                         <c:out value="${nServiceProvider.abbr}"/>
                     </div>
-                    <div style="width: 340px;" title="<c:out value="${nServiceProvider.url}"/>">
+                    <div style="width: 340px;">
                         <c:out value="${nServiceProvider.url}"/>
                     </div>
-                    <div style="width: 150px;" class="vakSpeciaal" title="<c:out value="${nServiceProvider.updatedDate}"/>">
+                    <div style="width: 150px;">
                         <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                     </div>                    
                 </div>

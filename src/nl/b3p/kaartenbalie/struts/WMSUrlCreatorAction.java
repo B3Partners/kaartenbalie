@@ -84,7 +84,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         super.createLists(form, request);
         
         EntityManager em = getEntityManager();
-        User user = (User) request.getUserPrincipal();
+        User sesuser = (User) request.getUserPrincipal();
+        if (sesuser==null)
+            return;
+        User user = (User)em.find(User.class, sesuser.getId());
+        if (user==null)
+            return;
+        
         form.set("personalUrl", user.getPersonalURL());
         
         String[] formats=new String[5];

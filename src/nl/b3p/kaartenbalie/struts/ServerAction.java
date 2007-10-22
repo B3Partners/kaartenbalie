@@ -234,7 +234,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
         
         populateServerObject(dynaForm, newServiceProvider);
-        newServiceProvider.setReviewed(true);
+        // haal set op om vulling van set af te dwingen
+        Set testSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
         em.flush();
         

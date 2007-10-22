@@ -18,7 +18,6 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Organisaties</H1>
         
-        <b>Organisatie tabel:</b>
         <div class="serverRijTitel">
             <div style="width: 200px;">Naam organisatie</div>
             <div style="width: 250px;">Adres</div>
@@ -39,13 +38,13 @@
                             <c:out value="${nOrganization.name}"/>
                         </html:link>
                     </div>
-                    <div style="width: 250px;" title="<c:out value="${nOrganization.street}"/>">
+                    <div style="width: 250px;">
                         <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
                     </div>
-                    <div style="width: 125px;" class="vakSpeciaal" title="<c:out value="${nOrganization.province}"/>">
+                    <div style="width: 125px;">
                         <c:out value="${nOrganization.province}"/>
                     </div>
-                    <div style="width: 100px;" title="<c:out value="${nOrganization.telephone}"/>">
+                    <div style="width: 100px;">
                         <c:out value="${nOrganization.telephone}"/>
                     </div>
                 </div>

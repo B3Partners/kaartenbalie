@@ -16,11 +16,10 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Gebruikers</H1>
         
-        <b>Gebruikers tabel:</b>
         <div class="serverRijTitel">
+            <div style="width: 160px;">Gebruikersnaam</div>
             <div style="width: 160px;">Voornaam</div>
             <div style="width: 160px;">Achternaam</div>
-            <div style="width: 160px;">Gebruikersnaam</div>
             <div style="width: 160px;">E-mailadres</div>
         </div>
         
@@ -32,18 +31,18 @@
         <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
             <c:forEach var="nUser" varStatus="status" items="${userlist}">
                 <div class="serverRij">    
-                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.firstName}"/>">
-                        <c:out value="${nUser.firstName}"/>
-                    </div>
-                    <div style="width: 160px;" title="<c:out value="${nUser.surname}"/>">
-                        <c:out value="${nUser.surname}"/>
-                    </div>
-                    <div style="width: 160px;" class="vakSpeciaal" title="<c:out value="${nUser.username}"/>">
+                    <div style="width: 160px;" class="vakSpeciaal">
                         <html:link page="/user.do?edit=submit&id=${nUser.id}">
                             <c:out value="${nUser.username}"/>
                         </html:link>
                     </div>
-                    <div style="width: 160px;" title="<c:out value="${nUser.emailAddress}"/>">
+                    <div style="width: 160px;">
+                        <c:out value="${nUser.firstName}"/>
+                    </div>
+                    <div style="width: 160px;">
+                        <c:out value="${nUser.surname}"/>
+                    </div>
+                    <div style="width: 160px;">
                         <c:out value="${nUser.emailAddress}"/>
                     </div>
                 </div>    
