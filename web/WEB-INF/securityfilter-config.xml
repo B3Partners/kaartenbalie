@@ -78,6 +78,7 @@
                 kaartenbalie Collection 2
             </web-resource-name>
             <url-pattern>/demo/showProfile.do</url-pattern>
+            <url-pattern>/demo/voegurltoe.do</url-pattern>
             <http-method>POST</http-method>
             <http-method>GET</http-method>
         </web-resource-collection>

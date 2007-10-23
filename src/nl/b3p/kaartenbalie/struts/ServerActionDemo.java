@@ -122,24 +122,8 @@ public class ServerActionDemo extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();        
-        
-        /*
-         * Get the users organization, then we can check if the user has already added a serviceprovider.
-         */
         Organization org = dbUser.getOrganization();        
-        String query = 
-                "select count(*) from Organization o" +
-                " left join o.organizationLayer layer" +
-                " where layer.parent.id = null and o.id = :orgid";
-        Long count = (Long)em.createQuery(query).setParameter("orgid", org.getId()).getSingleResult();
-        
-        if(count.floatValue() >= 2) {
-            log.error("Trying to add more serviceproviders as allowed!");
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, MAP_ALREADY_ADDED);
-            return getAlternateForward(mapping, request);
-        }
-        
+                
         /*
          * Now check if the given abbreviation is unique.
          */
