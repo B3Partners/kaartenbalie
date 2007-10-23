@@ -20,7 +20,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,7 +76,7 @@ public class KaartenbalieCrudAction extends CrudAction{
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
-            ManagedPersistence.closeEntityManager();
+            MyEMFDatabase.closeEntityManager();
             return forward;
         } catch(Exception e) {
             tx.rollback();
@@ -118,12 +118,12 @@ public class KaartenbalieCrudAction extends CrudAction{
             addAlternateMessage(mapping, request, null, e.toString());
         }
         //addAlternateMessage(mapping, request, null, message);
-        ManagedPersistence.closeEntityManager();
+        MyEMFDatabase.closeEntityManager();
         return getAlternateForward(mapping, request);
     }
     
     public static EntityManager getEntityManager() {
-        return ManagedPersistence.getEntityManager();
+        return MyEMFDatabase.getEntityManager();
     }
     
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {

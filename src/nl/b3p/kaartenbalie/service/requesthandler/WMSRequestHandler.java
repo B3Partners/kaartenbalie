@@ -39,7 +39,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
@@ -77,7 +77,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected EntityManager em;
     
     public WMSRequestHandler() {
-        em = ManagedPersistence.createEntityManager();
+        em = MyEMFDatabase.createEntityManager();
     }
     
     public ServiceProvider getServiceProvider() throws Exception {

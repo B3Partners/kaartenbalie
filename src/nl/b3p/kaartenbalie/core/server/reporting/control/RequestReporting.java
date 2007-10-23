@@ -17,13 +17,15 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 public class RequestReporting {
     private User user;
@@ -32,6 +34,8 @@ public class RequestReporting {
     private static List usServiceProviderRequest;
     private static List usRequestOperation;
     private long operationStartTime;
+    private Map tRequestOperationMap;
+    
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
@@ -54,7 +58,7 @@ public class RequestReporting {
         enableReporting = state;
     }
     private RequestReporting() {
-        em = ManagedPersistence.createEntityManager();
+        em = MyEMFDatabase.createEntityManager();
     }
     
     /*
@@ -96,10 +100,12 @@ public class RequestReporting {
         }
         tx.begin();
         try {
+            this.operationStartTime = operationStartTime;
+            tRequestOperationMap = new HashMap();
+            tRequestOperationMap.put("MsSinceRequestStart", new Long(getMSSinceStart()));
+            tRequestOperationMap.put("BytesReceivedFromUser", new Integer(bytesReceivedFromUser));
             clientRequest = new ClientRequest();
             clientRequest.setClientRequestURI(clientRequestURI);
-            clientRequest.setBytesReceivedFromUser(new Integer(bytesReceivedFromUser));
-            this.operationStartTime = operationStartTime;
             em.persist(clientRequest);
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,7 +145,7 @@ public class RequestReporting {
         
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
-        Object reflectedObject = RequestReporting.createPOJOByReflection(RequestOperation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
+        Object reflectedObject = RequestReporting.createPOJOByReflection(Operation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
         em.persist(reflectedObject);
     }
     
@@ -211,7 +217,7 @@ public class RequestReporting {
             return refObject;
         } catch (NoSuchMethodException ex) {
             Method[] methodList = targetObjectClass.getMethods();
-            String validMessage = "Valid parameters are: ";
+            String validMessage = "Valid parameters are: \n";
             for (int i = 0; i < methodList.length; i++) {
                 Method method = methodList[i];
                 if (method.getName().startsWith("set") &&
@@ -247,26 +253,102 @@ public class RequestReporting {
         }
         
         try {
-            clientRequest.setBytesSendToUser(new Integer(bytesSendToUser));
-            clientRequest.setTotalResponseTime(new Long(totalResponseTime));
+            
+            tRequestOperationMap.put("Duration", new Long(totalResponseTime));
+            tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
+            this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
+            
             tx.commit();
             clientRequest = null;
+            tRequestOperationMap = null;
         } catch (Exception e) {
             e.printStackTrace();
             tx.rollback();
         }
     }
     
+    
+    public static Element createElement(Document doc, String createElementName, String textContent) {
+        Element tmpElement = doc.createElement(createElementName);
+        tmpElement.setTextContent(textContent);
+        return tmpElement;
+    }
+    
+    
     public static void main(String [] args) throws Exception {
         
-        ManagedPersistence.openEntityManagerFactory(ManagedPersistence.nonServletKaartenbaliePU);
-        EntityManager em = ManagedPersistence.createEntityManager();
-        User user = (User) em.find(User.class, new Integer(1) );
-        RequestReporting rr = new RequestReporting(user);
-        rr.setReporting(false);
-        rr.clean();
-        TestThread tt = new TestThread();
-        tt.start();
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        RequestReporting rr = new RequestReporting(null);
+        rr.setReporting(true);
+         rr.clean();
+        for (int i = 0; i < 1; i++) {
+           // TestThread tt = new TestThread(1);
+            //tt.start();
+        }
+       //Thread.sleep(20000);
+        /*
+        long curTime = System.currentTimeMillis();
+        
+        try{
+            //Create instance of DocumentBuilderFactory
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            //Get the DocumentBuilder
+            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            //Create blank DOM Document
+            Document doc = docBuilder.newDocument();
+            
+            //create the root element
+            Element root = doc.createElement("root");
+            //all it to the xml tree
+            doc.appendChild(root);
+            List clientRequests = em.createQuery("From ClientRequest AS cr WHERE cr.id < 14000").getResultList();
+            System.out.println("TotalRecirds:" + clientRequests.size());
+            Iterator i = clientRequests.iterator();
+            while (i.hasNext()) {
+                ClientRequest cr = (ClientRequest) i.next();
+                cr.toElement(doc, root);
+                
+            }
+            
+            
+            /*
+            //create a comment
+            Comment comment = doc.createComment("This is comment");
+            //add in the root element
+            root.appendChild(comment);
+             
+            //create child element
+            Element childElement = doc.createElement("Child");
+            //Add the atribute to the child
+            childElement.setAttribute("attribute1","The value of Attribute 1");
+            root.appendChild(childElement);
+             
+             */
+        /*
+            TransformerFactory tranFactory = TransformerFactory.newInstance();
+            Transformer aTransformer = tranFactory.newTransformer();
+            aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+            
+            Source src = new DOMSource(doc);
+            
+            File destFile = new File("C:\\text.xml");
+            Result dest = new StreamResult(destFile);
+            aTransformer.transform(src, dest);
+            
+            
+            
+            
+            
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        System.out.println("TotalTime:" + (System.currentTimeMillis() - curTime) + "ms");
+        et.commit();
+        
+        */
     }
     
     

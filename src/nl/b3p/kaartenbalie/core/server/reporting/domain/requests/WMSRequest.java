@@ -9,6 +9,9 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 /**
  *
  * @author Chris Kramer
@@ -17,7 +20,7 @@ public abstract class WMSRequest extends ServiceProviderRequest{
     
     /** Creates a new instance of WMSRequest */
     private String wmsVersion;
-
+    
     public WMSRequest()  {
         super();
     }
@@ -31,6 +34,8 @@ public abstract class WMSRequest extends ServiceProviderRequest{
         this.wmsVersion = wmsVersion;
     }
     
-    
+    public Element toElement(Document doc, Element rootElement) {
+        return null;
+    }
     
 }

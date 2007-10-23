@@ -8,7 +8,8 @@
  */
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 /**
  *
  * @author Chris Kramer
@@ -57,15 +58,17 @@ public class WMSGetMapRequest extends WMSRequest{
     public void setHeight(Integer height) {
         this.height = height;
     }
-
+    
     public String getBoundingBox() {
         return boundingBox;
     }
-
+    
     public void setBoundingBox(String boundingBox) {
         this.boundingBox = boundingBox;
     }
-    
+    public Element toElement(Document doc, Element rootElement) {
+        return null;
+    }
     
     
 }

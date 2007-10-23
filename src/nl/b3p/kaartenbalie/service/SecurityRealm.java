@@ -14,7 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.securityfilter.realm.ExternalAuthenticatedRealm;
@@ -35,7 +35,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      */
     // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
-        EntityManager em = ManagedPersistence.createEntityManager();
+        EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {
@@ -58,7 +58,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
     // </editor-fold>
     
     public Principal getAuthenticatedPrincipal(String username) {
-        EntityManager em = ManagedPersistence.createEntityManager();
+        EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         try {

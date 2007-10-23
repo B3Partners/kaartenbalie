@@ -9,13 +9,13 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
-import java.util.Date;
+import nl.b3p.wms.capabilities.XMLElement;
 
 /**
  *
  * @author Chris Kramer
  */
-public abstract class ServiceProviderRequest {
+public abstract class ServiceProviderRequest implements XMLElement {
     
     
     private Integer id;

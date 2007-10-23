@@ -35,11 +35,21 @@
     <!-- Init ManagedPersistence to get a hibernate EntityManagerFactory -->
     <servlet>
         <servlet-name>managedpersistence</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence</servlet-class>
+        <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>disabled</param-value>
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
         </init-param>
+        <init-param>
+            <param-name>cache</param-name>
+            <param-value/>
+        </init-param>
+        <init-param>
+            <param-name>dtd</param-name>
+            <param-value/>
+        </init-param>
+
+        
         <load-on-startup>1</load-on-startup>
     </servlet>
     

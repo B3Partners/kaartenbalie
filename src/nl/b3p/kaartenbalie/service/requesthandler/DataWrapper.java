@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.SendDataOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -148,7 +148,7 @@ public class DataWrapper {
         }
         // Operation done.. now write the log...
         parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
-        requestReporting.addRequestOperation(SendDataOperation.class,parameterMap);
+        requestReporting.addRequestOperation(ClientXFerOperation.class,parameterMap);
         
     }
     

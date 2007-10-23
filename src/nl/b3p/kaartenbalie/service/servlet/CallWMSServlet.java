@@ -41,7 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import nl.b3p.kaartenbalie.core.server.persistence.ManagedPersistence;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.wms.capabilities.KBConstants;
 import org.w3c.dom.CDATASection;
@@ -56,7 +56,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     private String format;
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
-    private static String dtd = "/dtd/capabilities_1_1_1.dtd";
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -106,7 +105,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 theUrl.append(serverPort);
             }
             theUrl.append(contextPath);
-            theUrl.append(dtd);
+            theUrl.append(MyEMFDatabase.getDtd());
             CAPABILITIES_DTD = theUrl.toString();
         }
         
@@ -394,7 +393,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
-        ManagedPersistence.closeEntityManager();
+        MyEMFDatabase.closeEntityManager();
         return user;
     }
     // </editor-fold>
@@ -627,7 +626,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     }
     
     public static EntityManager getEntityManager() {
-        return ManagedPersistence.getEntityManager();
+        return MyEMFDatabase.getEntityManager();
     }
     
 }

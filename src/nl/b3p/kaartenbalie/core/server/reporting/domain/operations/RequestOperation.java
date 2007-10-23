@@ -1,7 +1,7 @@
 /*
- * RequestOperation.java
+ * TotalRequestOperation.java
  *
- * Created on October 16, 2007, 8:43 AM
+ * Created on October 23, 2007, 2:02 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -9,58 +9,39 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.operations;
 
-import java.util.Date;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
-
 /**
  *
  * @author Chris Kramer
  */
-public abstract class RequestOperation {
+public class RequestOperation extends Operation{
+    private Integer bytesReceivedFromUser;
+    private Integer bytesSendToUser;
+    private Long totalResponseTime;
     
-    private Integer id;
-    private Long msSinceRequestStart;
-    private Long duration;
-    private ClientRequest clientRequest;
+    /** Creates a new instance of TotalRequestOperation */
     public RequestOperation() {
     }
-    public RequestOperation(ClientRequest clientRequest){
-        this();
-        this.setClientRequest(clientRequest);
+    public Integer getBytesReceivedFromUser() {
+        return bytesReceivedFromUser;
     }
     
-    public Integer getId() {
-        return id;
+    public void setBytesReceivedFromUser(Integer bytesReceivedFromUser) {
+        this.bytesReceivedFromUser = bytesReceivedFromUser;
     }
     
-    public void setId(Integer id) {
-        this.id = id;
-    }
-   
-    public Long getDuration() {
-        return duration;
+    public Integer getBytesSendToUser() {
+        return bytesSendToUser;
     }
     
-    public void setDuration(Long duration) {
-        this.duration = duration;
-    }
-
-    public ClientRequest getClientRequest() {
-        return clientRequest;
-    }
-
-    public void setClientRequest(ClientRequest clientRequest) {
-        this.clientRequest = clientRequest;
-    }
-
-    public Long getMsSinceRequestStart() {
-        return msSinceRequestStart;
-    }
-
-    public void setMsSinceRequestStart(Long msSinceRequestStart) {
-        this.msSinceRequestStart = msSinceRequestStart;
+    public void setBytesSendToUser(Integer bytesSendToUser) {
+        this.bytesSendToUser = bytesSendToUser;
     }
     
+    public Long getTotalResponseTime() {
+        return totalResponseTime;
+    }
     
-    
+    public void setTotalResponseTime(Long totalResponseTime) {
+        this.totalResponseTime = totalResponseTime;
+    }
 }

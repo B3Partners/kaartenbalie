@@ -8,7 +8,8 @@
  */
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 /**
  *
  * @author Chris Kramer
@@ -18,5 +19,8 @@ public class WMSGetLegendGraphicRequest extends WMSRequest {
     /** Creates a new instance of WMSGetCapabilitiesRequest */
     public WMSGetLegendGraphicRequest() {
     }
-    
+    public Element toElement(Document doc, Element rootElement) {
+        return null;
+        
+    }
 }

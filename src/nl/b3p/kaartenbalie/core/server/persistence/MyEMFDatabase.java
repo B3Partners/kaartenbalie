@@ -9,6 +9,8 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.util.Date;
+import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -19,13 +21,16 @@ import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class ManagedPersistence extends HttpServlet{
+public class MyEMFDatabase extends HttpServlet{
     public static final long serialVersionUID = 24574462L;
-    private static final Log log = LogFactory.getLog(ManagedPersistence.class);
+    private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
     private static EntityManagerFactory emf;
     private static ThreadLocal tlEM = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
+    public static String dtd = "/dtd/capabilities_1_1_1.dtd";
+    private static String cachePath = null;
+    private static Random rg = null;
     
     public static void closeEmf() {
         if (emf == null)
@@ -52,20 +57,42 @@ public class ManagedPersistence extends HttpServlet{
         emf = Persistence.createEntityManagerFactory(persistenceUnit);
     }
     
-    
-    
     /*
      * This will initialize the EntityManagerFactory when in a servlet context. There is no need
-     * to call the method openEntityManagerFactory from anywhere else unless you're out of the 
+     * to call the method openEntityManagerFactory from anywhere else unless you're out of the
      * servlet context (testing, etc..).
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         log.info("ManagedPersistence.init(" + config + ")");
+        
+        /*
+         * First init the EntityManagerFactory
+         */
         openEntityManagerFactory(defaultKaartenbaliePU);
-        if (config.getInitParameter("reporting") != null) {
-            RequestReporting.setReporting(config.getInitParameter("reporting").equalsIgnoreCase("enabled"));
+
+        /*
+         * Now check various initialization parameters..
+         */
+        RequestReporting.setReporting(getConfigValue(config, "reporting","disabled").equalsIgnoreCase("enabled"));
+        dtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
+        cachePath = getConfigValue(config, "cache",null);
+        if (cachePath != null) {
+            cachePath = getServletContext().getRealPath( cachePath );
+            log.debug("cache pad: " + cachePath);
         }
+        
+        //
+    }
+    
+    private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
+        log.info("ManagedPersistence.getConfigValue(config, " + parameter + ", " + defaultValue + ")");
+        String tmpval =  config.getInitParameter(parameter);
+        if (tmpval == null || tmpval.trim().length() == 0) {
+            return defaultValue;
+        }
+        
+        return tmpval.trim();
     }
     
     
@@ -104,6 +131,66 @@ public class ManagedPersistence extends HttpServlet{
             localEm.close();
             tlEM.set(null);
         }
+    }
+    
+    
+    /** Returns the local path of a filename.
+     *
+     * @param fileName String containing the fileName
+     *
+     * @return string containing the local path
+     */
+    // <editor-fold defaultstate="" desc="localPath(String fileName) method.">
+    public static String localPath(String fileName) {
+        if (fileName==null)
+            return "";
+        return cachePath + fileName;
+    }
+    // </editor-fold>
+    
+    /** Returns a unique name created with given parameters without taking the path into account.
+     *
+     * @param prefix String containing the prefix.
+     * @param extension String containing the extension.
+     *
+     * @return a String representing a unique name for these parameters.
+     */
+    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension) method.">
+    public static String uniqueName(String prefix, String extension) {
+        return uniqueName(prefix, extension, false);
+    }
+    // </editor-fold>
+    
+    /** Returns a unique name created with given parameters.
+     *
+     * @param prefix String containing the prefix.
+     * @param extension String containing the extension.
+     * @param includePath boolean setting the including of the path to true or false.
+     *
+     * @return a String representing a unique name for these parameters.
+     */
+    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension, boolean includePath) method.">
+    public static String uniqueName(String prefix, String extension, boolean includePath) {
+        // Gebruik tijd in milliseconden om gerekend naar een radix van 36.
+        // Hierdoor ontstaat een lekker korte code.
+        long now = (new Date()).getTime();
+        String val1 = Long.toString(now, Character.MAX_RADIX).toUpperCase();
+        // random nummer er aanplakken om zeker te zijn van unieke code
+        long rnum = (long) rg.nextInt(1000);
+        String val2 = Long.toString(rnum, Character.MAX_RADIX).toUpperCase();
+        String thePath = "";
+        if (includePath)
+            thePath = cachePath ;
+        if (prefix==null)
+            prefix = "";
+        if (extension==null)
+            extension = "";
+        return thePath + prefix + val1 + val2 + extension;
+    }
+    // </editor-fold>
+    
+    public static String getDtd() {
+        return dtd;
     }
     
 }

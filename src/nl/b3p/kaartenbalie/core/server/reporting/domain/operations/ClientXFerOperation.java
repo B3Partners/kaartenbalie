@@ -15,14 +15,14 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
  *
  * @author Chris Kramer
  */
-public class SendDataOperation extends Operation{
+public class ClientXFerOperation extends Operation{
     
     private Long dataSize;
     
-    public SendDataOperation() {
+    public ClientXFerOperation() {
         super();
     }
-    public SendDataOperation(ClientRequest clientRequest) {
+    public ClientXFerOperation(ClientRequest clientRequest) {
         super(clientRequest);
     }
 

@@ -22,15 +22,15 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
  */
 public class TestThread extends Thread {
     
+    private int records = 5;
     
-    
-    public TestThread() {
+    public TestThread(int records) {
+        this.records = records;
     }
     
     public void run() {
         try {
             long totalTime = 0;
-            int records = 100;
             
             RequestReporting rr = new RequestReporting(null);
             for (int i = 0; i< records; i++) {

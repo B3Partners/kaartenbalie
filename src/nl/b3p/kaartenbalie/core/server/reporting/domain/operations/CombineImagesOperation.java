@@ -15,7 +15,7 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
  *
  * @author Chris Kramer
  */
-public class CombineImagesOperation extends RequestOperation{
+public class CombineImagesOperation extends Operation{
     
     private Integer numberOfImages;
     public CombineImagesOperation() {

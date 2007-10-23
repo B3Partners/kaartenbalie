@@ -11,7 +11,10 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import javax.print.Doc;
+import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,9 +23,6 @@ public class ClientRequest implements XMLElement {
     
     private Integer id;
     private Date timeStamp;
-    private Integer bytesReceivedFromUser;
-    private Integer bytesSendToUser;
-    private Long totalResponseTime;
     private String clientRequestURI;
     private Set serviceProviderRequests;
     private Set requestOperations;
@@ -49,29 +49,7 @@ public class ClientRequest implements XMLElement {
         this.timeStamp = timeStamp;
     }
     
-    public Integer getBytesReceivedFromUser() {
-        return bytesReceivedFromUser;
-    }
-    
-    public void setBytesReceivedFromUser(Integer bytesReceivedFromUser) {
-        this.bytesReceivedFromUser = bytesReceivedFromUser;
-    }
-    
-    public Integer getBytesSendToUser() {
-        return bytesSendToUser;
-    }
-    
-    public void setBytesSendToUser(Integer bytesSendToUser) {
-        this.bytesSendToUser = bytesSendToUser;
-    }
-    
-    public Long getTotalResponseTime() {
-        return totalResponseTime;
-    }
-    
-    public void setTotalResponseTime(Long totalResponseTime) {
-        this.totalResponseTime = totalResponseTime;
-    }
+   
     
     public Set getServiceProviderRequests() {
         return serviceProviderRequests;
@@ -99,14 +77,36 @@ public class ClientRequest implements XMLElement {
     }
     
     public Element toElement(Document doc, Element rootElement) {
-        Element clientRequestElement = doc.createElement("ClientRequest");
-        rootElement.appendChild(clientRequestElement);
+        Element cre = doc.createElement("ClientRequest");
+                cre.setAttribute("id", id.toString());
+        cre.setAttribute("timeStamp", "" + timeStamp.getTime());
+
+        //cre.appendChild(RequestReporting.createElement(doc, "bytesReceivedFromUser", bytesReceivedFromUser.toString()));
+        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));        
+        //cre.appendChild(RequestReporting.createElement(doc, "totalResponseTime", totalResponseTime.toString()));        
+        cre.appendChild(RequestReporting.createElement(doc, "clientRequestURI", clientRequestURI.toString()));                
+        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));        
+        
+        
+        rootElement.appendChild(cre);
+        
+        
+        Iterator i = serviceProviderRequests.iterator();
+        while(i.hasNext()) {
+            ServiceProviderRequest spr = (ServiceProviderRequest) i.next();
+            spr.toElement(doc,cre);
+            
+        }
+        
         return rootElement;
+        
     }
     
+
     
     
     
+   
     
     
 }
