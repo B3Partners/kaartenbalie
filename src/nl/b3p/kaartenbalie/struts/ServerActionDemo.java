@@ -77,8 +77,6 @@ public class ServerActionDemo extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-        
         EntityManager em = getEntityManager();
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
@@ -115,21 +113,36 @@ public class ServerActionDemo extends ServerAction {
         }
         
         /*
-         * Let us first check if a map is already added to the system. Otherwise users
-         * could upload a nummerous amount of free maps. This is not what we tend to allow
-         * because it's a demo.
+         * First lets check if the user still exists.
          */
-        HttpSession session = request.getSession();
-        Boolean mapAdded = (Boolean)session.getAttribute("MapAdded");
-        if(mapAdded != null) {
-            if(mapAdded.booleanValue()) {
-                addMessages(request, errors);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, MAP_ALREADY_ADDED);
-                return getAlternateForward(mapping, request);
-            }
+        User user = (User)request.getUserPrincipal();
+        if (user == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();        
+        
+        /*
+         * Get the users organization, then we can check if the user has already added a serviceprovider.
+         */
+        Organization org = dbUser.getOrganization();        
+        String query = 
+                "select count(*) from Organization o" +
+                " left join o.organizationLayer layer" +
+                " where layer.parent.id = null and o.id = :orgid";
+        Long count = (Long)em.createQuery(query).setParameter("orgid", org.getId()).getSingleResult();
+        
+        if(count.floatValue() >= 2) {
+            log.error("Trying to add more serviceproviders as allowed!");
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAP_ALREADY_ADDED);
+            return getAlternateForward(mapping, request);
         }
         
+        /*
+         * Now check if the given abbreviation is unique.
+         */
         if (!isAbbrUnique(null, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
@@ -201,9 +214,7 @@ public class ServerActionDemo extends ServerAction {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
-        }
-        
-        
+        }        
         
         /*
          * Now we first need to save this serviceprovider.
@@ -215,23 +226,6 @@ public class ServerActionDemo extends ServerAction {
             em.persist(newServiceProvider);
         }
         
-        
-        /*
-         * Now the Serviceprovider is saved, we can add this provider
-         * to the organization of the user. Therefore we need to get
-         * this User.
-         */
-        User user = getUser(dynaForm, request, false);
-        if (user == null) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        /*
-         * Get the users organization and store the layers into this Organization.
-         */
-        Organization org = user.getOrganization();
         Set organizationLayers = new HashSet();
         Iterator it = org.getOrganizationLayer().iterator();
         while (it.hasNext()) {
@@ -254,14 +248,6 @@ public class ServerActionDemo extends ServerAction {
             em.persist(user);
         }
         em.flush();
-        
-        /*
-         * Set the boolean that a map is already added to the system. Otherwise users
-         * could upload a nummerous amount of free maps. This is not what we tend to allow
-         * because it's a demo.
-         */
-        mapAdded = new Boolean(true);
-        session.setAttribute("MapAdded", mapAdded);
         
         /*
          * Make sure that the system will accept the user already as logged in.
