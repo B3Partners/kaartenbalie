@@ -20,9 +20,13 @@
 
     <action-mappings>
         <action path="/index" forward="base.algemeen.index"/>
-        <action path="/norights" forward="base.algemeen.norights"/>
-        <action path="/invalidlogin" forward="base.algemeen.invalidlogin"/>
         <action path="/login" forward="base.algemeen.login"/>
+        <action path="/loginError" type="nl.b3p.kaartenbalie.struts.LoginAction">
+            <forward name="success" path="base.algemeen.login"/>
+        </action>
+        <action path="/logout" type="nl.b3p.kaartenbalie.struts.LogoutAction">
+            <forward name="success" path="/index.do" redirect="true"/>
+        </action>
         
         <action path="/viewer" forward="/viewer/index.do"/>
         <action path="/beheer" forward="/beheer/index.do"/>

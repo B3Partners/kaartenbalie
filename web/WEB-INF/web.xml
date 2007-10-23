@@ -86,11 +86,6 @@
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>
-    
-    
-    
-    
-    
     <!-- BEGIN Select CSS Servlet -->
     <servlet>
         <servlet-name>SelectCSS</servlet-name>
@@ -121,11 +116,6 @@
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
-    
-    
-    
-    
-    
     <servlet-mapping>
         <servlet-name>SelectCSS</servlet-name>
         <url-pattern>/styles/selectcss</url-pattern>
@@ -164,11 +154,7 @@
     </welcome-file-list>
     <!-- SecurityFilter works with custom error pages  -->
     <error-page>
-        <error-code>401</error-code>
-        <location>/norights.do</location>
-    </error-page>
-    <error-page>
         <error-code>403</error-code>
-        <location>/norights.do</location>
+        <location>/loginError.do</location>
     </error-page>
 </web-app>

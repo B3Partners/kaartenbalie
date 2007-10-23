@@ -233,7 +233,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 .setParameter("layerCode", layerCode)
                 .getResultList();
                 if(sqlQuery.isEmpty()) {
-                    log.error("layer not valid or no rights, name: " + layers[0]);
+                    log.error("layer not valid or no rights, name: " + layers[i]);
                     throw new Exception(GETMAP_EXCEPTION);
                 }
                 Object [] objecten = (Object [])sqlQuery.get(0);
