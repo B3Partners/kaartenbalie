@@ -19,6 +19,93 @@
     cal.setCssPrefix("calcss_");
 </script>
 
+<script type="text/javascript">
+    var count=0;
+    var iplist="${form.map.registeredIP}";
+    function addRow(evalue) 
+    {        
+        if (!document.getElementsByTagName) {
+            return;
+        }
+        
+        var tbl = document.getElementById('iptable');
+        var elements = document.getElementsByName('regip');        
+        if (elements.length>0){
+            for(i = 0; i < elements.length; i++) {
+                if (elements[i].value.length <= 0) {
+                    alert('Veld is leeg');
+                    return;
+                }
+            }
+        }
+        var tBodiesObj = document.getElementById('iptable').tBodies[0];    
+        row = document.createElement("TR");
+        cell0 = document.createElement("TD");
+        cell0.innerHTML = '<fmt:message key="viewer.persoonlijkeurl.registeredip"/>:'; 
+        cell1 = document.createElement("TD");
+        textnode1=document.createTextNode(content);
+        count++;
+        var newTextField = document.createElement('input');
+        newTextField.type = "text";
+        newTextField.id = "regip"+count;
+        newTextField.name = "regip";
+        
+        
+        var newButton = document.createElement('input');
+        newButton.type="button";
+        newButton.onclick= new Function("removeRow(this); return false;")
+        newButton.value = '-';
+        cell1.appendChild(newTextField);
+        cell1.innerHTML += '&nbsp;';
+        cell1.appendChild(newButton);
+        row.appendChild(cell0);
+        row.appendChild(cell1);
+        tBodiesObj.appendChild(row);  
+        //als object is aangemaakt het eventueel meegegeven ipadres invullen
+        if (evalue && evalue.length>0){            
+            document.getElementById("regip"+count).value=evalue;
+        }
+    }
+    
+    function removeRow(buttonClicked) {
+        var parent = buttonClicked;
+        while (parent.tagName != 'TR') {
+            parent = parent.parentNode;
+        }
+        
+        var tbl = parent.parentNode;
+        
+        var lastRow = tbl.rows.length;
+        if (lastRow > 1) { 
+            tbl.removeChild( parent );
+        } else {
+            alert('U dient minimaal een IP adres op te geven!');
+        }
+    }
+    function doCustomSubmit(){
+        var ipadresses="";
+        for(i = 0; i <= count; i++){
+            var element=document.getElementById("regip"+i);            
+            if(element && element.value.length>0){
+                var val=element.value;
+                var val=val.replace(",",".");
+                if (ipadresses.length>0){
+                    ipadresses+=",";
+                }
+                ipadresses+=val;
+            }
+        }
+        if (ipadresses.length>0){
+            document.getElementById("registeredIP").value=ipadresses;
+        }
+        document.getElementById("hiddenSaveField").name="save";
+        document.getElementById("hiddenSaveField").value="s";
+        document.forms[0].submit();
+        
+    }
+    
+</script>
+
 <html:javascript formName="profileForm" staticJavascript="false"/>
 <html:form action="/showProfile" onsubmit="return validateProfileForm(this)" focus="timeout">
     <html:hidden property="action"/>
@@ -82,10 +169,9 @@
         </table>
     </div>
     
-    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
+    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
         <c:choose>
-            <c:when test="${action != 'list'}">
-                
+            <c:when test="${action != 'list'}">                 
                 <table>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
@@ -103,7 +189,26 @@
                             />
                         </td>
                     </tr>
-                     <tr>
+                    <html:hidden property="registeredIP" styleId="registeredIP"/>
+                    <input type="hidden" id="hiddenSaveField"/>
+                </table>
+                <div class="ipDiv">
+                    <table>
+                        <tr>                            
+                            <table id='iptable'>
+                                <tbody>
+                                </tbody>
+                            </table>                            
+                        </tr>
+                    </table>
+                </div>
+                <table>
+                    <tr align="left">                            
+                        <td>
+                            <input type="button" onClick='addRow(); return false' value="Voeg IP adres toe"/><P>
+                        </td>
+                    </tr>                
+                    <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
                         <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
                     </tr>
@@ -112,23 +217,31 @@
                 <div class="knoppen">
                     <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.cancel"/>
-                    </html:cancel>
-                    <html:submit property="save" accesskey="s" styleClass="knop">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
+                    </html:cancel>                    
+                    <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.update"/>"/>
                 </div>
             </c:when>
             <c:otherwise>
                 <html:hidden property="timeout" />
                 <div class="knoppen">
-                    <html:submit property="edit" accesskey="n" styleClass="knop">
+                    <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.edit"/>
                     </html:submit>
                 </div>
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
         &nbsp;
-    </div>   
+    </div>
 </html:form>
+<script type="text/javascript">
+   <c:if test="${action != 'list'}">
+       if (iplist!=null && iplist.length>0){        
+            var tokens=iplist.split(",");        
+            for (var b=0;b < tokens.length; b++){            
+                addRow(tokens[b]);
+            }
+        }
+   </c:if>
+</script>
