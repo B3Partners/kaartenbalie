@@ -99,7 +99,9 @@
         </ul>
         <br>
         Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande button meteen naar de viewer.
-        <br>
-        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
+        <p>
+        <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+            <fmt:message key="button.toviewer"/>
+        </html:button>
     </div>
 </div>

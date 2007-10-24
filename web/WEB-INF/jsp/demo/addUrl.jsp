@@ -93,7 +93,9 @@
                         <html:submit property="save" >
                             <fmt:message key="button.add"/>
                         </html:submit>
-                        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
+                        <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+                            <fmt:message key="button.toviewer"/>
+                        </html:button>
                     </td>
                     <td align="left"></td>
                 </tr>

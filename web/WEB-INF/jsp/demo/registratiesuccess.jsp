@@ -51,8 +51,15 @@
     <b>Naar de viewer</b> te klikken. Anders kunt u met de button <b>Voeg kaart toe</b> zelf een WMS server toevoegen
     met eigen kaartmateriaal.<br><br>
     
-    <input type="button" onclick="javascript:window.location.href='voegurltoe.do?userid=${form.map.id}'" value="<fmt:message key="button.addmap"/>">
-    <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
+    <c:set var="link">
+        <html:rewrite page='/voegurltoe.do?userid=${form.map.id}'/>
+    </c:set>
+    <html:button  property="url" onclick="javascript:window.location.href='${link}'">
+        <fmt:message key="button.addmap"/>
+    </html:button>
+    <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+        <fmt:message key="button.toviewer"/>
+    </html:button>
 </html:form>
 <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
     &nbsp;

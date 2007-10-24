@@ -64,8 +64,10 @@
         Kaartenbalie heeft met succes uw kaartmateriaal toegevoegd aan uw profiel. Door middel van de interne (of externe)
         viewer kunt u nu gebruik maken van de kaartenbalie om zo de gegegevens weer op te vragen. Het materiaal dat door u
         aan Kaartenbalie toegevoegd is kan alleen door u bekeken worden. Kaartenbalie is opgezet met veiligheid in het 
-        achterhoofd.<br><br>
-        <input type="button" onclick="javascript:window.location.href='http://www.kaartenbalie.nl/gisviewer/viewer.do'" value="<fmt:message key="button.toviewer"/>" >
+        achterhoofd.<p>
+        <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+            <fmt:message key="button.toviewer"/>
+        </html:button>
     </div>
 </div>
 <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
