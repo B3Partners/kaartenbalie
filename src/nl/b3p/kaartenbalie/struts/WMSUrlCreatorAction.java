@@ -38,7 +38,6 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(WMSUrlCreatorAction.class);
     
-    protected static final String GETCAPABILITIES = "getCapabilities";
     protected static final String GETMAP = "getMapUrl";
     protected static final String DEFAULTVERSION = "1.1.1";
     protected static final String DEFAULTSERVICE = "WMS";
@@ -146,34 +145,12 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
-        
-        EntityManager em = getEntityManager();
-        /*
-         * Before we can start checking for changes or adding a new GetMap URL, we first need to check if
-         * everything is valid. First there will be checked if the request is valid. This means that every JSP
-         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
-         * checked when an action will be performed.
-         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
-         * when an action is performed and Struts reads this token we can perform a check if this token is an
-         * old token (the page has been requested again with a new token) or the token has already been used for
-         * an action).
-         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
-         * button this action will perform only the first click. Second, if a user has the same page opened twice
-         * only on one page a action can be performed (this is the page which is opened last). The previous page
-         * isn't valid anymore.
-         */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * If a token is valid the second validation is necessary. This validation performs a check on the
-         * given parameters supported by the user. Off course this check should already have been performed
-         * by a Javascript which does exactly the same, but some browsers might not support JavaScript or
-         * JavaScript can be disabled by the browser/user.
-         */
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
             super.addMessages(request, errors);
@@ -207,32 +184,43 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        String getMap = user.getPersonalURL();
-        
-        /*
-         * Add the rest of the parameters
-         */
-        getMap += "?REQUEST=GetMap";
-        getMap+="&LAYERS=";
-        
+        StringBuffer getMap = new StringBuffer(user.getPersonalURL());
+        getMap.append("?REQUEST=GetMap");
+        getMap.append("&LAYERS=");
         for (int i = 0; i < layers.length; i++){
             if (i == 0)
-                getMap += layers[i];
+                getMap.append(layers[i]);
             else{
-                getMap += "," + layers[i];
+                getMap.append(",");
+                getMap.append(layers[i]);
             }
         }
+        getMap.append("&BBOX=");
+        getMap.append(bbox);
+        getMap.append("&SRS=");
+        getMap.append(projectie);
+        getMap.append("&HEIGHT=");
+        getMap.append(height);
+        getMap.append("&WIDTH=");
+        getMap.append(width);
+        getMap.append("&FORMAT=");
+        getMap.append(format);
+        getMap.append(EXTRAREQUESTDATA);
         
-        getMap += "&BBOX=" + bbox + "&SRS=" + projectie + "&HEIGHT=" + height + "&WIDTH=" + width + "&FORMAT=" + format + EXTRAREQUESTDATA;
+        user.setDefaultGetMap(getMap.toString());
         
-        user.setDefaultGetMap(getMap);
-        
+        EntityManager em = getEntityManager();
         if (user.getId() == null) {
             em.persist(user);
+        } else {
+            em.merge(user);
         }
+        em.flush();
         
-        populateForm(getMap, dynaForm, request);
-        return mapping.findForward("success");
+        populateForm(getMap.toString(), dynaForm, request);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     
@@ -250,14 +238,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="getActionMethodPropertiesMap() method.">
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETCAPABILITIES);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
-        map.put(GETCAPABILITIES, crudProp);
-        
-        crudProp = new ExtendedMethodProperties(GETMAP);
+        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(GETMAP);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.kaarten.wmsurlcreator.success");
         crudProp.setAlternateForwardName(FAILURE);

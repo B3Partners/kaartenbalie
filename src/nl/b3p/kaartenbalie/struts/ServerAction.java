@@ -34,15 +34,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
 
 public class ServerAction extends KaartenbalieCrudAction implements KBConstants {
     
-    /* forward name="success" path="" */
-    private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerAction.class);
     
     protected static final String MISSING_SEPARATOR_ERRORKEY = "error.missingseparator";
@@ -54,12 +50,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
     protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
     protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
-    
-    
-    
-    //-------------------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
-    //-------------------------------------------------------------------------------------------------------
     
     /* Execute method which handles all unspecified requests.
      *

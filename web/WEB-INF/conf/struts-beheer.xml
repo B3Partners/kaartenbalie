@@ -21,6 +21,13 @@
             <form-property name="password" type="java.lang.String"/>
             <form-property name="repeatpassword" type="java.lang.String"/>
             <form-property name="roleSelected" type="java.lang.String[]"/>
+            <form-property name="personalURL" type="java.lang.String"/>
+            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="currentAddress" type="java.lang.String"/>
+            <form-property name="timeout" type="java.lang.String"/>
+            <!-- organization form fields -->
+            <form-property name="organizationName" type="java.lang.String"/>
+            <form-property name="organizationTelephone" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">

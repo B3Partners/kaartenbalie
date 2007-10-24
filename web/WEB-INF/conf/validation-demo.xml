@@ -5,60 +5,40 @@
 "http://jakarta.apache.org/commons/dtds/validator_1_1_3.dtd">
 
 <form-validation>
-    <global>
-        <constant>
-            <constant-name>numberMask</constant-name>
-            <constant-value>^[-\+]?[0-9]*[,\.]?[0-9]*$</constant-value>
-        </constant>
-    </global>
-    
     <formset>
-        <form name="registrationForm">
-            <field property="firstname" depends="required"> <!-- required -->
+        <form name="userForm">
+            <field property="firstname" depends="required">
                 <arg0 key="beheer.firstname"/>
             </field>
-            <field property="surname" depends="required"> <!-- required -->
+            <field property="surname" depends="required">
                 <arg0 key="beheer.surname"/>
             </field>
-            <field property="emailAddress" depends="required, email"> <!-- required -->
+            <field property="emailAddress" depends="required, email">
                 <arg0 key="beheer.emailAddress"/>
             </field>
-            <field property="username" depends="required"> <!-- required -->
+            <field property="username" depends="required">
                 <arg0 key="beheer.username"/>
             </field>
-            <field property="password" depends="required, minlength, maxlength"> <!-- required -->
+            <field property="password" depends="minlength, maxlength">
                 <arg0 key="beheer.password"/>
                 <arg1 name="minlength" key="${var:minlength}" resource="false"/>
                 <var>
                     <var-name>minlength</var-name>
                     <var-value>6</var-value>
                 </var>
-                
                 <arg1 name="maxlength" key="${var:maxlength}" resource="false"/>
                 <var>
                     <var-name>maxlength</var-name>
                     <var-value>15</var-value>
                 </var>
             </field>
-            <field property="repeatpassword" depends="required"> <!-- required -->
-                <arg0 key="beheer.repeatpassword"/>
-            </field>
-            <field property="organizationName" depends="required"> <!-- required -->
+            <field property="organizationName" depends="required">
                 <arg0 key="beheer.name"/>
             </field>
-            <field property="organizationTelephone" depends="required"> <!-- required -->
+            <field property="organizationTelephone" depends="required">
                 <arg0 key="beheer.organizationTelephone"/>
             </field>            
         </form>
         
-        <form name="profileForm">
-            <field property="timeout" depends="required, date"> <!-- required -->
-                <arg0 key="viewer.persoonlijkeurl.timeout"/>
-                <var>
-                    <var-name>datePatternStrict</var-name>
-                    <var-value>yyyy/MM/dd</var-value>
-                </var>
-            </field>          
-        </form>
     </formset>
 </form-validation>

@@ -12,6 +12,9 @@
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
+    <html:hidden property="personalURL" />
+    <html:hidden property="registeredIP" />
+    <html:hidden property="timeout" />
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Gebruikers</H1>
@@ -108,13 +111,6 @@
                                     </tr>
                                 </c:forEach>
                                 
-                                <%--
-                        <html:select property="selectedRole">
-                            <html:option value="beheerder">beheerder</html:option>
-                            <html:option value="gebruiker">gebruiker</html:option>
-                            <html:option value="demogebruiker">demogebruiker</html:option>
-                        </html:select>
-                        --%>
                             </table>
                         </td>
                     </tr>

@@ -26,7 +26,7 @@
             <many-to-many column="ROLEID" class="nl.b3p.wms.capabilities.Roles" lazy="false"/>
         </set>
         
-        <set name="userips" cascade="all" table="userip">
+        <set name="userips" cascade="all" table="userip" lazy="false">
             <key column="USERID"/>
             <element column="IPADDRESS" type="string" length="45" not-null="true"/>
         </set>

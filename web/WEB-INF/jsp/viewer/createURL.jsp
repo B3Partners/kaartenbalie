@@ -1,6 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${createPersonalURLForm}"/>
+<c:set var="form" value="${userForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
@@ -106,11 +106,19 @@
     
 </script>
 
-<html:javascript formName="createPersonalURLForm" staticJavascript="false"/>
-<html:form action="/createPersonalURL" onsubmit="return validateCreatePersonalURLForm(this)" focus="timeout">
+<html:javascript formName="userForm" staticJavascript="false"/>
+<html:form action="/createPersonalURL" onsubmit="return validateUserForm(this)" focus="timeout">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
+    
+    <html:hidden property="firstname" />
+    <html:hidden property="surname" />
+    <html:hidden property="username" />
+    <html:hidden property="emailAddress" />
+    <html:hidden property="currentAddress" />
+    <html:hidden property="organizationName" />
+    <html:hidden property="organizationTelephone" />
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Persoonlijke URL</H1>
@@ -119,7 +127,7 @@
             URL maken indien u er nog geen een aangemaakt had. De URL kunt u vervolgens ook weer gebruiken om een
             GetMap URL aan te maken.
             De URL stelt u in staat om op eenvoudige wijze met andere viewers dan de intern meegeleverde viewer van
-            deze applicatie gebruik te kunnen maken van de Kaartenblia. Hieronder vindt u de huidige gegevens zoals
+            deze applicatie gebruik te kunnen maken van de Kaartenbalie. Hieronder vindt u de huidige gegevens zoals
             deze in de applicatie bekend zijn. Om een nieuwe URL aan te maken of de huidige URL te wijzigen kunt u
             de knop Wijzigen gebruiken.
         </P>        
@@ -135,16 +143,8 @@
                 <td><c:out value="${form.map.username}"/></td>
             </tr>
             <tr>
-                <td>Wachtwoord:</td>
-                <td>*****</td>
-            </tr>
-            <tr>
                 <td>Email adres:</td>
-                <td><c:out value="${form.map.emailaddress}"/></td>
-            </tr>
-            <tr>
-                <td>Role:</td>
-                <td><c:out value="${form.map.role}"/></td>
+                <td><c:out value="${form.map.emailAddress}"/></td>
             </tr>
             
             <c:choose>
@@ -164,7 +164,7 @@
             
             <tr>
                 <td>Huidig IP adres:</td>
-                <td><c:out value="${form.map.currentaddress}"/></td>
+                <td><c:out value="${form.map.currentAddress}"/></td>
             </tr>
         </table>
     </div>
@@ -222,6 +222,8 @@
                 </div>
             </c:when>
             <c:otherwise>
+                <html:hidden property="registeredIP" />
+                <html:hidden property="personalURL" />
                 <html:hidden property="timeout" />
                 <div class="knoppen">
                     <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">

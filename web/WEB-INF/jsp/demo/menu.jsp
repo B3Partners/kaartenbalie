@@ -7,7 +7,7 @@
                 <a href="<html:rewrite page='/index.do' module='' />">Home</a>
                 <a href="<html:rewrite page='/demo.do' module='' />"><fmt:message key="demo.demo"/></a>
                 <a href="<html:rewrite page='/demo/registration.do' module='' />"><fmt:message key="demo.registration"/></a>
-                <a href="<html:rewrite page='/demo/showProfile.do' module='' />"><fmt:message key="demo.profile"/></a>
+                <a href="<html:rewrite page='/demo/createPersonalURL.do' module='' />"><fmt:message key="demo.persoonlijkeurl"/></a>
                 <a href="<html:rewrite page='/demo/voegurltoe.do' module='' />"><fmt:message key="demo.server"/></a>
                 <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015">B3Partners Website</a>
             

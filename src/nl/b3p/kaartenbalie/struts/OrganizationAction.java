@@ -174,6 +174,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
          */
         if (organization.getId() == null) {
             em.persist(organization);
+        } else {
+            em.merge(organization);
         }
         em.flush();
         return super.save(mapping,dynaForm,request,response);

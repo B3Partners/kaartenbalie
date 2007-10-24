@@ -26,7 +26,7 @@
             <field property="username" depends="required"> <!-- required -->
                 <arg0 key="beheer.username"/>
             </field>
-            <field property="password" depends="required, minlength, maxlength"> <!-- required -->
+            <field property="password" depends="minlength, maxlength">
                 <arg0 key="beheer.password"/>
                 <arg1 name="minlength" key="${var:minlength}" resource="false"/>
                 <var>
@@ -39,9 +39,6 @@
                     <var-name>maxlength</var-name>
                     <var-value>15</var-value>
                 </var>
-            </field>
-            <field property="repeatpassword" depends="required"> <!-- required -->
-                <arg0 key="beheer.password"/>
             </field>
         </form>
         

@@ -1,17 +1,25 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${changeProfileForm}"/>
+<c:set var="form" value="${userForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
-<html:javascript formName="changeProfileForm" staticJavascript="false"/>
-<html:form action="/changeProfile" onsubmit="return validateChangeProfileForm(this)" focus="newpassword">
+<html:javascript formName="userForm" staticJavascript="false"/>
+<html:form action="/changeProfile" onsubmit="return validateUserForm(this)" focus="password">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
+    <html:hidden property="firstname" />
+    <html:hidden property="surname" />
+    <html:hidden property="username" />
+    <html:hidden property="personalURL" />
+    <html:hidden property="registeredIP" />
+    <html:hidden property="timeout" />
+    <html:hidden property="organizationName" />
+    <html:hidden property="organizationTelephone" />
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Profiel wijzigen</H1>
@@ -32,16 +40,8 @@
                 <td><c:out value="${form.map.username}"/></td>
             </tr>
             <tr>
-                <td>Wachtwoord:</td>
-                <td>*****</td>
-            </tr>
-            <tr>
                 <td>Email adres:</td>
-                <td><c:out value="${form.map.emailaddress}"/></td>
-            </tr>
-            <tr>
-                <td>Role:</td>
-                <td><c:out value="${form.map.role}"/></td>
+                <td><c:out value="${form.map.emailAddress}"/></td>
             </tr>
         </table>
     </div>   
@@ -51,15 +51,15 @@
                 <table>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
-                        <td><html:password property="newpassword" /></td>
+                        <td><html:password property="password" /></td>
                     </tr>
                     <tr>
                         <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
-                        <td><html:password property="newpasswordretyped" /></td>
+                        <td><html:password property="repeatpassword" /></td>
                     </tr>
                     <tr>
                         <td><fmt:message key="viewer.profile.email"/>:</td>
-                        <td><html:text property="emailaddress" /></td>
+                        <td><html:text property="emailAddress" /></td>
                     </tr>
                 </table>
                 <div class="knoppen">
@@ -72,7 +72,7 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <html:hidden property="newpassword" />
+                <html:hidden property="password" />
                 <div class="knoppen">
                     <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
                         <fmt:message key="button.edit"/>

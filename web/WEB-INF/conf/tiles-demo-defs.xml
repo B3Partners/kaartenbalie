@@ -27,8 +27,8 @@
     <definition name="base.demo.addUrlsuccessfull" extends="base.demo">
         <put name="content" value="/WEB-INF/jsp/demo/addUrlsuccess.jsp"/>
     </definition>
-    <definition name="base.demo.profile" extends="base.demo">
-        <put name="content" value="/WEB-INF/jsp/demo/profile.jsp"/>
+    <definition name="base.demo.createurl" extends="base.demo">
+        <put name="content" value="/WEB-INF/jsp/viewer/createURL.jsp"/>
     </definition>
     <!-- via viewer -->
     <definition name="base.demo.mapviewer" extends="base.demo">

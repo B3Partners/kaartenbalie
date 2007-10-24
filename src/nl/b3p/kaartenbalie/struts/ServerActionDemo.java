@@ -20,7 +20,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -38,8 +37,6 @@ import org.xml.sax.SAXException;
 
 public class ServerActionDemo extends ServerAction {
     
-    /* forward name="success" path="" */
-    private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
     protected static final String MAP_ALREADY_ADDED = "demo.mapalreadyadded";
@@ -226,10 +223,14 @@ public class ServerActionDemo extends ServerAction {
         
         if (org.getId() == null) {
             em.persist(org);
+        } else {
+            em.merge(org);
         }
         
         if (user.getId() == null) {
             em.persist(user);
+        } else {
+            em.merge(user);
         }
         em.flush();
         
@@ -251,30 +252,5 @@ public class ServerActionDemo extends ServerAction {
     }
     // </editor-fold>
     
-    /* Method which returns the user with a specified id or a new user if no id is given.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param createNew A boolean which indicates if a new object has to be created.
-     * @param id An Integer indicating which organization id has to be searched for.
-     *
-     * @return a User object.
-     */
-    // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    private User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        
-        EntityManager em = getEntityManager();
-        User user = null;
-        
-        Integer id = getID(dynaForm);;
-        
-        if(null == id && createNew) {
-            user = new User();
-        } else if (null != id) {
-            user = (User)em.find(User.class, new Integer(id.intValue()));
-        }
-        return user;
-    }
-    // </editor-fold>
     
 }

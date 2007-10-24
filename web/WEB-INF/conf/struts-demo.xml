@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <!DOCTYPE struts-config PUBLIC
-          "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
-          "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
 
 
 <struts-config>
     <form-beans>
-        <form-bean name="registrationForm" type="org.apache.struts.validator.DynaValidatorForm">
+        <form-bean name="userForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
@@ -17,14 +17,18 @@
             <form-property name="surname" type="java.lang.String"/>
             <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
+            <form-property name="selectedOrganization" type="java.lang.String"/>
             <form-property name="password" type="java.lang.String"/>
             <form-property name="repeatpassword" type="java.lang.String"/>
+            <form-property name="roleSelected" type="java.lang.String[]"/>
             <form-property name="personalURL" type="java.lang.String"/>
-            <form-property name="selectedOrganization" type="java.lang.String"/>            
+            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="currentAddress" type="java.lang.String"/>
+            <form-property name="timeout" type="java.lang.String"/>
+            <!-- organization form fields -->
             <form-property name="organizationName" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
-            <form-property name="roleSelected" type="java.lang.String[]"/>
-        </form-bean>
+         </form-bean>
         
         <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -53,36 +57,20 @@
             <form-property name="selectedLayers" type="java.lang.String[]"/>
         </form-bean>
         
-        <form-bean name="profileForm" type="org.apache.struts.validator.DynaValidatorForm">
-            <!-- hidden -->
-            <form-property name="id" type="java.lang.String"/>
-            <form-property name="action" type="java.lang.String"/>
-            <form-property name="alt_action" type="java.lang.String"/>
-            <!-- user form fields-->
-            <form-property name="firstname" type="java.lang.String"/>
-            <form-property name="surname" type="java.lang.String"/>
-            <form-property name="username" type="java.lang.String"/>
-            <form-property name="emailaddress" type="java.lang.String"/>
-            <form-property name="role" type="java.lang.String"/>
-            <form-property name="personalURL" type="java.lang.String"/>
-            <form-property name="registeredIP" type="java.lang.String"/>
-            <form-property name="currentaddress" type="java.lang.String"/>
-            <form-property name="timeout" type="java.lang.String"/>
-        </form-bean>
     </form-beans>
     
     <global-exceptions>
-    
+        
     </global-exceptions>
-
+    
     <global-forwards>
-       <forward name="success"  path="/index.do"/>
+        <forward name="success"  path="/index.do"/>
     </global-forwards>
-
+    
     <action-mappings>
         <action path="/index" forward="base.demo.index"/>
         
-        <action path="/registration" name="registrationForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
+        <action path="/registration" name="userForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
             <forward name="savesucceeded" path="base.demo.registrationsuccessfull"/>
             <forward name="failure" path="base.demo.registration"/>
@@ -95,14 +83,14 @@
             <forward name="automatic" path="base.demo.mapviewer"/>
         </action>
         
-        <action path="/showProfile" name="profileForm" type="nl.b3p.kaartenbalie.struts.CreatePersonalURLAction" scope="request" validate="false">  
-            <forward name="success" path="base.demo.profile"/>
-            <forward name="failure" path="base.demo.profile"/>
+        <action path="/createPersonalURL" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">  
+            <forward name="success" path="base.demo.createurl"/>
+            <forward name="failure" path="base.demo.createurl"/>
         </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
-
+    
     <message-resources parameter="KaartenbalieResources"/>
     
     <!-- ========================= Tiles plugin ===============================-->
@@ -116,5 +104,5 @@
         <set-property property="pathnames" value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-demo.xml"/>
         <set-property property="stopOnFirstError" value="false"/>
     </plug-in>
-  
+    
 </struts-config>

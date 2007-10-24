@@ -7,7 +7,7 @@
                 <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
                 <a href="<html:rewrite page='/beheer.do' module='' />"><fmt:message key="algemeen.beheer"/></a>
                 <a href="<html:rewrite page='/viewer.do' module='' />"><fmt:message key="algemeen.viewer"/></a>
-                <c:if test="${false}">
+                <c:if test="${true}">
                     <a href="<html:rewrite page='/demo.do' module='' />"><fmt:message key="algemeen.demo"/></a>
                 </c:if>
             

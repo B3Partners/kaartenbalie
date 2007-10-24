@@ -1,8 +1,15 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<html:javascript formName="registrationForm" staticJavascript="false"/>
+<html:javascript formName="userForm" staticJavascript="false"/>
 
-<html:form action="/registration" onsubmit="return validateRegistrationForm(this)" focus="firstname">
+<html:form action="/registration" onsubmit="return validateUserForm(this)" focus="firstname">
+    <html:hidden property="action"/>
+    <html:hidden property="alt_action"/>
+    <html:hidden property="id" />
+    <html:hidden property="personalURL" />
+    <html:hidden property="registeredIP" />
+    <html:hidden property="timeout" />
+    
     <div id='democontent'>
         <div id="democontentheader">Registratie pagina</div>
         <div id="democontenttext">    

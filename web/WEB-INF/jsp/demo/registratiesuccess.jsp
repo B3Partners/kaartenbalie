@@ -1,7 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${registrationForm}"/>
-<html:javascript formName="registrationForm" staticJavascript="false"/>
+<c:set var="form" value="${userForm}"/>
 
 <html:form action="/voegurltoe">
     <html:hidden property="id" />
