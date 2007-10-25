@@ -125,7 +125,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         /*
          * Check if this user gets a valid capability when using this personalURL
          */
-        if(!user.getOrganization().getHasValidGetCapabilities()) {
+        if(user.getOrganization()!=null && !user.getOrganization().getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
         }
         
@@ -193,15 +193,9 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
             return getAlternateForward(mapping, request);
         }
         
-        String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        Date date = null;
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        try {
-            date = df.parse(timeout);
-        } catch (Exception ex) {
-            log.error("", ex);
-        }
-        if (date==null) {
+        Date oldDate = user.getTimeout();
+        Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
+        if (newDate==null && oldDate!=null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, DATE_PARSE_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -403,14 +397,11 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
             registeredIP.append(request.getRemoteAddr());
         dynaForm.set("registeredIP", registeredIP.toString());
         
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         Date timeout = user.getTimeout();
-        if (timeout == null) {
-            Calendar gc = new GregorianCalendar();
-            gc.add(Calendar.MONTH, 3);
-            timeout = gc.getTime();
-        }
-        dynaForm.set("timeout", df.format(timeout));
+        if (timeout == null)
+            timeout = getDefaultTimeOut(3);
+        
+        dynaForm.set("timeout", FormUtils.DateToFormString(timeout, request.getLocale()));
         
         Organization org = user.getOrganization();
         if (org==null) {
@@ -486,9 +477,9 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
     protected void setPersonalUrlandTimeout(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         
         Date oldDate = user.getTimeout();
-        String timeout  = FormUtils.nullIfEmpty(dynaForm.getString("timeout"));
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
-        Date newDate = df.parse(timeout);
+        Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
+        if (newDate == null)
+            newDate = getDefaultTimeOut(3);
         
         boolean urlNeedsRefresh = true;
         String persURL = user.getPersonalURL();
@@ -520,9 +511,13 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         String protocol             = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
         
         Random rd = new Random();
-        String toBeHashedString = user.getUsername() + user.getPassword() + df.format(newDate) + rd.nextLong();
+        StringBuffer toBeHashedString = new StringBuffer(user.getUsername());
+        toBeHashedString.append(user.getPassword());
+        toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
+        toBeHashedString.append(rd.nextLong());
+        
         MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
-        md.update(toBeHashedString.getBytes(CHARSET));
+        md.update(toBeHashedString.toString().getBytes(CHARSET));
         byte[] md5hash = md.digest();
         String hashString = new String(Hex.encodeHex(md5hash));
         
@@ -570,6 +565,12 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
             }
         }
         return oldset;
+    }
+    
+    public Date getDefaultTimeOut(int months) {
+        Calendar gc = new GregorianCalendar();
+        gc.add(Calendar.MONTH, months);
+        return gc.getTime();
     }
     
 }
