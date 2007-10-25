@@ -24,9 +24,7 @@
             <div class="containerdiv" style="float: left; clear: none; margin-bottom: 15px;">
                 <H1>Persoonlijke GetMap URL</H1>
                 Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
-                Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
-                gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
-                u deze URL wijzigt.
+                U kunt deze GetMap URL gebruiken voor viewers die het GetCapabilities commando niet ondersteunen.
             </div>    
                 
                 <!-- <b>Layer rechten:</b><br/> --><br />

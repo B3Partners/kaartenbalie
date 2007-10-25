@@ -123,13 +123,17 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Persoonlijke URL</H1>
         <P>
-            Op deze pagina kunt een reeds aangemaakt persoonlijke URL opvragen of wijzigen of u kunt een nieuwe
-            URL maken indien u er nog geen een aangemaakt had. De URL kunt u vervolgens ook weer gebruiken om een
-            GetMap URL aan te maken.
-            De URL stelt u in staat om op eenvoudige wijze met andere viewers dan de intern meegeleverde viewer van
-            deze applicatie gebruik te kunnen maken van de Kaartenbalie. Hieronder vindt u de huidige gegevens zoals
-            deze in de applicatie bekend zijn. Om een nieuwe URL aan te maken of de huidige URL te wijzigen kunt u
-            de knop Wijzigen gebruiken.
+            Op deze pagina kunt u:
+            <ul>
+                <li>een reeds aangemaakt persoonlijke URL opvragen of </li>
+                <li>deze persoonlijke URL wijzigen of</li>
+                <li>u kunt een nieuwe URL maken, indien u er nog geen een aangemaakt had.</li>
+            </ul>
+        </P>        
+        <P>
+            De URL stelt u in staat om op eenvoudige wijze met andere viewers 
+            dan de intern meegeleverde viewer gebruik te maken van de Kaartenbalie. 
+            Hieronder vindt u de huidige gegevens zoals deze in de applicatie bekend zijn. 
         </P>        
         
         <H2>Huidige gegevens:</H2>
@@ -169,50 +173,50 @@
         </table>
     </div>
     
-            <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
-                    <c:choose>
-                    <c:when test="${action != 'list'}">                 
+    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
+        <c:choose>
+            <c:when test="${action != 'list'}">                 
+                <table>
+                    <tr>
+                        <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
+                        <td>
+                            
+                            <html:text property="timeout" styleId="cal_date"/> &nbsp;
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                 style="cursor: pointer; border: 1px solid red;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                                 name="cal-button"
+                            />
+                        </td>
+                    </tr>
+                    <html:hidden property="registeredIP" styleId="registeredIP"/>
+                    <input type="hidden" id="hiddenSaveField"/>
+                </table>
+                <div class="ipDiv">
                     <table>
-                        <tr>
-                            <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
-                            <td>
-                                
-                                <html:text property="timeout" styleId="cal_date"/> &nbsp;
-                                <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                                     style="cursor: pointer; border: 1px solid red;" 
-                                     title="Date selector"
-                                     alt="Date selector"
-                                     onmouseover="this.style.background='red';" 
-                                     onmouseout="this.style.background=''"
-                                     onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
-                                     name="cal-button"
-                                />
-                            </td>
+                        <tr>                            
+                            <table id='iptable'>
+                                <tbody>
+                                </tbody>
+                            </table>                            
                         </tr>
-                        <html:hidden property="registeredIP" styleId="registeredIP"/>
-                        <input type="hidden" id="hiddenSaveField"/>
-                        </table>
-                        <div class="ipDiv">
-                            <table>
-                                <tr>                            
-                                    <table id='iptable'>
-                                        <tbody>
-                                        </tbody>
-                                    </table>                            
-                                </tr>
-                            </table>
-                        </div>
-                        <table>
-                        <tr align="left">                            
-                            <td>
-                                <input type="button" onClick='addRow(); return false' value="Voeg IP adres toe"/><P>
-                            </td>
-                        </tr>                
-                        <tr>
-                            <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
-                            <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
-                        </tr>
-                        </table>
+                    </table>
+                </div>
+                <table>
+                    <tr align="left">                            
+                        <td>
+                            <input type="button" onClick='addRow(); return false' value="Voeg IP adres toe"/><P>
+                        </td>
+                    </tr>                
+                    <tr>
+                        <td><fmt:message key="viewer.persoonlijkeurl.createdurl"/>:</td>
+                        <td><html:text property="personalURL" styleId="personalURL" styleClass="readOnly" readonly="true" size="100" /></td>
+                    </tr>
+                </table>
                 
                 <div class="knoppen">
                     <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">

@@ -6,3 +6,9 @@ deze module mogelijk nieuwe WMS servers toe te voegen aan het systeem of oude te
 Daarnaast kunnen er via deze module gebruikers en organisaties aan het systeem toegevoegd worden
 en kunnen er voor deze gebruikers op organisatie niveau rechten ingesteld worden waarbij bepaald 
 wordt welke layers ze wel en geen recht op heeft om te bekijken.
+<p>
+Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande button meteen naar de viewer.
+<p>
+<html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+    <fmt:message key="button.toviewer"/>
+</html:button>

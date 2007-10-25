@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie">
 
-    <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! 
+    <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! -->
     <Resource
             name="jdbc/kaartenbalie"
             type="javax.sql.DataSource"
@@ -13,7 +13,7 @@
             username="root"
             url="jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8"
             maxActive="100"
-    />-->
+    />
 
     <!-- Config voor MNP productie, Tomcat 5.0
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
@@ -114,7 +114,7 @@
 	</ResourceParams>
 	-->
 
-	<!-- productie x5 (tomcat 5.0), /kaartenbalie, tbv oa wis demo -->
+	<!-- productie x5 (tomcat 5.0), /kaartenbalie, tbv oa wis demo 
  	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
@@ -162,5 +162,5 @@
 		<value>SELECT 1</value>
 	</parameter>
 	</ResourceParams>
-
+        -->
 </Context>

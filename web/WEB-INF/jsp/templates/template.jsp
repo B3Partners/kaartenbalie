@@ -59,6 +59,7 @@
                 <div id="copyright"></div>
             </div>
         </div>
+        <tiles:insert definition="common.googleAnalytics"/>        
     </body>
 </html:html>
 

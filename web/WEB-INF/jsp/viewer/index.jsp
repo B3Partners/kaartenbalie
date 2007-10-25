@@ -1,10 +1,21 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<H1>Welkom in de viewer module</H1>
-Deze module stelt u als gebruiker in staat om verschillende kaartlagen te doorzoeken en meerdere
-kaartlagen te combineren tot een geheel, zodat u een beter overzicht krijgt van alle informatie
-die er in het systeem beschikbaar is.<BR>
-Daarnaast kunt u via deze module ook een persoonlijke URL laten samenstellen zodat het via een 
-externe viewer mogelijk is om de desgewenste gegevens op te vragen en te bekijken. Deze 
-samengestelde code is een beveiligingssysteem dat als vervanging dient voor het inloggen. Daarmee
-kunt u dus iedere viewer gebruiken die WMS structuren ondersteunt.
+<H1>Welkom op de Persoonlijke Pagina</H1>
+<p>Hier kunt u een persoonlijke URL samenstellen zodat u via een externe viewer 
+    het kaartmateriaal van kaartenbalie kunt bekijken. Deze samengestelde url heeft 
+    een beveiligingssysteem dat als vervanging dient voor het inloggen. Hiermee
+    kunt u dus iedere viewer gebruiken die de open WMS standaard ondersteunt.
+    Natuurlijk kunt u ook onze viewer gebruiken.
+</p>
+<p>
+    Onder Profiel kunt u uw wachtwoord en emailadres aanpassen. Tenslotte kunt u
+    een GetMap URL gegenereren voor viewers die het GetCapabilities commando niet
+    ondersteunen.
+</p>
+<p>
+    Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande 
+    button meteen naar de viewer.
+</p>
+<html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
+    <fmt:message key="button.toviewer"/>
+</html:button>
