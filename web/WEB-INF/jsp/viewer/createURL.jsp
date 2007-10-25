@@ -188,7 +188,7 @@
                                  alt="Date selector"
                                  onmouseover="this.style.background='red';" 
                                  onmouseout="this.style.background=''"
-                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy/MM/dd', document.getElementById('cal_date').value); return false;"
+                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy-MM-dd', document.getElementById('cal_date').value); return false;"
                                  name="cal-button"
                             />
                         </td>
