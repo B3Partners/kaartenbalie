@@ -412,7 +412,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             long startTime = System.currentTimeMillis();
             int statusCode = client.executeMethod(method);
             long time = System.currentTimeMillis() - startTime;
-            dw.setHeader("X-Kaartenbalie-debug1", String.valueOf(time));
+            dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
             localParameterMap.put("ResponseStatus", new Integer(statusCode));
             localParameterMap.put("RequestResponseTime", new Long(time));
             if (statusCode != HttpStatus.SC_OK) {
