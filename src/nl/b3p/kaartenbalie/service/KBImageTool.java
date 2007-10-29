@@ -98,12 +98,15 @@ public class KBImageTool {
         
         
         parameterMap.put("NumberOfImages", new Integer(images.length));
+        parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
         BufferedImage bufferedImage = combineImages(images, mime);
+        Long time = new Long(System.currentTimeMillis() - startTime);
         
-        // Operation done.. now write the log...
-        parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
+        // Operation done.. now write the log and for the time being also to requestHeader...
+        dw.setHeader("X-Kaartenbalie-CombineImageTime", time.toString());
+        parameterMap.put("Duration", time);
         rr.addRequestOperation(CombineImagesOperation.class,parameterMap);
         
         if(mime.equals(TIFF)) {

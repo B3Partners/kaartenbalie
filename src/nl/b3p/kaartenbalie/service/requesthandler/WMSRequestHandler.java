@@ -40,6 +40,7 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
@@ -303,17 +304,28 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * environment, which saves a lot of time and capacity because it doesn't have to decode
          * and recode the image.
          */
+        long startprocestime = System.currentTimeMillis();
+        Map parameterMap = new HashMap();
+        RequestReporting rr = dw.getRequestReporting();
+        parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
                 /*
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
-
+                
                 ImageManager imagemanager = new ImageManager(urls, dw.getRequestParameterMap());
                 imagemanager.process();
+                long endprocestime = System.currentTimeMillis();
+                Long time = new Long(endprocestime - startprocestime);
+                dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", time.toString());
+                
+                
+                parameterMap.put("Duration", time);
+                rr.addRequestOperation(ServerTransferOperation.class, parameterMap);
+                
                 imagemanager.sendCombinedImages(dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-                RequestReporting rr = dw.getRequestReporting();
                 
                 int totalDataSend = 0;
                 /*
@@ -354,8 +366,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 XMLSerializer serializer = new XMLSerializer(baos, format);
                 serializer.serialize(destination);
                 dw.write(baos);
-                
-                
             }
         } else {
             if(!urls.isEmpty()) {
