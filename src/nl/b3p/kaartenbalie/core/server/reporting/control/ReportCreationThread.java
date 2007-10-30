@@ -116,7 +116,6 @@ public class ReportCreationThread extends Thread{
         
         while(iterUsers.hasNext()) {
             User user  = (User) iterUsers.next();
-            System.out.println("User: " + user);
             UsageDetails usageDetails = new UsageDetails(rdd, user);
             em.persist(usageDetails);
             

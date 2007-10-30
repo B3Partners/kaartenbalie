@@ -46,7 +46,7 @@ public class ReportGenerator {
     }
     
     public void notifyDone(ReportCreationThread rct) {
-        System.out.println("RCT:" + rct + " is done..");
+        
     }
     
     public void clean() {
@@ -91,7 +91,7 @@ public class ReportGenerator {
             aTransformer.transform(src, dest);
         }catch(Exception e){
             e.printStackTrace();
-            System.out.println(e.getMessage());
+            
         }
     }
     
