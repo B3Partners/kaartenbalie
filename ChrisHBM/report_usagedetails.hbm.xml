@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.UsageDetails" table="rep_usagedetails">
+        <id name="id" type="int" column="usd_id" >
+            <generator class="native"/>
+        </id>
+        <many-to-one name="reportDataDetails" column="usd_rpd_id" update="true" not-null="false"/>   
+        
+        <set name="dailyUsages" order-by="dyu_date ASC"> 
+            <key column="dyu_usd_id" update="true" not-null="false" /> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.DailyUsage"/> 
+        </set>              
+        <property name="userId" column="usd_userId"/>
+    </class>
+</hibernate-mapping>

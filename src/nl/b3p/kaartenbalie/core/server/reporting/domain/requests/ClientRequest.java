@@ -49,7 +49,7 @@ public class ClientRequest implements XMLElement {
         this.timeStamp = timeStamp;
     }
     
-   
+    
     
     public Set getServiceProviderRequests() {
         return serviceProviderRequests;
@@ -78,14 +78,14 @@ public class ClientRequest implements XMLElement {
     
     public Element toElement(Document doc, Element rootElement) {
         Element cre = doc.createElement("ClientRequest");
-                cre.setAttribute("id", id.toString());
+        cre.setAttribute("id", id.toString());
         cre.setAttribute("timeStamp", "" + timeStamp.getTime());
-
+        
         //cre.appendChild(RequestReporting.createElement(doc, "bytesReceivedFromUser", bytesReceivedFromUser.toString()));
-        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));        
-        //cre.appendChild(RequestReporting.createElement(doc, "totalResponseTime", totalResponseTime.toString()));        
-        cre.appendChild(RequestReporting.createElement(doc, "clientRequestURI", clientRequestURI.toString()));                
-        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));        
+        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));
+        //cre.appendChild(RequestReporting.createElement(doc, "totalResponseTime", totalResponseTime.toString()));
+        cre.appendChild(RequestReporting.createElement(doc, "clientRequestURI", clientRequestURI.toString()));
+        //cre.appendChild(RequestReporting.createElement(doc, "bytesSendToUser", bytesSendToUser.toString()));
         
         
         rootElement.appendChild(cre);
@@ -102,11 +102,11 @@ public class ClientRequest implements XMLElement {
         
     }
     
-
     
     
     
-   
+    
+    
     
     
 }

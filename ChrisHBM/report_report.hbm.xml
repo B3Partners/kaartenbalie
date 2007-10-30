@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.Report" table="rep_report">
+        <id name="id" type="int" column="rep_id" >
+            <generator class="native"/>
+        </id>
+        
+        <set name="reportData" > 
+            <key column="rpd_rep_id" update="true" not-null="false" /> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.RepData"/> 
+        </set>
+
+        <set name="userIds" lazy="true" table="rep_users">
+            <key column="rpd_usr_id" not-null="true"/>
+            <element column="usr_id" type="int" not-null="true"/>
+        </set>
+ 
+        <property name="reportDate" column="rep_reportDate"/>
+        <property name="startDate" column="rep_startDate"/>
+        <property name="endDate" column="rep_endDate"/>
+        <property name="processingTime" column="rep_processingTime"/>     
+    </class>
+</hibernate-mapping>

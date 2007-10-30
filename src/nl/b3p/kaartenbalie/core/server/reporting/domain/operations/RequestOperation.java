@@ -16,7 +16,6 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain.operations;
 public class RequestOperation extends Operation{
     private Integer bytesReceivedFromUser;
     private Integer bytesSendToUser;
-    private Long totalResponseTime;
     
     /** Creates a new instance of TotalRequestOperation */
     public RequestOperation() {
@@ -36,12 +35,5 @@ public class RequestOperation extends Operation{
     public void setBytesSendToUser(Integer bytesSendToUser) {
         this.bytesSendToUser = bytesSendToUser;
     }
-    
-    public Long getTotalResponseTime() {
-        return totalResponseTime;
-    }
-    
-    public void setTotalResponseTime(Long totalResponseTime) {
-        this.totalResponseTime = totalResponseTime;
-    }
+
 }
