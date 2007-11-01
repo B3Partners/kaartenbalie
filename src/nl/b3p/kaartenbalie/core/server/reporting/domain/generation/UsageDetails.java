@@ -69,15 +69,16 @@ public class UsageDetails implements XMLElement{
         
         
         Iterator i = dailyUsages.iterator();
-        
         Date referenceDate = null;
         Element dailyUsageElement = null;
         while (i.hasNext()) {
+            
             DailyUsage dailyUsage = (DailyUsage) i.next();
             if (referenceDate == null) {
                 referenceDate = dailyUsage.getDate();
                 dailyUsageElement = doc.createElement("dailyUsage");
                 dailyUsageElement.setAttribute("date", Report.periodFormat.format(dailyUsage.getDate()));
+                usageDetails.appendChild(dailyUsageElement);
             }
             if (!referenceDate.equals(dailyUsage.getDate()))
             {
@@ -85,6 +86,7 @@ public class UsageDetails implements XMLElement{
                 dailyUsageElement = doc.createElement("dailyUsage");
                 referenceDate = dailyUsage.getDate();
                 dailyUsageElement.setAttribute("date", Report.periodFormat.format(dailyUsage.getDate()));
+                usageDetails.appendChild(dailyUsageElement);
             }
             dailyUsageElement.appendChild(dailyUsage.toElement(doc,rootElement));
         }

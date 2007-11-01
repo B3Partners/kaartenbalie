@@ -33,7 +33,7 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 public class DataWarehousing {
     
     private static Map dataMappings;
-    
+    private static boolean enableWarehousing = false;
     private DataWarehousing() {
     }
     
@@ -44,15 +44,18 @@ public class DataWarehousing {
         dataMappings.put(Date.class,DateDataMapping.class);
     }
     
+    public static void setEnableDatawarehousing(boolean state) {
+        enableWarehousing = state;
+    }
     
     public static Object find(Class entityClass, Integer primaryKey) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         //First check if the entity still exists and possible save the trouble of building it again.
         Object object = em.find(entityClass, primaryKey);
-        object = null;
         if (object != null) {
             return object;
-        } else {
+        } else if (enableWarehousing) {
+            
             /*
              * The object is probably deleted,.. Here is where the real work starts..
              * First lets see if we have a copy of this object somewhere in our warehouse..
@@ -104,9 +107,13 @@ public class DataWarehousing {
             //Finally return the object
             return object;
         }
+        return null;
     }
     
     public static void remove(Class entityClass, Integer primaryKey) throws Exception {
+        if (!enableWarehousing) {
+            return;
+        }
         EntityManager em = MyEMFDatabase.createEntityManager();
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
         
@@ -128,6 +135,7 @@ public class DataWarehousing {
     }
     
     public static void persist(Class entityClass, Integer primaryKey) throws Exception{
+        if (!enableWarehousing) { return;}
         EntityManager em = MyEMFDatabase.createEntityManager();
         Object refDBObject = getReferedObject(entityClass, primaryKey, em);
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
@@ -144,6 +152,7 @@ public class DataWarehousing {
     }
     
     public static void merge(Class entityClass, Integer primaryKey) throws Exception{
+        if (!enableWarehousing) { return ;}
         EntityManager em = MyEMFDatabase.createEntityManager();
         /*
          * First check if this entity is managed by hibernate and that it is persisted..
@@ -186,23 +195,26 @@ public class DataWarehousing {
             }
         }
         System.out.println("fetching...");
-        /*
-        for (int i = 0; i< 5; i++) {
+        
+        for (int i = 0; i< 20; i++) {
          
          
             int nextRandom = 1 + (int)(Math.random() * 20);
-            Warehouse.remove(User.class, new Integer(nextRandom));
+            
+            DataWarehousing.remove(User.class, new Integer(nextRandom));
          
-            User userFromWarehouse = (User) Warehouse.find(User.class, new Integer(i));
+            User userFromWarehouse = (User) DataWarehousing.find(User.class, new Integer(i));
+           
             System.out.println("User:"+ userFromWarehouse);
             if (userFromWarehouse != null){
                 System.out.println("UserName:" + userFromWarehouse.getUsername());
                 System.out.println("Id:" + userFromWarehouse.getId());
          
             }
+            
          
         }
-         */
+         
         
     }
     

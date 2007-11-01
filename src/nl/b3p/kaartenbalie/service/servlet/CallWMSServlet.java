@@ -99,7 +99,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String servletPath  = request.getServletPath();
         String pathInfo     = request.getPathInfo();
         String queryString  = request.getQueryString();
-
+        
         StringBuffer theUrl = new StringBuffer(scheme);
         theUrl.append("://");
         theUrl.append(serverName);
@@ -131,9 +131,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         //Is de URL string wel de hoeveelheid bytes die van de User ontvangen wordt?
         //Er wordt een reporting gestart op user, terwijl user nog null is???
         String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
-        DataMonitoring rr = new DataMonitoring(user);
-        data.setRequestReporting(rr);
-        rr.startClientRequest(completeRequest, completeRequest.getBytes().length, startTime);
+        
         
         try {
             OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
@@ -167,9 +165,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
             
             user = checkLogin(request);
+            DataMonitoring rr = new DataMonitoring(user);
+            data.setRequestReporting(rr);
+            rr.startClientRequest(completeRequest, theUrl.toString().getBytes().length, startTime);
+            
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             data.setOgcrequest(ogcrequest);
             parseRequestAndData(data, user);
+            rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
         } catch (Exception ex) {
             log.error("error: ", ex);
             String errorContentType = data.getErrorContentType();
@@ -285,7 +288,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
             }
         }
-        rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
+        
     }
     // </editor-fold>
     
@@ -457,7 +460,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             data.setRequestClassType(WMSGetLegendGraphicRequest.class);
             requestHandler = new GetLegendGraphicRequestHandler();
         }
-        requestHandler.getRequest(data, user);        
+        requestHandler.getRequest(data, user);
     }
     // </editor-fold>
     

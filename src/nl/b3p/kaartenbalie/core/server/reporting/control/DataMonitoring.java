@@ -66,9 +66,10 @@ public class DataMonitoring {
      */
     public DataMonitoring(User user) {
         this();
-        if (user != null) {
-            this.user = (User) em.find(User.class, user.getId());
+        if (user == null) {
+            throw new Error("User is required for proper DataMonitoring...");
         }
+        this.user = user;
     }
     
     /*
@@ -81,9 +82,12 @@ public class DataMonitoring {
         
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-        em.createQuery("DELETE FROM ServiceProviderRequest").executeUpdate();
+        //em.createQuery("DELETE FROM ServiceProviderRequest").executeUpdate();
+        //em.flush();
         em.createQuery("DELETE FROM RequestOperation").executeUpdate();
-        em.createQuery("DELETE FROM ClientRequest").executeUpdate();
+        //em.flush();
+        //em.createQuery("DELETE FROM ClientRequest").executeUpdate();
+        em.flush();
         tx.commit();
         
     }
@@ -106,6 +110,7 @@ public class DataMonitoring {
             tRequestOperationMap.put("BytesReceivedFromUser", new Integer(bytesReceivedFromUser));
             clientRequest = new ClientRequest();
             clientRequest.setClientRequestURI(clientRequestURI);
+            clientRequest.setUser(user);
             em.persist(clientRequest);
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,7 +279,13 @@ public class DataMonitoring {
         return tmpElement;
     }
     
+    public static void main(String [] args) throws Exception {
+        
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        DataMonitoring dm = new DataMonitoring((User) em.find(User.class, new Integer(1)));
+        dm.clean();
+    }
     
-   
     
 }

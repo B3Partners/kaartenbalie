@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.sound.midi.SysexMessage;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.generation.DailyUsage;
@@ -125,9 +126,12 @@ public class ReportCreationThread extends Thread{
                     "SELECT COUNT(DISTINCT cr) AS hits, DATE_FORMAT(cr.timeStamp,'%d-%m-%Y') AS tsDate, HOUR(cr.timeStamp) AS tsHour, SUM(ro.bytesReceivedFromUser), SUM(ro.bytesSendToUser)" +
                     "FROM ClientRequest AS cr " +
                     "LEFT JOIN cr.requestOperations AS ro " +
+                    "WHERE cr.userId = :userId " +
                     "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
                     "ORDER BY cr.timeStamp ASC"
-                    ).getResultList();
+                    )
+                    .setParameter("userId",user.getId())
+                    .getResultList();
             Iterator i = list.iterator();
             while (i.hasNext()) {
                 Object[] object = (Object[])i.next();
@@ -151,7 +155,7 @@ public class ReportCreationThread extends Thread{
                 em.persist(dailyUsage);
             }
         }
-
+        
         report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
         et.commit();
         em.close();
@@ -160,25 +164,25 @@ public class ReportCreationThread extends Thread{
     
     public static void main(String [] args) throws Exception {
         
-        Integer reportId = new Integer(10);
-        //Integer reportId = null;
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
+        
         
         ReportGenerator rg = new ReportGenerator();
         
-        if (reportId == null) {
-            rg.clean();
-            Calendar start = Calendar.getInstance();
-            start.set(2007,10,14);
-            
-            Calendar end = Calendar.getInstance();
-            end.set(2007,10,30);
-            
-            rg.createReport(start.getTime(), end.getTime());
-        } else {
-            rg.doXMLTrick(reportId);
-        }
+        
+        rg.clean();
+        Calendar start = Calendar.getInstance();
+        start.set(2007,10,14);
+        
+        Calendar end = Calendar.getInstance();
+        end.set(2007,11,01);
+        
+        rg.createReport(start.getTime(), end.getTime());
+        sleep(2000);
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        Report rerport = (Report) em.createQuery("FROM Report AS r").getSingleResult();
+        rg.doXMLTrick(rerport.getId());
+        
         
         
         
