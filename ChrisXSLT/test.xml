@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="report.xsl"?>
+
+<report date="2007-11-01 16:56:19.0" id="21" processingTime="719">
+   <vars>
+      <period>
+         <start>2007-11-14 16:56:19.0</start>
+         <end>2007-12-01 16:56:19.0</end>
+      </period>
+      <users>
+         <user id="19">
+            <name>LED MNP</name>
+         </user>
+         <user id="4">
+            <name>Johan mnp</name>
+         </user>
+         <user id="7">
+            <name>Frans mnp</name>
+         </user>
+         <user id="22">
+            <name>RPB MNP</name>
+         </user>
+         <user id="15">
+            <name>RIM MNP</name>
+         </user>
+         <user id="23">
+            <name>Chris Kramer</name>
+         </user>
+         <user id="2">
+            <name>Hiddo Huitzing</name>
+         </user>
+         <user id="20">
+            <name>EGW MNP</name>
+         </user>
+         <user id="11">
+            <name>Nando de Goeij</name>
+         </user>
+         <user id="5">
+            <name>Wim mnp</name>
+         </user>
+         <user id="8">
+            <name>Kees mnp</name>
+         </user>
+         <user id="21">
+            <name>VROM MNP</name>
+         </user>
+         <user id="13">
+            <name>Ritesh O'Varma</name>
+         </user>
+         <user id="18">
+            <name>LDL MNP</name>
+         </user>
+         <user id="10">
+            <name>Chris Van Lith</name>
+         </user>
+         <user id="3">
+            <name>test test</name>
+         </user>
+         <user id="9">
+            <name>Allard mnp</name>
+         </user>
+         <user id="1">
+            <name>LoremIpsum beheerder</name>
+         </user>
+         <user id="12">
+            <name>nirov mnp</name>
+         </user>
+         <user id="16">
+            <name>LOK MNP</name>
+         </user>
+         <user id="6">
+            <name>Arjan mnp</name>
+         </user>
+      </users>
+      <company id="">
+         <name/>
+      </company>
+   </vars>
+   <data>
+      <details>
+         <hours>
+            <hour>16</hour>
+         </hours>
+         <days>
+            <date>14-11-2007</date>
+            <date>15-11-2007</date>
+            <date>16-11-2007</date>
+            <date>17-11-2007</date>
+            <date>18-11-2007</date>
+            <date>19-11-2007</date>
+            <date>20-11-2007</date>
+            <date>21-11-2007</date>
+            <date>22-11-2007</date>
+            <date>23-11-2007</date>
+            <date>24-11-2007</date>
+            <date>25-11-2007</date>
+            <date>26-11-2007</date>
+            <date>27-11-2007</date>
+            <date>28-11-2007</date>
+            <date>29-11-2007</date>
+            <date>30-11-2007</date>
+            <date>01-12-2007</date>
+         </days>
+         <usagedetails userid="4"/>
+         <usagedetails userid="12"/>
+         <usagedetails userid="8"/>
+         <usagedetails userid="6"/>
+         <usagedetails userid="20"/>
+         <usagedetails userid="22"/>
+         <usagedetails userid="21"/>
+         <usagedetails userid="15"/>
+         <usagedetails userid="13"/>
+         <usagedetails userid="16"/>
+         <usagedetails userid="18"/>
+         <usagedetails userid="11"/>
+         <usagedetails userid="3"/>
+         <usagedetails userid="19"/>
+         <usagedetails userid="2"/>
+         <usagedetails userid="9"/>
+         <usagedetails userid="23"/>
+         <usagedetails userid="10"/>
+         <usagedetails userid="5"/>
+         <usagedetails userid="1">
+            <dailyUsage date="01-11-2007">
+               <hourlyUsage dataUsage="8331722" hour="16" requests="74"/>
+            </dailyUsage>
+         </usagedetails>
+         <usagedetails userid="7"/>
+      </details>
+      <summary>
+         <ServerTransferOperation hits="59">
+            <averageDuration>2372.6271</averageDuration>
+         </ServerTransferOperation>
+         <CombineImagesOperation hits="59">
+            <averageDuration>89.5085</averageDuration>
+         </CombineImagesOperation>
+         <ClientXFerOperation hits="74">
+            <averageDuration>5.4865</averageDuration>
+            <dataSize>8292017</dataSize>
+         </ClientXFerOperation>
+         <RequestOperation hits="74">
+            <averageDuration>2343.4054</averageDuration>
+            <bytesReceivedFromUser>39705</bytesReceivedFromUser>
+            <bytesSendToUser>8292017</bytesSendToUser>
+         </RequestOperation>
+      </summary>
+   </data>
+</report>

@@ -1,0 +1,187 @@
+<?xml version="1.0" ?> 
+<?xml-stylesheet type="text/xsl" href="report.xsl"?>
+
+<report id="3" date="23-10-2007">
+	<vars>
+		<period>
+			<start>20-10-2007</start>
+			<end>22-10-2007</end>
+		</period>
+		<users>
+			<user id="5">
+				<name>Chris Kramer</name>
+			</user>
+			<user id="6">
+				<name>Pietje Puk</name>
+			</user>
+			<user id="7">
+				<name>Klaas Vaak</name>
+			</user>
+			<user id="8">
+				<name>Zwarte Piet</name>
+			</user>
+			<user id="9">
+				<name>Sinter Klaas</name>
+			</user>
+			<user id="11">
+				<name>Paas Haas</name>
+			</user>
+		</users>
+		<company id="1">
+			<name>B3Partners</name>
+		</company>
+	</vars>
+
+	<data>
+		<summary>
+			<ServerTransferOperation hits="130">
+				<averageDuration>3300</averageDuration>
+			</ServerTransferOperation>
+			<CombineImagesOperation hits="275">
+				<averageDuration>33</averageDuration>
+			</CombineImagesOperation>
+			<ClientXFerOperation hits="360">
+				<dataSize>157286400</dataSize>
+				<averageDuration>2200</averageDuration>
+			</ClientXFerOperation>
+			<RequestOperation hits="360">
+				<averageDuration>3642</averageDuration>
+				<bytesReceivedFromUser>1512328</bytesReceivedFromUser>
+				<bytesSendToUser>157286400</bytesSendToUser>
+			</RequestOperation>
+		</summary>
+		
+		<details>
+			<hours>
+				<hour>8</hour>
+				<hour>9</hour>
+				<hour>10</hour>
+				<hour>11</hour>
+				<hour>12</hour>
+				<hour>13</hour>
+				<hour>14</hour>
+				<hour>15</hour>
+				<hour>16</hour>
+				<hour>17</hour>
+				<hour>18</hour>
+				<hour>19</hour>
+				<hour>20</hour>			
+			</hours>
+			<days>
+				<date>20-10-2007</date>
+				<date>21-10-2007</date>
+				<date>22-10-2007</date>
+			</days>
+			
+			<usagedetails userid="5">
+				<dailyUsage date="20-10-2007">
+					<hourlyUsage hour="9"  dataUsage="1233452" requests="14"/>
+					<hourlyUsage hour="10" dataUsage="2236452" requests="12"/>
+					<hourlyUsage hour="11" dataUsage="3234452" requests="13"/>
+					<hourlyUsage hour="12" dataUsage="4235452" requests="14"/>					
+					<hourlyUsage hour="13" dataUsage="5273452" requests="18"/>
+					<hourlyUsage hour="14" dataUsage="6234352" requests="7"/>				
+					<hourlyUsage hour="15" dataUsage="7234522" requests="27"/>				
+					<hourlyUsage hour="16" dataUsage="8283452" requests="31"/>				
+					<hourlyUsage hour="17" dataUsage="9231452" requests="2"/>
+				</dailyUsage>
+				<dailyUsage date="21-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="1123452" requests="24"/>
+					<hourlyUsage hour="10" dataUsage="2223452" requests="26"/>
+					<hourlyUsage hour="11" dataUsage="3233452" requests="37"/>
+					<hourlyUsage hour="12" dataUsage="4235452" requests="47"/>					
+					<hourlyUsage hour="13" dataUsage="6526345" requests="13"/>
+					<hourlyUsage hour="14" dataUsage="7237452" requests="12"/>				
+					<hourlyUsage hour="15" dataUsage="8234852" requests="2"/>				
+					<hourlyUsage hour="16" dataUsage="9234452" requests="9"/>				
+					<hourlyUsage hour="17" dataUsage="1237452" requests="1"/>
+				</dailyUsage>
+				<dailyUsage date="22-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="2235452" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="3263452" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="4237452" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="5238452" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="6234592" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="7231452" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="8234542" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="9234252" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="0234452" requests="17"/>
+				</dailyUsage>
+				
+			</usagedetails>
+			<usagedetails userid="6">
+				<dailyUsage date="20-10-2007">
+					<hourlyUsage hour="9"  dataUsage="234526" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="234542" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="234532" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="231452" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="234252" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="232452" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="234352" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="234452" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="253452" requests="17"/>				
+				</dailyUsage>
+				<dailyUsage date="21-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="253452" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="234452" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="234526" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="233452" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="223452" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="213452" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="423452" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="235452" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="234562" requests="17"/>
+				</dailyUsage>
+				<dailyUsage date="22-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="923452" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="823452" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="723452" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="623452" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="523452" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="423452" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="323452" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="223452" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="123452" requests="17"/>
+				</dailyUsage>
+				
+			</usagedetails>			
+			<usagedetails userid="8">
+				<dailyUsage date="20-10-2007">
+					<hourlyUsage hour="9"  dataUsage="231452" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="233452" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="243452" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="234552" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="236452" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="273452" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="283452" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="239452" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="234502" requests="17"/>				
+				</dailyUsage>
+				<dailyUsage date="21-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="234512" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="234352" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="234452" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="234552" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="234572" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="234562" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="283452" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="293452" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="234052" requests="17"/>
+				</dailyUsage>
+				<dailyUsage date="22-10-2007" data="">
+					<hourlyUsage hour="9"  dataUsage="234521" requests="17"/>
+					<hourlyUsage hour="10" dataUsage="234522" requests="17"/>
+					<hourlyUsage hour="11" dataUsage="234352" requests="17"/>
+					<hourlyUsage hour="12" dataUsage="234452" requests="17"/>					
+					<hourlyUsage hour="13" dataUsage="234552" requests="17"/>
+					<hourlyUsage hour="14" dataUsage="234552" requests="17"/>				
+					<hourlyUsage hour="15" dataUsage="234652" requests="17"/>				
+					<hourlyUsage hour="16" dataUsage="234752" requests="17"/>				
+					<hourlyUsage hour="17" dataUsage="263745" requests="17"/>
+				</dailyUsage>
+			</usagedetails>			
+		</details>
+	</data>
+
+
+</report>
