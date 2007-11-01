@@ -12,7 +12,7 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain.generation;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -38,7 +38,7 @@ public class RepDataDetails extends RepData implements XMLElement {
         Element details = doc.createElement("details");
         Element hours = doc.createElement("hours");
         for (int i = getMinHour().intValue(); i <= getMaxHour().intValue(); i++) {
-            hours.appendChild(RequestReporting.createElement(doc,"hour", "" + i));
+            hours.appendChild(DataMonitoring.createElement(doc,"hour", "" + i));
         }
         details.appendChild(hours);
         
@@ -58,7 +58,7 @@ public class RepDataDetails extends RepData implements XMLElement {
         endCalendar.add(Calendar.DAY_OF_YEAR,1);
         
         while(startCalendar.before(endCalendar)) {
-            days.appendChild(RequestReporting.createElement(doc,"date", Report.periodFormat.format(startCalendar.getTime())));
+            days.appendChild(DataMonitoring.createElement(doc,"date", Report.periodFormat.format(startCalendar.getTime())));
             startCalendar.add(Calendar.DAY_OF_YEAR,1);
         }
         details.appendChild(days);

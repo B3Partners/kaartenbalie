@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -41,7 +41,7 @@ public class DataWrapper {
     private long endTime;
     
     //Use for reporting...
-    private RequestReporting requestReporting;
+    private DataMonitoring requestReporting;
     private Map requestParameterMap;
     private Class requestClassType;
     private OGCRequest ogcrequest;
@@ -169,11 +169,11 @@ public class DataWrapper {
         this.endTime = endTime;
     }
     
-    public RequestReporting getRequestReporting() {
+    public DataMonitoring getRequestReporting() {
         return requestReporting;
     }
     
-    public void setRequestReporting(RequestReporting requestReporting) {
+    public void setRequestReporting(DataMonitoring requestReporting) {
         this.requestReporting = requestReporting;
     }
     

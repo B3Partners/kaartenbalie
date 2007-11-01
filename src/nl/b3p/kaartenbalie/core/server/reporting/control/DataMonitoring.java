@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 
-public class RequestReporting {
+public class DataMonitoring {
     private User user;
     private ClientRequest clientRequest;
     private EntityManager em;
@@ -39,7 +39,7 @@ public class RequestReporting {
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
-    private static boolean enableReporting = false;
+    private static boolean enableMonitoring = false;
     
     /* These are static sets used for the reflectionfunction. It makes sure that it isnt possible to the Id and client
      * requestvalues for the ServiceProviderRequests and RequestOperations.
@@ -54,17 +54,17 @@ public class RequestReporting {
         usRequestOperation.add(new String("setId"));
     }
     
-    public static void setReporting(boolean state) {
-        enableReporting = state;
+    public static void setEnableMonitoring(boolean state) {
+        enableMonitoring = state;
     }
-    private RequestReporting() {
+    private DataMonitoring() {
         em = MyEMFDatabase.createEntityManager();
     }
     
     /*
      * This should be the default call to create a requestReporting object.
      */
-    public RequestReporting(User user) {
+    public DataMonitoring(User user) {
         this();
         if (user != null) {
             this.user = (User) em.find(User.class, user.getId());
@@ -93,7 +93,7 @@ public class RequestReporting {
      * clientreport! You cannot make multiple reports at once though.
      */
     public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime) {
-        if (!enableReporting) return;
+        if (!enableMonitoring) return;
         EntityTransaction tx = em.getTransaction();
         if (transactionActive()) {
             throw new Error("Cannot start a new clientRequest without ending one first.");
@@ -121,14 +121,14 @@ public class RequestReporting {
      * sprClass.
      */
     public void addServiceProviderRequest(Class sprClass, Map parameterMap){
-        if (!enableReporting) return;
+        if (!enableMonitoring) return;
         
         if (!transactionActive()) {
             throw new Error("Please start a clientrequest before attempting to log ServiceProviderRequests");
         }
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
-        Object reflectedObject = RequestReporting.createPOJOByReflection(ServiceProviderRequest.class, sprClass, parameterMap, overriddenParameters, usServiceProviderRequest);
+        Object reflectedObject = DataMonitoring.createPOJOByReflection(ServiceProviderRequest.class, sprClass, parameterMap, overriddenParameters, usServiceProviderRequest);
         em.persist(reflectedObject);
     }
     
@@ -138,14 +138,14 @@ public class RequestReporting {
      * rqoClass.
      */
     public void addRequestOperation(Class rqoClass, Map parameterMap){
-        if (!enableReporting) return;
+        if (!enableMonitoring) return;
         if (!transactionActive()) {
             throw new Error("Please start a clientrequest before attempting to log RequestOperations");
         }
         
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
-        Object reflectedObject = RequestReporting.createPOJOByReflection(Operation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
+        Object reflectedObject = DataMonitoring.createPOJOByReflection(Operation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
         em.persist(reflectedObject);
     }
     
@@ -245,7 +245,7 @@ public class RequestReporting {
      * the database. After this you can restart your clientRequest without creating a new RequestReporting.
      */
     public void endClientRequest(int bytesSendToUser, long totalResponseTime) {
-        if (!enableReporting) return;
+        if (!enableMonitoring) return;
         EntityTransaction tx = em.getTransaction();
         
         if (!transactionActive()) {
@@ -275,82 +275,6 @@ public class RequestReporting {
     }
     
     
-    public static void main(String [] args) throws Exception {
-        
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        RequestReporting rr = new RequestReporting(null);
-        rr.setReporting(true);
-         rr.clean();
-        for (int i = 0; i < 1; i++) {
-           // TestThread tt = new TestThread(1);
-            //tt.start();
-        }
-       //Thread.sleep(20000);
-        /*
-        long curTime = System.currentTimeMillis();
-        
-        try{
-            //Create instance of DocumentBuilderFactory
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            //Get the DocumentBuilder
-            DocumentBuilder docBuilder = factory.newDocumentBuilder();
-            //Create blank DOM Document
-            Document doc = docBuilder.newDocument();
-            
-            //create the root element
-            Element root = doc.createElement("root");
-            //all it to the xml tree
-            doc.appendChild(root);
-            List clientRequests = em.createQuery("From ClientRequest AS cr WHERE cr.id < 14000").getResultList();
-            System.out.println("TotalRecirds:" + clientRequests.size());
-            Iterator i = clientRequests.iterator();
-            while (i.hasNext()) {
-                ClientRequest cr = (ClientRequest) i.next();
-                cr.toElement(doc, root);
-                
-            }
-            
-            
-            /*
-            //create a comment
-            Comment comment = doc.createComment("This is comment");
-            //add in the root element
-            root.appendChild(comment);
-             
-            //create child element
-            Element childElement = doc.createElement("Child");
-            //Add the atribute to the child
-            childElement.setAttribute("attribute1","The value of Attribute 1");
-            root.appendChild(childElement);
-             
-             */
-        /*
-            TransformerFactory tranFactory = TransformerFactory.newInstance();
-            Transformer aTransformer = tranFactory.newTransformer();
-            aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
-            
-            Source src = new DOMSource(doc);
-            
-            File destFile = new File("C:\\text.xml");
-            Result dest = new StreamResult(destFile);
-            aTransformer.transform(src, dest);
-            
-            
-            
-            
-            
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        System.out.println("TotalTime:" + (System.currentTimeMillis() - curTime) + "ms");
-        et.commit();
-        
-        */
-    }
-    
-    
+   
     
 }

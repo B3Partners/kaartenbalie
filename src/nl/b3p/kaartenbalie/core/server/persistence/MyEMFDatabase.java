@@ -17,7 +17,7 @@ import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -74,7 +74,7 @@ public class MyEMFDatabase extends HttpServlet{
         /*
          * Now check various initialization parameters..
          */
-        RequestReporting.setReporting(getConfigValue(config, "reporting","disabled").equalsIgnoreCase("enabled"));
+        DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting","disabled").equalsIgnoreCase("enabled"));
         dtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
         cachePath = getConfigValue(config, "cache",null);
         if (cachePath != null) {

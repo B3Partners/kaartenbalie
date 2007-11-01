@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest" table="rep_serviceproviderrequest" discriminator-value="ServerProviderRequest" >
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest" table="mon_serviceproviderrequest" discriminator-value="ServerProviderRequest" >
         
         <id name="id" type="int" column="spr_id" >
             <generator class="native"/>

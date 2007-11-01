@@ -33,7 +33,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -306,7 +306,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          */
         long startprocestime = System.currentTimeMillis();
         Map parameterMap = new HashMap();
-        RequestReporting rr = dw.getRequestReporting();
+        DataMonitoring rr = dw.getRequestReporting();
         parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         if (urls.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
@@ -397,7 +397,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
          * BufferedImage. The data recieved from the url can be directly transported to the client.
          */
         
-        RequestReporting rr = dw.getRequestReporting();
+        DataMonitoring rr = dw.getRequestReporting();
         HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
         
         HttpClient client = new HttpClient();

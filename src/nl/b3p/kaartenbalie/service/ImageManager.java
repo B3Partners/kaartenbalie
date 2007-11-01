@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
@@ -78,7 +78,7 @@ public class ImageManager {
         Iterator it = ics.iterator();
         
         Class requestClassType = dw.getRequestClassType();
-        RequestReporting rr = dw.getRequestReporting();
+        DataMonitoring rr = dw.getRequestReporting();
 
         
         

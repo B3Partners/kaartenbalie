@@ -15,7 +15,7 @@ import nl.b3p.wms.capabilities.XMLElement;
  *
  * @author Chris Kramer
  */
-public abstract class ServiceProviderRequest implements XMLElement {
+public abstract class ServiceProviderRequest {
     
     
     private Integer id;
@@ -97,11 +97,11 @@ public abstract class ServiceProviderRequest implements XMLElement {
     public void setBytesReceived(Long bytesReceived) {
         this.bytesReceived = bytesReceived;
     }
-
+    
     public Long getMsSinceRequestStart() {
         return msSinceRequestStart;
     }
-
+    
     public void setMsSinceRequestStart(Long msSinceRequestStart) {
         this.msSinceRequestStart = msSinceRequestStart;
     }

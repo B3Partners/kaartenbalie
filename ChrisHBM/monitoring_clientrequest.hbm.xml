@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest" table="rep_clientrequest">
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest" table="mon_clientrequest">
         
          <id name="id" type="int" column="clr_id" >
             <generator class="native"/>
@@ -20,5 +20,7 @@
         </set>
         <property name="clientRequestURI" column="clr_clientRequestURI" length="4000"/>
         <property name="timeStamp" column="clr_timeStamp"/>
+        <property name="userId" column="clr_userId"/>
+        
     </class>
 </hibernate-mapping>

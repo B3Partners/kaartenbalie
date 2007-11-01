@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="rep_requestoperation" discriminator-value="Operation">
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="mon_requestoperation" discriminator-value="Operation">
         <id name="id" type="int" column="rqo_id" >
             <generator class="native"/>
         </id>

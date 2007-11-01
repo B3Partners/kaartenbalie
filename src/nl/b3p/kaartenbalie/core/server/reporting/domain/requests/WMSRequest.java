@@ -34,8 +34,6 @@ public abstract class WMSRequest extends ServiceProviderRequest{
         this.wmsVersion = wmsVersion;
     }
     
-    public Element toElement(Document doc, Element rootElement) {
-        return null;
-    }
+
     
 }

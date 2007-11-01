@@ -41,7 +41,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.w3c.dom.CDATASection;
@@ -131,7 +131,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         //Is de URL string wel de hoeveelheid bytes die van de User ontvangen wordt?
         //Er wordt een reporting gestart op user, terwijl user nog null is???
         String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
-        RequestReporting rr = new RequestReporting(user);
+        DataMonitoring rr = new DataMonitoring(user);
         data.setRequestReporting(rr);
         rr.startClientRequest(completeRequest, completeRequest.getBytes().length, startTime);
         

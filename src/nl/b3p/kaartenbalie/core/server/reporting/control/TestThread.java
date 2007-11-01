@@ -11,10 +11,9 @@ package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.util.HashMap;
 import java.util.Map;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 
 /**
  *
@@ -23,16 +22,17 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 public class TestThread extends Thread {
     
     private int records = 5;
-    
-    public TestThread(int records) {
+    private User user;
+    public TestThread(int records, User user) {
         this.records = records;
+        this.user = user;
     }
     
     public void run() {
         try {
             long totalTime = 0;
             
-            RequestReporting rr = new RequestReporting(null);
+            DataMonitoring rr = new DataMonitoring(user);
             for (int i = 0; i< records; i++) {
                 
                 long startTime = System.currentTimeMillis();

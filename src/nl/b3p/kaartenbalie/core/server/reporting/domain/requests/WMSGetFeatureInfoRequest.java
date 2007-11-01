@@ -22,8 +22,6 @@ public class WMSGetFeatureInfoRequest extends WMSRequest {
     public WMSGetFeatureInfoRequest() {
     }
 
-    public Element toElement(Document doc, Element rootElement) {
-        return null;
-    }
+
     
 }

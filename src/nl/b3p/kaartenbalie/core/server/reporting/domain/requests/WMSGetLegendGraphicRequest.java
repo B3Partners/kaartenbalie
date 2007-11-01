@@ -19,8 +19,5 @@ public class WMSGetLegendGraphicRequest extends WMSRequest {
     /** Creates a new instance of WMSGetCapabilitiesRequest */
     public WMSGetLegendGraphicRequest() {
     }
-    public Element toElement(Document doc, Element rootElement) {
-        return null;
-        
-    }
+
 }

@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.Warehouse;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,8 +58,8 @@ public class Report implements XMLElement {
         
         Element vars = doc.createElement("vars");
         Element period = doc.createElement("period");
-        period.appendChild(RequestReporting.createElement(doc,"start", getStartDate().toString()));
-        period.appendChild(RequestReporting.createElement(doc,"end", getEndDate().toString()));
+        period.appendChild(DataMonitoring.createElement(doc,"start", getStartDate().toString()));
+        period.appendChild(DataMonitoring.createElement(doc,"end", getEndDate().toString()));
         vars.appendChild(period);
         Element users = doc.createElement("users");
         //TODO For Each Loop door users in het rapport, for now just add a global user...
@@ -70,7 +70,7 @@ public class Report implements XMLElement {
             User tmpUser = (User) userIter.next();
             Element user = doc.createElement("user");
             user.setAttribute("id",tmpUser.getId().toString());
-            user.appendChild(RequestReporting.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
+            user.appendChild(DataMonitoring.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
             users.appendChild(user);
             vars.appendChild(users);
         }
@@ -78,7 +78,7 @@ public class Report implements XMLElement {
         Element company = doc.createElement("company");
         //TODO do something with company info here!
         company.setAttribute("id", null);
-        company.appendChild(RequestReporting.createElement(doc,"name",null));
+        company.appendChild(DataMonitoring.createElement(doc,"name",null));
         vars.appendChild(company);
         report.appendChild(vars);
         

@@ -24,7 +24,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -93,7 +93,7 @@ public class KBImageTool {
             throw new Exception("unsupported mime type: " + mime);
         
         //Logging the combine operation speed...
-        RequestReporting rr = dw.getRequestReporting();
+        DataMonitoring rr = dw.getRequestReporting();
         Map parameterMap = new HashMap();
         
         

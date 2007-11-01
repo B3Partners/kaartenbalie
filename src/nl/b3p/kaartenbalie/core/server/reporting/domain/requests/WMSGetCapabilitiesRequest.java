@@ -22,8 +22,5 @@ public class WMSGetCapabilitiesRequest extends WMSRequest {
     public WMSGetCapabilitiesRequest() {
     }
 
-    public Element toElement(Document doc, Element rootElement) {
-        return null;
-    }
-    
+
 }

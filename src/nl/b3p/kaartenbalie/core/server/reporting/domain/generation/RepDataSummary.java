@@ -9,7 +9,7 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.generation;
 
-import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,30 +44,30 @@ public class RepDataSummary extends RepData implements XMLElement {
         if (ctoHits != null && ctoAverageResponse != null) {
             Element cto = doc.createElement("ServerTransferOperation");
             cto.setAttribute("hits", ctoHits.toString());
-            cto.appendChild(RequestReporting.createElement(doc,"averageDuration", ctoAverageResponse.toString()));
+            cto.appendChild(DataMonitoring.createElement(doc,"averageDuration", ctoAverageResponse.toString()));
             summary.appendChild(cto);
         }
         
         if (getCioHits() != null && getCioAverageResponse() != null) {
             Element cio = doc.createElement("CombineImagesOperation");
             cio.setAttribute("hits", getCioHits().toString());
-            cio.appendChild(RequestReporting.createElement(doc,"averageDuration", getCioAverageResponse().toString()));
+            cio.appendChild(DataMonitoring.createElement(doc,"averageDuration", getCioAverageResponse().toString()));
             summary.appendChild(cio);
         }
         
         if (getCxoHits() != null && getCxoAverageResponse() != null) {
             Element cxo = doc.createElement("ClientXFerOperation");
             cxo.setAttribute("hits", getCxoHits().toString());
-            cxo.appendChild(RequestReporting.createElement(doc,"averageDuration", getCxoAverageResponse().toString()));
-            cxo.appendChild(RequestReporting.createElement(doc,"dataSize", getCxoData().toString()));
+            cxo.appendChild(DataMonitoring.createElement(doc,"averageDuration", getCxoAverageResponse().toString()));
+            cxo.appendChild(DataMonitoring.createElement(doc,"dataSize", getCxoData().toString()));
             summary.appendChild(cxo);
         }
         if (getRoHits() != null && getRoAverageResponse() != null) {
             Element ro = doc.createElement("RequestOperation");
             ro.setAttribute("hits", getRoHits().toString());
-            ro.appendChild(RequestReporting.createElement(doc,"averageDuration", getRoAverageResponse().toString()));
-            ro.appendChild(RequestReporting.createElement(doc,"bytesReceivedFromUser", getRoUpload().toString()));
-            ro.appendChild(RequestReporting.createElement(doc,"bytesSendToUser", getRoDownload().toString()));
+            ro.appendChild(DataMonitoring.createElement(doc,"averageDuration", getRoAverageResponse().toString()));
+            ro.appendChild(DataMonitoring.createElement(doc,"bytesReceivedFromUser", getRoUpload().toString()));
+            ro.appendChild(DataMonitoring.createElement(doc,"bytesSendToUser", getRoDownload().toString()));
             summary.appendChild(ro);
         }
         

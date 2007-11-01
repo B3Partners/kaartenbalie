@@ -66,9 +66,7 @@ public class WMSGetMapRequest extends WMSRequest{
     public void setBoundingBox(String boundingBox) {
         this.boundingBox = boundingBox;
     }
-    public Element toElement(Document doc, Element rootElement) {
-        return null;
-    }
+
     
     
 }
