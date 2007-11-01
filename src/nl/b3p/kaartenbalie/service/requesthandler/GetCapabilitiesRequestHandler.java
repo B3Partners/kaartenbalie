@@ -38,25 +38,27 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     public GetCapabilitiesRequestHandler() {}
     // </editor-fold>
     
-    /** Processes the parameters and creates a DocumentBuilder from the given parameters.
+    /** 
+     * Processes the parameters and creates a DocumentBuilder from the given parameters.
      * This DocumentBuilder will be used to create a XML based String which can be returned to the client.
      *
-     * @param parameters Map parameters
+     * @param dw DataWrapper which contains all information that has to be sent to the client
+     * @param user User the user which invoked the request
      *
      * @return byte[]
      *
+     * @throws Exception
      * @throws IOException
-     * @exception ParserConfigurationException
      */
-    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
-        this.user = user;
-        url = user.getPersonalURL();
-                
-        ServiceProvider s = getServiceProvider();
-        s.overwriteURL(url);
+        dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
         
-        ByteArrayOutputStream output = null;
+        ByteArrayOutputStream output    = null;
+        this.user                       = user;
+        this.url                        = user.getPersonalURL();
+        ServiceProvider s               = getServiceProvider();
+        s.overwriteURL(url);
         
         /*
          * Create a DocumentBuilderFactory from which a new document can be created
@@ -71,18 +73,17 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // <!ELEMENT VendorSpecificCapabilities EMPTY>
         // ]>  <!-- end of DOCTYPE declaration -->
         
-        DocumentType dt = di.createDocumentType("WMT_MS_Capabilities", null, CallWMSServlet.CAPABILITIES_DTD);
-        Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
+        DocumentType dt     = di.createDocumentType("WMT_MS_Capabilities", null, CallWMSServlet.CAPABILITIES_DTD);
+        Document dom        = di.createDocument(null, "WMT_MS_Capabilities", dt);
         Element rootElement = dom.getDocumentElement();
+        rootElement         = s.toElement(dom, rootElement);
         rootElement.setAttribute("version", "1.1.1");
-        rootElement = s.toElement(dom, rootElement);
         
         /*
          * Create a new output format to which this document should be translated and
          * serialize the tree to an XML document type
          */
         OutputFormat format = new OutputFormat(dom, CHARSET, true);
-
         format.setIndenting(true);
         output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
@@ -92,11 +93,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
         
         byte[] data = output.toByteArray();
-        dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
-        dw.setContentType("application/vnd.ogc.wms_xml");
         dw.write(output);
     }
     // </editor-fold>
-
-
 }

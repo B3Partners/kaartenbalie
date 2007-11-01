@@ -142,9 +142,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             //van een url. Op die manier kan het nooit vergeten worden en is de gebruiker
             //altijd op de hoogte van het feit dat hij met een geldige of ongelidige url werkt.....
             ogcrequest.isValidRequestURL();
+            //TODO:
+            //wat als er uitkomt dat een url niet valid is???
+            //daarnaast moeten de exceptions die opgeworpen worden in de bovenstaande methode er uit gehaald worden
+            //en hier in deze klasse opgeworpen worden.
             
             if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
-                String format = (String) ogcrequest.getParameter(WMS_PARAM_FORMAT);
+                String format = ogcrequest.getParameter(WMS_PARAM_FORMAT);
                 data.setContentType(format);
                 
                 if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
@@ -153,11 +157,13 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                         int height = Integer.parseInt((String)ogcrequest.getParameter(WMS_PARAM_HEIGHT));
                         if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
                             if(((String) ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
-                                data.setErrorContentType((String) ogcrequest.getParameter(WMS_PARAM_FORMAT));
+                                data.setErrorContentType(format);
                             }
                         }
                     }
                 }
+            } else {
+                data.setContentType(WMS_PARAM_EXCEPTION_XML);
             }
             
             user = checkLogin(request);

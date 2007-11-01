@@ -24,12 +24,16 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
     
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
-     * @param parameters Map parameters
+     * 
+     * @param dw DataWrapper which contains all information that has to be sent to the client
+     * @param user User the user which invoked the request
+     *
      * @return byte[]
      *
+     * @throws Exception
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException {
         return;
     }

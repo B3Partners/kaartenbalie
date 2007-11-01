@@ -34,12 +34,16 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
     
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
-     * @param parameters Map parameters
+     * 
+     * @param dw DataWrapper which contains all information that has to be sent to the client
+     * @param user User the user which invoked the request
+     *
      * @return byte[]
      *
+     * @throws Exception
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
+    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         /*
          * Initialize some variables
@@ -47,65 +51,24 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
          * with the GetMap functionality before the outputformat is set then the standard output
          * format would be used.
          */
-        this.user = user;
-        this.url = user.getPersonalURL();
-        Integer orgId = user.getOrganization().getId();
+        this.user       = user;
+        this.url        = user.getPersonalURL();
+        Integer orgId   = user.getOrganization().getId();
+        OGCRequest ogc  = dw.getOgcrequest();
         
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
-        String format = dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT);
-        dw.setContentType(format);
-        
-        String inimageType = null;
-        
-        if (dw.getOgcrequest().containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
-            inimageType = format;
-        }
-        dw.setErrorContentType(inimageType);
-        
-        //Een aantal simpele controles. Deze staan vooraan omdat als een van deze
-        //controles al faalt er dan niet onnodig op de zwaardere controles beslag
-        //wordt gelegd.
-        int width  = Integer.parseInt((String)dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt((String)dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
-        if(width < 1 || height < 1 || width > 2048 || height > 2048) {
-            log.error("Image wrong size: width, height: " + width + ", " + height);
-            throw new Exception(IMAGE_SIZE_EXCEPTION);
-        }
-        
-        String [] boxx = (dw.getOgcrequest().getParameter(WMS_PARAM_BBOX)).split(",");
-        if(boxx.length < 4) {
-            log.error("BBOX wrong size: " + boxx.length);
-            throw new Exception(BBOX_EXCEPTION);
-        }
-        
-        double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
-        try {
-            minx = Double.parseDouble(boxx[0]);
-            miny = Double.parseDouble(boxx[1]);
-            maxx = Double.parseDouble(boxx[2]);
-            maxy = Double.parseDouble(boxx[3]);
-            if (minx > maxx || miny > maxy) {
-                throw new Exception("");
-            }
-        } catch (Exception e) {
-            log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
-            throw new Exception(BBOX_EXCEPTION);
-        }
         dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
-        dw.setRequestParameter("Width", new Integer(width));
-        dw.setRequestParameter("Height",new Integer(height));
-        dw.setRequestParameter("WmsVersion", dw.getOgcrequest().getParameter(WMS_VERSION));
+        dw.setRequestParameter("Width", new Integer(ogc.getParameter(WMS_PARAM_WIDTH)));
+        dw.setRequestParameter("Height",new Integer(ogc.getParameter(WMS_PARAM_HEIGHT)));
+        dw.setRequestParameter("WmsVersion", ogc.getParameter(WMS_VERSION));
         dw.setRequestParameter("Srs", null);
-        dw.setRequestParameter("Format", dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT));
-        dw.setRequestParameter("BoundingBox", dw.getOgcrequest().getParameter(WMS_PARAM_BBOX));
+        dw.setRequestParameter("Format", ogc.getParameter(WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", ogc.getParameter(WMS_PARAM_BBOX));
         
-        String [] layers = dw.getOgcrequest().getParameter(WMS_PARAM_LAYERS).split(",");
+        String givenSRS         = ogc.getParameter(WMS_PARAM_SRS);
+        Map userdefinedParams   = ogc.getNonOGCParameters();
         
-        Map userdefinedParams = dw.getOgcrequest().getNonOGCParameters();
-        
-        String givenSRS = dw.getOgcrequest().getParameter(WMS_PARAM_SRS);
-        
-        List spUrls = getSeviceProviderURLS(layers, orgId, false);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, false);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(GETMAP_EXCEPTION);
@@ -139,65 +102,22 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 throw new Exception(SRS_EXCEPTION);
             }
             
-            String [] params = dw.getOgcrequest().getParametersArray();
-            
             StringBuffer url = new StringBuffer();
             url.append((String)spInfo.get("spUrl"));
-            url.append(WMS_VERSION);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_VERSION));
-            url.append("&");
-            url.append(WMS_REQUEST);
-            url.append("=");
-            url.append(WMS_REQUEST_GetMap);
-            
-            url.append("&");
-            url.append(WMS_PARAM_BBOX);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_BBOX));
-            
-            url.append("&");
-            url.append(WMS_PARAM_SRS);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_SRS));
-            
-            url.append("&");
-            url.append(WMS_PARAM_TRANSPARENT);
-            url.append("=");
-            url.append(WMS_PARAM_TRANSPARENT_TRUE);
-            
-            url.append("&");
-            url.append(WMS_PARAM_FORMAT);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT));
-            
-            url.append("&");
-            url.append(WMS_PARAM_WIDTH);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
-            
-            url.append("&");
-            url.append(WMS_PARAM_HEIGHT);
-            url.append("=");
-            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
-            
-            url.append("&");
-            url.append(WMS_PARAM_LAYERS);
-            url.append("=");
-            url.append(layersList);
-            
-            
-            Iterator it2 = userdefinedParams.keySet().iterator();
-            String urlstring=url.toString();
-            while (it2.hasNext()) {
-                String key = (String)it2.next();
-                String value = (String)userdefinedParams.get(key);
-                urlstring+="&";
-                urlstring+=key;
-                urlstring+="=";
-                urlstring+=value.replaceAll("=", "%3D");
+            String [] params = ogc.getParametersArray();
+            for (int i = 0; i < params.length; i++) {
+                String [] keyValuePair = params[i].split("=");
+                if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
+                    url.append(WMS_PARAM_LAYERS);
+                    url.append("=");
+                    url.append(layersList);
+                    url.append("&");
+                } else {
+                    url.append(params[i]);
+                    url.append("&");
+                }
             }
-            urls.add(urlstring.replaceAll(" ", "%20"));
+            urls.add(url.toString());
         }
         tx.commit();
         
@@ -209,6 +129,4 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         //TODO
         return null;
     }
-    
-    
 }
