@@ -135,15 +135,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         try {
             OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
-            
-            //TODO: moet de validatie niet gewoon gelijk aangeroepen worden bij het zetten
-            //van een url. Op die manier kan het nooit vergeten worden en is de gebruiker
-            //altijd op de hoogte van het feit dat hij met een geldige of ongelidige url werkt.....
-            ogcrequest.isValidRequestURL();
-            //TODO:
-            //wat als er uitkomt dat een url niet valid is???
-            //daarnaast moeten de exceptions die opgeworpen worden in de bovenstaande methode er uit gehaald worden
-            //en hier in deze klasse opgeworpen worden.
+            String reason = new String();
+            boolean isvalid = ogcrequest.isValidRequestURL(reason);
+            if(!isvalid)
+                throw new Exception(reason);
             
             if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
                 String format = ogcrequest.getParameter(WMS_PARAM_FORMAT);
