@@ -30,11 +30,11 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
  *
  * @author Chris Kramer
  */
-public class Warehouse {
+public class DataWarehousing {
     
     private static Map dataMappings;
     
-    private Warehouse() {
+    private DataWarehousing() {
     }
     
     static {
@@ -132,7 +132,7 @@ public class Warehouse {
         Object refDBObject = getReferedObject(entityClass, primaryKey, em);
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
         if (we != null) {
-            throw new Exception("Trying to persist an already existing object. Use " + Warehouse.class.getSimpleName() + ".merge() instead.");
+            throw new Exception("Trying to persist an already existing object. Use " + DataWarehousing.class.getSimpleName() + ".merge() instead.");
         }
         EntityTransaction et = em.getTransaction();
         et.begin();
@@ -154,7 +154,7 @@ public class Warehouse {
          */
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
         if (we == null) {
-            throw new Exception("Trying to merge a nonexisting object. Use " + Warehouse.class.getSimpleName() + ".persist() instead.");
+            throw new Exception("Trying to merge a nonexisting object. Use " + DataWarehousing.class.getSimpleName() + ".persist() instead.");
         }
         if (we.getDateDeleted() != null) {
             throw new Exception("Trying to update an entity that is already deleted in the warehouse.");
@@ -180,7 +180,7 @@ public class Warehouse {
         for (int i = 0; i< 20; i++) {
             try {
                 int nextRandom = 1 + (int)(Math.random() * 20);
-                Warehouse.remove(User.class,new Integer(i));
+                DataWarehousing.remove(User.class,new Integer(i));
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.Warehouse;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 
 public class ClientRequest {
     
@@ -91,7 +91,7 @@ public class ClientRequest {
     
     public User getUser(User user) {
         try {
-            return (User) Warehouse.find(User.class, userId);
+            return (User) DataWarehousing.find(User.class, userId);
         } catch (Exception e) {
             return null;
         }

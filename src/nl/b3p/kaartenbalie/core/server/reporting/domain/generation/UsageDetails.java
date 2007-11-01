@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.Warehouse;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -110,7 +110,7 @@ public class UsageDetails implements XMLElement{
     }
     public User getUser(User user) {
         try {
-            return (User) Warehouse.find(User.class, userId);
+            return (User) DataWarehousing.find(User.class, userId);
         } catch (Exception e) {
             return null;
         }

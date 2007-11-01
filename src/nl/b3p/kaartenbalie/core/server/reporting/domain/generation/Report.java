@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.Warehouse;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
@@ -160,7 +160,7 @@ public class Report implements XMLElement {
         while (i.hasNext()) {
             Integer userId = (Integer)i.next();
             try {
-                User user = (User) Warehouse.find(User.class, userId);
+                User user = (User) DataWarehousing.find(User.class, userId);
                 if (user != null) {
                     users.add(user);
                 }
