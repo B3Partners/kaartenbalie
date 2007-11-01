@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import nl.b3p.wms.capabilities.ElementHandler;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Switcher;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;

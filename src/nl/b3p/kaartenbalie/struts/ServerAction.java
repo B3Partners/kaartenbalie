@@ -24,7 +24,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -507,34 +507,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return null;
     }
     // </editor-fold>
-    
-    private String getUrlWithoutParams(String url) {
-        int qpos = url.lastIndexOf("?");
-        if (url.length()==qpos+1)
-            return url;
-        
-        StringBuffer trimmedUrl = new StringBuffer(url.substring(0, qpos));
-        trimmedUrl.append("?");
-        String theParams = url.substring(qpos + 1);
-        String [] paramPairs = theParams.split("&");
-        for (int i = 0; i < paramPairs.length; i ++) {
-            String [] params = paramPairs[i].split("=");
-            if(params.length>1 &&
-                    !PARAMS_GetCapabilities.contains(params[0]) &&
-                    !PARAMS_GetMap.contains(params[0]) &&
-                    !PARAMS_GetFeatureInfo.contains(params[0]) &&
-                    !PARAMS_GetLegendGraphic.contains(params[0]) &&
-                    !PARAMS_GetStyles.contains(params[0]) &&
-                    !PARAMS_PutStyles.contains(params[0]) &&
-                    !PARAMS_DescribeLayer.contains(params[0])) {
-                trimmedUrl.append(params[0]);
-                trimmedUrl.append("=");
-                trimmedUrl.append(params[1]);
-                trimmedUrl.append("&");
-            }
-        }
-        return trimmedUrl.toString();
-    }
     
     protected String checkWmsUrl(String url) throws Exception {
         

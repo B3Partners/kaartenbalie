@@ -36,30 +36,30 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         /* 
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
          * with the GetMap functionality before the outputformat is set then the standard output
          * format would be used.
          */
+        this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId();
+                
         dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         
-        String format = (String) parameters.get(WMS_PARAM_FORMAT);
+        String format = dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT);
         dw.setContentType(format);
         
         String inimageType = null;
         
-        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+        if (dw.getOgcrequest().containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
             inimageType = format;
         }
         dw.setErrorContentType(inimageType);        
         
-        user = (User) parameters.get(KB_USER);
-        Integer orgId = user.getOrganization().getId();
-        
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        String [] layers = ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
+        String [] layers = dw.getOgcrequest().getParameter(WMS_PARAM_LAYERS).split(",");
         
         List spUrls = getSeviceProviderURLS(layers, orgId, true);        
         if(spUrls==null || spUrls.isEmpty()) {            
@@ -76,14 +76,14 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             url.append((String)spInfo.get("spUrl"));
             url.append(WMS_VERSION);
             url.append("=");
-            url.append((String)parameters.get(WMS_VERSION));
+            url.append(dw.getOgcrequest().getParameter(WMS_VERSION));
             url.append("&");
             url.append(WMS_REQUEST);
             url.append("=");
             url.append(WMS_REQUEST_GetFeatureInfo);
 
 
-            String infoFormat = (String)parameters.get(WMS_PARAM_INFO_FORMAT);
+            String infoFormat = dw.getOgcrequest().getParameter(WMS_PARAM_INFO_FORMAT);
             if(null != infoFormat) {
                 url.append("&");
                 url.append(WMS_PARAM_INFO_FORMAT);
@@ -91,7 +91,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                 url.append(FEATURE_INFO_FORMAT);
             }
 
-            String featureCount = (String)parameters.get(WMS_PARAM_FEATURECOUNT);
+            String featureCount = dw.getOgcrequest().getParameter(WMS_PARAM_FEATURECOUNT);
             if (null != featureCount) {
                 url.append("&");
                 url.append(WMS_PARAM_FEATURECOUNT);
@@ -102,11 +102,11 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             url.append("&");
             url.append(WMS_PARAM_X);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_X));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_X));
             url.append("&");
             url.append(WMS_PARAM_Y);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_Y));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_Y));
             url.append("&");
             url.append(WMS_PARAM_LAYERS);
             url.append("=");
@@ -114,19 +114,19 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             url.append("&");
             url.append(WMS_PARAM_SRS);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_SRS));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_SRS));
             url.append("&");
             url.append(WMS_PARAM_BBOX);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_BBOX));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_BBOX));
             url.append("&");
             url.append(WMS_PARAM_WIDTH);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_WIDTH));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
             url.append("&");
             url.append(WMS_PARAM_HEIGHT);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_HEIGHT));  
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));  
             url.append("&");
             url.append(WMS_PARAM_QUERY_LAYERS);
             url.append("=");

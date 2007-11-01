@@ -34,7 +34,7 @@ import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
@@ -425,7 +425,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
                 InputStream is = method.getResponseBodyAsStream();
                 String body = getServiceException(is);
-                log.error("xml error response for request identified by: " + dw.getParameters().toString());
+                //log.error("xml error response for request identified by: " + dw.getParameters().toString());
+                log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
                 throw new Exception(body);
             }
             
@@ -527,6 +528,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
-    public abstract void getRequest(DataWrapper dw, Map params) throws IOException, Exception;
+    public abstract void getRequest(DataWrapper dw, User user) throws IOException, Exception;
     // </editor-fold>
 }

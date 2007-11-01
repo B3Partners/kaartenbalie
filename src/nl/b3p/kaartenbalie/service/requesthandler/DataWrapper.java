@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -36,7 +37,6 @@ public class DataWrapper {
     private HttpServletResponse response;
     private OutputStream sos;
     private String contentDisposition;
-    private Map parameters;
     private long startTime;
     private long endTime;
     
@@ -44,6 +44,7 @@ public class DataWrapper {
     private RequestReporting requestReporting;
     private Map requestParameterMap;
     private Class requestClassType;
+    private OGCRequest ogcrequest;
     
     
     public DataWrapper(HttpServletResponse response) throws IOException {
@@ -168,14 +169,6 @@ public class DataWrapper {
         this.endTime = endTime;
     }
     
-    public Map getParameters() {
-        return parameters;
-    }
-    
-    public void setParameters(Map parameters) {
-        this.parameters = parameters;
-    }
-    
     public RequestReporting getRequestReporting() {
         return requestReporting;
     }
@@ -192,7 +185,6 @@ public class DataWrapper {
         this.requestClassType = requestClassType;
     }
     
-    
     public Map getRequestParameterMap() {
         return requestParameterMap;
     }
@@ -200,7 +192,12 @@ public class DataWrapper {
     public void setRequestParameter(String key, Object object) {
         this.requestParameterMap.put(key, object);
     }
-    
-    
-    
+
+    public OGCRequest getOgcrequest() {
+        return ogcrequest;
+    }
+
+    public void setOgcrequest(OGCRequest ogcrequest) {
+        this.ogcrequest = ogcrequest;
+    }
 }

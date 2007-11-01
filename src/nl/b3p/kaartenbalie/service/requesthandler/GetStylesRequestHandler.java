@@ -11,7 +11,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import java.util.Map;
+import nl.b3p.kaartenbalie.core.server.User;
 
 public class GetStylesRequestHandler extends WMSRequestHandler {
     
@@ -29,7 +29,7 @@ public class GetStylesRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException {
+    public void getRequest(DataWrapper dw, User user) throws IOException {
         return;
     }
     // </editor-fold>

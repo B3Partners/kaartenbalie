@@ -37,29 +37,28 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         /* 
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
          * with the GetMap functionality before the outputformat is set then the standard output
          * format would be used.
          */
-        String format = (String) parameters.get(WMS_PARAM_FORMAT);
+        this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId();
+        
+        String format = dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT);
         dw.setContentType(format);
         
         String inimageType = null;
         
-        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+        if (dw.getOgcrequest().containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
             inimageType = format;
         }
         dw.setErrorContentType(inimageType);
         
-        
-        user = (User) parameters.get(KB_USER);
-        Integer orgId = user.getOrganization().getId();
-        
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        String [] layers = ((String) parameters.get(WMS_PARAM_LAYER)).split(",");
+        String [] layers = dw.getOgcrequest().getParameter(WMS_PARAM_LAYERS).split(",");
         if(layers.length != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
@@ -78,7 +77,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         serviceProviderUrl.append((String)spInfo.get("spUrl"));        
         serviceProviderUrl.append(WMS_VERSION);
         serviceProviderUrl.append("=");
-        serviceProviderUrl.append((String)parameters.get(WMS_VERSION));
+        serviceProviderUrl.append(dw.getOgcrequest().getParameter(WMS_VERSION));
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_REQUEST);
         serviceProviderUrl.append("=");
@@ -91,58 +90,58 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         serviceProviderUrl.append("&");
         serviceProviderUrl.append(WMS_PARAM_STYLE);
         serviceProviderUrl.append("=");
-        serviceProviderUrl.append((String)parameters.get(WMS_PARAM_STYLE));
+        serviceProviderUrl.append(dw.getOgcrequest().getParameter(WMS_PARAM_STYLE));
 
-        String value = (String)parameters.get(WMS_PARAM_FEATURETYPE);
+        String value = dw.getOgcrequest().getParameter(WMS_PARAM_FEATURETYPE);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_FEATURETYPE);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_RULE);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_RULE);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_RULE);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_SCALE);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_SCALE);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_SCALE);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_SLD);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_SLD);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_SLD);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_SLD_BODY);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_SLD_BODY);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_SLD_BODY);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_FORMAT);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_FORMAT);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_WIDTH);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_WIDTH);
             serviceProviderUrl.append("=");
             serviceProviderUrl.append(value);
         }
-        value = (String)parameters.get(WMS_PARAM_HEIGHT);
+        value = dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT);
         if(value != null) {
             serviceProviderUrl.append("&");
             serviceProviderUrl.append(WMS_PARAM_HEIGHT);

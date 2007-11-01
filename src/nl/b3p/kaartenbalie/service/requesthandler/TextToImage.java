@@ -22,13 +22,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
 
 public class TextToImage implements KBConstants {
     private String imageType;
     
     public void createImage(String message, String imageType, DataWrapper data) throws IOException {
-        Map parameters = data.getParameters();        
         this.imageType = imageType;
         Color background = Color.white;
         Color textColor = Color.black;
@@ -40,8 +39,8 @@ public class TextToImage implements KBConstants {
         FontRenderContext fc = g2.getFontRenderContext();
         
         // calculate the size of the text
-        int width = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
+        int width  = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
+        int height = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
 
         // prepare some output
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

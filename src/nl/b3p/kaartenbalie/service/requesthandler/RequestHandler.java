@@ -12,9 +12,9 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import java.util.Map;
+import nl.b3p.kaartenbalie.core.server.User;
 
 public interface RequestHandler {
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception;
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception;
     
 }

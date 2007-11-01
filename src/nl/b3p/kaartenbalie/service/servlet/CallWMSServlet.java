@@ -27,7 +27,6 @@ import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
 import java.io.*;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -43,7 +42,8 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.RequestReporting;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -91,64 +91,79 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         int totalDatasize = 0;
         
         
-        if (CAPABILITIES_DTD == null) {
-            String scheme = request.getScheme();
-            String serverName = request.getServerName();
-            int serverPort = request.getServerPort();
-            String contextPath = request.getContextPath();
-            
-            StringBuffer theUrl = new StringBuffer(scheme);
-            theUrl.append("://");
-            theUrl.append(serverName);
-            if ((scheme.equals("http") && serverPort!=80) || (scheme.equals("https") && serverPort!=443)) {
-                theUrl.append(":");
-                theUrl.append(serverPort);
-            }
-            theUrl.append(contextPath);
-            theUrl.append(MyEMFDatabase.getDtd());
-            CAPABILITIES_DTD = theUrl.toString();
+        
+        String scheme       = request.getScheme();
+        String serverName   = request.getServerName();
+        int serverPort      = request.getServerPort();
+        String contextPath  = request.getContextPath();
+        String servletPath  = request.getServletPath();
+        String pathInfo     = request.getPathInfo();
+        String queryString  = request.getQueryString();
+
+        StringBuffer theUrl = new StringBuffer(scheme);
+        theUrl.append("://");
+        theUrl.append(serverName);
+        if ((scheme.equals("http") && serverPort!=80) || (scheme.equals("https") && serverPort!=443)) {
+            theUrl.append(":");
+            theUrl.append(serverPort);
         }
+        theUrl.append(contextPath);
+        
+        if (CAPABILITIES_DTD == null) {
+            StringBuffer dtdUrl = theUrl;
+            dtdUrl.append(MyEMFDatabase.getDtd());
+            CAPABILITIES_DTD = dtdUrl.toString();
+        }
+        
+        theUrl.append(servletPath);
+        theUrl.append(pathInfo);
+        theUrl.append("?");
+        theUrl.append(queryString);
+        log.info("Request: " + theUrl.toString());
         
         DataWrapper data = new DataWrapper(response);
         User user = null;
+        
+        
+        //TODO:
+        //Complete request mag voor kaartenbalie weg.... is deze nog van belang voor reporting of
+        //mag deze in zijn geheel vervangen worden voor theUrl.toString()???
+        //Is de URL string wel de hoeveelheid bytes die van de User ontvangen wordt?
+        //Er wordt een reporting gestart op user, terwijl user nog null is???
         String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
-        log.info("Request: " + completeRequest);
         RequestReporting rr = new RequestReporting(user);
         data.setRequestReporting(rr);
         rr.startClientRequest(completeRequest, completeRequest.getBytes().length, startTime);
         
         try {
+            OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
             
-            //Create a map with parameters of of request parameters given
-            //with the request of this user and transforms each of these
-            //parameters and their keys into uppercase values.
-            Map parameters = getUpperCaseParameterMap(request.getParameterMap());
-            data.setParameters(parameters);
+            //TODO: moet de validatie niet gewoon gelijk aangeroepen worden bij het zetten
+            //van een url. Op die manier kan het nooit vergeten worden en is de gebruiker
+            //altijd op de hoogte van het feit dat hij met een geldige of ongelidige url werkt.....
+            ogcrequest.isValidRequestURL();
             
-            //Get the information about the user performing the request
-            //if the user doesn't exist the method will throw an exception
-            log.debug("AANWEZIG");
-            user = checkLogin(request, parameters, data);
-            
-            //Setting the header for this specific user so that any action
-            //of the user can be logged.
-            if(user != null) {
-                data.setHeader("X-Kaartenbalie-User", user.getUsername());
+            if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
+                String format = (String) ogcrequest.getParameter(WMS_PARAM_FORMAT);
+                data.setContentType(format);
+                
+                if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
+                    if (ogcrequest.containsParameter(WMS_PARAM_WIDTH) && ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
+                        int width  = Integer.parseInt((String)ogcrequest.getParameter(WMS_PARAM_WIDTH));
+                        int height = Integer.parseInt((String)ogcrequest.getParameter(WMS_PARAM_HEIGHT));
+                        if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
+                            if(((String) ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
+                                data.setErrorContentType((String) ogcrequest.getParameter(WMS_PARAM_FORMAT));
+                            }
+                        }
+                    }
+                }
             }
             
-            //TODO: setHeader met de tijd die verstreken is in de periode van het ophalen van de kaart.
-            
-            
-            
-            //put two extra parameters into the map, since these two vars
-            //are needed at several places in the application.
-            parameters.put(KB_USER, user);
-            parameters.put(KB_PERSONAL_URL, request.getRequestURL().toString());
-            
-            //End the clientRequest
-            
-            //Finally call the parse and request method.
-            parseRequestAndData(data, parameters);
+            user = checkLogin(request);
+            data.setHeader("X-Kaartenbalie-User", user.getUsername());
+            data.setOgcrequest(ogcrequest);
+            parseRequestAndData(data, user);
         } catch (Exception ex) {
             log.error("error: ", ex);
             String errorContentType = data.getErrorContentType();
@@ -177,8 +192,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                      * into the Datawrapper and sent directly. This means we don't have to given another sent command
                      * anymore after calling method below.
                      */
-                    int width  = Integer.parseInt((String)data.getParameters().get(WMS_PARAM_WIDTH));
-                    int height = Integer.parseInt((String)data.getParameters().get(WMS_PARAM_HEIGHT));
+                    int width  = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
+                    int height = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
                     
                     tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
                 } catch (Exception e) {
@@ -305,7 +320,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws UnsupportedEncodingException
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
-    public User checkLogin(HttpServletRequest request, Map parameters, DataWrapper dw) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
+    public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
         EntityManager em = getEntityManager();
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
@@ -338,31 +353,21 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             }
         }
         
-        
         // probeer personal url
         if (user == null) {
-            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
-                if (parameters.containsKey(WMS_PARAM_WIDTH) && parameters.containsKey(WMS_PARAM_HEIGHT)) {
-                    int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
-                    int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
-                    if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
-                        if(((String) parameters.get(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
-                            dw.setErrorContentType((String) parameters.get(WMS_PARAM_FORMAT));
-                        }
-                    }
-                }
-            }
-            
             // niet ingelogd dus, dan checken op token in url
-            
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
                 String url = request.getRequestURL().toString();
+                String testurl = "http://localhost:8084/kaartenbalie/wms/d6cec623c87928f6b3404364d718b332";
+                if(testurl.equalsIgnoreCase(url)) {
+                    log.info("url is gelijk");
+                }
                 user = (User)em.createQuery(
                         "from User u where " +
-                        "lower(u.personalURL) = lower(:personalURL) ")
-                        .setParameter("personalURL", request.getRequestURL().toString())
+                        "u.personalURL = :personalURL")
+                        .setParameter("personalURL", url)
                         .getSingleResult();
             } catch (NoResultException nre) {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
@@ -430,118 +435,23 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
-    public void parseRequestAndData(DataWrapper data, Map parameters) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
-        /*
-         * First we need to find out if a request given by the user is supported by the system
-         * If a request is not supported then we need to inform the user about this and throw
-         * an error. Otherwise we need to execute the request and provide the information the
-         * user asked for.
-         */
-        String givenRequest = null;
-        boolean supported = false;
-        
-        if (parameters.get(WMS_REQUEST)!=null){
-            givenRequest = (String) parameters.get(WMS_REQUEST);
-            
-            Iterator it = SUPPORTED_REQUESTS.iterator();
-            while (it.hasNext()) {
-                String supported_requests = (String) it.next();
-                if(supported_requests.equalsIgnoreCase(givenRequest)) {
-                    supported = true;
-                }
-            }
-        }
-        
-        if (!supported) {
-            throw new UnsupportedOperationException("Request '" + givenRequest + "' not supported! Use GetCapabilities request to " +
-                    "get the list of supported functions. Usage: i.e. http://urltoserver/personalurl?REQUEST=GetCapabilities&" +
-                    "VERSION=1.1.1&SERVICE=WMS");
-        }
-        
-        /*
-         * The request is supported so now we can go ahed and find the right information which
-         * the user asked for.
-         */
+    public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         RequestHandler requestHandler = null;
-        List reqParams = null;
-        if(givenRequest.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-            requestHandler = new GetCapabilitiesRequestHandler();
-            reqParams = PARAMS_GetCapabilities;
+        String request = data.getOgcrequest().getParameter(REQUEST);
+        if(request.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
             data.setRequestClassType(WMSGetCapabilitiesRequest.class);
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+            requestHandler = new GetCapabilitiesRequestHandler();
+        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
             data.setRequestClassType(WMSGetMapRequest.class);
-            //Att all time set the error contenttype at first....
-            String format = (String) parameters.get(WMS_PARAM_FORMAT);
-            String inimageType = null;
-            if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
-                inimageType = format;
-            }
-            data.setErrorContentType(inimageType);
-            
             requestHandler = new GetMapRequestHandler();
-            reqParams = PARAMS_GetMap;
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
             data.setRequestClassType(WMSGetFeatureInfoRequest.class);
             requestHandler = new GetFeatureInfoRequestHandler();
-            reqParams = PARAMS_GetFeatureInfo;
-        } else if (givenRequest.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
             data.setRequestClassType(WMSGetLegendGraphicRequest.class);
             requestHandler = new GetLegendGraphicRequestHandler();
-            reqParams = PARAMS_GetLegendGraphic;
         }
-        
-        /*
-         * If the request is supported and we also know which variables are given in the request, then we
-         * also first need to find out if all the mandatory variables are given in the request. If not we
-         * cannot proceed with the request.
-         */
-        if (!requestComplete(parameters, reqParams)) {
-            StringBuffer availableParams = new StringBuffer();
-            Set paramKeySet = parameters.keySet();
-            Iterator keySetIterator = paramKeySet.iterator();
-            while (keySetIterator.hasNext()) {
-                availableParams.append((String)keySetIterator.next());
-                availableParams.append(", ");
-            }
-            throw new IllegalArgumentException("Not all parameters for request '" +
-                    givenRequest + "' are available, required: [" + reqParams.toString() +
-                    "], available: [" + availableParams.toString() + "].");
-        }
-        
-        /*
-         * All clear, we can continue!
-         */
-        requestHandler.getRequest(data, parameters);
-        
-    }
-    // </editor-fold>
-    
-    /** Checks if the parameters of a given request comply to the required parameters.
-     *
-     * @param parameters map with the given parameters
-     * @param requiredParameters list with the required parameters
-     *
-     * @return boolean which indicates if the request was incomplete or not
-     */
-    // <editor-fold defaultstate="" desc="requestComplete(Map parameters, List requiredParameters) method">
-    protected boolean requestComplete(Map parameters, List requiredParameters) {
-        if (parameters == null || requiredParameters == null || (parameters.isEmpty() && !requiredParameters.isEmpty()))
-            return false;
-        
-        // lijst met default waarden voor parameters die eigenlijk verplicht zijn, goed idee?
-        HashMap defVals = new HashMap();
-        defVals.put(WMS_PARAM_STYLES, "");
-        
-        Iterator it = requiredParameters.iterator();
-        while (it.hasNext()) {
-            String reqParam = (String)it.next();
-            if (!parameters.containsKey(reqParam)) {
-                if (!defVals.containsKey(reqParam))
-                    return false;
-                parameters.put(reqParam, defVals.get(reqParam));
-            }
-        }
-        return true;
+        requestHandler.getRequest(data, user);        
     }
     // </editor-fold>
     

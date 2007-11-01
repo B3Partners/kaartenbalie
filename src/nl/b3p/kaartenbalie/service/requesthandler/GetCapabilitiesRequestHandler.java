@@ -49,9 +49,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
      * @exception ParserConfigurationException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
-        user = (User) parameters.get(KB_USER);
-        url = (String) parameters.get(KB_PERSONAL_URL);
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
+        this.user = user;
+        url = user.getPersonalURL();
                 
         ServiceProvider s = getServiceProvider();
         s.overwriteURL(url);

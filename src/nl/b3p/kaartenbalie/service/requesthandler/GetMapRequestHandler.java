@@ -18,8 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityTransaction;
-import nl.b3p.wms.capabilities.KBConstants;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,20 +40,24 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      * @throws IOException
      */
     // <editor-fold defaultstate="" desc="getRequest(Map parameters) method.">
-    public void getRequest(DataWrapper dw, Map parameters) throws IOException, Exception {
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         /*
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
          * with the GetMap functionality before the outputformat is set then the standard output
          * format would be used.
          */
+        this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId();
+        
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
-        String format = (String) parameters.get(WMS_PARAM_FORMAT);
+        String format = dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT);
         dw.setContentType(format);
         
         String inimageType = null;
         
-        if (parameters.containsKey(WMS_PARAM_EXCEPTION_FORMAT)) {
+        if (dw.getOgcrequest().containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
             inimageType = format;
         }
         dw.setErrorContentType(inimageType);
@@ -60,14 +65,14 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         //Een aantal simpele controles. Deze staan vooraan omdat als een van deze
         //controles al faalt er dan niet onnodig op de zwaardere controles beslag
         //wordt gelegd.
-        int width  = Integer.parseInt((String)parameters.get(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt((String)parameters.get(WMS_PARAM_HEIGHT));
+        int width  = Integer.parseInt((String)dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
+        int height = Integer.parseInt((String)dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
         if(width < 1 || height < 1 || width > 2048 || height > 2048) {
             log.error("Image wrong size: width, height: " + width + ", " + height);
             throw new Exception(IMAGE_SIZE_EXCEPTION);
         }
         
-        String [] boxx = ((String)parameters.get(WMS_PARAM_BBOX)).split(",");
+        String [] boxx = (dw.getOgcrequest().getParameter(WMS_PARAM_BBOX)).split(",");
         if(boxx.length < 4) {
             log.error("BBOX wrong size: " + boxx.length);
             throw new Exception(BBOX_EXCEPTION);
@@ -89,22 +94,16 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
         dw.setRequestParameter("Width", new Integer(width));
         dw.setRequestParameter("Height",new Integer(height));
-        dw.setRequestParameter("WmsVersion", (String)parameters.get(WMS_VERSION));
+        dw.setRequestParameter("WmsVersion", dw.getOgcrequest().getParameter(WMS_VERSION));
         dw.setRequestParameter("Srs", null);
-        dw.setRequestParameter("Format", (String)parameters.get(WMS_PARAM_FORMAT));
-        dw.setRequestParameter("BoundingBox", (String)parameters.get(WMS_PARAM_BBOX));
+        dw.setRequestParameter("Format", dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", dw.getOgcrequest().getParameter(WMS_PARAM_BBOX));
         
+        String [] layers = dw.getOgcrequest().getParameter(WMS_PARAM_LAYERS).split(",");
         
+        Map userdefinedParams = dw.getOgcrequest().getNonOGCParameters();
         
-        user = (User) parameters.get(KB_USER);
-        Integer orgId = user.getOrganization().getId();
-        
-        url = (String) parameters.get(KB_PERSONAL_URL);
-        String [] layers = ((String) parameters.get(WMS_PARAM_LAYERS)).split(",");
-        
-        Map userdefinedParams = filterUserdefinedParams(parameters);
-        
-        String givenSRS = (String)parameters.get(WMS_PARAM_SRS);
+        String givenSRS = dw.getOgcrequest().getParameter(WMS_PARAM_SRS);
         
         List spUrls = getSeviceProviderURLS(layers, orgId, false);
         if(spUrls==null || spUrls.isEmpty()) {
@@ -140,11 +139,13 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 throw new Exception(SRS_EXCEPTION);
             }
             
+            String [] params = dw.getOgcrequest().getParametersArray();
+            
             StringBuffer url = new StringBuffer();
             url.append((String)spInfo.get("spUrl"));
             url.append(WMS_VERSION);
             url.append("=");
-            url.append((String)parameters.get(WMS_VERSION));
+            url.append(dw.getOgcrequest().getParameter(WMS_VERSION));
             url.append("&");
             url.append(WMS_REQUEST);
             url.append("=");
@@ -153,12 +154,12 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append("&");
             url.append(WMS_PARAM_BBOX);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_BBOX));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_BBOX));
             
             url.append("&");
             url.append(WMS_PARAM_SRS);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_SRS));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_SRS));
             
             url.append("&");
             url.append(WMS_PARAM_TRANSPARENT);
@@ -168,17 +169,17 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             url.append("&");
             url.append(WMS_PARAM_FORMAT);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_FORMAT));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_FORMAT));
             
             url.append("&");
             url.append(WMS_PARAM_WIDTH);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_WIDTH));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
             
             url.append("&");
             url.append(WMS_PARAM_HEIGHT);
             url.append("=");
-            url.append((String)parameters.get(WMS_PARAM_HEIGHT));
+            url.append(dw.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
             
             url.append("&");
             url.append(WMS_PARAM_LAYERS);
@@ -203,29 +204,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         getOnlineData(dw, urls, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
-    
-    private Map filterUserdefinedParams(Map parameters) {
-        Map map = new HashMap();
-        map.putAll(parameters);
-        
-        List getmapParams = PARAMS_GetMap;
-        Iterator it = getmapParams.iterator();
-        while (it.hasNext()) {
-            String param = (String) it.next();
-            if (map.containsKey(param)) {
-                map.remove(param);
-            }
-        }
-        List nonRequiredParamsGetMap = NON_REQUIRED_PARAMS_GetMap;
-        it = nonRequiredParamsGetMap.iterator();
-        while (it.hasNext()) {
-            String param = (String) it.next();
-            if (map.containsKey(param)) {
-                map.remove(param);
-            }
-        }
-        return map;
-    }
     
     public Map getReportingMap() throws Exception {
         //TODO
