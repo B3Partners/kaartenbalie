@@ -71,7 +71,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
                 url.append(WMS_PARAM_LAYERS);
                 url.append("=");
-                url.append(layersList);
+                url.append(spInfo.get("layersList"));
                 url.append("&");
             } else {
                 url.append(params[i]);
