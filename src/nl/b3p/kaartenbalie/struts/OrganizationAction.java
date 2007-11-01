@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -34,7 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class OrganizationAction extends KaartenbalieCrudAction {
+public class OrganizationAction extends KaartenbalieCrudAction implements KBConstants {
     
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
@@ -354,6 +355,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("visitorsAddress", organization.getVisitorsAddress());
         dynaForm.set("telephone", organization.getTelephone());
         dynaForm.set("fax", organization.getFax());
+        dynaForm.set("bbox", organization.getBbox());
         
         Set l = organization.getOrganizationLayer();
         Object [] organizationLayer = l.toArray();
@@ -395,6 +397,30 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setVisitorsAddress(FormUtils.nullIfEmpty(dynaForm.getString("visitorsAddress")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("telephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("fax")));
+        
+        String bbox = FormUtils.nullIfEmpty(dynaForm.getString("bbox"));
+        if(bbox != null) {
+            String [] boxxvalues = bbox.split(",");
+            if(boxxvalues.length != 4) {
+                log.error("BBOX wrong size: " + boxxvalues.length);
+                throw new Exception(BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
+            }
+
+            double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
+            try {
+                minx = Double.parseDouble(boxxvalues[0]);
+                miny = Double.parseDouble(boxxvalues[1]);
+                maxx = Double.parseDouble(boxxvalues[2]);
+                maxy = Double.parseDouble(boxxvalues[3]);
+                if (minx > maxx || miny > maxy) {
+                    throw new Exception("");
+                }
+            } catch (Exception e) {
+                log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
+                throw new Exception(BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
+            }
+        }
+        organization.setBbox(bbox);
         
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();

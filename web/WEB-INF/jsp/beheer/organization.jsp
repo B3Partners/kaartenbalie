@@ -108,7 +108,10 @@
                                     <td><B><fmt:message key="beheer.organizationFaxnumber"/>:</B></td>
                                     <td><html:text property="fax" /></td>
                                 </tr>
-                                
+                                <tr>
+                                    <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
+                                    <td><html:text property="bbox" /></td>
+                                </tr>                                
                             </table>
                         </td>
                         <td valign="top" rowspan="0">

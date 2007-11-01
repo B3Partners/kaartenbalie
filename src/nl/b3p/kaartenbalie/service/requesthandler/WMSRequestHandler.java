@@ -150,6 +150,20 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
         
+        //controleer of een organisatie een bepaalde startpostitie heeft voor de BBOX
+        //indien dit het geval is, voeg deze bbox toe aan de toplayer.
+        String orgBbox = dbUser.getOrganization().getBbox();
+        if(orgBbox != null) {
+            String [] values = orgBbox.split(",");
+            SrsBoundingBox srsbb= new SrsBoundingBox();
+            srsbb.setSrs("EPSG:28992");
+            srsbb.setMinx(values[0]);
+            srsbb.setMiny(values[1]);
+            srsbb.setMaxx(values[2]);
+            srsbb.setMaxy(values[3]);
+            kaartenbalieTopLayer.addSrsbb(srsbb);
+        }
+        
         // Creeer geldige service provider
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();

@@ -61,6 +61,7 @@
             <form-property name="telephone" type="java.lang.String"/>
             <form-property name="fax" type="java.lang.String"/>
             <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="bbox" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="metadataForm" type="org.apache.struts.validator.DynaValidatorForm">

@@ -33,6 +33,7 @@ public class Organization {
     private Set billing;
     private Set organizationLayer;
     private boolean hasValidGetCapabilities;
+    private String bbox;
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
@@ -178,4 +179,12 @@ public class Organization {
         this.hasValidGetCapabilities = hasValidGetCapabilities;
     }
     // </editor-fold>
+
+    public String getBbox() {
+        return bbox;
+    }
+
+    public void setBbox(String bbox) {
+        this.bbox = bbox;
+    }
 }

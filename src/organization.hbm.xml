@@ -65,5 +65,8 @@
         <property name="hasValidGetCapabilities" >
             <column name="HASVALIDGETCAPABILITIES" not-null="true" sql-type="tinyint"/>
         </property>
+        <property name="bbox" >
+            <column name="BBOX" length="50"/>
+        </property>
     </class>
 </hibernate-mapping>
