@@ -146,10 +146,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
                 if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
                     if (ogcrequest.containsParameter(WMS_PARAM_WIDTH) && ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
-                        int width  = Integer.parseInt((String)ogcrequest.getParameter(WMS_PARAM_WIDTH));
-                        int height = Integer.parseInt((String)ogcrequest.getParameter(WMS_PARAM_HEIGHT));
+                        int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
+                        int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
                         if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
-                            if(((String) ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
+                            if((ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
                                 data.setErrorContentType(format);
                             }
                         }
@@ -196,8 +196,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                      * into the Datawrapper and sent directly. This means we don't have to given another sent command
                      * anymore after calling method below.
                      */
-                    int width  = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
-                    int height = Integer.parseInt((String)data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
+                    int width  = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
+                    int height = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
                     
                     tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
                 } catch (Exception e) {
