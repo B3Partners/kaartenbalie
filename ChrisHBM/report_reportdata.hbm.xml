@@ -4,22 +4,22 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.RepData" table="rep_reportdata" discriminator-value="ReportData">
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData" table="rep_reportdata" discriminator-value="ReportData">
         <id name="id" type="int" column="rpd_id" >
             <generator class="native"/>
         </id>
         <discriminator column="rpd_discriminator" type="string" />
         <many-to-one name="report" column="rpd_rep_id" update="true" not-null="false"/>   
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.RepDataDetails" discriminator-value="ReportDataDetails">
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepDataDetails" discriminator-value="ReportDataDetails">
             <property name="minHour" column="rpd_minHour"/>
             <property name="maxHour" column="rpd_maxHour"/>
             <set name="usageDetails" > 
                 <key column="usd_rpd_id" update="true" not-null="false" /> 
-                <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.UsageDetails"/> 
+                <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.UsageDetails"/> 
             </set>        
             
         </subclass>
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.RepDataSummary" discriminator-value="ReportDataSummary">
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepDataSummary" discriminator-value="ReportDataSummary">
             <property name="ctoHits" column="rpd_ctoHits"/>
             <property name="ctoAverageResponse" column="rpd_ctoAverageResponse"/>
             <property name="cioHits" column="rpd_cioHits"/>

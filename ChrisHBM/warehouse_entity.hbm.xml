@@ -16,5 +16,9 @@
         
         <property name="objectClass" column="wae_objectClass" index="wae_objectClass_index"/>
         <property name="referencedId" column="wae_referencedId" index="wae_referencedId_index"/>
-    </class>
+        <property name="dateCreated" column="wae_dateCreated"/>
+        <property name="dateLastUpdated" column="wae_dateLastUpdated"/>
+        <property name="dateDeleted" column="wae_dateDeleted"/>        
+
+</class>
 </hibernate-mapping>

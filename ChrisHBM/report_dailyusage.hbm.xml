@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.DailyUsage" table="rep_dailyusage">
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DailyUsage" table="rep_dailyusage">
         <id name="id" type="int" column="dyu_id" >
             <generator class="native"/>
         </id>

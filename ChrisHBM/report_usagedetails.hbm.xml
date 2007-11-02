@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.UsageDetails" table="rep_usagedetails">
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.UsageDetails" table="rep_usagedetails">
         <id name="id" type="int" column="usd_id" >
             <generator class="native"/>
         </id>
@@ -12,7 +12,7 @@
         
         <set name="dailyUsages" order-by="dyu_date ASC"> 
             <key column="dyu_usd_id" update="true" not-null="false" /> 
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.generation.DailyUsage"/> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DailyUsage"/> 
         </set>              
         <property name="userId" column="usd_userId"/>
     </class>
