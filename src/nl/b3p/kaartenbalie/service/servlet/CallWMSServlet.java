@@ -41,6 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
@@ -50,6 +51,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXParseException;
 
 public class CallWMSServlet extends HttpServlet implements KBConstants {
     private static Log log = null;
@@ -153,7 +155,9 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                         int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
                         int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
                         if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
-                            if((ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT)).equalsIgnoreCase("inimage")) {
+                            String exceptionFormat = ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT);
+                            if(exceptionFormat.equalsIgnoreCase(WMS_PARAM_EXCEPTION_INIMAGE) || 
+                                    exceptionFormat.equalsIgnoreCase(WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) {
                                 data.setErrorContentType(format);
                             }
                         }
@@ -174,10 +178,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             parseRequestAndData(data, user);
             rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
         }catch (Exception ex) {
-            if (ex instanceof NotSupportedException){
-                log.error("",(NotSupportedException)ex);
-            }
-            log.error("error: ", ex);
+            log.error("",ex);
+            
             String errorContentType = data.getErrorContentType();
             
             if(errorContentType != null) {
