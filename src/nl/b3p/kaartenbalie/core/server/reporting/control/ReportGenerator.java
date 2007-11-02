@@ -10,9 +10,12 @@
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.io.File;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -22,8 +25,10 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.generation.Report;
+import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReport;
+import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReportThread;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,35 +38,52 @@ import org.w3c.dom.Node;
  */
 public class ReportGenerator {
     
-    /** Creates a new instance of ReportGenerator */
+    private static Map reportStatusMap;
+    static {
+        reportStatusMap = new LinkedHashMap();
+    }
+    
+    
     private EntityManager em;
     
     public ReportGenerator() {
         em = MyEMFDatabase.createEntityManager();
     }
     
-    public void createReport(Date start, Date end) {
-        ReportCreationThread rct = new ReportCreationThread(start, end, this);
-        rct.start();
-    }
-    
-    public void notifyDone(ReportCreationThread rct) {
+    public static void main(String [] args) throws Exception {
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        ReportGenerator rg = new ReportGenerator();
+        Map parameterMap = new HashMap();
+        Calendar cal = Calendar.getInstance();
+        parameterMap.put("endDate", cal.getTime());
+        cal.set(2007,10,20);
+        parameterMap.put("startDate", cal.getTime());
+        rg.createReport(DataUsageReportThread.class, parameterMap, null);
         
     }
-    
-    public void clean() {
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        em.createQuery("DELETE FROM DailyUsage").executeUpdate();
-        em.createQuery("DELETE FROM UsageDetails").executeUpdate();
-        em.createQuery("DELETE FROM RepData").executeUpdate();
-        em.createNativeQuery("DELETE FROM rep_users;").executeUpdate();
-        em.createQuery("DELETE FROM Report").executeUpdate();
-        tx.commit();
-        
+    public void createReport(Class reportThreadType, Map parameters, User user) throws Exception {
+        try {
+            if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
+                ReportThreadTemplate rtt = (ReportThreadTemplate) reportThreadType.newInstance();
+                reportStatusMap.put(rtt, rtt);
+                rtt.setParameters(parameters);
+                rtt.setUser(user);
+                rtt.setReportGenerator(this);
+                rtt.start();
+            }
+        } catch (Exception e) {
+            throw e;
+        }
     }
+    
+    
+    public List requestReportStatus() {
+        return null;
+    }
+    
     public void doXMLTrick(Integer reportId) {
-        Report report = (Report) em.find(Report.class, reportId);
+        DataUsageReport report = (DataUsageReport) em.find(DataUsageReport.class, reportId);
         try{
             //Create instance of DocumentBuilderFactory
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -86,13 +108,24 @@ public class ReportGenerator {
             
             Source src = new DOMSource(doc);
             
-            File destFile = new File("C:\\xsltTutorial\\test.xml");
+            File destFile = new File("C:\\dev_chris\\projects\\kaartenbalie\\ChrisXSLT\\test.xml");
             Result dest = new StreamResult(destFile);
             aTransformer.transform(src, dest);
         }catch(Exception e){
             e.printStackTrace();
             
         }
+    }
+    
+    
+    
+    public void notifyDone(ReportThreadTemplate reportThreadTemplate) {
+        //System.out.println(reportThreadTemplate + " completed succesfully in " + reportThreadTemplate.getReportTemplate().getProcessingTime() + " ms...");
+        //doXMLTrick(reportThreadTemplate.getReportTemplate().getId());
+    }
+    
+    public void notifyBreak(ReportThreadTemplate reportThreadTemplate, Exception exception) {
+        System.out.println(reportThreadTemplate + " halted on " + exception.getMessage());
     }
     
     

@@ -34,7 +34,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
     
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
-     * 
+     *
      * @param dw DataWrapper which contains all information that has to be sent to the client
      * @param user User the user which invoked the request
      *
@@ -58,8 +58,23 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
         dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
-        dw.setRequestParameter("Width", new Integer(ogc.getParameter(WMS_PARAM_WIDTH)));
-        dw.setRequestParameter("Height",new Integer(ogc.getParameter(WMS_PARAM_HEIGHT)));
+        
+        Integer width = null;
+        try {
+            width = new Integer(ogc.getParameter(WMS_PARAM_WIDTH));
+        } catch (NumberFormatException nfe) {
+            width = new Integer(-1);
+        }
+        dw.setRequestParameter("Width", width);
+        
+        Integer height = null;
+        try {
+            height =  new Integer(ogc.getParameter(WMS_PARAM_HEIGHT));
+        } catch (NumberFormatException nfe) {
+            height = new Integer(-1);
+        }
+        dw.setRequestParameter("Height",height);
+        
         dw.setRequestParameter("WmsVersion", ogc.getParameter(WMS_VERSION));
         dw.setRequestParameter("Srs", null);
         dw.setRequestParameter("Format", ogc.getParameter(WMS_PARAM_FORMAT));

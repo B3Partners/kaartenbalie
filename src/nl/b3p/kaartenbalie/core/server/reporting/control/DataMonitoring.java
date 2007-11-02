@@ -281,10 +281,14 @@ public class DataMonitoring {
     
     public static void main(String [] args) throws Exception {
         
+     /*
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
         EntityManager em = MyEMFDatabase.createEntityManager();
         DataMonitoring dm = new DataMonitoring((User) em.find(User.class, new Integer(1)));
         dm.clean();
+      */
+        Integer integer = new Integer(null);
+        
     }
     
     

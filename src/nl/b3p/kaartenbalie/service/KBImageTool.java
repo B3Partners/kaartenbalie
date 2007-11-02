@@ -96,8 +96,11 @@ public class KBImageTool {
         DataMonitoring rr = dw.getRequestReporting();
         Map parameterMap = new HashMap();
         
-        
-        parameterMap.put("NumberOfImages", new Integer(images.length));
+        if (images != null) {
+            parameterMap.put("NumberOfImages", new Integer(images.length));
+        } else {
+            parameterMap.put("NumberOfImages", new Integer(-1));
+        }
         parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
