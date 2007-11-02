@@ -14,10 +14,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportThreadTemplate;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 
 /**
  *
@@ -27,26 +30,38 @@ public class DataUsageReportThread extends ReportThreadTemplate{
     
     private Date startDate;
     private Date endDate;
+    private Organization organization;
+    private List users;
     
     public void run() {
-        long processStart = System.currentTimeMillis();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
         
+        long processStart = System.currentTimeMillis();
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        EntityTransaction et = em.getTransaction();
+        super.notifyStateChanged(ThreadReportStatus.GENERATING,null);
+        et.begin();
         try {
-            
-            
             DataUsageReport report = new DataUsageReport(startDate, endDate);
-            sleep(15000);
+            
+            //Used to make sure the progress takes some while...
+            /*
+            long sleep = (long)(8000*Math.random()) + 2000;
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Taking a nap for " + sleep + "ms.....");
+            sleep(sleep);
+            sleep = (long)(4000*Math.random()) + 1000;
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"*yawning for " + sleep + "ms*");
+            sleep(sleep);
+            */
+            sleep(1000);
             em.persist(report);
             /*
-             * Add the users... Just add all for now..
+             * Add the users... 
              */
-            
-            report.setUsers(em.createQuery("From User").getResultList());
+            report.setUsers(users);
             /*
              * Fill Summary Data
              */
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data");
             RepDataSummary rds = new RepDataSummary(report);
             //CombineImagesOperation
             Long cioHits = (Long) em.createQuery("SELECT COUNT(*) FROM CombineImagesOperation").getSingleResult();
@@ -81,6 +96,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             /*
              * Fill Detail Data
              */
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Detailed Data");
             RepDataDetails rdd = new RepDataDetails(report);
             rdd.setMaxHour((Integer) em.createQuery("SELECT MAX(HOUR(timeStamp)) FROM ClientRequest").getSingleResult());
             rdd.setMinHour((Integer) em.createQuery("SELECT MIN(HOUR(timeStamp)) FROM ClientRequest").getSingleResult());
@@ -132,15 +148,16 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                 }
             }
             report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
-            
             et.commit();
         } catch (Exception e) {
             et.rollback();
             super.notifyBreak(e);
+            em.close();
             return;
         }
         
-        super.notifyDone();
+        super.notifyStateChanged(ThreadReportStatus.COMPLETED,null);
+        em.close();
     }
     
     
@@ -148,7 +165,9 @@ public class DataUsageReportThread extends ReportThreadTemplate{
         if (parameters != null) {
             startDate = (Date) parameters.get("startDate");
             endDate = (Date) parameters.get("endDate");
+            organization = (Organization) parameters.get("organization");
+            users = (List) parameters.get("users");
         }
     }
-
+    
 }

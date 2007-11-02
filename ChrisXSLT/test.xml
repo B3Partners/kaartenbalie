@@ -1,75 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="report.xsl"?>
 
-<report date="2007-11-02 14:15:07.0" id="11" processingTime="1922">
+<report date="2007-11-02 15:53:54.0" id="23" processingTime="15343">
    <vars>
       <period>
-         <start>2007-11-20 14:15:07.0</start>
-         <end>2007-11-02 14:15:07.0</end>
+         <start>2007-11-20 15:53:54.0</start>
+         <end>2007-11-02 15:53:54.0</end>
       </period>
       <users>
-         <user id="8">
-            <name>Kees mnp</name>
-         </user>
-         <user id="4">
-            <name>Johan mnp</name>
-         </user>
-         <user id="3">
-            <name>test test</name>
-         </user>
-         <user id="21">
-            <name>VROM MNP</name>
-         </user>
-         <user id="6">
-            <name>Arjan mnp</name>
-         </user>
-         <user id="12">
-            <name>nirov mnp</name>
-         </user>
          <user id="13">
             <name>Ritesh O'Varma</name>
-         </user>
-         <user id="10">
-            <name>Chris Van Lith</name>
          </user>
          <user id="11">
             <name>Nando de Goeij</name>
          </user>
-         <user id="18">
-            <name>LDL MNP</name>
-         </user>
-         <user id="19">
-            <name>LED MNP</name>
-         </user>
-         <user id="7">
-            <name>Frans mnp</name>
-         </user>
-         <user id="9">
-            <name>Allard mnp</name>
-         </user>
-         <user id="20">
-            <name>EGW MNP</name>
-         </user>
-         <user id="22">
-            <name>RPB MNP</name>
-         </user>
          <user id="23">
             <name>Chris Kramer</name>
          </user>
-         <user id="16">
-            <name>LOK MNP</name>
+         <user id="3">
+            <name>test test</name>
          </user>
          <user id="1">
             <name>LoremIpsum beheerder</name>
-         </user>
-         <user id="15">
-            <name>RIM MNP</name>
-         </user>
-         <user id="2">
-            <name>Hiddo Huitzing</name>
-         </user>
-         <user id="5">
-            <name>Wim mnp</name>
          </user>
       </users>
       <company id="">
@@ -77,6 +29,23 @@
       </company>
    </vars>
    <data>
+      <details>
+         <hours>
+            <hour>16</hour>
+            <hour>17</hour>
+         </hours>
+         <days/>
+         <usagedetails userid="13"/>
+         <usagedetails userid="1">
+            <dailyUsage date="01-11-2007">
+               <hourlyUsage dataUsage="8331722" hour="16" requests="74"/>
+               <hourlyUsage dataUsage="169971" hour="17" requests="1"/>
+            </dailyUsage>
+         </usagedetails>
+         <usagedetails userid="11"/>
+         <usagedetails userid="23"/>
+         <usagedetails userid="3"/>
+      </details>
       <summary>
          <ServerTransferOperation hits="60">
             <averageDuration>2375.0167</averageDuration>
@@ -94,38 +63,5 @@
             <bytesSendToUser>8461370</bytesSendToUser>
          </RequestOperation>
       </summary>
-      <details>
-         <hours>
-            <hour>16</hour>
-            <hour>17</hour>
-         </hours>
-         <days/>
-         <usagedetails userid="13"/>
-         <usagedetails userid="21"/>
-         <usagedetails userid="10"/>
-         <usagedetails userid="3"/>
-         <usagedetails userid="16"/>
-         <usagedetails userid="1">
-            <dailyUsage date="01-11-2007">
-               <hourlyUsage dataUsage="8331722" hour="16" requests="74"/>
-               <hourlyUsage dataUsage="169971" hour="17" requests="1"/>
-            </dailyUsage>
-         </usagedetails>
-         <usagedetails userid="19"/>
-         <usagedetails userid="7"/>
-         <usagedetails userid="5"/>
-         <usagedetails userid="6"/>
-         <usagedetails userid="20"/>
-         <usagedetails userid="15"/>
-         <usagedetails userid="11"/>
-         <usagedetails userid="22"/>
-         <usagedetails userid="8"/>
-         <usagedetails userid="4"/>
-         <usagedetails userid="18"/>
-         <usagedetails userid="2"/>
-         <usagedetails userid="23"/>
-         <usagedetails userid="9"/>
-         <usagedetails userid="12"/>
-      </details>
    </data>
 </report>

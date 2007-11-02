@@ -134,8 +134,10 @@ public class DataWrapper {
     public void write(ByteArrayOutputStream baos) throws IOException {
         //Logging the dataspeed...
         Map parameterMap = new HashMap();
-        parameterMap.put("DataSize", new Long(baos.size()));
-        parameterMap.put("MsSinceRequestStart", new Long(requestReporting.getMSSinceStart()));
+        if (requestReporting != null) {
+            parameterMap.put("DataSize", new Long(baos.size()));
+            parameterMap.put("MsSinceRequestStart", new Long(requestReporting.getMSSinceStart()));
+        }
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
         this.setContentLength(baos.size());
@@ -148,8 +150,10 @@ public class DataWrapper {
             }
         }
         // Operation done.. now write the log...
-        parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
-        requestReporting.addRequestOperation(ClientXFerOperation.class,parameterMap);
+        if (requestReporting != null) {
+            parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
+            requestReporting.addRequestOperation(ClientXFerOperation.class,parameterMap);
+        }
         
     }
     
@@ -192,11 +196,11 @@ public class DataWrapper {
     public void setRequestParameter(String key, Object object) {
         this.requestParameterMap.put(key, object);
     }
-
+    
     public OGCRequest getOgcrequest() {
         return ogcrequest;
     }
-
+    
     public void setOgcrequest(OGCRequest ogcrequest) {
         this.ogcrequest = ogcrequest;
     }
