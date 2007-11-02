@@ -46,7 +46,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         Integer orgId   = user.getOrganization().getId();
         OGCRequest ogc  = dw.getOgcrequest();
         
-        String [] layers = ogc.getParameter(WMS_PARAM_LAYERS).split(",");
+        String [] layers = ogc.getParameter(WMS_PARAM_LAYER).split(",");
         if(layers.length != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
@@ -68,8 +68,8 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         String [] params = ogc.getParametersArray();
         for (int i = 0; i < params.length; i++) {
             String [] keyValuePair = params[i].split("=");
-            if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                url.append(WMS_PARAM_LAYERS);
+            if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYER)) {
+                url.append(WMS_PARAM_LAYER);
                 url.append("=");
                 url.append(spInfo.get("layersList"));
                 url.append("&");
