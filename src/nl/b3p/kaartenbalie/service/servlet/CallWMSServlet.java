@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import javax.transaction.NotSupportedException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
@@ -135,11 +136,12 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         try {
             OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
-            String reason = new String();
+            StringBuffer reason = new StringBuffer();
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
-            if(!isvalid)
-                throw new Exception(reason);
-            
+            if(!isvalid){ 
+                log.error(reason);
+                throw new Exception(reason.toString());
+            }
             if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
                 String format = ogcrequest.getParameter(WMS_PARAM_FORMAT);
                 data.setContentType(format);
@@ -168,7 +170,10 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             data.setOgcrequest(ogcrequest);
             parseRequestAndData(data, user);
             rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
-        } catch (Exception ex) {
+        }catch (Exception ex) {
+            if (ex instanceof NotSupportedException){
+                log.error("",(NotSupportedException)ex);
+            }
             log.error("error: ", ex);
             String errorContentType = data.getErrorContentType();
             
