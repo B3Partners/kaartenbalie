@@ -63,7 +63,8 @@ public class LayerValidator {
         //nu hebben we een lijst met alle LLBB's
         //van deze LLBB's moet nu per item bekeken worden welke de uiterste waarden
         //heeft voor de minx, miny, maxx, maxy
-        double minx = 0, miny = 0, maxx = 0, maxy = 0;
+        // volgende waarden geinitialiseerd op extreme omgekeerde waarde
+        double minx = 180.0, miny = 90.0, maxx = -180.0, maxy = -90.0;
         it = supportedLLBB.iterator();
         while (it.hasNext()) {
             SrsBoundingBox llbb = (SrsBoundingBox)it.next();
@@ -94,15 +95,11 @@ public class LayerValidator {
         SrsBoundingBox llbb = new SrsBoundingBox();
         
         
-        llbb.setMinx("" + minx);
-        llbb.setMiny("" + miny);
-        llbb.setMaxx("" + maxx);
-        llbb.setMaxy("" + maxy);
+        llbb.setMinx(Double.toString(minx));
+        llbb.setMiny(Double.toString(miny));
+        llbb.setMaxx(Double.toString(maxx));
+        llbb.setMaxy(Double.toString(maxy));
         
-        //llbb.setMiny("-90.0");
-        //llbb.setMinx("-180.0");
-        //llbb.setMaxy("90.0");
-        //llbb.setMaxx("180.0");
         
         return llbb;
     }

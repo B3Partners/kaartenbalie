@@ -135,6 +135,10 @@
             dan de intern meegeleverde viewer gebruik te maken van de Kaartenbalie. 
             Hieronder vindt u de huidige gegevens zoals deze in de applicatie bekend zijn. 
         </P>        
+        <P>
+            Via volgende link kunt u de voor u geldende WMS GetCapabilities ophalen:
+            <html:link page="/wms/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">GetCapabilities</html:link>
+        </P>        
         
         <H2>Huidige gegevens:</H2>
         <table>
