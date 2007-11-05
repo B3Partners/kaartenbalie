@@ -101,8 +101,8 @@ public class ReportGenerator {
             }
         }
         reportStatusMap.remove(rtt);
-        Object[] workLoad = getWorkload();
-        System.out.println("Workload: " + workLoad[0] + "%, stack remaining: " + workLoad[1]);
+        //Object[] workLoad = getWorkload();
+        //System.out.println("Workload: " + workLoad[0] + "%, stack remaining: " + workLoad[1]);
     }
     
     
@@ -162,9 +162,9 @@ public class ReportGenerator {
                 .setParameter("organizationId", organization.getId())
                 .getResultList());
         
-        for (int j = 0; j< 50; j++) {
+        for (int j = 0; j< 1; j++) {
             ReportGenerator rg = new ReportGenerator();
-            for(int i = 0; i< 10; i++) {
+            for(int i = 0; i< 1; i++) {
                 rg.createReport(DataUsageReportThread.class, parameterMap, null);
             }
             

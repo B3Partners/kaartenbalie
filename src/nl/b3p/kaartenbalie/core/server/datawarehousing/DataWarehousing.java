@@ -231,11 +231,12 @@ public class DataWarehousing {
     
     
     public static void main(String [] args) throws Exception {
-        
+       
+
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
         
         DataWarehousing.setEnableDatawarehousing(true);
-        
+        /*        
         EntityManager em = MyEMFDatabase.createEntityManager();
         List list = em.createQuery("FROM RepData").getResultList();
         
@@ -246,7 +247,7 @@ public class DataWarehousing {
             DataWarehousing.enlist(RepData.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
         }
         DataWarehousing.end();
-
+        */
         
     }
     
