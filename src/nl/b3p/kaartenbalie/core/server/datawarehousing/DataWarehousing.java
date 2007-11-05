@@ -142,7 +142,6 @@ public class DataWarehousing {
             while (i.hasNext()) {
                 
                 DwObjectAction doa = (DwObjectAction) i.next();
-                System.out.println(doa.getPrimaryKey());
                 if (doa != null) {
                     switch(doa.getObjectAction()) {
                         case DwObjectAction.PERSIST:
@@ -247,28 +246,7 @@ public class DataWarehousing {
             DataWarehousing.enlist(RepData.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
         }
         DataWarehousing.end();
-        /*
-        System.out.println("fetching...");
-         
-        for (int i = 0; i< 20; i++) {
-         
-         
-            int nextRandom = 1 + (int)(Math.random() * 20);
-         
-            //DataWarehousing.remove(User.class, new Integer(nextRandom));
-         
-            User userFromWarehouse = (User) DataWarehousing.find(User.class, new Integer(i));
-         
-            System.out.println("User:"+ userFromWarehouse);
-            if (userFromWarehouse != null){
-                System.out.println("UserName:" + userFromWarehouse.getUsername());
-                System.out.println("Id:" + userFromWarehouse.getId());
-         
-            }
-         
-         
-        }
-         */
+
         
     }
     

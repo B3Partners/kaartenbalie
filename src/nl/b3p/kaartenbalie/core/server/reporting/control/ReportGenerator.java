@@ -88,7 +88,6 @@ public class ReportGenerator {
         
     }
     public void notifyClosed(ReportThreadTemplate rtt) {
-        System.out.println(rtt + " done!");
         
         if (!reportStack.empty()) {
             try {
