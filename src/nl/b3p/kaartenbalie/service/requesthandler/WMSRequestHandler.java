@@ -313,6 +313,16 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
+        //The list is given in the opposit ranking. Therefore we first need to swap the list.
+        int size = urls.size();
+        ArrayList swaplist = new ArrayList(size);
+        for (int i = 0; i < size; i++) {
+            String url = (String) urls.get(i);
+            int swapIndex = size - 1 - i;
+            swaplist.add(swapIndex, url);
+        }
+        urls = swaplist;
+        
         /* To save time, this method checks first if the ArrayList contains more then one url
          * If it contains only one url then the method doesn't have to load the image into the G2D
          * environment, which saves a lot of time and capacity because it doesn't have to decode
