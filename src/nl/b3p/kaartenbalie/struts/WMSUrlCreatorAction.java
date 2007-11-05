@@ -23,7 +23,8 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.kaartenbalie.service.WMSParamUtil;
+import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -34,18 +35,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
+public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBConstants {
     
     private static final Log log = LogFactory.getLog(WMSUrlCreatorAction.class);
-    
-    protected static final String GETMAP = "getMapUrl";
-    protected static final String DEFAULTVERSION = "1.1.1";
-    protected static final String DEFAULTSERVICE = "WMS";
-    protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
-    protected static final String UNKNOWN_DB_USER_ERROR_KEY = "error.dbuser";
-    protected static final String NO_LAYERS_SELECTED_ERROR_KEY = "error.nolayer";
-    
-    private static final String EXTRAREQUESTDATA="&VERSION=1.1.1&STYLES=&EXCEPTIONS=INIMAGE&WRAPDATELINE=true&BGCOLOR=0xF0F0F0";
+    protected static final String GETMAP                        = "getMapUrl";
+    protected static final String UNKNOWN_SES_USER_ERROR_KEY    = "error.sesuser";
+    protected static final String UNKNOWN_DB_USER_ERROR_KEY     = "error.dbuser";
+    protected static final String NO_LAYERS_SELECTED_ERROR_KEY  = "error.nolayer";
     
     //-------------------------------------------------------------------------------------------------------
     // PUBLIC METHODS
@@ -144,7 +140,6 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward getMapUrl(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -184,30 +179,59 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        StringBuffer getMap = new StringBuffer(user.getPersonalURL());
-        getMap.append("?REQUEST=GetMap");
-        getMap.append("&LAYERS=");
-        for (int i = 0; i < layers.length; i++){
-            if (i == 0)
-                getMap.append(layers[i]);
-            else{
-                getMap.append(",");
-                getMap.append(layers[i]);
-            }
+        StringBuffer layerString = new StringBuffer();
+        for (int i = 0; i < layers.length; i++) {
+            layerString.append(layers[i]);
+            layerString.append(",");
         }
-        getMap.append("&BBOX=");
-        getMap.append(bbox);
-        getMap.append("&SRS=");
-        getMap.append(projectie);
-        getMap.append("&HEIGHT=");
-        getMap.append(height);
-        getMap.append("&WIDTH=");
-        getMap.append(width);
-        getMap.append("&FORMAT=");
-        getMap.append(format);
-        getMap.append(EXTRAREQUESTDATA);
+        String layer = layerString.substring(0, layerString.lastIndexOf(","));
         
-        user.setDefaultGetMap(getMap.toString());
+        StringBuffer getMapUrl = new StringBuffer(user.getPersonalURL());
+        getMapUrl.append("?");
+        getMapUrl.append(WMS_VERSION);
+        getMapUrl.append("=");
+        getMapUrl.append(WMS_VERSION_111);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_REQUEST);
+        getMapUrl.append("=");
+        getMapUrl.append(WMS_REQUEST_GetMap);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_LAYERS);
+        getMapUrl.append("=");        
+        getMapUrl.append(layer);        
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_BBOX);
+        getMapUrl.append("=");
+        getMapUrl.append(bbox);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_SRS);
+        getMapUrl.append("=");
+        getMapUrl.append(projectie);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_HEIGHT);
+        getMapUrl.append("=");
+        getMapUrl.append(height);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_WIDTH);
+        getMapUrl.append("=");
+        getMapUrl.append(width);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_FORMAT);
+        getMapUrl.append("=");
+        getMapUrl.append(format);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_BGCOLOR);
+        getMapUrl.append("=");
+        getMapUrl.append("0xF0F0F0");
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_EXCEPTIONS);
+        getMapUrl.append("=");
+        getMapUrl.append(WMS_PARAM_EXCEPTION_INIMAGE);
+        getMapUrl.append("&");
+        getMapUrl.append(WMS_PARAM_STYLES);
+        getMapUrl.append("=");
+        
+        user.setDefaultGetMap(getMapUrl.toString());
         
         EntityManager em = getEntityManager();
         if (user.getId() == null) {
@@ -217,7 +241,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
         em.flush();
         
-        populateForm(getMap.toString(), dynaForm, request);
+        populateForm(getMapUrl.toString(), dynaForm, request);
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
@@ -244,7 +268,6 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.kaarten.wmsurlcreator.failed");
         map.put(GETMAP, crudProp);
-        
         return map;
     }
     // </editor-fold>
@@ -261,25 +284,27 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="populateForm(String getMap, DynaValidatorForm form) method.">
-    private void populateForm(String getMap, DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
+    private void populateForm(String getMapUrl, DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         this.createLists(form, request);
-        if (WMSParamUtil.getParameter(WMSParamUtil.LAYERS, getMap) != null){
-            String[] layers= WMSParamUtil.getParameter(WMSParamUtil.LAYERS,getMap).split(",");
-            form.set("selectedLayers",layers);
+        OGCRequest ogcrequest = new OGCRequest(getMapUrl);
+        
+        if (ogcrequest.containsParameter(WMS_PARAM_LAYERS)) {
+            form.set("selectedLayers", ogcrequest.getParameter(WMS_PARAM_LAYERS).split(","));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.BBOX, getMap) != null){
-            form.set("bbox",WMSParamUtil.getParameter(WMSParamUtil.BBOX,getMap));
+        if (ogcrequest.containsParameter(WMS_PARAM_BBOX)) {
+            form.set("bbox", ogcrequest.getParameter(WMS_PARAM_BBOX));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.SRS, getMap) != null){
-            form.set("selectedProjectie",WMSParamUtil.getParameter(WMSParamUtil.SRS,getMap));
+        if (ogcrequest.containsParameter(WMS_PARAM_SRS)) {
+            form.set("selectedProjectie", ogcrequest.getParameter(WMS_PARAM_SRS));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.HEIGHT, getMap) != null){
-            form.set("height",new Integer(WMSParamUtil.getParameter(WMSParamUtil.HEIGHT,getMap)));
+        if (ogcrequest.containsParameter(WMS_PARAM_WIDTH)) {
+            form.set("height", new Integer(ogcrequest.getParameter(WMS_PARAM_WIDTH)));
         }
-        if (WMSParamUtil.getParameter(WMSParamUtil.WIDTH, getMap) != null){
-            form.set("width",new Integer(WMSParamUtil.getParameter(WMSParamUtil.WIDTH,getMap)));
+        if (ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
+            form.set("width", new Integer(ogcrequest.getParameter(WMS_PARAM_HEIGHT)));
         }
-        form.set("defaultGetMap", getMap);
+        
+        form.set("defaultGetMap", getMapUrl);
     }
     // </editor-fold>
     
