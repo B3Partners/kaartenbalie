@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server.datawarehousing;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,13 +19,13 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.DataMappingTemplate;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.DateDataMapping;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.IntegerDataMapping;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.StringDataMapping;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.WarehousedEntity;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData;
 
 /**
  *
@@ -33,7 +34,7 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 public class DataWarehousing {
     
     private static Map dataMappings;
-    
+    private static ThreadLocal tlObjects = new ThreadLocal();
     
     /*
      * Basically use this boolean to enable or disable the warehousing mechanism.
@@ -115,48 +116,96 @@ public class DataWarehousing {
         return null;
     }
     
-    public static void remove(Class entityClass, Integer primaryKey) throws Exception {
+    /*
+     * The DataWarehousing is processbased and runs in a ThreadLocal.
+     */
+    
+    public static void begin() {
         if (!enableWarehousing) { return;}
+        tlObjects.set(new ArrayList());
+    }
+    public static void enlist(Class clazz, Integer primaryKey, int objectAction) {
+        if (!enableWarehousing) { return;}
+        DwObjectAction doa = new DwObjectAction(clazz, primaryKey, objectAction);
+        List objects = (List) tlObjects.get();
+        objects.add(doa);
+    }
+    public static void end(){
+        if (!enableWarehousing) { return;}
+        List objects = (List) tlObjects.get();
+        Iterator i = objects.iterator();
         EntityManager em = MyEMFDatabase.createEntityManager();
-        WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
-        
         EntityTransaction et = em.getTransaction();
         et.begin();
-        
-        if (we == null) {
-            /*
-             * This is tricky! First you say you're about to delete an entity from the database. What is that entity is not
-             * yet in our warehouse? We're going to add it first.. And then mark it as deleted.
-             */
-            persist(entityClass, primaryKey);
-            //Then fetch it again..
-            we = getManagedEntity(entityClass, primaryKey, em);
+        try {
+            
+            while (i.hasNext()) {
+                
+                DwObjectAction doa = (DwObjectAction) i.next();
+                System.out.println(doa.getPrimaryKey());
+                if (doa != null) {
+                    switch(doa.getObjectAction()) {
+                        case DwObjectAction.PERSIST:
+                            persist(doa.getClazz(), doa.getPrimaryKey(), em);
+                            break;
+                        case DwObjectAction.MERGE:
+                            merge(doa.getClazz(), doa.getPrimaryKey(), em);
+                            break;
+                        case DwObjectAction.REMOVE:
+                            remove(doa.getClazz(), doa.getPrimaryKey(), em);
+                            break;
+                        case DwObjectAction.PERSIST_OR_MERGE:
+                            persistOrMerge(doa.getClazz(), doa.getPrimaryKey(), em);
+                            break;
+                            
+                    }
+                }
+            }
+        } catch(Exception e) {
+            et.rollback();
         }
-        we.setDateDeleted(new Date());
         et.commit();
         em.close();
+        
     }
     
-    public static void persist(Class entityClass, Integer primaryKey) throws Exception{
-        if (!enableWarehousing) { return;}
-        EntityManager em = MyEMFDatabase.createEntityManager();
+    /*
+     * Functions for Remove, persist and merge...
+     */
+    private static void remove(Class entityClass, Integer primaryKey,EntityManager em) throws Exception {
+        
+        WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
+        
+        if (we != null) {
+            we.setDateDeleted(new Date());
+            em.flush();
+        }
+        
+    }
+    
+    
+    private static void persistOrMerge(Class entityClass, Integer primaryKey,EntityManager em ) throws Exception{
+        WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
+        if (we == null) {
+            persist(entityClass, primaryKey,em);
+        } else {
+            merge(entityClass, primaryKey,em);
+        }
+        
+    }
+    private static void persist(Class entityClass, Integer primaryKey,EntityManager em ) throws Exception{
         Object refDBObject = getReferedObject(entityClass, primaryKey, em);
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
         if (we != null) {
             throw new Exception("Trying to persist an already existing object. Use " + DataWarehousing.class.getSimpleName() + ".merge() instead.");
         }
-        EntityTransaction et = em.getTransaction();
-        et.begin();
         we = new WarehousedEntity(entityClass, primaryKey);
         em.persist(we);
         reflectDataTemplates(we,entityClass, refDBObject, true, em);
-        et.commit();
-        em.close();
+        em.flush();
     }
     
-    public static void merge(Class entityClass, Integer primaryKey) throws Exception{
-        if (!enableWarehousing) { return ;}
-        EntityManager em = MyEMFDatabase.createEntityManager();
+    private static void merge(Class entityClass, Integer primaryKey,EntityManager em ) throws Exception{
         /*
          * First check if this entity is managed by hibernate and that it is persisted..
          */
@@ -175,12 +224,9 @@ public class DataWarehousing {
          * Now we have a WarehousedEntity. Thats good! Lets start reflecting our previously fetched entity
          * with its class.
          */
-        EntityTransaction et = em.getTransaction();
-        et.begin();
         reflectDataTemplates(we,entityClass, refDBObject, false, em);
         we.setDateLastUpdated(new Date());
-        et.commit();
-        em.close();
+        em.flush();
     }
     
     
@@ -189,35 +235,40 @@ public class DataWarehousing {
         
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
         
-        for (int i = 0; i< 20; i++) {
-            try {
-                int nextRandom = 1 + (int)(Math.random() * 20);
-                DataWarehousing.remove(User.class,new Integer(i));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("fetching...");
+        DataWarehousing.setEnableDatawarehousing(true);
         
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        List list = em.createQuery("FROM RepData").getResultList();
+        
+        Iterator i = list.iterator();
+        DataWarehousing.begin();
+        while (i.hasNext()) {
+            RepData object = (RepData) i.next();
+            DataWarehousing.enlist(RepData.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        }
+        DataWarehousing.end();
+        /*
+        System.out.println("fetching...");
+         
         for (int i = 0; i< 20; i++) {
-            
-            
+         
+         
             int nextRandom = 1 + (int)(Math.random() * 20);
-            
-            DataWarehousing.remove(User.class, new Integer(nextRandom));
-            
+         
+            //DataWarehousing.remove(User.class, new Integer(nextRandom));
+         
             User userFromWarehouse = (User) DataWarehousing.find(User.class, new Integer(i));
-            
+         
             System.out.println("User:"+ userFromWarehouse);
             if (userFromWarehouse != null){
                 System.out.println("UserName:" + userFromWarehouse.getUsername());
                 System.out.println("Id:" + userFromWarehouse.getId());
-                
+         
             }
-            
-            
+         
+         
         }
-        
+         */
         
     }
     

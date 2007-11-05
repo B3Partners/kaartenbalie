@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
@@ -72,11 +72,12 @@ public class KaartenbalieCrudAction extends CrudAction{
         tx.begin();
         ActionForward forward = null;
         String msg = null;
-        
+        DataWarehousing.begin();
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
             MyEMFDatabase.closeEntityManager();
+            DataWarehousing.end();
             return forward;
         } catch(Exception e) {
             tx.rollback();

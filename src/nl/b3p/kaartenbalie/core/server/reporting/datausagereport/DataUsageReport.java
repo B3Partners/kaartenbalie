@@ -36,7 +36,8 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
     private Set reportData;
     private Set userIds;
     public static SimpleDateFormat periodFormat = new SimpleDateFormat("dd-MM-yyyy");
-    private DataUsageReport() {
+    
+    protected DataUsageReport() {
         setReportDate(new Date());
         setReportData(new HashSet());
         userIds = new HashSet();

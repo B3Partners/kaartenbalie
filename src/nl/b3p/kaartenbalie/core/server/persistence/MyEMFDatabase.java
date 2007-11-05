@@ -10,6 +10,8 @@
 package nl.b3p.kaartenbalie.core.server.persistence;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -26,7 +28,8 @@ public class MyEMFDatabase extends HttpServlet{
     public static final long serialVersionUID = 24574462L;
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
     private static EntityManagerFactory emf;
-    private static ThreadLocal tlEM = new ThreadLocal();
+    private static ThreadLocal tlMap = new ThreadLocal();
+    private static String entityManagerName = "entityManager";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
     public static String dtd = "/dtd/capabilities_1_1_1.dtd";
@@ -116,12 +119,61 @@ public class MyEMFDatabase extends HttpServlet{
     * a hashmap in the ThreadLocal.
     */
     public static EntityManager getEntityManager() {
-        EntityManager localEm = (EntityManager) tlEM.get();
+        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
         if (localEm == null) {
             localEm = emf.createEntityManager();
-            tlEM.set(localEm);
+            setThreadLocal("entityManager", localEm);
         }
         return localEm;
+    }
+    
+    
+    /*
+     * DataWarehousing Objects placeholder... This is required as objects can only be managed after the process completed...
+     */
+    
+    public static void entityToPersist(Object object) {
+        
+    }
+    
+    public static void entityToMerge(Object object) {
+        
+    }
+    public static void entityToRemove(Object object) {
+        
+    }
+    
+    public static void purgeDataWarehouse() {
+        
+    }
+    
+    /*
+     * Thread Local Map Management...
+     */
+    private static void initThreadLocal() {
+        tlMap.set(new HashMap());
+    }
+    
+    private static void clearThreadLocal(String key) {
+        Map threadLocalMap = (Map) tlMap.get();
+        threadLocalMap.remove(key);
+    }
+    
+    private static void setThreadLocal(String key, Object object) {
+        if (tlMap.get() == null) {
+            initThreadLocal();
+        }
+        Map threadLocalMap = (Map) tlMap.get();
+        threadLocalMap.put(key,object);
+    }
+    
+    private static Object getThreadLocal(String key) {
+        if (tlMap.get() == null) {
+            initThreadLocal();
+            return null;
+        }
+        Map threadLocalMap = (Map) tlMap.get();
+        return threadLocalMap.get(key);
     }
     
     /*
@@ -129,10 +181,10 @@ public class MyEMFDatabase extends HttpServlet{
      * multiple calls are done on the same entitymanager
      */
     public static void closeEntityManager() {
-        EntityManager localEm = (EntityManager) tlEM.get();
+        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
         if (localEm != null) {
             localEm.close();
-            tlEM.set(null);
+            clearThreadLocal(entityManagerName);
         }
     }
     
@@ -191,6 +243,12 @@ public class MyEMFDatabase extends HttpServlet{
         return thePath + prefix + val1 + val2 + extension;
     }
     // </editor-fold>
+    
+    /* Run this to sync your DB using the nonServlet PersistenceUnit*/
+    public static void main(String [] args) throws Exception {
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        
+    }
     
     public static String getDtd() {
         return dtd;

@@ -11,8 +11,6 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.security.MessageDigest;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,8 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConstants;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
@@ -138,6 +138,8 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
             em.merge(user);
         }
         em.flush();
+        DataWarehousing.enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        //DataWarehousing.persistOrMerge(user.getClass(), user.getId());
         
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
@@ -243,6 +245,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         
         em.remove(user);
         em.flush();
+        DataWarehousing.enlist(User.class, user.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
