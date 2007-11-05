@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="mon_requestoperation" discriminator-value="Operation">
+        <id name="id" type="int" column="rqo_id" >
+            <generator class="native"/>
+        </id>
+        <discriminator column="rqo_discriminator" type="string" />
+        <many-to-one name="clientRequest" column="rqo_clr_id" update="true" not-null="false"/>    
+        <property name="duration" column="rqo_duration"/>       
+        <property name="msSinceRequestStart" column="rqo_msSinceRequestStart"/>       
+        
+        
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation" discriminator-value="CombineImagesOperation">
+            <property name="numberOfImages" column="rqo_numberOfImages"/>
+        </subclass>
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation" discriminator-value="ServerTransferOperation"/>        
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation" discriminator-value="ClientXFerOperation">        
+            <property name="dataSize" column="rqo_dataSize"/>
+        </subclass>
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation" discriminator-value="RequestOperation">        
+            <property name="bytesReceivedFromUser" column="rqo_bytesReceivedFromUser"/>
+            <property name="bytesSendToUser" column="rqo_bytesSendToUser"/>
+        </subclass>
+    </class>
+</hibernate-mapping>

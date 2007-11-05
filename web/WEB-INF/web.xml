@@ -38,7 +38,7 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>enabled</param-value> <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>warehousing</param-name>
