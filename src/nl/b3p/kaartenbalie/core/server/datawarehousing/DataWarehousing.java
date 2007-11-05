@@ -33,6 +33,11 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 public class DataWarehousing {
     
     private static Map dataMappings;
+    
+    
+    /*
+     * Basically use this boolean to enable or disable the warehousing mechanism.
+     */
     private static boolean enableWarehousing = false;
     private DataWarehousing() {
     }
@@ -111,9 +116,7 @@ public class DataWarehousing {
     }
     
     public static void remove(Class entityClass, Integer primaryKey) throws Exception {
-        if (!enableWarehousing) {
-            return;
-        }
+        if (!enableWarehousing) { return;}
         EntityManager em = MyEMFDatabase.createEntityManager();
         WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
         
@@ -197,24 +200,24 @@ public class DataWarehousing {
         System.out.println("fetching...");
         
         for (int i = 0; i< 20; i++) {
-         
-         
+            
+            
             int nextRandom = 1 + (int)(Math.random() * 20);
             
             DataWarehousing.remove(User.class, new Integer(nextRandom));
-         
+            
             User userFromWarehouse = (User) DataWarehousing.find(User.class, new Integer(i));
-           
+            
             System.out.println("User:"+ userFromWarehouse);
             if (userFromWarehouse != null){
                 System.out.println("UserName:" + userFromWarehouse.getUsername());
                 System.out.println("Id:" + userFromWarehouse.getId());
-         
+                
             }
             
-         
+            
         }
-         
+        
         
     }
     
