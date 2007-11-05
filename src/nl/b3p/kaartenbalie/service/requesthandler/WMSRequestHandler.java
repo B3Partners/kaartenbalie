@@ -316,10 +316,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         //The list is given in the opposit ranking. Therefore we first need to swap the list.
         int size = urls.size();
         ArrayList swaplist = new ArrayList(size);
-        for (int i = 0; i < size; i++) {
-            String url = (String) urls.get(i);
-            int swapIndex = size - 1 - i;
-            swaplist.add(swapIndex, url);
+        for (int i = size - 1; i >= 0; i--) {
+            swaplist.add(urls.get(i));
         }
         urls = swaplist;
         
