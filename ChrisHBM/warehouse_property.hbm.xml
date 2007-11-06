@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.datawarehousing.domain.EntityProperty" table="wah_property">
+        
+        <id name="id" type="int" column="prp_id" >
+            <generator class="native"/>
+        </id>
+        <set name="propertyValues" > 
+            <key column="val_prp_id" update="true" not-null="false" /> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.datawarehousing.domain.PropertyValue"/> 
+        </set>        
+        <many-to-one name="entityClass" column="prp_cls_id" update="true" not-null="false"/>        
+        <property name="fieldName" column="prp_fieldName"/>      
+        <property name="fieldClass" column="prp_entityClass"/>     
+        <property name="dateCreated" column="prp_dateCreated"/>
+        <property name="dateDeleted" column="prp_dateDeleted"/>             
+    </class>
+</hibernate-mapping>

@@ -1,7 +1,7 @@
 /*
  * WarehousedEntity.java
  *
- * Created on October 29, 2007, 9:20 AM
+ * Created on November 6, 2007, 12:23 PM
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -21,23 +21,21 @@ public class WarehousedEntity {
     
     private Integer id;
     private Date dateCreated;
-    private Date dateLastUpdated;
     private Date dateDeleted;
-    private Class objectClass;
     private Integer referencedId;
-    private Set entityDataMappings;
-    
-    private WarehousedEntity() {
+    private Set entityMutations;
+    private EntityClass entityClass;
+    public WarehousedEntity() {
+        setEntityMutations(new HashSet());
         setDateCreated(new Date());
-        entityDataMappings = new HashSet();
+        
     }
     
-    public WarehousedEntity(Class objectClass, Integer referencedId) {
+    public WarehousedEntity(EntityClass entityClass, Integer referencedId) {
         this();
-        this.setObjectClass(objectClass);
+        this.setEntityClass(entityClass);
         this.setReferencedId(referencedId);
     }
-    
     
     public Integer getId() {
         return id;
@@ -45,22 +43,6 @@ public class WarehousedEntity {
     
     public void setId(Integer id) {
         this.id = id;
-    }
-    
-    public Class getObjectClass() {
-        return objectClass;
-    }
-    
-    public void setObjectClass(Class objectClass) {
-        this.objectClass = objectClass;
-    }
-    
-    public Integer getReferencedId() {
-        return referencedId;
-    }
-    
-    public void setReferencedId(Integer referencedId) {
-        this.referencedId = referencedId;
     }
     
     public Date getDateCreated() {
@@ -71,14 +53,6 @@ public class WarehousedEntity {
         this.dateCreated = dateCreated;
     }
     
-    public Date getDateLastUpdated() {
-        return dateLastUpdated;
-    }
-    
-    public void setDateLastUpdated(Date dateLastUpdated) {
-        this.dateLastUpdated = dateLastUpdated;
-    }
-    
     public Date getDateDeleted() {
         return dateDeleted;
     }
@@ -87,15 +61,34 @@ public class WarehousedEntity {
         this.dateDeleted = dateDeleted;
     }
     
-    public Set getEntityDataMappings() {
-        return entityDataMappings;
+    
+    public Integer getReferencedId() {
+        return referencedId;
     }
     
-    public void setEntityDataMappings(Set entityDataMappings) {
-        this.entityDataMappings = entityDataMappings;
+    public void setReferencedId(Integer referencedId) {
+        this.referencedId = referencedId;
+    }
+    
+    public Set getEntityMutations() {
+        return entityMutations;
+    }
+    
+    public void setEntityMutations(Set entityMutations) {
+        this.entityMutations = entityMutations;
+    }
+    
+    public EntityClass getEntityClass() {
+        return entityClass;
+    }
+    
+    public void setEntityClass(EntityClass entityClass) {
+        this.entityClass = entityClass;
     }
     
     
     
     
 }
+
+

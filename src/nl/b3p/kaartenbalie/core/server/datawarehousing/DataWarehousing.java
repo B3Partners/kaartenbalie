@@ -12,20 +12,19 @@ package nl.b3p.kaartenbalie.core.server.datawarehousing;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.DataMappingTemplate;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.DateDataMapping;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.IntegerDataMapping;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.StringDataMapping;
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.EntityClass;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.EntityMutation;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.EntityProperty;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.PropertyValue;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.WarehousedEntity;
+
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData;
 
 /**
  *
@@ -33,7 +32,6 @@ import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData;
  */
 public class DataWarehousing {
     
-    private static Map dataMappings;
     private static ThreadLocal tlObjects = new ThreadLocal();
     
     /*
@@ -43,21 +41,15 @@ public class DataWarehousing {
     private DataWarehousing() {
     }
     
-    static {
-        dataMappings = new HashMap();
-        dataMappings.put(String.class,StringDataMapping.class);
-        dataMappings.put(Integer.class,IntegerDataMapping.class);
-        dataMappings.put(Date.class,DateDataMapping.class);
-    }
     
     public static void setEnableDatawarehousing(boolean state) {
         enableWarehousing = state;
     }
     
-    public static Object find(Class entityClass, Integer primaryKey) throws Exception {
+    public static Object find(Class objectClass, Integer primaryKey) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         //First check if the entity still exists and possible save the trouble of building it again.
-        Object object = em.find(entityClass, primaryKey);
+        Object object = em.find(objectClass, primaryKey);
         if (object != null) {
             return object;
         } else if (enableWarehousing) {
@@ -72,7 +64,7 @@ public class DataWarehousing {
                         "FROM WarehousedEntity AS we " +
                         "WHERE we.objectClass = :objectClass " +
                         "AND we.referencedId = :referencedId")
-                        .setParameter("objectClass", entityClass)
+                        .setParameter("objectClass", objectClass)
                         .setParameter("referencedId", primaryKey)
                         .getSingleResult();
             } catch (NoResultException nre) {
@@ -82,32 +74,43 @@ public class DataWarehousing {
             /*
              * At this point we have a WarehousedEntity that matched the find request.
              * Now we have to transform it to a matching object of the requested class!
+             * But first check if there is a mutation on this class.. There always should be one,
+             * but you never know... Plus we need the latest mutation anyways...
              */
-            object = entityClass.newInstance();
-            Method[] methods =  entityClass.getDeclaredMethods();
-            
-            for (int i = 0; i< methods.length; i++) {
-                Method method = methods[i];
-                Class[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length == 1 && method.getName().startsWith("set")) {
-                    if (getDataMappingForClass(parameterTypes[0]) != null) {
-                        method.setAccessible(true);
-                        String fieldReference = method.getName().substring(3,method.getName().length());
-                        try {
-                            DataMappingTemplate dmt = (DataMappingTemplate) em.createQuery(
-                                    "FROM DataMappingTemplate AS dmt " +
-                                    "WHERE dmt.fieldReference = :fieldReference " +
-                                    "AND dmt.warehousedEntity = :warehousedEntity")
-                                    .setParameter("fieldReference",fieldReference)
-                                    .setParameter("warehousedEntity", we)
-                                    .getSingleResult();
-                            method.invoke(object, new Object[] {dmt.getValue()});
-                        } catch (NoResultException nre) {
-                            // nre.printStackTrace();
-                        }
-                    }
-                }
+            EntityMutation entityMutation;
+            try {
+                entityMutation = (EntityMutation) em.createQuery(
+                        "FROM EntityMutation AS ea " +
+                        "WHERE ea.warehousedEntity.id = :warehousedEntityId " +
+                        "ORDER BY ea.mutationDate DESC")
+                        .setParameter("warehousedEntityId", we.getId())
+                        .setMaxResults(1)
+                        .getSingleResult();
+            } catch (NoResultException nre) {
+                throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() +". This should be possible.");
             }
+            object = objectClass.newInstance();
+            
+            /*
+             * Now get the matching properties... (Only valid properties though)..
+             *
+             */
+            
+            List propertiesList = em.createQuery(
+                    "FROM PropertyValue AS pv " +
+                    "WHERE pv.entityMutation.id = :entityMutationId " +
+                    "AND pv.entityProperty.dateDeleted = null")
+                    .setParameter("entityMutationId", entityMutation.getId())
+                    .getResultList();
+            
+            Iterator iterProps = propertiesList.iterator();
+            while (iterProps.hasNext()) {
+                PropertyValue propertyValue = (PropertyValue) iterProps.next();
+                EntityProperty ep = propertyValue.getEntityProperty();
+                Method setMethod = objectClass.getDeclaredMethod("set" + ep.getFieldName(),new Class[] {ep.getFieldClass()});
+                setMethod.invoke(object,new Object[] {propertyValue.requestValue()});
+            }
+            
             //Close the entitymanager..
             em.close();
             //Finally return the object
@@ -160,10 +163,10 @@ public class DataWarehousing {
                     }
                 }
             }
+            et.commit();
         } catch(Exception e) {
             et.rollback();
         }
-        et.commit();
         em.close();
         
     }
@@ -192,16 +195,26 @@ public class DataWarehousing {
         }
         
     }
-    private static void persist(Class entityClass, Integer primaryKey,EntityManager em ) throws Exception{
-        Object refDBObject = getReferedObject(entityClass, primaryKey, em);
-        WarehousedEntity we = getManagedEntity(entityClass, primaryKey, em);
+    private static void persist(Class objectClass, Integer primaryKey,EntityManager em ) throws Exception{
+        Object refDBObject = getReferedObject(objectClass, primaryKey, em);
+        WarehousedEntity we = getManagedEntity(objectClass, primaryKey, em);
         if (we != null) {
             throw new Exception("Trying to persist an already existing object. Use " + DataWarehousing.class.getSimpleName() + ".merge() instead.");
         }
+        EntityClass entityClass = getEntityClass(objectClass, em);
         we = new WarehousedEntity(entityClass, primaryKey);
         em.persist(we);
-        reflectDataTemplates(we,entityClass, refDBObject, true, em);
+        reflectDataTemplates(we,refDBObject, true, em);
         em.flush();
+    }
+    
+    private static EntityClass getEntityClass(Class objectClass, EntityManager em) {
+        
+        return (EntityClass) em.createQuery(
+                "FROM EntityClass AS ec " +
+                "WHERE ec.objectClass = :objectClass")
+                .setParameter("objectClass", objectClass)
+                .getSingleResult();
     }
     
     private static void merge(Class entityClass, Integer primaryKey,EntityManager em ) throws Exception{
@@ -223,31 +236,115 @@ public class DataWarehousing {
          * Now we have a WarehousedEntity. Thats good! Lets start reflecting our previously fetched entity
          * with its class.
          */
-        reflectDataTemplates(we,entityClass, refDBObject, false, em);
-        we.setDateLastUpdated(new Date());
+        reflectDataTemplates(we,refDBObject, false, em);
         em.flush();
     }
     
-    
+    public static void registerClass(Class clazz) {
+        if (!enableWarehousing) { return;}
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        EntityTransaction et = em.getTransaction();
+        et.begin();
+        EntityClass ec = null;
+        
+        /*
+         * Check if the class is already mapped, if its not, then craete a new mapping!
+         */
+        try {
+            
+            ec = (EntityClass) em.createQuery(
+                    "FROM EntityClass AS ec " +
+                    "WHERE ec.objectClass = :objectClass")
+                    .setParameter("objectClass", clazz)
+                    .getSingleResult();
+        } catch (NoResultException nre) {
+            ec = new EntityClass(clazz);
+            em.persist(ec);
+        }
+        
+        /*
+         * Now add methods to your mapped class..
+         */
+        Method[] methods =  clazz.getDeclaredMethods();
+        for (int i = 0; i< methods.length; i++) {
+            Method method = methods[i];
+            Class[] parameterTypes = method.getParameterTypes();
+            if (parameterTypes.length == 1 && method.getName().startsWith("set")) {
+                Class fieldClass = parameterTypes[0];
+                if (PropertyValue.isAllowed(fieldClass)) {
+                    method.setAccessible(true);
+                    String fieldName = method.getName().substring(3,method.getName().length());
+                    try {
+                        em.createQuery(
+                                "FROM EntityProperty AS ep " +
+                                "WHERE ep.fieldName = :fieldName " +
+                                "AND ep.fieldClass = :fieldClass " +
+                                "AND ep.entityClass.id = :entityClassId " +
+                                "AND ep.dateDeleted = null")
+                                .setParameter("fieldName", fieldName)
+                                .setParameter("fieldClass",fieldClass)
+                                .setParameter("entityClassId", ec.getId())
+                                .getSingleResult();
+                    } catch (NoResultException nre) {
+                        EntityProperty ep = new EntityProperty(ec, fieldClass, fieldName);
+                        em.persist(ep);
+                    }
+                }
+            }
+        }
+        /*
+         * Now check for methods that are in de DB but not in the class and delete these..
+         */
+        List entityProperties = em.createQuery(
+                "FROM EntityProperty AS ep " +
+                "WHERE ep.entityClass.id = :entityClassId " +
+                "AND ep.dateDeleted = null ")
+                .setParameter("entityClassId", ec.getId())
+                .getResultList();
+        Iterator iterProps = entityProperties.iterator();
+        while(iterProps.hasNext()) {
+            
+            EntityProperty ep = (EntityProperty) iterProps.next();
+            try {
+                clazz.getDeclaredMethod("set" + ep.getFieldName(),new Class[] {ep.getFieldClass()});
+                clazz.getDeclaredMethod("get" + ep.getFieldName(),null);
+            } catch (NoSuchMethodException nsme) {
+                ep.setDateDeleted(new Date());
+            }
+            
+        }
+        et.commit();
+        em.close();
+    }
     
     public static void main(String [] args) throws Exception {
-       
-
+        
+        
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
         
         DataWarehousing.setEnableDatawarehousing(true);
-        /*        
+        
+        registerClass(User.class);
         EntityManager em = MyEMFDatabase.createEntityManager();
-        List list = em.createQuery("FROM RepData").getResultList();
+        List list = em.createQuery("FROM User").getResultList();
         
         Iterator i = list.iterator();
         DataWarehousing.begin();
         while (i.hasNext()) {
-            RepData object = (RepData) i.next();
-            DataWarehousing.enlist(RepData.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
+            User object = (User) i.next();
+            DataWarehousing.enlist(User.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
         }
         DataWarehousing.end();
-        */
+        
+         i = list.iterator();
+        while (i.hasNext()) {
+            User object = (User) i.next();
+            Integer id = object.getId();
+            User nextUser = (User) DataWarehousing.find(User.class, id);
+            System.out.println(nextUser.getId() + ":" + nextUser.getUsername() + ":");
+            
+        }
+        
         
     }
     
@@ -262,16 +359,7 @@ public class DataWarehousing {
         return refDBObject;
     }
     
-    /*
-     * Helper function which gets the right DataMappingClass for a requestedClass or returns null if the requestedClass
-     * is not supported.
-     */
-    private static Class getDataMappingForClass(Class requestedClass) throws Exception {
-        if (dataMappings.containsKey(requestedClass)) {
-            return  (Class) dataMappings.get(requestedClass);
-        }
-        return null;
-    }
+    
     
     /*
      * Helper function that will return the warehousedEntity for an entityClass and primaryKey - that is, if it exists.
@@ -281,7 +369,7 @@ public class DataWarehousing {
         try {
             WarehousedEntity we = (WarehousedEntity) em.createQuery(
                     "FROM WarehousedEntity AS we " +
-                    "WHERE we.objectClass = :objectClass " +
+                    "WHERE we.entityClass.objectClass = :objectClass " +
                     "AND we.referencedId = :referencedId")
                     .setParameter("objectClass", entityClass)
                     .setParameter("referencedId", primaryKey)
@@ -292,69 +380,42 @@ public class DataWarehousing {
         }
     }
     
+    
     /*
      * Helper function that will update or create dataTemplates for the given warehousedEntity.
      */
-    private static void reflectDataTemplates(WarehousedEntity we, Class entityClass, Object refDBObject,  boolean isNewEntity, EntityManager em) throws Exception{
+    private static void reflectDataTemplates(WarehousedEntity we, Object refDBObject,  boolean isNewEntity, EntityManager em) throws Exception{
         
-        Method[] methods = entityClass.getDeclaredMethods();
-        List dmtList = null;
-        if (!isNewEntity) {
-            dmtList = em.createQuery(
-                    "FROM DataMappingTemplate AS dmt " +
-                    "WHERE dmt.warehousedEntity.id = :warehousedEntityId")
-                    .setParameter("warehousedEntityId", we.getId())
-                    .getResultList();
-        }
-        
-        for (int i = 0; i< methods.length; i++) {
-            Method method = methods[i];
-            // Check if it is a getter method.. Those are the methods we wanna have!
-            if (method.getName().toLowerCase().startsWith("get")) {
-                //Make is accessible...
-                method.setAccessible(true);
-                //Create a field reference.. This will used for many things..
-                String fieldReference = method.getName().substring(3,method.getName().length());
-                //Find the returnType of this method.
-                Class methodReturnType = method.getReturnType();
-                Class dmtClass = getDataMappingForClass(method.getReturnType());
+        EntityMutation entityMutation = new EntityMutation(we);
+        em.persist(entityMutation);
+        EntityClass entityClass = we.getEntityClass();
+        Class objectClass = entityClass.getObjectClass();
+        Iterator iterProps = entityClass.getEntityProperties().iterator();
+        while (iterProps.hasNext()) {
+            EntityProperty ep = (EntityProperty) iterProps.next();
+            if (ep.getDateDeleted() == null) {
                 
-                /*
-                 * Now check if this there is already an entity that matches this template.
-                 * If there is one, use it. If there is none, create it...
-                 */
-                DataMappingTemplate dmt = null;
-                if (dmtClass != null) {
-                    boolean newDmt = true;
-                    if (!isNewEntity) {
-                        Iterator j = dmtList.iterator();
-                        while (j.hasNext()) {
-                            DataMappingTemplate tempDmt = (DataMappingTemplate) j.next();
-                            if (tempDmt.getFieldReference().equals(fieldReference) && tempDmt.getClass().equals(dmtClass)) {
-                                dmt = tempDmt;
-                                newDmt = false;
-                            }
-                        }
+                try {
+                    Method getMethod = objectClass.getDeclaredMethod("get" + ep.getFieldName(),null);
+                    getMethod.setAccessible(true);
+                    
+                    Object object = getMethod.invoke(refDBObject, null);
+                    
+                    if (!PropertyValue.isAllowed(getMethod.getReturnType())) {
+                        throw new Exception("Trying to persist an unsupported property '" + object.getClass().getSimpleName() + "'");
                     }
-                    if (newDmt) {
-                        dmt=  (DataMappingTemplate) dmtClass.newInstance();
-                    }
-                    /*
-                     * Finally set the DataMappingTemplate value and if its new, set some other things aswell.
-                     */
-                    if (dmt != null) {
-                        dmt.setValue( method.invoke(refDBObject, null));
-                        if (newDmt) {
-                            dmt.setWarehousedEntity(we);
-                            dmt.setFieldReference(fieldReference);
-                            em.persist(dmt);
-                        }
-                    }
+                    PropertyValue pv = new PropertyValue(ep, entityMutation);
+                    pv.storeValue(object);
+                    em.persist(pv);
+                } catch (NoSuchMethodException nsme) {
+                    throw new NoSuchMethodException(
+                            "Could not handle get" + ep.getFieldName() + " for class " + objectClass + ". \n" +
+                            "Your copy of this class may be out of date. \n" +
+                            "Use " + DataWarehousing.class.getSimpleName() + ".registerClass(" + objectClass.getSimpleName() + ".class) to fix the problem. \n");
                 }
             }
+            
         }
     }
-    
-    
-    
 }
+

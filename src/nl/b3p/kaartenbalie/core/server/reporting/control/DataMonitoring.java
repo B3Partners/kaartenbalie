@@ -113,7 +113,7 @@ public class DataMonitoring {
             clientRequest.setUser(user);
             em.persist(clientRequest);
         } catch (Exception e) {
-            e.printStackTrace();
+            //TODO Error Handling... Should never happend though..
         }
     }
     
@@ -237,10 +237,10 @@ public class DataMonitoring {
                     validMessage = validMessage.substring(0,validMessage.length()-1) + ") \n";
                 }
             }
-            ex.printStackTrace();
             throw new Error(ex.getMessage() + "\n" + validMessage);
         } catch (Exception e) {
-            e.printStackTrace();
+            
+            //TODO Error Handling..
         }
         return null;
     }
@@ -267,7 +267,7 @@ public class DataMonitoring {
             clientRequest = null;
             tRequestOperationMap = null;
         } catch (Exception e) {
-            e.printStackTrace();
+            //TODO Error Handling...
             tx.rollback();
         }
     }

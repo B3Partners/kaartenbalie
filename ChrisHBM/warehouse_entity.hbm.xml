@@ -9,15 +9,13 @@
         <id name="id" type="int" column="wae_id" >
             <generator class="native"/>
         </id>
-        <set name="entityDataMappings" > 
-            <key column="edm_wae_id" update="true" not-null="false" /> 
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.datawarehousing.domain.DataMappingTemplate"/> 
+        <set name="entityMutations" > 
+            <key column="mut_wae_id" update="true" not-null="false" /> 
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.datawarehousing.domain.EntityMutation"/> 
         </set>
-        
-        <property name="objectClass" column="wae_objectClass" index="wae_objectClass_index"/>
+        <many-to-one name="entityClass" column="wae_cls_id" update="true" not-null="false"/>       
         <property name="referencedId" column="wae_referencedId" index="wae_referencedId_index"/>
         <property name="dateCreated" column="wae_dateCreated"/>
-        <property name="dateLastUpdated" column="wae_dateLastUpdated"/>
         <property name="dateDeleted" column="wae_dateDeleted"/>        
 
 </class>
