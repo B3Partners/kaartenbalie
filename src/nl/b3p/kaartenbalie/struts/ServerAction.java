@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -27,6 +29,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
@@ -40,9 +43,6 @@ import org.xml.sax.SAXException;
 public class ServerAction extends KaartenbalieCrudAction implements KBConstants {
     
     private static final Log log = LogFactory.getLog(ServerAction.class);
-    
-    protected static final String MISSING_SEPARATOR_ERRORKEY = "error.missingseparator";
-    protected static final String MISSING_QUESTIONMARK_ERRORKEY = "error.missingquestionmark";
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
@@ -50,6 +50,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
     protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
     protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
+    protected static final String NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY = "error.abbr.notalphanumeric";
     
     /* Execute method which handles all unspecified requests.
      *
@@ -189,6 +190,13 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
+        if(!isAlphaNumeric(abbreviation)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
@@ -410,8 +418,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        
-        
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);
@@ -433,7 +439,6 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
-        serviceProvider.setUrl(dynaForm.getString("url"));
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
     }
@@ -509,68 +514,27 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // </editor-fold>
     
     protected String checkWmsUrl(String url) throws Exception {
+        OGCRequest ogcrequest = new OGCRequest(url);
         
-        /*
-         * If the URL is valid we need to check if it complies with the WMS standard
-         * This means that it should have at least an '?' or a '&' at the end of the
-         * URL.
-         * Furthermore if nothing else has been added to the URL, KB needs to add the
-         * specific parameters REUQEST, VERSION and SERVICE to the URL in order for
-         * KB to be able to perform the request.
-         */
+        if(ogcrequest.containsParameter(WMS_REQUEST) && !WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(WMS_REQUEST))) {
+            throw new Exception(UNSUPPORTED_REQUEST);
+        } else {
+            ogcrequest.addOrReplaceParameter(WMS_REQUEST, WMS_REQUEST_GetCapabilities);
+        }        
         
-        int length = url.length();
-        
-        boolean hasLastQuest = false;
-        int lastQuest = url.lastIndexOf("?");
-        if (lastQuest >= 0 || length == lastQuest + 1) {
-            hasLastQuest = true;
+        if(ogcrequest.containsParameter(WMS_SERVICE) && !WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(WMS_SERVICE))) {
+            throw new Exception(UNSUPPORTED_SERVICE);
+        } else {
+            ogcrequest.addOrReplaceParameter(WMS_SERVICE, WMS_SERVICE_WMS);
         }
         
-        boolean hasLastAmper = false;
-        int lastAmper = url.lastIndexOf("&");
-        if ((lastAmper >= 0 && length == lastAmper + 1) || length == lastQuest + 1) {
-            hasLastAmper = true;
+        if(ogcrequest.containsParameter(WMS_VERSION) && !WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(WMS_VERSION))) {
+            throw new Exception(UNSUPPORTED_VERSION);
+        } else {
+            ogcrequest.addOrReplaceParameter(WMS_VERSION, WMS_VERSION_111);
         }
         
-        if (!hasLastQuest)
-            throw new Exception(MISSING_QUESTIONMARK_ERRORKEY);
-        
-        if (!hasLastAmper)
-            throw new Exception(MISSING_SEPARATOR_ERRORKEY);
-        
-        //Maybe some parameters have been given. We need to check which params still
-        //need to be added.
-        boolean req = false;
-        boolean version = false;
-        boolean service = false;
-        
-        String paramURL = url.substring(lastQuest + 1);
-        String [] params = paramURL.split("&");
-        for (int i = 0; i < params.length; i++) {
-            String [] paramValue = params[i].split("=");
-            if (paramValue.length == 2) {
-                if (paramValue[0].equalsIgnoreCase(WMS_REQUEST) && paramValue[1].equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
-                    req = true;
-                } else if (paramValue[0].equalsIgnoreCase(WMS_VERSION) && paramValue[1].equalsIgnoreCase(WMS_VERSION_111)) {
-                    version = true;
-                } else if (paramValue[0].equalsIgnoreCase(WMS_SERVICE) && paramValue[1].equalsIgnoreCase(WMS_SERVICE_WMS)) {
-                    service = true;
-                }
-            }
-        }
-        
-        if (!req) {
-            url += WMS_REQUEST + "=" + WMS_REQUEST_GetCapabilities + "&";
-        }
-        if (!version) {
-            url += WMS_VERSION + "=" + WMS_VERSION_111 + "&";
-        }
-        if (!service) {
-            url += WMS_SERVICE + "=" + WMS_SERVICE_WMS + "&";
-        }
-        
-        return url;
+        return ogcrequest.getUrl();
     }
 
     protected boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
@@ -592,5 +556,14 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         } catch (NoResultException nre) {
             return true;
         }
+    }
+    
+    protected boolean isAlphaNumeric(String string) {
+        Pattern p = Pattern.compile("[^A-Za-z0-9]");
+        Matcher m = p.matcher(string);
+        if(m.find()) { 
+            return false;
+        }
+        return true;
     }
 }

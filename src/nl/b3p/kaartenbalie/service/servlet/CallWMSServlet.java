@@ -140,12 +140,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
             data.setOgcrequest(ogcrequest);
             
-            user = checkLogin(request);
-            DataMonitoring rr = new DataMonitoring(user);
-            data.setRequestReporting(rr);
-            
             StringBuffer reason = new StringBuffer();
-            
             if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
                 String format = ogcrequest.getParameter(WMS_PARAM_FORMAT);
                 data.setContentType(format);
@@ -166,14 +161,19 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             } else {
                 data.setContentType(WMS_PARAM_EXCEPTION_XML);
             }
+            
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
             if(!isvalid){ 
                 log.error(reason);
                 throw new Exception(reason.toString());
             }
-                        
-            rr.startClientRequest(completeRequest, theUrl.toString().getBytes().length, startTime);
             
+            user = checkLogin(request);
+            
+            DataMonitoring rr = new DataMonitoring(user);
+            data.setRequestReporting(rr);
+            rr.startClientRequest(completeRequest, theUrl.toString().getBytes().length, startTime);
+                        
             data.setHeader("X-Kaartenbalie-User", user.getUsername());            
             parseRequestAndData(data, user);
             rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);

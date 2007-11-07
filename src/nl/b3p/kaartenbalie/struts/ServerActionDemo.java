@@ -20,6 +20,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -130,6 +131,13 @@ public class ServerActionDemo extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         
+        String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
+        if(!isAlphaNumeric(abbreviation)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
          * saving the user input. This means that we can start checking if we are dealing with a new
@@ -154,7 +162,7 @@ public class ServerActionDemo extends ServerAction {
             url = checkWmsUrl(url);
         } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, MISSING_SEPARATOR_ERRORKEY);
+            addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
         
