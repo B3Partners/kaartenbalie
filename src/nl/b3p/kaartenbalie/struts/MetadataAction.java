@@ -64,9 +64,9 @@ public class MetadataAction extends KaartenbalieCrudAction {
         String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
         layer.setMetaData(metadata);
         
-        //Possible TODO!
         em.merge(layer);
-        //getHibernateSession().update(layer);
+		// flush used because database sometimes doesn't update (merge) quickly enough
+		em.flush();
         
         showLayerTree(request);
         

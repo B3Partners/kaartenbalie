@@ -546,7 +546,16 @@ function createSection(strAddName) {
 			sNode = sNode.substring(sNode.lastIndexOf("gmd:") + 4);
 			debug("addSection: sNode = " + sNode + ", sNodes = " + sNodes);
 			if (sNode !== "MD_Metadata") {
-				newNode = tempXmlDoc.createElement(sNode);
+				//debug("tempXmlDoc.createNode: " + (tempXmlDoc.createNode != 0));
+				if ("createNode" in tempXmlDoc) { // IE
+					debug("IE (createNode exists)");
+					newNode = tempXmlDoc.createNode(1, sNode, "http://www.isotc211.org/2005/gmd");
+				}
+				else { // W3C (Firefox, Opera, etc.)
+					debug("W3C (createNode doesn't exist)");
+					newNode = tempXmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", sNode);
+				}
+				
 				pNode.appendChild(newNode);
 				pNode = newNode;
 			}
@@ -576,8 +585,8 @@ function createSection(strAddName) {
 	preXSLDoc.loadXML(strXSL);
 	
 	debug("preXSLDoc.xml = " + preXSLDoc.xml);
-	// transform or "preprocess" it
-	
+
+	// preprocess xml file
 	var strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
 	debug("strPreXML: " + strPreXML);
 	
@@ -598,12 +607,14 @@ function createSection(strAddName) {
 	var strHTML = addElementsXmlTransformer.transformToString(preXMLDoc);
 	
 	debug("strHTML = " + strHTML);
+	//debug("bla: ");
+	//var x = "";
 	
 	var resultAsXML = jsXML.createDOMDocument();
 	resultAsXML.async = false;
 	resultAsXML.loadXML(strHTML);
 	
-	//debug("resultAsXML = " + resultAsXML.xml);
+	debug("resultAsXML = " + resultAsXML.xml);
 	
 	var section = findSectionDiv(resultAsXML);
 	

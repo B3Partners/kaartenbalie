@@ -97,7 +97,7 @@ if (isIE) {
 
     //if we didn't find the string, send an error (NCZ, 1/30/02)
     if (!bFound)
-       throw "No DOM DOcument found on your computer."
+       throw "No DOM Document found on your computer."
 
 } //End: if
 
