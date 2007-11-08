@@ -82,9 +82,11 @@ public class PropertyValue {
         if (objectData == null) {
             return null;
         }
+
         ByteArrayInputStream bais = new ByteArrayInputStream(getObjectData());
         ObjectInputStream ois = new ObjectInputStream(bais);
-        return ois.readObject();
+        Object object = ois.readObject();
+        return object;
     }
     public void storeValue(Object object) throws Exception {
         if (object == null) {

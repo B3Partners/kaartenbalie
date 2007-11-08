@@ -21,6 +21,8 @@
         <property name="clientRequestURI" column="clr_clientRequestURI" length="4000"/>
         <property name="timeStamp" column="clr_timeStamp"/>
         <property name="userId" column="clr_userId"/>
+        <property name="organizationId" column="clr_organizationId"/>
+        
         
     </class>
 </hibernate-mapping>

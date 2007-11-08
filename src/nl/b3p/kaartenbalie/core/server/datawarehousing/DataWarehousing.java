@@ -46,10 +46,25 @@ public class DataWarehousing {
         enableWarehousing = state;
     }
     
+    public static Long sizeOnDisk(Class objectClass, Integer primaryKey) throws Exception {
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        Long dataSize = (Long) em.createQuery(
+                "SELECT SUM(LENGTH( pv.objectData)) " +
+                "FROM PropertyValue AS pv " +
+                "WHERE pv.entityMutation.warehousedEntity.referencedId = :primaryKey " +
+                "AND pv.entityMutation.warehousedEntity.entityClass.objectClass = :objectClass")
+                .setParameter("primaryKey",primaryKey)
+                .setParameter("objectClass",objectClass)
+                .getSingleResult();
+        em.close();
+        return dataSize;
+    }
     public static Object find(Class objectClass, Integer primaryKey) throws Exception {
+        
         EntityManager em = MyEMFDatabase.createEntityManager();
         //First check if the entity still exists and possible save the trouble of building it again.
         Object object = em.find(objectClass, primaryKey);
+        object = null;
         if (object != null) {
             return object;
         } else if (enableWarehousing) {
@@ -62,7 +77,7 @@ public class DataWarehousing {
             try {
                 we = (WarehousedEntity) em.createQuery(
                         "FROM WarehousedEntity AS we " +
-                        "WHERE we.objectClass = :objectClass " +
+                        "WHERE we.entityClass.objectClass = :objectClass " +
                         "AND we.referencedId = :referencedId")
                         .setParameter("objectClass", objectClass)
                         .setParameter("referencedId", primaryKey)
@@ -87,7 +102,7 @@ public class DataWarehousing {
                         .setMaxResults(1)
                         .getSingleResult();
             } catch (NoResultException nre) {
-                throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() +". This should be possible.");
+                throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() +". This should'nt be possible.");
             }
             object = objectClass.newInstance();
             
@@ -108,6 +123,7 @@ public class DataWarehousing {
                 PropertyValue propertyValue = (PropertyValue) iterProps.next();
                 EntityProperty ep = propertyValue.getEntityProperty();
                 Method setMethod = objectClass.getDeclaredMethod("set" + ep.getFieldName(),new Class[] {ep.getFieldClass()});
+                setMethod.setAccessible(true);
                 setMethod.invoke(object,new Object[] {propertyValue.requestValue()});
             }
             
@@ -246,10 +262,7 @@ public class DataWarehousing {
         EntityTransaction et = em.getTransaction();
         et.begin();
         EntityClass ec = null;
-        
-        /*
-         * Check if the class is already mapped, if its not, then craete a new mapping!
-         */
+   
         try {
             
             ec = (EntityClass) em.createQuery(
@@ -328,24 +341,25 @@ public class DataWarehousing {
         EntityManager em = MyEMFDatabase.createEntityManager();
         List list = em.createQuery("FROM User").getResultList();
         
-        Iterator i = list.iterator();
-        DataWarehousing.begin();
-        while (i.hasNext()) {
-            User object = (User) i.next();
-            DataWarehousing.enlist(User.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        Iterator i = null;
+        for (int j = 0; j< 100; j++) {
+            
+            i = list.iterator();
+            DataWarehousing.begin();
+            while (i.hasNext()) {
+                User object = (User) i.next();
+                DataWarehousing.enlist(User.class,object.getId(), DwObjectAction.PERSIST_OR_MERGE);
+            }
+            DataWarehousing.end();
         }
-        DataWarehousing.end();
         
-         i = list.iterator();
+        i = list.iterator();
         while (i.hasNext()) {
             User object = (User) i.next();
             Integer id = object.getId();
             User nextUser = (User) DataWarehousing.find(User.class, id);
-            System.out.println(nextUser.getId() + ":" + nextUser.getUsername() + ":");
-            
+            System.out.println(nextUser.getUsername() + ", bytes=" + sizeOnDisk(User.class, nextUser.getId()));
         }
-        
-        
     }
     
    /*

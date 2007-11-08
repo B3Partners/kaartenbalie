@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
@@ -29,6 +30,7 @@ import org.w3c.dom.Element;
 
 public class DataMonitoring {
     private User user;
+    private Organization organization;
     private ClientRequest clientRequest;
     private EntityManager em;
     private static List usServiceProviderRequest;
@@ -64,12 +66,17 @@ public class DataMonitoring {
     /*
      * This should be the default call to create a requestReporting object.
      */
-    public DataMonitoring(User user) {
+    public DataMonitoring(User user, Organization organization) {
         this();
         if (user == null) {
             throw new Error("User is required for proper DataMonitoring...");
         }
+        if (organization == null) {
+            throw new Error("Organization is required for proper DataMonitoring...");
+        }
         this.user = user;
+        this.organization = organization;
+        
     }
     
     /*
@@ -111,6 +118,7 @@ public class DataMonitoring {
             clientRequest = new ClientRequest();
             clientRequest.setClientRequestURI(clientRequestURI);
             clientRequest.setUser(user);
+            clientRequest.setOrganization(organization);
             em.persist(clientRequest);
         } catch (Exception e) {
             //TODO Error Handling... Should never happend though..

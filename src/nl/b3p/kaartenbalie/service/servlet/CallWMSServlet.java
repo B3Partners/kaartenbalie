@@ -13,7 +13,6 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
-import javax.transaction.NotSupportedException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
@@ -41,7 +40,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
@@ -51,7 +49,6 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXParseException;
 
 public class CallWMSServlet extends HttpServlet implements KBConstants {
     private static Log log = null;
@@ -170,7 +167,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             
             user = checkLogin(request);
             
-            DataMonitoring rr = new DataMonitoring(user);
+            DataMonitoring rr = new DataMonitoring(user, user.getOrganization());
             data.setRequestReporting(rr);
             rr.startClientRequest(completeRequest, theUrl.toString().getBytes().length, startTime);
                         

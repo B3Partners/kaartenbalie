@@ -32,7 +32,7 @@ public class TestThread extends Thread {
         try {
             long totalTime = 0;
             
-            DataMonitoring rr = new DataMonitoring(user);
+            DataMonitoring rr = new DataMonitoring(user, user.getOrganization());
             for (int i = 0; i< records; i++) {
                 
                 long startTime = System.currentTimeMillis();
