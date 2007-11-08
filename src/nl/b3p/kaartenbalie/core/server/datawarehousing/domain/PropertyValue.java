@@ -26,6 +26,7 @@ public class PropertyValue {
     
     private Integer id;
     private byte[] objectData;
+    private String stringData;
     private EntityProperty entityProperty;
     private EntityMutation entityMutation;
     private static List allowedMappings = new ArrayList();
@@ -50,11 +51,11 @@ public class PropertyValue {
         this.id = id;
     }
     
-    public byte[] getObjectData() {
+    private byte[] getObjectData() {
         return objectData;
     }
     
-    public void setObjectData(byte[] objectData) {
+    private void setObjectData(byte[] objectData) {
         this.objectData = objectData;
     }
     
@@ -75,28 +76,59 @@ public class PropertyValue {
     }
     
     
+    private String getStringData() {
+        return stringData;
+    }
+    
+    private void setStringData(String stringData) {
+        this.stringData = stringData;
+    }
+    
+    
+    
     /*
      * Methods for setting and obtaining the objectdata.
      */
     public Object requestValue() throws Exception {
-        if (objectData == null) {
+        
+        if (getObjectData() == null && getStringData() == null) {
             return null;
         }
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(getObjectData());
-        ObjectInputStream ois = new ObjectInputStream(bais);
-        Object object = ois.readObject();
-        return object;
+        
+        Class objectClass = entityProperty.getFieldClass();
+        if (String.class.isAssignableFrom(objectClass)) {
+            return getStringData();
+        } else if (Date.class.isAssignableFrom(objectClass)) {
+            return stringToDate(getStringData());
+        } else if (Integer.class.isAssignableFrom(objectClass)) {
+            return stringToInteger(getStringData());
+        } else {
+            ByteArrayInputStream bais = new ByteArrayInputStream(getObjectData());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            Object object = ois.readObject();
+            return object;
+        }
     }
     public void storeValue(Object object) throws Exception {
         if (object == null) {
             setObjectData(null);
+            setStringData(null);
             return;
         }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(object);
-        setObjectData(baos.toByteArray());
+        
+        Class objectClass = object.getClass();
+        if (String.class.isAssignableFrom(objectClass)) {
+            setStringData(object.toString());
+        } else if (Date.class.isAssignableFrom(objectClass)) {
+            setStringData(dateToString((Date) object));
+        } else if (Integer.class.isAssignableFrom(objectClass)) {
+            setStringData(integerToString((Integer) object));
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(object);
+            setObjectData(baos.toByteArray());
+        }
     }
     
     /*
@@ -118,6 +150,45 @@ public class PropertyValue {
         }
         return false;
     }
+    
+    //Methods for parsing Integers..
+    private static String integerToString(Integer integer) {
+        if (integer == null) {
+            return null;
+        }
+        return integer.toString();
+    }
+    
+    private static Integer stringToInteger(String string) {
+        if (string == null) {
+            return null;
+        }
+        try {
+            return new Integer(string);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    //Methods for parsing Dates
+    private static String dateToString(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new String("" + date.getTime());
+    }
+    
+    private static Date stringToDate(String string) {
+        if (string == null) {
+            return null;
+        }
+        try {
+            return new Date(Long.parseLong(string));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     
     
     

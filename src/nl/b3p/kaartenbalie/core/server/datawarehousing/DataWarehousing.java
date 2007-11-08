@@ -49,7 +49,7 @@ public class DataWarehousing {
     public static Long sizeOnDisk(Class objectClass, Integer primaryKey) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         Long dataSize = (Long) em.createQuery(
-                "SELECT SUM(LENGTH( pv.objectData)) " +
+                "SELECT (SUM(LENGTH(pv.stringData)) + SUM(LENGTH(pv.objectData)))" +
                 "FROM PropertyValue AS pv " +
                 "WHERE pv.entityMutation.warehousedEntity.referencedId = :primaryKey " +
                 "AND pv.entityMutation.warehousedEntity.entityClass.objectClass = :objectClass")
@@ -342,7 +342,7 @@ public class DataWarehousing {
         List list = em.createQuery("FROM User").getResultList();
         
         Iterator i = null;
-        for (int j = 0; j< 100; j++) {
+        for (int j = 0; j< 1; j++) {
             
             i = list.iterator();
             DataWarehousing.begin();
@@ -358,7 +358,7 @@ public class DataWarehousing {
             User object = (User) i.next();
             Integer id = object.getId();
             User nextUser = (User) DataWarehousing.find(User.class, id);
-            System.out.println(nextUser.getUsername() + ", bytes=" + sizeOnDisk(User.class, nextUser.getId()));
+            System.out.println(nextUser.getUsername() + ", something=" + nextUser.getTimeout() + ", bytes=" + sizeOnDisk(User.class, nextUser.getId()));
         }
     }
     

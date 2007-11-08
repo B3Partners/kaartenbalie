@@ -21,6 +21,8 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
@@ -179,6 +181,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
             em.merge(organization);
         }
         em.flush();
+        DataWarehousing.enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
@@ -252,6 +255,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
         
         em.remove(organization);
         em.flush();
+        DataWarehousing.enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>

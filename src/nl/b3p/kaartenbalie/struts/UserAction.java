@@ -139,7 +139,6 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         }
         em.flush();
         DataWarehousing.enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
-        //DataWarehousing.persistOrMerge(user.getClass(), user.getId());
         
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
