@@ -129,25 +129,6 @@ public class MyEMFDatabase extends HttpServlet{
     
     
     /*
-     * DataWarehousing Objects placeholder... This is required as objects can only be managed after the process completed...
-     */
-    
-    public static void entityToPersist(Object object) {
-        
-    }
-    
-    public static void entityToMerge(Object object) {
-        
-    }
-    public static void entityToRemove(Object object) {
-        
-    }
-    
-    public static void purgeDataWarehouse() {
-        
-    }
-    
-    /*
      * Thread Local Map Management...
      */
     private static void initThreadLocal() {

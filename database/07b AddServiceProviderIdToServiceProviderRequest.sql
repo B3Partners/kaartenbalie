@@ -1,0 +1,1 @@
+ALTER TABLE `kaartenbalie`.`mon_serviceproviderrequest` ADD COLUMN `spr_serviceProviderId` INTEGER AFTER `spr_format`;

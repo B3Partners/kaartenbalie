@@ -12,11 +12,10 @@ package nl.b3p.kaartenbalie.service;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,13 +30,14 @@ public class ImageManager {
     private final Log log = LogFactory.getLog(this.getClass());
     private ArrayList ics = new ArrayList();
     
-    public ImageManager(ArrayList urls, Map parameterMap) {
-        if (urls==null || urls.isEmpty())
+    public ImageManager(ArrayList urlWrapper, Map parameterMap) {
+        if (urlWrapper==null || urlWrapper.isEmpty())
             return;
-        Iterator it = urls.iterator();
+        Iterator it = urlWrapper.iterator();
         while (it.hasNext()) {
-            String url = (String) it.next();
-            ImageCollector ic = new ImageCollector(url, parameterMap);
+            WMSRequest wmsRequest = (WMSRequest) it.next();
+            //String url = wmsRequest.getProviderRequestURI();
+            ImageCollector ic = new ImageCollector(wmsRequest, parameterMap);
             ics.add(ic);
         }
     }

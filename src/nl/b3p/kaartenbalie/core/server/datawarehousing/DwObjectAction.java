@@ -9,10 +9,6 @@
 
 package nl.b3p.kaartenbalie.core.server.datawarehousing;
 
-/**
- *
- * @author Chris Kramer
- */
 public class DwObjectAction {
     
     public static final int MERGE = 0;

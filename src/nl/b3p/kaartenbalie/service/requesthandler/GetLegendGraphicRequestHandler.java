@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +28,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
     public GetLegendGraphicRequestHandler() {}
     // </editor-fold>
     
-    /** 
+    /**
      * Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      *
@@ -58,11 +59,14 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         }
         
         Map spInfo = (Map)spUrls.get(0);
-         if(spInfo == null) {
+        if(spInfo == null) {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
-        ArrayList urls = new ArrayList();
+        ArrayList urlWrapper = new ArrayList();
+        WMSGetLegendGraphicRequest lgrWrapper = new WMSGetLegendGraphicRequest();
+        Integer serviceProviderId = (Integer)spInfo.get("spId");
+        lgrWrapper.setServiceProviderId(serviceProviderId);
         StringBuffer url = new StringBuffer();
         url.append((String)spInfo.get("spUrl"));
         String [] params = ogc.getParametersArray();
@@ -78,9 +82,9 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
                 url.append("&");
             }
         }
-        
-        urls.add(url.toString()); 
-        getOnlineData(dw, urls, false, WMS_REQUEST_GetLegendGraphic);
+        lgrWrapper.setProviderRequestURI(url.toString());
+        urlWrapper.add(lgrWrapper);
+        getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetLegendGraphic);
     }
     // </editor-fold>
 }

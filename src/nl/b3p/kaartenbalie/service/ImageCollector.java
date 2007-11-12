@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Switcher;
@@ -50,9 +51,9 @@ public class ImageCollector extends Thread implements KBConstants {
     private String message = null;
     
     private BufferedImage bufferedImage;
-    private String url = null;
-    private static Stack stack = new Stack();
     
+    private static Stack stack = new Stack();
+    private WMSRequest wmsRequest;
     
     /* User for reporting! */
     private Map localParameterMap;
@@ -60,15 +61,16 @@ public class ImageCollector extends Thread implements KBConstants {
     
     
     
-    public ImageCollector(String url) {
-        this.url = url;
+    public ImageCollector(WMSRequest wmsRequestWrapper) {
+        
+        this.wmsRequest = wmsRequestWrapper;
         
         this.setMessage("Download status is still active.");
     }
-    public ImageCollector(String url, Map paramSourceMap) {
-        this(url);
+    public ImageCollector(WMSRequest wmsRequest, Map paramSourceMap) {
+        this(wmsRequest);
         localParameterMap = new HashMap(paramSourceMap);
-        getLocalParameterMap().put("ProviderRequestURI", url);
+        getLocalParameterMap().put("ProviderRequestURI", wmsRequest.getProviderRequestURI());
     }
     
     
@@ -93,6 +95,7 @@ public class ImageCollector extends Thread implements KBConstants {
         client.getHttpConnectionManager().getParams().setConnectionTimeout(maxResponseTime);
         
         try {
+            String url = wmsRequest.getProviderRequestURI();
             /*
              * Now we have a client connection, we first need to check if the
              * connection is ok. If the connection isn't OK we need to report this and
@@ -101,6 +104,7 @@ public class ImageCollector extends Thread implements KBConstants {
             int statusCode = client.executeMethod(method);
             getLocalParameterMap().put("BytesSend", new Long(url.getBytes().length));
             getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
+            getLocalParameterMap().put("ServiceProviderId", wmsRequest.getServiceProviderId());
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
@@ -125,7 +129,7 @@ public class ImageCollector extends Thread implements KBConstants {
             
             Header[] headers = method.getResponseHeaders();
             
-           
+            
             
             setStatus(COMPLETED);
         } catch (Exception ex) {
@@ -174,11 +178,11 @@ public class ImageCollector extends Thread implements KBConstants {
     }
     
     public String getUrl() {
-        return url;
+        return wmsRequest.getProviderRequestURI();
     }
     
-    public void setUrl(String url) {
-        this.url = url;
+    private void setUrl(String url) {
+        wmsRequest.setProviderRequestURI(url);
     }
     
     public String getMessage() {

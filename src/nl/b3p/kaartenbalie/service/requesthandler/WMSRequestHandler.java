@@ -41,6 +41,7 @@ import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
@@ -309,17 +310,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
-    protected static void getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) throws Exception {
+    protected static void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
         
         //The list is given in the opposit ranking. Therefore we first need to swap the list.
-        int size = urls.size();
+        int size = urlWrapper.size();
         ArrayList swaplist = new ArrayList(size);
         for (int i = size - 1; i >= 0; i--) {
-            swaplist.add(urls.get(i));
+            swaplist.add(urlWrapper.get(i));
         }
-        urls = swaplist;
+        urlWrapper = swaplist;
         
         /* To save time, this method checks first if the ArrayList contains more then one url
          * If it contains only one url then the method doesn't have to load the image into the G2D
@@ -330,13 +331,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Map parameterMap = new HashMap();
         DataMonitoring rr = dw.getRequestReporting();
         parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
-        if (urls.size() > 1) {
+        if (urlWrapper.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
                 /*
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
                 
-                ImageManager imagemanager = new ImageManager(urls, dw.getRequestParameterMap());
+                ImageManager imagemanager = new ImageManager(urlWrapper, dw.getRequestParameterMap());
                 imagemanager.process();
                 long endprocestime = System.currentTimeMillis();
                 Long time = new Long(endprocestime - startprocestime);
@@ -370,12 +371,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 Document source = null;
                 HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
-                for (int i = 0; i < urls.size(); i++) {
-                    String url = (String)urls.get(i);
+                for (int i = 0; i < urlWrapper.size(); i++) {
+                    WMSRequest wmsRequest = (WMSRequest)urlWrapper.get(i);
+                    String url = wmsRequest.getProviderRequestURI();
                     source = builder.parse( url );
                     copyElements(source, destination);
                     localParameterMap.put("BytesSend", new Long(url.getBytes().length));
                     localParameterMap.put("ProviderRequestURI", url);
+                    localParameterMap.put("ServiceProviderId", wmsRequest.getServiceProviderId());
                     localParameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
                     //TODO Make smarter and more complete!
                     localParameterMap.put("BytesReceived", new Long(-1));
@@ -390,8 +393,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 dw.write(baos);
             }
         } else {
-            if(!urls.isEmpty()) {
-                getOnlineData(dw, (String)urls.get(0));
+            if(!urlWrapper.isEmpty()) {
+                getOnlineData(dw, (WMSRequest)urlWrapper.get(0));
             } else {
                 if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                     throw new Exception(FEATUREINFO_EXCEPTION);
@@ -413,18 +416,19 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
-    private static void getOnlineData(DataWrapper dw, String url) throws Exception {
+    private static void getOnlineData(DataWrapper dw, WMSRequest wmsRequest) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data recieved from the url can be directly transported to the client.
          */
-        
+        String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
         HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
         
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
+        localParameterMap.put("ServiceProviderId", wmsRequest.getServiceProviderId());
         localParameterMap.put("ProviderRequestURI", url);
         localParameterMap.put("BytesSend", new Long(url.getBytes().length));
         

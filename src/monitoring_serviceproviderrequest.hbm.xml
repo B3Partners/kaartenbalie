@@ -19,6 +19,8 @@
         <property name="msSinceRequestStart" column="spr_msSinceRequestStart"/>               
         <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest" discriminator-value="WMSRequest">
             <property name="wmsVersion" column="spr_wmsVersion"/>
+            
+            <property name="serviceProviderId" column="spr_serviceProviderId"/>
             <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest" discriminator-value="WMSGetMapRequest">
                 <property name="srs" column="spr_srs"/>
                 <property name="width" column="spr_width"/>

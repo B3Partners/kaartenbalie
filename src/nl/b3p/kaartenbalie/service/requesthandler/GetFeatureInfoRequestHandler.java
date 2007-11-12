@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,15 +25,15 @@ import org.apache.commons.logging.LogFactory;
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     
     private static final Log log = LogFactory.getLog(GetFeatureInfoRequestHandler.class);
-
+    
     // <editor-fold defaultstate="" desc="default GetFeatureInfoRequestHandler() constructor.">
     public GetFeatureInfoRequestHandler() {}
     // </editor-fold>
     
-    /** 
+    /**
      * Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
-     * 
+     *
      * @param dw DataWrapper which contains all information that has to be sent to the client
      * @param user User the user which invoked the request
      *
@@ -49,17 +50,23 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         this.url        = user.getPersonalURL();
         Integer orgId   = user.getOrganization().getId();
         OGCRequest ogc  = dw.getOgcrequest();
-                
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, true);        
-        if(spUrls==null || spUrls.isEmpty()) {            
+        
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, true);
+        if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
         }
         
-        ArrayList urls = new ArrayList();
+        ArrayList urlWrapper = new ArrayList();
+        //ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
+            
+            
             Map spInfo = (Map) it.next();
+            WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
+            Integer serviceProviderId = (Integer)spInfo.get("spId");
+            firWrapper.setServiceProviderId(serviceProviderId);
             StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
             
             StringBuffer url = new StringBuffer();
@@ -77,10 +84,11 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                     url.append("&");
                 }
             }
-            urls.add(url.toString());            
-        }        
+            firWrapper.setProviderRequestURI(url.toString());
+            urlWrapper.add(firWrapper);
+        }
         
-        getOnlineData(dw, urls, false, WMS_REQUEST_GetFeatureInfo);
+        getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetFeatureInfo);
     }
     // </editor-fold>
 }

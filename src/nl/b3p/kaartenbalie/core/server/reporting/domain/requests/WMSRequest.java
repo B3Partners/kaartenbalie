@@ -9,8 +9,8 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
+import nl.b3p.wms.capabilities.ServiceProvider;
 
 /**
  *
@@ -20,7 +20,7 @@ public abstract class WMSRequest extends ServiceProviderRequest{
     
     /** Creates a new instance of WMSRequest */
     private String wmsVersion;
-    
+    private Integer serviceProviderId;
     public WMSRequest()  {
         super();
     }
@@ -34,6 +34,29 @@ public abstract class WMSRequest extends ServiceProviderRequest{
         this.wmsVersion = wmsVersion;
     }
     
-
+    public Integer getServiceProviderId() {
+        return serviceProviderId;
+    }
+    
+    public void setServiceProviderId(Integer serviceProviderId) {
+        this.serviceProviderId = serviceProviderId;
+    }
+    public void setServiceProvider(ServiceProvider serviceProvider) {
+        if (serviceProvider == null) {
+            serviceProviderId = null;
+        } else {
+            this.serviceProviderId = serviceProvider.getId();
+        }
+    }
+    
+    public ServiceProvider getServiceProvider() {
+        try {
+            return (ServiceProvider) DataWarehousing.find(ServiceProvider.class, serviceProviderId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    
     
 }
