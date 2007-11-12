@@ -32,7 +32,8 @@ function showMenu(event) {
 	//current value
 	var list;
 	var listFound = false;
-	for (var i in element.childNodes) {
+	//for (var i in element.childNodes) {
+	for (var i = 0; i < element.childNodes.length; i++) {		
 		list = element.childNodes[i];
 		if (list.nodeType == Node.ELEMENT_NODE && list.tagName.toLowerCase() == "ul") {
 			listFound = true;
@@ -54,7 +55,8 @@ function showMenu(event) {
 	// get image to use for positioning
 	var image;
 	var imageFound = false;
-	for (var i in element.childNodes) {
+	//for (var i in element.childNodes) {
+	for (var i = 0; i < element.childNodes.length; i++) {		
 		image = element.childNodes[i];
 		if (image.nodeType == Node.ELEMENT_NODE && image.tagName.toLowerCase() == "img") {
 			imageFound = true;

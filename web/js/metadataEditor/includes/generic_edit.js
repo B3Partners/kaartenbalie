@@ -386,15 +386,11 @@ function checkKey(event) {
 // Arguments:
 //  element = the calling element, the anchor tag in popup menu
 //   addName = the name of the section to add, e.g. "theme"
-//   bAbove = whether to add new element above (true) or below (false)
-function addSection(element, addName, above) {
-	// create new section
-	var newContentNode = createSection(addName);
-	if (newContentNode == null) {
-		alert("Error creating new compound element.");
-		return;
-	}
 
+//   duplicateName = where to duplicate the xml tree? (local name)
+
+//   bAbove = whether to add new element above (true) or below (false)
+function addSection(element, addName, /*duplicateName,*/ above) {
 	// get calling menu and test for problems
 	var menuNode = element.parentNode.parentNode.parentNode;
 	if (menuNode.tagName.toLowerCase() != "span") {
@@ -409,12 +405,24 @@ function addSection(element, addName, above) {
 		return;
 	}
 
+	// create new section
+	var newContentNode = createSection(addName);
+	if (newContentNode == null) {
+		alert("Error creating new compound element.");
+		return;
+	}
+
+	debug("hier");
 	// add new DIV to document (either before or after current element's 'folder' div)
 	var tabNode = folderNode.parentNode;
 	if (above)
 		tabNode.insertBefore(newContentNode, folderNode);
-	else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
+	else {// werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
+		debug("folderNode.nextSibling.nodeName: " + folderNode.nextSibling.nodeName);
+		debug("newContentNode.nodeName: " + newContentNode.nodeName);		
 		tabNode.insertBefore(newContentNode, folderNode.nextSibling);
+		//tabNode.appendChild(newContentNode);
+	}
 }
 
 // 12/30/2004 Eric Compas
@@ -607,9 +615,18 @@ function createSection(strAddName) {
 	var strHTML = addElementsXmlTransformer.transformToString(preXMLDoc);
 	
 	debug("strHTML = " + strHTML);
-	//debug("bla: ");
-	//var x = "";
 	
+	// In IE zit het doctype bij strHTML.
+	// Deze moeten we verwijderen voordat hij opnieuw ingelezen kan worden.
+	// Dit moet waarschijnlijk omdat volgens de xhtml-doctype 'div' niet de root-element kan zijn
+	var docTypeStartIndex = strHTML.toLowerCase().indexOf("<!doctype");
+	if (docTypeStartIndex > -1) {
+		var docTypeEndIndex = strHTML.indexOf(">", docTypeStartIndex);
+		strHTML = strHTML.substring(docTypeEndIndex + 1);
+	}
+
+	debug("strHTML mod = " + strHTML);
+
 	var resultAsXML = jsXML.createDOMDocument();
 	resultAsXML.async = false;
 	resultAsXML.loadXML(strHTML);
@@ -620,13 +637,22 @@ function createSection(strAddName) {
 	
 	debug("section: " + section.xml);
 	
-	return section;
+	var importedElem;
+	if (!document.importNode) // IE
+		importedElem = document._importNode(section, true);
+	else // non-IE (Firefox)
+		importedElem = document.importNode(section, true);
+	
+	debug("importedElem: " + importedElem);
+	
+	return importedElem;
 }
 
 function findSectionDiv(parent) {
-	debug("parent.nodeName: " + parent.nodeName);	
-	for (var childIndex in parent.childNodes) {
-		var child = parent.childNodes[childIndex];
+	debug("parent.nodeName: " + parent.nodeName);
+	debug("parent.childNodes.length: " + parent.childNodes.length);
+	for (var i = 0; i < parent.childNodes.length; i++) {
+		var child = parent.childNodes[i];
 		debug("child.nodeName: " + child.nodeName);
 		if (child.nodeType == Node.ELEMENT_NODE && child.nodeName.toLowerCase() == "div") {
 			var firstSectionFound = findSectionDivInAttributes(child);
@@ -644,8 +670,9 @@ function findSectionDiv(parent) {
 }
 
 function findSectionDivInAttributes(child) {
-	for (var attributeIndex in child.attributes) {
-		var attribute = child.attributes[attributeIndex];
+	//for (var attributeIndex in child.attributes) {
+	for (var i = 0; i < child.attributes.length; i++) {		
+		var attribute = child.attributes[i];
 		debug("attribute.nodeName: " + attribute.nodeName);			
 		debug("attribute.nodeValue: " + attribute.nodeValue);						
 		if (attribute.nodeName == "class" && attribute.nodeValue == "section") {

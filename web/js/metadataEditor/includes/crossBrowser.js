@@ -17,6 +17,68 @@ if (!window['Node']) {
     Node.NOTATION_NODE = 12;
 }
 
+/*document._importNode2 = function(node, allChildren) {
+	switch (node.nodeType) {
+	case Node.ELEMENT_NODE:
+		var newNode = document.createElement(node.nodeName);
+		
+		if (node.attributes && node.attributes.length > 0)
+			for (var i = 0; i < node.attributes.length; i++)
+				newNode.setAttribute(node.attributes[i].nodeName, node.getAttribute(node.attributes[i].nodeName));
+		
+		if (allChildren && node.childNodes && node.childNodes.length > 0)
+			for (var i = 0; i < node.childNodes.length; i++)
+				newNode.appendChild(document._importNode2(node.childNodes[i], allChildren));
+		
+		return newNode;
+	case Node.TEXT_NODE:
+	case Node.CDATA_SECTION_NODE:
+	case Node.COMMENT_NODE:
+		return document.createTextNode(node.nodeValue);
+	}
+};*/
+
+// IE hack for lack of importNode support
+document._importNode = function(node, importChildren) {
+	var newNode;
+	
+	switch (node.nodeType) {
+	case Node.ELEMENT_NODE:
+
+		newNode = document.createElement(node.nodeName);
+
+		for (var i = 0; i < node.attributes.length; i++) {
+			if (node.attributes[i].nodeValue != null && node.attributes[i].nodeValue != '') {
+				var attrName = node.attributes[i].name;
+
+				if (attrName == "class")
+					newNode.setAttribute("className", node.attributes[i].value);
+				else
+					newNode.setAttribute(attrName, node.attributes[i].value);
+			}
+		}
+
+		if (node.style != null && node.style.cssText != null)
+			newNode.style.cssText = node.style.cssText;
+		
+		break;
+		
+	case Node.TEXT_NODE:
+	case Node.CDATA_SECTION_NODE:
+	case Node.COMMENT_NODE:
+		newNode = document.createTextNode(node.nodeValue);
+		break;
+	}
+
+	if (importChildren && node.hasChildNodes()) {
+		for (var child = node.firstChild; child; child = child.nextSibling) {
+			newNode.appendChild(document._importNode(child, true));
+		}
+	}
+
+	return newNode;
+}
+
 //Deze functies werken zowel in firefox als in ie6+
 
 function getElementInnerText(element) {
