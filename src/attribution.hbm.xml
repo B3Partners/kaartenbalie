@@ -18,17 +18,20 @@
                 <param name="property">layer</param>
             </generator>
         </id>
+		
+		
+		
         
         <one-to-one name="layer" constrained="true" class="nl.b3p.wms.capabilities.Layer" />
         
         <property name="title">
-            <column name="TITLE" length="255" default="0"/>
+            <column name="TITLE" length="50" default="0"/>
         </property>
         <property name="attributionURL">
-            <column name="ATTRIBUTIONURL" default="0" length="150"/>
+            <column name="ATTRIBUTIONURL" default="0" length="4000"/>
         </property>        
         <property name="logoURL">
-            <column name="LOGOURL" length="50"/>
+            <column name="LOGOURL" length="4000"/>
         </property>
         <property name="logoWidth">
             <column name="LOGOWIDTH" length="50"/>
