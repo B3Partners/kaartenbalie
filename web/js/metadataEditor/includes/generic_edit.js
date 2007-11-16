@@ -41,6 +41,8 @@ var DEFAULT_VALUE = "Standaard waarde.";
 // global variables
 var preEditText; // text held by SPAN before editing
 
+var addElementsXslDoc = null;
+
 // ================
 // Helper functions
 // ================
@@ -383,14 +385,14 @@ function checkKey(event) {
 // Description:
 //   Add a new section (node tree) using existing one as template
 //
+// NOTE: We assume that the node that must be duplicated is the parent of the argument "addName"
+//
 // Arguments:
 //  element = the calling element, the anchor tag in popup menu
-//   addName = the name of the section to add, e.g. "theme"
-
-//   duplicateName = where to duplicate the xml tree? (local name)
-
-//   bAbove = whether to add new element above (true) or below (false)
-function addSection(element, addName, /*duplicateName,*/ above) {
+//   addName = the name of the section to add, e.g. "/gmd:MD_Metadata/gmd:contact[1]/gmd:CI_ResponsibleParty".
+//				this string must contain a nodeName with positionNr (counting from 1 to n)
+//   above = whether to add new element above (true) or below (false)
+function addSection(element, addName, above) {
 	// get calling menu and test for problems
 	var menuNode = element.parentNode.parentNode.parentNode;
 	if (menuNode.tagName.toLowerCase() != "span") {
@@ -406,7 +408,9 @@ function addSection(element, addName, /*duplicateName,*/ above) {
 	}
 
 	// create new section
-	var newContentNode = createSection(addName);
+	var newContentNode = createSection(addName, above);
+	
+	// check for problems
 	if (newContentNode == null) {
 		alert("Error creating new compound element.");
 		return;
@@ -415,11 +419,12 @@ function addSection(element, addName, /*duplicateName,*/ above) {
 	debug("hier");
 	// add new DIV to document (either before or after current element's 'folder' div)
 	var tabNode = folderNode.parentNode;
-	if (above)
+	if (above) {
 		tabNode.insertBefore(newContentNode, folderNode);
+	}
 	else {// werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
-		debug("folderNode.nextSibling.nodeName: " + folderNode.nextSibling.nodeName);
-		debug("newContentNode.nodeName: " + newContentNode.nodeName);		
+		//debug("folderNode.nextSibling.nodeName: " + folderNode.nextSibling.nodeName);
+		//debug("newContentNode.nodeName: " + newContentNode.nodeName);		
 		tabNode.insertBefore(newContentNode, folderNode.nextSibling);
 		//tabNode.appendChild(newContentNode);
 	}
@@ -520,17 +525,67 @@ function addChild(element, addName) {
 //   Routine called by AddSection and AddChild code to create
 //   a new section (compound element) using an XSL transformation
 //   of a small chunk of XML code.
-function createSection(strAddName) {
-	debug("strAddName=" + strAddName);
+function createSection(strAddName, above) {
+	// needs to be created just once:
+	if (addElementsXslDoc == null) {
+		addElementsXslDoc = jsXML.createDOMDocument(true);
+		addElementsXslDoc.async = false;
+		addElementsXslDoc.load(addElementsXslFullPath);
+	}
 
+	debug("addElementsXslDoc = " + addElementsXslDoc.xml);
+	
+	
+	
+	
+	debug("strAddName=" + strAddName);
+	
+	
+	
+	// TODO: move next code block
+	
+	// path MUST have only one nodeName with a indexNr attached to it (e.g. /nodeNameA/nodeNameB[99]/nodeNameC)
+	var toBeDuplicatedPath = strAddName.substring(0, strAddName.lastIndexOf("]") + 1);
+	debug("toBeDuplicatedPath: " + toBeDuplicatedPath);
+	
+	var toBeDuplicatedNode = findNode(toBeDuplicatedPath);
+	
+	var newNode;
+	if ("createNode" in xmlDoc) { // IE
+		debug("IE (createNode exists)");
+		newNode = xmlDoc.createNode(1, toBeDuplicatedNode.nodeName, "http://www.isotc211.org/2005/gmd");
+	}
+	else { // W3C (Firefox, Opera, etc.)
+		debug("W3C (createNode doesn't exist)");
+		newNode = xmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", toBeDuplicatedNode.nodeName);
+	}
+
+	if (above)
+		toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode);
+	else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
+		toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode.nextSibling);
+	
+	// preprocess again to get all the ancestors to appear in the xmlDoc backend
+	var xmlDocString = preprocessor.transformToString(xmlDoc);
+	
+	// put in backend var again. Compatible with both IE and FF
+	xmlDoc = jsXML.createDOMDocument();
+	xmlDoc.async = false;
+	xmlDoc.loadXML(xmlDocString);
+	
+	
+
+	
+	
 	// create blank XML document
 	var tempXmlDoc = jsXML.createDOMDocument();
 	tempXmlDoc.async = false;
 	tempXmlDoc.loadXML("<MD_Metadata xmlns='http://www.isotc211.org/2005/gmd'/>");
 
+	// TODO: cleanup/move next code block
+	
 	// add blank parent elements (if they exist)
-	// (needed if "full path" transformations used)
-	var sParentNodes, sNode;
+	var sParentNodes, sNode, sNodeClean, customPosition;
 	if (strAddName.lastIndexOf("/") > -1) {
 		debug("addSection: found parents");
 		var sNodes, pNode, newNode;
@@ -552,16 +607,23 @@ function createSection(strAddName) {
 				sNodes = "";
 			}
 			sNode = sNode.substring(sNode.lastIndexOf("gmd:") + 4);
-			debug("addSection: sNode = " + sNode + ", sNodes = " + sNodes);
-			if (sNode !== "MD_Metadata") {
-				//debug("tempXmlDoc.createNode: " + (tempXmlDoc.createNode != 0));
+			if (sNode.indexOf("[") > -1) {
+				sNodeClean = sNode.substring(0, sNode.indexOf("["));
+				customPosition = trim(sNode.substring(sNode.indexOf("[") + 1, sNode.indexOf("]")));
+				customPosition = parseInt(customPosition) + 1;
+				debug("customPosition: " + customPosition);
+			}
+			else
+				sNodeClean = sNode;
+			debug("addSection: sNode = " + sNode + ", sNodeClean = " + sNodeClean + ", sNodes = " + sNodes);
+			if (sNodeClean !== "MD_Metadata") {
 				if ("createNode" in tempXmlDoc) { // IE
 					debug("IE (createNode exists)");
-					newNode = tempXmlDoc.createNode(1, sNode, "http://www.isotc211.org/2005/gmd");
+					newNode = tempXmlDoc.createNode(1, sNodeClean, "http://www.isotc211.org/2005/gmd");
 				}
 				else { // W3C (Firefox, Opera, etc.)
 					debug("W3C (createNode doesn't exist)");
-					newNode = tempXmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", sNode);
+					newNode = tempXmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", sNodeClean);
 				}
 				
 				pNode.appendChild(newNode);
@@ -570,21 +632,26 @@ function createSection(strAddName) {
 		}
 		
 		sNode = strAddName.substring(strAddName.lastIndexOf("/gmd:") + 5);
+		if (sNode.indexOf("[") > -1)
+			sNodeClean = sNode.substring(0, sNode.indexOf("["));
+		else
+			sNodeClean = sNode;
 	}
 	else {
 		sParentNodes = "";
 		sNode = strAddName;
+		sNodeClean = sNode;
 		debug("addSection:parent not found " + strAddName);
 	}
 
 	debug("tempXmlDoc = " + tempXmlDoc.xml);
-	debug("sParentNodes = " + sParentNodes + ", sNode = " + sNode);
+	debug("addSection: sNode = " + sNode + ", sNodeClean = " + sNodeClean + ", sNodes = " + sNodes);
 	
 	// create stylesheet to transform, or "preprocess" it;
 	// this will add the appropriate blank XML elements;
 	var strXSL = "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform' xmlns:gmd='http://www.isotc211.org/2005/gmd' exclude-result-prefixes='gmd'>" +  "<xsl:output method='xml' indent='yes'/>" +  "<xsl:include href='" + baseURL + preprocessorTemplatesXslFullPath + "'/>" ;	
 	strXSL += "<xsl:template match='" + sParentNodes + "'>";		
-	strXSL += "<xsl:copy><xsl:call-template name='add-" + sNode + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
+	strXSL += "<xsl:copy><xsl:call-template name='add-" + sNodeClean + "' /></xsl:copy>" +  "</xsl:template><xsl:template match='@*|node()'><xsl:copy>" +  "<xsl:apply-templates select='@*|node()' />" +  "</xsl:copy></xsl:template></xsl:stylesheet>" ;
 
 	//debug("strXSL "+ strXSL);
 
@@ -596,7 +663,7 @@ function createSection(strAddName) {
 
 	// preprocess xml file
 	var strPreXML = XML.transformToString(tempXmlDoc, preXSLDoc);
-	debug("strPreXML: " + strPreXML);
+	//debug("strPreXML: " + strPreXML);
 	
 	var preXMLDoc = jsXML.createDOMDocument();
 	preXMLDoc.async = false;
@@ -604,17 +671,12 @@ function createSection(strAddName) {
 	
 	debug("preXMLDoc = "+ preXMLDoc.xml);
 
-	var addElementsXslDoc = jsXML.createDOMDocument(true);
-	addElementsXslDoc.async = false;
-	addElementsXslDoc.load(addElementsXslFullPath);
-
-	debug("addElementsXslDoc = " + addElementsXslDoc.xml);
-
 	var addElementsXmlTransformer = new XML.Transformer(addElementsXslDoc);
 	addElementsXmlTransformer.setParameter("basePath", baseFullPath);
+	addElementsXmlTransformer.setParameter("customPosition", customPosition);	
 	var strHTML = addElementsXmlTransformer.transformToString(preXMLDoc);
 	
-	debug("strHTML = " + strHTML);
+	//debug("strHTML = " + strHTML);
 	
 	// In IE zit het doctype bij strHTML.
 	// Deze moeten we verwijderen voordat hij opnieuw ingelezen kan worden.
@@ -625,13 +687,13 @@ function createSection(strAddName) {
 		strHTML = strHTML.substring(docTypeEndIndex + 1);
 	}
 
-	debug("strHTML mod = " + strHTML);
+	//debug("strHTML mod = " + strHTML);
 
 	var resultAsXML = jsXML.createDOMDocument();
 	resultAsXML.async = false;
 	resultAsXML.loadXML(strHTML);
 	
-	debug("resultAsXML = " + resultAsXML.xml);
+	//debug("resultAsXML = " + resultAsXML.xml);
 	
 	var section = findSectionDiv(resultAsXML);
 	
@@ -643,7 +705,7 @@ function createSection(strAddName) {
 	else // non-IE (Firefox)
 		importedElem = document.importNode(section, true);
 	
-	debug("importedElem: " + importedElem);
+	//debug("importedElem: " + importedElem);
 	
 	return importedElem;
 }
