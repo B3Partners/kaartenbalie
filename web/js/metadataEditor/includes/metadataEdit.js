@@ -20,7 +20,7 @@ function addLoadEvent(func) {
 }
 
 function initWithXmlString() {
-	debug("baseURL: " + baseURL);
+	//debug("baseURL: " + baseURL);
 	
 	// if no metadata is present we start the editor with all elements empty
 	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
@@ -41,23 +41,24 @@ function initWithXmlString() {
 	var ppXslDoc = jsXML.createDOMDocument(true);
 	ppXslDoc.async = false;
 	ppXslDoc.load(preprocessorXslFullPath);
-	debug("preprocessorXslFullPath: " + preprocessorXslFullPath);
+	//debug("preprocessorXslFullPath: " + preprocessorXslFullPath);
 	
 	//debug("Preprocessor:");
 	//debug(ppXslDoc.xml);
 	
 	//var rawPreprocessedXML = XML.transformToString(rawXmlDoc, ppXslDoc);
-	// global var; used in createSection
+	// Global var. Also used by create section.
 	preprocessor = new XML.Transformer(ppXslDoc);
 	var rawPreprocessedXML = preprocessor.transformToString(rawXmlDoc);
 	
-	//debug("Preprocessed:");
-	//debug(rawPreprocessedXML);
-	
+	// Global var. Backend xml-document.
 	xmlDoc = jsXML.createDOMDocument();
 	xmlDoc.async = false;
 	xmlDoc.loadXML(rawPreprocessedXML);
 	
+	//debug("xmlDoc:");
+	//debug(xmlDoc.xml);
+
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
 	xslDoc.async = false;
@@ -66,13 +67,10 @@ function initWithXmlString() {
 	//debug("Xsl:");
 	//debug(xslDoc.xml);
 	
-	// global var;
+	// Global var. Also used by create section.
 	xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", baseFullPath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
-	
-	// initialiseren van tabs:
-	//xmlDocInit();
 }
 
 // parameters: 
@@ -122,16 +120,16 @@ function findChildNode(searchParent, targetRawChildTag) {
 		searchParent = xmlDoc;
 	}
 	
-	debug("searchParent: " + searchParent.nodeName);
-	debug("targetRawChildTag: " + targetRawChildTag);
+	//debug("searchParent: " + searchParent.nodeName);
+	//debug("targetRawChildTag: " + targetRawChildTag);
 	
 	var splitQname = xpathQnameToArray(targetRawChildTag);
 	if (splitQname == null)
 		return null;
 	
-	debug("prefix: " + splitQname[0]);
-	debug("name: " + splitQname[1]);
-	debug("index: " + splitQname[2]);	
+	//debug("prefix: " + splitQname[0]);
+	//debug("name: " + splitQname[1]);
+	//debug("index: " + splitQname[2]);	
 	
 	var searchChildren = searchParent.childNodes;
 	if (searchChildren == null || searchChildren.length == 0) {
@@ -151,16 +149,16 @@ function findChildNode(searchParent, targetRawChildTag) {
 		else { // searchChildSplit.length == 1
 			searchChildNodeName = searchChildSplit[0];
 		}
-		debug("searchChildNodeName: " + searchChildNodeName);		
-		debug("searchChildSplit.length: " + searchChildSplit.length);
+		//debug("searchChildNodeName: " + searchChildNodeName);		
+		//debug("searchChildSplit.length: " + searchChildSplit.length);
 		//debug("searchChild.nodeType: " + searchChild.nodeType);
 		//debug("searchChildNode.nodeName: " + searchChildNode.nodeName);
-		debug("targetChildTag: " + splitQname[1]);		
+		//debug("targetChildTag: " + splitQname[1]);		
 		if (searchChildNode.nodeType == 1 && searchChildNodeName == splitQname[1]) {
 			// Xpath begint met tellen bij 1, dus eerst deze variable ophogen.
 			correctChildCount++;
 			if (correctChildCount == splitQname[2]) {
-				debug("correct child: " + searchChildNodeName);
+				//debug("correct child: " + searchChildNodeName);
 				return searchChildNode;
 			}
 		}

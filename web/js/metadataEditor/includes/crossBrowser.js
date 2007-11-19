@@ -40,6 +40,11 @@ if (!window['Node']) {
 
 // IE hack for lack of importNode support
 document._importNode = function(node, importChildren) {
+	if (document.importNode) // non-IE (Firefox)
+		return document.importNode(node, importChildren);
+
+	// else IE:
+	
 	var newNode;
 	
 	switch (node.nodeType) {
@@ -170,16 +175,19 @@ function debug(msg) {
 	if (debugMode == true) {
 		if (!debug.box) {
 			debug.box = document.createElement("div");
-			//debug.box.class = "debug-box"; // wat kan IE wel?!?
+
+			// IE
+			debug.box.setAttribute("className", "debug-box");
+			// non-IE
 			debug.box.setAttribute("class", "debug-box");
-			/*
-								   "background-color: white; " +
-								   "font-family: monospace; " +
-								   "border: solid black 3px; " +
-								   "padding: 10px; ");*/
 
 			var h1 = document.createElement("h1");
-			//h1.style = "text-align: center;";
+			
+			// IE
+			if (h1.style != null && h1.style.cssText != null)
+				h1.style.cssText = "text-align: center; ";
+			
+			// non-IE
 			h1.setAttribute("style", "text-align: center; ");			
 			
 			h1.appendChild(document.createTextNode("Debugging Output"));
