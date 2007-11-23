@@ -54,12 +54,11 @@ input {
 
 ul.menu {
 	margin: 0px;
-	padding: 0px;/*2px 0px 2px 0px;*/
+	padding: 0px;
 	background-color: #fff;
 	border: 1px solid #999; 
 	position: absolute;  /* key attribute for hovering menu */
-	z-index: 9990; /* IE kent dit niet */
-	display: none;
+	z-index: 10; /* needs position: absolute; */
 	list-style-type: none;
 	line-height: 100%;
 }
@@ -140,7 +139,6 @@ ul.menu li a:hover {
 }
 
 .section-title {
-	/*color: #EE0000;*/
 	color: #2E8B57;
 	font-size: 13px;
 	text-decoration: none;
@@ -161,9 +159,17 @@ ul.menu li a:hover {
 	left: -16px;
 }
 
-.menuimg {
+.menu-img-element {
+	position: relative;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.menu-img-section {
 	position: relative;
 	left: -16px;
+	cursor: pointer;
+	cursor: hand;
 }
 
 /* div sections */
@@ -188,7 +194,7 @@ div.instruction {
 }
 
 div#writeroot {
-	/*margin: 5px;*/
+
 }
 
 div.footer {

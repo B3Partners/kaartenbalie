@@ -21,10 +21,13 @@ var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken.";
 var ADD_ELEMENT_ABOVE_TEXT = "Voeg element hierboven toe";
 var ADD_ELEMENT_BELOW_TEXT = "Voeg element hieronder toe";
 var DELETE_ELEMENT_TEXT = "Verwijder dit element";
+
 var ADD_SECTION_ABOVE_TEXT = "Voeg sectie hierboven toe";
 var ADD_SECTION_BELOW_TEXT = "Voeg sectie hieronder toe";
 var DELETE_SECTION_TEXT = "Verwijder deze sectie";
-var ADD_CHILD_TEXT = "Voeg nieuw kind toe";
+
+var CONFIRM_DELETE_ELEMENT_TEXT = "Weet u zeker dat u deze element wilt verwijderen?";
+var NOT_ALLOWED_DELETE_ELEMENT_TEXT = "Het is niet toegestaan de laatste element te verwijderen.";
 
 var CONFIRM_DELETE_SECTION_TEXT = "Weet u zeker dat u deze sectie wilt verwijderen?";
 var NOT_ALLOWED_DELETE_SECTION_TEXT = "Het is niet toegestaan de laatste sectie te verwijderen.";
@@ -402,8 +405,20 @@ function checkKey(event) {
 
 
 function addElement(element, addName, above) {
-	// TODO: add some sanity checks
-
+	// get calling menu and test for problems
+	var menuNode = element.parentNode.parentNode.parentNode;
+	if (menuNode.tagName.toLowerCase() != "span") {
+		alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
+		return;
+	}
+	
+	// get parent folder div and check for problems
+	var folderNode = menuNode.parentNode.parentNode;
+	if (folderNode.tagName.toLowerCase() != "p") {
+		alert("Unexpected HTML object encountered. Expected P, found " + folderNode.tagName);
+		return;
+	}
+	
 	// create new element
 	addElementOrSection(addName, above);
 	
@@ -494,7 +509,7 @@ function deleteElement(element, elementPath) {
 		return;
 	}
 	
-	deleteElementOrSection(element, folderNode, elementPath);
+	deleteElementOrSection(element, folderNode, elementPath, NOT_ALLOWED_DELETE_ELEMENT_TEXT, CONFIRM_DELETE_ELEMENT_TEXT);
 	
 	stopPropagation(element);
 }
@@ -529,12 +544,12 @@ function deleteSection(element, sectionPath) {
 		return;
 	}
 
-	deleteElementOrSection(element, folderNode, sectionPath);
+	deleteElementOrSection(element, folderNode, sectionPath, NOT_ALLOWED_DELETE_SECTION_TEXT, CONFIRM_DELETE_SECTION_TEXT);
 	
 	stopPropagation(element);
 }
 
-function deleteElementOrSection(element, folderNode, path) {
+function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText, confirmDeleteText) {
 	debug("path: " + path);
 	
 	var targetPath = getTargetPath(path);
@@ -553,12 +568,12 @@ function deleteElementOrSection(element, folderNode, path) {
 	//debug("nrOfSameSections: " + nrOfSameSections);
 	
 	if (nrOfSameSections < 2) {
-		alert(NOT_ALLOWED_DELETE_SECTION_TEXT);
+		alert(notAllowedDeleteText);
 		return;
 	}
 	
 	// confirm delete
-	var returnKey = confirm(CONFIRM_DELETE_SECTION_TEXT);
+	var returnKey = confirm(confirmDeleteText);
 	if (returnKey == 7) {
 		return;
 	}
