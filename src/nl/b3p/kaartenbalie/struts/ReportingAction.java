@@ -45,7 +45,6 @@ public class ReportingAction extends KaartenbalieCrudAction {
     }
     
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        System.out.println("edit");
         EntityManager em = getEntityManager();
         return super.edit(mapping, dynaForm, request, response);
     }
@@ -69,7 +68,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
     
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
-        System.out.println("download");
+
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         response.setContentType("text/xml");
         response.setHeader("Content-Disposition", "attachment; filename=\"helloworld.xml\"");

@@ -79,7 +79,6 @@ public class DataWarehousing {
         if (safetyMode == DEFAULT) {
             safetyMode = setSafety;
         }
-        //System.out.println("SafetyMode=" + safetyMode);
         try {
             
             long time = System.currentTimeMillis();

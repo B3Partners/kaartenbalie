@@ -64,12 +64,10 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
         vars.appendChild(period);
         Element users = doc.createElement("users");
         
-        System.out.println("users:" + getUsers().size());
         
         Iterator userIter = getUsers().iterator();
         while (userIter.hasNext()) {
             User tmpUser = (User) userIter.next();
-            System.out.println(tmpUser);
             Element user = doc.createElement("user");
             user.setAttribute("id",tmpUser.getId().toString());
             user.appendChild(DataMonitoring.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
