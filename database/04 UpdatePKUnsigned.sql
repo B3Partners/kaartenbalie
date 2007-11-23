@@ -695,8 +695,8 @@ insert into new_userroles (
     
 --
 
-alter table attribution drop foreign key LAYERID;
---alter table attribution drop foreign key FK_Attribution_1;
+--alter table attribution drop foreign key LAYERID;
+alter table attribution drop foreign key FK_Attribution_1;
 alter table dimensions drop foreign key FK_Dimensions_1;
 alter table exceptions drop foreign key FK_Exceptions_1;
 alter table identifier drop foreign key FK_Identifier_1;

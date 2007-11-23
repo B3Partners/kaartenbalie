@@ -18,12 +18,13 @@ var USE_BORDER = true;
 var MENU_X_OFFSET = 3;
 var MENU_Y_OFFSET = 3;
 
+var openedMenuNode = null;
+
 
 // Show popup window that's embedded in code
 function showMenu(event) {
 	var element = getTarget(event);
 	element = element.parentNode;
-	var firstElem = element;
 	//debug("showMenu");
 
 	while (element.tagName.toLowerCase() != "span" && element.tagName.toLowerCase() != "html")
@@ -32,7 +33,6 @@ function showMenu(event) {
 	//current value
 	var list;
 	var listFound = false;
-	//for (var i in element.childNodes) {
 	for (var i = 0; i < element.childNodes.length; i++) {		
 		list = element.childNodes[i];
 		if (list.nodeType == Node.ELEMENT_NODE && list.tagName.toLowerCase() == "ul") {
@@ -46,16 +46,9 @@ function showMenu(event) {
 		return;
 	}
 
-	// already displayed?
-	if (list.style.visibility == "visible") {
-		list.style.visibility = "hidden";
-		return;
-	}
-
 	// get image to use for positioning
 	var image;
 	var imageFound = false;
-	//for (var i in element.childNodes) {
 	for (var i = 0; i < element.childNodes.length; i++) {		
 		image = element.childNodes[i];
 		if (image.nodeType == Node.ELEMENT_NODE && image.tagName.toLowerCase() == "img") {
@@ -69,68 +62,32 @@ function showMenu(event) {
 		return;
 	}
 	
-	// show menu
-	//list.style.left = image.offsetLeft + MENU_X_OFFSET;
-	//list.style.top = image.offsetTop + MENU_Y_OFFSET;
-	_showMenu(list);
-	//list.onmouseout = hideMenu;
-}
-
-
-// 2/05 Eric Compas;
-// Hide popup menu;
-function hideMenu(event) {
-	var element = getTarget(event);
-	//debug("hideMenu");
-	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
-	// test if not IE:
-	if (event != null && event != "" && event.currentTarget != null && event.currentTarget != "") {
-		// do w3c event model test:
-		var node = event.currentTarget;
-		var inside = false;
-		//debug("event.target: " + element.tagName);
-		//debug("event.currentTarget: " + event.currentTarget.tagName);		
-		while (node.tagName.toLowerCase() != "html") {
-			node = node.parentNode;
-			//debug("element: " + element.tagName);
-			//debug("searching node: " + node.tagName);
-			if (node == element)
-				inside = true;
-		}
-		//debug("inside: " + inside);
-		if (element.tagName.toLowerCase() == "ul" && !inside) {// && !element.contains(event.currentTarget)) {
-			_hideMenu(element);	
-		}
-	}
-}
-
-function keepMenu(event) {
-	//debug("keepMenu");
-	//var element = getTarget(event);
-	//_showMenu(element);
-	showMenu(event);
-	//if (element.style.display != "none")
-}
-
-function hideMenuIE(event) {
-	var element = getTarget(event);
-	//debug("hideMenuIE");
-	//debug("element.tagName.toLowerCase(): " + element.tagName.toLowerCase());
-	if (element.tagName.toLowerCase() == "ul") {
-		_hideMenu(element);		
-	}
+	// show/hide menu
+	if (isMenuShowing(list))
+		hideMenu(list);
+	else
+		_showMenu(list);
+	
+	stopPropagation(event);
 }
 
 function _showMenu(element) {
 	//debug("show");
-	//element.style.visibility = "visible";	
-	element.style.display = "inline";		
+	hideMenu(openedMenuNode);
+	element.style.display = "inline";
+	openedMenuNode = element;
 }
 
-function _hideMenu(element) {
+function hideMenu(element) {
 	//debug("hide");
-	//element.style.visibility = "hidden";	
-	element.style.display = "none";		
+	if (element != null)
+		element.style.display = "none";
+	openedMenuNode = null;
+}
+
+function isMenuShowing(element) {
+	//debug("element.style.display: " + element.style.display);
+	return element.style.display !== "none";
 }
 
 // 12/8/2004 Eric Compas

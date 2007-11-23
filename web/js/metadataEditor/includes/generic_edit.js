@@ -44,7 +44,14 @@ var DEFAULT_VALUE = "Standaard waarde.";
 // global variables
 var preEditText; // text held by SPAN before editing
 
-var mouseInMenu = false;
+
+// a click anywhere in the document should close any open menu.
+// propagation should be stopped from reaching this function for any behavior that needs the menu to be open.
+function click() {
+	//debug("click anywhere");
+	hideMenu(openedMenuNode);
+}
+
 
 // ================
 // Helper functions
@@ -88,10 +95,14 @@ function changeFlag(changed) {
 
 function startEdit(event) {
 	var element = getTarget(event);
+	//debug("startEdit");
 	
 	// already editing?
 	if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "textarea" || element.tagName.toLowerCase() == "select")
 		return;
+	
+	// hides any menu if open
+	hideMenu(openedMenuNode);
 	
 	// get current value (for checking if changed later)
 	preEditText = trim(getElementInnerText(element));
@@ -208,6 +219,8 @@ function startEdit(event) {
 			picklist.focus();
 		}
 	}
+	
+	stopPropagation(event);
 }
 
 
@@ -245,6 +258,8 @@ function stopEdit(event) {
 	// change span value to text alone
 	parentNode.innerHTML = "";
 	parentNode.appendChild(document.createTextNode(newValue));
+	
+	stopPropagation(event);
 }
 
 function saveValueOnClientSide(parentNode, newValue) {
@@ -299,6 +314,8 @@ function selectPickListValue(event) {
 		parentNode.appendChild(document.createTextNode(newValue));
 		saveValueOnClientSide(parentNode, newValue);
 	}
+	
+	stopPropagation(event);
 }
 
 function destroyPickList(event) {
@@ -318,6 +335,7 @@ function pickListKeyPress(element) {
 	if (iKey == 9 || iKey == 27) {
 		// cancel default IE tab handler
 		//window.event.returnValue = false;
+		stopPropagation(element);
 		return false;
 	}
 }
@@ -388,6 +406,8 @@ function addElement(element, addName, above) {
 
 	// create new element
 	addElementOrSection(addName, above);
+	
+	stopPropagation(element);
 }
 
 function addSection(element, addName, above) {
@@ -407,6 +427,8 @@ function addSection(element, addName, above) {
 
 	// create new section
 	addElementOrSection(addName, above);
+	
+	stopPropagation(element);
 }
 
 // 2/21/2005 Eric Compas
@@ -473,6 +495,8 @@ function deleteElement(element, elementPath) {
 	}
 	
 	deleteElementOrSection(element, folderNode, elementPath);
+	
+	stopPropagation(element);
 }
 
 // 12/30/2004 Eric Compas
@@ -506,6 +530,8 @@ function deleteSection(element, sectionPath) {
 	}
 
 	deleteElementOrSection(element, folderNode, sectionPath);
+	
+	stopPropagation(element);
 }
 
 function deleteElementOrSection(element, folderNode, path) {

@@ -60,7 +60,6 @@ ul.menu {
 	position: absolute;  /* key attribute for hovering menu */
 	z-index: 9990; /* IE kent dit niet */
 	display: none;
-	/*visibility: hidden;*/
 	list-style-type: none;
 	line-height: 100%;
 }

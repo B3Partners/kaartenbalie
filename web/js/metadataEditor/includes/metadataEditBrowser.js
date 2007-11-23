@@ -79,10 +79,8 @@ function tabHover(obj) {
 
 //verandert css-klasse als over een section-title gehoverd wordt
 function sectionTitleHover(obj) {
-  if (!mouseInMenu) {
-    if (obj.className != 'section-title-hover') {
-	  obj.className = 'section-title-hover';
-	  obj.onmouseout = function() { obj.className = 'section-title'; }
-    }
+  if (obj.className != 'section-title-hover') {
+    obj.className = 'section-title-hover';
+	obj.onmouseout = function() { obj.className = 'section-title'; }
   }
 }
