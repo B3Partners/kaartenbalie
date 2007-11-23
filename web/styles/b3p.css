@@ -14,7 +14,7 @@
 }
 
 #warning h3 {
-    font-family: Verdana, Arial, Helvetica, sans-serif;
+font-family: Verdana, Arial, Helvetica, sans-serif;
     color: red;
 }
 
@@ -245,6 +245,18 @@ div.smallTableContainer {
 }
 
 .serverRij div {
+    font-style: inherit;
+    text-align: left;
+}
+
+.transactieRijTitel div {
+    font-style: inherit;
+    background: #E9F1F7;
+    text-align: left;
+    color: #005A9C;
+}
+
+.transactieRij div {
     font-style: inherit;
     text-align: left;
 }

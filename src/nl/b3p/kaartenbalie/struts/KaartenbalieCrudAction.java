@@ -72,14 +72,15 @@ public class KaartenbalieCrudAction extends CrudAction{
         tx.begin();
         ActionForward forward = null;
         String msg = null;
-        DataWarehousing.begin();
+        getDataWarehousing().begin();
         try {
             forward = super.execute(mapping, form, request, response);
             tx.commit();
             MyEMFDatabase.closeEntityManager();
-            DataWarehousing.end();
+            getDataWarehousing().end();
             return forward;
         } catch(Exception e) {
+            e.printStackTrace();
             tx.rollback();
             log.error("Exception occured, rollback", e);
             MessageResources messages = getResources(request);
@@ -170,5 +171,10 @@ public class KaartenbalieCrudAction extends CrudAction{
                 return foundLayer;
         }
         return null;
+    }
+    
+    
+    public static DataWarehousing getDataWarehousing() {
+        return MyEMFDatabase.getDataWarehouse();
     }
 }

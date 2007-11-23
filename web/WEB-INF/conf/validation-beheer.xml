@@ -13,6 +13,14 @@
     </global>
     
     <formset>
+        <form name="reportingForm">
+            <field property="endDate" depends="required">
+                <arg0 key="beheer.endDate"/>
+             </field>
+            <field property="startDate" depends="required">
+                <arg0 key="beheer.startDate"/>
+             </field>
+        </form>
         <form name="userForm">
             <field property="firstname" depends="required"> <!-- required -->
                 <arg0 key="beheer.firstname"/>

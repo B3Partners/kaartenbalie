@@ -63,11 +63,13 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
         period.appendChild(DataMonitoring.createElement(doc,"end", getEndDate().toString()));
         vars.appendChild(period);
         Element users = doc.createElement("users");
-        //TODO For Each Loop door users in het rapport, for now just add a global user...
+        
+        System.out.println("users:" + getUsers().size());
         
         Iterator userIter = getUsers().iterator();
         while (userIter.hasNext()) {
             User tmpUser = (User) userIter.next();
+            System.out.println(tmpUser);
             Element user = doc.createElement("user");
             user.setAttribute("id",tmpUser.getId().toString());
             user.appendChild(DataMonitoring.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
@@ -135,7 +137,7 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
     
     public Set getUsers() {
         Set users = new HashSet();
-        Iterator i = userIds.iterator();
+        Iterator i = getUserIds().iterator();
         while (i.hasNext()) {
             Integer userId = (Integer)i.next();
             try {
@@ -144,7 +146,7 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
                     users.add(user);
                 }
             }catch(Exception e) {
-                
+                e.printStackTrace();
             }
         }
         return users;

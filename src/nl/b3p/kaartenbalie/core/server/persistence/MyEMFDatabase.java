@@ -19,8 +19,14 @@ import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,6 +36,7 @@ public class MyEMFDatabase extends HttpServlet{
     private static EntityManagerFactory emf;
     private static ThreadLocal tlMap = new ThreadLocal();
     private static String entityManagerName = "entityManager";
+    private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
     public static String dtd = "/dtd/capabilities_1_1_1.dtd";
@@ -80,6 +87,17 @@ public class MyEMFDatabase extends HttpServlet{
          */
         DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting","disabled").equalsIgnoreCase("enabled"));
         DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing","disabled").equalsIgnoreCase("enabled"));
+        AccountManager.setEnableAccounting(getConfigValue(config, "accounting","disabled").equalsIgnoreCase("enabled"));
+        ReportGenerator.startupClear();
+        try {
+            DataWarehousing.registerClass(User.class, null);
+            DataWarehousing.registerClass(Organization.class,null);
+            DataWarehousing.registerClass(ServiceProvider.class,null);
+            DataWarehousing.registerClass(Layer.class, new String[]{"Id","Name","Title"});
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+        
         
         dtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
         cachePath = getConfigValue(config, "cache",null);
@@ -122,9 +140,22 @@ public class MyEMFDatabase extends HttpServlet{
         EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
         if (localEm == null) {
             localEm = emf.createEntityManager();
-            setThreadLocal("entityManager", localEm);
+            setThreadLocal(entityManagerName, localEm);
         }
         return localEm;
+    }
+    
+    /*
+     * Just as getEntitymanager, this function retrieves an object from the local thread. This time it is the
+     * DataWarehousing Object.
+     */
+    public static DataWarehousing getDataWarehouse() {
+        DataWarehousing localDw = (DataWarehousing) getThreadLocal(datawarehouseName);
+        if (localDw == null) {
+            localDw = new DataWarehousing();
+            setThreadLocal(datawarehouseName, localDw);
+        }
+        return localDw;
     }
     
     

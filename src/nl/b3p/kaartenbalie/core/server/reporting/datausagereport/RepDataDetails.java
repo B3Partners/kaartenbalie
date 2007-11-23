@@ -37,41 +37,42 @@ public class RepDataDetails extends RepData implements XMLElement {
     public Element toElement(Document doc, Element rootElement) {
         Element details = doc.createElement("details");
         Element hours = doc.createElement("hours");
-        for (int i = getMinHour().intValue(); i <= getMaxHour().intValue(); i++) {
-            hours.appendChild(DataMonitoring.createElement(doc,"hour", "" + i));
-        }
-        details.appendChild(hours);
-        
-        Element days = doc.createElement("days");
-        
-        Calendar startCalendar = Calendar.getInstance();
-        startCalendar.setTime(report.getStartDate());
-        startCalendar.set(Calendar.HOUR,0);
-        startCalendar.set(Calendar.MINUTE,0);
-        startCalendar.set(Calendar.SECOND,0);
-        Calendar endCalendar = Calendar.getInstance();
-        
-        endCalendar.setTime(report.getEndDate());
-        endCalendar.set(Calendar.HOUR,0);
-        endCalendar.set(Calendar.MINUTE,0);
-        endCalendar.set(Calendar.SECOND,0);
-        endCalendar.add(Calendar.DAY_OF_YEAR,1);
-        
-        while(startCalendar.before(endCalendar)) {
-            days.appendChild(DataMonitoring.createElement(doc,"date", DataUsageReport.periodFormat.format(startCalendar.getTime())));
-            startCalendar.add(Calendar.DAY_OF_YEAR,1);
-        }
-        details.appendChild(days);
-        
-        if (usageDetails != null && usageDetails.size() > 0) {
-            Iterator i = usageDetails.iterator();
-            while (i.hasNext()) {
-                UsageDetails usageDetails = (UsageDetails) i.next();
-                details.appendChild(usageDetails.toElement(doc,rootElement));
+        if (getMinHour() != null && getMaxHour() != null) {
+            for (int i = getMinHour().intValue(); i <= getMaxHour().intValue(); i++) {
+                hours.appendChild(DataMonitoring.createElement(doc,"hour", "" + i));
+            }
+            details.appendChild(hours);
+            
+            Element days = doc.createElement("days");
+            
+            Calendar startCalendar = Calendar.getInstance();
+            startCalendar.setTime(report.getStartDate());
+            startCalendar.set(Calendar.HOUR,0);
+            startCalendar.set(Calendar.MINUTE,0);
+            startCalendar.set(Calendar.SECOND,0);
+            Calendar endCalendar = Calendar.getInstance();
+            
+            endCalendar.setTime(report.getEndDate());
+            endCalendar.set(Calendar.HOUR,0);
+            endCalendar.set(Calendar.MINUTE,0);
+            endCalendar.set(Calendar.SECOND,0);
+            endCalendar.add(Calendar.DAY_OF_YEAR,1);
+            
+            while(startCalendar.before(endCalendar)) {
+                days.appendChild(DataMonitoring.createElement(doc,"date", DataUsageReport.periodFormat.format(startCalendar.getTime())));
+                startCalendar.add(Calendar.DAY_OF_YEAR,1);
+            }
+            details.appendChild(days);
+            
+            if (usageDetails != null && usageDetails.size() > 0) {
+                Iterator i = usageDetails.iterator();
+                while (i.hasNext()) {
+                    UsageDetails usageDetails = (UsageDetails) i.next();
+                    details.appendChild(usageDetails.toElement(doc,rootElement));
+                }
+                
             }
             
-        }
-        
         /*
         if (report.getUsers() != null && report.getUsers().size() != 0) {
             //TODO
@@ -82,7 +83,8 @@ public class RepDataDetails extends RepData implements XMLElement {
             details.appendChild(usagedetails);
         }
          */
-        
+            
+        }
         
         
         return details;

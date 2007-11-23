@@ -49,6 +49,8 @@ public class ReportTemplate {
         this.processingTime = processingTime;
     }
 
+
+
     
     
 }

@@ -181,7 +181,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
             em.merge(organization);
         }
         em.flush();
-        DataWarehousing.enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping,dynaForm,request,response);
     }
     // </editor-fold>
@@ -255,7 +255,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
         
         em.remove(organization);
         em.flush();
-        DataWarehousing.enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
+        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>

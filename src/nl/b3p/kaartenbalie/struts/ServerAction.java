@@ -29,6 +29,8 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
+import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
@@ -111,7 +113,13 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
+        
         EntityManager em = getEntityManager();
+        /*
+         * Change DataWarehousing mode to performance as this is a very complicated process which will
+         * otherwise consume a lot of time.
+         */
+        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         /*
          * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
          * everything is valid. First there will be checked if the request is valid. This means that every JSP
@@ -236,6 +244,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         Set testSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
         em.flush();
+        getDataWarehousing().enlist(ServiceProvider.class, newServiceProvider.getId(), DwObjectAction.PERSIST);
+        Iterator dwIter= testSet.iterator();
+        while (dwIter.hasNext()) {
+            Layer layer = (Layer) dwIter.next();
+            getDataWarehousing().enlist(Layer.class, layer.getId(), DwObjectAction.PERSIST);
+        }
         
         /*
          * All tests have been completed succesfully.
@@ -248,7 +262,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
              * We walk through this list and for each organization in the
              * list we need to check if this organization has connections
              * with the old serviceprovider.
-              */
+             */
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
@@ -263,8 +277,10 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
                         Set topLayerSet = new HashSet();
                         topLayerSet.add(newServiceProvider.getTopLayer());
                         Layer newLayer = checkLayer(organizationLayer, topLayerSet);
-                        if (newLayer != null)
+                        if (newLayer != null){
                             newOrganizationLayer.add(newLayer);
+                            
+                        }
                     } else {
                         newOrganizationLayer.add(organizationLayer);
                     }
@@ -275,8 +291,16 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             }
             
             try {
+                
+                Set oldLayers = oldServiceProvider.getAllLayers();
+                Iterator oldLayersIter = oldLayers.iterator();
+                while (oldLayersIter.hasNext()) {
+                    Layer oldLayer = (Layer) oldLayersIter.next();
+                    getDataWarehousing().enlist(Layer.class, oldLayer.getId(), DwObjectAction.REMOVE);
+                }
                 em.remove(oldServiceProvider);
                 em.flush();
+                getDataWarehousing().enlist(ServiceProvider.class, oldServiceProvider.getId(), DwObjectAction.REMOVE);
             } catch (Exception e) {
                 log.error("Error deleting the old serviceprovider", e);
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -305,6 +329,11 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         EntityManager em = getEntityManager();
+        /*
+         * Change DataWarehousing mode to performance as this is a very complicated process which will
+         * otherwise consume a lot of time.
+         */
+        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         /*
          * Before we can start deleting a serviceprovider, we first need to check if the given token
          * is valid. First there will be checked if the request is valid. This means that every JSP
@@ -379,6 +408,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
          */
         em.remove(serviceProvider);
         em.flush();
+        getDataWarehousing().enlist(ServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -520,7 +550,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             throw new Exception(UNSUPPORTED_REQUEST);
         } else {
             ogcrequest.addOrReplaceParameter(WMS_REQUEST, WMS_REQUEST_GetCapabilities);
-        }        
+        }
         
         if(ogcrequest.containsParameter(WMS_SERVICE) && !WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(WMS_SERVICE))) {
             throw new Exception(UNSUPPORTED_SERVICE);
@@ -536,7 +566,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         
         return ogcrequest.getUrl();
     }
-
+    
     protected boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider)em.createQuery(
@@ -561,7 +591,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected boolean isAlphaNumeric(String string) {
         Pattern p = Pattern.compile("[^A-Za-z0-9]");
         Matcher m = p.matcher(string);
-        if(m.find()) { 
+        if(m.find()) {
             return false;
         }
         return true;

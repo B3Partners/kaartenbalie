@@ -138,7 +138,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
             em.merge(user);
         }
         em.flush();
-        DataWarehousing.enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
         
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
@@ -244,7 +244,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         
         em.remove(user);
         em.flush();
-        DataWarehousing.enlist(User.class, user.getId(), DwObjectAction.REMOVE);
+        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>

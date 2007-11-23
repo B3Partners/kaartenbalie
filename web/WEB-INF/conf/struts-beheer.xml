@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 
 <!DOCTYPE struts-config PUBLIC
-          "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
-          "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
 
 
 <struts-config>
@@ -74,16 +74,28 @@
             <form-property name="name" type="java.lang.String"/>            
             <form-property name="metadata" type="java.lang.String"/>
         </form-bean>
+        <form-bean name="reportingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="endDate" type="java.lang.String"/>
+            <form-property name="startDate" type="java.lang.String"/>
+            <form-property name="deleteReport" type="java.lang.String[]"/>
+            <form-property name="users" type="java.lang.Integer[]"/>
+        </form-bean>        
+        
     </form-beans>
     
     <global-exceptions>
-    
+        
     </global-exceptions>
-
+    
     <global-forwards>
-       <forward name="success"  path="/index.do"/>
+        <forward name="success"  path="/index.do"/>
     </global-forwards>
-
+    
     <action-mappings>
         <action path="/index" forward="base.beheer.index"/>
         
@@ -99,7 +111,14 @@
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
         </action>
-
+        <action path="/accounting" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.accounting"/>
+            <forward name="failure" path="base.beheer.accounting"/>
+        </action>        
+        <action path="/reporting" name="reportingForm" type="nl.b3p.kaartenbalie.struts.ReportingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.reporting"/>
+            <forward name="failure" path="base.beheer.reporting"/>
+        </action>        
         <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.metadata"/>
             <forward name="failure" path="base.beheer.metadata"/>
@@ -108,11 +127,11 @@
             <forward name="success" path="base.beheer.editmetadata"/>
             <forward name="failure" path="base.beheer.editmetadata"/>
         </action>
-
-	</action-mappings>
+        
+    </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
-
+    
     <message-resources parameter="KaartenbalieResources"/>
     
     <!-- ========================= Tiles plugin ===============================-->
@@ -126,5 +145,5 @@
         <set-property property="pathnames" value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-beheer.xml"/>
         <set-property property="stopOnFirstError" value="false"/>
     </plug-in>
-  
+    
 </struts-config>

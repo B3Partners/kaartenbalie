@@ -549,5 +549,5 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public static EntityManager getEntityManager() {
         return MyEMFDatabase.getEntityManager();
     }
-    
+
 }

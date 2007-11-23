@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server.reporting.datausagereport;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -38,68 +39,150 @@ public class DataUsageReportThread extends ReportThreadTemplate{
         long processStart = System.currentTimeMillis();
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
-        super.notifyStateChanged(ThreadReportStatus.GENERATING,null);
+        super.notifyStateChanged(ThreadReportStatus.GENERATING,null,null);
         et.begin();
+        DataUsageReport report = new DataUsageReport(startDate, endDate);
         try {
-            DataUsageReport report = new DataUsageReport(startDate, endDate);
-            
-            //Used to make sure the progress takes some while...
-            /*
-            long sleep = (long)(8000*Math.random()) + 2000;
-            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Taking a nap for " + sleep + "ms.....");
-            sleep(sleep);
-            sleep = (long)(4000*Math.random()) + 1000;
-            super.notifyStateChanged(ThreadReportStatus.GENERATING,"*yawning for " + sleep + "ms*");
-            sleep(sleep);
-            */
-            sleep(1000);
             em.persist(report);
             /*
-             * Add the users... 
+             * Add the users...
              */
             report.setUsers(users);
             /*
              * Fill Summary Data
              */
-            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data");
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data",null);
             RepDataSummary rds = new RepDataSummary(report);
+            
+            Integer oranizationId = organization.getId();
             //CombineImagesOperation
-            Long cioHits = (Long) em.createQuery("SELECT COUNT(*) FROM CombineImagesOperation").getSingleResult();
+            Long cioHits = (Long) em.createQuery(
+                    "SELECT COUNT(*) " +
+                    "FROM CombineImagesOperation AS cio " +
+                    "WHERE cio.clientRequest.organizationId = :organizationId " +
+                    "AND cio.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId", oranizationId)
+                    .getSingleResult();
             rds.setCioHits(cioHits);
             if (cioHits != null) {
-                rds.setCioAverageResponse((Double) em.createQuery("SELECT AVG(duration) FROM CombineImagesOperation ").getSingleResult());
+                rds.setCioAverageResponse((Double) em.createQuery(
+                        "SELECT AVG(duration) " +
+                        "FROM CombineImagesOperation AS cio " +
+                        "WHERE cio.clientRequest.organizationId = :organizationId " +
+                        "AND cio.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId", oranizationId)
+                        .getSingleResult());
             }
             //ServerTransferOperation
-            Long ctoHits = (Long) em.createQuery("SELECT COUNT(*) FROM ServerTransferOperation").getSingleResult();
+            Long ctoHits = (Long) em.createQuery("" +
+                    "SELECT COUNT(*) " +
+                    "FROM ServerTransferOperation AS sto " +
+                    "WHERE sto.clientRequest.organizationId = :organizationId " + 
+                    "AND sto.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId", oranizationId)
+                    .getSingleResult();
             rds.setCtoHits(ctoHits);
             if (ctoHits != null) {
-                rds.setCtoAverageResponse((Double) em.createQuery("SELECT AVG(duration) FROM ServerTransferOperation ").getSingleResult());
+                rds.setCtoAverageResponse((Double) em.createQuery(
+                        "SELECT AVG(duration) " +
+                        "FROM ServerTransferOperation AS sto " +
+                        "WHERE sto.clientRequest.organizationId = :organizationId " +
+                        "AND sto.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId", oranizationId)
+                        .getSingleResult());
             }
             
             //ClientXFerOperation
-            Long cxoHits = (Long) em.createQuery("SELECT COUNT(*) FROM ClientXFerOperation").getSingleResult();
+            Long cxoHits = (Long) em.createQuery(
+                    "SELECT COUNT(*) " +
+                    "FROM ClientXFerOperation AS cxo " +
+                    "WHERE cxo.clientRequest.organizationId = :organizationId " + 
+                    "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId",oranizationId)
+                    .getSingleResult();
             rds.setCxoHits(cxoHits);
             if (cxoHits != null) {
-                rds.setCxoAverageResponse((Double) em.createQuery("SELECT AVG(duration) FROM ClientXFerOperation ").getSingleResult());
-                rds.setCxoData((Long) em.createQuery("SELECT SUM(dataSize) FROM ClientXFerOperation").getSingleResult());
+                rds.setCxoAverageResponse((Double) em.createQuery(
+                        "SELECT AVG(duration) " +
+                        "FROM ClientXFerOperation AS cxo " +
+                        "WHERE cxo.clientRequest.organizationId = :organizationId " +
+                        "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .getSingleResult());
+                rds.setCxoData((Long) em.createQuery(
+                        "SELECT SUM(dataSize) " +
+                        "FROM ClientXFerOperation AS cxo " +
+                        "WHERE cxo.clientRequest.organizationId = :organizationId " +
+                        "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .getSingleResult());
             }
             //RequestOperation
-            Long roHits = (Long) em.createQuery("SELECT COUNT(*) FROM RequestOperation").getSingleResult();
+            Long roHits = (Long) em.createQuery(
+                    "SELECT COUNT(*) " +
+                    "FROM RequestOperation AS ro " +
+                    "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId",oranizationId)
+                    .getSingleResult();
             rds.setRoHits(roHits);
             if (roHits != null) {
-                rds.setRoAverageResponse((Double) em.createQuery("SELECT AVG(duration) FROM RequestOperation ").getSingleResult());
-                rds.setRoUpload((Long) em.createQuery("SELECT SUM(bytesReceivedFromUser) FROM RequestOperation").getSingleResult());
-                rds.setRoDownload((Long) em.createQuery("SELECT SUM(bytesSendToUser) FROM RequestOperation").getSingleResult());
+                rds.setRoAverageResponse((Double) em.createQuery(
+                        "SELECT AVG(duration) " +
+                        "FROM RequestOperation AS ro " +
+                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .getSingleResult());
+                rds.setRoUpload((Long) em.createQuery(
+                        "SELECT SUM(bytesReceivedFromUser) " +
+                        "FROM RequestOperation AS ro " +
+                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .getSingleResult());
+                rds.setRoDownload((Long) em.createQuery(
+                        "SELECT SUM(bytesSendToUser) " +
+                        "FROM RequestOperation AS ro " +
+                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .getSingleResult());
             }
             em.persist(rds);
             em.flush();
             /*
              * Fill Detail Data
              */
-            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Detailed Data");
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Detailed Data",null);
             RepDataDetails rdd = new RepDataDetails(report);
-            rdd.setMaxHour((Integer) em.createQuery("SELECT MAX(HOUR(timeStamp)) FROM ClientRequest").getSingleResult());
-            rdd.setMinHour((Integer) em.createQuery("SELECT MIN(HOUR(timeStamp)) FROM ClientRequest").getSingleResult());
+            rdd.setMaxHour((Integer) em.createQuery(
+                    "SELECT MAX(HOUR(timeStamp)) " +
+                    "FROM ClientRequest AS cr " +
+                    "WHERE cr.organizationId = :organizationId " + 
+                    "AND cr.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId",oranizationId)
+                    .getSingleResult());
+            rdd.setMinHour((Integer) em.createQuery(
+                    "SELECT MIN(HOUR(timeStamp)) " +
+                    "FROM ClientRequest AS cr " +
+                    "WHERE cr.organizationId = :organizationId " + 
+                    "AND cr.timeStamp BETWEEN :startDate AND :endDate")
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId",oranizationId)
+                    .getSingleResult());
             em.persist(rdd);
             /*
              * Get the Daily Usages...
@@ -119,10 +202,14 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                         "FROM ClientRequest AS cr " +
                         "LEFT JOIN cr.requestOperations AS ro " +
                         "WHERE cr.userId = :userId " +
+                        "AND cr.timeStamp BETWEEN :startDate AND :endDate " + 
+                        "AND cr.organizationId = :organizationId " +
                         "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
                         "ORDER BY cr.timeStamp ASC"
                         )
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
                         .setParameter("userId",user.getId())
+                        .setParameter("organizationId",oranizationId)
                         .getResultList();
                 Iterator i = list.iterator();
                 while (i.hasNext()) {
@@ -149,24 +236,40 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             }
             report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
             et.commit();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             et.rollback();
             super.notifyBreak(e);
             em.close();
             return;
         }
         
-        super.notifyStateChanged(ThreadReportStatus.COMPLETED,null);
+        
+        super.notifyStateChanged(ThreadReportStatus.COMPLETED,null, report.getId());
         em.close();
     }
     
     
+    
+    
     public void setParameters(Map parameters) throws Exception {
         if (parameters != null) {
-            startDate = (Date) parameters.get("startDate");
-            endDate = (Date) parameters.get("endDate");
+            
+            Calendar cal = Calendar.getInstance();
+            cal.setTime((Date) parameters.get("startDate"));
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            startDate = cal.getTime();
+            cal.setTime((Date) parameters.get("endDate"));
+            cal.set(Calendar.HOUR_OF_DAY,23);
+            cal.set(Calendar.MINUTE, 59);
+            cal.set(Calendar.SECOND, 59);
+            cal.set(Calendar.MILLISECOND, 99);
+            endDate = cal.getTime();
             organization = (Organization) parameters.get("organization");
             users = (List) parameters.get("users");
+            
         }
     }
     
