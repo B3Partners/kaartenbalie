@@ -1,4 +1,10 @@
+DROP TABLE IF EXISTS `kaartenbalie`.`rep_dailyusage`;
+DROP TABLE IF EXISTS `kaartenbalie`.`rep_usagedetails`;
+DROP TABLE IF EXISTS `kaartenbalie`.`rep_users`;
+DROP TABLE IF EXISTS `kaartenbalie`.`rep_reportdata`;
+DROP TABLE IF EXISTS `kaartenbalie`.`rep_status`;
 DROP TABLE IF EXISTS `kaartenbalie`.`rep_report`;
+
 CREATE TABLE  `kaartenbalie`.`rep_report` (
   `rep_id` int(11) NOT NULL auto_increment,
   `rep_discriminator` varchar(255) NOT NULL,
@@ -9,7 +15,7 @@ CREATE TABLE  `kaartenbalie`.`rep_report` (
   PRIMARY KEY  (`rep_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `kaartenbalie`.`rep_status`;
+
 CREATE TABLE  `kaartenbalie`.`rep_status` (
   `sta_id` int(11) NOT NULL auto_increment,
   `sta_reportId` int(11) default NULL,
@@ -19,7 +25,7 @@ CREATE TABLE  `kaartenbalie`.`rep_status` (
   PRIMARY KEY  (`sta_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `kaartenbalie`.`rep_users`;
+
 CREATE TABLE  `kaartenbalie`.`rep_users` (
   `rpd_usr_id` int(11) NOT NULL,
   `usr_id` int(11) NOT NULL,
@@ -28,7 +34,6 @@ CREATE TABLE  `kaartenbalie`.`rep_users` (
   CONSTRAINT `FKCFCCFFE6C53CB6F` FOREIGN KEY (`rpd_usr_id`) REFERENCES `rep_report` (`rep_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `kaartenbalie`.`rep_reportdata`;
 CREATE TABLE  `kaartenbalie`.`rep_reportdata` (
   `rpd_id` int(11) NOT NULL auto_increment,
   `rpd_discriminator` varchar(255) NOT NULL,
@@ -51,7 +56,6 @@ CREATE TABLE  `kaartenbalie`.`rep_reportdata` (
   CONSTRAINT `FKC03193C066F0FC6` FOREIGN KEY (`rpd_rep_id`) REFERENCES `rep_report` (`rep_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `kaartenbalie`.`rep_usagedetails`;
 CREATE TABLE  `kaartenbalie`.`rep_usagedetails` (
   `usd_id` int(11) NOT NULL auto_increment,
   `usd_rpd_id` int(11) default NULL,
@@ -61,7 +65,6 @@ CREATE TABLE  `kaartenbalie`.`rep_usagedetails` (
   CONSTRAINT `FK312665E3F5CA8D83` FOREIGN KEY (`usd_rpd_id`) REFERENCES `rep_reportdata` (`rpd_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `kaartenbalie`.`rep_dailyusage`;
 CREATE TABLE  `kaartenbalie`.`rep_dailyusage` (
   `dyu_id` int(11) NOT NULL auto_increment,
   `dyu_usd_id` int(11) default NULL,
