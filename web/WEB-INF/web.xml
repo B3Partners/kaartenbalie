@@ -42,7 +42,7 @@
         </init-param>
         <init-param>
             <param-name>warehousing</param-name>
-            <param-value>enabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
         </init-param>        
         <init-param>
             <param-name>cache</param-name>
