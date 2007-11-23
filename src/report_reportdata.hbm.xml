@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData" table="rep_reportdata" discriminator-value="ReportData">
+        <id name="id" type="int" column="rpd_id" >
+            <generator class="native"/>
+        </id>
+        <discriminator column="rpd_discriminator" type="string" />
+        <many-to-one name="report" column="rpd_rep_id" update="true" not-null="false"/>   
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepDataDetails" discriminator-value="ReportDataDetails">
+            <property name="minHour" column="rpd_minHour"/>
+            <property name="maxHour" column="rpd_maxHour"/>
+            <set name="usageDetails" > 
+                <key column="usd_rpd_id" update="true" not-null="false" /> 
+                <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.UsageDetails"/> 
+            </set>        
+            
+        </subclass>
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepDataSummary" discriminator-value="ReportDataSummary">
+            <property name="ctoHits" column="rpd_ctoHits"/>
+            <property name="ctoAverageResponse" column="rpd_ctoAverageResponse"/>
+            <property name="cioHits" column="rpd_cioHits"/>
+            <property name="cioAverageResponse" column="rpd_cioAverageResponse"/>
+            <property name="cxoHits" column="rpd_cxoHits"/>
+            <property name="cxoData" column="rpd_cxoData"/>
+            <property name="cxoAverageResponse" column="rpd_cxoAverageResponse"/>
+            <property name="roHits" column="rpd_roHits"/>
+            <property name="roUpload" column="rpd_roUpload"/>
+            <property name="roDownload" column="rpd_roDownload"/>
+            <property name="roAverageResponse" column="rpd_roAverageResponse"/>
+        </subclass>
+        
+    </class>
+</hibernate-mapping>
