@@ -26,7 +26,7 @@ var ADD_SECTION_ABOVE_TEXT = "Voeg sectie hierboven toe";
 var ADD_SECTION_BELOW_TEXT = "Voeg sectie hieronder toe";
 var DELETE_SECTION_TEXT = "Verwijder deze sectie";
 
-var CONFIRM_DELETE_ELEMENT_TEXT = "Weet u zeker dat u deze element wilt verwijderen?";
+var CONFIRM_DELETE_ELEMENT_TEXT = "Weet u zeker dat u dit element wilt verwijderen?";
 var NOT_ALLOWED_DELETE_ELEMENT_TEXT = "Het is niet toegestaan de laatste element te verwijderen.";
 
 var CONFIRM_DELETE_SECTION_TEXT = "Weet u zeker dat u deze sectie wilt verwijderen?";
@@ -453,6 +453,7 @@ function addSection(element, addName, above) {
 //   a new section (compound element) using an XSL transformation
 //   of a small chunk of XML code.
 function addElementOrSection(path, above) {
+	debug("add");
 	debug("path: " + path);
 	
 	var targetPath = getTargetPath(path);
@@ -550,24 +551,27 @@ function deleteSection(element, sectionPath) {
 }
 
 function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText, confirmDeleteText) {
+	debug("delete");
 	debug("path: " + path);
 	
 	var targetPath = getTargetPath(path);
 	
 	// find section in backend
-	var section = findNode(targetPath);
+	var toBeDeletedNode = findNode(targetPath);
 	
-	// get nr of same sections in backend
-	var nrOfSameSections = 0;
-	for (var i = 0; i < section.parentNode.childNodes.length; i++) {
-		var sibling = section.parentNode.childNodes[i];
-		if (sibling.nodeType == Node.ELEMENT_NODE && sibling.nodeName == section.nodeName)
-			nrOfSameSections++;
+	debug("toBeDeletedNode.xml: " + toBeDeletedNode.xml);
+	
+	// get nr of same nodes in backend
+	var nrOfSameNodes = 0;
+	for (var i = 0; i < toBeDeletedNode.parentNode.childNodes.length; i++) {
+		var sibling = toBeDeletedNode.parentNode.childNodes[i];
+		if (sibling.nodeType == Node.ELEMENT_NODE && sibling.nodeName == toBeDeletedNode.nodeName)
+			nrOfSameNodes++;
 	}
 	
 	//debug("nrOfSameSections: " + nrOfSameSections);
 	
-	if (nrOfSameSections < 2) {
+	if (nrOfSameNodes < 2) {
 		alert(notAllowedDeleteText);
 		return;
 	}
@@ -578,11 +582,11 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
 		return;
 	}
 
-	// delete section from xhtml page
-	folderNode.parentNode.removeChild(folderNode);
-
 	// delete section from xml backend
-	section.parentNode.removeChild(section);
+	toBeDeletedNode.parentNode.removeChild(toBeDeletedNode);
+	
+	// create entirely new xhtml representation of xmlDoc and add it to the current page (must be done to get sequence of duplicated nodes right)
+	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
 
 	//page changed value
 	changeFlag(true);	

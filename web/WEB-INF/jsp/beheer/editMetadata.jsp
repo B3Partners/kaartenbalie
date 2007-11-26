@@ -60,7 +60,7 @@
 
 			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 
-			<div id="write-root"></div>
+			<div id="write-root" onclick="click();"></div>
 
 		</html:form>
 

@@ -139,12 +139,12 @@ function stopPropagation(e) {
 		e = window.event;
 	}
 
-	debug("Voor IE: cancelBubble");
+	//debug("Voor IE: cancelBubble");
 	e.cancelBubble = true;
 	e.returnValue = false;
 
 	if (e.stopPropagation) {
-		debug("stop propagation on element: " + e);
+		//debug("stop propagation on element: " + e);
 		e.stopPropagation();
 		e.preventDefault();
 	}

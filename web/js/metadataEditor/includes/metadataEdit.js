@@ -56,8 +56,8 @@ function initWithXmlString() {
 	xmlDoc.async = false;
 	xmlDoc.loadXML(rawPreprocessedXML);
 	
-	//debug("xmlDoc:");
-	//debug(xmlDoc.xml);
+	debug("xmlDoc:");
+	debug(xmlDoc.xml);
 
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
