@@ -34,12 +34,12 @@
             <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus"/>
         </set>            
 
-        <one-to-one name="account"
+        <!--one-to-one name="account"
                     class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account"
                     cascade="all"                    
                     fetch="join"
                     lazy="false"
-        />
+        / -->
         
         <property name="name">
             <column name="NAME" default="0" length="50" not-null="true"/>
