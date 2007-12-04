@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.wms.capabilities.LayerPricing" table="acc_layerpricing">
+        
+        <id name="id" type="int" column="lpr_id" >
+            <generator class="native"/>
+        </id>
+        
+        <many-to-one name="layer" column="lpr_LAYERID"/>  
+        <property name="planType">
+            <column name="lpr_planType"/>
+        </property>  
+        <property name="validFrom">
+            <column name="lpr_validFrom"/>
+        </property>  
+        <property name="validUntil">
+            <column name="lpr_validUntil"/>
+        </property>  
+        <property name="creationDate">
+            <column name="lpr_creationDate"/>
+        </property>  
+        <property name="unitPrice">
+            <column name="lpr_unitPrice" precision="9" scale="2" />            
+        </property>  
+    </class>
+</hibernate-mapping> 
