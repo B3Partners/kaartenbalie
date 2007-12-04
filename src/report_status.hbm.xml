@@ -8,6 +8,7 @@
         <id name="id" type="int" column="sta_id" >
             <generator class="native"/>
         </id>
+        <many-to-one name="organization" column="sta_org_id" update="true" not-null="false"/>  
         <property name="reportId" column="sta_reportId"/>        
         <property name="creationDate" column="sta_creationDate"/>
         <property name="state" column="sta_state"/>

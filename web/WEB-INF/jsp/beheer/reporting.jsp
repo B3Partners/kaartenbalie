@@ -5,7 +5,8 @@
 <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
 <c:set var="checkAllSrc" scope="page"><html:rewrite page='/js/selectall.js' module=''/></c:set>
 <script language="JavaScript" type="text/javascript" src="${checkAllSrc}"></script>
-<div class="containerdiv" style="float: left; clear: none;">
+<div class="" style="">
+
 <H1>Beheer Reporting</H1>
     
     <html:form action="/reporting" focus="startDate" onsubmit="return validateReportingForm(this)">
@@ -27,7 +28,6 @@
             <br/>
             <label>Gebruikers :</label>alle<br/>
             <html:submit property="create" styleClass="submit">Maak rapport</html:submit>
-            
         </fieldset>
     
         <fieldset>
@@ -75,20 +75,17 @@
 
             <label>Reports waiting in Queue:</label> ${workloadData[1]}
             </p>
-
         </fieldset>
-
-
         <fieldset>
             <legend>Reports</legend>
             <html:submit property="delete" styleClass="submit" styleId="removeChecked" onclick="bCancel=true">Verwijder Geselecteerd</html:submit>
             <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Ververs</html:submit>
             <div class="transactieRijTitel">
-                <div style="width: 30px;"><input type="checkbox" onclick="checkAll(1,this);"/></div>
+                <div style="width: 30px;height:14px;"><input type="checkbox" onclick="checkAll(1,this);"/></div>
                 <div style="width: 150px;">Datum</div>
                 <div style="width: 75px;">Status</div>
-                <div style="width: 350px;">Bericht</div>
-                <div style="width: 100px;">Actie</div>
+                <div style="width: 400px;">Bericht</div>
+                <div style="width: 30px;">[D]</div>
             </div>
             <c:set var="hoogte" value="200" />
             <c:if test="${hoogte > 230}">
@@ -96,7 +93,6 @@
             </c:if>
             <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
                 <c:forEach var="trs" items="${reportStatus}">
-
                     <div class="transactieRij">
                         <div style="width: 30px;" class="">
                             <c:if test="${trs.state == 0 || trs.state == 1}">
@@ -126,12 +122,12 @@
                                 <c:otherwise></c:otherwise>
                             </c:choose>
                         </div>
-                        <div style="width: 350px;" class="">
+                        <div style="width: 400px;" class="">
                             ${trs.statusMessage}
                         </div>
-                        <div style="width: 100px;" class="">
+                        <div style="width: 30px;" class="">
                                 <c:if test="${trs.state == 0}">
-                                    [<a href="reporting.do?download=submit&id=${trs.id}">Download</a>]
+                                    [<a href="reporting.do?download=submit&id=${trs.id}">D</a>]
                                 </c:if>
                         </div>
                     </div>                
@@ -139,4 +135,5 @@
             </div>           
         </fieldset>
     </html:form>
+
 </div>

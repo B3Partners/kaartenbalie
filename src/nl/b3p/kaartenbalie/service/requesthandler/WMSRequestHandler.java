@@ -39,6 +39,8 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
@@ -219,6 +221,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
         //List spList = null;
+        AccountManager am = AccountManager.getAccountManager(orgId);
+        
+        TransactionLayerUsage tlu = am.beginTLU();
+        
         if(layers.length >= 1) {
             for (int i = 0; i < layers.length; i++) {
                 
@@ -236,7 +242,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
                 
                 // Check of voldoende rechten op layer bestaan en ophalen url
-                query = "select layer.queryable, layer.serviceproviderid " +
+                query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
                         "from layer, organizationlayer, serviceprovider " +
                         "where organizationlayer.layerid = layer.layerid and " +
                         "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
@@ -255,11 +261,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 Object [] objecten = (Object [])sqlQuery.get(0);
                 String layer_queryable      = (String)objecten[0];
                 Integer serviceprovider_id  = (Integer)objecten[1];
+                Integer layerId  = (Integer)objecten[2];
                 if (serviceprovider_id==null)
                     continue;
                 
                 // layer toevoegen aan sp indien queryable voorwaarde ok
                 if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
+                    tlu.registerUsage(layerId);
                     // Haal de laatst opgehaalde sp info er bij.
                     // Hier worden nu ook de layers aan toegevoegd indien
                     // zelfde sp, anders nieuwe sp aanmaken en list toevoegen

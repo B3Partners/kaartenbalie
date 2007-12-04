@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server.reporting.domain;
 
 import java.util.Date;
+import nl.b3p.kaartenbalie.core.server.Organization;
 
 /**
  *
@@ -22,6 +23,7 @@ public class ThreadReportStatus {
     private String statusMessage;
     private Date creationDate;
     private Integer reportId;
+    private Organization organization;
     
     
     
@@ -80,15 +82,12 @@ public class ThreadReportStatus {
         this.reportId = reportId;
     }
     
+    public Organization getOrganization() {
+        return organization;
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
     
 }

@@ -70,23 +70,8 @@ public class RepDataDetails extends RepData implements XMLElement {
                     UsageDetails usageDetails = (UsageDetails) i.next();
                     details.appendChild(usageDetails.toElement(doc,rootElement));
                 }
-                
             }
-            
-        /*
-        if (report.getUsers() != null && report.getUsers().size() != 0) {
-            //TODO
-        } else {
-            Element usagedetails = doc.createElement("usagedetails");
-            usagedetails.setAttribute("userid", "-1");
-         
-            details.appendChild(usagedetails);
         }
-         */
-            
-        }
-        
-        
         return details;
     }
     

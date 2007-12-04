@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server.reporting.domain;
 
 import java.util.Date;
+import nl.b3p.kaartenbalie.core.server.Organization;
 
 /**
  *
@@ -20,6 +21,8 @@ public class ReportTemplate {
     private Integer id;
     private Date reportDate;
     private Long processingTime;
+    private Organization organization;
+    
 
     
     public ReportTemplate() {
@@ -49,6 +52,16 @@ public class ReportTemplate {
         this.processingTime = processingTime;
     }
 
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
+    
+    
 
 
     

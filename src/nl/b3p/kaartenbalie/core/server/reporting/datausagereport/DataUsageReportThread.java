@@ -49,6 +49,20 @@ public class DataUsageReportThread extends ReportThreadTemplate{
              */
             report.setUsers(users);
             /*
+             *Set the organization...
+             */
+            report.setOrganization(organization);
+            /*
+             *Create a little delay .. Just for the fun of it..
+             * (Actually its just to test if the server load thing is working correctly..)..
+             */
+            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Preparing....",null);
+            this.sleep(10000);
+            
+            
+            
+            
+            /*
              * Fill Summary Data
              */
             super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data",null);
@@ -79,7 +93,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             Long ctoHits = (Long) em.createQuery("" +
                     "SELECT COUNT(*) " +
                     "FROM ServerTransferOperation AS sto " +
-                    "WHERE sto.clientRequest.organizationId = :organizationId " + 
+                    "WHERE sto.clientRequest.organizationId = :organizationId " +
                     "AND sto.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                     .setParameter("startDate", startDate).setParameter("endDate", endDate)
                     .setParameter("organizationId", oranizationId)
@@ -100,7 +114,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             Long cxoHits = (Long) em.createQuery(
                     "SELECT COUNT(*) " +
                     "FROM ClientXFerOperation AS cxo " +
-                    "WHERE cxo.clientRequest.organizationId = :organizationId " + 
+                    "WHERE cxo.clientRequest.organizationId = :organizationId " +
                     "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                     .setParameter("startDate", startDate).setParameter("endDate", endDate)
                     .setParameter("organizationId",oranizationId)
@@ -128,7 +142,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             Long roHits = (Long) em.createQuery(
                     "SELECT COUNT(*) " +
                     "FROM RequestOperation AS ro " +
-                    "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                    "WHERE ro.clientRequest.organizationId = :organizationId " +
                     "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                     .setParameter("startDate", startDate).setParameter("endDate", endDate)
                     .setParameter("organizationId",oranizationId)
@@ -138,7 +152,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                 rds.setRoAverageResponse((Double) em.createQuery(
                         "SELECT AVG(duration) " +
                         "FROM RequestOperation AS ro " +
-                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "WHERE ro.clientRequest.organizationId = :organizationId " +
                         "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                         .setParameter("startDate", startDate).setParameter("endDate", endDate)
                         .setParameter("organizationId",oranizationId)
@@ -146,7 +160,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                 rds.setRoUpload((Long) em.createQuery(
                         "SELECT SUM(bytesReceivedFromUser) " +
                         "FROM RequestOperation AS ro " +
-                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "WHERE ro.clientRequest.organizationId = :organizationId " +
                         "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                         .setParameter("startDate", startDate).setParameter("endDate", endDate)
                         .setParameter("organizationId",oranizationId)
@@ -154,7 +168,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                 rds.setRoDownload((Long) em.createQuery(
                         "SELECT SUM(bytesSendToUser) " +
                         "FROM RequestOperation AS ro " +
-                        "WHERE ro.clientRequest.organizationId = :organizationId " + 
+                        "WHERE ro.clientRequest.organizationId = :organizationId " +
                         "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate")
                         .setParameter("startDate", startDate).setParameter("endDate", endDate)
                         .setParameter("organizationId",oranizationId)
@@ -170,7 +184,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             rdd.setMaxHour((Integer) em.createQuery(
                     "SELECT MAX(HOUR(timeStamp)) " +
                     "FROM ClientRequest AS cr " +
-                    "WHERE cr.organizationId = :organizationId " + 
+                    "WHERE cr.organizationId = :organizationId " +
                     "AND cr.timeStamp BETWEEN :startDate AND :endDate")
                     .setParameter("startDate", startDate).setParameter("endDate", endDate)
                     .setParameter("organizationId",oranizationId)
@@ -178,7 +192,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             rdd.setMinHour((Integer) em.createQuery(
                     "SELECT MIN(HOUR(timeStamp)) " +
                     "FROM ClientRequest AS cr " +
-                    "WHERE cr.organizationId = :organizationId " + 
+                    "WHERE cr.organizationId = :organizationId " +
                     "AND cr.timeStamp BETWEEN :startDate AND :endDate")
                     .setParameter("startDate", startDate).setParameter("endDate", endDate)
                     .setParameter("organizationId",oranizationId)
@@ -202,7 +216,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
                         "FROM ClientRequest AS cr " +
                         "LEFT JOIN cr.requestOperations AS ro " +
                         "WHERE cr.userId = :userId " +
-                        "AND cr.timeStamp BETWEEN :startDate AND :endDate " + 
+                        "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
                         "AND cr.organizationId = :organizationId " +
                         "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
                         "ORDER BY cr.timeStamp ASC"

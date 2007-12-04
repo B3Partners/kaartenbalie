@@ -12,9 +12,11 @@ CREATE TABLE  `kaartenbalie`.`rep_report` (
   `rep_processingTime` bigint(20) default NULL,
   `rep_startDate` datetime default NULL,
   `rep_endDate` datetime default NULL,
-  PRIMARY KEY  (`rep_id`)
+  `rpd_org_id` int(11) default NULL,
+  PRIMARY KEY  (`rep_id`),
+  KEY `FK23F41F16E340125A` (`rpd_org_id`),
+  CONSTRAINT `FK23F41F16E340125A` FOREIGN KEY (`rpd_org_id`) REFERENCES `organization` (`ORGANIZATIONID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 CREATE TABLE  `kaartenbalie`.`rep_status` (
   `sta_id` int(11) NOT NULL auto_increment,
@@ -22,7 +24,10 @@ CREATE TABLE  `kaartenbalie`.`rep_status` (
   `sta_creationDate` datetime default NULL,
   `sta_state` int(11) default NULL,
   `sta_statusMessage` varchar(255) default NULL,
-  PRIMARY KEY  (`sta_id`)
+  `sta_org_id` int(11) default NULL,
+  PRIMARY KEY  (`sta_id`),
+  KEY `FK267599D4F0F7B8E0` (`sta_org_id`),
+  CONSTRAINT `FK267599D4F0F7B8E0` FOREIGN KEY (`sta_org_id`) REFERENCES `organization` (`ORGANIZATIONID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

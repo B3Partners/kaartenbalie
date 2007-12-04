@@ -85,6 +85,13 @@
             <form-property name="deleteReport" type="java.lang.String[]"/>
             <form-property name="users" type="java.lang.Integer[]"/>
         </form-bean>        
+        <form-bean name="accountingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+        </form-bean>      
         
     </form-beans>
     

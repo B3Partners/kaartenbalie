@@ -12,11 +12,14 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityTransaction;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
@@ -94,6 +97,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         ArrayList urlWrapper = new ArrayList();
         //ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
+        AccountManager am = AccountManager.getAccountManager(orgId);
         while (it.hasNext()) {
             
             
@@ -101,7 +105,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
             Integer serviceProviderId = (Integer)spInfo.get("spId");
             gmrWrapper.setServiceProviderId(serviceProviderId);
-
+            
             StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
             
             String query = "select distinct srs.srs from layer, srs " +
@@ -142,10 +146,13 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             urlWrapper.add(gmrWrapper);
         }
         tx.commit();
+        am.doTransaction(am.getTLU(), user);
+        am.endTLU();
+        
         
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>
     
-
+    
 }

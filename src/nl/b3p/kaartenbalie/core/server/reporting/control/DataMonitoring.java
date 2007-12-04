@@ -121,7 +121,9 @@ public class DataMonitoring {
             clientRequest.setOrganization(organization);
             em.persist(clientRequest);
         } catch (Exception e) {
-            //TODO Error Handling... Should never happend though..
+            
+            //This should never happen. If it happens for some reason, print the stacktrace..
+            e.printStackTrace();
         }
     }
     

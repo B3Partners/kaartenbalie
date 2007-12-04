@@ -10,6 +10,8 @@
         </id>
         <discriminator column="rep_discriminator" type="string" />        
         
+        <many-to-one name="organization" column="rpd_org_id" update="true" not-null="false"/>  
+        
         <property name="reportDate" column="rep_reportDate"/>
         <property name="processingTime" column="rep_processingTime"/>     
         

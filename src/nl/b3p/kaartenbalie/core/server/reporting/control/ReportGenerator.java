@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReport;
@@ -39,29 +41,36 @@ import org.w3c.dom.Node;
  */
 public class ReportGenerator {
     
+    public static SimpleDateFormat trsDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     private static List reportStatusMap;
     private static Stack reportStack;
     private static int maxSimultaneousReports = 15;
     
+    private User user;
+    private Organization organization;
     static {
         reportStatusMap = new ArrayList();
         reportStack = new Stack();
     }
     
-    
-    
-    public ReportGenerator() {
-        
+    private ReportGenerator() {
     }
     
+    public ReportGenerator(User user, Organization organization) {
+        this.user = user;
+        this.organization = organization;
+    }
     
-    public void createReport(Class reportThreadType, Map parameters, User user) throws Exception {
+    public void createReport(Class reportThreadType, Map parameters) throws Exception {
         try {
             if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
                 ReportThreadTemplate rtt = (ReportThreadTemplate) reportThreadType.newInstance();
-                rtt.init();
-                rtt.setParameters(parameters);
                 rtt.setUser(user);
+                rtt.setOrganization(organization);
+                parameters.put("organization", organization);
+                rtt.setParameters(parameters);
+                rtt.init();
+                
                 rtt.setReportGenerator(this);
                 if (reportStatusMap.size() >= maxSimultaneousReports) {
                     rtt.notifyOnQueue();
@@ -103,7 +112,12 @@ public class ReportGenerator {
     
     public List requestReportStatus() {
         EntityManager em = MyEMFDatabase.createEntityManager();
-        List trsList = em.createQuery("From ThreadReportStatus trs ORDER BY trs.state DESC, trs.creationDate DESC").getResultList();
+        List trsList = em.createQuery("" +
+                "FROM ThreadReportStatus AS trs " +
+                "WHERE trs.organization.id = :organizationId " +
+                "ORDER BY trs.state DESC, trs.creationDate DESC")
+                .setParameter("organizationId", organization.getId())
+                .getResultList();
         em.close();
         return trsList;
     }
@@ -114,8 +128,9 @@ public class ReportGenerator {
         et.begin();
         List trsList = em.createQuery(
                 "FROM ThreadReportStatus AS trs " +
-                "WHERE trs.state != :state")
-                .setParameter("state", new Integer(ThreadReportStatus.COMPLETED))
+                "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ")
+                .setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED))
+                .setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED))
                 .getResultList();
         Iterator listIter = trsList.iterator();
         while (listIter.hasNext()) {
@@ -148,6 +163,21 @@ public class ReportGenerator {
         em.close();
     }
     
+    public String reportName(Integer trsId) throws Exception {
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        if (trsId != null) {
+            ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
+            if (trs.getReportId() == null) {
+                throw new Exception("Report not found!");
+            }
+            Object report =  em.find(DataUsageReport.class, trs.getReportId());
+            if (report != null) {
+                return trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
+            }
+        }
+        return null;
+    }
+    
     public void fetchReport(Integer trsId, OutputStream outStream) throws Exception {
         
         EntityManager em = MyEMFDatabase.createEntityManager();
@@ -167,7 +197,7 @@ public class ReportGenerator {
                 //get the root element
                 Element reportElement = report.toElement(doc,null);
                 doc.appendChild(reportElement);
-                Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"report.xsl\"");
+                Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/report.xsl\"");
                 doc.insertBefore(reportXsl, reportElement);
                 
                 TransformerFactory tranFactory = TransformerFactory.newInstance();
@@ -180,37 +210,7 @@ public class ReportGenerator {
                 
                 aTransformer.transform(src, new StreamResult(outStream));
             }
-            
         }
-        
     }
     
-    public static void main(String [] args) throws Exception {
-        /*
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
-         
-        Map parameterMap = new HashMap();
-        Calendar cal = Calendar.getInstance();
-        parameterMap.put("endDate", cal.getTime());
-        cal.set(2007,10,20);
-        parameterMap.put("startDate", cal.getTime());
-        Organization organization = (Organization) em.find(Organization.class, new Integer(1));
-        parameterMap.put("organization", organization);
-        parameterMap.put("users", em.createQuery(
-                "FROM User AS u " +
-                "WHERE u.organization.id = :organizationId")
-                .setParameter("organizationId", organization.getId())
-                .getResultList());
-         
-        for (int j = 0; j< 1; j++) {
-            ReportGenerator rg = new ReportGenerator();
-            for(int i = 0; i< 1; i++) {
-                rg.createReport(DataUsageReportThread.class, parameterMap, null);
-            }
-         
-        }
-         **/
-        
-    }
 }

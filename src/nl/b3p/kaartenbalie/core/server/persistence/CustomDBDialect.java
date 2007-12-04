@@ -9,6 +9,7 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.sql.Types;
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 
 /**
@@ -17,6 +18,11 @@ import org.hibernate.dialect.MySQL5InnoDBDialect;
  */
 public class CustomDBDialect extends MySQL5InnoDBDialect {
     public CustomDBDialect() {
+        /*
+         * This fixes a problem when mapping Decimal types from ie BigDecimal. Somehow
+         * mySQL and hibernate messes up with the validation of these types..
+         */
+        registerColumnType( Types.NUMERIC, "decimal($p,$s)" );
     }
     
     /*
@@ -25,6 +31,7 @@ public class CustomDBDialect extends MySQL5InnoDBDialect {
      */
     public String getTableTypeString() {
         return " ENGINE=InnoDB DEFAULT CHARSET=utf8";
+        
     }
     
     

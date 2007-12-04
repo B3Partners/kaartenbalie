@@ -12,11 +12,11 @@ package nl.b3p.kaartenbalie.core.server.reporting.control;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
-import org.hibernate.connection.UserSuppliedConnectionProvider;
 
 /**
  *
@@ -25,11 +25,12 @@ import org.hibernate.connection.UserSuppliedConnectionProvider;
 public abstract class ReportThreadTemplate extends Thread{
     
     
-    protected ReportGenerator reportGenerator;
-    protected Map parameters;
-    protected User user;
-    protected EntityManager em;
-    protected ReportTemplate reportTemplate;
+    private ReportGenerator reportGenerator;
+    private Map parameters;
+    private User user;
+    private Organization organization;
+    private EntityManager em;
+    private ReportTemplate reportTemplate;
     private Integer trsId;
     
     public ReportThreadTemplate() {
@@ -39,6 +40,7 @@ public abstract class ReportThreadTemplate extends Thread{
         EntityTransaction et = em.getTransaction();
         et.begin();
         ThreadReportStatus trs = new ThreadReportStatus();
+        trs.setOrganization(organization);
         trs.setState(ThreadReportStatus.CREATED);
         em.persist(trs);
         et.commit();
@@ -54,14 +56,15 @@ public abstract class ReportThreadTemplate extends Thread{
         ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
         trs.setState(newState);
         trs.setStatusMessage(message);
+        
         trs.setReportId(reportId);
         et.commit();
         
         if (newState == ThreadReportStatus.COMPLETED) {
             trs.setReportId(reportId);
-            reportGenerator.notifyClosed(this);
+            getReportGenerator().notifyClosed(this);
         } else if (newState == ThreadReportStatus.FAILED) {
-            reportGenerator.notifyClosed(this);
+            getReportGenerator().notifyClosed(this);
         } else {
             
         }
@@ -69,6 +72,7 @@ public abstract class ReportThreadTemplate extends Thread{
     }
     
     protected void notifyBreak(Throwable e) {
+        
         e.printStackTrace();
         notifyStateChanged(ThreadReportStatus.FAILED, e.getMessage(),null);
     }
@@ -80,6 +84,27 @@ public abstract class ReportThreadTemplate extends Thread{
     public void setReportGenerator(ReportGenerator reportGenerator) {
         this.reportGenerator = reportGenerator;
     }
+    
+    public ReportGenerator getReportGenerator() {
+        return reportGenerator;
+    }
+    
+    public Map getParameters() {
+        return parameters;
+    }
+    
+    public User getUser() {
+        return user;
+    }
+    
+    public Organization getOrganization() {
+        return organization;
+    }
+    
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+    
     
     
     

@@ -34,15 +34,29 @@ import nl.b3p.kaartenbalie.core.server.User;
 public class ReportingAction extends KaartenbalieCrudAction {
     
     private static String reportGeneratorName = "reportgenerator";
-    private static SimpleDateFormat reportingDate = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat reportingDate = new SimpleDateFormat("yyyy-MM-dd");
     protected static final String DOWNLOAD                        = "download";
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
         
+        checkDateFields(dynaForm);
         this.createLists(dynaForm, request);
         return mapping.findForward(SUCCESS);
     }
+    
+    private static void checkDateFields(DynaValidatorForm dynaForm) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH,1);
+        if (dynaForm.get("startDate") == null || dynaForm.getString("startDate").length() == 0) {
+            dynaForm.set("startDate", reportingDate.format(cal.getTime()));
+        }
+        if (dynaForm.get("endDate") == null || dynaForm.getString("endDate").length() == 0) {
+            cal.add(Calendar.MONTH,-1);
+            dynaForm.set("endDate", reportingDate.format(cal.getTime()));
+        }
+    }
+    
     
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
@@ -56,7 +70,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
-        ReportGenerator rg = getReportGenerator(request.getSession());
+        ReportGenerator rg = getReportGenerator(request);
         String[] deleteList = (String[]) dynaForm.get("deleteReport");
         for (int i = 0; i< deleteList.length; i++) {
             Integer id = FormUtils.StringToInteger(deleteList[i]);
@@ -67,13 +81,13 @@ public class ReportingAction extends KaartenbalieCrudAction {
     
     
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
         response.setContentType("text/xml");
-        response.setHeader("Content-Disposition", "attachment; filename=\"helloworld.xml\"");
         
-        ReportGenerator rg = getReportGenerator(request.getSession());
+        ReportGenerator rg = getReportGenerator(request);
+        String fileName = rg.reportName(id) + ".xml";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        
         rg.fetchReport(id, response.getOutputStream());
         return super.create(mapping, dynaForm, request, response);
     }
@@ -94,20 +108,20 @@ public class ReportingAction extends KaartenbalieCrudAction {
         Map parameterMap = new HashMap();
         parameterMap.put("endDate", endDate);
         parameterMap.put("startDate", startDate);
-        parameterMap.put("organization", organization);
         parameterMap.put("users", em.createQuery(
                 "FROM User AS u " +
                 "WHERE u.organization.id = :organizationId")
                 .setParameter("organizationId", organization.getId())
                 .getResultList());
-        ReportGenerator rg = getReportGenerator(request.getSession());
-        rg.createReport(DataUsageReportThread.class, parameterMap, null);
+        ReportGenerator rg = getReportGenerator(request);
+        rg.createReport(DataUsageReportThread.class, parameterMap);
+        checkDateFields(dynaForm);
         return super.create(mapping, dynaForm, request, response);
     }
     
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        ReportGenerator rg = getReportGenerator(request.getSession());
+        ReportGenerator rg = getReportGenerator(request);
         request.setAttribute("workloadData", rg.getWorkload());
         request.setAttribute("reportStatus", rg.requestReportStatus());
         
@@ -124,12 +138,15 @@ public class ReportingAction extends KaartenbalieCrudAction {
         return map;
     }
     
-    private static ReportGenerator getReportGenerator(HttpSession session) {
+    private static ReportGenerator getReportGenerator(HttpServletRequest request) {
+        HttpSession session = request.getSession();
         ReportGenerator rg = null;
         if (session.getAttribute(reportGeneratorName) != null) {
             rg = (ReportGenerator) session.getAttribute(reportGeneratorName);
         } else {
-            rg = new ReportGenerator();
+            EntityManager em = getEntityManager();
+            User user = (User) em.find(User.class, ((User) request.getUserPrincipal()).getId());
+            rg = new ReportGenerator(user, user.getOrganization());
             session.setAttribute(reportGeneratorName, rg);
         }
         return rg;

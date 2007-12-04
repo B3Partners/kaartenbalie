@@ -39,6 +39,7 @@ public class MyEMFDatabase extends HttpServlet{
     private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
+    public static String validateKaartenbaliePU = "validatePU";
     public static String dtd = "/dtd/capabilities_1_1_1.dtd";
     private static String cachePath = null;
     private static Random rg = null;
