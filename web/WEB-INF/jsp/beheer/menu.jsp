@@ -11,8 +11,6 @@
                 <a href="<html:rewrite page='/beheer/organization.do' module='' />"><fmt:message key="beheer.organization"/></a>
                 <a href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="beheer.users"/></a>
                 <a href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
-                <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="beheer.reporting"/></a> 
-                <a href="<html:rewrite page='/beheer/accounting.do' module='' />"><fmt:message key="beheer.accounting"/></a> 
         </div>
     </p>
 </div>
