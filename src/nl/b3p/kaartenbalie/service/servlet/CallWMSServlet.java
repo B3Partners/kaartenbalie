@@ -133,7 +133,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
         
         
+        //TODO: Volgens mij(roy) moet het zo
+        //wat nog extra gedaan moet worden is uitvogelen in welke contenttype de getCap moet worden terug gestuurd (als format is meegegeven dan die format anders application/.....wms_xml
+        //OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
         try {
+            //van hier 
             OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
             data.setOgcrequest(ogcrequest);
             
@@ -158,7 +162,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             } else {
                 data.setContentType(WMS_PARAM_EXCEPTION_XML);
             }
-            
+            //tot hier alles weg.
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
             if(!isvalid){ 
                 log.error(reason);
@@ -175,6 +179,12 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             parseRequestAndData(data, user);
             rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
         }catch (Exception ex) {
+            //Dit er extra bij:
+            /*if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
+                data.setContentType(ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT));
+            }else{
+                data.setContentType(WMS_PARAM_EXCEPTION_XML);
+            }*/
             log.error("",ex);
             
             String errorContentType = data.getErrorContentType();
