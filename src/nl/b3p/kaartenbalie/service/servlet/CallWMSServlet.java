@@ -84,14 +84,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //TODO; make this smarter!!;
-        //This is the dataset required for reporting...
-        
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
-        
-        
-        
         String scheme       = request.getScheme();
         String serverName   = request.getServerName();
         int serverPort      = request.getServerPort();
@@ -110,7 +104,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         theUrl.append(contextPath);
         
         if (CAPABILITIES_DTD == null) {
-            StringBuffer dtdUrl = theUrl;
+            StringBuffer dtdUrl = new StringBuffer(theUrl.toString());
             dtdUrl.append(MyEMFDatabase.getDtd());
             CAPABILITIES_DTD = dtdUrl.toString();
         }
@@ -119,85 +113,60 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         theUrl.append(pathInfo);
         theUrl.append("?");
         theUrl.append(queryString);
-        log.info("Request: " + theUrl.toString());
+        log.debug("Incoming URL:" + theUrl.toString());
         
         DataWrapper data = new DataWrapper(response);
         User user = null;
         
-        
-        //TODO:
-        //Complete request mag voor kaartenbalie weg.... is deze nog van belang voor reporting of
-        //mag deze in zijn geheel vervangen worden voor theUrl.toString()???
-        //Is de URL string wel de hoeveelheid bytes die van de User ontvangen wordt?
-        //Er wordt een reporting gestart op user, terwijl user nog null is???
-        String completeRequest = request.getServletPath() + request.getPathInfo() + "?" + request.getQueryString();
-        
-        
-        //TODO: Volgens mij(roy) moet het zo
-        //wat nog extra gedaan moet worden is uitvogelen in welke contenttype de getCap moet worden terug gestuurd (als format is meegegeven dan die format anders application/.....wms_xml
-        //OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
-        try {
-            //van hier 
-            OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
+        OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
+        try {            
             data.setOgcrequest(ogcrequest);
-            
             StringBuffer reason = new StringBuffer();
-            if (ogcrequest.containsParameter(WMS_PARAM_FORMAT)) {
-                String format = ogcrequest.getParameter(WMS_PARAM_FORMAT);
-                data.setContentType(format);
-                
-                if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
-                    if (ogcrequest.containsParameter(WMS_PARAM_WIDTH) && ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
-                        int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
-                        int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
-                        if(width >= 1 || height >= 1 || width <= 2048 || height <= 2048) {
-                            String exceptionFormat = ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT);
-                            if(exceptionFormat.equalsIgnoreCase(WMS_PARAM_EXCEPTION_INIMAGE) || 
-                                    exceptionFormat.equalsIgnoreCase(WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) {
-                                data.setErrorContentType(format);
-                            }
-                        }
-                    }
-                }
-            } else {
-                data.setContentType(WMS_PARAM_EXCEPTION_XML);
-            }
-            //tot hier alles weg.
+            
+            user = checkLogin(request);
+            
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
             if(!isvalid){ 
                 log.error(reason);
                 throw new Exception(reason.toString());
             }
-            
-            user = checkLogin(request);
-            
+                        
             DataMonitoring rr = new DataMonitoring(user, user.getOrganization());
             data.setRequestReporting(rr);
-            rr.startClientRequest(completeRequest, theUrl.toString().getBytes().length, startTime);
+            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime);
                         
             data.setHeader("X-Kaartenbalie-User", user.getUsername());            
             parseRequestAndData(data, user);
             rr.endClientRequest(data.getContentLength(),System.currentTimeMillis() - startTime);
-        }catch (Exception ex) {
-            //Dit er extra bij:
-            /*if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTION_FORMAT)) {
-                data.setContentType(ogcrequest.getParameter(WMS_PARAM_EXCEPTION_FORMAT));
-            }else{
-                data.setContentType(WMS_PARAM_EXCEPTION_XML);
-            }*/
-            log.error("",ex);
+        } catch (Exception ex) {
+            String value = "";
+            if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS)) {
+                value = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);
+                if(value != null && value.length() > 0) {
+                    data.setContentType(value);
+                } else {
+                    data.setContentType(WMS_PARAM_EXCEPTION_XML);
+                }
+            }
             
-            String errorContentType = data.getErrorContentType();
+            //GetLegendGraphic, GetMap
+            String requestparam = "";
+            if(ogcrequest.containsParameter(REQUEST)) {
+                requestparam = ogcrequest.getParameter(REQUEST);
+            }
             
-            if(errorContentType != null) {
-                String exceptionName, message, cause;
-                
-                try {
-                    exceptionName = ex.getClass().getName();
-                } catch (Exception e) {
-                    exceptionName = "";
+            if ((requestparam.equalsIgnoreCase(WMS_REQUEST_GetMap) || requestparam.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) && 
+                    (value.equalsIgnoreCase("application/vnd.ogc.se_inimage") || value.equalsIgnoreCase("inimage")) && 
+                    ogcrequest.containsParameter(WMS_PARAM_FORMAT) && ogcrequest.containsParameter(WMS_PARAM_WIDTH) &&
+                    ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
+                String imageContentType = ogcrequest.getParameter(WMS_PARAM_FORMAT);
+                if(value != null && value.length() > 0) {
+                    data.setContentType(imageContentType);
+                } else {
+                    data.setContentType(WMS_PARAM_EXCEPTION_XML);
                 }
                 
+                String message;
                 try {
                     message = ex.getMessage();
                 } catch (Exception e) {
@@ -206,17 +175,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 
                 try {
                     TextToImage tti = new TextToImage();
-                    data.setContentType(errorContentType);
-                    
-                    /*
-                     * Inside TextToImage, when the image with the exception has been created, the image will be stored
-                     * into the Datawrapper and sent directly. This means we don't have to given another sent command
-                     * anymore after calling method below.
-                     */
-                    int width  = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
-                    int height = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
-                    
-                    tti.createImage(message, data.getErrorContentType().substring(data.getErrorContentType().indexOf("/") + 1), data);
+                    tti.createImage(message, data);
                 } catch (Exception e) {
                     log.error("error: ", e);
                 }
@@ -231,6 +190,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     log.error("error: ", e);
                     throw new IOException("Exception occured during creation of error message: " + e);
                 }
+                
                 DOMImplementation di = db.getDOMImplementation();
                 
                 // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
@@ -250,7 +210,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 }
                 
                 String message;
-                
                 try {
                     message = ex.getMessage();
                 } catch (Exception e) {
@@ -258,7 +217,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 }
                 
                 Throwable cause;
-                
                 try {
                     cause = ex.getCause();
                 } catch (Exception e) {
@@ -281,7 +239,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                  * serialize the tree to an XML document type
                  */
                 OutputFormat format = new OutputFormat(dom);
-                
                 format.setIndenting(true);
                 output = new ByteArrayOutputStream();
                 XMLSerializer serializer = new XMLSerializer(output, format);
@@ -294,13 +251,11 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     log.error("error: ", e);
                     throw new IOException("Exception occured during validation of error message: " + e);
                 }
-                data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
-                data.setContentType("application/vnd.ogc.se_xml");
-                data.write(output);
                 
+                data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
+                data.write(output);
             }
         }
-        
     }
     // </editor-fold>
     

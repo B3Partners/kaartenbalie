@@ -23,11 +23,12 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 
 public class TextToImage implements KBConstants {
     private String imageType;
     
-    public void createImage(String message, String imageType, DataWrapper data) throws IOException {
+    public void createImage(String message, DataWrapper data) throws IOException {
         this.imageType = imageType;
         Color background = Color.white;
         Color textColor = Color.black;
@@ -38,9 +39,11 @@ public class TextToImage implements KBConstants {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         FontRenderContext fc = g2.getFontRenderContext();
         
+        OGCRequest ogcrequest = data.getOgcrequest();
+        
         // calculate the size of the text
-        int width  = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt(data.getOgcrequest().getParameter(WMS_PARAM_HEIGHT));
+        int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
+        int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
 
         // prepare some output
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -65,8 +68,13 @@ public class TextToImage implements KBConstants {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
         // output the image as png
-        if(this.imageType.equalsIgnoreCase("jpg")) {
+        String requestedImageType = ogcrequest.getParameter(WMS_PARAM_FORMAT);
+        if(requestedImageType.equalsIgnoreCase("image/jpeg")) {
             this.imageType = "JPEG";
+        } else if(requestedImageType.equalsIgnoreCase("image/png")) {
+            this.imageType = "PNG";            
+        } else if(requestedImageType.equalsIgnoreCase("image/gif")) {
+            this.imageType = "GIF";
         }
         
         ImageIO.write(buffer, imageType, baos);

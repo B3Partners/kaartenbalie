@@ -46,6 +46,17 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         
+        OGCRequest ogcrequest = dw.getOgcrequest();
+        String value = "";
+        if (ogcrequest.containsParameter(FEATURE_INFO_FORMAT)) {
+            value = ogcrequest.getParameter(FEATURE_INFO_FORMAT);
+            if(value != null && value.length() > 0) {
+                dw.setContentType(value);
+            } else {
+                dw.setContentType(WMS_PARAM_WMS_XML);
+            }
+        }
+        
         this.user       = user;
         this.url        = user.getPersonalURL();
         Integer orgId   = user.getOrganization().getId();

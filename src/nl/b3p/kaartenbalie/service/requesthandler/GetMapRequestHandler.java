@@ -59,6 +59,16 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         Integer orgId   = user.getOrganization().getId();
         OGCRequest ogc  = dw.getOgcrequest();
         
+        String value = "";
+        if (ogc.containsParameter(WMS_PARAM_FORMAT)) {
+            value = ogc.getParameter(WMS_PARAM_FORMAT);
+            if(value != null && value.length() > 0) {
+                dw.setContentType(value);
+            } else {
+                dw.setContentType(WMS_PARAM_WMS_XML);
+            }
+        }
+        
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
         dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
         
@@ -148,8 +158,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         tx.commit();
         am.doTransaction(am.getTLU(), user);
         am.endTLU();
-        
-        
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>

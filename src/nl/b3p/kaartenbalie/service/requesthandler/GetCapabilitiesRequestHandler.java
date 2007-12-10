@@ -53,6 +53,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
+        dw.setContentType(WMS_PARAM_WMS_XML);
         
         ByteArrayOutputStream output    = null;
         this.user                       = user;
