@@ -55,7 +55,7 @@
                     <tiles:insert name='footer'/>
                     END footer
                 </div>-->
-                <div id="initiatief"></div>
+                <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;"><div id="initiatief"></div></a>
                 <div id="copyright"></div>
             </div>
         </div>
