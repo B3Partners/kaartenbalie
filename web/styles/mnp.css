@@ -314,6 +314,7 @@ div.smallTableContainer {
     top: 0px;
     right: 50%;
     margin-right: -520px;
+    display: none;
 }
 
 .knoppen {
