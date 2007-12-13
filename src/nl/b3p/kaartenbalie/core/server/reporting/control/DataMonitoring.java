@@ -60,9 +60,7 @@ public class DataMonitoring {
         enableMonitoring = state;
     }
     private DataMonitoring() {
-        em = MyEMFDatabase.createEntityManager();
     }
-    
     /*
      * This should be the default call to create a requestReporting object.
      */
@@ -79,25 +77,6 @@ public class DataMonitoring {
         
     }
     
-    /*
-     * For testing purposes only. This function will be removed in the future
-     */
-    public void clean() {
-        if (transactionActive()) {
-            throw new Error("Cannot run the clean command when a reporting is in progress.. ");
-        }
-        
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        //em.createQuery("DELETE FROM ServiceProviderRequest").executeUpdate();
-        //em.flush();
-        em.createQuery("DELETE FROM RequestOperation").executeUpdate();
-        //em.flush();
-        //em.createQuery("DELETE FROM ClientRequest").executeUpdate();
-        em.flush();
-        tx.commit();
-        
-    }
     
     /*
      * This is your init for to create a new RequestReport. Call it whenever you feel like starting a new
@@ -105,6 +84,8 @@ public class DataMonitoring {
      */
     public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime) {
         if (!enableMonitoring) return;
+        
+        em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         if (transactionActive()) {
             throw new Error("Cannot start a new clientRequest without ending one first.");
@@ -123,6 +104,7 @@ public class DataMonitoring {
         } catch (Exception e) {
             
             //This should never happen. If it happens for some reason, print the stacktrace..
+            em.close();
             e.printStackTrace();
         }
     }
@@ -280,6 +262,7 @@ public class DataMonitoring {
             //TODO Error Handling...
             tx.rollback();
         }
+        em.close();
     }
     
     
@@ -289,17 +272,6 @@ public class DataMonitoring {
         return tmpElement;
     }
     
-    public static void main(String [] args) throws Exception {
-        
-     /*
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        DataMonitoring dm = new DataMonitoring((User) em.find(User.class, new Integer(1)));
-        dm.clean();
-      */
-        Integer integer = new Integer(null);
-        
-    }
     
     
 }
