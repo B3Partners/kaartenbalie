@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS `kaartenbalie`.`acc_layerpricing`;
-CREATE TABLE  `kaartenbalie`.`acc_layerpricing` (
+DROP TABLE IF EXISTS `acc_layerpricing`;
+CREATE TABLE `acc_layerpricing` (
   `lpr_id` int(11) NOT NULL auto_increment,
   `lpr_LAYERID` int(11) default NULL,
   `lpr_planType` int(11) default NULL,
