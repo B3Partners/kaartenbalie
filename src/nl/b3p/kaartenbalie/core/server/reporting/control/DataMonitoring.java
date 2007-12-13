@@ -32,7 +32,6 @@ public class DataMonitoring {
     private User user;
     private Organization organization;
     private ClientRequest clientRequest;
-    private EntityManager em;
     private static List usServiceProviderRequest;
     private static List usRequestOperation;
     private long operationStartTime;
@@ -85,28 +84,15 @@ public class DataMonitoring {
     public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime) {
         if (!enableMonitoring) return;
         
-        em = MyEMFDatabase.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        if (transactionActive()) {
-            throw new Error("Cannot start a new clientRequest without ending one first.");
-        }
-        tx.begin();
-        try {
-            this.operationStartTime = operationStartTime;
-            tRequestOperationMap = new HashMap();
-            tRequestOperationMap.put("MsSinceRequestStart", new Long(getMSSinceStart()));
-            tRequestOperationMap.put("BytesReceivedFromUser", new Integer(bytesReceivedFromUser));
-            clientRequest = new ClientRequest();
-            clientRequest.setClientRequestURI(clientRequestURI);
-            clientRequest.setUser(user);
-            clientRequest.setOrganization(organization);
-            em.persist(clientRequest);
-        } catch (Exception e) {
-            
-            //This should never happen. If it happens for some reason, print the stacktrace..
-            em.close();
-            e.printStackTrace();
-        }
+        this.operationStartTime = operationStartTime;
+        tRequestOperationMap = new HashMap();
+        tRequestOperationMap.put("MsSinceRequestStart", new Long(getMSSinceStart()));
+        tRequestOperationMap.put("BytesReceivedFromUser", new Integer(bytesReceivedFromUser));
+        clientRequest = new ClientRequest();
+        clientRequest.setClientRequestURI(clientRequestURI);
+        clientRequest.setUser(user);
+        clientRequest.setOrganization(organization);
+        
     }
     
     public long getMSSinceStart() {
@@ -120,13 +106,12 @@ public class DataMonitoring {
     public void addServiceProviderRequest(Class sprClass, Map parameterMap){
         if (!enableMonitoring) return;
         
-        if (!transactionActive()) {
-            throw new Error("Please start a clientrequest before attempting to log ServiceProviderRequests");
-        }
+        
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
         Object reflectedObject = DataMonitoring.createPOJOByReflection(ServiceProviderRequest.class, sprClass, parameterMap, overriddenParameters, usServiceProviderRequest);
-        em.persist(reflectedObject);
+        clientRequest.getServiceProviderRequests().add(reflectedObject);
+        
     }
     
     /*
@@ -136,28 +121,11 @@ public class DataMonitoring {
      */
     public void addRequestOperation(Class rqoClass, Map parameterMap){
         if (!enableMonitoring) return;
-        if (!transactionActive()) {
-            throw new Error("Please start a clientrequest before attempting to log RequestOperations");
-        }
         
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
         Object reflectedObject = DataMonitoring.createPOJOByReflection(Operation.class, rqoClass, parameterMap, overriddenParameters, usRequestOperation);
-        em.persist(reflectedObject);
-    }
-    
-    /*
-     * This is a small function which will check wether a transaction is in a valid state in combination with a
-     * clientRequest. It is used in different perspectives all throughout this class.
-     */
-    private boolean transactionActive() {
-        EntityTransaction tx = em.getTransaction();
-        if (tx.isActive() && clientRequest == null) {
-            throw new Error("Transaction is active, but there is no clientrequest..");
-        } else if (!tx.isActive() && clientRequest != null) {
-            throw new Error("There is a clientRequest, but the transaction is not active!");
-        }
-        return (tx.isActive() && clientRequest != null);
+        clientRequest.getRequestOperations().add(reflectedObject);
     }
     
     
@@ -243,11 +211,11 @@ public class DataMonitoring {
      */
     public void endClientRequest(int bytesSendToUser, long totalResponseTime) {
         if (!enableMonitoring) return;
+        EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
+        tx.begin();
         
-        if (!transactionActive()) {
-            throw new Error("Cannot end a clientRequest without starting it first.");
-        }
+        
         
         try {
             
@@ -255,10 +223,22 @@ public class DataMonitoring {
             tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
             this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
             
+            //Now Persist...
+            
+            Iterator iterRO = clientRequest.getRequestOperations().iterator();
+            em.persist(clientRequest);
+            while (iterRO.hasNext()) {
+                em.persist(iterRO.next());
+            }
+            Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
+            while (iterSPR.hasNext()) {
+                em.persist(iterSPR.next());
+            }
             tx.commit();
             clientRequest = null;
             tRequestOperationMap = null;
         } catch (Exception e) {
+            e.printStackTrace();
             //TODO Error Handling...
             tx.rollback();
         }
