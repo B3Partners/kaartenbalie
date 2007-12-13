@@ -29,6 +29,7 @@ public class ClientRequest {
     public ClientRequest() {
         setTimeStamp(new Date());
         setServiceProviderRequests(new HashSet());
+        setRequestOperations(new HashSet());
     }
     
     public Integer getId() {
