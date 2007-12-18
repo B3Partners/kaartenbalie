@@ -297,7 +297,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
-        EntityManager em = getEntityManager();
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         
@@ -311,6 +310,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
                 // niet ingelogd dus, dan checken op token in url
+                EntityManager em = MyEMFDatabase.getEntityManager();
                 EntityTransaction tx = em.getTransaction();
                 tx.begin();
                 try {
@@ -325,6 +325,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     //Here nothing to do, because user gets second chance if this login fails.
                 } finally {
                     tx.commit();
+                    MyEMFDatabase.closeEntityManager();
                 }
             }
         }
@@ -332,6 +333,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
+            EntityManager em = MyEMFDatabase.getEntityManager();
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -349,6 +351,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             } finally {
                 tx.commit();
+                //MyEMFDatabase.closeEntityManager();
             }
             
             java.util.Date date = user.getTimeout();
@@ -374,7 +377,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
-        MyEMFDatabase.closeEntityManager();
+
         return user;
     }
     // </editor-fold>
@@ -510,9 +513,4 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
     }
-    
-    public static EntityManager getEntityManager() {
-        return MyEMFDatabase.getEntityManager();
-    }
-
 }
