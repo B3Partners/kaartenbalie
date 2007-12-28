@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -156,7 +157,10 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             urlWrapper.add(gmrWrapper);
         }
         tx.commit();
-        am.doTransaction(am.getTLU(), user);
+        TransactionLayerUsage transaction = (TransactionLayerUsage) am.nullvalidateTransaction(am.getTLU());
+        if (transaction != null) {
+            am.commitTransaction(am.getTLU(), user);
+        }
         am.endTLU();
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
     }

@@ -29,9 +29,21 @@
     <definition name="base.beheer.accounting" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/accounting.jsp"/>
     </definition>    
+    <definition name="base.beheer.pricing" extends="base.beheer">
+        <put name="content" value="/WEB-INF/jsp/beheer/pricing.jsp"/>
+    </definition>    
     <definition name="base.beheer.reporting" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/reporting.jsp"/>
     </definition>    
-
     <definition name="base.beheer.editmetadata" path="/WEB-INF/jsp/beheer/editMetadata.jsp"/>
+    
+    <definition name="base.beheer.editpricing" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/editPricing.jsp"/>
+    </definition>
+    <definition name="base.beheer.pricing.downsize" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/pricing/downSize.jsp"/>
+    </definition>
+
+    
+    
 </tiles-definitions>

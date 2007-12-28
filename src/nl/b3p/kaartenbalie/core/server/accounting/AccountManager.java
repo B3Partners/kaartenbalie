@@ -12,7 +12,6 @@ package nl.b3p.kaartenbalie.core.server.accounting;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -25,39 +24,33 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 
-/**
- *
- * @author Chris Kramer
- */
 public class AccountManager {
-    
-    
     public static final long serialVersionUID = 856294562L;
     private static boolean enableAccounting = false;
     private BigDecimal balance;
-    
-    
     private static ThreadLocal tluHolder = new ThreadLocal();
     private static Map managers;
     
+    private AccountManager() {
+    }
     
-    static
-    {
+    static  {
         managers = new HashMap();
     }
     
     public synchronized static AccountManager getAccountManager(Integer organizationId) {
-        
         AccountManager accountManager = (AccountManager) managers.get(organizationId);
         if (accountManager == null) {
             accountManager = new AccountManager(organizationId);
             if (enableAccounting) {
                 EntityManager em = MyEMFDatabase.createEntityManager();
-                Organization organization = (Organization) em.find(Organization.class, organizationId);
-                if (organization.getAccount() == null) {
+                Account account = (Account)em.find(Account.class, organizationId);
+                //Organization organization = (Organization) em.find(Organization.class, organizationId);
+                if (account == null) {
                     EntityTransaction et = em.getTransaction();
                     et.begin();
-                    Account account = new Account(organization);
+                    Organization organization = (Organization) em.find(Organization.class, organizationId);
+                    account = new Account(organization);
                     organization.setAccount(account);
                     em.persist(account);
                     et.commit();
@@ -75,9 +68,31 @@ public class AccountManager {
         this.companyId = companyId;
     }
     
-    public TransactionLayerUsage beginTLU() {
-        
-        TransactionLayerUsage tlu = new TransactionLayerUsage();
+    public Transaction prepareTransaction(Class transactionClass) throws Exception{
+        if (!Transaction.class.isAssignableFrom(transactionClass)) {
+            throw new Exception("Class transactionClass is not assignable.");
+        }
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        EntityTransaction et = em.getTransaction();
+        Transaction transaction = null;
+        try {
+            et.begin();
+            Account account = (Account)em.find(Account.class, companyId);
+            transaction = (Transaction) transactionClass.newInstance();
+            transaction.setStatus(Transaction.PENDING);
+            transaction.setAccount(account);
+            em.persist(transaction);
+            et.commit();
+        } catch (Exception e) {
+            et.rollback();
+            throw e;
+        } finally{
+            em.close();
+        }
+        return transaction;
+    }
+    public TransactionLayerUsage beginTLU() throws Exception {
+        TransactionLayerUsage tlu = (TransactionLayerUsage) prepareTransaction(TransactionLayerUsage.class);
         tluHolder.set(tlu);
         return tlu;
     }
@@ -90,67 +105,109 @@ public class AccountManager {
     }
     
     
+    public static void main(String [] args) throws Exception {
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        AccountManager am = AccountManager.getAccountManager(new Integer(1));
+        AccountManager.setEnableAccounting(true);
+        TransactionLayerUsage tlu = (TransactionLayerUsage) am.prepareTransaction(TransactionLayerUsage.class);
+        tlu.setCreditAlteration(new BigDecimal(-0));
+        tlu.getLayerUsageMutations().add(new LayerUsageMutation(tlu));
+        System.out.println(am.getBalance());
+        tlu = (TransactionLayerUsage) am.nullvalidateTransaction(tlu);
+        if (tlu != null) {
+            am.commitTransaction(tlu, null);
+        }
+        System.out.println(am.getBalance());
+    }
     
-    public synchronized void doTransaction(Transaction transaction, User user) throws Exception{
+    public Transaction nullvalidateTransaction(Transaction accountTransaction) throws Exception {
+        if (accountTransaction == null) {
+            throw new Exception("Trying to nullvalidate a null transaction.");
+        }
+        
+        if (accountTransaction.getCreditAlteration() == null) {
+            throw new Exception("Trying to nullvalidate a transaction with a nullvalue for creditAlteration.");
+        }
+        
+        if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
+            throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
+        }
+        
+        if (accountTransaction.getCreditAlteration().doubleValue() == 0) {
+            EntityManager em = MyEMFDatabase.createEntityManager();
+            EntityTransaction et = em.getTransaction();
+            et.begin();
+            try {
+                em.remove(em.find(Transaction.class, accountTransaction.getId()));
+                et.commit();
+                accountTransaction = null;
+            }catch (Exception e){
+                et.rollback();
+                throw e;
+            }finally {
+                em.close();
+            }
+        }
+        return accountTransaction;
+    }
+    
+    public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
         if (!enableAccounting) { return;}
-        long time = System.currentTimeMillis();
+        
+        if (accountTransaction == null) {
+            throw new Exception("Trying to commit a null transaction.");
+        }
+        //Create an EntityManager
         EntityManager em = MyEMFDatabase.createEntityManager();
+        //Get transaction...
         EntityTransaction et = em.getTransaction();
         et.begin();
+        //Get the account and set the current balance. Update the class variable at the same time.
         Account account = (Account)em.find(Account.class, companyId);
         balance = account.getCreditBalance();
-        transaction.setAccount(account);
-        transaction.setUser(user);
-        
+        //Set the account & user for the accountTransaction.
+        accountTransaction.setAccount(account);
+        accountTransaction.setUser(user);
         try {
-            
-            if (transaction.getCreditAlteration().doubleValue() < 0) {
-                throw new Exception("Transaction creditalteration cannot be less then zero.");
+            //Check if the creditAlteration is less then zero or equal to zero and possibly throw an Exception
+            if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
+                throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
             }
-            transaction.validate();
-            transaction.setCreditAlteration(transaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
-            if (transaction.getType() == transaction.DEPOSIT) {
-                balance =balance.add(transaction.getCreditAlteration());
-            } else if (transaction.getType() == transaction.WITHDRAW) {
-                
-                if (transaction.getClass().equals(TransactionLayerUsage.class)) {
-                    TransactionLayerUsage tlu = (TransactionLayerUsage) transaction;
-                    Iterator lumIter = tlu.getLayerUsageMutations().iterator();
-                    while(lumIter.hasNext()) {
-                        LayerUsageMutation lum  = (LayerUsageMutation) lumIter.next();
-                        //TODO
-                        tlu.setCreditAlteration(tlu.getCreditAlteration().add(new BigDecimal(0.01)));
-                    }
-                }
-                transaction.setCreditAlteration(transaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
-                if (transaction.getCreditAlteration().doubleValue() == 0) {
-                    et.rollback();
-                    em.close();
-                    return;
-                }
-                if (balance.subtract(transaction.getCreditAlteration()).doubleValue() < 0) {
-                    throw new Exception(
+            //Run validation (checks what type of transaction is allowed..)
+            accountTransaction.validate();
+            //Scale the creditAlteration...
+            accountTransaction.setCreditAlteration(accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
+            
+            //Now check if the transaction either has to deposit or withdraw...
+            BigDecimal newBalance = null;
+            if (accountTransaction.getType() == accountTransaction.DEPOSIT) {
+                newBalance = balance.add(accountTransaction.getCreditAlteration());
+            } else if (accountTransaction.getType() == accountTransaction.WITHDRAW) {
+                newBalance = balance.subtract(accountTransaction.getCreditAlteration());
+                if (newBalance.doubleValue() < 0)
+                    throw new TransactionDeniedException(
                             "Insufficient credits for transaction. " +
-                            "Required credits: "  + transaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
+                            "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
                             "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-                }
-                balance =balance.subtract(transaction.getCreditAlteration());
-                
-                
             } else {
                 throw new Exception("Unsupported transaction type");
             }
-            account.setCreditBalance(balance);
-            transaction.setMutationDate(new Date());
-            transaction.setStatus(Transaction.ACCEPTED);
-            
+            account.setCreditBalance(newBalance);
+            accountTransaction.setMutationDate(new Date());
+            accountTransaction.setStatus(accountTransaction.ACCEPTED);
+            em.merge(accountTransaction);
+            et.commit();
+            balance = newBalance;
+        } catch (TransactionDeniedException tde) {
+            accountTransaction.setErrorMessage(tde.getMessage());
+            accountTransaction.setStatus(accountTransaction.REFUSED);
+            em.merge(accountTransaction);
+            et.commit();
+            throw tde;
         } catch (Exception e) {
-            transaction.setErrorMessage(e.getMessage());
-            transaction.setStatus(Transaction.REFUSED);
+            et.rollback();
             throw e;
         } finally {
-            em.persist(transaction);
-            et.commit();
             em.close();
         }
     }
@@ -172,11 +229,14 @@ public class AccountManager {
     
     public List getTransactions(int listMax, Class transactionType) {
         EntityManager em = MyEMFDatabase.createEntityManager();
+        List resultList = null;
         if (Transaction.class.isAssignableFrom(transactionType)) {
-            return em.createQuery(
+            resultList = em.createQuery(
                     "FROM " + transactionType.getSimpleName() + " AS transaction ORDER by transaction.transactionDate DESC").setMaxResults(listMax).getResultList();
+            
         }
-        return null;
+        em.close();
+        return resultList;
     }
     
     public static void setEnableAccounting(boolean state) {

@@ -1,12 +1,3 @@
-/*
- * ClientReporting.java
- *
- * Created on September 27, 2007, 4:25 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.lang.reflect.Method;

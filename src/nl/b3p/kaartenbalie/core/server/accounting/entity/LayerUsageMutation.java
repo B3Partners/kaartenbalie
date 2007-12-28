@@ -22,11 +22,14 @@ public class LayerUsageMutation {
     private Integer layerId;
     private TransactionLayerUsage transactionLayerUsage;
     
-    
-    public LayerUsageMutation() {
+    private LayerUsageMutation() {
+    }
+    public LayerUsageMutation(TransactionLayerUsage transactionLayerUsage) {
+        this();
+        this.setTransactionLayerUsage(transactionLayerUsage);
     }
     public LayerUsageMutation(TransactionLayerUsage transactionLayerUsage, Layer layer) {
-        this.setTransactionLayerUsage(transactionLayerUsage);
+        this(transactionLayerUsage);
         this.setLayer(layer);
     }
     
@@ -44,7 +47,7 @@ public class LayerUsageMutation {
     private void setLayerId(Integer layerId) {
         this.layerId = layerId;
     }
-
+    
     public TransactionLayerUsage getTransactionLayerUsage() {
         return transactionLayerUsage;
     }

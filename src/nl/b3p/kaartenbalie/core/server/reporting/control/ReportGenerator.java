@@ -165,17 +165,20 @@ public class ReportGenerator {
     
     public String reportName(Integer trsId) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
+        String result = null;
         if (trsId != null) {
             ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() == null) {
                 throw new Exception("Report not found!");
             }
             Object report =  em.find(DataUsageReport.class, trs.getReportId());
+            
             if (report != null) {
-                return trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
+                result =  trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
             }
         }
-        return null;
+        em.close();
+        return result;
     }
     
     public void fetchReport(Integer trsId, OutputStream outStream) throws Exception {
@@ -211,6 +214,7 @@ public class ReportGenerator {
                 aTransformer.transform(src, new StreamResult(outStream));
             }
         }
+        em.close();
     }
     
 }

@@ -160,10 +160,10 @@ public class DataWarehousing {
                 }
                 object = objectClass.newInstance();
                 
-            /*
-             * Now get the matching properties... (Only valid properties though)..
-             *
-             */
+                /*
+                 * Now get the matching properties... (Only valid properties though)..
+                 *
+                 */
                 
                 List propertiesList = em.createQuery(
                         "FROM PropertyValue AS pv " +

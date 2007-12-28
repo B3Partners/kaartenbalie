@@ -14,9 +14,14 @@
         <put name="top" value="/WEB-INF/jsp/commons/header.jsp"/>
         <put name="footer" value="/WEB-INF/jsp/commons/footer.jsp"/>
     </definition>
+
+    <!-- cleanlayout -->
+    <definition name="clean" path="/WEB-INF/jsp/templates/cleanlayout.jsp">
+    </definition>
+    
     <!-- commons -->
     <definition name="common.actionMessages" path="/WEB-INF/jsp/commons/actionMessages.jsp"/> 
-		<definition name="common.googleAnalytics" path="/WEB-INF/jsp/commons/googleAnalytics.jsp"/>
+    <definition name="common.googleAnalytics" path="/WEB-INF/jsp/commons/googleAnalytics.jsp"/>
     <!-- algemeen -->
     <definition name="base.algemeen" extends="base">
         <put name="menu" value="/WEB-INF/jsp/algemeen/menu.jsp"/>

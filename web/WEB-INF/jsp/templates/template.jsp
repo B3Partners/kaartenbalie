@@ -19,8 +19,46 @@
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
+        <script language="JavaScript" type="text/JavaScript">
+            function hidePopup()
+            {
+                transDiv = document.getElementById('transdiv');
+                container = document.getElementById('container');
+                iframe = document.getElementById('popupframe');
+                iframe.src = 'about:blank';
+                transDiv.style.display = 'none';
+            }
+            function showPopup(width, height, title, source) {
+               transDiv = document.getElementById('transdiv');
+               container = document.getElementById('container');
+               iframe = document.getElementById('popupframe');
+               container.style.width = width + 'px';
+               container.style.height = height + 'px';
+               container.style.marginLeft = ((width/2) * -1) + 'px';
+               container.style.marginTop = ((height/2) * -1) + 'px';
+               iframe.src = source;
+               transDiv.style.display = 'inline';
+            }
+            function navigate(target, source)
+            {
+                hidePopup();
+                if (target == null || target == '')
+                {
+                    location.href = source;
+                } else {
+                    frame = document.getElementById(target);
+                    frame.src = source;
+                }
+            }
+        </script>
     </head>
     <body>
+        <div id="transdiv" onclick="hidePopup();">
+            
+            <div id="container">
+                <iframe name="popupframe" id="popupframe" src="about:blank" frameborder="0" style="width:100%;height:100%"></iframe>
+            </div>
+        </div>        
         <div id="bodycontent">
             <!-- <div id="banner">
                 BEGIN header
@@ -52,7 +90,7 @@
             <div id="footer">
                 <!-- <div id=footertext>
                     BEGIN footer
-                    <tiles:insert name='footer'/>
+                <tiles:insert name='footer'/>
                     END footer
                 </div>-->
                 <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;"><div id="initiatief"></div></a>

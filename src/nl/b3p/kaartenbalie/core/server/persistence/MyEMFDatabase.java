@@ -9,10 +9,16 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -26,6 +32,7 @@ import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.LayerPricing;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,6 +101,7 @@ public class MyEMFDatabase extends HttpServlet{
             DataWarehousing.registerClass(User.class, null);
             DataWarehousing.registerClass(Organization.class,null);
             DataWarehousing.registerClass(ServiceProvider.class,null);
+            DataWarehousing.registerClass(LayerPricing.class,null);
             DataWarehousing.registerClass(Layer.class, new String[]{"Id","Name","Title"});
         } catch (Exception e) {
             throw new ServletException(e);
@@ -260,6 +268,18 @@ public class MyEMFDatabase extends HttpServlet{
     /* Run this to sync your DB using the nonServlet PersistenceUnit*/
     public static void main(String [] args) throws Exception {
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        
+        /* Snippet to make a PNG
+        BufferedImage bi = new BufferedImage(200,200, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = (Graphics2D) bi.getGraphics();
+        Color color = new Color(100,100,100);
+        AlphaComposite myAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
+        g2d.setColor(color);
+        g2d.setComposite(myAlpha);
+        g2d.fillRect(0,0,200,200);
+        
+        ImageIO.write(bi, "png", new File("C:\\alphabackground.png"));
+        */
         
     }
     
