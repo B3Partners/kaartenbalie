@@ -139,19 +139,44 @@ public class MyEMFDatabase extends HttpServlet{
     }
     
    /*
-    This function is used to generate a request save EntityManger by storing it in the local thread. This method is
+    * These functions are used to generate a request save EntityManger by storing it in the local thread. This method is
     * familiar to the methods used in the SessionContext with the exceptions that we do not register a cleanup after
     * the transaction has been finalized, transactions are not forced to start if queries are fired and there is no
     * support for multiple EntityManagers at this time. This last feature can be easily implemented by registering
     * a hashmap in the ThreadLocal.
+    *
+    * - initEntityManager() will start a new EntityManager
+    * - getEntityManager() is used to retrieve the created EntityManager
+    * - closeEntityManager() is the final step in the proces.
     */
-    public static EntityManager getEntityManager() {
+    public static void initEntityManager() throws Error {
+        if (getThreadLocal(entityManagerName) != null) {
+            throw new Error("Trying to init a new entityManager without closing the previous first!");
+        }
+        EntityManager entityManager = createEntityManager();
+        setThreadLocal(entityManagerName, entityManager);
+    }
+
+    public static EntityManager getEntityManager() throws Error{
         EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
         if (localEm == null) {
-            localEm = emf.createEntityManager();
-            setThreadLocal(entityManagerName, localEm);
+            throw new Error("EntityManager not yet initialized. Either it's already closed or never initialized.");
         }
         return localEm;
+    }
+    
+    /*
+     * Always close your entitymanager when you're done with it. Else you might stumble into awkward situations where
+     * multiple calls are done on the same entitymanager
+     */
+    public static void closeEntityManager() throws Error{
+        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
+        if (localEm == null) {
+            throw new Error("EntityManager is missing. Either it's already closed or never initialized.");
+        }
+        localEm.close();
+        clearThreadLocal(entityManagerName);
+        
     }
     
     /*
@@ -197,17 +222,7 @@ public class MyEMFDatabase extends HttpServlet{
         return threadLocalMap.get(key);
     }
     
-    /*
-     * Always close your entitymanager when you're done with it. Else you might stumble into awkward situations where
-     * multiple calls are done on the same entitymanager
-     */
-    public static void closeEntityManager() {
-        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
-        if (localEm != null) {
-            localEm.close();
-            clearThreadLocal(entityManagerName);
-        }
-    }
+    
     
     
     /** Returns the local path of a filename.
@@ -277,9 +292,9 @@ public class MyEMFDatabase extends HttpServlet{
         g2d.setColor(color);
         g2d.setComposite(myAlpha);
         g2d.fillRect(0,0,200,200);
-        
+         
         ImageIO.write(bi, "png", new File("C:\\alphabackground.png"));
-        */
+         */
         
     }
     

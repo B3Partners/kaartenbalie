@@ -65,7 +65,7 @@ public class KaartenbalieCrudAction extends CrudAction{
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
     throws Exception {
-        
+        MyEMFDatabase.initEntityManager();
         EntityManager em = getEntityManager();
         //EntityManager crudEM = ManagedPersistence.getEntityManager();
         EntityTransaction tx = em.getTransaction();

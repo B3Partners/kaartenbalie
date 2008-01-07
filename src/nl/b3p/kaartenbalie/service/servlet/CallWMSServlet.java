@@ -119,10 +119,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         User user = null;
 
         OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
+        MyEMFDatabase.initEntityManager();
+        EntityManager em = MyEMFDatabase.getEntityManager();
         try {
             data.setOgcrequest(ogcrequest);
             StringBuffer reason = new StringBuffer();
 
+            
+            //
             user = checkLogin(request);
 
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
@@ -256,6 +260,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 data.write(output);
             }
         }
+        MyEMFDatabase.closeEntityManager();
     }
     // </editor-fold>
 
@@ -299,7 +304,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
-
+        EntityManager em = MyEMFDatabase.getEntityManager();
         // probeer preemptive basic login
         if (user == null) {
             // attempt to dig out authentication info only if the user has not yet been authenticated
@@ -310,9 +315,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
                 // niet ingelogd dus, dan checken op token in url
-                EntityManager em = MyEMFDatabase.getEntityManager();
-                EntityTransaction tx = em.getTransaction();
-                tx.begin();
                 try {
                     user = (User)em.createQuery(
                             "from User u where " +
@@ -323,9 +325,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                             .getSingleResult();
                 } catch (NoResultException nre) {
                     //Here nothing to do, because user gets second chance if this login fails.
-                } finally {
-                    tx.commit();
-                    MyEMFDatabase.closeEntityManager();
                 }
             }
         }
@@ -333,9 +332,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
-            EntityManager em = MyEMFDatabase.getEntityManager();
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
             try {
                 String url = request.getRequestURL().toString();
                 String testurl = "http://localhost:8084/kaartenbalie/wms/d6cec623c87928f6b3404364d718b332";
@@ -349,9 +345,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                         .getSingleResult();
             } catch (NoResultException nre) {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
-            } finally {
-                tx.commit();
-                MyEMFDatabase.closeEntityManager();
             }
 
             java.util.Date date = user.getTimeout();
@@ -377,7 +370,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
-
+        
         return user;
     }
     // </editor-fold>
