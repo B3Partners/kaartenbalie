@@ -143,11 +143,11 @@
 	</parameter>
 	<parameter>
 		<name>username</name>
-		<value>kaartenbalie_wis</value>
+		<value>kaartenbalie</value>
 	</parameter>
 	<parameter>
 		<name>password</name>
-		<value>XnigASDNggds</value>
+		<value>kaartenbalie</value>
 	</parameter>
 	<parameter>
 		<name>driverClassName</name>
@@ -155,7 +155,7 @@
 	</parameter>
 	<parameter>
 		<name>url</name>
-		<value>jdbc:mysql://localhost:3306/kaartenbalie_wis?autoReconnect=true&amp;characterEncoding=UTF-8</value>
+		<value>jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8</value>
 	</parameter>
 	<parameter>
 		<name>validationQuery</name>
