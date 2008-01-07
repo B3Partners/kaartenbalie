@@ -78,17 +78,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     private XMLReader parser;
     private static Stack stack = new Stack();
     private Switcher s;
-    protected EntityManager em;
     
     public WMSRequestHandler() {
-        em = MyEMFDatabase.createEntityManager();
     }
     
     public ServiceProvider getServiceProvider() throws Exception {
-        
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        
+        EntityManager em = MyEMFDatabase.getEntityManager();
         User dbUser = null;
         try {
             dbUser = (User)em.createQuery("from User u where " +
@@ -180,8 +175,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 validServiceProvider.addRole(role);
             }
         }
-        
-        tx.commit();
         return validServiceProvider;
     }
     
@@ -190,8 +183,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     //methode in combinatie met de code voor controle van layer rechten.
     
     protected List getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable) throws Exception {
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+        EntityManager em = MyEMFDatabase.getEntityManager();
         
         // Hier komt elke sp precies een keer uit als tenminste de database
         // correct is en er maar een toplayer (parent==null) is!
@@ -301,7 +293,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             log.error("No layers found!");
             throw new Exception(GETMAP_EXCEPTION);
         }
-        tx.commit();
+        
+        tlu.calculateUsage();
         return eventualSPList;
     }
     

@@ -12,17 +12,16 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityTransaction;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -49,6 +48,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
      */
     // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
+        
+        EntityManager em = MyEMFDatabase.getEntityManager();
         /*
          * Initialize some variables
          * And immediatly set the right output format (also for errors) because if an error occurs
@@ -103,8 +104,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             throw new Exception(GETMAP_EXCEPTION);
         }
         
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         ArrayList urlWrapper = new ArrayList();
         //ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
@@ -156,10 +155,9 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             gmrWrapper.setProviderRequestURI(url.toString());
             urlWrapper.add(gmrWrapper);
         }
-        tx.commit();
-        TransactionLayerUsage transaction = (TransactionLayerUsage) am.nullvalidateTransaction(am.getTLU());
+        TransactionLayerUsage transaction = am.getTLU();
         if (transaction != null) {
-            am.commitTransaction(am.getTLU(), user);
+            am.commitTransaction(transaction, user);
         }
         am.endTLU();
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
