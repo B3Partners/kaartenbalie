@@ -182,7 +182,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             } else {
                 ByteArrayOutputStream output = null;
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setValidating(true);
+                dbf.setValidating(false);
                 DocumentBuilder db = null;
                 try {
                     db = dbf.newDocumentBuilder();

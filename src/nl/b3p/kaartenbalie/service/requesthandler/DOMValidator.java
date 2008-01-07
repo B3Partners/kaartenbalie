@@ -29,7 +29,7 @@ public class DOMValidator extends DefaultHandler {
         
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
-        dbf.setValidating(true);
+        dbf.setValidating(false);
         
         DocumentBuilder db = dbf.newDocumentBuilder();
         db.setErrorHandler(this);

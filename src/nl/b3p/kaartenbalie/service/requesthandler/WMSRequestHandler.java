@@ -359,7 +359,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                  * After combining these documents, the new document will be sent onto the request.
                  */
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setValidating(true);
+                dbf.setValidating(false);
                 dbf.setNamespaceAware(true);
                 dbf.setIgnoringElementContentWhitespace(true);
                 

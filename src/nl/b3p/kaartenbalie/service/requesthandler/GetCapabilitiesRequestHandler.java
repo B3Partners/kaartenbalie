@@ -65,7 +65,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          * Create a DocumentBuilderFactory from which a new document can be created
          */
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setValidating(true);
+        dbf.setValidating(false);
         DocumentBuilder db = dbf.newDocumentBuilder();
         DOMImplementation di = db.getDOMImplementation();
 
