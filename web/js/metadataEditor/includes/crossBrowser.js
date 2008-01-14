@@ -175,12 +175,62 @@ function debug(msg) {
 			document.body.appendChild(debug.box);
         }
 
-		var p = document.createElement("p");
-		
-		p.appendChild(document.createTextNode(msg));
-		p.appendChild(document.createElement("br"));		
-		p.appendChild(document.createElement("br"));				
-		debug.box.appendChild(p);
+		if (msg !== undefined) {
+			if (msg.nodeType !== undefined && msg.nodeType == Node.ELEMENT_NODE) {
+				debug.box.appendChild(msg);
+			}
+			else {
+				var p = document.createElement("p");
+				p.appendChild(document.createTextNode(msg));
+				p.appendChild(document.createElement("br"));		
+				p.appendChild(document.createElement("br"));	
+				debug.box.appendChild(p);
+			}
+		}
 	}
 
+}
+
+// LET OP: Deze functie geeft niet alle informatie uit een xml document weer!!!
+// (geen attributes en mixed elements en text)
+// Wel handig voor bepaalde debugging purposes
+function debugXmlDoc(xmlDocToBeDebugged) {
+	var p = document.createElement("p");
+	var depth = 0;
+	var stringBuffer = new StringBuffer();
+	_debugXmlDoc(xmlDocToBeDebugged, stringBuffer, depth);
+	p.innerHTML = stringBuffer.toString();
+	debug(p);
+}
+
+function _debugXmlDoc(node, stringBuffer, depth) {
+	for (var i = 0; i < node.childNodes.length; i++) {
+		var childNode = node.childNodes[i];
+		if (childNode.nodeType == Node.ELEMENT_NODE) {
+			addSpaces(stringBuffer, depth);
+			stringBuffer.append("&lt;" + childNode.nodeName + "&gt;");
+			var hasChildElements = false;
+			for (var k = 0; k < childNode.childNodes.length; k++)
+				if (childNode.childNodes[k].nodeType == Node.ELEMENT_NODE)
+					hasChildElements = true;
+			if (!hasChildElements) {
+				stringBuffer.append(childNode.nodeValue);
+			}
+			else {
+				stringBuffer.append("<br />");
+				_debugXmlDoc(childNode, stringBuffer, depth + 1);
+				addSpaces(stringBuffer, depth);
+			}
+			stringBuffer.append("&lt;/" + childNode.nodeName + "&gt;");
+			stringBuffer.append("<br />");
+		}
+	}
+}
+
+// aantal spaties weergegeven bij inspringen xml doc debug.
+var SPACE_DEPTH = 4;
+
+function addSpaces(stringBuffer, depth) {
+	for (var j = 0; j < depth * SPACE_DEPTH; j++)
+		stringBuffer.append("&nbsp;");
 }

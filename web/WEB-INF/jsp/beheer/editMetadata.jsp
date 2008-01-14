@@ -36,7 +36,8 @@
 
 		<title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
 
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>
+		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
+		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
 

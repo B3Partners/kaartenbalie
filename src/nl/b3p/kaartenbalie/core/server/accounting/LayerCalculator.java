@@ -106,13 +106,13 @@ public class LayerCalculator {
         EntityManager em = MyEMFDatabase.createEntityManager();
         Layer layer1 = (Layer) em.find(Layer.class, new Integer(18));
         Date date = new Date();
-        LayerCalculator.downSize(layer1, LayerPricing.PAY_PER_REQUEST, em,10, true,date);
+        LayerCalculator.downSize(layer1, LayerPricing.getPAY_PER_REQUEST(), em,10, true,date);
         System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateLayerPrice(layer1, LayerPricing.PAY_PER_REQUEST, new BigDecimal(1), em,date));
+        System.out.println(LayerCalculator.calculateLayerPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
         System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateChildLayersPrice(layer1, LayerPricing.PAY_PER_REQUEST, new BigDecimal(1), em,date));
+        System.out.println(LayerCalculator.calculateChildLayersPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
         System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateCompleteLayerPrice(layer1, LayerPricing.PAY_PER_REQUEST, new BigDecimal(1), em,date));
+        System.out.println(LayerCalculator.calculateCompleteLayerPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
         
         
 //System.out.println(lc.calcRequest(new Integer(18)));

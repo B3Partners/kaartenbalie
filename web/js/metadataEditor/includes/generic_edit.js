@@ -1,6 +1,6 @@
 // 3/8/07 Erik van de Pol
 
-// Rewritten variant of "generic_dhtml.vbs" by Eric Compas (2/3/05).
+// Loosely based on "generic_dhtml.vbs" by Eric Compas (2/3/05).
 // Rewritten in javascript and working in most W3C compliant browsers.
 
 
@@ -13,8 +13,7 @@
 var MIN_TEXTINPUT_SIZE = 50;
 var MAX_TEXTINPUT_SIZE = 75;
 
-// Tekst constanten vertaald naar het Nederlands
-// default text for elements with no default value specified 
+// Tekst constanten in het Nederlands
 var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken.";
 
 // add/delete elements/sections menu text 
@@ -27,10 +26,10 @@ var ADD_SECTION_BELOW_TEXT = "Voeg sectie hieronder toe";
 var DELETE_SECTION_TEXT = "Verwijder deze sectie";
 
 var CONFIRM_DELETE_ELEMENT_TEXT = "Weet u zeker dat u dit element wilt verwijderen?";
-var NOT_ALLOWED_DELETE_ELEMENT_TEXT = "Het is niet toegestaan de laatste element te verwijderen.";
+var NOT_ALLOWED_DELETE_ELEMENT_TEXT = "Het is niet toegestaan het laatste element van dit type te verwijderen.";
 
 var CONFIRM_DELETE_SECTION_TEXT = "Weet u zeker dat u deze sectie wilt verwijderen?";
-var NOT_ALLOWED_DELETE_SECTION_TEXT = "Het is niet toegestaan de laatste sectie te verwijderen.";
+var NOT_ALLOWED_DELETE_SECTION_TEXT = "Het is niet toegestaan de laatste sectie van dit type te verwijderen.";
 
 // expand/collapse section && menu image paths 
 //var PLUS_IMAGE = "images/xp_plus.gif";
@@ -230,9 +229,6 @@ function startEdit(event) {
 // Description:
 //   Change text input or area element value back into displayed text.
 //   Assumes that text to be edited is in particular format.
-//
-// Argument:
-//   element = the <span> element containing text to be edited.
 function stopEdit(event) {
 	var element = getTarget(event);
 	//debug("stopEdit element: " + element.tagName);
@@ -272,15 +268,13 @@ function saveValueOnClientSide(parentNode, newValue) {
 	saveChangesInXMLDom(newValue, parentNode.attributes.getNamedItem("fullPath").nodeValue);
 }
 
-// 1/27/2005 Eric Compas;
-//
 // Description:
 //   Retrieve a copy of a picklist embedded in an editable stylesheet.
 //   Picklist is a <select> tag with sName as id. Usually hidden in
 //   a undisplayed <div> tag at the bottom of the document.
 //;
 // Arguments:
-//   sName = id of picklist <select> to get
+//   name = id of picklist <select> to get
 //
 // Return:
 //   picklist = copy of <select> object containing picklist
@@ -296,8 +290,6 @@ function getPicklist(name) {
 		return null;
 }
 
-// 2/05 Eric Compas
-//
 // Description: code called by picklists when selection changed (onchange)
 function selectPickListValue(event) {
 	var element = getTarget(event);
@@ -328,7 +320,6 @@ function destroyPickList(event) {
 	parentNode.appendChild(document.createTextNode(preEditText));
 }
 
-// 2/05 Eric Compas;
 // Catch "tab" key press when picklist is open (will leave editing field open)
 function pickListKeyPress(element) {
 	var iKey = getKeyCode(element);
@@ -446,8 +437,6 @@ function addSection(element, addName, above) {
 	stopPropagation(element);
 }
 
-// 2/21/2005 Eric Compas
-//
 // Description:
 //   Routine called by AddSection and AddChild code to create
 //   a new section (compound element) using an XSL transformation
@@ -475,11 +464,17 @@ function addElementOrSection(path, above) {
 	else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
 		toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode.nextSibling);
 	
+	debug("xmldoc na toevoeging nieuwe element: ");
+	debug(xmlDoc.xml);
+	
 	// preprocess again to get all the ancestors to appear in the xmlDoc backend
 	var xmlDocString = preprocessor.transformToString(xmlDoc);
 	
 	// put in backend var again. Compatible with both IE and FF
 	xmlDoc.loadXML(xmlDocString);
+	
+	debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
+	debug(xmlDoc.xml);
 	
 	// create entirely new xhtml representation of xmlDoc and add it to the current page
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
@@ -515,8 +510,6 @@ function deleteElement(element, elementPath) {
 	stopPropagation(element);
 }
 
-// 12/30/2004 Eric Compas
-//
 // Description:
 //   Delete section (node tree).
 //

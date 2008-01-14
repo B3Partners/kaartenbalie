@@ -1,6 +1,6 @@
 // 3/8/07 Erik van de Pol
 
-// Rewritten variant of "generic_dhtml.vbs" by Eric Compas (2/3/05).
+// Loosely based on "generic_dhtml.vbs" by Eric Compas (2/3/05).
 // Rewritten in javascript and working in most W3C compliant browsers.
 
 
@@ -90,8 +90,6 @@ function isMenuShowing(element) {
 	return element.style.display !== "none";
 }
 
-// 12/8/2004 Eric Compas
-//
 // Description:
 //   Expand/collapse the contents of the specified folder (div tag)
 //   Assumes:
@@ -103,7 +101,7 @@ function isMenuShowing(element) {
 //     and "plus_img"
 //
 // Arguments:
-//   nodeRef = reference to the object calling the routine
+//   pElem = reference to the object calling the routine
 function expandNode(pElem) {
 	// get elements (anchor and child div)
 	var pFolderAnchor = pElem.parentNode.getElementsByTagName("a")[0];
@@ -152,8 +150,6 @@ function expandNode(pElem) {
 }
 
 
-// 12/8/2004 Eric Compas
-//
 // Description:
 //   Expand/collapse all the folder (div tags) in the current document.
 //   Expands/collapses div tags with class="folder"
@@ -161,25 +157,19 @@ function expandNode(pElem) {
 // Arguments:
 //   expand = true, expands all
 //          = false, collapses all
-function expandAll(bExpand) {
-	//On Error Resume Next;
- 
+function expandAll(expand) {
 	// get all div elements in document and loop through them
 	var pDIVElements = document.getElementsByTagName("div");
 
-	//var i;
-	//var pElem;
-	//For i = 0 To pDIVElements.length - 1;
 	for (var childIndex in pDIVElements) {
 		var pElem = pDIVElements[childIndex];
-		//pElem = pDIVElements.item(i);
 		if (pElem.className == "folder") {
 			// current div element's anchor and content div
 			pFolderAnchor = pElem.getElementsByTagName("a")[0];
 			pChildDiv = pElem.getElementsByTagName("div")[0];
 			if (pFolderAnchor != null && pChildDiv != null) {
 				// switch folder content display or hide
-				if (bExpand)
+				if (expand)
 					pChildDiv.style.display = "block";
 				else
 					pChildDiv.style.display = "none";
@@ -191,7 +181,7 @@ function expandAll(bExpand) {
 					pCurrentIMG = pFolderAnchor.getElementsByTagName("img")[0];
 					
 					// switch images
-					if (bExpand)
+					if (expand)
 						pNewIMG = document.getElementById("minus_img").cloneNode(true);
 					else
 						pNewIMG = document.getElementById("plus_img").cloneNode(true);
@@ -200,7 +190,7 @@ function expandAll(bExpand) {
 				}
 				else {
 					// switch text
-					if (bExpand)
+					if (expand)
 						sSymbol = "-";
 					else
 						sSymbol = "+";
@@ -213,5 +203,4 @@ function expandAll(bExpand) {
 			}
 		}
 	}
-	//Next;
 }

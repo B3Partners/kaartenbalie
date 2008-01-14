@@ -88,7 +88,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (idString != null && idString.length() > 0) {
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
-            request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
+            request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.getPAY_PER_REQUEST(), em, level,details, new Date()));
         }
         System.out.println("downsize");
         return super.edit(mapping, dynaForm, request, response);
@@ -187,8 +187,8 @@ public class PricingAction extends KaartenbalieCrudAction {
             request.setAttribute("spName", sp.getTitle());
             request.setAttribute("lName", layer.getName());
             
-            request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.PAY_PER_REQUEST, new BigDecimal(1), em, new Date()));
-            request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.PAY_PER_REQUEST, new BigDecimal(1), em,new Date()));
+            request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em, new Date()));
+            request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,new Date()));
             request.setAttribute("layerPricings",
                     em.createQuery(
                     "FROM LayerPricing AS lp " +

@@ -294,7 +294,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             throw new Exception(GETMAP_EXCEPTION);
         }
         
-        tlu.calculateUsage();
+		//TODO: volgende regel compileerd niet. Uitgecommentarieerd (Erik vd Pol)
+        //tlu.calculateUsage();
         return eventualSPList;
     }
     
