@@ -360,6 +360,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
         dynaForm.set("telephone", organization.getTelephone());
         dynaForm.set("fax", organization.getFax());
         dynaForm.set("bbox", organization.getBbox());
+        dynaForm.set("code", organization.getCode());
         
         Set l = organization.getOrganizationLayer();
         Object [] organizationLayer = l.toArray();
@@ -425,6 +426,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
             }
         }
         organization.setBbox(bbox);
+        organization.setCode(FormUtils.nullIfEmpty(dynaForm.getString("code")));
         
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();

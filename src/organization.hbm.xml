@@ -83,5 +83,8 @@
         <property name="bbox" >
             <column name="BBOX" length="50"/>
         </property>
+        <property name="code" >
+            <column name="CODE" length="50"/>
+        </property>
     </class>
 </hibernate-mapping>

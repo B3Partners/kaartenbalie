@@ -38,6 +38,7 @@ public class Organization {
     private Account account;
     private boolean hasValidGetCapabilities;
     private String bbox;
+    private String code;
     
     
     
@@ -220,6 +221,14 @@ public class Organization {
     
     public void setAccount(Account account) {
         this.account = account;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
     
     

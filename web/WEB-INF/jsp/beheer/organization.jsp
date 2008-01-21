@@ -111,7 +111,11 @@
                                 <tr>
                                     <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
                                     <td><html:text property="bbox" /></td>
-                                </tr>                                
+                                </tr>
+                                <tr>
+                                    <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
+                                    <td><html:text property="code" /></td>
+                                </tr>
                             </table>
                         </td>
                         <td valign="top" rowspan="0">
