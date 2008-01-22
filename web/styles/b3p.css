@@ -458,3 +458,41 @@ tbody, td {
     height:20px;
     
 }
+
+/* Tab Container */
+
+.tabcollection
+{
+
+}
+
+.tabcollection div#sheets
+{
+    border:1px Solid Black;
+
+}
+.tabcollection div#sheets .sheet
+{
+    padding:20px;
+}
+
+.tabcollection div#tabs ul
+{
+    maring:0px;
+    padding:0px;
+}
+
+.tabcollection div#tabs ul li
+{
+    border:1px Solid Black;
+    width:200px;
+    display:inline;
+    padding: 5px 20px 5px 20px;
+
+}
+
+.tabcollection div#tabs ul li.active
+{
+    background-color: #0000FF;
+    color:#FFFFFF;
+}
