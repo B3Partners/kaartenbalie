@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction" table="acc_transaction" discriminator-value="Transaction">
+        
+        <id name="id" type="int" column="tra_id" >
+            <generator class="native"/>
+        </id>
+        <discriminator column="tra_discriminator" type="string" />        
+        <property name="creditAlteration">
+            <column name="tra_creditAlteration" precision="12" scale="2" />
+        </property>
+        <property name="transactionDate">
+            <column name="tra_transactionDate"/>
+        </property>        
+        <property name="mutationDate">
+            <column name="tra_mutationDate"/>
+        </property>            
+        <property name="status">
+            <column name="tra_status"/>
+        </property>
+        <property name="type">
+            <column name="tra_type"/>
+        </property>        
+        <property name="errorMessage">
+            <column name="tra_errorMessage"/>
+        </property>        
+        <property name="userId">
+            <column name="tra_userId"/>
+        </property>        
+        <property name="description" column="tra_description" length="32"/>
+        
+        <many-to-one name="account" column="tra_acc_id"/>  
+        <subclass name="nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage" discriminator-value="LayerUsage">
+        </subclass>
+        <subclass name="nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit" discriminator-value="PaymentDeposit">
+            <property name="billingAmount">
+                <column name="tra_billingAmount" precision="10" scale="2"  />
+            </property>
+            <property name="txExchangeRate">
+                <column name="tra_txExchangeRate"/>
+            </property>            
+        </subclass>        
+    </class>
+</hibernate-mapping>
