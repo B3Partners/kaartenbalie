@@ -4,13 +4,19 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.wms.capabilities.LayerPricing" table="acc_layerpricing">
+    <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing" table="acc_layerpricing">
         
         <id name="id" type="int" column="lpr_id" >
             <generator class="native"/>
         </id>
+        <!-- Losely Relational -->
+        <property name="layerName">
+            <column name="lpr_layerName"/>
+        </property>  
+        <property name="serverProviderPrefix">
+            <column name="lpr_serverProviderPrefix"/>
+        </property>  
         
-        <many-to-one name="layer" column="lpr_LAYERID"/>  
         <property name="planType">
             <column name="lpr_planType"/>
         </property>  
@@ -22,6 +28,9 @@
         </property>  
         <property name="creationDate">
             <column name="lpr_creationDate"/>
+        </property>  
+        <property name="layerIsFree">
+            <column name="lpr_layerIsFree"/>
         </property>  
         <property name="unitPrice">
             <column name="lpr_unitPrice" precision="9" scale="2" />            

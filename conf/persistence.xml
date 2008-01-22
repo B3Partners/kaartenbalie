@@ -24,24 +24,9 @@
             <!--property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/-->
             <property name="hibernate.dialect" value="nl.b3p.kaartenbalie.core.server.persistence.CustomDBDialect"/>
             <property name="hibernate.connection.charSet" value="UTF-8"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/><!-- update/validate -->
         </properties>
     </persistence-unit>  
-    
-    <persistence-unit name="validatePU" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.ejb.HibernatePersistence</provider>
-        <properties>
-            <property name="hibernate.connection.username" value="root"/>
-            <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
-            <property name="hibernate.connection.password" value="***REMOVED***"/>
-            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/kaartenbalie?characterEncoding=UTF-8"/>
-            <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
-            <!--property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/-->
-            <property name="hibernate.dialect" value="nl.b3p.kaartenbalie.core.server.persistence.CustomDBDialect"/>
-            <property name="hibernate.connection.charSet" value="UTF-8"/>
-            <property name="hibernate.hbm2ddl.auto" value="validate"/>
-        </properties>
-    </persistence-unit>      
-    
+
     
 </persistence>

@@ -23,9 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.LayerPricing;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
@@ -88,7 +88,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (idString != null && idString.length() > 0) {
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
-            request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.getPAY_PER_REQUEST(), em, level,details, new Date()));
+            request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
         }
         System.out.println("downsize");
         return super.edit(mapping, dynaForm, request, response);
@@ -165,9 +165,10 @@ public class PricingAction extends KaartenbalieCrudAction {
                 lp.setValidUntil(cal.getTime());
             }
             lp.setUnitPrice(new BigDecimal(unitPrice.doubleValue()));
-            lp.setLayer(layer);
+            //lp.setLayer(layer);
             em.persist(lp);
             getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
+            
         }
         
         return super.save(mapping, dynaForm, request, response);
@@ -187,8 +188,8 @@ public class PricingAction extends KaartenbalieCrudAction {
             request.setAttribute("spName", sp.getTitle());
             request.setAttribute("lName", layer.getName());
             
-            request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em, new Date()));
-            request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,new Date()));
+            //request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em, new Date()));
+            //request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,new Date()));
             request.setAttribute("layerPricings",
                     em.createQuery(
                     "FROM LayerPricing AS lp " +

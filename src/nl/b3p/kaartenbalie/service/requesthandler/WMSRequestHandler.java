@@ -259,7 +259,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 
                 // layer toevoegen aan sp indien queryable voorwaarde ok
                 if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                    tlu.registerUsage(layerId);
+                    //tlu.registerUsage(layerId);
                     // Haal de laatst opgehaalde sp info er bij.
                     // Hier worden nu ook de layers aan toegevoegd indien
                     // zelfde sp, anders nieuwe sp aanmaken en list toevoegen

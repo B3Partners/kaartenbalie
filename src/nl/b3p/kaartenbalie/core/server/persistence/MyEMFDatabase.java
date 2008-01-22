@@ -9,16 +9,10 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -28,11 +22,11 @@ import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.LayerPricing;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +40,6 @@ public class MyEMFDatabase extends HttpServlet{
     private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
-    public static String validateKaartenbaliePU = "validatePU";
     public static String dtd = "/dtd/capabilities_1_1_1.dtd";
     private static String cachePath = null;
     private static Random rg = null;
@@ -283,7 +276,8 @@ public class MyEMFDatabase extends HttpServlet{
     /* Run this to sync your DB using the nonServlet PersistenceUnit*/
     public static void main(String [] args) throws Exception {
         MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        em.createQuery("From Layer").getResultList();
         /* Snippet to make a PNG
         BufferedImage bi = new BufferedImage(200,200, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D) bi.getGraphics();

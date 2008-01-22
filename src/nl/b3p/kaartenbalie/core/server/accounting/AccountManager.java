@@ -19,7 +19,6 @@ import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerUsageMutation;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -104,21 +103,6 @@ public class AccountManager {
         tluHolder.set(null);
     }
     
-    
-    public static void main(String [] args) throws Exception {
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        AccountManager am = AccountManager.getAccountManager(new Integer(1));
-        AccountManager.setEnableAccounting(true);
-        TransactionLayerUsage tlu = (TransactionLayerUsage) am.prepareTransaction(TransactionLayerUsage.class);
-        tlu.setCreditAlteration(new BigDecimal(-0));
-        tlu.getLayerUsageMutations().add(new LayerUsageMutation(tlu));
-        System.out.println(am.getBalance());
-        tlu = (TransactionLayerUsage) am.nullvalidateTransaction(tlu);
-        if (tlu != null) {
-            am.commitTransaction(tlu, null);
-        }
-        System.out.println(am.getBalance());
-    }
     
     public Transaction nullvalidateTransaction(Transaction accountTransaction) throws Exception {
         if (accountTransaction == null) {

@@ -13,9 +13,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
 import javax.persistence.EntityManager;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.LayerPricing;
+
 
 /**
  *
@@ -100,26 +99,6 @@ public class LayerCalculator {
         }
         return dw;
     }
-    
-    public static void main(String [] args) throws Exception {
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        Layer layer1 = (Layer) em.find(Layer.class, new Integer(18));
-        Date date = new Date();
-        LayerCalculator.downSize(layer1, LayerPricing.getPAY_PER_REQUEST(), em,10, true,date);
-        System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateLayerPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
-        System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateChildLayersPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
-        System.out.println(":---------------------------------:");
-        System.out.println(LayerCalculator.calculateCompleteLayerPrice(layer1, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,date));
-        
-        
-//System.out.println(lc.calcRequest(new Integer(18)));
-        //System.out.println(lc.calcRequest(new Integer(17)));
-    }
-    
-    
     
     
     
