@@ -23,6 +23,8 @@ public class ClientRequest {
     private String clientRequestURI;
     private Set serviceProviderRequests;
     private Set requestOperations;
+    private String clientIp;
+    private String method;
     private Integer userId;
     private Integer organizationId;
     
@@ -100,10 +102,6 @@ public class ClientRequest {
         }
     }
     
-    
-    
-    
-    
     private Integer getOrganizationId() {
         return organizationId;
     }
@@ -127,5 +125,23 @@ public class ClientRequest {
             return null;
         }
     }
+
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+    
+    
     
 }

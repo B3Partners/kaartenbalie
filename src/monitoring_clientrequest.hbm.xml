@@ -6,7 +6,7 @@
 <hibernate-mapping>
     <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest" table="mon_clientrequest">
         
-         <id name="id" type="int" column="clr_id" >
+        <id name="id" type="int" column="clr_id" >
             <generator class="native"/>
         </id>
         <set name="serviceProviderRequests" > 
@@ -21,8 +21,8 @@
         <property name="clientRequestURI" column="clr_clientRequestURI" length="4000"/>
         <property name="timeStamp" column="clr_timeStamp"/>
         <property name="userId" column="clr_userId"/>
+        <property name="method" column="clr_method"/>
+        <property name="clientIp" column="clr_clientIp"/>
         <property name="organizationId" column="clr_organizationId"/>
-        
-        
     </class>
 </hibernate-mapping>
