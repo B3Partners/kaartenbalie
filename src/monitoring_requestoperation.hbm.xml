@@ -12,8 +12,6 @@
         <many-to-one name="clientRequest" column="rqo_clr_id" update="true" not-null="false"/>    
         <property name="duration" column="rqo_duration"/>       
         <property name="msSinceRequestStart" column="rqo_msSinceRequestStart"/>       
-        
-        
         <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation" discriminator-value="CombineImagesOperation">
             <property name="numberOfImages" column="rqo_numberOfImages"/>
         </subclass>
@@ -25,5 +23,6 @@
             <property name="bytesReceivedFromUser" column="rqo_bytesReceivedFromUser"/>
             <property name="bytesSendToUser" column="rqo_bytesSendToUser"/>
         </subclass>
+        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.AccountingOperation" discriminator-value="AccountingOperation"/>
     </class>
 </hibernate-mapping>
