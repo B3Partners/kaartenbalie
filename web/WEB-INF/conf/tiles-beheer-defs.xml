@@ -29,6 +29,11 @@
     <definition name="base.beheer.accounting" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/accounting.jsp"/>
     </definition>    
+
+    <definition name="base.beheer.deposit" extends="base.beheer">
+        <put name="content" value="/WEB-INF/jsp/beheer/deposit.jsp"/>
+    </definition>    
+
     <definition name="base.beheer.pricing" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/pricing.jsp"/>
     </definition>    
@@ -43,7 +48,9 @@
     <definition name="base.beheer.pricing.downsize" extends="clean">
         <put name="content" value="/WEB-INF/jsp/beheer/pricing/downSize.jsp"/>
     </definition>
-
+    <definition name="base.beheer.accounting.transaction" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/transaction.jsp"/>
+    </definition>
     
     
 </tiles-definitions>
