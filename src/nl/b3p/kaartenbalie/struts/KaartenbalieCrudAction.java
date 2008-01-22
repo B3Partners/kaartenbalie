@@ -11,16 +11,20 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,6 +76,7 @@ public class KaartenbalieCrudAction extends CrudAction{
         tx.begin();
         ActionForward forward = null;
         String msg = null;
+        setMenuParams(request);
         getDataWarehousing().begin();
         try {
             forward = super.execute(mapping, form, request, response);
@@ -105,9 +110,7 @@ public class KaartenbalieCrudAction extends CrudAction{
             addAlternateMessage(mapping, request, null, msg);
         }
         
-        // Start tweede sessie om tenminste nog de lijsten op te halen
-        //sess = getHibernateSession();
-        //tx = sess.beginTransaction();
+
         tx.begin();
         
         try {
@@ -127,7 +130,14 @@ public class KaartenbalieCrudAction extends CrudAction{
     public static EntityManager getEntityManager() {
         return MyEMFDatabase.getEntityManager();
     }
-    
+    private static void setMenuParams(HttpServletRequest request) {
+        Map menuParamMap = new HashMap();
+        menuParamMap.put("pricing",new Boolean(AccountManager.isEnableAccounting()));
+        menuParamMap.put("reporting",new Boolean(DataMonitoring.isEnableMonitoring()));
+        menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
+        menuParamMap.put("warehousing",new Boolean(DataWarehousing.isEnableWarehousing()));
+        request.setAttribute("menuParameters",menuParamMap);
+    }
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
         
