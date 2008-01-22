@@ -59,8 +59,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         this.user                       = user;
         this.url                        = user.getPersonalURL();
         ServiceProvider s               = getServiceProvider();
-        //Somethign weird is going on here :S
-        //s.setOrganizationCode(user.getOrganization().getCode());
+
+        s.setOrganizationCode(user.getOrganization().getCode());
         
         s.overwriteURL(url);
         
