@@ -72,8 +72,8 @@ public class DataMonitoring {
      * This is your init for to create a new RequestReport. Call it whenever you feel like starting a new
      * clientreport! You cannot make multiple reports at once though.
      */
-    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime) {
-        if (!enableMonitoring) return;
+    public void startClientRequest(String clientRequestURI, int bytesReceivedFromUser, long operationStartTime, String clientIp, String method) {
+        if (!isEnableMonitoring()) return;
         
         this.operationStartTime = operationStartTime;
         tRequestOperationMap = new HashMap();
@@ -83,7 +83,8 @@ public class DataMonitoring {
         clientRequest.setClientRequestURI(clientRequestURI);
         clientRequest.setUser(user);
         clientRequest.setOrganization(organization);
-        
+        clientRequest.setMethod(method);
+        clientRequest.setClientIp(clientIp);
     }
     
     public long getMSSinceStart() {
@@ -95,7 +96,7 @@ public class DataMonitoring {
      * sprClass.
      */
     public void addServiceProviderRequest(Class sprClass, Map parameterMap){
-        if (!enableMonitoring) return;
+        if (!isEnableMonitoring()) return;
         
         
         Map overriddenParameters = new HashMap();
@@ -111,7 +112,7 @@ public class DataMonitoring {
      * rqoClass.
      */
     public void addRequestOperation(Class rqoClass, Map parameterMap){
-        if (!enableMonitoring) return;
+        if (!isEnableMonitoring()) return;
         
         Map overriddenParameters = new HashMap();
         overriddenParameters.put("setClientRequest", clientRequest);
@@ -201,7 +202,7 @@ public class DataMonitoring {
      * the database. After this you can restart your clientRequest without creating a new RequestReporting.
      */
     public void endClientRequest(int bytesSendToUser, long totalResponseTime) {
-        if (!enableMonitoring) return;
+        if (!isEnableMonitoring()) return;
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
@@ -241,6 +242,10 @@ public class DataMonitoring {
         Element tmpElement = doc.createElement(createElementName);
         tmpElement.setTextContent(textContent);
         return tmpElement;
+    }
+
+    public static boolean isEnableMonitoring() {
+        return enableMonitoring;
     }
     
     

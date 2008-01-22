@@ -137,7 +137,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
 
             DataMonitoring rr = new DataMonitoring(user, user.getOrganization());
             data.setRequestReporting(rr);
-            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime);
+            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             parseRequestAndData(data, user);
