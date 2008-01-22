@@ -325,43 +325,19 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBCon
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
-            /* For each layer in the set we are going to create a JSON object which we will add to de total
-             * list of layer objects.
-             */
             Layer layer = (Layer)layerIterator.next();
-            /* Before a layer is going to be added we need to make sure that this layer is allowed to be seen
-             * If a layer is not allowed to be seen there is no use to create a JSON object for it, neither
-             * is it necessary to check if child layers shoudl be added.
-             */
-            if(hasVisibility(layer, organizationLayers)) {
-                /* When the visibility check has turned out to be ok. we start adding this layer to
-                 * the list of layers.
-                 */
-                
-                /* When we have retrieved this array we are able to save our object we are working with
-                 * at the moment. This object is our present layer object. This object first needs to be
-                 * transformed into a JSONObject, which we do by calling the method to do so.
-                 */
-                JSONObject layerObj = this.layerToJSON(layer);
-                
-                /* Before we are going to save the present object we can first use our object to recieve and store
-                 * any information which there might be for the child layers. First we check if the set of layers
-                 * is not empty, because if it is, no effort has to be taken.
-                 * If, on the other hand, this layer does have children then the method is called recursivly to
-                 * add these childs to the present layer we are working on.
-                 */
-                Set childLayers = layer.getLayers();
-                if (childLayers != null && !childLayers.isEmpty()) {
-                    layerObj = createTreeList(childLayers, organizationLayers, layerObj);
-                }
-                
-                /* After creating the JSONObject for this layer and if necessary, filling this
-                 * object with her childs, we can add this JSON layer object back into its parent array.
-                 */
-                parentArray.put(layerObj);
-                
-                
+            
+            JSONObject layerObj = this.layerToJSON(layer);
+            
+            Set childLayers = layer.getLayers();
+            if (childLayers != null && !childLayers.isEmpty()) {
+                layerObj = createTreeList(childLayers, organizationLayers, layerObj);
             }
+            
+            if(hasVisibility(layer, organizationLayers) || layerObj.has("children")) {
+                parentArray.put(layerObj);
+            }
+            
         }
         if (parentArray.length()>0){
             parent.put("children",parentArray);
