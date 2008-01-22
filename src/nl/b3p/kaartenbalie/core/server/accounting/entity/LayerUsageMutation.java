@@ -9,6 +9,7 @@
 
 package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
+import java.math.BigDecimal;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.Layer;
 
@@ -20,7 +21,9 @@ public class LayerUsageMutation {
     
     private Integer id;
     private Integer layerId;
+    private BigDecimal layerCosts;
     private TransactionLayerUsage transactionLayerUsage;
+    private String description;
     
     private LayerUsageMutation() {
     }
@@ -78,6 +81,22 @@ public class LayerUsageMutation {
     
     public void setId(Integer id) {
         this.id = id;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public BigDecimal getLayerCosts() {
+        return layerCosts;
+    }
+    
+    public void setLayerCosts(BigDecimal layerCosts) {
+        this.layerCosts = layerCosts;
     }
     
     

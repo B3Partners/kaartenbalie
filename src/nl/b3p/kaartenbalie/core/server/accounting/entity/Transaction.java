@@ -24,10 +24,11 @@ public abstract class Transaction {
     private Date transactionDate;
     private Date mutationDate;
     private Account account;
-    private BigDecimal creditAlteration;
+    protected BigDecimal creditAlteration;
     private int status;
     private int type;
     private String errorMessage;
+    private String description;
     
     private Integer userId;
     
@@ -134,5 +135,15 @@ public abstract class Transaction {
             return null;
         }
     }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    
     
 }
