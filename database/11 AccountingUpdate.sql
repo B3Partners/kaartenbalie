@@ -13,6 +13,18 @@ CREATE TABLE  `acc_layerpricing` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `acc_transaction`;
+DROP TABLE IF EXISTS `acc_account`;
+
+CREATE TABLE  `acc_account` (
+  `acc_id` int(11) NOT NULL,
+  `acc_creditBalance` decimal(15,2) default NULL,
+  PRIMARY KEY  (`acc_id`),
+  KEY `FK7FE8986FEE7C9324` (`acc_id`),
+  CONSTRAINT `FK7FE8986FEE7C9324` FOREIGN KEY (`acc_id`) REFERENCES `organization` (`ORGANIZATIONID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 CREATE TABLE  `acc_transaction` (
   `tra_id` int(11) NOT NULL auto_increment,
   `tra_discriminator` varchar(255) NOT NULL,
@@ -32,13 +44,5 @@ CREATE TABLE  `acc_transaction` (
   CONSTRAINT `FKFC20F02025126DF8` FOREIGN KEY (`tra_acc_id`) REFERENCES `acc_account` (`acc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `acc_account`;
-CREATE TABLE  `acc_account` (
-  `acc_id` int(11) NOT NULL,
-  `acc_creditBalance` decimal(15,2) default NULL,
-  PRIMARY KEY  (`acc_id`),
-  KEY `FK7FE8986FEE7C9324` (`acc_id`),
-  CONSTRAINT `FK7FE8986FEE7C9324` FOREIGN KEY (`acc_id`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
