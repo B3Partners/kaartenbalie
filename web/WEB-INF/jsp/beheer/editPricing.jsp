@@ -78,7 +78,7 @@
                     <tr>
                         <th style="width:150px;">per Request</th>
                         <td style="width:200px;"><fmt:formatNumber value="${priceRequestSingle}" minFractionDigits="2"  maxFractionDigits="2"/></td>
-                        <td style="width:200px;"><fmt:formatNumber value="${priceRequestCascade}" minFractionDigits="2" maxFractionDigits="2"/> [<a href="#" onclick="parent.showPopup(800,600,'Hello World','pricingdownsize.do?downsize=submit&id=${id}&level=-1');">Herleiden</a>]</td>                        
+                        <td style="width:200px;"><fmt:formatNumber value="${priceRequestCascade}" minFractionDigits="2" maxFractionDigits="2"/> [<a href="#" onclick="parent.showPopup(800,600,'Herleidbare Informatie','pricingdownsize.do?downsize=submit&id=${id}&level=-1');">Herleiden</a>]</td>                        
                     </tr>
                 </table>
             </div>
@@ -107,8 +107,21 @@
                 <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
                     <jsp:param name="elementStyleId" value="validUntil"/>
                 </jsp:include>
-                <br/>                
-                <label>Tarief :</label><html:text property="unitPrice"/><br/>
+                <br/>   
+
+    
+                <label>Tarief :</label><html:text styleId="unitPrice" property="unitPrice"/><html:checkbox styleId="layerIsFree" property="layerIsFree" onclick="unitPriceState(this.checked);"/> Kaart is gratis!<br/>
+                <script type="text/javascript">
+                   function unitPriceState(state)
+                    {
+                        var unitPrice = document.getElementById('unitPrice');
+                        unitPrice.disabled = state;
+                        if (state == true)
+                        {
+                            unitPrice.value = '';
+                        }
+                    }
+                </script>
                 <html:submit property="save" styleClass="submit">Voeg toe</html:submit>
             </fieldset>
         </html:form>

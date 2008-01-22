@@ -19,25 +19,32 @@
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
+        <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {
                 transDiv = document.getElementById('transdiv');
-                container = document.getElementById('container');
+                divcontainer = document.getElementById('container');
                 iframe = document.getElementById('popupframe');
                 iframe.src = 'about:blank';
                 transDiv.style.display = 'none';
             }
-            function showPopup(width, height, title, source) {
+            
+            function showPopupLocalized(width, height, title, source, left, top) {
                transDiv = document.getElementById('transdiv');
-               container = document.getElementById('container');
+               divcontainer = document.getElementById('container');
                iframe = document.getElementById('popupframe');
-               container.style.width = width + 'px';
-               container.style.height = height + 'px';
-               container.style.marginLeft = ((width/2) * -1) + 'px';
-               container.style.marginTop = ((height/2) * -1) + 'px';
+               divcontainer.style.width = width + 'px';
+               divcontainer.style.height = height + 'px';
+               divcontainer.style.marginLeft =  left + 'px';
+               divcontainer.style.marginTop =  top + 'px';
                iframe.src = source;
                transDiv.style.display = 'inline';
+            }
+            function showPopup(width, height, title, source) {
+                left = ((width/2) * -1);
+                top = ((height/2) * -1);
+                showPopupLocalized(width, height, title, source, left, top)
             }
             function navigate(target, source)
             {

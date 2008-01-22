@@ -9,26 +9,51 @@
 
 <H1>Beheer Reporting</H1>
     
+
+
+
     <html:form action="/reporting" focus="startDate" onsubmit="return validateReportingForm(this)">
         <html:hidden property="action"/>
         <html:hidden property="alt_action"/>
         <html:hidden property="id" />
+
         
-        <fieldset>
-            <legend>Rapport Generatie</legend>
-            <label>Start Datum :</label><html:text styleClass="reportInputField" property="startDate" styleId="startDate"/>
-            <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                <jsp:param name="elementStyleId" value="startDate"/>
-            </jsp:include>
-            <br/>
-            <label>Eind Datum :</label><html:text styleClass="reportInputField" property="endDate" styleId="endDate"/>
-            <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                <jsp:param name="elementStyleId" value="endDate"/>
-            </jsp:include>
-            <br/>
-            <label>Gebruikers :</label>alle<br/>
-            <html:submit property="create" styleClass="submit">Maak rapport</html:submit>
-        </fieldset>
+        
+        <div class="tabcollection" id="collection1">
+            <div id="tabs">
+                 <ul>
+                     <li id="DataUsageReport" onclick="displayTabBySource(this);">DataUsageReport</li>
+                     <li id="ServerPerformanceReport"  onclick="displayTabBySource(this);">ServerPerformanceReport</li>
+                </ul>
+            </div>
+            <div id="sheets" style="height:200px;">
+                <div id="DataUsageReport" class="sheet">
+                        <label>Organisatie :</label>
+                        <html:select property="organizationId">
+                            <c:forEach var="organization" items="${organizations}">
+                                <html:option value="${organization.id}">${organization.name}</html:option>
+                            </c:forEach>
+                        </html:select><br/>
+
+
+
+                        <label>Start Datum :</label><html:text styleClass="reportInputField" property="startDate" styleId="startDate"/>
+                        <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
+                            <jsp:param name="elementStyleId" value="startDate"/>
+                        </jsp:include>
+                        <br/>
+                        <label>Eind Datum :</label><html:text styleClass="reportInputField" property="endDate" styleId="endDate"/>
+                        <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
+                            <jsp:param name="elementStyleId" value="endDate"/>
+                        </jsp:include>
+                        <br/>
+                        <label>Gebruikers :</label>alle<br/>
+                        <html:submit property="create" styleClass="submit">Maak rapport</html:submit>
+                </div>
+                <div id="ServerPerformanceReport" class="sheet">
+                </div>
+            </div>
+        </div>
     
         <fieldset>
             <legend>Reporting Server Load</legend>
@@ -78,8 +103,8 @@
         </fieldset>
         <fieldset>
             <legend>Reports</legend>
+            <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Vernieuw</html:submit>
             <html:submit property="delete" styleClass="submit" styleId="removeChecked" onclick="bCancel=true">Verwijder Geselecteerd</html:submit>
-            <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Ververs</html:submit>
             <div class="transactieRijTitel">
                 <div style="width: 30px;height:14px;"><input type="checkbox" onclick="checkAll(1,this);"/></div>
                 <div style="width: 150px;">Datum</div>
@@ -135,5 +160,7 @@
             </div>           
         </fieldset>
     </html:form>
-
+    <script language="JavaScript" type="text/javascript">
+        window.onLoad = registerCollection('collection1', 'DataUsageReport');
+    </script>
 </div>

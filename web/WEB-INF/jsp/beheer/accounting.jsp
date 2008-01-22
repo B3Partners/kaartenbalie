@@ -3,112 +3,131 @@
 <div class="containerdiv" style=";">
     <H1>Beheer Accounting</H1>
     
-    <fieldset>
-        <legend>Account Details</legend>
-        <label>Credit Balance :</label>
-        <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
-        <p>
-            <html:submit property="deposit" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                Credit verhogen
-            </html:submit>
-        </p>
-    </fieldset>
     
-    
-    
-    <fieldset>
-        <legend>Laatste 20 Bijschrijvingen</legend>
-
-        
-        
-        <div class="transactieRijTitel">
-            <div style="width: 120px;">Datum</div>
-            <div style="width: 75px;">Methode</div>
-            <div style="width: 200px;">Uw kenmerk</div>
-            <div style="width: 75px;">Valuta &euro;</div>
-            <div style="width: 75px;">Koers</div>
-            <div style="width: 100px;">Resultaat</div>
+    <div class="tabcollection" id="accountCollection">
+        <div id="tabs">
+            <ul>
+                <li id="AccountDetails" onclick="displayTabBySource(this);">Account Details</li>
+                <li id="Deposits"  onclick="displayTabBySource(this);">Laatste 20 Bijboekingen</li>
+                <li id="Withdrawls"  onclick="displayTabBySource(this);">Laatste 20 Afboekingen</li>            
+            </ul>
         </div>
-        <c:set var="hoogte" value="100" />
-        <c:if test="${hoogte > 230}">
-            <c:set var="hoogte" value="230" />
-        </c:if>
-        
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
-            <div class="transactieRij">
-                <div style="width: 120px;" class="vakSpeciaal">
-                    25-08-1982 13:10
-                </div>
-                <div style="width: 75px;">
-                    iDeal
-                </div>                
-                <div style="width: 200px;">
-                    1234 5678 9123 4567
-                </div>
-                <div style="width: 75px;">
-                    275 &euro;
-                </div>                
-                <div style="width: 75px;">
-                    1:10
-                </div>     
-                <div style="width: 100px;">
-                    2750 c
-                </div>     
+        <div id="sheets" style="height:500px;">
+            <div id="AccountDetails" class="sheet">
+                <label>Credit Balance :</label>
+                <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
+                <p>
+                    <button onclick="location.href='deposit.do'">Credits aanschaffen</button>
+                </p>
             </div>
-        </div>        
-    </fieldset>
-    
-    <fieldset>
-        <legend>Laatste 20 Afschrijvingen -  Gebruik</legend>
-        <div class="transactieRijTitel">
-            <div style="width: 150px;">Aangemaakt</div>
-            <div style="width: 150px;">Verwerkt</div>
-            <div style="width: 90px;padding-right:10px;">Credits</div>
-            <div style="width: 70px;">Status</div>
-            <div style="width: 230px;">Toelichting</div>            
+            <div id="Deposits" class="sheet">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Aangemaakt</th>
+                            <th style="width: 140px;">Verwerkt</th>
+                            <th style="width: 75px;">Methode</th>
+                            <th style="width: 60px;text-align:right;padding-right:10px;">Valuta &euro;</th>
+                            <th style="width: 60px;text-align:right;padding-right:10px;">Koers</th>
+                            <th style="width: 110px;text-align:right;padding-right:10px;">Resultaat</th>
+                            <th style="width: 70px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="tpd" items="${paymentDeposits}">
+                            <tr>
+                                <td style="width: 120px;" class="">
+                                    <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tpd.id}');">
+                                        <fmt:formatDate  value="${tpd.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
+                                    </a>
+                                </td>
+                                <td style="width: 140px;" class="">
+                                    <fmt:formatDate  value="${tpd.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
+                                </td>
+                                <td style="width: 75px;" class="">
+                                    iDeal
+                                </td>
+                                <td style="width: 60px;text-align:right;padding-right:10px;" class="">
+                                    <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.billingAmount}" />
+                                </td>
+                                <td style="width: 60px;text-align:right;padding-right:10px;" class="">
+                                    1:${tpd.txExchangeRate}
+                                </td>                    
+                                <td style="width: 110px;text-align:right;padding-right:10px;" class="">
+                                    <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.creditAlteration}" /> c
+                                </td>
+                                <td style="width: 70px;" class="">
+                                    <c:choose>
+                                        <c:when test="${tpd.status == 0}">
+                                            Wachtrij
+                                        </c:when>
+                                        <c:when test="${tpd.status == 1}">
+                                            Verwerkt
+                                        </c:when>
+                                        <c:when test="${tpd.status == 2}">
+                                            Geweigerd
+                                        </c:when>
+                                    </c:choose>
+                                </td>
+                            </tr>
+                        </c:forEach>   
+                    </tbody>
+                </table>
+            </div>
+            <div id="Withdrawls" class="sheet">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Aangemaakt</th>
+                            <th style="width: 140px;">Verwerkt</th>
+                            <th style="width: 220px;">&nbsp;</th>
+                            <th style="width: 110px;text-align:right;padding-right:10px;">Credits</th>
+                            <th style="width: 70px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="tlu" items="${layerUsages}">
+                            <tr>
+                                <td style="width: 120px;" class="">
+                                    <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tlu.id}');">
+                                        <fmt:formatDate  value="${tlu.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
+                                    </a>
+                                </td>
+                                <td style="width: 140px;" class="">
+                                    <fmt:formatDate  value="${tlu.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
+                                </td>
+                                <td style="width: 220px;">&nbsp;</td>
+                                <td style="width: 110px;text-align:right;padding-right:10px;" class="">
+                                    <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tlu.creditAlteration}"/> c
+                                </td>
+                                <td style="width: 70px;" class="">
+                                    <c:choose>
+                                        <c:when test="${tlu.status == 0}">
+                                            Wachtrij
+                                        </c:when>
+                                        <c:when test="${tlu.status == 1}">
+                                            Verwerkt
+                                        </c:when>
+                                        <c:when test="${tlu.status == 2}">
+                                            Geweigerd
+                                        </c:when>
+                                    </c:choose>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <c:set var="hoogte" value="100" />
-        <c:if test="${hoogte > 230}">
-            <c:set var="hoogte" value="230" />
-        </c:if>
-        
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
-            <c:forEach var="tlu" items="${layerUsages}">
-                <div class="transactieRij">
-                    <div style="width: 150px;" class="vakSpeciaal">
-                        <fmt:formatDate  value="${tlu.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
-                    </div>
-                    <div style="width: 150px;" class="vakSpeciaal">
-                        <fmt:formatDate  value="${tlu.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
-                    </div>
-                    <div style="width: 90px;text-align:right;padding-right:10px;" class="vakSpeciaal">
-                      ${tlu.creditAlteration}
-                    </div>
-                    <div style="width: 70px;" class="vakSpeciaal">
-                        <c:choose>
-                            <c:when test="${tlu.status == 0}">
-                                Wachtrij
-                            </c:when>
-                            <c:when test="${tlu.status == 1}">
-                                Verwerkt
-                            </c:when>
-                            <c:when test="${tlu.status == 2}">
-                                Geweigerd
-                            </c:when>
-                        </c:choose>
-                       
-                    </div>
-                    <div style="width: 230px;" class="vakSpeciaal">
-                       ${tlu.errorMessage}
-                    </div>
-                </div>        
-            </c:forEach>
-        </div>
-    </fieldset>
+    </div>
+        <script language="JavaScript" type="text/javascript">
+        window.onLoad = registerCollection('accountCollection', 'AccountDetails');
+    </script>
     
-    <fieldset>
-        <legend>Afschrijvingen Periodiek</legend>
-    </fieldset>
+    
+    
+    
+    
     
     
 </div>
