@@ -41,32 +41,25 @@ public class DataUsageReportThread extends ReportThreadTemplate{
         EntityTransaction et = em.getTransaction();
         super.notifyStateChanged(ThreadReportStatus.GENERATING,null,null);
         et.begin();
-        DataUsageReport report = new DataUsageReport(startDate, endDate);
+        
+        DataUsageReport dur = (DataUsageReport) report;
+        
         try {
             em.persist(report);
-            /*
-             * Add the users...
-             */
-            report.setUsers(users);
-            /*
-             *Set the organization...
-             */
-            report.setOrganization(organization);
-            /*
-             *Create a little delay .. Just for the fun of it..
-             * (Actually its just to test if the server load thing is working correctly..)..
-             */
-            super.notifyStateChanged(ThreadReportStatus.GENERATING,"Preparing....",null);
-            this.sleep(10000);
             
-            
-            
+            /*
+             * Store all the parameters in the report...
+             */
+            dur.setUsers(users);
+            dur.setOrganizationId(organization.getId());
+            dur.setStartDate(startDate);
+            dur.setEndDate(endDate);
             
             /*
              * Fill Summary Data
              */
             super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data",null);
-            RepDataSummary rds = new RepDataSummary(report);
+            RepDataSummary rds = new RepDataSummary(dur);
             
             Integer oranizationId = organization.getId();
             //CombineImagesOperation
@@ -180,7 +173,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
              * Fill Detail Data
              */
             super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Detailed Data",null);
-            RepDataDetails rdd = new RepDataDetails(report);
+            RepDataDetails rdd = new RepDataDetails(dur);
             rdd.setMaxHour((Integer) em.createQuery(
                     "SELECT MAX(HOUR(timeStamp)) " +
                     "FROM ClientRequest AS cr " +
@@ -202,7 +195,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
              * Get the Daily Usages...
              */
             em.flush();
-            Iterator iterUsers = report.getUsers().iterator();
+            Iterator iterUsers = dur.getUsers().iterator();
             
             while(iterUsers.hasNext()) {
                 User user  = (User) iterUsers.next();
@@ -251,6 +244,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
             et.commit();
         } catch (Throwable e) {
+            e.printStackTrace();
             et.rollback();
             super.notifyBreak(e);
             em.close();
@@ -262,12 +256,8 @@ public class DataUsageReportThread extends ReportThreadTemplate{
         em.close();
     }
     
-    
-    
-    
     public void setParameters(Map parameters) throws Exception {
         if (parameters != null) {
-            
             Calendar cal = Calendar.getInstance();
             cal.setTime((Date) parameters.get("startDate"));
             cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -283,8 +273,11 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             endDate = cal.getTime();
             organization = (Organization) parameters.get("organization");
             users = (List) parameters.get("users");
-            
         }
+    }
+    
+    protected Class getReportClass() {
+        return DataUsageReport.class;
     }
     
 }

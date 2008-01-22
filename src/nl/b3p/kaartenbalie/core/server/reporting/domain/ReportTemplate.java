@@ -21,11 +21,12 @@ public class ReportTemplate {
     private Integer id;
     private Date reportDate;
     private Long processingTime;
-    private Organization organization;
+    private Organization owningOrganization;
     
-
+    
     
     public ReportTemplate() {
+        setReportDate(new Date());
     }
     
     public Integer getId() {
@@ -51,19 +52,21 @@ public class ReportTemplate {
     public void setProcessingTime(Long processingTime) {
         this.processingTime = processingTime;
     }
-
-    public Organization getOrganization() {
-        return organization;
+    
+    public Organization getOwningOrganization() {
+        return owningOrganization;
     }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
+    
+    public void setOwningOrganization(Organization owningOrganization) {
+        this.owningOrganization = owningOrganization;
     }
-
     
     
-
-
+    
+    
+    
+    
+    
     
     
 }

@@ -32,23 +32,16 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
     
     private Date startDate;
     private Date endDate;
-    
     private Set reportData;
     private Set userIds;
+    private Integer organizationId;
     public static SimpleDateFormat periodFormat = new SimpleDateFormat("dd-MM-yyyy");
     
-    protected DataUsageReport() {
-        setReportDate(new Date());
+    public DataUsageReport() {
+        super();
         setReportData(new HashSet());
         userIds = new HashSet();
     }
-    
-    public DataUsageReport(Date startDate, Date endDate) {
-        this();
-        this.setStartDate(startDate);
-        this.setEndDate(endDate);
-    }
-    
     
     public Element toElement(Document doc, Element rootElement) {
         Element report = doc.createElement("report");
@@ -158,6 +151,14 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
                 getUserIds().add(user.getId());
             }
         }
+    }
+    
+    public Integer getOrganizationId() {
+        return organizationId;
+    }
+    
+    public void setOrganizationId(Integer organizationId) {
+        this.organizationId = organizationId;
     }
     
 }

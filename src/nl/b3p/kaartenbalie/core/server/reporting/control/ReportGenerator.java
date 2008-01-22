@@ -65,13 +65,7 @@ public class ReportGenerator {
         try {
             if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
                 ReportThreadTemplate rtt = (ReportThreadTemplate) reportThreadType.newInstance();
-                rtt.setUser(user);
-                rtt.setOrganization(organization);
-                parameters.put("organization", organization);
-                rtt.setParameters(parameters);
-                rtt.init();
-                
-                rtt.setReportGenerator(this);
+                rtt.init(this, user, organization, parameters);
                 if (reportStatusMap.size() >= maxSimultaneousReports) {
                     rtt.notifyOnQueue();
                     reportStack.push(rtt);
@@ -106,7 +100,6 @@ public class ReportGenerator {
             }
         }
         reportStatusMap.remove(rtt);
-        //Object[] workLoad = getWorkload();
     }
     
     

@@ -10,8 +10,7 @@
         </id>
         <discriminator column="rep_discriminator" type="string" />        
         
-        <many-to-one name="organization" column="rpd_org_id" update="true" not-null="false"/>  
-        
+        <many-to-one name="owningOrganization" column="rpd_org_id" update="true" not-null="false"/>  
         <property name="reportDate" column="rep_reportDate"/>
         <property name="processingTime" column="rep_processingTime"/>     
         
@@ -20,13 +19,13 @@
                 <key column="rpd_rep_id" update="true" not-null="false" /> 
                 <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData"/> 
             </set>
-
             <set name="userIds" lazy="true" table="rep_users">
                 <key column="rpd_usr_id" not-null="true"/>
                 <element column="usr_id" type="int" not-null="true"/>
             </set>            
             <property name="startDate" column="rep_startDate"/>
             <property name="endDate" column="rep_endDate"/>
+            <property name="organizationId" column="rep_organizationId"/>
         </subclass>
         
     </class>

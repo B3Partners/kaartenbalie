@@ -15,6 +15,8 @@ import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReport;
+import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReportThread;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 
@@ -25,89 +27,86 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 public abstract class ReportThreadTemplate extends Thread{
     
     
-    private ReportGenerator reportGenerator;
-    private Map parameters;
+    //Owning user & organization..
     private User user;
     private Organization organization;
-    private EntityManager em;
+    private ReportGenerator reportGenerator;
     private ReportTemplate reportTemplate;
     private Integer trsId;
     
-    public ReportThreadTemplate() {
-        em = MyEMFDatabase.createEntityManager();
-    }
-    public void init() {
+    protected ReportTemplate report;
+    
+    public void init(ReportGenerator reportGenerator, User user, Organization organization, Map parameters) throws Exception {
+        /*
+         * Set all the values...
+         */
+        this.reportGenerator = reportGenerator;
+        this.user = user;
+        this.organization = organization;
+        setParameters(parameters);
+        /*
+         * Start a new EntityManager and transaction.
+         */
+        EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
         et.begin();
-        ThreadReportStatus trs = new ThreadReportStatus();
-        trs.setOrganization(organization);
-        trs.setState(ThreadReportStatus.CREATED);
-        em.persist(trs);
-        et.commit();
-        em.clear();
-        trsId = trs.getId();
+        try {
+            /*
+             * Initialize a new report.
+             */
+            report = (ReportTemplate) getReportClass().newInstance();
+            report.setOwningOrganization(organization);
+            /*
+             * Create a new ThreadReportStatus object and persist it in the DB.
+             */
+            ThreadReportStatus trs = new ThreadReportStatus();
+            trs.setOrganization(organization);
+            trs.setState(ThreadReportStatus.CREATED);
+            em.persist(trs);
+            et.commit();
+            /*
+             * Set the trs to this threadTemplate.
+             */
+            trsId = trs.getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            et.rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
     }
+    
     public void notifyOnQueue() {
         notifyStateChanged(ThreadReportStatus.ONQUEUE, "The Report Generator is currently busy. Your report is on queue.",null);
     }
+    
     protected void notifyStateChanged(int newState, String message, Integer reportId) {
+        EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
         et.begin();
-        ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
-        trs.setState(newState);
-        trs.setStatusMessage(message);
-        
-        trs.setReportId(reportId);
-        et.commit();
-        
-        if (newState == ThreadReportStatus.COMPLETED) {
+        try {
+            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
+            trs.setState(newState);
+            trs.setStatusMessage(message);
             trs.setReportId(reportId);
-            getReportGenerator().notifyClosed(this);
-        } else if (newState == ThreadReportStatus.FAILED) {
-            getReportGenerator().notifyClosed(this);
-        } else {
-            
+            et.commit();
+        } catch (Exception e) {
+            et.rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
-        em.clear();
+        if (newState == ThreadReportStatus.COMPLETED || newState == ThreadReportStatus.FAILED) {
+            reportGenerator.notifyClosed(this);
+        }
     }
     
     protected void notifyBreak(Throwable e) {
-        
         e.printStackTrace();
         notifyStateChanged(ThreadReportStatus.FAILED, e.getMessage(),null);
     }
     
     public abstract void setParameters(Map parameters) throws Exception;
-    public void setUser(User user) {
-        this.user = user;
-    }
-    public void setReportGenerator(ReportGenerator reportGenerator) {
-        this.reportGenerator = reportGenerator;
-    }
-    
-    public ReportGenerator getReportGenerator() {
-        return reportGenerator;
-    }
-    
-    public Map getParameters() {
-        return parameters;
-    }
-    
-    public User getUser() {
-        return user;
-    }
-    
-    public Organization getOrganization() {
-        return organization;
-    }
-    
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-    
-    
-    
-    
-    
-    
+    protected abstract Class getReportClass();
 }

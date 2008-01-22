@@ -27,6 +27,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 /**
  *
  * @author Chris Kramer
@@ -48,13 +49,14 @@ public class ReportingAction extends KaartenbalieCrudAction {
     private static void checkDateFields(DynaValidatorForm dynaForm) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH,1);
-        if (dynaForm.get("startDate") == null || dynaForm.getString("startDate").length() == 0) {
-            dynaForm.set("startDate", reportingDate.format(cal.getTime()));
-        }
         if (dynaForm.get("endDate") == null || dynaForm.getString("endDate").length() == 0) {
-            cal.add(Calendar.MONTH,-1);
             dynaForm.set("endDate", reportingDate.format(cal.getTime()));
         }
+        if (dynaForm.get("startDate") == null || dynaForm.getString("startDate").length() == 0) {
+            cal.add(Calendar.MONTH,-1);
+            dynaForm.set("startDate", reportingDate.format(cal.getTime()));
+        }
+        
     }
     
     
@@ -101,11 +103,10 @@ public class ReportingAction extends KaartenbalieCrudAction {
         Date startDate =reportingDate.parse((String)dynaForm.get("startDate"));
         Date endDate = reportingDate.parse((String)dynaForm.get("endDate"));
         
-        User principalUser = (User) request.getUserPrincipal();
-        User user = (User) em.find(User.class, principalUser.getId());
-        
-        Organization organization = user.getOrganization();
+        Integer organizationId = (Integer) dynaForm.get("organizationId");
+        Organization organization = (Organization) em.find(Organization.class, organizationId);
         Map parameterMap = new HashMap();
+        parameterMap.put("organization", organization);
         parameterMap.put("endDate", endDate);
         parameterMap.put("startDate", startDate);
         parameterMap.put("users", em.createQuery(
@@ -119,11 +120,14 @@ public class ReportingAction extends KaartenbalieCrudAction {
         return super.create(mapping, dynaForm, request, response);
     }
     
+    
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        EntityManager em = getEntityManager();
         ReportGenerator rg = getReportGenerator(request);
         request.setAttribute("workloadData", rg.getWorkload());
         request.setAttribute("reportStatus", rg.requestReportStatus());
+        request.setAttribute("organizations",em.createQuery("FROM Organization AS org ORDER BY org.name ASC").getResultList());
         
     }
     
