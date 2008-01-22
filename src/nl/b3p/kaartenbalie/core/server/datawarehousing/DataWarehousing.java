@@ -118,6 +118,11 @@ public class DataWarehousing {
         enableWarehousing = state;
     }
     
+    public static boolean isEnableWarehousing() {
+        return enableWarehousing;
+    }
+    
+    
     public static Object find(Class objectClass, Integer primaryKey) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         //First check if the entity still exists and possible save the trouble of building it again.

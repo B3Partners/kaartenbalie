@@ -227,6 +227,8 @@ public class AccountManager {
         enableAccounting = state;
     }
     
-    
+    public static boolean isEnableAccounting() {
+        return enableAccounting;
+    }
     
 }
