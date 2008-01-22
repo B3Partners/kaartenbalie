@@ -67,7 +67,7 @@ public class AccountManager {
         this.companyId = companyId;
     }
     
-    public Transaction prepareTransaction(Class transactionClass) throws Exception{
+    public Transaction prepareTransaction(Class transactionClass, String description) throws Exception{
         if (!Transaction.class.isAssignableFrom(transactionClass)) {
             throw new Exception("Class transactionClass is not assignable.");
         }
@@ -80,6 +80,7 @@ public class AccountManager {
             transaction = (Transaction) transactionClass.newInstance();
             transaction.setStatus(Transaction.PENDING);
             transaction.setAccount(account);
+            transaction.setDescription(description);
             em.persist(transaction);
             et.commit();
         } catch (Exception e) {
@@ -91,7 +92,7 @@ public class AccountManager {
         return transaction;
     }
     public TransactionLayerUsage beginTLU() throws Exception {
-        TransactionLayerUsage tlu = (TransactionLayerUsage) prepareTransaction(TransactionLayerUsage.class);
+        TransactionLayerUsage tlu = (TransactionLayerUsage) prepareTransaction(TransactionLayerUsage.class, null);
         tluHolder.set(tlu);
         return tlu;
     }

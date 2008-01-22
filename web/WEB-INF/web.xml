@@ -46,7 +46,7 @@
         </init-param>        
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>enabled</param-value> <!-- enabled/disabled -->
         </init-param>           
         <init-param>
             <param-name>cache</param-name>
