@@ -139,7 +139,7 @@ listed here.  At present, only HTTP is defined. -->
           RemoteWFS (0 | 1) "0" >
 
 <!-- Optional VendorSpecificCapabilities. -->
-<!ELEMENT VendorSpecificCapabilities (Role+, OrganizationCode*) > 
+<!ELEMENT VendorSpecificCapabilities (Role+, OrganizationCode?) > 
 
 <!ELEMENT Role EMPTY >
 <!ATTLIST Role

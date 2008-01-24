@@ -38,7 +38,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     public GetCapabilitiesRequestHandler() {}
     // </editor-fold>
     
-    /** 
+    /**
      * Processes the parameters and creates a DocumentBuilder from the given parameters.
      * This DocumentBuilder will be used to create a XML based String which can be returned to the client.
      *
@@ -59,8 +59,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         this.user                       = user;
         this.url                        = user.getPersonalURL();
         ServiceProvider s               = getServiceProvider();
-
-        s.setOrganizationCode(user.getOrganization().getCode());
+        
+        if (user!=null && user.getOrganization()!=null)
+            s.setOrganizationCode(user.getOrganization().getCode());
         
         s.overwriteURL(url);
         
@@ -71,7 +72,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dbf.setValidating(false);
         DocumentBuilder db = dbf.newDocumentBuilder();
         DOMImplementation di = db.getDOMImplementation();
-
+        
         // <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
         // [
         // <!ELEMENT VendorSpecificCapabilities EMPTY>

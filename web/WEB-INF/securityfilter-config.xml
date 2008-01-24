@@ -103,6 +103,7 @@
             <accept-cookie>true</accept-cookie>
             <secret-key>de176b8440c9f602</secret-key>
             <extra-hash-string>sXzzsrig09520uie10as:l&lt;x:lZa</extra-hash-string>
+            <cookie-expire>86400</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
     

@@ -334,10 +334,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             // niet ingelogd dus, dan checken op token in url
             try {
                 String url = request.getRequestURL().toString();
-                String testurl = "http://localhost:8084/kaartenbalie/wms/d6cec623c87928f6b3404364d718b332";
-                if(testurl.equalsIgnoreCase(url)) {
-                    log.info("url is gelijk");
-                }
                 user = (User)em.createQuery(
                         "from User u where " +
                         "u.personalURL = :personalURL")
