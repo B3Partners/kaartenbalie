@@ -139,12 +139,14 @@ listed here.  At present, only HTTP is defined. -->
           RemoteWFS (0 | 1) "0" >
 
 <!-- Optional VendorSpecificCapabilities. -->
-<!ELEMENT VendorSpecificCapabilities (Role+) > 
+<!ELEMENT VendorSpecificCapabilities (Role+, OrganizationCode*) > 
 
 <!ELEMENT Role EMPTY >
 <!ATTLIST Role
           id CDATA #REQUIRED >
           
+<!ELEMENT OrganizationCode (#PCDATA) >
+           
 <!-- Nested list of zero or more map Layers offered by this server. -->
 <!ELEMENT Layer ( Name?, Title, Abstract?, KeywordList?, SRS*,
                   LatLonBoundingBox?, BoundingBox*, Dimension*, Extent*,
