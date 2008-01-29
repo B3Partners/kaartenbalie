@@ -25,6 +25,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,9 +120,9 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();        
-        Organization org = dbUser.getOrganization();        
-                
+        User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();
+        Organization org = dbUser.getOrganization();
+        
         /*
          * Now check if the given abbreviation is unique.
          */
@@ -135,6 +136,12 @@ public class ServerActionDemo extends ServerAction {
         if(!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        if (abbreviation.equalsIgnoreCase(KBConstants.SERVICEPROVIDER_BASE_ABBR)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
@@ -203,7 +210,7 @@ public class ServerActionDemo extends ServerAction {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
-        }        
+        }
         
         /*
          * Now we first need to save this serviceprovider.

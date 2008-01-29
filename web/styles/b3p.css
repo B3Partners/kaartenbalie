@@ -474,6 +474,8 @@ tbody, td {
 .tabcollection div#sheets .sheet
 {
     padding:20px;
+    overflow:auto;
+    padding:10px;
 }
 
 .tabcollection div#tabs ul
@@ -495,4 +497,19 @@ tbody, td {
 {
     background-color: #0000FF;
     color:#FFFFFF;
+}
+
+
+/* pricingAction */
+td.deleted, td.active, td.normal
+{
+border-top:1px Solid Black;
+}
+td.deleted
+{
+    color:#AAAAAA;
+}
+td.active {
+    color:#000000;
+    background-color:rgb(120,120,255);
 }

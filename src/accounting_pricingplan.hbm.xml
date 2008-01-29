@@ -27,13 +27,23 @@
             <column name="lpr_validUntil"/>
         </property>  
         <property name="creationDate">
-            <column name="lpr_creationDate"/>
+            <column name="lpr_creationDate" unique="true"/>
         </property>  
+        <property name="deletionDate">
+            <column name="lpr_deletionDate"/>
+        </property> 
         <property name="layerIsFree">
             <column name="lpr_layerIsFree"/>
         </property>  
         <property name="unitPrice">
             <column name="lpr_unitPrice" precision="9" scale="2" />            
         </property>  
+        <property name="indexCount">
+            <column name="lpr_indexCount"/>
+        </property>  
+
+        
+        
+        
     </class>
 </hibernate-mapping> 

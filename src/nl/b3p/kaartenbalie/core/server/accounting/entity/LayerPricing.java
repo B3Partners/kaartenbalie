@@ -19,22 +19,26 @@ import nl.b3p.wms.capabilities.*;
  */
 public class LayerPricing {
     
-    public static int PAY_PER_REQUEST = 1;
+    public final static int PAY_PER_REQUEST = 1;
     private Integer id;
     private int planType;
     private Date validFrom;
     private Date validUntil;
     private Date creationDate;
+    private Date deletionDate;
     private BigDecimal unitPrice;
     private Boolean layerIsFree;
     /*Relation*/
     private String layerName;
     private String serverProviderPrefix;
     
+    /*Uniqueness*/
+    private Integer indexCount;
+    
     
     public LayerPricing() {
         setPlanType(PAY_PER_REQUEST);
-        creationDate = new Date();
+        setCreationDate(new Date());
     }
     
     
@@ -108,6 +112,22 @@ public class LayerPricing {
 
     public void setServerProviderPrefix(String serverProviderPrefix) {
         this.serverProviderPrefix = serverProviderPrefix;
+    }
+
+    public Date getDeletionDate() {
+        return deletionDate;
+    }
+
+    public void setDeletionDate(Date deletionDate) {
+        this.deletionDate = deletionDate;
+    }
+
+    public Integer getIndexCount() {
+        return indexCount;
+    }
+
+    public void setIndexCount(Integer indexCount) {
+        this.indexCount = indexCount;
     }
     
     

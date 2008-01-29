@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
@@ -88,15 +90,23 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (idString != null && idString.length() > 0) {
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
-            request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
+            LayerCalculator lc = new LayerCalculator();
+            try {
+                //lc.calculateLayer();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                lc.closeEntityManager();
+            }
+            
+            
+            
+            //request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
         }
-        System.out.println("downsize");
         return super.edit(mapping, dynaForm, request, response);
     }
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        
-        
         EntityManager em = getEntityManager();
         request.setAttribute("id", request.getParameter("id"));
         String strPricingId = request.getParameter("pricingid");
@@ -104,8 +114,10 @@ public class PricingAction extends KaartenbalieCrudAction {
             strPricingId = strPricingId.trim();
             Integer pricingId = new Integer(Integer.parseInt(strPricingId));
             LayerPricing lp =(LayerPricing) em.find(LayerPricing.class, pricingId);
-            em.remove(lp);
-            getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.REMOVE);
+            if (lp.getDeletionDate() != null) {
+                throw new Exception("Trying to delete an already deleted LayerPricing");
+            }
+            lp.setDeletionDate(new Date());
         }
         return  super.delete(mapping, dynaForm, request, response);
     }
@@ -139,10 +151,20 @@ public class PricingAction extends KaartenbalieCrudAction {
         } catch (Exception e) {
         }
         
-        Double unitPrice = (Double) dynaForm.get("unitPrice");
         String idString = (String) request.getAttribute("id");
         
         if (idString != null && idString.length() > 0) {
+            
+            Boolean layerIsFree = (Boolean) dynaForm.get("layerIsFree");
+            Double unitPrice = null;
+            if (layerIsFree == null) {
+                layerIsFree = new Boolean(false);
+            }
+            
+            if (layerIsFree.booleanValue() == false) {
+                unitPrice = (Double) dynaForm.get("unitPrice");
+            }
+            
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
             LayerPricing lp = new LayerPricing();
@@ -164,8 +186,14 @@ public class PricingAction extends KaartenbalieCrudAction {
                 cal.set(Calendar.MILLISECOND, 99);
                 lp.setValidUntil(cal.getTime());
             }
-            lp.setUnitPrice(new BigDecimal(unitPrice.doubleValue()));
-            //lp.setLayer(layer);
+            if (unitPrice != null) {
+                lp.setUnitPrice(new BigDecimal(unitPrice.doubleValue()));
+            } else {
+                lp.setLayerIsFree(layerIsFree);
+            }
+            lp.setServerProviderPrefix(layer.getSpAbbr());
+            lp.setLayerName(layer.getName());
+            lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
             em.persist(lp);
             getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
             
@@ -190,14 +218,24 @@ public class PricingAction extends KaartenbalieCrudAction {
             
             //request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em, new Date()));
             //request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,new Date()));
+            
             request.setAttribute("layerPricings",
                     em.createQuery(
                     "FROM LayerPricing AS lp " +
-                    "WHERE lp.layer.id = :layerId")
-                    .setParameter("layerId", layerId)
+                    "WHERE lp.layerName = :layerName AND lp.serverProviderPrefix = :serverProviderPrefix ORDER BY  lp.deletionDate ASC, lp.creationDate DESC")
+                    .setParameter("layerName", layer.getName())
+                    .setParameter("serverProviderPrefix", layer.getSpAbbr())
                     .getResultList());
+            LayerCalculator lc = new LayerCalculator(em);
+            request.setAttribute("aggregateLayerPricings", new Boolean(LayerCalculator.aggregateLayerPricings));
+            if (!LayerCalculator.aggregateLayerPricings) {
+                try {
+                    request.setAttribute("activePricing", lc.getActiveLayerPricing(layer.getName(),layer.getSpAbbr(), new Date(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
+                } catch (NoResultException nre) {
+                    nre.printStackTrace();
+                }
+            }
         }
-        
         
     }
     

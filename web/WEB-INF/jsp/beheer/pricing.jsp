@@ -8,10 +8,10 @@
     
     <b>Lijst met beschikbare layers:</b>
 
-    <div style="height:600px;margin:0px;border:0px Solid Black;">
-        <div id="tree" style="border:1px Solid Black;float:left;width:300px;height:500px;overflow:auto;margin:10px;">
+    <div style="height:600px;margin:0px;border:0px Solid Black;padding:0px;">
+        <div id="tree" style="border:1px Solid Black;float:left;width:230px;height:550px;overflow:auto;margin:5px;">
         </div>
-        <div style="border:0px Solid Black;float:left;margin:10px;width:580px;height:500px;">
+        <div style="border:0px Solid Black;float:left;margin:5px;width:670px;height:550px;">
             <iframe name="pricingframe" id="pricingframe" src="editpricing.do?edit=submit&id=" style="width:100%;height:100%" frameborder="0"></iframe>
         </div>    
     </div>

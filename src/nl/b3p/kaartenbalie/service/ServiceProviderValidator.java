@@ -25,6 +25,7 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 
 public class ServiceProviderValidator implements KBConstants {
     
+
     private Set serviceProviders;
     
     /**
@@ -76,6 +77,7 @@ public class ServiceProviderValidator implements KBConstants {
             resources = getDefaultResources();
         }
         newSP.setDomainResource(resources);
+        newSP.setAbbr(SERVICEPROVIDER_BASE_ABBR);
         
         Set exception = new HashSet();
         if (serviceProviders!=null && !serviceProviders.isEmpty()) {

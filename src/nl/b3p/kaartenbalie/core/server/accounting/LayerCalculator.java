@@ -10,9 +10,12 @@
 package nl.b3p.kaartenbalie.core.server.accounting;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
 
 
@@ -24,80 +27,173 @@ public class LayerCalculator {
     
     
     
-    public static BigDecimal calculateCompleteLayerPrice(Layer layer, int planType, BigDecimal units, EntityManager em, Date pricingDate) {
-        BigDecimal childLayersPrice = calculateChildLayersPrice(layer, planType, units, em, pricingDate);
-        BigDecimal layerPrice = calculateLayerPrice(layer, planType, units, em, pricingDate);
-        
-        
-        BigDecimal totalPrice = layerPrice.add(childLayersPrice);
-        if (totalPrice.doubleValue() < 0) {
-            totalPrice =  new BigDecimal(0);
-        }
-        return totalPrice;
+    private EntityManager em;
+    private boolean externalEm = false;
+    public static final boolean aggregateLayerPricings = false;
+    public LayerCalculator() {
+        em = MyEMFDatabase.createEntityManager();
+    }
+    public LayerCalculator(EntityManager em) {
+        this.em = em;
+        externalEm = true;
     }
     
-    public static BigDecimal calculateLayerPrice(Layer layer, int planType, BigDecimal units, EntityManager em, Date pricingDate) {
-        BigDecimal layerPrice  = (BigDecimal) em.createQuery(
-                "SELECT SUM(unitPrice * :units) " +
+    
+    public LayerCalculation calculateLayerComplete(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
+        
+        
+        LayerCalculation tLC = calculateLayer(layer, validationDate, units, planType);
+        System.out.println(tLC);
+        /*
+         * When the layer is not free, and there is no price for this layer, do other things to find a price.
+         */
+        if (!tLC.getLayerIsFree().booleanValue() && tLC.getLayerPrice().compareTo(new BigDecimal(0)) <= 0) {
+            System.out.println("Alternatieven!!");
+            /*
+             * First check the parentLayer for a price..
+             */
+            LayerCalculation parentCalculation = null;
+            if (layer.getParent() != null) {
+                parentCalculation = calculateLayer(layer.getParent(), validationDate, units,  planType);
+            } else {
+                
+            }
+        }
+        return tLC;
+    }
+    
+    
+    public LayerPricing getActiveLayerPricing(String layerName, String serverProviderPrefix, Date validationDate, BigDecimal units, int planType) throws Exception{
+        if (aggregateLayerPricings) {
+            throw new Exception("This function is not supported when layerPriceAggregation is enabled.");
+        }
+        
+        
+        LayerPricing layerPricing = (LayerPricing) em.createQuery(
                 "FROM LayerPricing AS lp " +
-                "WHERE lp.layer = :layer " +
+                "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
                 "AND lp.planType = :planType " +
-                "AND (lp.validFrom < :currentDate OR lp.validFrom is null) " +
-                "AND (lp.validUntil > :currentDate OR lp.validUntil is null)")
-                .setParameter("layer", layer)
-                .setParameter("units", units)
-                .setParameter("planType", new Integer(planType))
-                .setParameter("currentDate", pricingDate)
+                "AND lp.layerName = :layerName " +
+                "AND lp.serverProviderPrefix = :serverProviderPrefix " +
+                "AND lp.creationDate < :validationDate " +
+                "AND (lp.validFrom < :validationDate OR lp.validFrom IS null) " +
+                "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
+                "ORDER BY lp.indexCount DESC")
+                .setParameter("layerName",layerName)
+                .setParameter("serverProviderPrefix",serverProviderPrefix)
+                .setParameter("validationDate",validationDate)
+                .setParameter("planType",new Integer(planType))
+                .setMaxResults(1)
                 .getSingleResult();
+        return layerPricing;
+    }
+    public LayerCalculation calculateLayer(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
         
         
-        if (layerPrice == null) {
-            layerPrice =  new BigDecimal(0);
+        String serverProviderPrefix = layer.getSpAbbr();
+        String layerName = layer.getName();
+        if (validationDate == null) {
+            validationDate = new Date();
         }
-        return layerPrice;
-    }
-    
-    public static BigDecimal calculateChildLayersPrice(Layer layer, int planType, BigDecimal units, EntityManager em, Date pricingDate) {
-        BigDecimal layerPrice  = new BigDecimal(0);
-        if (layer.getLayers() != null) {
-            Iterator layerIter = layer.getLayers().iterator();
-            while (layerIter.hasNext()) {
-                Layer subLayer = (Layer) layerIter.next();
-                layerPrice = layerPrice.add(calculateLayerPrice(subLayer, planType, units, em, pricingDate));
-                layerPrice = layerPrice.add(calculateChildLayersPrice(subLayer, planType, units, em, pricingDate));
-            }
-        }
-        if (layerPrice.doubleValue() < 0) {
-            layerPrice =  new BigDecimal(0);
-        }
-        return layerPrice;
-    }
-    
-    
-    public static DownsizeWrapper downSize(Layer layer, int planType, EntityManager em, int maxLevels, boolean details, Date pricingDate) {
-        DownsizeWrapper dw = new DownsizeWrapper(layer);
-        dw.setLayerPriceGross(calculateChildLayersPrice(layer, planType,new BigDecimal(1.0),em, pricingDate));
-        dw.setLayerPriceNet(calculateCompleteLayerPrice(layer, planType,new BigDecimal(1.0),em, pricingDate));
-        if (details) {
-            dw.setPricingPlans(em.createQuery(
+        BigDecimal layerPrice = null;
+        Boolean layerIsFree = null;
+        LayerCalculation lc = new LayerCalculation(serverProviderPrefix, layerName, validationDate, planType, units);
+        
+        if (aggregateLayerPricings) {
+            Object[] resultSet = (Object[]) em.createQuery(
+                    "SELECT COUNT(*) AS lines, SUM(lp.unitPrice * :units) AS layerPrice, SUM(lp.layerIsFree) AS layerIsFree " +
                     "FROM LayerPricing AS lp " +
-                    "WHERE lp.layer = :layer " +
-                    "AND lp.planType = :planType " +
-                    "AND (lp.validFrom < :currentDate OR lp.validFrom is null) " +
-                    "AND (lp.validUntil > :currentDate OR lp.validUntil is null)")
-                    .setParameter("layer", layer)
-                    .setParameter("planType", new Integer(planType))
-                    .setParameter("currentDate", pricingDate)
-                    .getResultList());
-        }
-        if (maxLevels != 0) {
-            Iterator layerIter = layer.getLayers().iterator();
-            while (layerIter.hasNext()) {
-                Layer childLayer = (Layer) layerIter.next();
-                dw.getChildWrappers().add(downSize(childLayer, planType, em,maxLevels -1,details, pricingDate));
+                    "WHERE (lp.deletionDate IS null OR  lp.deletionDate > :validationDate) " +
+                    "AND lp.planType = :planType AND lp.layerName = :layerName " +
+                    "AND lp.serverProviderPrefix = :serverProviderPrefix " +
+                    "AND lp.creationDate < :validationDate " +
+                    "AND (lp.validFrom < :validationDate OR lp.validFrom IS null) " +
+                    "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
+                    "ORDER BY lp.indexCount DESC")
+                    .setParameter("layerName",layerName)
+                    .setParameter("serverProviderPrefix",serverProviderPrefix)
+                    .setParameter("validationDate",validationDate)
+                    .setParameter("units",units)
+                    .setParameter("planType",new Integer(planType))
+                    .getSingleResult();
+            
+            layerPrice = (BigDecimal)resultSet[1];
+            layerIsFree = (Boolean) resultSet[2];
+            lc.setPricingLines((Long)resultSet[0]);
+        } else {
+            try {
+                LayerPricing layerPricing = getActiveLayerPricing(layerName,serverProviderPrefix, validationDate, units, planType);
+                lc.setPricingLines(new Long(1));
+                if (layerPricing != null) {
+                    if (layerPricing.getUnitPrice() != null) {
+                        layerPrice = layerPricing.getUnitPrice().multiply(units);
+                    }
+                    layerIsFree = layerPricing.getLayerIsFree();
+                }
+                
+            } catch (NoResultException nre) {
+                //Nothing found!
             }
+            
         }
-        return dw;
+        
+        if (layerIsFree == null) {
+            layerIsFree = new Boolean(false);
+        }
+        
+        if (layerPrice == null || (layerPrice != null && layerPrice.compareTo(new BigDecimal(0)) < 0)) {
+            layerPrice = new BigDecimal(0);
+        }
+        
+        lc.setLayerPrice(layerPrice);
+        lc.setLayerIsFree(layerIsFree);
+        return lc;
+        
+    }
+    
+    public void closeEntityManager() throws Exception {
+        if (externalEm) {
+            throw new Exception("Trying to close an external EntityManager. This is not the place to do it!");
+        }
+        em.close();
+    }
+    
+    public static void main(String[] args) throws Exception {
+        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
+        LayerCalculator lc = new LayerCalculator();
+        EntityManager em = MyEMFDatabase.createEntityManager();
+        try {
+            Layer layer = (Layer) em.find(Layer.class, new Integer(1173));
+            System.out.println(layer);
+            
+            Calendar cal = Calendar.getInstance();
+            System.out.println(cal.getTime());
+            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
+            
+            cal.set(2008,0,29,14,00,00);
+            System.out.println(cal.getTime());
+            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
+            
+            cal.set(2008,0,29,14,03,00);
+            System.out.println(cal.getTime());
+            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
+            
+            
+            cal.set(2008,0,29,14,05,00);
+            System.out.println(cal.getTime());
+            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
+            
+            cal.set(2008,1,3,14,05,00);
+            System.out.println(cal.getTime());
+            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
+            
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            lc.closeEntityManager();
+            em.close();
+        }
     }
     
     

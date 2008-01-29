@@ -2,8 +2,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:variable name="td_natural">lbz</xsl:variable>
 	<xsl:variable name="td_variance">dg</xsl:variable>
-	<xsl:variable name="dispMb">0.0MB</xsl:variable>
-	<xsl:variable name="dispKb">0.0KB</xsl:variable>
+	<xsl:variable name="dispMb">0.00 MB</xsl:variable>
+	<xsl:variable name="dispKb">0.00 KB</xsl:variable>
 	<xsl:variable name="dispMs">0.0 ms</xsl:variable>
 	<xsl:variable name="bToKb" select="1 div 1024"/>
 	<xsl:variable name="bToMb" select="1 div 1024 div 1024"/>

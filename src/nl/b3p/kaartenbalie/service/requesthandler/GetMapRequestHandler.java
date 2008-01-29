@@ -89,7 +89,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             height = new Integer(-1);
         }
         dw.setRequestParameter("Height",height);
-        
         dw.setRequestParameter("WmsVersion", ogc.getParameter(WMS_VERSION));
         dw.setRequestParameter("Srs", null);
         dw.setRequestParameter("Format", ogc.getParameter(WMS_PARAM_FORMAT));

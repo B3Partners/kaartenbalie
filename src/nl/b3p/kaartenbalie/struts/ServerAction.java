@@ -53,6 +53,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected static final String SP_NOTFOUND_ERROR_KEY = "error.spnotfound";
     protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
     protected static final String NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY = "error.abbr.notalphanumeric";
+    protected static final String ABBR_RESERVED_ERROR_KEY = "error.abbr.reserved";
     
     /* Execute method which handles all unspecified requests.
      *
@@ -195,6 +196,8 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         
+        
+        
         if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
@@ -205,6 +208,12 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         if(!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        if (abbreviation.equalsIgnoreCase(KBConstants.SERVICEPROVIDER_BASE_ABBR)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
@@ -567,6 +576,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         return ogcrequest.getUrl();
     }
     
+    
     protected boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider)em.createQuery(
@@ -596,4 +606,5 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
         }
         return true;
     }
+    
 }

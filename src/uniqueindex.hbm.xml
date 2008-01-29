@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.UniqueIndex" table="kb_uniquenumber">
+        
+        <id name="id" type="int" column="unn_id" >
+            <generator class="native"/>
+        </id>
+        <property name="indexName" column="unn_indexName"/>
+        <property name="indexCount" column="unn_indexCount"/>
+        
+        
+    </class>
+</hibernate-mapping>

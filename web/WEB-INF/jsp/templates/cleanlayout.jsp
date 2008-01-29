@@ -16,8 +16,11 @@
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
+        <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
     </head>
     <body style="background-color:#FFFFFF;">
+        
+        <tiles:insert definition="common.actionMessages"/>
         <tiles:insert name='content'/>
     </body>
 </html:html>

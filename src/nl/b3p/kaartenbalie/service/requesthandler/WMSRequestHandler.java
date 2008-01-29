@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,6 +41,9 @@ import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.Allow100CTALayer;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
@@ -102,6 +105,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             Set topLayers = new HashSet();
             Set orgLayerIds = new HashSet();
             Iterator it = organizationLayers.iterator();
+            
             while(it.hasNext()) {
                 Layer layer = (Layer)it.next();
                 orgLayerIds.add(layer.getId());
@@ -113,11 +117,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     serviceproviders.add(sp);
             }
             
+            
             if (!topLayers.isEmpty()) {
                 kaartenbalieTopLayer = new Layer();
                 kaartenbalieTopLayer.setTitle(TOPLAYERNAME);
                 LayerValidator lv = new LayerValidator(organizationLayers);
                 kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
+                
+                
                 
                 Iterator tlId= topLayers.iterator();
                 while (tlId.hasNext()) {
@@ -166,6 +173,17 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
         validServiceProvider.setTopLayer(kaartenbalieTopLayer);
+        
+        /*
+         * B3Partners Configuration Layers..
+         */
+        Map configLayers = ConfigLayer.getConfigLayers();
+        Iterator iterLayerKeys = configLayers.keySet().iterator();
+        while(iterLayerKeys.hasNext()) {
+            Layer configLayer = (Layer) configLayers.get(iterLayerKeys.next());
+            configLayer.setServiceProvider(validServiceProvider);
+            kaartenbalieTopLayer.addLayer(configLayer);
+        }
         
         Set roles = dbUser.getUserroles();
         if (roles!=null) {
@@ -216,6 +234,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         AccountManager am = AccountManager.getAccountManager(orgId);
         
         TransactionLayerUsage tlu = am.beginTLU();
+        Map config = new HashMap();
         
         if(layers.length >= 1) {
             for (int i = 0; i < layers.length; i++) {
@@ -233,59 +252,66 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     throw new Exception(GETMAP_EXCEPTION);
                 }
                 
-                // Check of voldoende rechten op layer bestaan en ophalen url
-                query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
-                        "from layer, organizationlayer, serviceprovider " +
-                        "where organizationlayer.layerid = layer.layerid and " +
-                        "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
-                        "organizationlayer.organizationid = :orgId and " +
-                        "layer.name = :layerName and " +
-                        "serviceprovider.abbr = :layerCode";
-                List sqlQuery = em.createNativeQuery(query)
-                .setParameter("orgId", orgId)
-                .setParameter("layerName", layerName)
-                .setParameter("layerCode", layerCode)
-                .getResultList();
-                if(sqlQuery.isEmpty()) {
-                    log.error("layer not valid or no rights, name: " + layers[i]);
-                    throw new Exception(GETMAP_EXCEPTION);
-                }
-                Object [] objecten = (Object [])sqlQuery.get(0);
-                String layer_queryable      = (String)objecten[0];
-                Integer serviceprovider_id  = (Integer)objecten[1];
-                Integer layerId  = (Integer)objecten[2];
-                if (serviceprovider_id==null)
-                    continue;
-                
-                // layer toevoegen aan sp indien queryable voorwaarde ok
-                if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                    //tlu.registerUsage(layerId);
-                    // Haal de laatst opgehaalde sp info er bij.
-                    // Hier worden nu ook de layers aan toegevoegd indien
-                    // zelfde sp, anders nieuwe sp aanmaken en list toevoegen
-                    Map spInfo = null;
-                    int size = eventualSPList.size();
-                    if (size>0) {
-                        Map lastSpInfo = (Map) eventualSPList.get(size - 1);
-                        Integer spId = (Integer)lastSpInfo.get("spId");
-                        if (spId!=null && spId.intValue()==serviceprovider_id.intValue())
-                            spInfo = lastSpInfo;
+                /*
+                 * Check if the layer is an configurationlayer, if it is, proces the info..
+                 */
+                if (layerCode.equals(SERVICEPROVIDER_BASE_ABBR)) {
+                    ConfigLayer.processConfig(layerName, config);
+                } else {
+                    // Check of voldoende rechten op layer bestaan en ophalen url
+                    query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
+                            "from layer, organizationlayer, serviceprovider " +
+                            "where organizationlayer.layerid = layer.layerid and " +
+                            "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
+                            "organizationlayer.organizationid = :orgId and " +
+                            "layer.name = :layerName and " +
+                            "serviceprovider.abbr = :layerCode";
+                    List sqlQuery = em.createNativeQuery(query)
+                    .setParameter("orgId", orgId)
+                    .setParameter("layerName", layerName)
+                    .setParameter("layerCode", layerCode)
+                    .getResultList();
+                    if(sqlQuery.isEmpty()) {
+                        log.error("layer not valid or no rights, name: " + layers[i]);
+                        throw new Exception(GETMAP_EXCEPTION);
                     }
-                    if (spInfo == null) {
-                        spInfo = new HashMap();
-                        Map tlSpInfo = (Map)toplayerMap.get(serviceprovider_id);
-                        spInfo.put("spId", tlSpInfo.get("spId"));
-                        spInfo.put("tlId", tlSpInfo.get("tlId"));
-                        spInfo.put("spUrl", tlSpInfo.get("spUrl"));
-                        eventualSPList.add(spInfo);
-                    }
-                    StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
-                    if (sp_layerlist==null) {
-                        sp_layerlist = new StringBuffer(layerName);
-                        spInfo.put("layersList",sp_layerlist);
-                    } else {
-                        sp_layerlist.append(",");
-                        sp_layerlist.append(layerName);
+                    Object [] objecten = (Object [])sqlQuery.get(0);
+                    String layer_queryable      = (String)objecten[0];
+                    Integer serviceprovider_id  = (Integer)objecten[1];
+                    Integer layerId  = (Integer)objecten[2];
+                    if (serviceprovider_id==null)
+                        continue;
+                    
+                    // layer toevoegen aan sp indien queryable voorwaarde ok
+                    if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
+                        //tlu.registerUsage(layerId);
+                        // Haal de laatst opgehaalde sp info er bij.
+                        // Hier worden nu ook de layers aan toegevoegd indien
+                        // zelfde sp, anders nieuwe sp aanmaken en list toevoegen
+                        Map spInfo = null;
+                        int size = eventualSPList.size();
+                        if (size>0) {
+                            Map lastSpInfo = (Map) eventualSPList.get(size - 1);
+                            Integer spId = (Integer)lastSpInfo.get("spId");
+                            if (spId!=null && spId.intValue()==serviceprovider_id.intValue())
+                                spInfo = lastSpInfo;
+                        }
+                        if (spInfo == null) {
+                            spInfo = new HashMap();
+                            Map tlSpInfo = (Map)toplayerMap.get(serviceprovider_id);
+                            spInfo.put("spId", tlSpInfo.get("spId"));
+                            spInfo.put("tlId", tlSpInfo.get("tlId"));
+                            spInfo.put("spUrl", tlSpInfo.get("spUrl"));
+                            eventualSPList.add(spInfo);
+                        }
+                        StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+                        if (sp_layerlist==null) {
+                            sp_layerlist = new StringBuffer(layerName);
+                            spInfo.put("layersList",sp_layerlist);
+                        } else {
+                            sp_layerlist.append(",");
+                            sp_layerlist.append(layerName);
+                        }
                     }
                 }
             }
@@ -293,8 +319,24 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             log.error("No layers found!");
             throw new Exception(GETMAP_EXCEPTION);
         }
+        tlu.setCreditAlteration(new BigDecimal(101));
         
-		//TODO: volgende regel compileerd niet. Uitgecommentarieerd (Erik vd Pol)
+        if (tlu.getCreditAlteration().doubleValue()> 0) {
+            
+            Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
+            
+            if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
+                throw new Exception(REQUIRES_PAYMENT_AUTHORIZATION_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+            }
+            if (tlu.getCreditAlteration().doubleValue() > 100) {
+                Boolean allow100CTransactions = (Boolean) config.get(Allow100CTALayer.configValue);
+                if (allow100CTransactions == null || (allow100CTransactions != null && allow100CTransactions.booleanValue() == false)) {
+                    throw new Exception(MORE_THEN_100_CREDITS_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+                }
+            }
+        }
+        
+        //TODO: volgende regel compileerd niet. Uitgecommentarieerd (Erik vd Pol)
         //tlu.calculateUsage();
         return eventualSPList;
     }
