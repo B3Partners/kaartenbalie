@@ -319,22 +319,25 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             log.error("No layers found!");
             throw new Exception(GETMAP_EXCEPTION);
         }
-        tlu.setCreditAlteration(new BigDecimal(101));
-        
-        if (tlu.getCreditAlteration().doubleValue()> 0) {
+        if (AccountManager.isEnableAccounting()) {
+            tlu.setCreditAlteration(new BigDecimal(101));
             
-            Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
-            
-            if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
-                throw new Exception(REQUIRES_PAYMENT_AUTHORIZATION_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
-            }
-            if (tlu.getCreditAlteration().doubleValue() > 100) {
-                Boolean allow100CTransactions = (Boolean) config.get(Allow100CTALayer.configValue);
-                if (allow100CTransactions == null || (allow100CTransactions != null && allow100CTransactions.booleanValue() == false)) {
-                    throw new Exception(MORE_THEN_100_CREDITS_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+            if (tlu.getCreditAlteration().doubleValue()> 0) {
+                
+                Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
+                
+                if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
+                    throw new Exception(REQUIRES_PAYMENT_AUTHORIZATION_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+                }
+                if (tlu.getCreditAlteration().doubleValue() > 100) {
+                    Boolean allow100CTransactions = (Boolean) config.get(Allow100CTALayer.configValue);
+                    if (allow100CTransactions == null || (allow100CTransactions != null && allow100CTransactions.booleanValue() == false)) {
+                        throw new Exception(MORE_THEN_100_CREDITS_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+                    }
                 }
             }
         }
+        
         
         //TODO: volgende regel compileerd niet. Uitgecommentarieerd (Erik vd Pol)
         //tlu.calculateUsage();
