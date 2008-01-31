@@ -43,23 +43,11 @@ import org.json.JSONObject;
  * @author Chris Kramer
  */
 public class PricingAction extends KaartenbalieCrudAction {
-    protected static final String DOWNSIZE                        = "downsize";
     
     public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
     
-    protected Map getActionMethodPropertiesMap() {
-        Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(DOWNSIZE);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.pricing.downsize.succes");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.pricing.downsize.failed");
-        map.put(DOWNSIZE, crudProp);
-        return map;
-    }
+    
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        JSONObject root = this.createTree();
-        request.setAttribute("layerList", root);
         request.setAttribute("id", request.getParameter("id"));
         return super.unspecified(mapping, dynaForm, request, response);
     }
@@ -68,7 +56,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         request.setAttribute("id", request.getParameter("id"));
         return super.edit(mapping, dynaForm, request, response);
     }
-    
+    /*
     public ActionForward downsize(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         request.setAttribute("id", request.getParameter("id"));
         String strLevel = request.getParameter("level");
@@ -78,7 +66,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             level = Integer.parseInt(strLevel);
         } catch (Exception e) {
         }
-        
+     
         String strDetails = request.getParameter("details");
         boolean details = true;
         if (strDetails != null) {
@@ -98,13 +86,14 @@ public class PricingAction extends KaartenbalieCrudAction {
             } finally {
                 lc.closeEntityManager();
             }
-            
-            
-            
+     
+     
+     
             //request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
         }
         return super.edit(mapping, dynaForm, request, response);
     }
+     */
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         EntityManager em = getEntityManager();
@@ -153,7 +142,8 @@ public class PricingAction extends KaartenbalieCrudAction {
         
         String idString = (String) request.getAttribute("id");
         
-        if (idString != null && idString.length() > 0) {
+        
+        if (idString != null && idString.trim().length() > 0) {
             
             Boolean layerIsFree = (Boolean) dynaForm.get("layerIsFree");
             Double unitPrice = null;
@@ -199,6 +189,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             
         }
         
+        
         return super.save(mapping, dynaForm, request, response);
     }
     
@@ -230,11 +221,14 @@ public class PricingAction extends KaartenbalieCrudAction {
             request.setAttribute("aggregateLayerPricings", new Boolean(LayerCalculator.aggregateLayerPricings));
             if (!LayerCalculator.aggregateLayerPricings) {
                 try {
-                    request.setAttribute("activePricing", lc.getActiveLayerPricing(layer.getName(),layer.getSpAbbr(), new Date(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
+                    request.setAttribute("activePricing", lc.getActiveLayerPricing(layer, new Date(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
                 } catch (NoResultException nre) {
                     nre.printStackTrace();
                 }
             }
+        } else {
+            JSONObject root = this.createTree();
+            request.setAttribute("layerList", root);
         }
         
     }
@@ -243,7 +237,7 @@ public class PricingAction extends KaartenbalieCrudAction {
     
     private JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").setMaxResults(1).getResultList();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();

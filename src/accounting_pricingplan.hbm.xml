@@ -42,8 +42,5 @@
             <column name="lpr_indexCount"/>
         </property>  
 
-        
-        
-        
     </class>
 </hibernate-mapping> 
