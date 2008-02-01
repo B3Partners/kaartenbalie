@@ -31,7 +31,7 @@
                         <label>Organisatie :</label>
                         <html:select property="organizationId">
                             <c:forEach var="organization" items="${organizations}">
-                                <html:option value="${organization.id}">${organization.name}</html:option>
+                                <html:option value="${organization.id}"> ${organization.name} (${organization.id})</html:option>
                             </c:forEach>
                         </html:select><br/>
 

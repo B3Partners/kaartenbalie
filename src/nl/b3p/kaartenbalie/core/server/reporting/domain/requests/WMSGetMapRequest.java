@@ -17,6 +17,8 @@ import org.w3c.dom.Element;
 public class WMSGetMapRequest extends WMSRequest{
     
     
+    
+    
     private String srs;
     private Integer width;
     private Integer height;

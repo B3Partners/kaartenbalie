@@ -19,5 +19,4 @@ public class WMSGetLegendGraphicRequest extends WMSRequest {
     /** Creates a new instance of WMSGetCapabilitiesRequest */
     public WMSGetLegendGraphicRequest() {
     }
-
 }

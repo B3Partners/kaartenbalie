@@ -45,8 +45,8 @@
     <definition name="base.beheer.editpricing" extends="clean">
         <put name="content" value="/WEB-INF/jsp/beheer/editPricing.jsp"/>
     </definition>
-    <definition name="base.beheer.pricing.downsize" extends="clean">
-        <put name="content" value="/WEB-INF/jsp/beheer/pricing/downSize.jsp"/>
+    <definition name="base.beheer.pricing.details" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/pricing/details.jsp"/>
     </definition>
     <definition name="base.beheer.accounting.transaction" extends="clean">
         <put name="content" value="/WEB-INF/jsp/beheer/transaction.jsp"/>

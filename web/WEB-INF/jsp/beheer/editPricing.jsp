@@ -7,19 +7,37 @@
         <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
         <fieldset style="margin:0px;padding-top:0px;">
             <legend>Prijsinformatie</legend>
-            <label>Service Provider :</label> ${spName}<br/>
-            <label style="margin-bottom:10px;">Kaartlaag :</label> ${lName}<br/>
-            <div style="background-color:white;border:1px Solid Black;width:550px;">
-                <table style="width:550px;padding:0px;margin:0px;border-collapse: collapse;">
+            <label>Service Provider :</label> ${spName} <br/>
+            <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${requestPrice.layerName}</b> [<a href="#" onclick="parent.showPopup(800,600,'Herleidbare Informatie','pricingdetails.do?details=submit&id=${id}');">Geef overzicht vanaf deze laag</a>]<br/>
+            <div style="background-color:white;border:1px Solid Black;width:600px;">
+                <table style="width:600px;padding:0px;margin:0px;border-collapse: collapse;">
                     <tr>
                         <th style="width:150px;">Type</th>
-                        <th style="width:200px;">Tarief deze laag</th>
-                        <th style="width:200px;">Uiteindelijk tarief</th>
+                        <th style="width:150px;">Samengesteld Tarief</th>
+                        <th style="width:180px;">Methode</th>
+                        <th style="width:120px;">Tijd Berekening</th>
                     </tr>
                     <tr>
-                        <th style="width:150px;">per Request</th>
-                        <td style="width:200px;"><fmt:formatNumber value="${priceRequestSingle}" minFractionDigits="2"  maxFractionDigits="2"/></td>
-                        <td style="width:200px;"><fmt:formatNumber value="${priceRequestCascade}" minFractionDigits="2" maxFractionDigits="2"/> [<a href="#" onclick="parent.showPopup(800,600,'Herleidbare Informatie','pricingdownsize.do?downsize=submit&id=${id}&level=-1');">Herleiden</a>]</td>                        
+                        <th style="width:150px;">Per Opvraag</th>
+                        <td style="width:150px;">
+                            <c:choose>
+                                <c:when test="${requestPrice.layerIsFree}">Gratis</c:when>
+                                <c:otherwise><fmt:formatNumber value="${requestPrice.layerPrice}" minFractionDigits="2"  maxFractionDigits="2"/> credits</c:otherwise>
+                            </c:choose>
+                            
+                        </td>
+                        <td style="width:180px;">
+                            <c:choose>
+                                <c:when test="${requestPrice.method == 0}">Via eigen prijsregels</c:when>
+                                <c:when test="${requestPrice.method == 1}">Via bovenliggende lagen</c:when>
+                                <c:when test="${requestPrice.method == 2}">Via onderliggende lagen</c:when>
+                                <c:otherwise>nvt</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td  style="width:120px;">
+                            ${requestPrice.calculationTime} ms (indicatief)
+                        </td>
+                        
                     </tr>
                 </table>
             </div>
@@ -213,7 +231,7 @@
             </div>
         </div>
         <script language="JavaScript" type="text/javascript">
-            window.onLoad = registerCollection('pricingCollection', 'details');
+            window.onLoad = registerCollection('pricingCollection', 'details', '${gotoTab}');
         </script>
     </c:when>
     <c:otherwise>

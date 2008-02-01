@@ -44,6 +44,10 @@ public class DataWrapper {
     private DataMonitoring requestReporting;
     private Map requestParameterMap;
     private Class requestClassType;
+    private String operation;
+    //end
+    
+    
     private OGCRequest ogcrequest;
     
     
@@ -173,6 +177,11 @@ public class DataWrapper {
         this.endTime = endTime;
     }
     
+    
+    
+    /*
+     *User for reporting...
+     */
     public DataMonitoring getRequestReporting() {
         return requestReporting;
     }
@@ -197,6 +206,18 @@ public class DataWrapper {
         this.requestParameterMap.put(key, object);
     }
     
+    
+    public String getOperation() {
+        return operation;
+    }
+    
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+    /*
+     * End of used for reporting...
+     */
+    
     public OGCRequest getOgcrequest() {
         return ogcrequest;
     }
@@ -204,4 +225,6 @@ public class DataWrapper {
     public void setOgcrequest(OGCRequest ogcrequest) {
         this.ogcrequest = ogcrequest;
     }
+    
+    
 }

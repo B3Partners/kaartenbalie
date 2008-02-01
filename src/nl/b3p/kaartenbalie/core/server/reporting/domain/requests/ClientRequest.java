@@ -27,6 +27,10 @@ public class ClientRequest {
     private String method;
     private Integer userId;
     private Integer organizationId;
+    private String service;
+    private String operation;
+    
+    
     
     public ClientRequest() {
         setTimeStamp(new Date());
@@ -125,21 +129,37 @@ public class ClientRequest {
             return null;
         }
     }
-
+    
     public String getClientIp() {
         return clientIp;
     }
-
+    
     public void setClientIp(String clientIp) {
         this.clientIp = clientIp;
     }
-
+    
     public String getMethod() {
         return method;
     }
-
+    
     public void setMethod(String method) {
         this.method = method;
+    }
+    
+    public String getService() {
+        return service;
+    }
+    
+    public void setService(String service) {
+        this.service = service;
+    }
+    
+    public String getOperation() {
+        return operation;
+    }
+    
+    public void setOperation(String operation) {
+        this.operation = operation;
     }
     
     

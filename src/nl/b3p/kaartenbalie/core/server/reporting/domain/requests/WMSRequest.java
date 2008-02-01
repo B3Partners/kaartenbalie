@@ -15,6 +15,7 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 /**
  *
  * @author Chris Kramer
+ *
  */
 public abstract class WMSRequest extends ServiceProviderRequest{
     
@@ -56,7 +57,6 @@ public abstract class WMSRequest extends ServiceProviderRequest{
             return null;
         }
     }
-    
     
     
 }

@@ -11,6 +11,8 @@ package nl.b3p.kaartenbalie.core.server.accounting;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -18,6 +20,11 @@ import java.util.Date;
  */
 public class LayerCalculation {
     
+    
+    public static final int METHOD_OWN = 0;
+    public static final int METHOD_PARENTS = 1;
+    public static final int METHOD_CHILDS = 2;
+    public static final int METHOD_NONE = 3;
     
     /*
      *Constructor values
@@ -27,18 +34,23 @@ public class LayerCalculation {
     private Date calculationDate;
     private int planType;
     private BigDecimal units;
+    private List layerCalculations;
     
     /*
      * Results
      */
     private Boolean layerIsFree;
-    private Long pricingLines;
     private BigDecimal layerPrice;
+    private int method;
+    private long calculationTime;
     
     private LayerCalculation() {
+        setLayerCalculations(new Vector());
+        method = METHOD_NONE;
     }
     
     public LayerCalculation(String serverProviderPrefix, String layerName, Date calculationDate, int planType, BigDecimal units) {
+        this();
         this.setServerProviderPrefix(serverProviderPrefix);
         this.setLayerName(layerName);
         this.setCalculationDate(calculationDate);
@@ -54,13 +66,7 @@ public class LayerCalculation {
         this.layerIsFree = layerIsFree;
     }
     
-    public Long getPricingLines() {
-        return pricingLines;
-    }
     
-    public void setPricingLines(Long pricingLines) {
-        this.pricingLines = pricingLines;
-    }
     
     public BigDecimal getLayerPrice() {
         return layerPrice;
@@ -115,8 +121,33 @@ public class LayerCalculation {
         return "LayerCalculation for '" + serverProviderPrefix + "_" + layerName + "'. \n" +
                 "This calculation took place on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'. \n" +
                 "The total cost of this calculation was " + layerPrice + " credits. \n" +
-                "This calculation was done using " + pricingLines + " pricingLines. The freeState of this layer is '" + layerIsFree + "'. \n";
+                "The freeState of this layer is '" + layerIsFree + "'. \n" + 
+                "The used method is " + method + ". \n";
         
+    }
+    
+    public List getLayerCalculations() {
+        return layerCalculations;
+    }
+    
+    public void setLayerCalculations(List layerCalculations) {
+        this.layerCalculations = layerCalculations;
+    }
+    
+    public int getMethod() {
+        return method;
+    }
+    
+    public void setMethod(int method) {
+        this.method = method;
+    }
+
+    public long getCalculationTime() {
+        return calculationTime;
+    }
+
+    public void setCalculationTime(long calculationTime) {
+        this.calculationTime = calculationTime;
     }
     
     

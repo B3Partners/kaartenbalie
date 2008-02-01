@@ -27,7 +27,7 @@ public class DataMonitoring {
     private static List usRequestOperation;
     private long operationStartTime;
     private Map tRequestOperationMap;
-    
+
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
@@ -201,7 +201,7 @@ public class DataMonitoring {
      * This is your final statement in logging call. It will clean up your clientRequest and commit all the logged calls to
      * the database. After this you can restart your clientRequest without creating a new RequestReporting.
      */
-    public void endClientRequest(int bytesSendToUser, long totalResponseTime) {
+    public void endClientRequest(String service, String operation, int bytesSendToUser, long totalResponseTime) {
         if (!isEnableMonitoring()) return;
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -214,9 +214,9 @@ public class DataMonitoring {
             tRequestOperationMap.put("Duration", new Long(totalResponseTime));
             tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
             this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
-            
+            clientRequest.setService(service);
+            clientRequest.setOperation(operation);
             //Now Persist...
-            
             Iterator iterRO = clientRequest.getRequestOperations().iterator();
             em.persist(clientRequest);
             while (iterRO.hasNext()) {
@@ -243,10 +243,12 @@ public class DataMonitoring {
         tmpElement.setTextContent(textContent);
         return tmpElement;
     }
-
+    
     public static boolean isEnableMonitoring() {
         return enableMonitoring;
     }
+    
+    
     
     
     

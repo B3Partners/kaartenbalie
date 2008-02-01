@@ -44,7 +44,19 @@ import org.json.JSONObject;
  */
 public class PricingAction extends KaartenbalieCrudAction {
     
+    private static final String DETAILS = "details";
     public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
+    
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(DETAILS);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.reporting.details.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.reporting.details.failed");
+        map.put(DETAILS, crudProp);
+        return map;
+    }
     
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -56,44 +68,9 @@ public class PricingAction extends KaartenbalieCrudAction {
         request.setAttribute("id", request.getParameter("id"));
         return super.edit(mapping, dynaForm, request, response);
     }
-    /*
-    public ActionForward downsize(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        request.setAttribute("id", request.getParameter("id"));
-        String strLevel = request.getParameter("level");
-        request.setAttribute("level", strLevel);
-        int level = 0;
-        try {
-            level = Integer.parseInt(strLevel);
-        } catch (Exception e) {
-        }
-     
-        String strDetails = request.getParameter("details");
-        boolean details = true;
-        if (strDetails != null) {
-            details = strDetails.trim().equalsIgnoreCase("true");
-        }
-        request.setAttribute("details", new Boolean(details));
-        EntityManager em = getEntityManager();
-        String idString = (String) request.getAttribute("id");
-        if (idString != null && idString.length() > 0) {
-            Integer layerId = new Integer(Integer.parseInt(idString));
-            Layer layer = (Layer) em.find(Layer.class, layerId);
-            LayerCalculator lc = new LayerCalculator();
-            try {
-                //lc.calculateLayer();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                lc.closeEntityManager();
-            }
-     
-     
-     
-            //request.setAttribute("downsize", LayerCalculator.downSize(layer, LayerPricing.PAY_PER_REQUEST, em, level,details, new Date()));
-        }
-        return super.edit(mapping, dynaForm, request, response);
+    public ActionForward details(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        return super.unspecified(mapping, dynaForm, request, response);
     }
-     */
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         EntityManager em = getEntityManager();
@@ -157,6 +134,9 @@ public class PricingAction extends KaartenbalieCrudAction {
             
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
+            if (layer.getName() == null || layer.getName().trim().length() == 0) {
+                throw new Exception("Requested layer is not able to register pricinginformation...");
+            }
             LayerPricing lp = new LayerPricing();
             lp.setPlanType(planType.intValue());
             Calendar cal = Calendar.getInstance();
@@ -189,7 +169,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             
         }
         
-        
+        request.setAttribute("gotoTab", new String("details"));
         return super.save(mapping, dynaForm, request, response);
     }
     
@@ -203,12 +183,13 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (idString != null && idString.length() > 0) {
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
+            if (layer.getName() == null || layer.getName().trim().length() == 0) {
+                request.setAttribute("id", null);
+                throw new Exception("Requested layer is not able to register pricinginformation. It is probably a folder!");
+            }
             ServiceProvider sp = layer.getServiceProvider();
             request.setAttribute("spName", sp.getTitle());
             request.setAttribute("lName", layer.getName());
-            
-            //request.setAttribute("priceRequestSingle", LayerCalculator.calculateLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em, new Date()));
-            //request.setAttribute("priceRequestCascade", LayerCalculator.calculateCompleteLayerPrice(layer, LayerPricing.getPAY_PER_REQUEST(), new BigDecimal(1), em,new Date()));
             
             request.setAttribute("layerPricings",
                     em.createQuery(
@@ -218,13 +199,15 @@ public class PricingAction extends KaartenbalieCrudAction {
                     .setParameter("serverProviderPrefix", layer.getSpAbbr())
                     .getResultList());
             LayerCalculator lc = new LayerCalculator(em);
+            
             request.setAttribute("aggregateLayerPricings", new Boolean(LayerCalculator.aggregateLayerPricings));
             if (!LayerCalculator.aggregateLayerPricings) {
+                Date now = new Date();
                 try {
-                    request.setAttribute("activePricing", lc.getActiveLayerPricing(layer, new Date(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
+                    request.setAttribute("activePricing", lc.getActiveLayerPricing(layer, now, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
                 } catch (NoResultException nre) {
-                    nre.printStackTrace();
                 }
+                request.setAttribute("requestPrice", lc.calculateLayerComplete(layer, now, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
             }
         } else {
             JSONObject root = this.createTree();
@@ -290,6 +273,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getId());
         jsonLayer.put("name", layer.getTitle());
+        jsonLayer.put("layerName", layer.getName());
         jsonLayer.put("type", "layer");
         return jsonLayer;
     }

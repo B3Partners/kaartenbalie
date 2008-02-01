@@ -27,7 +27,7 @@ public abstract class ServiceProviderRequest {
     private Long requestResponseTime;
     private String providerRequestURI;
     private Long msSinceRequestStart;
-
+    
     //Relational Mappings
     private ClientRequest clientRequest;
     
@@ -107,6 +107,7 @@ public abstract class ServiceProviderRequest {
         this.msSinceRequestStart = msSinceRequestStart;
     }
     
+
     
     
     

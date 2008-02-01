@@ -181,9 +181,9 @@
             <forward name="success" path="base.beheer.editpricing"/>
             <forward name="failure" path="base.beheer.editpricing"/>
         </action>        
-        <action path="/pricingdownsize" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
-            <forward name="success" path="base.beheer.pricing.downsize"/>
-            <forward name="failure" path="base.beheer.pricing.downsize"/>
+        <action path="/pricingdetails" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing.details"/>
+            <forward name="failure" path="base.beheer.pricing.details"/>
         </action>     
         
         

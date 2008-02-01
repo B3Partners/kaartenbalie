@@ -23,6 +23,8 @@
         <property name="userId" column="clr_userId"/>
         <property name="method" column="clr_method"/>
         <property name="clientIp" column="clr_clientIp"/>
+        <property name="service" column="clr_service"/>
+        <property name="operation" column="clr_operation"/>        
         <property name="organizationId" column="clr_organizationId"/>
     </class>
 </hibernate-mapping>

@@ -13,7 +13,9 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
@@ -28,43 +30,50 @@ import nl.b3p.wms.capabilities.Layer;
 public class LayerCalculator {
     
     
-    private static String inspringen = "";
     private EntityManager em;
     private boolean externalEm = false;
     public static final boolean aggregateLayerPricings = false;
+    
     public LayerCalculator() {
         em = MyEMFDatabase.createEntityManager();
+        
     }
     public LayerCalculator(EntityManager em) {
         this.em = em;
         externalEm = true;
     }
     
-    public static void bij() {
-        inspringen = inspringen + "---";
-    }
-    
-    public static void af() {
-        inspringen = inspringen.substring(0,inspringen.length() -3);
-    }
     public LayerCalculation calculateLayerComplete(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
-        System.out.println(inspringen + "Start van het traject voor het opvragen van een prijs...");
+        
+        long startTime = System.currentTimeMillis();
+        /*
+         * Start van het traject voor het opvragen van een prijs..
+         */
         LayerCalculation tLC = new LayerCalculation(layer.getSpAbbr(), layer.getName(), validationDate, planType, units);
         BigDecimal layerPrice = null;
         try {
             layerPrice = calculateLayer(layer, validationDate, units, planType);
+            tLC.setMethod(LayerCalculation.METHOD_OWN);
         } catch(NoPrizingException npe) {
-            System.out.println(inspringen + "Begin zoektocht naar alternatieven!");
-            System.out.println(inspringen + "Zoek bij de parentlayers voor een prijs... ");
+            /*
+             * Begin zoektocht naar alternatieven!
+             * Zoek bij de parentlayers voor een prijs...
+             */
             try {
                 layerPrice = calculateParentLayer(layer, validationDate, units,  planType);
+                tLC.setMethod(LayerCalculation.METHOD_PARENTS);
             } catch (NoPrizingException npeParent) {
-                System.out.println(inspringen + "Er kon geen prijs worden bepaald via de parents... Zoek bij de childs...");
+                 /*
+                  * Er kon geen prijs worden bepaald via de parents... Zoek bij de childs...
+                  */
                 try {
                     layerPrice = calculateChildLayers(layer, validationDate, units,  planType);
+                    tLC.setMethod(LayerCalculation.METHOD_CHILDS);
                 } catch (NoPrizingException npeChilds) {
-                    af();
-                    System.out.println(inspringen + "Er kon geen prijs worden bepaald via de childs... Kaart is gratis :S");
+                    tLC.setMethod(LayerCalculation.METHOD_NONE);
+                     /*
+                      * Er kon geen prijs worden bepaald via de childs... Kaart is gratis :S
+                      */
                     //npeChilds.printStackTrace();
                 }
             }
@@ -75,79 +84,88 @@ public class LayerCalculator {
         } else {
             tLC.setLayerPrice(layerPrice);
         }
-        
-        
-        
-        
+        tLC.setCalculationTime(System.currentTimeMillis() - startTime);
         return tLC;
     }
     
     
+    private BigDecimal addToLayerPrice(BigDecimal returnValue, BigDecimal addValue) {
+        if  (addValue != null) {
+            if (returnValue == null) {
+                returnValue = new BigDecimal(0);
+            }
+            returnValue = returnValue.add(addValue);
+        }
+        
+        return returnValue;
+    }
     
     private BigDecimal calculateChildLayers(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception{
-        bij();
-        System.out.println(inspringen + "Controleer of " + layer.getName() + " childlayers heeft.");
+         /*
+          * "Controleer of " + layer.getName() + " childlayers heeft.");
+          */
         BigDecimal layerPrice = null;
         
         Set childLayers = layer.getLayers();
         
         if (childLayers != null && childLayers.size() > 0) {
-            System.out.println(inspringen + "Er zijn " + childLayers.size() + " childlayers die we nu gaan opvragen...");
+            /*
+             * Er zijn " + childLayers.size() + " childlayers die we nu gaan opvragen...");
+             */
             Iterator iterChilds = childLayers.iterator();
             while (iterChilds.hasNext()) {
                 Layer childLayer = (Layer) iterChilds.next();
                 boolean hasNoPrice = false;
+                BigDecimal thisLayerPrice = null;
                 try {
-                    layerPrice = calculateLayer( childLayer,  validationDate,  units,  planType);
+                    layerPrice = addToLayerPrice(layerPrice, calculateLayer( childLayer,  validationDate,  units,  planType));
                 } catch (NoPrizingException npe) {
-                    //Deze child heeft geen prijs, niet erg, gewoon door met de volgende... Wel even notitie van maken.
-                    hasNoPrice = true;
+                    /*
+                     * Geen prijs gevonden, zoek bij de childs van " + layer.getName() + ".");
+                     */
+                    try {
+                        layerPrice = addToLayerPrice(layerPrice, calculateChildLayers( childLayer,  validationDate,  units,  planType));
+                    } catch (NoPrizingException npe2) {
+                        
+                    }
                 }
                 
-                try {
-                    BigDecimal childLayerPrice = calculateChildLayers(childLayer, validationDate, units, planType);
-                    if (childLayerPrice != null) {
-                        if (layerPrice == null ) {
-                            layerPrice = childLayerPrice;
-                        } else {
-                            layerPrice = layerPrice.add(childLayerPrice);
-                        }
-                    }
-                } catch (NoPrizingException npe) {
-                    if (hasNoPrice) {
-                        //throw npe;
-                    }
-                }
             }
         } else {
-            System.out.println(inspringen + "Er zijn geen childlayers...");
-            af();
+            /*
+             * Er zijn geen childlayers...
+             */
             throw new NoPrizingException("Geen childlayers meer om prijzen voor te zoeken.");
         }
-        
-        
-        af();
+        /*
+         * Prijs wordt teruggegen.
+         */
         return layerPrice;
     }
     private BigDecimal calculateParentLayer(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception{
-        bij();
-        System.out.println(inspringen + "Controleer of " + layer.getName() + " een parentlayer heeft.");
+        /*
+         * Controleer of " + layer.getName() + " een parentlayer heeft.
+         */
         BigDecimal layerPrice = null;
         Layer parentLayer = layer.getParent();
         if (parentLayer != null) {
-            System.out.println(inspringen + "parent layer is != null");
+           /*
+            * parent layer is != null");
+            */
             try {
                 layerPrice = calculateLayer(parentLayer, validationDate, units, planType);
             } catch (NoPrizingException npe) {
-                System.out.println(inspringen + "No prizing info available... ");
+               /*
+                * No prizing info available...
+                */
                 layerPrice = calculateParentLayer(parentLayer, validationDate, units, planType);
             }
         } else {
-            System.out.println(inspringen + "Er is geen parentlayer (meer) en dus ook geen prijs info.....");
-            af();
+            /*
+             * Er is geen parentlayer (meer) en dus ook geen prijs info.....
+             */
             throw new NoPrizingException();
         }
-        af();
         return layerPrice;
         
     }
@@ -177,7 +195,6 @@ public class LayerCalculator {
         
     }
     public BigDecimal calculateLayer(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
-        bij();
         /*
          *  This function can return four different states/values.
          *  1: NoPrizingException; there is nothing defined for this layer.
@@ -200,10 +217,14 @@ public class LayerCalculator {
         if (planType <= 0) {
             throw new Exception("PlanType is a required field!");
         }
-        
-        System.out.println(inspringen + "De prijs voor " + layer.getSpAbbr() + "_" + layer.getName() + " wordt opgevraagd...");
         /*
-         * Check the mode and use the specified function...
+         * If the layer has no name, it's a placeholder.. No need to query...
+         */
+        if (layer.getName() == null || layer.getName().trim().length()==0) {
+            throw new NoPrizingException("Layer is a placeholder and therefor cannot hold pricingInformation.");
+        }
+        /*
+         * De prijs voor " + layer.getSpAbbr() + "_" + layer.getName() + " wordt opgevraagd...
          */
         BigDecimal layerPrice = null;
         if (aggregateLayerPricings) {
@@ -229,15 +250,19 @@ public class LayerCalculator {
              * If there are no lines, thrown an exception!
              */
             if (pricingLines.longValue() == 0) {
-                System.out.println(inspringen + layer.getSpAbbr() + "_" + layer.getName() + " bevat geen prijsinformatie.");
-                af();
+                /*
+                 * layer.getSpAbbr() + "_" + layer.getName() + " bevat geen prijsinformatie.");
+                 */
                 throw new NoPrizingException();
             }
             
             /*
              * Check if the layer is free, if it's not, then set the layerPrice..
              */
-            if (!((Boolean) resultSet[2]).booleanValue()) {
+            Boolean layerIsFree = (Boolean) resultSet[2];
+            
+            
+            if (layerIsFree == null || (layerIsFree != null && !layerIsFree.booleanValue())) {
                 layerPrice = (BigDecimal)resultSet[1];
             }
         } else {
@@ -248,10 +273,13 @@ public class LayerCalculator {
                         (layerPricing.getLayerIsFree() == null  || (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
                     layerPrice = layerPricing.getUnitPrice().multiply(units);
                 }
-                System.out.println(inspringen + layer.getSpAbbr() + "_" + layer.getName() + " bevat prijsinformatie, status: " + layerPrice);
+                /*
+                 * layer.getSpAbbr() + "_" + layer.getName() + " bevat prijsinformatie, prijs: " + layerPrice);
+                 */
             } catch (NoResultException nre) {
-                System.out.println(inspringen + layer.getSpAbbr() + "_" + layer.getName() + " bevat geen prijsinformatie.");
-                af();
+                /*
+                 * layer.getSpAbbr() + "_" + layer.getName() + " bevat geen prijsinformatie.");
+                 */
                 throw new NoPrizingException(nre.getMessage());
             }
             
@@ -262,7 +290,6 @@ public class LayerCalculator {
         if (layerPrice != null && layerPrice.compareTo(new BigDecimal(0)) < 0) {
             layerPrice = new BigDecimal(0);
         }
-        af();
         return layerPrice;
         
     }

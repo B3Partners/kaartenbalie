@@ -22,5 +22,4 @@ public class WMSGetCapabilitiesRequest extends WMSRequest {
     public WMSGetCapabilitiesRequest() {
     }
 
-
 }

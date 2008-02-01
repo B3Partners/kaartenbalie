@@ -1,8 +1,9 @@
 
 var tabCollections = new Object();
 var tabCookieName = 'tabCookie';
-function registerCollection(id, active)
+function registerCollection(id, defaultCollection, overrideCookieCollection)
 {
+    var active;
     tabCollection = document.getElementById(id)
     if (tabCollection == null)
     {
@@ -12,10 +13,16 @@ function registerCollection(id, active)
         tc.init();
         tabCollections[id] = tc;
         cookie = readCookie(id)
-        if (cookie != null && cookie != '')
+        if (overrideCookieCollection != null && overrideCookieCollection != '')
         {
-            active = cookie;
-        } 
+            active = overrideCookieCollection;
+        } else {
+            if (cookie != null && cookie != ''){
+                active = cookie;
+            } else {
+                active = defaultCollection
+            }
+        }
         displayTabByReference(id, active);        
     }
 }

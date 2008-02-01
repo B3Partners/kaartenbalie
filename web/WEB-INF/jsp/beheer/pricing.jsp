@@ -7,7 +7,7 @@
     <h1>Beheer Layer prijzen</h1>
     
     <b>Lijst met beschikbare layers:</b>
-
+    
     <div style="height:600px;margin:0px;border:0px Solid Black;padding:0px;">
         <div id="tree" style="border:1px Solid Black;float:left;width:230px;height:550px;overflow:auto;margin:5px;">
         </div>
@@ -40,11 +40,17 @@
             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
             div.style.height = '18px';
             if(item.type != "serviceprovider") {
-                var popupLink = document.createElement("a");
-                popupLink.innerHTML = item.name;
-                popupLink.href='editpricing.do?edit=submit&id=' + item.id;
-                popupLink.target='pricingframe';
-                div.appendChild(popupLink);
+                if (item.layerName != null && item.layerName != '')
+                {
+                
+                    var popupLink = document.createElement("a");
+                    popupLink.innerHTML = item.name;
+                    popupLink.href='editpricing.do?edit=submit&id=' + item.id;
+                    popupLink.target='pricingframe';
+                    div.appendChild(popupLink);
+                }  else {
+                    div.innerHTML = item.name;
+                }
             } else {
                 div.appendChild(document.createTextNode(item.name));
             }

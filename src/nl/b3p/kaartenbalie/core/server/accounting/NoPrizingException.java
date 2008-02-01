@@ -17,7 +17,7 @@ public class NoPrizingException extends Exception {
     
     
     public NoPrizingException() {
-        super();
+        super("No price could be calculate for the requested layer...");
     }
     public NoPrizingException(String message) {
         super(message);

@@ -71,7 +71,6 @@ public class KaartenbalieCrudAction extends CrudAction{
     throws Exception {
         MyEMFDatabase.initEntityManager();
         EntityManager em = getEntityManager();
-        //EntityManager crudEM = ManagedPersistence.getEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         ActionForward forward = null;
@@ -85,7 +84,6 @@ public class KaartenbalieCrudAction extends CrudAction{
             getDataWarehousing().end();
             return forward;
         } catch(Exception e) {
-            e.printStackTrace();
             tx.rollback();
             log.error("Exception occured, rollback", e);
             MessageResources messages = getResources(request);
@@ -110,12 +108,11 @@ public class KaartenbalieCrudAction extends CrudAction{
             addAlternateMessage(mapping, request, null, msg);
         }
         
-
+        
         tx.begin();
         
         try {
             prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
-            //throw new Exception("Lorem Ipsum 2");
             tx.commit();
         } catch(Exception e) {
             tx.rollback();
