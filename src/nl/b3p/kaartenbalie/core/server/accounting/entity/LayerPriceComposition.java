@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package nl.b3p.kaartenbalie.core.server.accounting;
+package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -18,7 +18,7 @@ import java.util.Vector;
  *
  * @author Chris Kramer
  */
-public class LayerCalculation {
+public class LayerPriceComposition {
     
     
     public static final int METHOD_OWN = 0;
@@ -26,6 +26,8 @@ public class LayerCalculation {
     public static final int METHOD_CHILDS = 2;
     public static final int METHOD_NONE = 3;
     
+    
+    private Integer id;
     /*
      *Constructor values
      */
@@ -34,7 +36,10 @@ public class LayerCalculation {
     private Date calculationDate;
     private int planType;
     private BigDecimal units;
-    private List layerCalculations;
+    private String service;
+    private String operation;
+    
+    
     
     /*
      * Results
@@ -44,20 +49,40 @@ public class LayerCalculation {
     private int method;
     private long calculationTime;
     
-    private LayerCalculation() {
-        setLayerCalculations(new Vector());
+    /*
+     * Relational
+     */
+    private TransactionLayerUsage transactionLayerUsage;
+    
+    /*
+     * Constructors
+     */
+    public LayerPriceComposition() {
+        
         method = METHOD_NONE;
     }
     
-    public LayerCalculation(String serverProviderPrefix, String layerName, Date calculationDate, int planType, BigDecimal units) {
+    public LayerPriceComposition(String serverProviderPrefix, String layerName, Date calculationDate, int planType, BigDecimal units, String service, String operation) {
         this();
         this.setServerProviderPrefix(serverProviderPrefix);
         this.setLayerName(layerName);
         this.setCalculationDate(calculationDate);
         this.setPlanType(planType);
         this.setUnits(units);
+        this.setOperation(operation);
+        this.setService(service);
     }
     
+    /*
+     * Getters & Setters
+     */
+    public Integer getId() {
+        return id;
+    }
+    
+    public void setId(Integer id) {
+        this.id = id;
+    }
     public Boolean getLayerIsFree() {
         return layerIsFree;
     }
@@ -65,8 +90,6 @@ public class LayerCalculation {
     public void setLayerIsFree(Boolean layerIsFree) {
         this.layerIsFree = layerIsFree;
     }
-    
-    
     
     public BigDecimal getLayerPrice() {
         return layerPrice;
@@ -116,24 +139,6 @@ public class LayerCalculation {
         this.units = units;
     }
     
-    
-    public String toString() {
-        return "LayerCalculation for '" + serverProviderPrefix + "_" + layerName + "'. \n" +
-                "This calculation took place on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'. \n" +
-                "The total cost of this calculation was " + layerPrice + " credits. \n" +
-                "The freeState of this layer is '" + layerIsFree + "'. \n" + 
-                "The used method is " + method + ". \n";
-        
-    }
-    
-    public List getLayerCalculations() {
-        return layerCalculations;
-    }
-    
-    public void setLayerCalculations(List layerCalculations) {
-        this.layerCalculations = layerCalculations;
-    }
-    
     public int getMethod() {
         return method;
     }
@@ -141,14 +146,53 @@ public class LayerCalculation {
     public void setMethod(int method) {
         this.method = method;
     }
-
+    
     public long getCalculationTime() {
         return calculationTime;
     }
-
+    
     public void setCalculationTime(long calculationTime) {
         this.calculationTime = calculationTime;
     }
+    
+    public TransactionLayerUsage getTransactionLayerUsage() {
+        return transactionLayerUsage;
+    }
+    
+    public void setTransactionLayerUsage(TransactionLayerUsage transactionLayerUsage) {
+        this.transactionLayerUsage = transactionLayerUsage;
+    }
+    
+    public String getService() {
+        return service;
+    }
+    
+    public void setService(String service) {
+        this.service = service;
+    }
+    
+    public String getOperation() {
+        return operation;
+    }
+    
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+    /*
+     * Methods
+     */
+    public String toString() {
+        return "LayerCalculation for '" + serverProviderPrefix + "_" + layerName + "'. \n" +
+                "This calculation took place on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'. \n" +
+                "The total cost of this calculation was " + layerPrice + " credits. \n" +
+                "The freeState of this layer is '" + layerIsFree + "'. \n" +
+                "The used method is " + method + ". \n";
+        
+    }
+    
+    
+    
+    
     
     
 }

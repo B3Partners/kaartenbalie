@@ -35,6 +35,10 @@
         
         <many-to-one name="account" column="tra_acc_id"/>  
         <subclass name="nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage" discriminator-value="LayerUsage">
+            <set name="layerPriceCompositions" > 
+                <key column="prc_tra_id"/> 
+                <one-to-many class="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition"/> 
+            </set>
         </subclass>
         <subclass name="nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit" discriminator-value="PaymentDeposit">
             <property name="billingAmount">

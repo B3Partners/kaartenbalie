@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition" table="acc_pricecomp">
+        
+        <id name="id" type="int" column="prc_id" >
+            <generator class="native"/>
+        </id>
+        <many-to-one name="transactionLayerUsage" column="prc_tra_id"/> 
+        
+        <property name="serverProviderPrefix" column="prc_serverProviderPrefix"/>
+        <property name="layerName" column="prc_layerName"/>
+        <property name="calculationDate" column="prc_calculationDate"/>
+        <property name="planType" column="prc_planType"/>
+        <property name="service" column="prc_service"/>
+        <property name="operation" column="prc_operation"/>
+        <property name="units">
+            <column name="lpr_units" precision="5" scale="2" />            
+        </property>  
+        
+        <property name="layerIsFree" column="prc_layerIsFree"/>
+        <property name="method" column="prc_method"/>
+        <property name="calculationTime" column="prc_calculationTime"/>
+        <property name="layerPrice">
+            <column name="lpr_layerPrice" precision="12" scale="2" />            
+        </property>  
+        
+        
+    </class>
+</hibernate-mapping>

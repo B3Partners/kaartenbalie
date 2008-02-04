@@ -97,7 +97,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         String givenSRS         = ogc.getParameter(WMS_PARAM_SRS);
         Map userdefinedParams   = ogc.getNonOGCParameters();
         
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, false);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, false, dw);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(GETMAP_EXCEPTION);

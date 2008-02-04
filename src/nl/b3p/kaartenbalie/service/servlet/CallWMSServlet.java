@@ -144,7 +144,6 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             parseRequestAndData(data, user);
             rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
         } catch (Exception ex) {
-            ex.printStackTrace();
             String value = "";
             if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS)) {
                 value = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);

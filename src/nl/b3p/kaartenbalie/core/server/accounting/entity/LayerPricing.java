@@ -20,6 +20,7 @@ import nl.b3p.wms.capabilities.*;
 public class LayerPricing {
     
     public final static int PAY_PER_REQUEST = 1;
+    
     private Integer id;
     private int planType;
     private Date validFrom;
@@ -28,6 +29,10 @@ public class LayerPricing {
     private Date deletionDate;
     private BigDecimal unitPrice;
     private Boolean layerIsFree;
+    private String service;
+    private String operation;
+    
+    
     /*Relation*/
     private String layerName;
     private String serverProviderPrefix;
@@ -97,37 +102,53 @@ public class LayerPricing {
     public void setLayerIsFree(Boolean layerIsFree) {
         this.layerIsFree = layerIsFree;
     }
-
+    
     public String getLayerName() {
         return layerName;
     }
-
+    
     public void setLayerName(String layerName) {
         this.layerName = layerName;
     }
-
+    
     public String getServerProviderPrefix() {
         return serverProviderPrefix;
     }
-
+    
     public void setServerProviderPrefix(String serverProviderPrefix) {
         this.serverProviderPrefix = serverProviderPrefix;
     }
-
+    
     public Date getDeletionDate() {
         return deletionDate;
     }
-
+    
     public void setDeletionDate(Date deletionDate) {
         this.deletionDate = deletionDate;
     }
-
+    
     public Integer getIndexCount() {
         return indexCount;
     }
-
+    
     public void setIndexCount(Integer indexCount) {
         this.indexCount = indexCount;
+    }
+    
+    public String getService() {
+        return service;
+    }
+    
+    public void setService(String service) {
+        this.service = service;
+    }
+    
+    public String getOperation() {
+        return operation;
+    }
+    
+    public void setOperation(String operation) {
+        this.operation = operation;
     }
     
     

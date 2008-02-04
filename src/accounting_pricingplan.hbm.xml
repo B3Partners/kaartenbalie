@@ -41,6 +41,12 @@
         <property name="indexCount">
             <column name="lpr_indexCount"/>
         </property>  
+        <property name="service">
+            <column name="lpr_service"/>
+        </property>  
+        <property name="operation">
+            <column name="lpr_operation"/>
+        </property>          
 
     </class>
 </hibernate-mapping> 

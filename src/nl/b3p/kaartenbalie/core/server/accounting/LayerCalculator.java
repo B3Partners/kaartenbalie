@@ -13,11 +13,10 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
@@ -43,38 +42,42 @@ public class LayerCalculator {
         externalEm = true;
     }
     
-    public LayerCalculation calculateLayerComplete(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
+    public LayerPriceComposition calculateLayerComplete(Integer layerId, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception {
+        Layer layer = (Layer) em.find(Layer.class, layerId);
+        return calculateLayerComplete(layer, validationDate, units, planType, service, operation);
+    }
+    
+    public LayerPriceComposition calculateLayerComplete(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception {
         
         long startTime = System.currentTimeMillis();
         /*
          * Start van het traject voor het opvragen van een prijs..
          */
-        LayerCalculation tLC = new LayerCalculation(layer.getSpAbbr(), layer.getName(), validationDate, planType, units);
+        LayerPriceComposition tLC = new LayerPriceComposition(layer.getSpAbbr(), layer.getName(), validationDate, planType, units);
         BigDecimal layerPrice = null;
         try {
-            layerPrice = calculateLayer(layer, validationDate, units, planType);
-            tLC.setMethod(LayerCalculation.METHOD_OWN);
+            layerPrice = calculateLayer(layer, validationDate, units, planType, service, operation);
+            tLC.setMethod(LayerPriceComposition.METHOD_OWN);
         } catch(NoPrizingException npe) {
             /*
              * Begin zoektocht naar alternatieven!
              * Zoek bij de parentlayers voor een prijs...
              */
             try {
-                layerPrice = calculateParentLayer(layer, validationDate, units,  planType);
-                tLC.setMethod(LayerCalculation.METHOD_PARENTS);
+                layerPrice = calculateParentLayer(layer, validationDate, units,  planType, service, operation);
+                tLC.setMethod(LayerPriceComposition.METHOD_PARENTS);
             } catch (NoPrizingException npeParent) {
                  /*
                   * Er kon geen prijs worden bepaald via de parents... Zoek bij de childs...
                   */
                 try {
-                    layerPrice = calculateChildLayers(layer, validationDate, units,  planType);
-                    tLC.setMethod(LayerCalculation.METHOD_CHILDS);
+                    layerPrice = calculateChildLayers(layer, validationDate, units,  planType, service, operation);
+                    tLC.setMethod(LayerPriceComposition.METHOD_CHILDS);
                 } catch (NoPrizingException npeChilds) {
-                    tLC.setMethod(LayerCalculation.METHOD_NONE);
+                    tLC.setMethod(LayerPriceComposition.METHOD_NONE);
                      /*
                       * Er kon geen prijs worden bepaald via de childs... Kaart is gratis :S
                       */
-                    //npeChilds.printStackTrace();
                 }
             }
         }
@@ -100,7 +103,7 @@ public class LayerCalculator {
         return returnValue;
     }
     
-    private BigDecimal calculateChildLayers(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception{
+    private BigDecimal calculateChildLayers(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception{
          /*
           * "Controleer of " + layer.getName() + " childlayers heeft.");
           */
@@ -118,13 +121,13 @@ public class LayerCalculator {
                 boolean hasNoPrice = false;
                 BigDecimal thisLayerPrice = null;
                 try {
-                    layerPrice = addToLayerPrice(layerPrice, calculateLayer( childLayer,  validationDate,  units,  planType));
+                    layerPrice = addToLayerPrice(layerPrice, calculateLayer( childLayer,  validationDate,  units,  planType, service, operation));
                 } catch (NoPrizingException npe) {
                     /*
                      * Geen prijs gevonden, zoek bij de childs van " + layer.getName() + ".");
                      */
                     try {
-                        layerPrice = addToLayerPrice(layerPrice, calculateChildLayers( childLayer,  validationDate,  units,  planType));
+                        layerPrice = addToLayerPrice(layerPrice, calculateChildLayers( childLayer,  validationDate,  units,  planType, service, operation));
                     } catch (NoPrizingException npe2) {
                         
                     }
@@ -142,7 +145,7 @@ public class LayerCalculator {
          */
         return layerPrice;
     }
-    private BigDecimal calculateParentLayer(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception{
+    private BigDecimal calculateParentLayer(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception{
         /*
          * Controleer of " + layer.getName() + " een parentlayer heeft.
          */
@@ -153,12 +156,12 @@ public class LayerCalculator {
             * parent layer is != null");
             */
             try {
-                layerPrice = calculateLayer(parentLayer, validationDate, units, planType);
+                layerPrice = calculateLayer(parentLayer, validationDate, units, planType, service, operation);
             } catch (NoPrizingException npe) {
                /*
                 * No prizing info available...
                 */
-                layerPrice = calculateParentLayer(parentLayer, validationDate, units, planType);
+                layerPrice = calculateParentLayer(parentLayer, validationDate, units, planType, service, operation);
             }
         } else {
             /*
@@ -172,7 +175,7 @@ public class LayerCalculator {
     
     
     
-    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception{
+    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception{
         if (aggregateLayerPricings) {
             throw new Exception("This function is not supported when layerPriceAggregation is enabled.");
         }
@@ -194,7 +197,7 @@ public class LayerCalculator {
                 .getSingleResult();
         
     }
-    public BigDecimal calculateLayer(Layer layer, Date validationDate, BigDecimal units, int planType) throws Exception {
+    public BigDecimal calculateLayer(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception {
         /*
          *  This function can return four different states/values.
          *  1: NoPrizingException; there is nothing defined for this layer.
@@ -267,7 +270,7 @@ public class LayerCalculator {
             }
         } else {
             try {
-                LayerPricing layerPricing = getActiveLayerPricing(layer, validationDate, units, planType);
+                LayerPricing layerPricing = getActiveLayerPricing(layer, validationDate, units, planType, service, operation);
                 
                 if (layerPricing.getUnitPrice() != null &&
                         (layerPricing.getLayerIsFree() == null  || (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
@@ -300,53 +303,6 @@ public class LayerCalculator {
         }
         em.close();
     }
-    
-    public static void main(String[] args) throws Exception {
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        LayerCalculator lc = new LayerCalculator();
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        try {
-            Layer kaartenbalie= (Layer) em.find(Layer.class, new Integer(1311));
-            Layer grenzen = (Layer) em.find(Layer.class, new Integer(1314));
-            Layer autowegen_nl = (Layer) em.find(Layer.class, new Integer(1302));
-            
-            Calendar cal = Calendar.getInstance();
-            System.out.println(cal.getTime());
-            System.out.println("===================================================");
-            System.out.println(lc.calculateLayerComplete(kaartenbalie, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
-            System.out.println("===================================================");
-            //System.out.println(lc.calculateLayerComplete(grenzen, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
-            System.out.println("===================================================");
-            //System.out.println(lc.calculateLayerComplete(autowegen_nl, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST));
-            System.out.println("===================================================");
-            
-            /*
-            cal.set(2008,0,29,14,00,00);
-            System.out.println(cal.getTime());
-            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
-             
-            cal.set(2008,0,29,14,03,00);
-            System.out.println(cal.getTime());
-            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
-             
-             
-            cal.set(2008,0,29,14,05,00);
-            System.out.println(cal.getTime());
-            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
-             
-            cal.set(2008,1,3,14,05,00);
-            System.out.println(cal.getTime());
-            lc.calculateLayerComplete(layer, cal.getTime(), new BigDecimal(1), LayerPricing.PAY_PER_REQUEST);
-             */
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            lc.closeEntityManager();
-            em.close();
-        }
-    }
-    
     
     
 }

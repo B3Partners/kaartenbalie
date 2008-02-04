@@ -12,6 +12,7 @@ package nl.b3p.kaartenbalie.core.server.accounting;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -19,6 +20,7 @@ import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -154,7 +156,26 @@ public class AccountManager {
         accountTransaction.setAccount(account);
         accountTransaction.setUser(user);
         try {
-            //Check if the creditAlteration is less then zero or equal to zero and possibly throw an Exception
+            /*
+             * If the class is an TransactionLayerUsage, we'll have to do some work before testing.
+             * We need to persist the LayerPriceCompositions into the entityManager..
+             */
+            if (accountTransaction.getClass().equals(TransactionLayerUsage.class)) {
+                TransactionLayerUsage tlu = (TransactionLayerUsage) accountTransaction;
+                Iterator iterPriceComp = tlu.getLayerPriceCompositions().iterator();
+                while(iterPriceComp.hasNext()) {
+                    LayerPriceComposition lpc = (LayerPriceComposition) iterPriceComp.next();
+                    em.persist(lpc);
+                    System.out.println(lpc);
+                }
+            }
+            
+            
+            
+            
+            /*
+             *Done, Check if the creditAlteration is less then zero or equal to zero and possibly throw an Exception
+             */
             if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
                 throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
             }
@@ -174,6 +195,7 @@ public class AccountManager {
                             "Insufficient credits for transaction. " +
                             "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
                             "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                
             } else {
                 throw new Exception("Unsupported transaction type");
             }
@@ -184,12 +206,14 @@ public class AccountManager {
             et.commit();
             balance = newBalance;
         } catch (TransactionDeniedException tde) {
+            tde.printStackTrace();
             accountTransaction.setErrorMessage(tde.getMessage());
             accountTransaction.setStatus(accountTransaction.REFUSED);
             em.merge(accountTransaction);
             et.commit();
             throw tde;
         } catch (Exception e) {
+            e.printStackTrace();
             et.rollback();
             throw e;
         } finally {

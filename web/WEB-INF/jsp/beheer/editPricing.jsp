@@ -9,37 +9,35 @@
             <legend>Prijsinformatie</legend>
             <label>Service Provider :</label> ${spName} <br/>
             <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${requestPrice.layerName}</b> [<a href="#" onclick="parent.showPopup(800,600,'Herleidbare Informatie','pricingdetails.do?details=submit&id=${id}');">Geef overzicht vanaf deze laag</a>]<br/>
-            <div style="background-color:white;border:1px Solid Black;width:600px;">
-                <table style="width:600px;padding:0px;margin:0px;border-collapse: collapse;">
-                    <tr>
-                        <th style="width:150px;">Type</th>
-                        <th style="width:150px;">Samengesteld Tarief</th>
-                        <th style="width:180px;">Methode</th>
-                        <th style="width:120px;">Tijd Berekening</th>
-                    </tr>
-                    <tr>
-                        <th style="width:150px;">Per Opvraag</th>
-                        <td style="width:150px;">
-                            <c:choose>
-                                <c:when test="${requestPrice.layerIsFree}">Gratis</c:when>
-                                <c:otherwise><fmt:formatNumber value="${requestPrice.layerPrice}" minFractionDigits="2"  maxFractionDigits="2"/> credits</c:otherwise>
-                            </c:choose>
-                            
-                        </td>
-                        <td style="width:180px;">
-                            <c:choose>
-                                <c:when test="${requestPrice.method == 0}">Via eigen prijsregels</c:when>
-                                <c:when test="${requestPrice.method == 1}">Via bovenliggende lagen</c:when>
-                                <c:when test="${requestPrice.method == 2}">Via onderliggende lagen</c:when>
-                                <c:otherwise>nvt</c:otherwise>
-                            </c:choose>
-                        </td>
-                        <td  style="width:120px;">
-                            ${requestPrice.calculationTime} ms (indicatief)
-                        </td>
-                        
-                    </tr>
+            <div style="background-color:white;border:1px Solid Black;width:300px;">
+                
+                
+                <table style="width:300px;padding:0px;margin:0px;border-collapse: collapse;" class="pricingTable">
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">Service</th>
+                            <th>Operation/Methode</th>
+                            <th>Per Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="dataRow" items="${tableData}">
+                            <tr>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${dataRow[0] == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
+                                        <c:when test="${dataRow[0] == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
+                                        <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>${dataRow[1]}</td>
+                                <td>${dataRow[2].layerIsFree}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                    
                 </table>
+                
             </div>
         </fieldset>
         
@@ -104,10 +102,11 @@
                     <div style="background-color:white;border:1px Solid Black;">
                         
                         
-                        <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;">
+                        <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" id="pricingTable">
                             <tr>
                                 <thead>
                                     <th>planType</th>
+                                    <th>Service/Methode</th>
                                     <th>Aangemaakt</th>
                                     <th>Geldig vanaf</th>
                                     <th>Verloopt</th>
@@ -131,6 +130,14 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
+                                        <td class="${rowstyle}">
+                                            <c:choose>
+                                                <c:when test="${layerPricing.service == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
+                                                <c:when test="${layerPricing.service == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
+                                                <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
+                                            </c:choose>
+                                            ${layerPricing.operation}
+                                        </td>                                        
                                         <td class="${rowstyle}">
                                             <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.creationDate}"/>        
                                         </td>
@@ -209,6 +216,42 @@
                                     }
                                 }
                         </script>
+                        
+                        <label>Service & Methode :</label>
+                        
+                        <table style="width:300px;">
+                            <tr>
+                                <td style="width:70px;">
+                                    <html:radio property="service" onclick="document.getElementById('operationWMS').disabled = true;document.getElementById('operationWFS').disabled = true;" value="GLOBAL">GLOBAL</html:radio>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:70px;">
+                                    <html:radio property="service" onclick="document.getElementById('operationWMS').disabled = false;document.getElementById('operationWFS').disabled = true;" value="WMS">WMS</html:radio>
+                                </td>
+                                <td>
+                                    <html:select styleId="operationWMS" property="operationWMS" disabled="${pricingForm.map.service != 'WMS'}">
+                                        <html:option value="">Alle</html:option>
+                                        <c:forEach var="request" items="${wmsRequests}">
+                                            <html:option value="${request}"/>
+                                        </c:forEach>
+                                    </html:select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width:70px;">
+                                    <html:radio disabled="true" onclick="document.getElementById('operationWMS').disabled = true;document.getElementById('operationWFS').disabled = false;" property="service" value="WFS">WFS</html:radio>
+                                </td>
+                                <td>
+                                    <html:select styleId="operationWFS" property="operationWFS" disabled="${pricingForm.map.service != 'WFS'}">
+                                        <html:option value="">Alle</html:option>
+                                        <c:forEach var="request" items="${wfsRequests}">
+                                            <html:option value="${request}"/>
+                                        </c:forEach>                            
+                                    </html:select> 
+                                </td>
+                            </tr>
+                        </table>
                         <ul>
                             <li>
                                 <b>Geldig vanaf :</b> Indien leeg, regel is altijd geldig. Anders begin van de dag (0:00:00u).

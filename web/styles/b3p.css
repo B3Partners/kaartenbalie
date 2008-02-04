@@ -501,9 +501,13 @@ tbody, td {
 
 
 /* pricingAction */
+table.pricingTable th, table.pricingTable td{
+    font-size:9px;
+}
+
 td.deleted, td.active, td.normal
 {
-border-top:1px Solid Black;
+    border-top:1px Solid Black;
 }
 td.deleted
 {

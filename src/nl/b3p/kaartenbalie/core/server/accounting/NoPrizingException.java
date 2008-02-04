@@ -15,7 +15,7 @@ package nl.b3p.kaartenbalie.core.server.accounting;
  */
 public class NoPrizingException extends Exception {
     
-    
+    private static final long serialVersionUID = 9144089171508939394L;
     public NoPrizingException() {
         super("No price could be calculate for the requested layer...");
     }
