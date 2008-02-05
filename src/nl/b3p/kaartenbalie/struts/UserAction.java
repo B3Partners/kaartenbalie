@@ -100,6 +100,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         }
         
         populateUserForm(user, dynaForm, request);
+        createLists(dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
@@ -140,6 +141,9 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         em.flush();
         getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
         
+        populateUserForm(user, dynaForm, request);
+        createLists(dynaForm, request);
+
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);

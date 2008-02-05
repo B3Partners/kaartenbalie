@@ -130,6 +130,9 @@
                 <li>u kunt een nieuwe URL maken, indien u er nog geen een aangemaakt had.</li>
             </ul>
         </P>        
+        <p>
+            <strong>LET OP: uw persoonlijke url verandert als u geldigheidsdatum aanpast.</strong>
+        </p>
         <P>
             De URL stelt u in staat om op eenvoudige wijze met andere viewers 
             dan de intern meegeleverde viewer gebruik te maken van de Kaartenbalie. 
