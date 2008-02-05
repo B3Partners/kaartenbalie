@@ -5,51 +5,75 @@
 <c:choose>
     <c:when test="${not empty id}">
         <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
-        <fieldset style="margin:0px;padding-top:0px;">
-            <legend>Prijsinformatie</legend>
-            <label>Service Provider :</label> ${spName} <br/>
-            <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${requestPrice.layerName}</b> [<a href="#" onclick="parent.showPopup(800,600,'Herleidbare Informatie','pricingdetails.do?details=submit&id=${id}');">Geef overzicht vanaf deze laag</a>]<br/>
-            <div style="background-color:white;border:1px Solid Black;width:300px;">
-                
-                
-                <table style="width:300px;padding:0px;margin:0px;border-collapse: collapse;" class="pricingTable">
-                    <thead>
-                        <tr>
-                            <th style="width:50px;">Service</th>
-                            <th>Operation/Methode</th>
-                            <th>Per Request</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="dataRow" items="${tableData}">
-                            <tr>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${dataRow[0] == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
-                                        <c:when test="${dataRow[0] == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
-                                        <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>${dataRow[1]}</td>
-                                <td>${dataRow[2].layerIsFree}</td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                    
-                </table>
-                
-            </div>
-        </fieldset>
-        
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul>
+                    <li id="pricing" onclick="displayTabBySource(this);">Index</li>
                     <li id="details" onclick="displayTabBySource(this);">Details</li>
                     <li id="new"  onclick="displayTabBySource(this);">Nieuwe Prijsbepaling</li>
                     <li id="help"  onclick="displayTabBySource(this);">Uitleg</li>
                 </ul>
             </div>
-            <div id="sheets" style="height:300px;">
+            <div id="sheets" style="height:450px;">
+                <div id="pricing" class="sheet">  
+                    <label>Service Provider :</label> ${spName} <br/>
+                    <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${lName}</b><br/>
+                    <h1>Samenvatting</h1>
+                    <c:if test="${summary == true}">
+                        <table style="padding:0px;margin:0px;border-collapse: collapse;border:1px Solid Black;" class="">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">&nbsp;</th>
+                                    <th colspan="3" style="border-left: 1px Solid Black; border-right: 1px Solid Black;">Per Request</th>
+                                </tr>
+                                <tr>
+                                    <th style="width:40px;">Serv.</th>
+                                    <th style="width:200px;">Operation/Methode</th>
+                                    <th style="border-left: 1px Solid Black;width:60px;">Prijs</th>
+                                    <th style="width:70px;">tCalc</th>
+                                    <th style="border-right: 1px Solid Black;width:60px;">Via</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="dataRow" items="${tableData}">
+                                    <tr>
+                                        <td style="text-align:right;">
+                                            <c:choose>
+                                                <c:when test="${dataRow[0] == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
+                                                <c:when test="${dataRow[0] == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
+                                                <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>${dataRow[1]}</td>
+                                        <td style="border-left: 1px Solid Black;">
+                                            <c:choose>
+                                                <c:when test="${dataRow[2].layerIsFree}">
+                                                    Gratis
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatNumber value="${dataRow[2].layerPrice}" minFractionDigits="2"  maxFractionDigits="2"/> c
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>± ${dataRow[2].calculationTime}ms</td>
+                                        <td style="border-right: 1px Solid Black;">
+                                            <c:choose>
+                                                <c:when test="${dataRow[2].method == '0'}"><img src="../images/icons/owner.gif" alt="Prijsinformatie via eigen prijsbepalingen"></c:when>
+                                                <c:when test="${dataRow[2].method == '1'}"><img src="../images/icons/parent.gif" alt="WFS"></c:when>
+                                                <c:when test="${dataRow[2].method == '2'}"><img src="../images/icons/childs.gif" alt="WFS"></c:when>                                        
+                                                <c:otherwise><img src="../images/icons/na.gif" alt="All"></c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                            
+                        </table>
+                    </c:if>
+                    <p>
+                        <input type="checkbox" onchange="location.href='editpricing.do?id=${id}&summary=' + this.checked;" ${summary == true ? 'checked':''}>Samenvatting ophalen</input>
+                    </p>
+                </div>
                 <div id="help" class="sheet">  
                     <b>layerPricing Aggregatie</b><br/>
                     <c:choose>
@@ -68,6 +92,24 @@
                             </p>
                         </c:otherwise>
                     </c:choose>
+                    
+                    
+                    <ul>
+                        <li>
+                            <b>Geldig vanaf :</b> Indien leeg, regel is altijd geldig. Anders begin van de dag (0:00:00u).
+                        </li>
+                        <li>
+                            <b>Geldig tot en met :</b> Indien leeg, regel verloopt nooit. Anders einde van de dag (23:59:59u).
+                        </li>
+                        <li>
+                            <b>Tarief :</b> Indien leeg, 0,00 credits. 
+                        </li>
+                        <li>
+                            <b>Kaart is gratis :</b> Indien aangevinkt, de kaart is in de aangegeven periode gratis. (NB: Andere regels hebben geen invloed meer zolang de kaart gratis is.)
+                        </li>
+                    </ul>
+                    
+                    
                     
                     <b>Legenda Detail pagina</b>
                     <table style="width:100%;border:1px Solid Black;">
@@ -98,11 +140,11 @@
                         </tbody>
                     </table>
                 </div>
-                <div id="details" class="sheet" style="height:280px;">  
+                <div id="details" class="sheet" style="height:450px;">  
                     <div style="background-color:white;border:1px Solid Black;">
                         
                         
-                        <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" id="pricingTable">
+                        <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="pricingTable">
                             <tr>
                                 <thead>
                                     <th>planType</th>
@@ -136,7 +178,12 @@
                                                 <c:when test="${layerPricing.service == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
                                                 <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
                                             </c:choose>
-                                            ${layerPricing.operation}
+                                            <c:choose>
+                                                
+                                                <c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when>
+                                                <c:otherwise>Alle</c:otherwise>
+                                            </c:choose>
+                                            
                                         </td>                                        
                                         <td class="${rowstyle}">
                                             <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.creationDate}"/>        
@@ -217,9 +264,9 @@
                                 }
                         </script>
                         
-                        <label>Service & Methode :</label>
+                        <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}<br/>
                         
-                        <table style="width:300px;">
+                        <table style="width:300px;display:none;">
                             <tr>
                                 <td style="width:70px;">
                                     <html:radio property="service" onclick="document.getElementById('operationWMS').disabled = true;document.getElementById('operationWFS').disabled = true;" value="GLOBAL">GLOBAL</html:radio>
@@ -252,20 +299,6 @@
                                 </td>
                             </tr>
                         </table>
-                        <ul>
-                            <li>
-                                <b>Geldig vanaf :</b> Indien leeg, regel is altijd geldig. Anders begin van de dag (0:00:00u).
-                            </li>
-                            <li>
-                                <b>Geldig tot en met :</b> Indien leeg, regel verloopt nooit. Anders einde van de dag (23:59:59u).
-                            </li>
-                            <li>
-                                <b>Tarief :</b> Indien leeg, 0,00 credits. 
-                            </li>
-                            <li>
-                                <b>Kaart is gratis :</b> Indien aangevinkt, de kaart is in de aangegeven periode gratis. (NB: Andere regels hebben geen invloed meer zolang de kaart gratis is.)
-                            </li>
-                        </ul>
                         <html:submit property="save" styleClass="submit">Voeg toe</html:submit>
                         
                     </html:form>

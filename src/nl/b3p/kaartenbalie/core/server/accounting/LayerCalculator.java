@@ -48,12 +48,14 @@ public class LayerCalculator {
     }
     
     public LayerPriceComposition calculateLayerComplete(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception {
-        
         long startTime = System.currentTimeMillis();
+        if (!AccountManager.isEnableAccounting()) {
+            return null;
+        }
         /*
          * Start van het traject voor het opvragen van een prijs..
          */
-        LayerPriceComposition tLC = new LayerPriceComposition(layer.getSpAbbr(), layer.getName(), validationDate, planType, units);
+        LayerPriceComposition tLC = new LayerPriceComposition(layer.getSpAbbr(), layer.getName(), validationDate, planType, units, service, operation);
         BigDecimal layerPrice = null;
         try {
             layerPrice = calculateLayer(layer, validationDate, units, planType, service, operation);
@@ -175,28 +177,7 @@ public class LayerCalculator {
     
     
     
-    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception{
-        if (aggregateLayerPricings) {
-            throw new Exception("This function is not supported when layerPriceAggregation is enabled.");
-        }
-        return (LayerPricing) em.createQuery(
-                "FROM LayerPricing AS lp " +
-                "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
-                "AND lp.planType = :planType " +
-                "AND lp.layerName = :layerName " +
-                "AND lp.serverProviderPrefix = :serverProviderPrefix " +
-                "AND lp.creationDate < :validationDate " +
-                "AND (lp.validFrom < :validationDate OR lp.validFrom IS null) " +
-                "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
-                "ORDER BY lp.indexCount DESC")
-                .setParameter("layerName",layer.getName())
-                .setParameter("serverProviderPrefix",layer.getSpAbbr())
-                .setParameter("validationDate",validationDate)
-                .setParameter("planType",new Integer(planType))
-                .setMaxResults(1)
-                .getSingleResult();
-        
-    }
+    
     public BigDecimal calculateLayer(Layer layer, Date validationDate, BigDecimal units, int planType, String service, String operation) throws Exception {
         /*
          *  This function can return four different states/values.
@@ -240,12 +221,16 @@ public class LayerCalculator {
                     "AND lp.creationDate < :validationDate " +
                     "AND (lp.validFrom < :validationDate OR lp.validFrom IS null) " +
                     "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
+                    "AND (lp.service = :service OR lp.service IS null) " +
+                    "AND (lp.operation = :operation OR lp.operation IS null) " +
                     "ORDER BY lp.indexCount DESC")
                     .setParameter("layerName",layer.getName())
                     .setParameter("serverProviderPrefix",layer.getSpAbbr())
                     .setParameter("validationDate",validationDate)
                     .setParameter("units",units)
                     .setParameter("planType",new Integer(planType))
+                    .setParameter("operation",operation)
+                    .setParameter("service",service)
                     .getSingleResult();
             
             Long pricingLines = (Long) resultSet[0];
@@ -270,10 +255,33 @@ public class LayerCalculator {
             }
         } else {
             try {
-                LayerPricing layerPricing = getActiveLayerPricing(layer, validationDate, units, planType, service, operation);
+                
+                LayerPricing layerPricing = (LayerPricing) em.createQuery(
+                        "FROM LayerPricing AS lp " +
+                        "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
+                        "AND lp.planType = :planType " +
+                        "AND lp.layerName = :layerName " +
+                        "AND lp.serverProviderPrefix = :serverProviderPrefix " +
+                        "AND lp.creationDate <= :validationDate " +
+                        "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
+                        "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
+                        "AND (lp.validUntil > :validationDate OR lp.validUntil IS null) " +
+                        "AND (lp.service = :service OR lp.service IS null) " +
+                        "AND (lp.operation = :operation OR lp.operation IS null) " +
+                        "ORDER BY lp.indexCount DESC")
+                        .setParameter("layerName",layer.getName())
+                        .setParameter("serverProviderPrefix",layer.getSpAbbr())
+                        .setParameter("validationDate",validationDate)
+                        .setParameter("planType",new Integer(planType))
+                        .setParameter("operation",operation)
+                        .setParameter("service",service)
+                        .setMaxResults(1)
+                        .getSingleResult();
+                
                 
                 if (layerPricing.getUnitPrice() != null &&
                         (layerPricing.getLayerIsFree() == null  || (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
+                    
                     layerPrice = layerPricing.getUnitPrice().multiply(units);
                 }
                 /*

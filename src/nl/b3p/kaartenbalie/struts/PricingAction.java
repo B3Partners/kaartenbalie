@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
@@ -133,6 +134,9 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
             } else {
                 service = null;
             }
+            if (operation != null && operation.trim().length() == 0) {
+                operation = null;
+            }
             
             Boolean layerIsFree = (Boolean) dynaForm.get("layerIsFree");
             Double unitPrice = null;
@@ -191,21 +195,32 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
     
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        
+        HttpSession session = request.getSession();
         EntityManager em = getEntityManager();
         String idString = (String) request.getAttribute("id");
         if (idString != null && idString.length() > 0) {
+            request.setAttribute("gotoTab", new String("pricing"));
+            String summary = request.getParameter("summary");
+            if (summary != null && summary.trim().length() > 0) {
+                session.setAttribute("summary", summary);
+            } else {
+                summary = (String) session.getAttribute("summary");
+            }
+            request.setAttribute("summary", summary);
+            
             /*
              * First load the possible WMS and WFS requests..
              */
             request.setAttribute("wmsRequests",ACCOUNTING_WMS_REQUESTS);
             request.setAttribute("wfsRequests",ACCOUNTING_WFS_REQUESTS);
             
+            
             /*
              * Now set the default service to WMS - if appliable..
              */
             if (form.getString("service") == null || form.getString("service").trim().length() == 0) {
                 form.set("service", new String("WMS"));
+                form.set("operationWMS", new String("GetMap"));
             }
             
             /*
@@ -234,43 +249,38 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
              * Then calculate all the different prizes for all requesttypes..
              */
             LayerCalculator lc = new LayerCalculator(em);
-            
             request.setAttribute("aggregateLayerPricings", new Boolean(LayerCalculator.aggregateLayerPricings));
             
-            
-            Object[][] tableData = new Object[ACCOUNTING_WMS_REQUESTS.length + ACCOUNTING_WFS_REQUESTS.length][3];
-            Date now = new Date();
-            BigDecimal units  = new BigDecimal(1);
-            for (int i = 0; i < ACCOUNTING_WMS_REQUESTS.length; i++) {
-                
-                tableData[i][0] = "WMS";
-                tableData[i][1] = ACCOUNTING_WMS_REQUESTS[i];
-                try {
-                    tableData[i][2] = lc.getActiveLayerPricing(layer, now, units, LayerPricing.PAY_PER_REQUEST, "WMS",ACCOUNTING_WMS_REQUESTS[i]);
-                } catch (NoResultException nre) {
-                    tableData[i][2] = null;
-                }
-            }
-            
-            
-            
-            request.setAttribute("tableData",tableData);
-            
-            /*
-             
-            if (!LayerCalculator.aggregateLayerPricings) {
+            if (summary != null && summary.equalsIgnoreCase("true")) {
+                Object[][] tableData = new Object[ACCOUNTING_WMS_REQUESTS.length + ACCOUNTING_WFS_REQUESTS.length][3];
                 Date now = new Date();
-                LayerPricing[] lpPayPerRequest = new LayerPricing[ACCOUNTING_WMS_REQUESTS.length];
-                for (int i = 0; i < ACCOUNTING_WMS_REQUESTS.length; i++) {
+                BigDecimal units  = new BigDecimal(1);
+                int totalWMSRequests = ACCOUNTING_WMS_REQUESTS.length;
+                for (int i = 0; i < totalWMSRequests; i++) {
+                    
+                    tableData[i][0] = "WMS";
+                    tableData[i][1] = ACCOUNTING_WMS_REQUESTS[i];
                     try {
-                        lpPayPerRequest[i] = lc.getActiveLayerPricing(layer, now, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS",ACCOUNTING_WMS_REQUESTS[i]);
-                        System.out.println(lpPayPerRequest[i]);
+                        tableData[i][2] = lc.calculateLayerComplete(layer, now, units, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
                     } catch (NoResultException nre) {
+                        tableData[i][2] = null;
                     }
                 }
-                request.setAttribute("wmsPayPerRequest",lpPayPerRequest);
+                int totalWMFRequests = ACCOUNTING_WFS_REQUESTS.length;
+                for (int i = 0; i < totalWMFRequests; i++) {
+                    tableData[i +totalWMSRequests ][0] = "WFS";
+                    tableData[i + totalWMSRequests][1] = ACCOUNTING_WFS_REQUESTS[i];
+                    try {
+                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now, units, LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]);
+                    } catch (NoResultException nre) {
+                        tableData[i + totalWMSRequests][2] = null;
+                    }
+                }
+                
+                
+                request.setAttribute("tableData",tableData);
             }
-             */
+            
             
             
         } else {

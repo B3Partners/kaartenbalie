@@ -235,11 +235,24 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
         //List spList = null;
-        AccountManager am = AccountManager.getAccountManager(orgId);
+        /*
+         * Accounting...
+         */
         
+        AccountManager am = AccountManager.getAccountManager(orgId);
         TransactionLayerUsage tlu = am.beginTLU();
-        Map config = new HashMap();
+        
         LayerCalculator lc = new LayerCalculator();
+        /*
+         *End of Accounting
+         */
+        
+        /*
+         * B3Partners Layers ConfigMap
+         */
+        Map config = new HashMap();
+        /*
+         */
         try {
             Date validationDate = new Date();
             BigDecimal units = new BigDecimal(1);
@@ -259,9 +272,9 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         throw new Exception(GETMAP_EXCEPTION);
                     }
                     
-                /*
-                 * Check if the layer is an configurationlayer, if it is, proces the info..
-                 */
+                    /*
+                     * Check if the layer is an configurationlayer, if it is, proces the info..
+                     */
                     if (layerCode.equals(SERVICEPROVIDER_BASE_ABBR)) {
                         ConfigLayer.processConfig(layerName, config);
                     } else {
@@ -291,8 +304,16 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         
                         // layer toevoegen aan sp indien queryable voorwaarde ok
                         if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                            LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
-                            tlu.registerUsage(lpc);
+                            /*
+                             * B3Partners Accounting
+                             */
+                            if (AccountManager.isEnableAccounting()) {
+                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
+                                tlu.registerUsage(lpc);
+                            }
+                            /*
+                             * End of Accounting
+                             */
                             
                             // Haal de laatst opgehaalde sp info er bij.
                             // Hier worden nu ook de layers aan toegevoegd indien
@@ -353,7 +374,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         }
         
-
+        
         return eventualSPList;
     }
     
@@ -616,6 +637,6 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract void getRequest(DataWrapper dw, User user) throws IOException, Exception;
     // </editor-fold>
-
-
+    
+    
 }

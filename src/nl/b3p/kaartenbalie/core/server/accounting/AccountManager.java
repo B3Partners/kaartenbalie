@@ -70,6 +70,8 @@ public class AccountManager {
     }
     
     public Transaction prepareTransaction(Class transactionClass, String description) throws Exception{
+        if (!isEnableAccounting()) {return null;}
+        
         if (!Transaction.class.isAssignableFrom(transactionClass)) {
             throw new Exception("Class transactionClass is not assignable.");
         }

@@ -11,6 +11,7 @@ package nl.b3p.kaartenbalie.core.server.b3pLayering;
 
 import java.util.HashMap;
 import java.util.Map;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 
@@ -24,8 +25,10 @@ public abstract class ConfigLayer extends Layer {
     
     static {
         configLayers = new HashMap();
-        configLayers.put(AllowTransactionsLayer.NAME, new AllowTransactionsLayer());
-        configLayers.put(Allow100CTALayer.NAME, new Allow100CTALayer());
+        if (AccountManager.isEnableAccounting()) {
+            configLayers.put(AllowTransactionsLayer.NAME, new AllowTransactionsLayer());
+            configLayers.put(Allow100CTALayer.NAME, new Allow100CTALayer());
+        }
     }
     
     public static void processConfig(String name, Map configMap) throws Exception{
