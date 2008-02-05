@@ -357,7 +357,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
                 String ipaddress = (String) it.next();
-                if(ipaddress.equalsIgnoreCase(remoteaddress)) {
+                if(ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
                     validip = true;
                     break;
                 }
