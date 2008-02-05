@@ -235,21 +235,15 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
         //List spList = null;
-        /*
-         * Accounting...
-         */
+
         
+        /* Accounting... */
         AccountManager am = AccountManager.getAccountManager(orgId);
         TransactionLayerUsage tlu = am.beginTLU();
-        
         LayerCalculator lc = new LayerCalculator();
-        /*
-         *End of Accounting
-         */
+        /* End of Accounting */
         
-        /*
-         * B3Partners Layers ConfigMap
-         */
+        /*B3Partners Layers ConfigMap */
         Map config = new HashMap();
         /*
          */
@@ -304,16 +298,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         
                         // layer toevoegen aan sp indien queryable voorwaarde ok
                         if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                            /*
-                             * B3Partners Accounting
-                             */
+                            /* Accounting... */
                             if (AccountManager.isEnableAccounting()) {
                                 LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
                                 tlu.registerUsage(lpc);
                             }
-                            /*
-                             * End of Accounting
-                             */
+                            /* End of Accounting */
                             
                             // Haal de laatst opgehaalde sp info er bij.
                             // Hier worden nu ook de layers aan toegevoegd indien
@@ -355,9 +345,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             lc.closeEntityManager();
         }
         
-        /*
-         * Accounting...
-         */
+        /* Accounting... */
         if (AccountManager.isEnableAccounting()) {
             if (tlu.getCreditAlteration().doubleValue()> 0) {
                 Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
@@ -373,6 +361,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
             }
         }
+        /* End of Accounting */
         
         
         return eventualSPList;
