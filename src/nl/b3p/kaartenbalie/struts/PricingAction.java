@@ -199,7 +199,6 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
         EntityManager em = getEntityManager();
         String idString = (String) request.getAttribute("id");
         if (idString != null && idString.length() > 0) {
-            request.setAttribute("gotoTab", new String("pricing"));
             String summary = request.getParameter("summary");
             if (summary != null && summary.trim().length() > 0) {
                 session.setAttribute("summary", summary);
