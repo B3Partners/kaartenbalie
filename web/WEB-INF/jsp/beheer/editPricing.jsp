@@ -5,6 +5,8 @@
 <c:choose>
     <c:when test="${not empty id}">
         <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
+        
+        ::${activePricingData.WMSGetLegendGraphic}::
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul>
@@ -173,16 +175,20 @@
                                             </c:choose>
                                         </td>
                                         <td class="${rowstyle}">
+                                            
                                             <c:choose>
                                                 <c:when test="${layerPricing.service == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
                                                 <c:when test="${layerPricing.service == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
                                                 <c:otherwise><img src="../images/icons/all.gif" alt="All"></c:otherwise>
                                             </c:choose>
                                             <c:choose>
-                                                
                                                 <c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when>
                                                 <c:otherwise>Alle</c:otherwise>
                                             </c:choose>
+                                            
+                                           :: ${activePricingData.WMS_GetMap}::
+                                             
+                                            
                                             
                                         </td>                                        
                                         <td class="${rowstyle}">

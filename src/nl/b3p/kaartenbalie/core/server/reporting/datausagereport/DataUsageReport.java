@@ -15,11 +15,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
-import nl.b3p.wms.capabilities.XMLElement;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  *
  * @author Chris Kramer
  */
-public class DataUsageReport extends ReportTemplate implements XMLElement {
+public class DataUsageReport extends BaseReport {
     
     
     private Date startDate;
@@ -36,59 +36,12 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
     private Set userIds;
     private Integer organizationId;
     public static SimpleDateFormat periodFormat = new SimpleDateFormat("dd-MM-yyyy");
-    
     public DataUsageReport() {
         super();
         setReportData(new HashSet());
         userIds = new HashSet();
     }
     
-    public Element toElement(Document doc, Element rootElement) {
-        Element report = doc.createElement("report");
-        
-        report.setAttribute("id", getId().toString());
-        report.setAttribute("processingTime", getProcessingTime().toString());
-        report.setAttribute("date", getReportDate().toString());
-        
-        Element vars = doc.createElement("vars");
-        Element period = doc.createElement("period");
-        period.appendChild(DataMonitoring.createElement(doc,"start", getStartDate().toString()));
-        period.appendChild(DataMonitoring.createElement(doc,"end", getEndDate().toString()));
-        vars.appendChild(period);
-        Element users = doc.createElement("users");
-        
-        
-        Iterator userIter = getUsers().iterator();
-        while (userIter.hasNext()) {
-            User tmpUser = (User) userIter.next();
-            Element user = doc.createElement("user");
-            user.setAttribute("id",tmpUser.getId().toString());
-            user.appendChild(DataMonitoring.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
-            users.appendChild(user);
-            vars.appendChild(users);
-        }
-        
-        Element company = doc.createElement("company");
-        //TODO do something with company info here!
-        company.setAttribute("id", null);
-        company.appendChild(DataMonitoring.createElement(doc,"name",null));
-        vars.appendChild(company);
-        report.appendChild(vars);
-        
-        Element data = doc.createElement("data");
-        if (getReportData() != null) {
-            
-            Iterator i = getReportData().iterator();
-            while (i.hasNext()) {
-                RepData repData = (RepData) i.next();
-                data.appendChild(repData.toElement(doc,rootElement));
-            }
-        }
-        
-        
-        report.appendChild(data);
-        return report;
-    }
     
     
     public Date getStartDate() {
@@ -157,9 +110,76 @@ public class DataUsageReport extends ReportTemplate implements XMLElement {
         return organizationId;
     }
     
+    public void setOrganization(Organization organization) {
+        if (organization != null) {
+            setOrganizationId(organization.getId());
+        } else {
+            setOrganizationId(null);
+        }
+    }
+    
+    public Organization getOrganization() {
+        try {
+            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     public void setOrganizationId(Integer organizationId) {
         this.organizationId = organizationId;
     }
+    
+    
+    public Element toElement(Document doc, Element rootElement){
+        Element report = doc.createElement("report");
+        
+        report.setAttribute("id", getId().toString());
+        report.setAttribute("processingTime", getProcessingTime().toString());
+        report.setAttribute("date", getReportDate().toString());
+        
+        Element vars = doc.createElement("vars");
+        Element period = doc.createElement("period");
+        period.appendChild(DataMonitoring.createElement(doc,"start", getStartDate().toString()));
+        period.appendChild(DataMonitoring.createElement(doc,"end", getEndDate().toString()));
+        vars.appendChild(period);
+        Element users = doc.createElement("users");
+        
+        
+        Iterator userIter = getUsers().iterator();
+        while (userIter.hasNext()) {
+            User tmpUser = (User) userIter.next();
+            Element user = doc.createElement("user");
+            user.setAttribute("id",tmpUser.getId().toString());
+            user.appendChild(DataMonitoring.createElement(doc,"name", tmpUser.getFirstName() + " " + tmpUser.getSurname()));
+            users.appendChild(user);
+            vars.appendChild(users);
+        }
+        
+        Element company = doc.createElement("company");
+        
+        Organization org = getOrganization();
+        
+        company.setAttribute("id", org.getId().toString());
+        company.appendChild(DataMonitoring.createElement(doc,"name",org.getName()));
+        vars.appendChild(company);
+        report.appendChild(vars);
+        
+        Element data = doc.createElement("data");
+        if (getReportData() != null) {
+            
+            Iterator i = getReportData().iterator();
+            while (i.hasNext()) {
+                RepData repData = (RepData) i.next();
+                data.appendChild(repData.toElement(doc,rootElement));
+            }
+        }
+        
+        
+        report.appendChild(data);
+        return report;
+    }
+    
     
 }
 

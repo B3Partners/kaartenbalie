@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -252,6 +253,8 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
             
             if (summary != null && summary.equalsIgnoreCase("true")) {
                 Object[][] tableData = new Object[ACCOUNTING_WMS_REQUESTS.length + ACCOUNTING_WFS_REQUESTS.length][3];
+                
+                Map activePricingData = new HashMap();
                 Date now = new Date();
                 BigDecimal units  = new BigDecimal(1);
                 int totalWMSRequests = ACCOUNTING_WMS_REQUESTS.length;
@@ -264,6 +267,20 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     } catch (NoResultException nre) {
                         tableData[i][2] = null;
                     }
+                    try {
+                        LayerPricing lp = lc.getActiveLayerPricing(layer, now, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
+                        if(lp != null) {
+                            Map someData = (Map) activePricingData.get(lp.getId());
+                            if (someData == null) {
+                                someData = new HashMap();
+                                activePricingData.put(lp.getId(), someData);
+                            }
+                            someData.put("WMS_" + ACCOUNTING_WMS_REQUESTS[i], null);
+                            
+                        }
+                    } catch (NoResultException nre) {
+                    }
+                    
                 }
                 int totalWMFRequests = ACCOUNTING_WFS_REQUESTS.length;
                 for (int i = 0; i < totalWMFRequests; i++) {
@@ -271,14 +288,20 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     tableData[i + totalWMSRequests][1] = ACCOUNTING_WFS_REQUESTS[i];
                     try {
                         tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now, units, LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]);
+                        
                     } catch (NoResultException nre) {
                         tableData[i + totalWMSRequests][2] = null;
                     }
+                    try {
+                        activePricingData.put("WFS_" + ACCOUNTING_WFS_REQUESTS[i], lc.getActiveLayerPricing(layer, now, LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]));
+                    } catch (NoResultException nre) {
+                    }
                 }
-                
-                
                 request.setAttribute("tableData",tableData);
+                System.out.println(activePricingData.size());
+                request.setAttribute("activePricingData",activePricingData);
             }
+            
             
             
             

@@ -9,15 +9,19 @@
 
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -26,11 +30,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReport;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,16 +46,30 @@ import org.w3c.dom.Node;
  */
 public class ReportGenerator {
     
+    private final static String XSL_PATH = "/xslt/";
     public static SimpleDateFormat trsDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     private static List reportStatusMap;
     private static Stack reportStack;
     private static int maxSimultaneousReports = 15;
+    
+    private static Map reportTypeInfo;
+    public final static int RESPONSE_XML         =0;
+    public final static int RESPONSE_XML_XSLT    =1;
+    public final static int RESPONSE_HTML        = 2;
+    
     
     private User user;
     private Organization organization;
     static {
         reportStatusMap = new ArrayList();
         reportStack = new Stack();
+        reportTypeInfo = new HashMap();
+        reportTypeInfo.put(new Integer(RESPONSE_XML), new String[] {"text/xml", "xml"});
+        reportTypeInfo.put(new Integer(RESPONSE_XML_XSLT), new String[] {"text/xml", "xml"});
+        reportTypeInfo.put(new Integer(RESPONSE_HTML), new String[] {"text/html", "html"});
+    }
+    public static String[] getReportTypeInfo(int reportType) {
+        return (String[]) reportTypeInfo.get(new Integer(reportType));
     }
     
     private ReportGenerator() {
@@ -145,7 +164,7 @@ public class ReportGenerator {
         if (trsId != null) {
             ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() != null) {
-                ReportTemplate reportTemplate = (ReportTemplate) em.find(ReportTemplate.class, trs.getReportId());
+                BaseReport reportTemplate = (BaseReport) em.find(BaseReport.class, trs.getReportId());
                 if (reportTemplate != null) {
                     em.remove(reportTemplate);
                 }
@@ -174,13 +193,14 @@ public class ReportGenerator {
         return result;
     }
     
-    public void fetchReport(Integer trsId, OutputStream outStream) throws Exception {
+    
+    public void fetchReport(Integer trsId, OutputStream outStream, int responseMode,ServletContext servletContext) throws Exception {
         
         EntityManager em = MyEMFDatabase.createEntityManager();
         if (trsId != null) {
             ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() != null) {
-                DataUsageReport report = (DataUsageReport) em.find(DataUsageReport.class, trs.getReportId());
+                BaseReport report = (BaseReport) em.find(BaseReport.class, trs.getReportId());
                 //Create instance of DocumentBuilderFactory
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 
@@ -193,21 +213,43 @@ public class ReportGenerator {
                 //get the root element
                 Element reportElement = report.toElement(doc,null);
                 doc.appendChild(reportElement);
-                Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/report.xsl\"");
-                doc.insertBefore(reportXsl, reportElement);
+                Source reportSource = new DOMSource(doc);
                 
-                TransformerFactory tranFactory = TransformerFactory.newInstance();
-                Transformer aTransformer = tranFactory.newTransformer();
-                aTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
-                aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
                 
-                Source src = new DOMSource(doc);
+                String reportType = report.getClass().getSimpleName();
+                TransformerFactory transFactory = TransformerFactory.newInstance();
+                Transformer xmlTransformer = transFactory.newTransformer();
+                xmlTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                xmlTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
                 
-                aTransformer.transform(src, new StreamResult(outStream));
+                switch (responseMode) {
+                    case RESPONSE_XML :
+                        xmlTransformer.transform(reportSource, new StreamResult(outStream));
+                        break;
+                    case RESPONSE_XML_XSLT :
+                        Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/" + reportType + "/mnp/report.xsl\"");
+                        doc.insertBefore(reportXsl, reportElement);
+                        xmlTransformer.transform(reportSource, new StreamResult(outStream));
+                        
+                        break;
+                    case RESPONSE_HTML :
+                        try {
+                            File xslFile = new File(servletContext.getRealPath(XSL_PATH +  reportType + "/mnp/report.xsl"));
+                            File xmlPath = new File(xslFile.getParent());
+                            Source xsltSource = new StreamSource(new FileInputStream(xslFile));
+                            xsltSource.setSystemId(xmlPath.toURI().toString());
+                            Transformer xsltTransformer = transFactory.newTransformer(xsltSource);
+                            xsltTransformer.transform(reportSource, new StreamResult(outStream));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                }
             }
         }
         em.close();
     }
+    
     
 }

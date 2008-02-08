@@ -27,7 +27,7 @@
         </set>
         <set name="reports">
             <key column="rpd_org_id" update="false"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport"/>
         </set>   
         <set name="reportStatus">
             <key column="sta_org_id" update="false"/>

@@ -73,7 +73,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
             
-            
             Map spInfo = (Map) it.next();
             WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
             Integer serviceProviderId = (Integer)spInfo.get("spId");

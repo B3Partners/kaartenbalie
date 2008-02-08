@@ -38,8 +38,9 @@ import org.apache.commons.codec.binary.Base64;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
@@ -171,6 +172,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     data.setContentType(WMS_PARAM_EXCEPTION_XML);
                 }
                 
+                
                 String message;
                 try {
                     message = ex.getMessage();
@@ -178,12 +180,24 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     message = "";
                 }
                 
-                try {
-                    TextToImage tti = new TextToImage();
-                    tti.createImage(message, data);
-                } catch (Exception e) {
-                    log.error("error: ", e);
+                if (ex.getClass().equals(ConfigLayerException.class)) {
+                    ConfigLayerException cle = (ConfigLayerException) ex;
+                    ConfigLayer cl = cle.getConfigLayer();
+                    try {
+                        cl.sendImage(data, cl.drawImage(data,cle.getParameterMap()));
+                    } catch (Exception e) {
+                        log.error("error: ", e);
+                    }
+                } else {
+                    try {
+                        TextToImage tti = new TextToImage();
+                        tti.createImage(message, data);
+                    } catch (Exception e) {
+                        log.error("error: ", e);
+                    }
+                    
                 }
+                
             } else {
                 ByteArrayOutputStream output = null;
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

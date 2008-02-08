@@ -1,0 +1,10 @@
+- Loggen van geannuleerde clientrequests, serviceproviderrequests, etc..
+- XSLT->PDF FOP Processor
+- GetFeatureInfoRequestHandler --> QueryLayers wordt niet geformateerd..
+
+
+
+Ochtend uur >= 1 && < 13
+Middag >= 13 && null ???
+
+

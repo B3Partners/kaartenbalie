@@ -12,8 +12,8 @@
 
 		<html>
 			<head>
-				<link rel="stylesheet" type="text/css" href="http://localhost:8084/kaartenbalie/xslt/css/b3p_global.css"/>
-				<link rel="stylesheet" type="text/css" href="http://localhost:8084/kaartenbalie/xslt/css/b3p_report.css"/>
+				<link rel="stylesheet" type="text/css" href="http://localhost:8084/kaartenbalie/xslt/DataUsageReport/css/b3p_global.css"/>
+				<link rel="stylesheet" type="text/css" href="http://localhost:8084/kaartenbalie/xslt/DataUsageReport/css/b3p_report.css"/>
 			</head>
 			<body>
 				<fieldset id="report" >

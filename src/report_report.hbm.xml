@@ -4,7 +4,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate" table="rep_report" discriminator-value="ReportTemplate">
+        <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport" table="rep_report" discriminator-value="ReportTemplate">
         <id name="id" type="int" column="rep_id" >
             <generator class="native"/>
         </id>

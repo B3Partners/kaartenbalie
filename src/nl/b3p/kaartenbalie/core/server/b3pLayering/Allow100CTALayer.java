@@ -9,7 +9,9 @@
 
 package nl.b3p.kaartenbalie.core.server.b3pLayering;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
+import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 
 /**
  *
@@ -24,13 +26,15 @@ public class Allow100CTALayer extends ConfigLayer{
         super(NAME, TITLE);
     }
     
-    public Allow100CTALayer(String name, String title) {
-        super(name, title);
-    }
-    
     public void processConfig(Map configMap) throws Exception {
         configMap.put(configValue, new Boolean(true));
     }
+    
+    protected BufferedImage modifyBaseImage(DataWrapper data, BufferedImage bufImage,Map parameterMap) throws Exception {
+        return bufImage;
+    }
+    
+    
     
     
 }

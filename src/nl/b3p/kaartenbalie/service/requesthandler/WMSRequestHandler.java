@@ -48,6 +48,7 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.Allow100CTALayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
@@ -184,7 +185,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Map configLayers = ConfigLayer.getConfigLayers();
         Iterator iterLayerKeys = configLayers.keySet().iterator();
         while(iterLayerKeys.hasNext()) {
-            Layer configLayer = (Layer) configLayers.get(iterLayerKeys.next());
+            Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
             configLayer.setServiceProvider(validServiceProvider);
             kaartenbalieTopLayer.addLayer(configLayer);
         }
@@ -207,6 +208,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     protected List getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable, DataWrapper dw) throws Exception {
         
         EntityManager em = MyEMFDatabase.getEntityManager();
+        
         // Hier komt elke sp precies een keer uit als tenminste de database
         // correct is en er maar een toplayer (parent==null) is!
         Map toplayerMap = new HashMap();
@@ -235,7 +237,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
         //List spList = null;
-
+        
         
         /* Accounting... */
         AccountManager am = AccountManager.getAccountManager(orgId);
@@ -270,7 +272,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                      * Check if the layer is an configurationlayer, if it is, proces the info..
                      */
                     if (layerCode.equals(SERVICEPROVIDER_BASE_ABBR)) {
-                        ConfigLayer.processConfig(layerName, config);
+                        ConfigLayer cl = ConfigLayer.forName(layerName);
+                        if (cl == null) {
+                            throw new Exception("Config Layer " + layerName + " not found!");
+                        }
+                        cl.processConfig(config);
                     } else {
                         // Check of voldoende rechten op layer bestaan en ophalen url
                         query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
@@ -351,12 +357,12 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
                 
                 if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
-                    throw new Exception(REQUIRES_PAYMENT_AUTHORIZATION_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+                    throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME));
                 }
                 if (tlu.getCreditAlteration().doubleValue() > 100) {
                     Boolean allow100CTransactions = (Boolean) config.get(Allow100CTALayer.configValue);
                     if (allow100CTransactions == null || (allow100CTransactions != null && allow100CTransactions.booleanValue() == false)) {
-                        throw new Exception(MORE_THEN_100_CREDITS_EXCEPTION + tlu.getCreditAlteration().doubleValue() + " credits.");
+                        throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME));
                     }
                 }
             }

@@ -11,12 +11,15 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain;
 
 import java.util.Date;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.wms.capabilities.XMLElement;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
  * @author Chris Kramer
  */
-public class ReportTemplate {
+public abstract class BaseReport  implements XMLElement {
     
     private Integer id;
     private Date reportDate;
@@ -25,7 +28,7 @@ public class ReportTemplate {
     
     
     
-    public ReportTemplate() {
+    public BaseReport() {
         setReportDate(new Date());
     }
     

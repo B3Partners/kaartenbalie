@@ -17,7 +17,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReport;
 import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReportThread;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.ReportTemplate;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 
 /**
@@ -31,10 +31,10 @@ public abstract class ReportThreadTemplate extends Thread{
     private User user;
     private Organization organization;
     private ReportGenerator reportGenerator;
-    private ReportTemplate reportTemplate;
+    private BaseReport reportTemplate;
     private Integer trsId;
     
-    protected ReportTemplate report;
+    protected BaseReport report;
     
     public void init(ReportGenerator reportGenerator, User user, Organization organization, Map parameters) throws Exception {
         /*
@@ -54,7 +54,7 @@ public abstract class ReportThreadTemplate extends Thread{
             /*
              * Initialize a new report.
              */
-            report = (ReportTemplate) getReportClass().newInstance();
+            report = (BaseReport) getReportClass().newInstance();
             report.setOwningOrganization(organization);
             /*
              * Create a new ThreadReportStatus object and persist it in the DB.

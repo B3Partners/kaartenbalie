@@ -27,7 +27,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+
 /**
  *
  * @author Chris Kramer
@@ -84,13 +84,19 @@ public class ReportingAction extends KaartenbalieCrudAction {
     
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Integer id = FormUtils.StringToInteger(dynaForm.getString("id"));
-        response.setContentType("text/xml");
-        
+        Integer type = FormUtils.StringToInteger(request.getParameter("type"));
+        if (type == null) {
+            type = new Integer(0);
+        }
+        String[] resultInfo = ReportGenerator.getReportTypeInfo(type.intValue());
+        if (resultInfo == null) {
+            throw new Exception("Unsupported resultType.");
+        }
+        response.setContentType(resultInfo[0]);
         ReportGenerator rg = getReportGenerator(request);
-        String fileName = rg.reportName(id) + ".xml";
+        String fileName = rg.reportName(id) + "." + resultInfo[1];
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-        
-        rg.fetchReport(id, response.getOutputStream());
+        rg.fetchReport(id, response.getOutputStream(), type.intValue(), getServlet().getServletContext());
         return super.create(mapping, dynaForm, request, response);
     }
     
