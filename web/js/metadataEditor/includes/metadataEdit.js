@@ -56,9 +56,8 @@ function initWithXmlString() {
 	xmlDoc.async = false;
 	xmlDoc.loadXML(rawPreprocessedXML);
 	
-	debug("xmlDoc:");
-	//debug(xmlDoc.xml);
-	debugXmlDoc(xmlDoc);
+	//debug("xmlDoc:");
+	//debugXmlDoc(xmlDoc);
 
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
@@ -66,7 +65,7 @@ function initWithXmlString() {
 	xslDoc.load(mainXslFullPath);
 	
 	//debug("Xsl:");
-	//debug(xslDoc.xml);
+	//debugXmlDoc(xslDoc);
 	
 	// Global var. Also used by create section.
 	xmlTransformer = new XML.Transformer(xslDoc);

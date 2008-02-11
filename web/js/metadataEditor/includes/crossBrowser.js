@@ -191,8 +191,8 @@ function debug(msg) {
 
 }
 
-// LET OP: Deze functie geeft niet alle informatie uit een xml document weer!!!
-// (geen attributes en mixed elements en text)
+// LET OP!: Deze functie geeft niet alle informatie uit een xml document weer!!!
+// (geen attributes en geen mixed elements (text en elementen door elkaar))
 // Wel handig voor bepaalde debugging purposes
 function debugXmlDoc(xmlDocToBeDebugged) {
 	var p = document.createElement("p");
@@ -209,12 +209,22 @@ function _debugXmlDoc(node, stringBuffer, depth) {
 		if (childNode.nodeType == Node.ELEMENT_NODE) {
 			addSpaces(stringBuffer, depth);
 			stringBuffer.append("&lt;" + childNode.nodeName + "&gt;");
-			var hasChildElements = false;
-			for (var k = 0; k < childNode.childNodes.length; k++)
-				if (childNode.childNodes[k].nodeType == Node.ELEMENT_NODE)
-					hasChildElements = true;
-			if (!hasChildElements) {
-				stringBuffer.append(childNode.nodeValue);
+			var hasChildElementNodes = false;
+			for (var j = 0; j < childNode.childNodes.length; j++) {
+				if (childNode.childNodes[j].nodeType == Node.ELEMENT_NODE) {
+					//stringBuffer.append("*elementnode gevonden*: ");
+                    hasChildElementNodes = true;
+                    break;
+                }
+            }
+			if (!hasChildElementNodes) {
+                for (var k = 0; k < childNode.childNodes.length; k++) {
+                    var possibleTextNode = childNode.childNodes[k];
+                    if (possibleTextNode.nodeType == Node.TEXT_NODE) {
+                        //stringBuffer.append("*TEXT*: ");
+                        stringBuffer.append(possibleTextNode.nodeValue);
+                    }
+                }
 			}
 			else {
 				stringBuffer.append("<br />");
@@ -231,6 +241,6 @@ function _debugXmlDoc(node, stringBuffer, depth) {
 var SPACE_DEPTH = 4;
 
 function addSpaces(stringBuffer, depth) {
-	for (var j = 0; j < depth * SPACE_DEPTH; j++)
+	for (var i = 0; i < depth * SPACE_DEPTH; i++)
 		stringBuffer.append("&nbsp;");
 }

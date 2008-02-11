@@ -259,6 +259,8 @@ function stopEdit(event) {
 	parentNode.appendChild(document.createTextNode(newValue));
 	
 	stopPropagation(event);
+    
+    //debugXmlDoc(xmlDoc);
 }
 
 function saveValueOnClientSide(parentNode, newValue) {
@@ -464,8 +466,8 @@ function addElementOrSection(path, above) {
 	else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
 		toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode.nextSibling);
 	
-	debug("xmldoc na toevoeging nieuwe element: ");
-	debug(xmlDoc.xml);
+	//debug("xmldoc na toevoeging nieuwe element: ");
+	//debugXmlDoc(xmlDoc);
 	
 	// preprocess again to get all the ancestors to appear in the xmlDoc backend
 	var xmlDocString = preprocessor.transformToString(xmlDoc);
@@ -473,8 +475,8 @@ function addElementOrSection(path, above) {
 	// put in backend var again. Compatible with both IE and FF
 	xmlDoc.loadXML(xmlDocString);
 	
-	debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
-	debug(xmlDoc.xml);
+	//debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
+	//debugXmlDoc(xmlDoc);
 	
 	// create entirely new xhtml representation of xmlDoc and add it to the current page
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
