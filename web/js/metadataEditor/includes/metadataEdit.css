@@ -59,8 +59,10 @@ ul.menu {
 	border: 1px solid #999; 
 	position: absolute;  /* key attribute for hovering menu */
 	z-index: 10; /* needs position: absolute; */
+    list-style: none;
 	list-style-type: none;
-	line-height: 100%;
+	line-height: 125%; /* om te voorkomen dat de line-height van element wordt overerft (200% op het moment) */
+    /*display: inline;*/
 }
 
 ul.menu li {
@@ -160,7 +162,7 @@ ul.menu li a:hover {
 }
 
 .menu-img-element {
-	position: relative;
+	/*position: relative;*/
 	cursor: pointer;
 	cursor: hand;
 }
