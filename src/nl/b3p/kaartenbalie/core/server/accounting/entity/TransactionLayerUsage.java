@@ -12,7 +12,6 @@ package nl.b3p.kaartenbalie.core.server.accounting.entity;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
-import oracle.net.ano.SupervisorService;
 
 /**
  *
