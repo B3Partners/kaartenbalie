@@ -39,10 +39,11 @@
 		<label>Data Transfered</label><xsl:apply-templates select="dataSize"/><br/>
 		<label>Average ResponseTime</label><xsl:value-of select="format-number(averageDuration,$dispMs)"/>/transfer<br/>
 		<xsl:variable name="avDownloadKiloBytes"><xsl:value-of select="(dataSize div @hits) div 1024"/></xsl:variable>
-		<label>Average DL Size</label><xsl:value-of select="format-number($avDownloadKiloBytes,$dispKb)"/><br/>
-
+		<!--
+                <label>Average DL Size</label><xsl:value-of select="format-number($avDownloadKiloBytes,$dispKb)"/><br/>
 		<xsl:variable name="kbms"><xsl:value-of select="($avDownloadKiloBytes div averageDuration) * 1000"/></xsl:variable>
 		<label>Average DL Speed</label><xsl:value-of select="format-number($kbms,$dispKb)"/>/s<br/>
+                -->
 	</xsl:template>
 	
 	<xsl:template match="dataSize">
@@ -62,12 +63,12 @@
 		<label>total Send/Received</label><xsl:value-of select="format-number($tXfer* $bToMb,$dispMb)"/><br/>
 		
 		
-		<label>Data per session</label><xsl:value-of select="format-number(($tXfer div @hits) * $bToKb,$dispKb)"/>/request<br/>
+		<label>Av. Data per Request</label><xsl:value-of select="format-number(($tXfer div @hits) * $bToKb,$dispKb)"/>/request<br/>
 	</xsl:template>
 	
 	<xsl:template match="bytesReceivedFromUser">
 		
-		<xsl:value-of select="format-number(. * $bToMb,$dispMb)"/>
+		<xsl:value-of select="format-number(. * $bToKb,$dispKb)"/>
 		
 	</xsl:template>
 	<xsl:template match="bytesSendToUser">
