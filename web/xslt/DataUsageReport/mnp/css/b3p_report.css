@@ -1,0 +1,41 @@
+fieldset#report
+{
+	width:100%;
+}
+
+fieldset#period
+{
+	width:300px;
+}
+
+fieldset#company
+{
+	width:400px;
+}
+
+fieldset#users
+{
+	width:400px;
+}
+
+fieldset#users table
+{
+	width:100%;
+}
+
+fieldset#summary label 
+{
+	width:200px;
+}
+
+table#details
+{
+    padding:0px;
+    border-collapse: collapse;
+
+    
+}
+table#details td
+{
+    text-align:right;
+}

@@ -1,0 +1,124 @@
+/*
+B3P Colors
+		bgcolor			color			border
+Donkerblauw:	rgb(28,108,167)		rgb(233,241,247)	
+Lichtblauw:	rgb(233,241,247)	rgb(28,108,167)	
+Wit/blauw	rgb(255,255,255)	rgb(28,108,167)		rgb(186,211,228)
+Wit/zwart	rgb(255,255,255)	rgb(0,0,0)		rgb(186,211,228)
+Diepgeel:	rgb(255,246,219)	rgb(0,0,0)		
+
+*/
+
+
+
+
+body, table, td, th
+{
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    
+
+}
+body {
+    color: #000;
+    width: 100%;
+
+}
+
+
+table {
+    
+}
+
+
+thead 
+{
+	
+}
+tbody
+{
+	
+}
+td, th{
+    padding-left:5px;
+    padding-right:5px;
+    
+}
+thead td,tfoot td{
+    	font-weight: bold;
+	background:rgb(192,192,192);
+	color:rgb(0,0,0);
+        border:1px Solid #000;        
+}
+
+tbody td {
+    	font-weight: normal;
+        border:1px Solid #CCC;        
+	
+    
+}
+
+
+.natural
+{
+}
+
+.variance
+{
+	background:rgb(245,245,245);
+}
+
+a {
+}
+
+h1 {
+    font-size: 12px;
+    margin-top:15px;
+    margin-bottom:0px;
+}
+
+h2 {
+}
+
+h3 {
+    color: #008000;
+}
+
+h4 {
+}
+
+h5 {
+}
+
+fieldset
+{
+	border:1px Solid Black;
+	padding:10px;
+	display:block;
+	
+}
+
+legend
+{
+	margin-bottom:10px;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:3px;
+	padding-bottom:3px;
+	border:1px Solid Black;
+}
+label
+{
+
+    	padding-left:10px;
+    	width:130px;
+    	font-weight: bold;
+	text-align:left;
+}
+
+hr
+{
+	border:0px;
+	background:#000000;
+	height:3px;
+}
