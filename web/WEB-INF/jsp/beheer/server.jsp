@@ -7,6 +7,23 @@
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
+<script type="text/javascript">
+    function sortTable(obj) {
+        var childs = document.getElementById('topRij').childNodes;
+        for(i = 0; i < childs.length; i++) {
+            if(childs[i].tagName == 'TD' && childs[i] != obj) {
+                childs[i].className = "serverRijTitel table-sortable";
+            }
+        }
+        if(obj.className == "serverRijTitel table-sortable")
+            obj.className = "serverRijTitel table-sorted-desc";
+        else if(obj.className == "serverRijTitel table-sorted-asc")
+            obj.className = "serverRijTitel table-sorted-desc";
+        else if(obj.className == "serverRijTitel table-sorted-desc")
+            obj.className = "serverRijTitel table-sorted-asc";
+    }
+</script>
+
 <html:javascript formName="serverForm" staticJavascript="false"/>
 <html:form action="/server" onsubmit="return validateServerForm(this)" focus="givenName">
     <html:hidden property="action"/>
@@ -16,76 +33,92 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Servers</H1>
         
-        <div class="serverRijTitel">
-            <div style="width: 100px;">Naam</div>
-            <div style="width: 60px;">Afkorting</div>
-            <div style="width: 340px;">URL</div>
-            <div style="width: 150px;">Datum laatste update</div>
-        </div>
+        <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+            <thead>
+                <tr class="serverRijTitel" id="topRij">
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="200"><div>Naam</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="100"><div>Afkorting</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="340"><div>URL</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['date'], col:3}); sortTable(this);" width="100"><div>Datum laatste update</div></td>
+                </tr>
+            </thead>
+        </table>
         
         <c:set var="hoogte" value="${(fn:length(serviceproviderlist) * 21)}" />
         <c:if test="${hoogte > 230}">
             <c:set var="hoogte" value="230" />
         </c:if>
         
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px"> 
-            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                <div class="serverRij">
-                    <div style="width: 100px;" class="vakSpeciaal">
-                        <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
-                            <c:out value="${nServiceProvider.givenName}"/>
-                        </html:link>
-                    </div>
-                    <div style="width: 60px;">
-                        <c:out value="${nServiceProvider.abbr}"/>
-                    </div>
-                    <div style="width: 340px;">
-                        <c:out value="${nServiceProvider.url}"/>
-                    </div>
-                    <div style="width: 150px;">
-                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
-                    </div>                    
-                </div>
-            </c:forEach>
+        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px; width: 770px;"> 
+            <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+                <tbody>
+                    <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                        <tr class="serverRij">
+                            <td width="200">
+                                <div style="width: 190px; overflow: hidden;">
+                                    <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
+                                        <c:out value="${nServiceProvider.givenName}"/>
+                                    </html:link>
+                                </div>
+                            </td>
+                            <td width="100">
+                                <div style="width: 90px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
+                            </td>
+                            <td width="340">
+                                <div style="width: 330px; overflow: hidden;"><c:out value="${nServiceProvider.url}"/></div>
+                            </td>
+                            <td width="100">
+                                <div style="width: 90px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
     </div>
+    <script language="javascript" type="text/javascript">
+        var server_table = document.getElementById('server_table');
+        Table.stripe(server_table, 'table_alternate_tr');
+        Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
+    </script>
     
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
         <c:choose>
             <c:when test="${action != 'list'}">
-                
-                <table>
-                    <tr>
-                        <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                        <td><html:text property="givenName" size="15" maxlength="60"/></td>
-                    </tr>
-                    <tr>
-                        <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
-                        <td><html:text property="abbr" size="5" maxlength="60"/></td>
-                    </tr>
-                    <tr>
-                        <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                        <td><html:text property="url" size="75" /></td>
-                    </tr>
-                </table>
-                
-                <div class="knoppen">
-                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.cancel"/>
-                    </html:cancel>
-                    <c:if test="${empty mainid}">
-                        <html:submit property="save" accesskey="s" styleClass="knop">
-                            <fmt:message key="button.save"/>
-                        </html:submit>
-                    </c:if>
-                    <c:if test="${not empty mainid}">
-                        <html:submit property="save" accesskey="s" styleClass="knop">
-                            <fmt:message key="button.update"/>
-                        </html:submit>
-                        <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                            <fmt:message key="button.remove"/>
-                        </html:submit>
-                    </c:if>
+                <div class="serverDetailsClass"> 
+                    <table>
+                        <tr>
+                            <td><B><fmt:message key="beheer.serverName"/>:</B></td>
+                            <td><html:text property="givenName" size="15" maxlength="60"/></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
+                            <td><html:text property="abbr" size="5" maxlength="60"/></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                            <td><html:text property="url" size="75" /></td>
+                        </tr>
+                    </table>
+                    
+                    <br /><div class="knoppen">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                            <fmt:message key="button.cancel"/>
+                        </html:cancel>
+                        <c:if test="${empty mainid}">
+                            <html:submit property="save" accesskey="s" styleClass="knop">
+                                <fmt:message key="button.save"/>
+                            </html:submit>
+                        </c:if>
+                        <c:if test="${not empty mainid}">
+                            <html:submit property="save" accesskey="s" styleClass="knop">
+                                <fmt:message key="button.update"/>
+                            </html:submit>
+                            <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                                <fmt:message key="button.remove"/>
+                            </html:submit>
+                        </c:if>
+                    </div>
                 </div>
             </c:when>
             <c:otherwise>

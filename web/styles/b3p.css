@@ -1,6 +1,9 @@
 #error {
     border: 1px solid red;
     background: #fff5f5 url(../images/siteImages/warning.jpg) no-repeat;
+    background-position: 10px 11px;
+    padding-left: 30px;
+    margin-left: 0px;
 }
 
 #error h3 {
@@ -11,10 +14,13 @@
 #warning {
     border: 1px solid blue;
     background: #fff5f5 url(../images/siteImages/warning.png) no-repeat;
+    background-position: 10px 11px;
+    padding-left: 30px;
+    margin-left: 0px;
 }
 
 #warning h3 {
-font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
     color: red;
 }
 
@@ -245,18 +251,24 @@ tbody, td {
     border: 0px none White;
 }
 
+
+
 #tableContainer {
     width: 792px;
 }
 
-.serverRijTitel div {
+.serverRijTitel td {
     font-style: inherit;
     background: #E9F1F7;
     text-align: left;
     color: #005A9C;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-.serverRij div {
+
+
+.serverRij td {
     font-style: inherit;
     text-align: left;
 }
@@ -350,10 +362,6 @@ tbody, td {
     margin-left: -480px;
 }
 
-.knoppen {
-    float: left;
-    clear: left;
-}
 
 /* Stijl voor de content */
 #content_c, #content_c h1, #content_c h2, #content_c div, #content_c td, #content_c th, #content_c a, #content_c li {
@@ -516,4 +524,58 @@ td.deleted
 td.active {
     color:#000000;
     background-color:rgb(120,120,255);
+}
+
+/* CONTENT STYLE */
+div#inleiding {
+    background-color: #FFF0C5;
+    padding: 15px;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 440px;
+    font-size: 8pt;
+}
+
+div#inleiding h2 {
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    font-style: normal;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.serverDetailsClass {
+    background-color: #FFF0C5;
+    padding: 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 8pt;
+}
+
+.serverRijTitel td div {
+    margin: 0px;
+    padding: 0px;
+    margin-left: 17px;
+}
+
+.table_alternate_tr {
+    background-color: #E9F1F7;
+}
+
+td.table-sortable {
+    background-image: url("/kaartenbalie/images/icons/table/table_unsorted.gif");
+    background-position: 2px center;
+    background-repeat: no-repeat;
+}
+td.table-sorted-asc {
+    background-image: url("/kaartenbalie/images/icons/table/table_ascending.gif");
+    background-position: 2px center;
+    background-repeat: no-repeat;
+}
+td.table-sorted-desc {
+    background-image: url("/kaartenbalie/images/icons/table/table_descending.gif");
+    background-position: 2px center;
+    background-repeat: no-repeat;
 }

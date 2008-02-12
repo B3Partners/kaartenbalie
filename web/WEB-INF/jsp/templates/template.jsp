@@ -19,7 +19,8 @@
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
-        <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
+        <script type="text/javascript" src="../js/tabcontainer.js"></script>
+       <script type="text/javascript" src="../js/table.js"></script>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {

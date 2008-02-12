@@ -1,6 +1,18 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <H1>Welkom bij de kaartenbalie</H1>
+<div id="inleiding">
+    <h2>Inleiding Kaartenbalie</h2>
+    Veel organisaties hebben informatie welke perfect via een kaart(laag) aan de 
+    gebruiker gecommuniceerd kan worden. Vaak zal de intern beschikbare informatie 
+    niet voldoende zijn om een complete kaart op te bouwen. Men wil graag een luchtfoto 
+    als ondergrond toevoegen of juist de Grootschalige Basis Kaart Nederland (GBKN). 
+    Deze, en nog vele andere nuttige kaartlagen, worden door andere organisaties 
+    onderhouden en, soms tegen betaling, beschikbaar gesteld. Het is natuurlijk 
+    mogelijk deze externe kaarten allemaal te kopen en op de eigen server te zetten, 
+    maar een betere oplossing is Kaartenbalie.
+</div>
+<!--
 <p>
     De jarenlange ervaring met internet GIS-toepassingen heeft B3Partners vertaald 
     in een nieuw concept: Kaartenbalie.
@@ -55,6 +67,7 @@
 <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
     <fmt:message key="button.toviewer"/>
 </html:button>
+-->
 <p>
     <c:if test="${pageContext.request.remoteUser != null}">
         Ingelogd als: <c:out value="${pageContext.request.remoteUser}"/> | <html:link page="/logout.do" module="">Uitloggen</html:link>
