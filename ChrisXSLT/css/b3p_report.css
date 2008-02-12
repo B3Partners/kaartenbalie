@@ -27,3 +27,15 @@ fieldset#summary label
 {
 	width:200px;
 }
+
+table#details
+{
+    padding:0px;
+    border-collapse: collapse;
+
+    
+}
+table#details td
+{
+    text-align:right;
+}
