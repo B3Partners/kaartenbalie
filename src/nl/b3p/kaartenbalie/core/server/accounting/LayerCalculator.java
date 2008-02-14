@@ -281,9 +281,7 @@ public class LayerCalculator {
             }
         } else {
             try {
-                
                 LayerPricing layerPricing = getActiveLayerPricing(layer, validationDate, planType, service, operation);
-                System.out.println(layerPricing);
                 if (layerPricing.getUnitPrice() != null &&
                         (layerPricing.getLayerIsFree() == null  || (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
                     

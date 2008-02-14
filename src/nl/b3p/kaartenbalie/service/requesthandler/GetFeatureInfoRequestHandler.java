@@ -76,26 +76,30 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             Map spInfo = (Map) it.next();
             WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
             Integer serviceProviderId = (Integer)spInfo.get("spId");
-            firWrapper.setServiceProviderId(serviceProviderId);
-            StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
-            
-            StringBuffer url = new StringBuffer();
-            url.append((String)spInfo.get("spUrl"));
-            String [] params = dw.getOgcrequest().getParametersArray();
-            for (int i = 0; i < params.length; i++) {
-                String [] keyValuePair = params[i].split("=");
-                if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                    url.append(WMS_PARAM_LAYERS);
-                    url.append("=");
-                    url.append(layersList);
-                    url.append("&");
-                } else {
-                    url.append(params[i]);
-                    url.append("&");
+            if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
+                //Say hello to B3P Layering!!
+            } else {
+                firWrapper.setServiceProviderId(serviceProviderId);
+                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
+                
+                StringBuffer url = new StringBuffer();
+                url.append((String)spInfo.get("spUrl"));
+                String [] params = dw.getOgcrequest().getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String [] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
+                        url.append(WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
                 }
+                firWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(firWrapper);
             }
-            firWrapper.setProviderRequestURI(url.toString());
-            urlWrapper.add(firWrapper);
         }
         
         getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetFeatureInfo);

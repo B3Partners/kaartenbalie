@@ -234,16 +234,13 @@ public class ReportGenerator {
                         
                         break;
                     case RESPONSE_HTML :
-                        try {
-                            File xslFile = new File(servletContext.getRealPath(XSL_PATH +  reportType + "/mnp/report.xsl"));
-                            File xmlPath = new File(xslFile.getParent());
-                            Source xsltSource = new StreamSource(new FileInputStream(xslFile));
-                            xsltSource.setSystemId(xmlPath.toURI().toString());
-                            Transformer xsltTransformer = transFactory.newTransformer(xsltSource);
-                            xsltTransformer.transform(reportSource, new StreamResult(outStream));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        
+                        File xslFile = new File(servletContext.getRealPath(XSL_PATH +  reportType + "/mnp/report.xsl"));
+                        File xmlPath = new File(xslFile.getParent());
+                        Source xsltSource = new StreamSource(new FileInputStream(xslFile));
+                        xsltSource.setSystemId(xmlPath.toURI().toString());
+                        Transformer xsltTransformer = transFactory.newTransformer(xsltSource);
+                        xsltTransformer.transform(reportSource, new StreamResult(outStream));
                         break;
                 }
             }

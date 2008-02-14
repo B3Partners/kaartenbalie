@@ -1,10 +1,11 @@
-- Loggen van geannuleerde clientrequests, serviceproviderrequests, etc..
-- XSLT->PDF FOP Processor
+- XSLT->PDF FOP Processor bouwen
 - GetFeatureInfoRequestHandler --> QueryLayers wordt niet geformateerd..
 
+- Voordat melding allowwithdrawls komt, controleren op credittegoed. 
+- Exception achtergrond/iets? Even kijken wie, wat waar..
+- Serviceproviders in Pricing soorteren op alfabet.
+- Wanneer een abbr bijgewerkt wordt, moeten alle pricings ook worden bijgewerkt... (oid)..
 
-
-Ochtend uur >= 1 && < 13
-Middag >= 13 && null ???
+- package nl.b3p.kaartenbalie.core.server.b3pLayering;class ConfigLayer boundingbox op iets echts zetten?
 
 

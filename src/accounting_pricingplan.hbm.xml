@@ -47,6 +47,15 @@
         <property name="operation">
             <column name="lpr_operation"/>
         </property>          
+        <property name="minScale">
+            <column name="lpr_minScale" precision="20" scale="10" />            
+        </property>  
+        <property name="maxScale">
+            <column name="lpr_maxScale" precision="20" scale="10" />            
+        </property>  
 
+        
+        
+        
     </class>
 </hibernate-mapping> 

@@ -114,7 +114,8 @@
             <form-property name="service" type="java.lang.String"/>
             <form-property name="operationWMS" type="java.lang.String"/>
             <form-property name="operationWFS" type="java.lang.String"/>
-            
+            <form-property name="minScale" type="java.lang.Double"/>
+            <form-property name="maxScale" type="java.lang.Double"/>            
         </form-bean>  
         <form-bean name="depositForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->

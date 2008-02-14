@@ -29,7 +29,9 @@ public class ClientRequest {
     private Integer organizationId;
     private String service;
     private String operation;
-    
+
+    private Class exceptionClass;
+    private String exceptionMessage;    
     
     
     public ClientRequest() {
@@ -161,7 +163,21 @@ public class ClientRequest {
     public void setOperation(String operation) {
         this.operation = operation;
     }
-    
-    
-    
+
+    public Class getExceptionClass() {
+        return exceptionClass;
+    }
+
+    public void setExceptionClass(Class exceptionClass) {
+        this.exceptionClass = exceptionClass;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
 }

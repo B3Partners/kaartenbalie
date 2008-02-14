@@ -26,5 +26,8 @@
         <property name="service" column="clr_service"/>
         <property name="operation" column="clr_operation"/>        
         <property name="organizationId" column="clr_organizationId"/>
+        <property name="exceptionClass" column="clr_exceptionClass"/>        
+        <property name="exceptionMessage" column="clr_exceptionMessage" length="4000"/>
+        
     </class>
 </hibernate-mapping>

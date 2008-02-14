@@ -142,84 +142,74 @@ public class AccountManager {
     
     public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
         if (!enableAccounting) { return;}
-        
-        if (accountTransaction == null) {
-            throw new Exception("Trying to commit a null transaction.");
-        }
-        //Create an EntityManager
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        //Get transaction...
-        EntityTransaction et = em.getTransaction();
-        et.begin();
-        //Get the account and set the current balance. Update the class variable at the same time.
-        Account account = (Account)em.find(Account.class, companyId);
-        balance = account.getCreditBalance();
-        //Set the account & user for the accountTransaction.
-        accountTransaction.setAccount(account);
-        accountTransaction.setUser(user);
-        try {
+        if (accountTransaction != null) {
+            //Create an EntityManager
+            EntityManager em = MyEMFDatabase.createEntityManager();
+            //Get transaction...
+            EntityTransaction et = em.getTransaction();
+            et.begin();
+            //Get the account and set the current balance. Update the class variable at the same time.
+            Account account = (Account)em.find(Account.class, companyId);
+            balance = account.getCreditBalance();
+            //Set the account & user for the accountTransaction.
+            accountTransaction.setAccount(account);
+            accountTransaction.setUser(user);
+            try {
             /*
              * If the class is an TransactionLayerUsage, we'll have to do some work before testing.
              * We need to persist the LayerPriceCompositions into the entityManager..
              */
-            if (accountTransaction.getClass().equals(TransactionLayerUsage.class)) {
-                TransactionLayerUsage tlu = (TransactionLayerUsage) accountTransaction;
-                Iterator iterPriceComp = tlu.getLayerPriceCompositions().iterator();
-                while(iterPriceComp.hasNext()) {
-                    LayerPriceComposition lpc = (LayerPriceComposition) iterPriceComp.next();
-                    em.persist(lpc);
-                    System.out.println(lpc);
+                if (accountTransaction.getClass().equals(TransactionLayerUsage.class)) {
+                    TransactionLayerUsage tlu = (TransactionLayerUsage) accountTransaction;
+                    Iterator iterPriceComp = tlu.getLayerPriceCompositions().iterator();
+                    while(iterPriceComp.hasNext()) {
+                        LayerPriceComposition lpc = (LayerPriceComposition) iterPriceComp.next();
+                        em.persist(lpc);
+                    }
                 }
-            }
-            
-            
-            
-            
-            /*
-             *Done, Check if the creditAlteration is less then zero or equal to zero and possibly throw an Exception
-             */
-            if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
-                throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
-            }
-            //Run validation (checks what type of transaction is allowed..)
-            accountTransaction.validate();
-            //Scale the creditAlteration...
-            accountTransaction.setCreditAlteration(accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
-            
-            //Now check if the transaction either has to deposit or withdraw...
-            BigDecimal newBalance = null;
-            if (accountTransaction.getType() == accountTransaction.DEPOSIT) {
-                newBalance = balance.add(accountTransaction.getCreditAlteration());
-            } else if (accountTransaction.getType() == accountTransaction.WITHDRAW) {
-                newBalance = balance.subtract(accountTransaction.getCreditAlteration());
-                if (newBalance.doubleValue() < 0)
-                    throw new TransactionDeniedException(
-                            "Insufficient credits for transaction. " +
-                            "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
-                            "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                /*
+                 *Done, Check if the creditAlteration is less then zero or equal to zero and possibly throw an Exception
+                 */
+                if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
+                    throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
+                }
+                //Run validation (checks what type of transaction is allowed..)
+                accountTransaction.validate();
+                //Scale the creditAlteration...
+                accountTransaction.setCreditAlteration(accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
                 
-            } else {
-                throw new Exception("Unsupported transaction type");
+                //Now check if the transaction either has to deposit or withdraw...
+                BigDecimal newBalance = null;
+                if (accountTransaction.getType() == accountTransaction.DEPOSIT) {
+                    newBalance = balance.add(accountTransaction.getCreditAlteration());
+                } else if (accountTransaction.getType() == accountTransaction.WITHDRAW) {
+                    newBalance = balance.subtract(accountTransaction.getCreditAlteration());
+                    if (newBalance.doubleValue() < 0)
+                        throw new TransactionDeniedException(
+                                "Insufficient credits for transaction. " +
+                                "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
+                                "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                } else {
+                    throw new Exception("Unsupported transaction type");
+                }
+                account.setCreditBalance(newBalance);
+                accountTransaction.setMutationDate(new Date());
+                accountTransaction.setStatus(accountTransaction.ACCEPTED);
+                em.merge(accountTransaction);
+                et.commit();
+                balance = newBalance;
+            } catch (TransactionDeniedException tde) {
+                accountTransaction.setErrorMessage(tde.getMessage());
+                accountTransaction.setStatus(accountTransaction.REFUSED);
+                em.merge(accountTransaction);
+                et.commit();
+                throw tde;
+            } catch (Exception e) {
+                et.rollback();
+                throw e;
+            } finally {
+                em.close();
             }
-            account.setCreditBalance(newBalance);
-            accountTransaction.setMutationDate(new Date());
-            accountTransaction.setStatus(accountTransaction.ACCEPTED);
-            em.merge(accountTransaction);
-            et.commit();
-            balance = newBalance;
-        } catch (TransactionDeniedException tde) {
-            tde.printStackTrace();
-            accountTransaction.setErrorMessage(tde.getMessage());
-            accountTransaction.setStatus(accountTransaction.REFUSED);
-            em.merge(accountTransaction);
-            et.commit();
-            throw tde;
-        } catch (Exception e) {
-            e.printStackTrace();
-            et.rollback();
-            throw e;
-        } finally {
-            em.close();
         }
     }
     public double getBalance() {

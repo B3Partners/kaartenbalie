@@ -120,6 +120,14 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
         } catch (Exception e) {
         }
         
+        if (validUntil != null && validFrom != null) {
+            if (validUntil.before(validFrom)) {
+                throw new Exception("Enddate cannot be before startdate.");
+            }
+        }
+        
+        
+        
         String idString = (String) request.getAttribute("id");
         
         
@@ -155,6 +163,33 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                 throw new Exception("Requested layer is not able to register pricinginformation...");
             }
             LayerPricing lp = new LayerPricing();
+            
+            Double minScale = (Double) dynaForm.get("minScale");
+            Double maxScale = (Double) dynaForm.get("maxScale");
+            
+            if (minScale != null && maxScale != null && minScale.doubleValue() > 0 && maxScale.doubleValue() > 0 ) {
+                if (maxScale.compareTo(minScale) < 0) {
+                    throw new Exception("maxScale should always be larger then the minScale.");
+                }
+            }
+            
+            if (minScale != null) {
+                if (minScale.doubleValue() < 0) {
+                    throw new Exception("minScale cannot be a negative value!");
+                } else if (minScale.doubleValue()> 0) {
+                    lp.setMinScale(new BigDecimal(minScale.doubleValue()));
+                }
+            }
+            
+            if (maxScale != null) {
+                if (maxScale.doubleValue() < 0) {
+                    throw new Exception("maxScale cannot be a negative value!");
+                } else if (maxScale.doubleValue() > 0) {
+                    lp.setMaxScale(new BigDecimal(maxScale.doubleValue()));
+                }
+            }
+            
+            
             lp.setPlanType(planType.intValue());
             Calendar cal = Calendar.getInstance();
             if (validFrom != null) {
@@ -298,13 +333,8 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     }
                 }
                 request.setAttribute("tableData",tableData);
-                System.out.println(activePricingData.size());
                 request.setAttribute("activePricingData",activePricingData);
             }
-            
-            
-            
-            
         } else {
             JSONObject root = this.createTree();
             request.setAttribute("layerList", root);
@@ -316,7 +346,7 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
     
     private JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.title ASC").getResultList();
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();

@@ -45,7 +45,6 @@ import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.Allow100CTALayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
@@ -68,6 +67,7 @@ import org.xml.sax.SAXException;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import nl.b3p.kaartenbalie.service.ImageManager;
+import nl.b3p.kaartenbalie.service.KBImageTool;
 import nl.b3p.wms.capabilities.Roles;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -190,6 +190,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             kaartenbalieTopLayer.addLayer(configLayer);
         }
         
+        
         Set roles = dbUser.getUserroles();
         if (roles!=null) {
             Iterator roleIt = roles.iterator();
@@ -232,6 +233,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             toplayerMap.put(spInfo.get("spId"), spInfo);
         }
         
+        /* B3P Layering...*/
+        Map spInfo = new HashMap();
+        spInfo.put("spId", new Integer(-1));
+        spInfo.put("tlId", new Integer(-1));
+        spInfo.put("spUrl", SERVICEPROVIDER_BASE_HTTP);
+        toplayerMap.put(spInfo.get("spId"), spInfo);
+        /* EO B3P Layering... */
+        
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
@@ -253,31 +262,31 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             Date validationDate = new Date();
             BigDecimal units = new BigDecimal(1);
             if(layers.length >= 1) {
+                
+                /*
+                 * B3P Layering...
+                 * Order the layers so that all the b3p layers are on top!
+                 */
+                layers = sortB3PLayering(layers);
                 for (int i = 0; i < layers.length; i++) {
-                    
-                    // Check of layers[i] juiste format heeft
-                    int pos = layers[i].indexOf("_");
-                    if (pos==-1 || layers[i].length()<=pos+1) {
-                        log.error("layer not valid: " + layers[i]);
-                        throw new Exception(GETMAP_EXCEPTION);
-                    }
-                    String layerCode = layers[i].substring(0, pos);
-                    String layerName = layers[i].substring(pos + 1);
-                    if (layerCode.length()==0 || layerName.length()==0) {
-                        log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-                        throw new Exception(GETMAP_EXCEPTION);
-                    }
-                    
+                    String[] layerCodeAndName = toCodeAndName(layers[i]);
+                    String layerCode = layerCodeAndName[0];
+                    String layerName= layerCodeAndName[1];
                     /*
                      * Check if the layer is an configurationlayer, if it is, proces the info..
                      */
+                    
                     if (layerCode.equals(SERVICEPROVIDER_BASE_ABBR)) {
                         ConfigLayer cl = ConfigLayer.forName(layerName);
                         if (cl == null) {
                             throw new Exception("Config Layer " + layerName + " not found!");
                         }
                         cl.processConfig(config);
+                        addToServerProviderList(eventualSPList,new Integer(-1), toplayerMap, layerName);
                     } else {
+                        
+                        
+                        
                         // Check of voldoende rechten op layer bestaan en ophalen url
                         query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
                                 "from layer, organizationlayer, serviceprovider " +
@@ -314,30 +323,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                             // Haal de laatst opgehaalde sp info er bij.
                             // Hier worden nu ook de layers aan toegevoegd indien
                             // zelfde sp, anders nieuwe sp aanmaken en list toevoegen
-                            Map spInfo = null;
-                            int size = eventualSPList.size();
-                            if (size>0) {
-                                Map lastSpInfo = (Map) eventualSPList.get(size - 1);
-                                Integer spId = (Integer)lastSpInfo.get("spId");
-                                if (spId!=null && spId.intValue()==serviceprovider_id.intValue())
-                                    spInfo = lastSpInfo;
-                            }
-                            if (spInfo == null) {
-                                spInfo = new HashMap();
-                                Map tlSpInfo = (Map)toplayerMap.get(serviceprovider_id);
-                                spInfo.put("spId", tlSpInfo.get("spId"));
-                                spInfo.put("tlId", tlSpInfo.get("tlId"));
-                                spInfo.put("spUrl", tlSpInfo.get("spUrl"));
-                                eventualSPList.add(spInfo);
-                            }
-                            StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
-                            if (sp_layerlist==null) {
-                                sp_layerlist = new StringBuffer(layerName);
-                                spInfo.put("layersList",sp_layerlist);
-                            } else {
-                                sp_layerlist.append(",");
-                                sp_layerlist.append(layerName);
-                            }
+                            addToServerProviderList(eventualSPList,serviceprovider_id, toplayerMap, layerName);
                         }
                     }
                 }
@@ -355,15 +341,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         if (AccountManager.isEnableAccounting()) {
             if (tlu.getCreditAlteration().doubleValue()> 0) {
                 Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
-                
                 if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
                     throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME));
-                }
-                if (tlu.getCreditAlteration().doubleValue() > 100) {
-                    Boolean allow100CTransactions = (Boolean) config.get(Allow100CTALayer.configValue);
-                    if (allow100CTransactions == null || (allow100CTransactions != null && allow100CTransactions.booleanValue() == false)) {
-                        throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME));
-                    }
                 }
             }
         }
@@ -371,6 +350,34 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         
         
         return eventualSPList;
+    }
+    
+    
+    private void addToServerProviderList(List eventualSPList, Integer serviceprovider_id, Map toplayerMap, String layerName) {
+        Map spInfo = null;
+        int size = eventualSPList.size();
+        if (size>0) {
+            Map lastSpInfo = (Map) eventualSPList.get(size - 1);
+            Integer spId = (Integer)lastSpInfo.get("spId");
+            if (spId!=null && spId.intValue()==serviceprovider_id.intValue())
+                spInfo = lastSpInfo;
+        }
+        if (spInfo == null) {
+            spInfo = new HashMap();
+            Map tlSpInfo = (Map)toplayerMap.get(serviceprovider_id);
+            spInfo.put("spId", tlSpInfo.get("spId"));
+            spInfo.put("tlId", tlSpInfo.get("tlId"));
+            spInfo.put("spUrl", tlSpInfo.get("spUrl"));
+            eventualSPList.add(spInfo);
+        }
+        StringBuffer sp_layerlist = (StringBuffer)spInfo.get("layersList");
+        if (sp_layerlist==null) {
+            sp_layerlist = new StringBuffer(layerName);
+            spInfo.put("layersList",sp_layerlist);
+        } else {
+            sp_layerlist.append(",");
+            sp_layerlist.append(layerName);
+        }
     }
     
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
@@ -413,7 +420,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
                 
-                ImageManager imagemanager = new ImageManager(urlWrapper, dw.getRequestParameterMap());
+                ImageManager imagemanager = new ImageManager(urlWrapper, dw);
                 imagemanager.process();
                 long endprocestime = System.currentTimeMillis();
                 Long time = new Long(endprocestime - startprocestime);
@@ -470,7 +477,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             }
         } else {
             if(!urlWrapper.isEmpty()) {
-                getOnlineData(dw, (WMSRequest)urlWrapper.get(0));
+                getOnlineData(dw, (WMSRequest)urlWrapper.get(0), REQUEST_TYPE);
             } else {
                 if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
                     throw new Exception(FEATUREINFO_EXCEPTION);
@@ -492,7 +499,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
-    private static void getOnlineData(DataWrapper dw, WMSRequest wmsRequest) throws Exception {
+    private static void getOnlineData(DataWrapper dw, WMSRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data recieved from the url can be directly transported to the client.
@@ -500,53 +507,72 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
         HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
-        
-        HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(url);
-        client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
         localParameterMap.put("ServiceProviderId", wmsRequest.getServiceProviderId());
         localParameterMap.put("ProviderRequestURI", url);
         localParameterMap.put("BytesSend", new Long(url.getBytes().length));
-        
-        String rhValue = "";
-        
+        long startTime = System.currentTimeMillis();
         try {
-            long startTime = System.currentTimeMillis();
-            int statusCode = client.executeMethod(method);
-            long time = System.currentTimeMillis() - startTime;
-            dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
-            localParameterMap.put("ResponseStatus", new Integer(statusCode));
-            localParameterMap.put("RequestResponseTime", new Long(time));
-            if (statusCode != HttpStatus.SC_OK) {
-                log.error("Error connecting to server. Status code: " + statusCode);
-                throw new Exception("Error connecting to server. Status code: " + statusCode);
+            if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap) && url.startsWith(SERVICEPROVIDER_BASE_HTTP)) {
+                //B3PLayering...
+                long time = System.currentTimeMillis() - startTime;
+                try {
+                    BufferedImage[] bi = new BufferedImage[] {ConfigLayer.handleRequest(url, dw.getLayeringParameterMap()) } ;
+                    KBImageTool.writeImage(bi, "image/png", dw);
+                    localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
+                    localParameterMap.put("ResponseStatus", new Integer(200));
+                } catch (Exception e) {
+                    localParameterMap.put("ResponseStatus", new Integer(404));
+                    throw e;
+                }
+                localParameterMap.put("RequestResponseTime", new Long(time));
+            } else {
+                HttpClient client = new HttpClient();
+                GetMethod method = new GetMethod(url);
+                client.getHttpConnectionManager().getParams().setConnectionTimeout((int)maxResponseTime);
+                String rhValue = "";
+                
+                try {
+                    int statusCode = client.executeMethod(method);
+                    long time = System.currentTimeMillis() - startTime;
+                    dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
+                    localParameterMap.put("ResponseStatus", new Integer(statusCode));
+                    localParameterMap.put("RequestResponseTime", new Long(time));
+                    if (statusCode != HttpStatus.SC_OK) {
+                        log.error("Error connecting to server. Status code: " + statusCode);
+                        throw new Exception("Error connecting to server. Status code: " + statusCode);
+                    }
+                    
+                    rhValue = method.getResponseHeader("Content-Type").getValue();
+                    
+                    if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                        InputStream is = method.getResponseBodyAsStream();
+                        String body = getServiceException(is);
+                        log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
+                        throw new Exception(body);
+                    }
+                    
+                    dw.setContentType(rhValue);
+                    dw.write(method.getResponseBodyAsStream());
+                    localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
+                } catch (HttpException e) {
+                    log.error("Fatal protocol violation: " + e.getMessage());
+                    throw new HttpException("Fatal protocol violation: " + e.getMessage());
+                } catch (IOException e) {
+                    log.error("Fatal transport error: " + e.getMessage());
+                    throw new IOException("Fatal transport error: " + e.getMessage());
+                } catch (Exception e) {
+                    throw e;
+                } finally {
+                    method.releaseConnection();
+                }
             }
-            
-            rhValue = method.getResponseHeader("Content-Type").getValue();
-            
-            if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
-                InputStream is = method.getResponseBodyAsStream();
-                String body = getServiceException(is);
-                //log.error("xml error response for request identified by: " + dw.getParameters().toString());
-                log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
-                throw new Exception(body);
-            }
-            
-            dw.setContentType(rhValue);
-            dw.write(method.getResponseBodyAsStream());
-            localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
-        } catch (HttpException e) {
-            log.error("Fatal protocol violation: " + e.getMessage());
-            throw new HttpException("Fatal protocol violation: " + e.getMessage());
-        } catch (IOException e) {
-            log.error("Fatal transport error: " + e.getMessage());
-            throw new IOException("Fatal transport error: " + e.getMessage());
         } catch (Exception e) {
+            localParameterMap.put("ExceptionMessage", e.getMessage());
+            localParameterMap.put("ExceptionClass", e.getClass());
             throw e;
         } finally {
-            method.releaseConnection();
+            rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
         }
-        rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
     }
     // </editor-fold>
     
@@ -632,6 +658,42 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
     // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract void getRequest(DataWrapper dw, User user) throws IOException, Exception;
     // </editor-fold>
+    
+    private String[] sortB3PLayering(String[] layers) throws Exception {
+        String[] sortedLayers = new String[layers.length];
+        int index= 0;
+        for (int i = 0; i < layers.length; i++) {
+            String[] layerCodeAndName = toCodeAndName(layers[i]);
+            if (!layerCodeAndName[0].equals(SERVICEPROVIDER_BASE_ABBR)) {
+                sortedLayers[index] = layers[i];
+                index++;
+            }
+        }
+        for (int i = 0; i < layers.length; i++) {
+            String[] layerCodeAndName = toCodeAndName(layers[i]);
+            if (layerCodeAndName[0].equals(SERVICEPROVIDER_BASE_ABBR)) {
+                sortedLayers[index] = layers[i];
+                index++;
+            }
+        }
+        return sortedLayers;
+    }
+    
+    private String[] toCodeAndName(String completeLayerName) throws Exception{
+        // Check of layers[i] juiste format heeft
+        int pos = completeLayerName.indexOf("_");
+        if (pos==-1 || completeLayerName.length()<=pos+1) {
+            log.error("layer not valid: " + completeLayerName);
+            throw new Exception(GETMAP_EXCEPTION);
+        }
+        String layerCode = completeLayerName.substring(0, pos);
+        String layerName = completeLayerName.substring(pos + 1);
+        if (layerCode.length()==0 || layerName.length()==0) {
+            log.error("layer name or code not valid: " + layerCode + ", " + layerName);
+            throw new Exception(GETMAP_EXCEPTION);
+        }
+        return new String[] {layerCode, layerName};
+    }
     
     
 }

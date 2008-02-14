@@ -77,70 +77,6 @@
                     </p>
                 </div>
                 <div id="help" class="sheet">  
-                    <b>layerPricing Aggregatie</b><br/>
-                    <c:choose>
-                        <c:when test="${aggregateLayerPricings == true}">
-                            <p>
-                                Kaartenbalie maakt gebruik van aggregatie voor het berekenen van de layerprijzen.<br/>
-                                Dit wil dus zeggen dan wanneer een prijs wordt opgevraagd, deze prijs opgebouwd kan
-                                zijn uit meerdere layerprijzen. Alle layerprijzen die aan de voorwaarden voldoen worden
-                                bij elkaar opgeteld. De som van deze optelling is de prijs.
-                            </p>
-                        </c:when>
-                        <c:otherwise>
-                            <p>
-                                Kaartenbalie maakt <b>geen</b> gebruik van aggregatie. <br/>
-                                De nieuwe layerprijs die aan de voorwaarden voldoet bepaalt de uiteindelijke prijs van de kaart.
-                            </p>
-                        </c:otherwise>
-                    </c:choose>
-                    
-                    
-                    <ul>
-                        <li>
-                            <b>Geldig vanaf :</b> Indien leeg, regel is altijd geldig. Anders begin van de dag (0:00:00u).
-                        </li>
-                        <li>
-                            <b>Geldig tot en met :</b> Indien leeg, regel verloopt nooit. Anders einde van de dag (23:59:59u).
-                        </li>
-                        <li>
-                            <b>Tarief :</b> Indien leeg, 0,00 credits. 
-                        </li>
-                        <li>
-                            <b>Kaart is gratis :</b> Indien aangevinkt, de kaart is in de aangegeven periode gratis. (NB: Andere regels hebben geen invloed meer zolang de kaart gratis is.)
-                        </li>
-                    </ul>
-                    
-                    
-                    
-                    <b>Legenda Detail pagina</b>
-                    <table style="width:100%;border:1px Solid Black;">
-                        <thead>
-                            <tr>
-                                <th>Kolommen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:if test="${aggregateLayerPricings == false}">
-                                <tr>
-                                    <td class="active">
-                                        Hiermee worde de actieve layerPricing aangegeven voor dit moment.
-                                        Het kan zijn dat op een andere datum een andere layerPricing actief is.
-                                    </td>
-                                </tr>
-                            </c:if>
-                            <tr>
-                                <td class="">
-                                    Met deze kleur worden alle andere layerPricings aangegeven.
-                                </td>
-                            </tr> 
-                            <tr>
-                                <td class="deleted">
-                                    Dit is de kleur voor layerPricings die zijn verwijders.
-                                </td>
-                            </tr> 
-                        </tbody>
-                    </table>
                 </div>
                 <div id="details" class="sheet" style="height:450px;">  
                     <div style="background-color:white;border:1px Solid Black;">
@@ -151,10 +87,10 @@
                                 <thead>
                                     <th>planType</th>
                                     <th>Service/Methode</th>
-                                    <th>Aangemaakt</th>
+                                    <th>Aangemaakt/Verwijderd</th>
                                     <th>Geldig vanaf</th>
                                     <th>Verloopt</th>
-                                    <th>Verwijderd</th>
+                                    <th>Schaalbereik</th>
                                     <th>Tarief</th>
                                     <th>[d]</th>                            
                                 </thead>
@@ -175,7 +111,6 @@
                                             </c:choose>
                                         </td>
                                         <td class="${rowstyle}">
-                                            
                                             <c:choose>
                                                 <c:when test="${layerPricing.service == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
                                                 <c:when test="${layerPricing.service == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
@@ -185,14 +120,10 @@
                                                 <c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when>
                                                 <c:otherwise>Alle</c:otherwise>
                                             </c:choose>
-                                            
-                                           :: ${activePricingData.WMS_GetMap}::
-                                             
-                                            
-                                            
                                         </td>                                        
                                         <td class="${rowstyle}">
-                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.creationDate}"/>        
+                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.creationDate}"/><br/>
+                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.deletionDate}"/>                                              
                                         </td>
                                         <td class="${rowstyle}">
                                             <c:choose>
@@ -215,7 +146,7 @@
                                             </c:choose>
                                         </td>
                                         <td class="${rowstyle}">
-                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.deletionDate}"/>        
+                                            <c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>
                                         </td>                                            
                                         <td class="${rowstyle}">
                                             <c:choose>
@@ -269,6 +200,9 @@
                                     }
                                 }
                         </script>
+
+                        <label>Schaalbereik :</label><html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
+                        
                         
                         <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}<br/>
                         

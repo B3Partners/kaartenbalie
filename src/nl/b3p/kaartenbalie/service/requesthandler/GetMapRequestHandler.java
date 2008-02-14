@@ -113,52 +113,76 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
             Map spInfo = (Map) it.next();
             WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
             Integer serviceProviderId = (Integer)spInfo.get("spId");
-            gmrWrapper.setServiceProviderId(serviceProviderId);
             
-            StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
-            
-            String query = "select distinct srs.srs from layer, srs " +
-                    "where layer.layerid = srs.layerid and " +
-                    "srs.srs is not null and " +
-                    "layer.layerid = :toplayer";
-            
-            boolean srsFound = false;
-            List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("tlId")).getResultList();
-            Iterator sqlIterator = sqlQuery.iterator();
-            while (sqlIterator.hasNext()) {
-                String srs = (String)sqlIterator.next();
-                if(srs.equals(givenSRS)) {
-                    srsFound = true;
+            if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
+                //Say hello to B3P Layering!!
+                StringBuffer url = new StringBuffer();
+                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
+                url.append((String)spInfo.get("spUrl"));
+                String [] params = ogc.getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String [] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
+                        url.append(WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
                 }
-            }
-            if(!srsFound) {
-                log.error("No suitable srs found.");
-                throw new Exception(SRS_EXCEPTION);
-            }
-            
-            StringBuffer url = new StringBuffer();
-            url.append((String)spInfo.get("spUrl"));
-            String [] params = ogc.getParametersArray();
-            for (int i = 0; i < params.length; i++) {
-                String [] keyValuePair = params[i].split("=");
-                if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                    url.append(WMS_PARAM_LAYERS);
-                    url.append("=");
-                    url.append(layersList);
-                    url.append("&");
-                } else {
-                    url.append(params[i]);
-                    url.append("&");
+                gmrWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(gmrWrapper);
+                
+            } else {
+                gmrWrapper.setServiceProviderId(serviceProviderId);
+                
+                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
+                
+                String query = "select distinct srs.srs from layer, srs " +
+                        "where layer.layerid = srs.layerid and " +
+                        "srs.srs is not null and " +
+                        "layer.layerid = :toplayer";
+                
+                boolean srsFound = false;
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("tlId")).getResultList();
+                Iterator sqlIterator = sqlQuery.iterator();
+                while (sqlIterator.hasNext()) {
+                    String srs = (String)sqlIterator.next();
+                    if(srs.equals(givenSRS)) {
+                        srsFound = true;
+                    }
                 }
+                if(!srsFound) {
+                    log.error("No suitable srs found.");
+                    throw new Exception(SRS_EXCEPTION);
+                }
+                
+                StringBuffer url = new StringBuffer();
+                url.append((String)spInfo.get("spUrl"));
+                String [] params = ogc.getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String [] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
+                        url.append(WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
+                }
+                gmrWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(gmrWrapper);
             }
-            gmrWrapper.setProviderRequestURI(url.toString());
-            urlWrapper.add(gmrWrapper);
         }
+        
         TransactionLayerUsage transaction = am.getTLU();
-        if (transaction != null) {
-            am.commitTransaction(transaction, user);
-        }
+        am.commitTransaction(transaction, user);
         am.endTLU();
+        dw.getLayeringParameterMap().put("balance", new Double(am.getBalance()));
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>

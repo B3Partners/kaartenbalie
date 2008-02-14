@@ -47,6 +47,10 @@ public class DataWrapper {
     private String operation;
     //end
     
+    //Used for layering
+    private Map layeringParameterMap;
+    //end
+    
     
     private OGCRequest ogcrequest;
     
@@ -55,6 +59,7 @@ public class DataWrapper {
         this.response = response;
         this.sos = response.getOutputStream();
         this.requestParameterMap = new HashMap();
+        layeringParameterMap = new HashMap();
     }
     
     public String getContentType() {
@@ -178,9 +183,19 @@ public class DataWrapper {
     }
     
     
+    /*
+     *Used for layering
+     */
+    public Map getLayeringParameterMap() {
+        return layeringParameterMap;
+    }
+    
+    public void setLayeringParameterMap(Map layeringParameterMap) {
+        this.layeringParameterMap = layeringParameterMap;
+    }
     
     /*
-     *User for reporting...
+     *Used for reporting...
      */
     public DataMonitoring getRequestReporting() {
         return requestReporting;
@@ -225,6 +240,7 @@ public class DataWrapper {
     public void setOgcrequest(OGCRequest ogcrequest) {
         this.ogcrequest = ogcrequest;
     }
+    
     
     
 }

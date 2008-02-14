@@ -41,6 +41,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
@@ -122,12 +123,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
         MyEMFDatabase.initEntityManager();
         EntityManager em = MyEMFDatabase.getEntityManager();
+        DataMonitoring rr = new DataMonitoring();
+        data.setRequestReporting(rr);
+        
         try {
+            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
             data.setOgcrequest(ogcrequest);
             StringBuffer reason = new StringBuffer();
             
-            
-            //
             user = checkLogin(request);
             
             boolean isvalid = ogcrequest.isValidRequestURL(reason);
@@ -135,16 +138,15 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 log.error(reason);
                 throw new Exception(reason.toString());
             }
+            rr.setUserAndOrganization(user, user.getOrganization());
             
-            DataMonitoring rr = new DataMonitoring(user, user.getOrganization());
-            data.setRequestReporting(rr);
-            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
             
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             
             parseRequestAndData(data, user);
-            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
+            
         } catch (Exception ex) {
+            rr.setClientRequestException(ex);
             String value = "";
             if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS)) {
                 value = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);
@@ -184,16 +186,25 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                     ConfigLayerException cle = (ConfigLayerException) ex;
                     ConfigLayer cl = cle.getConfigLayer();
                     try {
-                        cl.sendImage(data, cl.drawImage(data,cle.getParameterMap()));
+                        cl.sendImage(data, cl.drawImage(data.getOgcrequest(),cle.getParameterMap()));
                     } catch (Exception e) {
                         log.error("error: ", e);
                     }
                 } else {
                     try {
+                        ExceptionLayer el = new ExceptionLayer();
+                        Map parameterMap = new HashMap();
+                        parameterMap.put("type", ex.getClass());
+                        parameterMap.put("message", message);
+                        parameterMap.put("stacktrace", ex.getStackTrace());
+                        el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
+                        
+                    } catch (Exception e) {
+                        //Fall back in case of exception!
                         TextToImage tti = new TextToImage();
                         tti.createImage(message, data);
-                    } catch (Exception e) {
                         log.error("error: ", e);
+                        
                     }
                     
                 }
@@ -274,6 +285,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
                 data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
                 data.write(output);
             }
+        } finally {
+            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
         }
         MyEMFDatabase.closeEntityManager();
     }

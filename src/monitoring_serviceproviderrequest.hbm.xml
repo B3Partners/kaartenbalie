@@ -16,7 +16,10 @@
         <property name="responseStatus" column="spr_responseStatus" />
         <property name="providerRequestURI" column="spr_providerRequestURI" length="4000"/>   
         <property name="requestResponseTime" column="spr_requestResponseTime"/>    
-        <property name="msSinceRequestStart" column="spr_msSinceRequestStart"/>               
+        <property name="msSinceRequestStart" column="spr_msSinceRequestStart"/>       
+        <property name="exceptionClass" column="spr_exceptionClass"/>        
+        <property name="exceptionMessage" column="spr_exceptionMessage" length="4000"/>
+        
         <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest" discriminator-value="WMSRequest">
             <property name="wmsVersion" column="spr_wmsVersion"/>
             

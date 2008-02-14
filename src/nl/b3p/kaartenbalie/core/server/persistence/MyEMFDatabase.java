@@ -9,12 +9,14 @@
 
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -149,7 +151,7 @@ public class MyEMFDatabase extends HttpServlet{
         EntityManager entityManager = createEntityManager();
         setThreadLocal(entityManagerName, entityManager);
     }
-
+    
     public static EntityManager getEntityManager() throws Error{
         EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
         if (localEm == null) {

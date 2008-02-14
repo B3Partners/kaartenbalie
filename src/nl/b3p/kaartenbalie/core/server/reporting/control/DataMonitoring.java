@@ -27,7 +27,7 @@ public class DataMonitoring {
     private static List usRequestOperation;
     private long operationStartTime;
     private Map tRequestOperationMap;
-
+    
     /*
      * Basically use this boolean to enable or disable the logging mechanism.
      */
@@ -49,24 +49,12 @@ public class DataMonitoring {
     public static void setEnableMonitoring(boolean state) {
         enableMonitoring = state;
     }
-    private DataMonitoring() {
+    public DataMonitoring() {
     }
-    /*
-     * This should be the default call to create a requestReporting object.
-     */
-    public DataMonitoring(User user, Organization organization) {
-        this();
-        if (user == null) {
-            throw new Error("User is required for proper DataMonitoring...");
-        }
-        if (organization == null) {
-            throw new Error("Organization is required for proper DataMonitoring...");
-        }
+    public void setUserAndOrganization(User user, Organization organization) {
         this.user = user;
         this.organization = organization;
-        
     }
-    
     
     /*
      * This is your init for to create a new RequestReport. Call it whenever you feel like starting a new
@@ -81,8 +69,6 @@ public class DataMonitoring {
         tRequestOperationMap.put("BytesReceivedFromUser", new Integer(bytesReceivedFromUser));
         clientRequest = new ClientRequest();
         clientRequest.setClientRequestURI(clientRequestURI);
-        clientRequest.setUser(user);
-        clientRequest.setOrganization(organization);
         clientRequest.setMethod(method);
         clientRequest.setClientIp(clientIp);
     }
@@ -201,14 +187,15 @@ public class DataMonitoring {
      * This is your final statement in logging call. It will clean up your clientRequest and commit all the logged calls to
      * the database. After this you can restart your clientRequest without creating a new RequestReporting.
      */
+    public void setClientRequestException(Exception ex) {
+        clientRequest.setExceptionClass(ex.getClass());
+        clientRequest.setExceptionMessage(ex.getMessage());
+    }
     public void endClientRequest(String service, String operation, int bytesSendToUser, long totalResponseTime) {
         if (!isEnableMonitoring()) return;
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-        
-        
-        
         try {
             
             tRequestOperationMap.put("Duration", new Long(totalResponseTime));
@@ -216,6 +203,8 @@ public class DataMonitoring {
             this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
             clientRequest.setService(service);
             clientRequest.setOperation(operation);
+            clientRequest.setUser(user);
+            clientRequest.setOrganization(organization);
             //Now Persist...
             Iterator iterRO = clientRequest.getRequestOperations().iterator();
             em.persist(clientRequest);
@@ -231,10 +220,10 @@ public class DataMonitoring {
             tRequestOperationMap = null;
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO Error Handling...
             tx.rollback();
+        } finally {
+            em.close();
         }
-        em.close();
     }
     
     

@@ -73,28 +73,35 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             throw new Exception(LEGENDGRAPHIC_EXCEPTION);
         }
         
+        
         ArrayList urlWrapper = new ArrayList();
         WMSGetLegendGraphicRequest lgrWrapper = new WMSGetLegendGraphicRequest();
         Integer serviceProviderId = (Integer)spInfo.get("spId");
-        lgrWrapper.setServiceProviderId(serviceProviderId);
-        StringBuffer url = new StringBuffer();
-        url.append((String)spInfo.get("spUrl"));
-        String [] params = ogc.getParametersArray();
-        for (int i = 0; i < params.length; i++) {
-            String [] keyValuePair = params[i].split("=");
-            if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYER)) {
-                url.append(WMS_PARAM_LAYER);
-                url.append("=");
-                url.append(spInfo.get("layersList"));
-                url.append("&");
-            } else {
-                url.append(params[i]);
-                url.append("&");
+        
+        if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
+            //Say hello to B3P Layering!!
+        } else {
+            lgrWrapper.setServiceProviderId(serviceProviderId);
+            StringBuffer url = new StringBuffer();
+            url.append((String)spInfo.get("spUrl"));
+            String [] params = ogc.getParametersArray();
+            for (int i = 0; i < params.length; i++) {
+                String [] keyValuePair = params[i].split("=");
+                if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYER)) {
+                    url.append(WMS_PARAM_LAYER);
+                    url.append("=");
+                    url.append(spInfo.get("layersList"));
+                    url.append("&");
+                } else {
+                    url.append(params[i]);
+                    url.append("&");
+                }
             }
+            lgrWrapper.setProviderRequestURI(url.toString());
+            urlWrapper.add(lgrWrapper);
+            getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetLegendGraphic);
         }
-        lgrWrapper.setProviderRequestURI(url.toString());
-        urlWrapper.add(lgrWrapper);
-        getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetLegendGraphic);
+        
     }
     // </editor-fold>
 }

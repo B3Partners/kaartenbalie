@@ -31,6 +31,8 @@ public class LayerPricing {
     private Boolean layerIsFree;
     private String service;
     private String operation;
+    private BigDecimal minScale;
+    private BigDecimal maxScale;
     
     
     /*Relation*/
@@ -149,6 +151,22 @@ public class LayerPricing {
     
     public void setOperation(String operation) {
         this.operation = operation;
+    }
+
+    public BigDecimal getMinScale() {
+        return minScale;
+    }
+
+    public void setMinScale(BigDecimal minScale) {
+        this.minScale = minScale;
+    }
+
+    public BigDecimal getMaxScale() {
+        return maxScale;
+    }
+
+    public void setMaxScale(BigDecimal maxScale) {
+        this.maxScale = maxScale;
     }
     
     

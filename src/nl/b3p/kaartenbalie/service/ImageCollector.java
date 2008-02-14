@@ -17,7 +17,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
+import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.wms.capabilities.Switcher;
@@ -57,7 +59,7 @@ public class ImageCollector extends Thread implements KBConstants {
     
     /* User for reporting! */
     private Map localParameterMap;
-    
+    private DataWrapper dw;
     
     
     
@@ -67,9 +69,10 @@ public class ImageCollector extends Thread implements KBConstants {
         
         this.setMessage("Download status is still active.");
     }
-    public ImageCollector(WMSRequest wmsRequest, Map paramSourceMap) {
+    public ImageCollector(WMSRequest wmsRequest, DataWrapper dw) {
         this(wmsRequest);
-        localParameterMap = new HashMap(paramSourceMap);
+        this.dw = dw;
+        localParameterMap = new HashMap(dw.getRequestParameterMap());
         getLocalParameterMap().put("ProviderRequestURI", wmsRequest.getProviderRequestURI());
     }
     
@@ -89,55 +92,71 @@ public class ImageCollector extends Thread implements KBConstants {
         setOperationStart(new Date());
         setOperationEnd(null);
         
-        // TODO hier is multi thread versie volgens mij niet nodig omdat instance maar door een thread gebruikt wordt ?
-        HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(getUrl());
-        client.getHttpConnectionManager().getParams().setConnectionTimeout(maxResponseTime);
         
-        try {
-            String url = wmsRequest.getProviderRequestURI();
+        String url = wmsRequest.getProviderRequestURI();
+        
+        // TODO hier is multi thread versie volgens mij niet nodig omdat instance maar door een thread gebruikt wordt ?
+        if (url.startsWith(SERVICEPROVIDER_BASE_HTTP)) {
+            try {
+                //Say hello to B3P Layering!!
+                setBufferedImage(ConfigLayer.handleRequest(url, dw.getLayeringParameterMap()));
+                setStatus(COMPLETED);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                log.error("error callimage collector");
+                setMessage(ex.getMessage());
+                setStatus(ERROR);
+            }
+        } else {
+            HttpClient client = new HttpClient();
+            GetMethod method = new GetMethod(getUrl());
+            client.getHttpConnectionManager().getParams().setConnectionTimeout(maxResponseTime);
+            try {
+                
+                
             /*
              * Now we have a client connection, we first need to check if the
              * connection is ok. If the connection isn't OK we need to report this and
              * further tries to download the image will be useless.
              */
-            int statusCode = client.executeMethod(method);
-            getLocalParameterMap().put("BytesSend", new Long(url.getBytes().length));
-            getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
-            getLocalParameterMap().put("ServiceProviderId", wmsRequest.getServiceProviderId());
-            if (statusCode != HttpStatus.SC_OK) {
-                throw new Exception("Error connecting to server. Status code: " + statusCode);
-            }
-            
+                int statusCode = client.executeMethod(method);
+                getLocalParameterMap().put("BytesSend", new Long(url.getBytes().length));
+                getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
+                getLocalParameterMap().put("ServiceProviderId", wmsRequest.getServiceProviderId());
+                if (statusCode != HttpStatus.SC_OK) {
+                    throw new Exception("Error connecting to server. Status code: " + statusCode);
+                }
+                
             /* The connection is OK and there is data in the response. Now we only need
              * to make sure that the data does not contains an error message from the server.
              * Therefore we need to check if the response header is giving away information
              * about the data.
              */
-            String mime = method.getResponseHeader("Content-Type").getValue();
-            
-            if (mime.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
-                InputStream is = method.getResponseBodyAsStream();
-                String body = getServiceException(is);
-                throw new Exception(body);
+                String mime = method.getResponseHeader("Content-Type").getValue();
+                
+                if (mime.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                    InputStream is = method.getResponseBodyAsStream();
+                    String body = getServiceException(is);
+                    throw new Exception(body);
+                }
+                
+                //log.info("Downloaded and stored image of url: " + getUrl());
+                
+                
+                setBufferedImage(KBImageTool.readImage(method, mime, getLocalParameterMap()));
+                
+                Header[] headers = method.getResponseHeaders();
+                
+                
+                
+                setStatus(COMPLETED);
+            } catch (Exception ex) {
+                log.error("error callimage collector");
+                setMessage(ex.getMessage());
+                setStatus(ERROR);
+            } finally {
+                method.releaseConnection();
             }
-            
-            //log.info("Downloaded and stored image of url: " + getUrl());
-            
-            
-            setBufferedImage(KBImageTool.readImage(method, mime, getLocalParameterMap()));
-            
-            Header[] headers = method.getResponseHeaders();
-            
-            
-            
-            setStatus(COMPLETED);
-        } catch (Exception ex) {
-            log.error("error callimage collector");
-            setMessage(ex.getMessage());
-            setStatus(ERROR);
-        } finally {
-            method.releaseConnection();
         }
         
         setOperationEnd(new Date());

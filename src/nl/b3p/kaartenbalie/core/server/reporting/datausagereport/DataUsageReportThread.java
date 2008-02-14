@@ -243,17 +243,15 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             }
             report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
             et.commit();
+            super.notifyStateChanged(ThreadReportStatus.COMPLETED,null, report.getId());
         } catch (Throwable e) {
-            e.printStackTrace();
             et.rollback();
             super.notifyBreak(e);
             em.close();
             return;
+        } finally {
+            em.close();
         }
-        
-        
-        super.notifyStateChanged(ThreadReportStatus.COMPLETED,null, report.getId());
-        em.close();
     }
     
     public void setParameters(Map parameters) throws Exception {

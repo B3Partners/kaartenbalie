@@ -165,7 +165,7 @@ public class KBImageTool {
      * @return BufferedImage
      */
     // <editor-fold defaultstate="" desc="combineImages(BufferedImage [] images, String mime) method.">
-    private static BufferedImage combineImages(BufferedImage [] images, String mime) {
+    public static BufferedImage combineImages(BufferedImage [] images, String mime) {
         if(mime.equals(JPEG)) {
             return combineJPGImages(images);
         } else {
@@ -230,7 +230,7 @@ public class KBImageTool {
      * @return a String with the found MIME or null if no MIME was found.
      */
     // <editor-fold defaultstate="" desc="getMimeType(String mime) method.">
-    private static String getMimeType(String mime) {
+    public static String getMimeType(String mime) {
         String [] mimeTypes = ImageIO.getReaderMIMETypes();
         for (int i = 0; i < mimeTypes.length; i++)
             if (mimeTypes[i].equalsIgnoreCase(mime))

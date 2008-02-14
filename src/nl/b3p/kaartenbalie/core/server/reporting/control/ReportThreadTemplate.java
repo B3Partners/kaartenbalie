@@ -69,7 +69,6 @@ public abstract class ReportThreadTemplate extends Thread{
              */
             trsId = trs.getId();
         } catch (Exception e) {
-            e.printStackTrace();
             et.rollback();
             throw e;
         } finally {
@@ -93,7 +92,6 @@ public abstract class ReportThreadTemplate extends Thread{
             et.commit();
         } catch (Exception e) {
             et.rollback();
-            e.printStackTrace();
         } finally {
             em.close();
         }
@@ -103,7 +101,6 @@ public abstract class ReportThreadTemplate extends Thread{
     }
     
     protected void notifyBreak(Throwable e) {
-        e.printStackTrace();
         notifyStateChanged(ThreadReportStatus.FAILED, e.getMessage(),null);
     }
     

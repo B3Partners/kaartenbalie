@@ -28,6 +28,10 @@ public abstract class ServiceProviderRequest {
     private String providerRequestURI;
     private Long msSinceRequestStart;
     
+    private Class exceptionClass;
+    private String exceptionMessage;
+    
+    
     //Relational Mappings
     private ClientRequest clientRequest;
     
@@ -107,10 +111,21 @@ public abstract class ServiceProviderRequest {
         this.msSinceRequestStart = msSinceRequestStart;
     }
     
-
     
+    public Class getExceptionClass() {
+        return exceptionClass;
+    }
     
+    public void setExceptionClass(Class exceptionClass) {
+        this.exceptionClass = exceptionClass;
+    }
     
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
     
+    public void setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
     
 }

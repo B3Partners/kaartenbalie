@@ -1,1 +1,1 @@
-ALTER TABLE `mon_clientrequest` ADD COLUMN `clr_service` VARCHAR(10) NOT NULL AFTER `clr_clientIp`, ADD COLUMN `clr_operation` VARCHAR(50) NOT NULL AFTER `clr_service`;
+ALTER TABLE `mon_clientrequest` ADD COLUMN `clr_service` VARCHAR(10) NULL AFTER `clr_clientIp`, ADD COLUMN `clr_operation` VARCHAR(50) NULL AFTER `clr_service`;

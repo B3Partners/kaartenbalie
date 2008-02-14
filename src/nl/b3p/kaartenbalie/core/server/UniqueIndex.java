@@ -95,10 +95,4 @@ public class UniqueIndex {
         return nextUnique;
     }
     
-    public static void main(String[] args) throws Exception{
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        System.out.println(createNextUnique("Lorem"));
-    }
-    
-    
 }
