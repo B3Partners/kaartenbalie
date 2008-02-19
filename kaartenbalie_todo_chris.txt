@@ -8,4 +8,7 @@
 
 - package nl.b3p.kaartenbalie.core.server.b3pLayering;class ConfigLayer boundingbox op iets echts zetten?
 
+- Kaartenbalie schaalberekening per projectie. Voorwaarde alleen bij geldige projectie, anders kaart niet weergeven -> foutmelding?
+
+
 

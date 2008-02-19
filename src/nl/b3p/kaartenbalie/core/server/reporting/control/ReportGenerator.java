@@ -211,7 +211,7 @@ public class ReportGenerator {
                 Document doc = docBuilder.newDocument();
                 
                 //get the root element
-                Element reportElement = report.toElement(doc,null);
+                Element reportElement = report.buildElement(doc);
                 doc.appendChild(reportElement);
                 Source reportSource = new DOMSource(doc);
                 

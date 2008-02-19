@@ -11,6 +11,11 @@
         <discriminator column="rep_discriminator" type="string" />        
         
         <many-to-one name="owningOrganization" column="rpd_org_id" update="true" not-null="false"/>  
+        <set name="dataTables">
+            <key column="tab_rep_id" update="true"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable"/>
+        </set>   
+        
         <property name="reportDate" column="rep_reportDate"/>
         <property name="processingTime" column="rep_processingTime"/>     
         

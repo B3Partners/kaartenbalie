@@ -12,6 +12,6 @@
         <property name="reportId" column="sta_reportId"/>        
         <property name="creationDate" column="sta_creationDate"/>
         <property name="state" column="sta_state"/>
-        <property name="statusMessage" column="sta_statusMessage"/>     
+        <property name="statusMessage" column="sta_statusMessage" length="4000"/>     
     </class>
 </hibernate-mapping>

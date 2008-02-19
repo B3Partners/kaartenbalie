@@ -315,7 +315,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
                             /* Accounting... */
                             if (AccountManager.isEnableAccounting()) {
-                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
+                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  new BigDecimal(100), units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
                                 tlu.registerUsage(lpc);
                             }
                             /* End of Accounting */

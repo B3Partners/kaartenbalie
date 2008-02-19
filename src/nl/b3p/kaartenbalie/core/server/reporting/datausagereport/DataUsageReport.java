@@ -132,12 +132,7 @@ public class DataUsageReport extends BaseReport {
     
     
     public Element toElement(Document doc, Element rootElement){
-        Element report = doc.createElement("report");
-        
-        report.setAttribute("id", getId().toString());
-        report.setAttribute("processingTime", getProcessingTime().toString());
-        report.setAttribute("date", getReportDate().toString());
-        
+
         Element vars = doc.createElement("vars");
         Element period = doc.createElement("period");
         period.appendChild(DataMonitoring.createElement(doc,"start", getStartDate().toString()));
@@ -163,21 +158,18 @@ public class DataUsageReport extends BaseReport {
         company.setAttribute("id", org.getId().toString());
         company.appendChild(DataMonitoring.createElement(doc,"name",org.getName()));
         vars.appendChild(company);
-        report.appendChild(vars);
-        
+        rootElement.appendChild(vars);
+
         Element data = doc.createElement("data");
         if (getReportData() != null) {
-            
             Iterator i = getReportData().iterator();
             while (i.hasNext()) {
                 RepData repData = (RepData) i.next();
                 data.appendChild(repData.toElement(doc,rootElement));
             }
         }
-        
-        
-        report.appendChild(data);
-        return report;
+        rootElement.appendChild(data);
+        return rootElement;
     }
     
     

@@ -81,6 +81,7 @@ public abstract class ReportThreadTemplate extends Thread{
     }
     
     protected void notifyStateChanged(int newState, String message, Integer reportId) {
+        System.out.println(message);
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
         et.begin();

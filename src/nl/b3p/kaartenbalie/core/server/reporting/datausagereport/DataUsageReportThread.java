@@ -22,6 +22,9 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportThreadTemplate;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow;
 
 /**
  *
@@ -55,13 +58,99 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             dur.setStartDate(startDate);
             dur.setEndDate(endDate);
             
+            
+            Integer oranizationId = organization.getId();
+            /*
+             * Create some table data about average time split by ms!
+             */
+            
+            DataTable dt = new DataTable(report,"FrequencyResponseTimeMatrix");
+            TableRow header = new TableRow();
+            header.setHeader(new Boolean(true));
+            
+            RowValue range = new RowValue("Range (ms)");
+            header.addValue(range);
+            em.persist(range);
+            
+            RowValue frequency = new RowValue("Frequency");
+            header.addValue(frequency);
+            em.persist(frequency);
+            
+            dt.addRow(header);
+            em.persist(header);
+            em.persist(dt);
+            int stepSize = 1000;
+            int maxRange = stepSize * 22;
+            int start = 1000;
+            for (int i = start; i <= maxRange; i+= stepSize) {
+                double percentageDone = ((double) i/(double)maxRange) * 100.0;
+                super.notifyStateChanged(ThreadReportStatus.GENERATING,"FrequencyResponseTimeMatrix " + Math.round(percentageDone) + "% done." ,null);
+                TableRow tr = new TableRow();
+                dt.addRow(tr);
+                em.persist(tr);
+                //Add Range Value
+                RowValue tdRange = new RowValue("" + i);
+                tr.addValue(tdRange);
+                em.persist(tdRange);
+                
+                Long msLow = null;
+                if (i-stepSize < 0) {
+                    msLow = new Long(0);
+                } else {
+                    msLow = new Long(i - stepSize);
+                }
+                
+                Long frequencyHits = (Long) em.createQuery(
+                        "SELECT COUNT(*) FROM RequestOperation AS ro " +
+                        "WHERE ro.clientRequest.organizationId = :organizationId " +
+                        "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                        "AND ro.duration BETWEEN :msLow AND :msHigh " )
+                        .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                        .setParameter("organizationId",oranizationId)
+                        .setParameter("msLow",msLow)
+                        .setParameter("msHigh",new Long(i))
+                        .getSingleResult();
+                
+                RowValue tdFrequency = new RowValue(frequencyHits.toString());
+                tr.addValue(tdFrequency);
+                em.persist(tdFrequency);
+                
+            }
+            
+            //Now everything larger then maxRange
+            
+            TableRow tr = new TableRow();
+            dt.addRow(tr);
+            em.persist(tr);
+            //Add Range Value
+            RowValue tdRange = new RowValue("> " + maxRange);
+            tr.addValue(tdRange);
+            em.persist(tdRange);
+            
+            Long frequencyHits = (Long) em.createQuery(
+                    "SELECT COUNT(*) FROM RequestOperation AS ro " +
+                    "WHERE ro.clientRequest.organizationId = :organizationId " +
+                    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                    "AND ro.duration > :msLow " )
+                    .setParameter("startDate", startDate).setParameter("endDate", endDate)
+                    .setParameter("organizationId",oranizationId)
+                    .setParameter("msLow",new Long(maxRange))
+                    .getSingleResult();
+            
+            RowValue tdFrequency = new RowValue(frequencyHits.toString());
+            tr.addValue(tdFrequency);
+            em.persist(tdFrequency);
+            
+            
+            
+            
             /*
              * Fill Summary Data
              */
             super.notifyStateChanged(ThreadReportStatus.GENERATING,"Generating Summary Data",null);
             RepDataSummary rds = new RepDataSummary(dur);
             
-            Integer oranizationId = organization.getId();
+            
             //CombineImagesOperation
             Long cioHits = (Long) em.createQuery(
                     "SELECT COUNT(*) " +
@@ -248,6 +337,7 @@ public class DataUsageReportThread extends ReportThreadTemplate{
             et.rollback();
             super.notifyBreak(e);
             em.close();
+            e.printStackTrace();
             return;
         } finally {
             em.close();

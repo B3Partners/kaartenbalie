@@ -38,3 +38,5 @@ mysql -u%1 -p%2 -t %3 < "18 DataMonitoringLogErrors.sql"
 echo mysql -u%1 -p%2 -t %3 "19 minMaxScaleForLayerPricing.sql"
 mysql -u%1 -p%2 -t %3 < "19 minMaxScaleForLayerPricing.sql"
 
+echo mysql -u%1 -p%2 -t %3 "20 ReportingUpdate.sql"
+mysql -u%1 -p%2 -t %3 "20 ReportingUpdate.sql"

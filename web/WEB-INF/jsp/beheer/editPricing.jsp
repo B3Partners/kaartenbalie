@@ -5,8 +5,6 @@
 <c:choose>
     <c:when test="${not empty id}">
         <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
-        
-        ::${activePricingData.WMSGetLegendGraphic}::
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul>
@@ -158,7 +156,6 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        
                                         <td class="${rowstyle}">
                                             <c:if test="${empty layerPricing.deletionDate}">
                                                 [<a href="editpricing.do?delete=submit&pricingid=${layerPricing.id}&id=${id}">D</a>]    
@@ -187,12 +184,9 @@
                             <jsp:param name="elementStyleId" value="validUntil"/>
                         </jsp:include>
                         <br/>   
-                        
-                        
                         <label>Tarief :</label><html:text styleId="unitPrice" property="unitPrice"/><html:checkbox styleId="layerIsFree" property="layerIsFree" onclick="unitPriceState(this.checked);"/> Kaart is gratis!<br/>
                         <script type="text/javascript">
-                               function unitPriceState(state)
-                                {
+                               function unitPriceState(state){
                                     var unitPrice = document.getElementById('unitPrice');
                                     unitPrice.disabled = state;
                                     if (state == true) {
@@ -200,10 +194,7 @@
                                     }
                                 }
                         </script>
-
                         <label>Schaalbereik :</label><html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
-                        
-                        
                         <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}<br/>
                         
                         <table style="width:300px;display:none;">

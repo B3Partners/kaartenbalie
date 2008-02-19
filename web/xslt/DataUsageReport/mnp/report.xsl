@@ -22,9 +22,10 @@
 					<label>RapportNr :</label><xsl:value-of select="@id"/><br/>
 					<label>Rapport Datum :</label><xsl:value-of select="@date"/><br/>
 					<label>Verwerkingstijd:</label><xsl:value-of select="@processingTime"/>ms<br/>
-					<xsl:apply-templates select="vars"/>
-					<xsl:apply-templates select="data"/>
-				</fieldset>
+                                        
+                                        <xsl:apply-templates select="vars"/>
+                                        <xsl:apply-templates select="data"/>
+                                </fieldset>
 			</body>
 		</html>
 	</xsl:template>

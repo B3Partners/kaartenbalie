@@ -36,6 +36,7 @@ public class LayerPriceComposition {
     private Date calculationDate;
     private int planType;
     private BigDecimal units;
+    private BigDecimal scale;
     private String service;
     private String operation;
     
@@ -62,7 +63,7 @@ public class LayerPriceComposition {
         method = METHOD_NONE;
     }
     
-    public LayerPriceComposition(String serverProviderPrefix, String layerName, Date calculationDate, int planType, BigDecimal units, String service, String operation) {
+    public LayerPriceComposition(String serverProviderPrefix, String layerName, Date calculationDate, BigDecimal scale, int planType, BigDecimal units, String service, String operation) {
         this();
         this.setServerProviderPrefix(serverProviderPrefix);
         this.setLayerName(layerName);
@@ -71,6 +72,8 @@ public class LayerPriceComposition {
         this.setUnits(units);
         this.setOperation(operation);
         this.setService(service);
+        this.setScale(scale);
+
     }
     
     /*
@@ -188,6 +191,14 @@ public class LayerPriceComposition {
                 "The freeState of this layer is '" + layerIsFree + "'. \n" +
                 "The used method is " + method + ". \n";
         
+    }
+
+    public BigDecimal getScale() {
+        return scale;
+    }
+
+    public void setScale(BigDecimal scale) {
+        this.scale = scale;
     }
     
     

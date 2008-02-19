@@ -170,6 +170,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
         int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
         BufferedImage bufImage = null;
+        
         bufImage =  new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufImage.createGraphics();
         if (!transparant.booleanValue()) {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+        <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow" table="rep_tablerow">
+        <id name="id" type="int" column="tro_id" >
+            <generator class="native"/>
+        </id>
+        <many-to-one name="dataTable" column="tro_tab_id" update="true" not-null="false"/>  
+        <set name="rowValues" order-by="rva_valueOrder ASC">
+            <key column="rva_tro_id" update="false"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue"/>
+        </set>   
+        
+        <property name="header" column="tro_header"/>
+        <property name="rowOrder" column="tro_rowOrder"/>
+        
+    </class>
+</hibernate-mapping>
