@@ -22,7 +22,9 @@
         </property>  
         <property name="scale">
             <column name="prc_scale" precision="20" scale="10" />            
-        </property>          
+        </property>  
+        <property name="projection" column="prc_projection"/>
+        
 
         <property name="layerIsFree" column="prc_layerIsFree"/>
         <property name="method" column="prc_method"/>

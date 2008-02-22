@@ -34,15 +34,35 @@
                     <thead>
                         <tr>
                             <th style="width:150px;vertical-align:top;">Layer</th>
-                            <th>Tarief</th>
-                            <th>Opbouw v/d kosten</th>
+                            <th>Type</th>
+                            <th>Aantal</th>
+                            <th>Projectie</th>
+                            <th>Schaal</th>
+                            <th>Service</th>
+                            <th>Dienst</th>
+                            <th>Prijs</th>                            
                         </tr>
                     </thead>
-                    <c:forEach var="lum" items="${LayerUsageMutations}">
+                    <c:forEach var="lpc" items="${layerPriceCompositions}">
                         <tr>
-                            <td style="vertical-align:top;">${lum.layer.name}</td>
-                            <td style="vertical-align:top;"><fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${lum.layerCosts}"/></td>
-                            <td>${lum.description}</td>
+                            <td style="vertical-align:top;">${lpc.serverProviderPrefix}_${lpc.layerName}</td>
+                            <td style="vertical-align:top;">${lpc.planType}</td>
+                            <td style="vertical-align:top;">${lpc.units}</td>
+                            <td style="vertical-align:top;">${lpc.projection}</td>                            
+                            <td style="vertical-align:top;">${lpc.scale}</td>
+                            <td style="vertical-align:top;">${lpc.service}</td>
+                            <td style="vertical-align:top;">${lpc.operation}</td>
+                            <td style="vertical-align:top;">
+                                <c:choose>
+                                    <c:when test="${lpc.layerIsFree == true}">
+                                        Gratis
+                                    </c:when>
+                                    <c:otherwise>
+                                        <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${lpc.layerPrice}"/>        
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>                                
+                                                    
                         </tr>
                     </c:forEach>
                 </table>                

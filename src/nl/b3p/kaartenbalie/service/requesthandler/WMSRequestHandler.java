@@ -252,6 +252,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         AccountManager am = AccountManager.getAccountManager(orgId);
         TransactionLayerUsage tlu = am.beginTLU();
         LayerCalculator lc = new LayerCalculator();
+        String projection = dw.getOgcrequest().getParameter(WMS_PARAM_SRS);
         /* End of Accounting */
         
         /*B3Partners Layers ConfigMap */
@@ -315,7 +316,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
                             /* Accounting... */
                             if (AccountManager.isEnableAccounting()) {
-                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  new BigDecimal(100), units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
+                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, new BigDecimal(100), units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
                                 tlu.registerUsage(lpc);
                             }
                             /* End of Accounting */

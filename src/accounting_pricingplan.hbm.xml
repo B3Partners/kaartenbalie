@@ -53,9 +53,8 @@
         <property name="maxScale">
             <column name="lpr_maxScale" precision="20" scale="10" />            
         </property>  
-
-        
-        
-        
+        <property name="projection">
+            <column name="lpr_projection"/>            
+        </property>  
     </class>
 </hibernate-mapping> 

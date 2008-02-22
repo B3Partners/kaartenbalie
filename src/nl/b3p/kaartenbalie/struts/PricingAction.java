@@ -11,6 +11,7 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConstants;
@@ -47,17 +49,24 @@ import org.json.JSONObject;
  */
 public class PricingAction extends KaartenbalieCrudAction implements KBConstants {
     
-    private static final String DETAILS = "details";
+    private static final String TEST = "test";
     public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
+    
+    private static int DAYMODE_DONTCARE   = 0;
+    private static int DAYMODE_ENDOFDAY   = 1;
+    private static int DAYMODE_STARTOFDAY = 2;
+    
     
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(DETAILS);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.reporting.details.succes");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.reporting.details.failed");
-        map.put(DETAILS, crudProp);
+        
+        ExtendedMethodProperties crudPropTest = new ExtendedMethodProperties(TEST);
+        crudPropTest.setDefaultForwardName(SUCCESS);
+        crudPropTest.setDefaultMessageKey("beheer.pricing.test.succes");
+        crudPropTest.setAlternateForwardName(FAILURE);
+        crudPropTest.setAlternateMessageKey("beheer.pricing.test.failed");
+        map.put(TEST, crudPropTest);
+        
         return map;
     }
     
@@ -66,14 +75,103 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
         request.setAttribute("id", request.getParameter("id"));
         return super.unspecified(mapping, dynaForm, request, response);
     }
+    public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setAttribute("id", request.getParameter("id"));
+        String idString = (String) request.getAttribute("id");
+        if (request.getMethod().equalsIgnoreCase("post")) {
+            
+            
+            if (idString != null && idString.trim().length() > 0) {
+                Integer layerId = new Integer(Integer.parseInt(idString));
+                
+                
+                Date testFrom = getValidDate(dynaForm.getString("testFrom"),DAYMODE_STARTOFDAY, true);
+                Date testUntil = getValidDate(dynaForm.getString("testUntil"),DAYMODE_ENDOFDAY, true);
+                if (testUntil.before(testFrom)) {
+                    throw new Exception("testUntil cannot be before testFrom.");
+                }
+                String projection = dynaForm.getString("testProjection");
+                if (projection == null || projection.trim().length() == 0) {
+                    throw new Exception("Projection is required!");
+                }
+                projection = projection.trim();
+                
+                Double testScale    = (Double) dynaForm.get("testScale");
+                Double testStepSize = (Double) dynaForm.get("testStepSize");
+                Integer testSteps    = (Integer) dynaForm.get("testSteps");
+                if (testScale != null) {
+                    if (testScale.doubleValue() < 0) {
+                        throw new Exception("testScale cannot be less then zero.");
+                    }
+                    
+                    if (testStepSize == null || testStepSize.doubleValue() < 0) {
+                        throw new Exception("testStepSize must be a positive value!");
+                    }
+                    if (testSteps == null || testSteps.intValue() < 0) {
+                        throw new Exception("testSteps must be a positive value!");
+                    } else if (testSteps.intValue() == 0) {
+                        testSteps = new Integer(1);
+                    }else if (testSteps.intValue()> 20) {
+                        testSteps = new Integer(20);
+                    }
+                }
+                
+                LayerCalculator lc = new LayerCalculator();
+                try {
+                    
+                    //Get all the dates in an array..
+                    List testDates = new ArrayList();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(testFrom);
+                    int maxDays = 7;
+                    int dayCounter = 0;
+                    testDates.add(new Date());
+                    while(cal.getTime().before(testUntil) && dayCounter < maxDays) {
+                        Date testDate = cal.getTime();
+                        testDates.add(testDate);
+                        cal.add(Calendar.DAY_OF_YEAR, 1);
+                        dayCounter++;
+                    }
+                    
+                    List resultSet = new ArrayList();
+                    List scaleSet = new ArrayList();
+                    BigDecimal scale = new BigDecimal(testScale.doubleValue());
+                    for (int i = 0; i < testSteps.intValue(); i++) {
+                        List subSet = new ArrayList();
+                        Iterator iterDates = testDates.iterator();
+                        scaleSet.add(scale);
+                        while(iterDates.hasNext()) {
+                            Date testDate = (Date) iterDates.next();
+                            LayerPriceComposition lpc = lc.calculateLayerComplete(layerId, testDate, projection, scale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
+                            subSet.add(lpc);
+                        }
+                        scale = scale.add(new BigDecimal(testStepSize.doubleValue()));
+                        resultSet.add(subSet);
+                    }
+                    request.setAttribute("resultSet", resultSet);
+                    request.setAttribute("testDates", testDates);
+                    request.setAttribute("scaleSet", scaleSet);
+                } catch (Exception e) {
+                    throw e;
+                } finally {
+                    lc.closeEntityManager();
+                }
+            }
+        } else {
+            Calendar cal = Calendar.getInstance();
+            dynaForm.set("testFrom",pricingDate.format(cal.getTime()));
+            cal.add(Calendar.DAY_OF_YEAR,7);
+            dynaForm.set("testUntil",pricingDate.format(cal.getTime()));
+        }
+        return super.unspecified(mapping, dynaForm, request, response);
+        
+    }
     
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         request.setAttribute("id", request.getParameter("id"));
         return super.edit(mapping, dynaForm, request, response);
     }
-    public ActionForward details(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        return super.unspecified(mapping, dynaForm, request, response);
-    }
+    
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         EntityManager em = getEntityManager();
@@ -92,6 +190,35 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
     }
     
     
+    public Date getValidDate(String value, int dayMode,boolean cannotBeNull) throws Exception {
+        Date resultDate = null;
+        try {
+            resultDate =  pricingDate.parse(value);
+        } catch (Exception e) {
+        }
+        if (resultDate != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(resultDate);
+            if (dayMode == DAYMODE_ENDOFDAY) {
+                cal.set(Calendar.HOUR_OF_DAY,23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 99);
+            } else if (dayMode == DAYMODE_STARTOFDAY) {
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+            }
+            resultDate = cal.getTime();
+        }
+        if (resultDate == null && cannotBeNull) {
+            throw new Exception("Could not process date for value '" + value + "'");
+        }
+        return resultDate;
+        
+    }
+    
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
         request.setAttribute("id", request.getParameter("id"));
@@ -109,16 +236,8 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
             return getAlternateForward(mapping, request);
         }
         Integer planType = (Integer) dynaForm.get("planType");
-        Date validFrom = null;
-        try {
-            validFrom =  pricingDate.parse(dynaForm.getString("validFrom"));
-        } catch (Exception e) {
-        }
-        Date validUntil = null;
-        try {
-            validUntil =  pricingDate.parse(dynaForm.getString("validUntil"));
-        } catch (Exception e) {
-        }
+        Date validFrom = getValidDate(dynaForm.getString("validFrom"),DAYMODE_STARTOFDAY, false);
+        Date validUntil = getValidDate(dynaForm.getString("validUntil"),DAYMODE_STARTOFDAY, false);
         
         if (validUntil != null && validFrom != null) {
             if (validUntil.before(validFrom)) {
@@ -163,51 +282,38 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                 throw new Exception("Requested layer is not able to register pricinginformation...");
             }
             LayerPricing lp = new LayerPricing();
-            
-            Double minScale = (Double) dynaForm.get("minScale");
-            Double maxScale = (Double) dynaForm.get("maxScale");
-            
-            if (minScale != null && maxScale != null && minScale.doubleValue() > 0 && maxScale.doubleValue() > 0 ) {
-                if (maxScale.compareTo(minScale) < 0) {
-                    throw new Exception("maxScale should always be larger then the minScale.");
+            Double minScale = null;
+            Double maxScale = null;
+            String projection = dynaForm.getString("projection");
+            if (projection != null && projection.trim().length() > 0) {
+                minScale = (Double) dynaForm.get("minScale");
+                maxScale = (Double) dynaForm.get("maxScale");
+                projection = projection.trim();
+                if (minScale != null && maxScale != null && minScale.doubleValue() > 0 && maxScale.doubleValue() > 0 ) {
+                    if (maxScale.compareTo(minScale) < 0) {
+                        throw new Exception("maxScale should always be larger then the minScale.");
+                    }
                 }
-            }
-            
-            if (minScale != null) {
-                if (minScale.doubleValue() < 0) {
-                    throw new Exception("minScale cannot be a negative value!");
-                } else if (minScale.doubleValue()> 0) {
-                    lp.setMinScale(new BigDecimal(minScale.doubleValue()));
+                if (minScale != null) {
+                    if (minScale.doubleValue() < 0) {
+                        throw new Exception("minScale cannot be a negative value!");
+                    } else if (minScale.doubleValue()> 0) {
+                        lp.setMinScale(new BigDecimal(minScale.doubleValue()));
+                    }
                 }
-            }
-            
-            if (maxScale != null) {
-                if (maxScale.doubleValue() < 0) {
-                    throw new Exception("maxScale cannot be a negative value!");
-                } else if (maxScale.doubleValue() > 0) {
-                    lp.setMaxScale(new BigDecimal(maxScale.doubleValue()));
+                if (maxScale != null) {
+                    if (maxScale.doubleValue() < 0) {
+                        throw new Exception("maxScale cannot be a negative value!");
+                    } else if (maxScale.doubleValue() > 0) {
+                        lp.setMaxScale(new BigDecimal(maxScale.doubleValue()));
+                    }
                 }
+                lp.setProjection(projection);
             }
-            
             
             lp.setPlanType(planType.intValue());
-            Calendar cal = Calendar.getInstance();
-            if (validFrom != null) {
-                cal.setTime(validFrom);
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-                lp.setValidFrom(cal.getTime());
-            }
-            if (validUntil != null) {
-                cal.setTime(validUntil);
-                cal.set(Calendar.HOUR_OF_DAY,23);
-                cal.set(Calendar.MINUTE, 59);
-                cal.set(Calendar.SECOND, 59);
-                cal.set(Calendar.MILLISECOND, 99);
-                lp.setValidUntil(cal.getTime());
-            }
+            lp.setValidFrom(validFrom);
+            lp.setValidUntil(validUntil);
             if (unitPrice != null) {
                 lp.setUnitPrice(new BigDecimal(unitPrice.doubleValue()));
             } else {
@@ -234,7 +340,13 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
         HttpSession session = request.getSession();
         EntityManager em = getEntityManager();
         String idString = (String) request.getAttribute("id");
+        /*
+         * Set the allowed projectsion
+         */
+        request.setAttribute("projections", SUPPORTED_PROJECTIONS);
+        
         if (idString != null && idString.length() > 0) {
+            
             String summary = request.getParameter("summary");
             if (summary != null && summary.trim().length() > 0) {
                 session.setAttribute("summary", summary);
@@ -280,15 +392,18 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     .setParameter("layerName", layer.getName())
                     .setParameter("serverProviderPrefix", layer.getSpAbbr())
                     .getResultList());
+            
+            
+            
             /*
              * Then calculate all the different prizes for all requesttypes..
              */
             LayerCalculator lc = new LayerCalculator(em);
             
             if (summary != null && summary.equalsIgnoreCase("true")) {
+                
                 Object[][] tableData = new Object[ACCOUNTING_WMS_REQUESTS.length + ACCOUNTING_WFS_REQUESTS.length][3];
                 
-                Map activePricingData = new HashMap();
                 Date now = new Date();
                 
                 BigDecimal units  = new BigDecimal(1);
@@ -298,22 +413,9 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     tableData[i][0] = "WMS";
                     tableData[i][1] = ACCOUNTING_WMS_REQUESTS[i];
                     try {
-                        tableData[i][2] = lc.calculateLayerComplete(layer, now, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
+                        tableData[i][2] = lc.calculateLayerComplete(layer, now, DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
                     } catch (NoResultException nre) {
                         tableData[i][2] = null;
-                    }
-                    try {
-                        LayerPricing lp = lc.getActiveLayerPricing(layer, now, null, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
-                        if(lp != null) {
-                            Map someData = (Map) activePricingData.get(lp.getId());
-                            if (someData == null) {
-                                someData = new HashMap();
-                                activePricingData.put(lp.getId(), someData);
-                            }
-                            someData.put("WMS_" + ACCOUNTING_WMS_REQUESTS[i], null);
-                            
-                        }
-                    } catch (NoResultException nre) {
                     }
                     
                 }
@@ -322,18 +424,13 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
                     tableData[i +totalWMSRequests ][0] = "WFS";
                     tableData[i + totalWMSRequests][1] = ACCOUNTING_WFS_REQUESTS[i];
                     try {
-                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  null, units,LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]);
+                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]);
                         
                     } catch (NoResultException nre) {
                         tableData[i + totalWMSRequests][2] = null;
                     }
-                    try {
-                        activePricingData.put("WFS_" + ACCOUNTING_WFS_REQUESTS[i], lc.getActiveLayerPricing(layer, now, null, LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]));
-                    } catch (NoResultException nre) {
-                    }
                 }
                 request.setAttribute("tableData",tableData);
-                request.setAttribute("activePricingData",activePricingData);
             }
         } else {
             JSONObject root = this.createTree();

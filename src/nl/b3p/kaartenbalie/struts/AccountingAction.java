@@ -64,12 +64,12 @@ public class AccountingAction extends KaartenbalieCrudAction {
                     .getSingleResult();
             request.setAttribute("transaction",transaction);
             
-            List layerUsageMutations = em.createQuery(
-                    "FROM LayerUsageMutation AS lum " +
-                    "WHERE lum.transactionLayerUsage.id = :transactionId")
+            List layerPriceCompositions = em.createQuery(
+                    "FROM LayerPriceComposition AS lpc " +
+                    "WHERE lpc.transactionLayerUsage.id = :transactionId")
                     .setParameter("transactionId", transaction.getId())
                     .getResultList();
-            request.setAttribute("LayerUsageMutations", layerUsageMutations );
+            request.setAttribute("layerPriceCompositions", layerPriceCompositions );
             
             request.setAttribute("type",transaction.getClass().getSimpleName());
         }

@@ -25,6 +25,7 @@ public class LayerPriceComposition {
     public static final int METHOD_PARENTS = 1;
     public static final int METHOD_CHILDS = 2;
     public static final int METHOD_NONE = 3;
+    public static final int METHOD_BLOCKED = -1;
     
     
     private Integer id;
@@ -36,6 +37,7 @@ public class LayerPriceComposition {
     private Date calculationDate;
     private int planType;
     private BigDecimal units;
+    private String projection;
     private BigDecimal scale;
     private String service;
     private String operation;
@@ -63,7 +65,7 @@ public class LayerPriceComposition {
         method = METHOD_NONE;
     }
     
-    public LayerPriceComposition(String serverProviderPrefix, String layerName, Date calculationDate, BigDecimal scale, int planType, BigDecimal units, String service, String operation) {
+    public LayerPriceComposition(String serverProviderPrefix, String layerName, Date calculationDate, BigDecimal scale, String projection, int planType, BigDecimal units, String service, String operation) {
         this();
         this.setServerProviderPrefix(serverProviderPrefix);
         this.setLayerName(layerName);
@@ -73,7 +75,7 @@ public class LayerPriceComposition {
         this.setOperation(operation);
         this.setService(service);
         this.setScale(scale);
-
+        this.setProjection(projection);
     }
     
     /*
@@ -189,21 +191,23 @@ public class LayerPriceComposition {
                 "This calculation took place on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'. \n" +
                 "The total cost of this calculation was " + layerPrice + " credits. \n" +
                 "The freeState of this layer is '" + layerIsFree + "'. \n" +
-                "The used method is " + method + ". \n";
-        
+                "The used method is " + method + ". \n" + 
+                "Service/Operation: " + service + ", " + operation;
     }
-
+    
     public BigDecimal getScale() {
         return scale;
     }
-
+    
     public void setScale(BigDecimal scale) {
         this.scale = scale;
     }
     
+    public String getProjection() {
+        return projection;
+    }
     
-    
-    
-    
-    
+    public void setProjection(String projection) {
+        this.projection = projection;
+    }
 }

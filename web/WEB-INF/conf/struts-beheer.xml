@@ -116,6 +116,15 @@
             <form-property name="operationWFS" type="java.lang.String"/>
             <form-property name="minScale" type="java.lang.Double"/>
             <form-property name="maxScale" type="java.lang.Double"/>            
+            <form-property name="projection" type="java.lang.String"/>
+            <!-- testing-->
+            <form-property name="testFrom" type="java.lang.String"/>
+            <form-property name="testUntil" type="java.lang.String"/>
+            <form-property name="testProjection" type="java.lang.String"/>
+            <form-property name="testScale" type="java.lang.Double"/>
+            <form-property name="testStepSize" type="java.lang.Double"/>            
+            <form-property name="testSteps" type="java.lang.Integer"/>           
+            
         </form-bean>  
         <form-bean name="depositForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -185,9 +194,9 @@
             <forward name="success" path="base.beheer.editpricing"/>
             <forward name="failure" path="base.beheer.editpricing"/>
         </action>        
-        <action path="/pricingdetails" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
-            <forward name="success" path="base.beheer.pricing.details"/>
-            <forward name="failure" path="base.beheer.pricing.details"/>
+        <action path="/pricingtestcalc" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing.testcalculation"/>
+            <forward name="failure" path="base.beheer.pricing.testcalculation"/>
         </action>     
         
         

@@ -33,6 +33,7 @@ public class LayerPricing {
     private String operation;
     private BigDecimal minScale;
     private BigDecimal maxScale;
+    private String projection;
     
     
     /*Relation*/
@@ -167,6 +168,14 @@ public class LayerPricing {
 
     public void setMaxScale(BigDecimal maxScale) {
         this.maxScale = maxScale;
+    }
+
+    public String getProjection() {
+        return projection;
+    }
+
+    public void setProjection(String projection) {
+        this.projection = projection;
     }
     
     

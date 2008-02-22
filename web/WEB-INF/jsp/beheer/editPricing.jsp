@@ -11,7 +11,6 @@
                     <li id="pricing" onclick="displayTabBySource(this);">Index</li>
                     <li id="details" onclick="displayTabBySource(this);">Details</li>
                     <li id="new"  onclick="displayTabBySource(this);">Nieuwe Prijsbepaling</li>
-                    <li id="help"  onclick="displayTabBySource(this);">Uitleg</li>
                 </ul>
             </div>
             <div id="sheets" style="height:450px;">
@@ -58,6 +57,7 @@
                                         <td>± ${dataRow[2].calculationTime}ms</td>
                                         <td style="border-right: 1px Solid Black;">
                                             <c:choose>
+                                                <c:when test="${dataRow[2].method == '-1'}"><img src="../images/icons/blocked.gif" alt="Kaart geblokkeerd."></c:when>
                                                 <c:when test="${dataRow[2].method == '0'}"><img src="../images/icons/owner.gif" alt="Prijsinformatie via eigen prijsbepalingen"></c:when>
                                                 <c:when test="${dataRow[2].method == '1'}"><img src="../images/icons/parent.gif" alt="WFS"></c:when>
                                                 <c:when test="${dataRow[2].method == '2'}"><img src="../images/icons/childs.gif" alt="WFS"></c:when>                                        
@@ -67,19 +67,15 @@
                                     </tr>
                                 </c:forEach>
                             </tbody>
-                            
                         </table>
                     </c:if>
                     <p>
                         <input type="checkbox" onchange="location.href='editpricing.do?id=${id}&summary=' + this.checked;" ${summary == true ? 'checked':''}>Samenvatting ophalen</input>
                     </p>
-                </div>
-                <div id="help" class="sheet">  
+                    <button onclick="parent.showPopup(1000,700,'Transactie Details','pricingtestcalc.do?test=submit&id=${id}');">Proefberekening Maken</button>
                 </div>
                 <div id="details" class="sheet" style="height:450px;">  
                     <div style="background-color:white;border:1px Solid Black;">
-                        
-                        
                         <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="pricingTable">
                             <tr>
                                 <thead>
@@ -144,7 +140,13 @@
                                             </c:choose>
                                         </td>
                                         <td class="${rowstyle}">
-                                            <c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>
+                                            <c:choose>
+                                                <c:when test="${not empty layerPricing.projection}">
+                                                    ${layerPricing.projection} <br/><c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>        
+                                                </c:when>
+                                                <c:otherwise>n/a</c:otherwise>
+                                            </c:choose>
+                                            
                                         </td>                                            
                                         <td class="${rowstyle}">
                                             <c:choose>
@@ -194,7 +196,27 @@
                                     }
                                 }
                         </script>
-                        <label>Schaalbereik :</label><html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
+                        <label>Projectie :</label>
+                        <script type="text/javascript">
+                               function setScaleVisible(state){
+                                    var selectScale = document.getElementById('selectScale');
+                                    if (state == true) {
+                                    selectScale.style.display = "block";
+                                    } else {
+                                        selectScale.style.display = "none";
+                                    }
+                                }
+                        </script>                        
+                        <html:select styleId="" property="projection" onchange="setScaleVisible(this.value != '');">
+                            <html:option value="">Unspecified</html:option>
+                            <c:forEach var="projectionString" items="${projections}">
+                                <html:option value="${projectionString}" >${projectionString}</html:option>
+                            </c:forEach>
+                        </html:select>
+                        <div id="selectScale" style="display:none;">
+                            <label>Schaalbereik :</label>    
+                            <html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
+                        </div><br/>
                         <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}<br/>
                         
                         <table style="width:300px;display:none;">
