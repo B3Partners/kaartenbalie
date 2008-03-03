@@ -15,6 +15,7 @@ var MAX_TEXTINPUT_SIZE = 75;
 
 // Tekst constanten in het Nederlands
 var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken.";
+var DEFAULT_PICKLIST_TEXT = "Klik hier om opties te zien";
 
 // add/delete elements/sections menu text 
 var ADD_ELEMENT_ABOVE_TEXT = "Voeg element hierboven toe";
@@ -97,10 +98,10 @@ function changeFlag(changed) {
 
 function startEdit(event) {
 	var element = getTarget(event);
-	//debug("startEdit");
+	debug("startEdit");
 	
 	// already editing?
-	if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "textarea" || element.tagName.toLowerCase() == "select")
+	if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "textarea" || element.tagName.toLowerCase() == "select" || element.tagName.toLowerCase() == "option")
 		return;
 	
 	// hides any menu if open
@@ -108,6 +109,7 @@ function startEdit(event) {
 	
 	// get current value (for checking if changed later)
 	preEditText = trim(getElementInnerText(element));
+	debug("preEditText: " + preEditText);
 
 	// has no picklist?
 	if (element.getAttribute("picklist") == "" || element.getAttribute("picklist") == null) {
@@ -197,14 +199,23 @@ function startEdit(event) {
 				}
 			}
 			
+			debug("exists: " + exists);
 			if (exists) {
 				picklist.selectedIndex = selectedIndex;
 			}
-			else if (preEditText != GLOBAL_DEFAULT) {
+			else {
 				// create new option
 				var newOption = document.createElement('option');
-				newOption.text = preEditText;
-				newOption.value = preEditText;
+				debug("preEditText: " + preEditText);
+				
+				if (preEditText != GLOBAL_DEFAULT) {
+					newOption.text = preEditText;
+					newOption.value = preEditText;
+				}
+				else {
+					newOption.text = DEFAULT_PICKLIST_TEXT;
+					newOption.value = DEFAULT_PICKLIST_TEXT;
+				}
 				
 				// insert value at the top of the picklist
 				try {
@@ -215,6 +226,7 @@ function startEdit(event) {
 					picklist.add(newOption, picklist.selectedIndex); // IE only
 					debug("IE only picklist add");
 				}
+				picklist.selectedIndex = 0;
 			}
 			
 			// add picklist to code and display it
@@ -307,11 +319,18 @@ function selectPickListValue(event) {
 	}
 	else {
 		var newValue = element.value;
+		debug("newValue: " + newValue);
 		//element.title? desc
 		var parentNode = element.parentNode;
 		parentNode.innerHTML = "";
-		parentNode.appendChild(document.createTextNode(newValue));
-		saveValueOnClientSide(parentNode, newValue);
+		debug("newValue !== DEFAULT_PICKLIST_TEXT: " + newValue !== DEFAULT_PICKLIST_TEXT);
+		if (newValue !== DEFAULT_PICKLIST_TEXT) {
+			parentNode.appendChild(document.createTextNode(newValue));
+			saveValueOnClientSide(parentNode, newValue);
+		}
+		else {
+			parentNode.appendChild(document.createTextNode(GLOBAL_DEFAULT));
+		}
 	}
 	
 	stopPropagation(event);
@@ -321,6 +340,7 @@ function destroyPickList(event) {
 	var element = getTarget(event);
 	var parentNode = element.parentNode;
 	parentNode.innerHTML = "";
+	debug("preEditText voor terugzetten: " + preEditText);
 	parentNode.appendChild(document.createTextNode(preEditText));
 }
 
