@@ -184,6 +184,8 @@ function startEdit(event) {
 			alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
 		}
 		else {
+			picklist.setAttribute("class", "picklist");
+					
 			// check if value exists in picklist and remember selected index
 			var exists = false;
 			var pick;
@@ -407,8 +409,8 @@ function addElement(element, addName, above) {
 	
 	// get parent folder div and check for problems
 	var folderNode = menuNode.parentNode.parentNode;
-	if (folderNode.tagName.toLowerCase() != "p") {
-		alert("Unexpected HTML object encountered. Expected P, found " + folderNode.tagName);
+	if (folderNode.tagName.toLowerCase() != "div") {
+		alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
 		return;
 	}
 	

@@ -1,0 +1,202 @@
+/*Auteur: Erik van de Pol. B3Partners.*/
+
+body {
+	padding: 5px;
+	margin: 0px;
+	font-size: 12px;
+	font-family: Verdana, sans-serif;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+}
+
+
+/* pop-up menus */
+
+ul.menu {
+	margin: 0px;
+	padding: 0px;
+	background-color: #fff;
+	border: 1px solid #999; 
+	position: absolute;  /* key attribute for hovering menu */
+	z-index: 10; /* needs position: absolute; */
+    list-style: none;
+	list-style-type: none;
+	font-weight: normal;
+}
+
+ul.menu li {
+	margin: 1px 5px 1px 5px;
+	padding: 1px 5px 1px 10px;
+	width: 210px;
+}
+
+ul.menu li a {
+	color: black;
+}
+
+ul.menu li a:hover {
+	color: black;
+	text-decoration: underline;
+}
+	
+
+/* key / value pairs */
+.key {
+	font-weight: bold;
+	vertical-align: top;
+}
+
+/* these options let the input field appear at exactly the same spot as the text in Firefox (not in IE ofcourse) */
+input.input {
+	position: absolute;
+	margin-top: -2px;
+	margin-left: 2px;
+	font-size: 12px;
+	font-family: Verdana, sans-serif;
+}
+
+/* these options let the picklist appear at exactly the same spot as the text in Firefox (not in IE ofcourse) */
+select.picklist {
+	position: absolute;
+	margin-top: -3px;
+	margin-left: -2px;
+	font-size: 12px;
+	font-family: Verdana, sans-serif;
+}
+
+.unchanged-value {
+	color: #000099;
+	cursor: pointer;
+	cursor: hand;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	padding-right: 2px;
+}
+
+.changed-value {
+	color: purple;
+	cursor: pointer;
+	cursor: hand;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	padding-right: 2px;
+}
+
+.default-value {
+	color: #2D7D32;
+	cursor: pointer;
+	cursor: hand;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	padding-right: 2px;
+}
+
+.mandatory-value {
+	color: #2D0000;
+	cursor: pointer;
+	cursor: hand;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	padding-right: 2px;
+}
+
+/* elements / sections */
+.element {
+	margin-left: 0px;
+	margin-bottom: 10px;
+}
+
+.element-mandatory {
+	margin-left: 0px;
+	margin-bottom: 10px;
+	font-weight: bold;
+	color: #EE0000;
+}
+
+.section {
+	margin-bottom: 20px;
+}
+
+.section-content {
+	margin: 0px;
+	margin-left: 16px;
+}
+
+.section-header {
+	margin-bottom: 10px;
+}
+
+.section-title {
+	color: #2E8B57;
+	font-size: 13px;
+	text-decoration: none;
+	font-weight: bold;
+	padding-left: 0px;
+	margin-left: 0x;
+}
+
+.section-title-hover {
+	color: #00DD00;
+	font-size: 13px;
+	text-decoration: none;
+	font-weight: bold;
+	padding-left: 0px;
+	margin-left: 0x;
+}
+
+.expandable {
+	position: relative;
+	left: -16px;
+}
+
+.menu-img-element {
+}
+
+.menu-img-section {
+	position: relative;
+	left: -16px;
+	cursor: pointer;
+	cursor: hand;
+}
+
+img.plus-minus {
+	border: 0px solid #fff;
+	padding: 0px;
+	margin: 0px;
+	margin-right: 5px;
+}
+
+/* misc */
+div#writeroot {
+
+}
+
+div.hidden {
+	display: none;
+}
+
+div#properties-box {
+	border: 2px solid #b0c900; 
+	position: relative;
+	top: 0px;
+	color: #000094;
+	padding: 10px;
+	padding-left: 30px;
+	padding-right: 20px;
+}
+
+.debug-box {
+	background-color: white;
+	font-family: monospace;
+	border: solid black 3px;
+	padding: 10px;
+}

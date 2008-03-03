@@ -49,7 +49,7 @@
 		
 		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
 
-		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.css' module='' />" />
+		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/styles/metadataEdit.css' module='' />" />
 
 	</head>
 

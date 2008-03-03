@@ -105,7 +105,7 @@ function isMenuShowing(element) {
 function expandNode(pElem) {
 	// get elements (anchor and child div)
 	var pFolderAnchor = pElem.parentNode.getElementsByTagName("a")[0];
-	var pChildDiv = pElem.parentNode.getElementsByTagName("div")[0];
+	var pChildDiv = pElem.parentNode.parentNode.getElementsByTagName("div")[1];
 	if (pFolderAnchor == null || pChildDiv == null) {
 		// error encountered;
 		alert("Error encountered expanding/collapsing this section.");
