@@ -354,6 +354,34 @@ margin: 0;
     width: 792px;
 }
 
+.containerdivFloat {
+	height: 450px;
+	width: 450px; 
+	overflow: scroll;  /*auto*/
+	text-align: left;
+	border: 1px solid #F4F5F9; 
+	padding-top: 15px;
+
+	float: left;
+}
+
+.containerdivNoFloat {
+	height: 450px;
+	width: 600px; 
+	/*overflow: auto;*/  /*auto*/
+	text-align: left;
+	border: 1px solid #F4F5F9; 
+	padding-top: 15px;
+}
+
+.containerdivBare {
+	height: 450px;
+	width: 600px; 
+	overflow: auto;
+	text-align: left;
+	border: 1px solid #F4F5F9; 
+}
+
 #tableContainer {
     width: 792px;
     float: left;

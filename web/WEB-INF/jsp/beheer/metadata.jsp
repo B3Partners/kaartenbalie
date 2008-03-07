@@ -2,22 +2,26 @@
 
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
-<div class="containerdiv" style="float: left; clear: none; height: 500px;">
+<div class="containerdiv" style="height: 500px;">
     <h1>Beheer Metadata</h1>
     
     <b>Lijst met beschikbare layers:</b>
     
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
-        <div id="treeContainerLarge">
-            <div class="treeHolderLarge">
-                <div id="tree"></div>
-            </div>
-        </div>
-    </div>
+	<div id="tree" style="width: 300px;" class="containerdivFloat">
+	</div>
+
+	<div id="editMetadataRoot" style="width: 600px;" class="containerdivBare">
+		test2
+		&nbsp;
+	</div>
+		
 </div>
-<div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+
+<div id="groupDetails" style="clear: both; margin-top: 10px; height: 10px;" class="containerdiv">
     &nbsp;
+	test
 </div>
+
 <script type="text/javascript">
     function popUp(url) {
 		//voor debuggen:
@@ -27,7 +31,24 @@
 		//dit wel?:
 		//window.open(url, "", "directories=0, location=0, menubar=0, status=0, toolbar=0, resizable=1, scrollbars=1");
         return false;
-    }    
+    }   
+		
+	function openMetadataInIFrame(url) {
+		var editMetadataRoot = document.getElementById("editMetadataRoot");
+		var editMetadataIFrame = document.createElement("iframe");
+		editMetadataIFrame.src = url;
+		
+		// IE
+		editMetadataIFrame.setAttribute("className", "containerdivNoFloat");
+		// non-IE (the correct way)
+		editMetadataIFrame.setAttribute("class", "containerdivNoFloat");
+		
+		editMetadataIFrame.setAttribute("frameborder", 0);
+		
+		editMetadataIFrame.scrolling = "yes";
+		editMetadataRoot.innerHTML = "";
+		editMetadataRoot.appendChild(editMetadataIFrame);
+	}
     
     <c:if test = "${not empty layerList}">
         
@@ -46,7 +67,8 @@
                 popupLink.onclick = function() {
 					newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
 					//alert(newUrl);
-					popUp(newUrl);
+					//popUp(newUrl);
+					openMetadataInIFrame(newUrl);
                 }
                 popupLink.innerHTML = item.name;
                 popupLink.href='#';

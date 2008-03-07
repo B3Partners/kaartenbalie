@@ -1,7 +1,7 @@
 /*Auteur: Erik van de Pol. B3Partners.*/
 
 body {
-	padding: 5px;
+	padding: 0px;
 	margin: 0px;
 	font-size: 12px;
 	font-family: Verdana, sans-serif;
@@ -185,13 +185,10 @@ div.hidden {
 }
 
 div#properties-box {
-	border: 2px solid #b0c900; 
 	position: relative;
-	top: 0px;
-	color: #000094;
-	padding: 10px;
-	padding-left: 30px;
-	padding-right: 20px;
+	padding-top: 10px;
+	padding-left: 20px; /* can never be less then 16px because of the negative indentation of the plus/minux signs */
+	padding-right: 4px;
 }
 
 .debug-box {
