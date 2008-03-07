@@ -54,14 +54,6 @@ public class TableRow implements XMLElement {
         this.dataTable = dataTable;
     }
     
-    public Boolean getHeader() {
-        return header;
-    }
-    
-    public void setHeader(Boolean header) {
-        this.header = header;
-    }
-    
     public Set getRowValues() {
         return rowValues;
     }
@@ -100,6 +92,14 @@ public class TableRow implements XMLElement {
         rowValues.add(rowValue);
         rowValue.setTableRow(this);
         valueCounter++;
+    }
+
+    public Boolean getHeader() {
+        return header;
+    }
+
+    public void setHeader(Boolean header) {
+        this.header = header;
     }
     
     

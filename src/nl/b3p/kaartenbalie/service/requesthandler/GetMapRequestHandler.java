@@ -50,12 +50,6 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         
         EntityManager em = MyEMFDatabase.getEntityManager();
-        /*
-         * Initialize some variables
-         * And immediatly set the right output format (also for errors) because if an error occurs
-         * with the GetMap functionality before the outputformat is set then the standard output
-         * format would be used.
-         */
         this.user       = user;
         this.url        = user.getPersonalURL();
         Integer orgId   = user.getOrganization().getId();

@@ -87,6 +87,9 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBCon
             return;
         
         form.set("personalUrl", user.getPersonalURL());
+        String bbox = (String)form.get("bbox");
+        if (bbox==null || bbox.length()==0)
+            form.set("bbox","12000,304000,280000,620000"); // heel nederland
         
         String[] formats=new String[5];
         formats[0]="image/gif";

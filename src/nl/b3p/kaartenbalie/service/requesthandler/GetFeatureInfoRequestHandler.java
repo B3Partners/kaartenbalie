@@ -42,7 +42,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      * @throws Exception
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         
@@ -57,19 +56,21 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             }
         }
         
+        Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
+        dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
+        
         this.user       = user;
         this.url        = user.getPersonalURL();
         Integer orgId   = user.getOrganization().getId();
         OGCRequest ogc  = dw.getOgcrequest();
         
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, true,dw);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_QUERY_LAYERS).split(","), orgId, true,dw);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
         }
         
         ArrayList urlWrapper = new ArrayList();
-        //ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
             
@@ -81,7 +82,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             } else {
                 firWrapper.setServiceProviderId(serviceProviderId);
                 StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
-                
+
                 StringBuffer url = new StringBuffer();
                 url.append((String)spInfo.get("spUrl"));
                 String [] params = dw.getOgcrequest().getParametersArray();
@@ -89,6 +90,11 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                     String [] keyValuePair = params[i].split("=");
                     if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
                         url.append(WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_QUERY_LAYERS)) {
+                        url.append(WMS_PARAM_QUERY_LAYERS);
                         url.append("=");
                         url.append(layersList);
                         url.append("&");
@@ -104,5 +110,4 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         
         getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetFeatureInfo);
     }
-    // </editor-fold>
 }

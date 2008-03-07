@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
@@ -84,17 +85,48 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
      * @throws ServletException
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="processRequest(HttpServletRequest request, HttpServletResponse response) method.">
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
+        
+        StringBuffer baseUrl = createBaseUrl(request);
+        if (CAPABILITIES_DTD == null) {
+            CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getDtd();
+        }
+        String iUrl = completeUrl(baseUrl, request).toString();
+        log.debug("Incoming URL: " + iUrl);
+        
+        MyEMFDatabase.initEntityManager();
+        EntityManager em = MyEMFDatabase.getEntityManager();
+        User user = null;
+        
+        DataWrapper data = new DataWrapper(response);
+        OGCRequest ogcrequest = new OGCRequest(iUrl);
+        data.setOgcrequest(ogcrequest);
+        DataMonitoring rr = new DataMonitoring();
+        data.setRequestReporting(rr);
+        
+        try {
+            rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
+            user = checkLogin(request);
+            ogcrequest.checkRequestURL();
+            rr.setUserAndOrganization(user, user.getOrganization());
+            data.setHeader("X-Kaartenbalie-User", user.getUsername());
+            parseRequestAndData(data, user);
+        } catch (Exception ex) {
+            rr.setClientRequestException(ex);
+            handleRequestException(ex, data);
+        } finally {
+            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
+        }
+        MyEMFDatabase.closeEntityManager();
+    }
+    
+    private StringBuffer createBaseUrl(HttpServletRequest request) {
         String scheme       = request.getScheme();
         String serverName   = request.getServerName();
         int serverPort      = request.getServerPort();
         String contextPath  = request.getContextPath();
-        String servletPath  = request.getServletPath();
-        String pathInfo     = request.getPathInfo();
-        String queryString  = request.getQueryString();
         
         StringBuffer theUrl = new StringBuffer(scheme);
         theUrl.append("://");
@@ -104,194 +136,131 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
             theUrl.append(serverPort);
         }
         theUrl.append(contextPath);
-        
-        if (CAPABILITIES_DTD == null) {
-            StringBuffer dtdUrl = new StringBuffer(theUrl.toString());
-            dtdUrl.append(MyEMFDatabase.getDtd());
-            CAPABILITIES_DTD = dtdUrl.toString();
-        }
-        
-        theUrl.append(servletPath);
-        theUrl.append(pathInfo);
-        theUrl.append("?");
-        theUrl.append(queryString);
-        log.debug("Incoming URL:" + theUrl.toString());
-        
-        DataWrapper data = new DataWrapper(response);
-        User user = null;
-        
-        OGCRequest ogcrequest = new OGCRequest(theUrl.toString());
-        MyEMFDatabase.initEntityManager();
-        EntityManager em = MyEMFDatabase.getEntityManager();
-        DataMonitoring rr = new DataMonitoring();
-        data.setRequestReporting(rr);
-        
-        try {
-            rr.startClientRequest(theUrl.toString(), theUrl.toString().getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
-            data.setOgcrequest(ogcrequest);
-            StringBuffer reason = new StringBuffer();
-            
-            user = checkLogin(request);
-            
-            boolean isvalid = ogcrequest.isValidRequestURL(reason);
-            if(!isvalid){
-                log.error(reason);
-                throw new Exception(reason.toString());
-            }
-            rr.setUserAndOrganization(user, user.getOrganization());
-            
-            
-            data.setHeader("X-Kaartenbalie-User", user.getUsername());
-            
-            parseRequestAndData(data, user);
-            
-        } catch (Exception ex) {
-            rr.setClientRequestException(ex);
-            String value = "";
-            if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS)) {
-                value = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);
-                if(value != null && value.length() > 0) {
-                    data.setContentType(value);
-                } else {
-                    data.setContentType(WMS_PARAM_EXCEPTION_XML);
-                }
-            }
-            
-            //GetLegendGraphic, GetMap
-            String requestparam = "";
-            if(ogcrequest.containsParameter(REQUEST)) {
-                requestparam = ogcrequest.getParameter(REQUEST);
-            }
-            
-            if ((requestparam.equalsIgnoreCase(WMS_REQUEST_GetMap) || requestparam.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) &&
-                    (value.equalsIgnoreCase("application/vnd.ogc.se_inimage") || value.equalsIgnoreCase("inimage")) &&
-                    ogcrequest.containsParameter(WMS_PARAM_FORMAT) && ogcrequest.containsParameter(WMS_PARAM_WIDTH) &&
-                    ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
-                String imageContentType = ogcrequest.getParameter(WMS_PARAM_FORMAT);
-                if(value != null && value.length() > 0) {
-                    data.setContentType(imageContentType);
-                } else {
-                    data.setContentType(WMS_PARAM_EXCEPTION_XML);
-                }
-                
-                
-                String message;
-                try {
-                    message = ex.getMessage();
-                } catch (Exception e) {
-                    message = "";
-                }
-                
-                if (ex.getClass().equals(ConfigLayerException.class)) {
-                    ConfigLayerException cle = (ConfigLayerException) ex;
-                    ConfigLayer cl = cle.getConfigLayer();
-                    try {
-                        cl.sendImage(data, cl.drawImage(data.getOgcrequest(),cle.getParameterMap()));
-                    } catch (Exception e) {
-                        log.error("error: ", e);
-                    }
-                } else {
-                    try {
-                        ExceptionLayer el = new ExceptionLayer();
-                        Map parameterMap = new HashMap();
-                        parameterMap.put("type", ex.getClass());
-                        parameterMap.put("message", message);
-                        parameterMap.put("stacktrace", ex.getStackTrace());
-                        el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
-                        
-                    } catch (Exception e) {
-                        //Fall back in case of exception!
-                        TextToImage tti = new TextToImage();
-                        tti.createImage(message, data);
-                        log.error("error: ", e);
-                        
-                    }
-                    
-                }
-                
-            } else {
-                ByteArrayOutputStream output = null;
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setValidating(false);
-                DocumentBuilder db = null;
-                try {
-                    db = dbf.newDocumentBuilder();
-                } catch (Exception e) {
-                    log.error("error: ", e);
-                    throw new IOException("Exception occured during creation of error message: " + e);
-                }
-                
-                DOMImplementation di = db.getDOMImplementation();
-                
-                // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
-                // <!-- end of DOCTYPE declaration -->
-                DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd");
-                Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
-                Element rootElement = dom.getDocumentElement();
-                rootElement.setAttribute("version", "1.1.1");
-                
-                Element serviceExceptionElement = dom.createElement("ServiceException");
-                
-                String exceptionName;
-                try {
-                    exceptionName = ex.getClass().getName();
-                } catch (Exception e) {
-                    exceptionName = "";
-                }
-                
-                String message;
-                try {
-                    message = ex.getMessage();
-                } catch (Exception e) {
-                    message = "";
-                }
-                
-                Throwable cause;
-                try {
-                    cause = ex.getCause();
-                } catch (Exception e) {
-                    cause = null;
-                }
-                
-                serviceExceptionElement.setAttribute("code", exceptionName);
-                CDATASection cdata = null;
-                if(cause != null) {
-                    cdata = dom.createCDATASection(message + " - " + cause);
-                } else {
-                    cdata = dom.createCDATASection(message);
-                }
-                
-                serviceExceptionElement.appendChild(cdata);
-                rootElement.appendChild(serviceExceptionElement);
-                
-                /*
-                 * Create a new output format to which this document should be translated and
-                 * serialize the tree to an XML document type
-                 */
-                OutputFormat format = new OutputFormat(dom);
-                format.setIndenting(true);
-                output = new ByteArrayOutputStream();
-                XMLSerializer serializer = new XMLSerializer(output, format);
-                serializer.serialize(dom);
-                
-                DOMValidator dv = new DOMValidator();
-                try {
-                    dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
-                } catch (Exception e) {
-                    log.error("error: ", e);
-                    throw new IOException("Exception occured during validation of error message: " + e);
-                }
-                
-                data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
-                data.write(output);
-            }
-        } finally {
-            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
-        }
-        MyEMFDatabase.closeEntityManager();
+        return theUrl;
     }
-    // </editor-fold>
     
+    private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
+        String servletPath= request.getServletPath();
+        String pathInfo= request.getPathInfo();
+        String queryString= request.getQueryString();
+        
+        if (servletPath!=null && servletPath.length()!=0) {
+            baseUrl.append(servletPath);
+        }
+        if (pathInfo!=null && pathInfo.length()!=0) {
+            baseUrl.append(pathInfo);
+        }
+        if (queryString!=null && queryString.length()!=0) {
+            baseUrl.append("?");
+            baseUrl.append(queryString);
+        }
+        return baseUrl;
+    }
+    
+    private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
+        OGCRequest ogcrequest = data.getOgcrequest();
+        
+        String exType = "";
+        if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS))
+            exType = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);
+        String requestparam = "";
+        if(ogcrequest.containsParameter(REQUEST))
+            requestparam = ogcrequest.getParameter(REQUEST);
+        
+        if ((requestparam.equalsIgnoreCase(WMS_REQUEST_GetMap) || requestparam.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) &&
+                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") || exType.equalsIgnoreCase("inimage")) &&
+                ogcrequest.containsParameter(WMS_PARAM_FORMAT) &&
+                ogcrequest.containsParameter(WMS_PARAM_WIDTH) &&
+                ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
+            data.setContentType(ogcrequest.getParameter(WMS_PARAM_FORMAT));
+            handleRequestExceptionAsImage(ex, data);
+        } else {
+            data.setContentType(WMS_PARAM_EXCEPTION_XML);
+            handleRequestExceptionAsXML(ex, data);
+        }
+    }
+    
+    private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
+        if (ex.getClass().equals(ConfigLayerException.class)) {
+            ConfigLayerException cle = (ConfigLayerException) ex;
+            ConfigLayer cl = cle.getConfigLayer();
+            try {
+                cl.sendImage(data, cl.drawImage(data.getOgcrequest(),cle.getParameterMap()));
+            } catch (Exception e) {
+                log.error("error: ", e);
+            }
+        } else {
+            String message = ex.getMessage();
+            try {
+                ExceptionLayer el = new ExceptionLayer();
+                Map parameterMap = new HashMap();
+                parameterMap.put("type", ex.getClass());
+                parameterMap.put("message", message);
+                parameterMap.put("stacktrace", ex.getStackTrace());
+                el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
+            } catch (Exception e) {
+                TextToImage tti = new TextToImage();
+                tti.createImage(message, data);
+                log.error("error: ", e);
+            }
+        }
+    }
+    
+    private void handleRequestExceptionAsXML(Exception ex, DataWrapper data) throws IOException {
+        ByteArrayOutputStream output = null;
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(false);
+        DocumentBuilder db = null;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (Exception e) {
+            log.error("error: ", e);
+            throw new IOException("Exception occured during creation of error message: " + e);
+        }
+        
+        DOMImplementation di = db.getDOMImplementation();
+        
+        // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
+        // <!-- end of DOCTYPE declaration -->
+        DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd");
+        Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
+        Element rootElement = dom.getDocumentElement();
+        rootElement.setAttribute("version", "1.1.1");
+        
+        Element serviceExceptionElement = dom.createElement("ServiceException");
+        
+        String exceptionName = ex.getClass().getName();
+        String message = ex.getMessage();
+        Throwable cause = ex.getCause();
+        
+        serviceExceptionElement.setAttribute("code", exceptionName);
+        CDATASection cdata = null;
+        if(cause != null) {
+            cdata = dom.createCDATASection(message + " - " + cause);
+        } else {
+            cdata = dom.createCDATASection(message);
+        }
+        
+        serviceExceptionElement.appendChild(cdata);
+        rootElement.appendChild(serviceExceptionElement);
+        
+        OutputFormat format = new OutputFormat(dom);
+        format.setIndenting(true);
+        output = new ByteArrayOutputStream();
+        XMLSerializer serializer = new XMLSerializer(output, format);
+        serializer.serialize(dom);
+        
+        DOMValidator dv = new DOMValidator();
+        try {
+            dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
+        } catch (Exception e) {
+            log.error("error: ", e);
+            throw new IOException("Exception occured during validation of error message: " + e);
+        }
+        
+        data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
+        data.write(output);
+    }
     
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
@@ -434,6 +403,14 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(REQUEST);
+        
+        if (request==null || request.length()==0) {
+            // niet bekend, dus moet proxy zijn
+            data.setRequestClassType(ProxyRequest.class);
+            requestHandler = new ProxyRequestHandler();
+            requestHandler.getRequest(data, user);
+        }
+        
         data.setOperation(request);
         if(request.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
             data.setRequestClassType(WMSGetCapabilitiesRequest.class);
