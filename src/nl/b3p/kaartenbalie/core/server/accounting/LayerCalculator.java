@@ -181,6 +181,7 @@ public class LayerCalculator {
     public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
         
         if (projection == null) {
+            // TODO waarom niet??
             throw new Exception("Projection cannot be null");
         }
         if (scale == null) {
