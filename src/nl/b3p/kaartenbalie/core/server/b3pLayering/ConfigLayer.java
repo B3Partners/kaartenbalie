@@ -68,6 +68,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
      */
     protected ConfigLayer(String name, String title) {
         this.setName(name.toLowerCase());
+        //TODO waarom??
         this.setTitle(title.replace(" ", "_"));
         SrsBoundingBox srsbb1 = new SrsBoundingBox();
         srsbb1.setLayer(this);
@@ -96,7 +97,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
     static {
         configLayers = new HashMap();
         configLayers.put(AllowTransactionsLayer.NAME, AllowTransactionsLayer.class);
-        configLayers.put(BalanceLayer.NAME, BalanceLayer.class);
+//        configLayers.put(BalanceLayer.NAME, BalanceLayer.class);
         configLayers.put(KBTitleLayer.NAME, KBTitleLayer.class);
     }
     

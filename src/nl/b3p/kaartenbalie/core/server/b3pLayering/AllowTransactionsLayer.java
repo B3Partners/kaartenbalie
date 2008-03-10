@@ -20,7 +20,7 @@ import nl.b3p.ogc.utils.KBConstants;
 public class AllowTransactionsLayer extends ConfigLayer implements KBConstants{
     
     public static final String NAME = "allowwithdrawals";
-    public static final String TITLE = "kb_afboekingen_toestaan";
+    public static final String TITLE = "AfboekingOK";
     public static final String configValue = "allowTransactions";
     public static final String creditMutation = "creditMutation";
     public static final String pricedLayers = "pricedLayers";

@@ -20,7 +20,7 @@ import java.util.Map;
 public class BalanceLayer extends ConfigLayer{
     
     public static final String NAME = "creditbalance";
-    public static final String TITLE = "kb_credit_tegoed";
+    public static final String TITLE = "Credittegoed";
     public static final String creditBalance = "balance";
     
     public BalanceLayer() {
