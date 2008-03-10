@@ -71,17 +71,19 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         this.setTitle(title.replace(" ", "_"));
         SrsBoundingBox srsbb1 = new SrsBoundingBox();
         srsbb1.setLayer(this);
-        // heel nederland
-        srsbb1.setMinx("12000");
-        srsbb1.setMiny("304000");
-        srsbb1.setMaxx("280000");
-        srsbb1.setMaxy("620000");
+        srsbb1.setMinx("3.3");
+        srsbb1.setMiny("50.5");
+        srsbb1.setMaxx("7.2");
+        srsbb1.setMaxy("53.5");
         addSrsbb(srsbb1);
         SrsBoundingBox srsbb2 = new SrsBoundingBox();
         srsbb2.setLayer(this);
         srsbb2.setSrs("EPSG:28992");
+        srsbb2.setMinx("12000");
+        srsbb2.setMiny("304000");
+        srsbb2.setMaxx("280000");
+        srsbb2.setMaxy("620000");
         addSrsbb(srsbb2);
-        // TODO kan hier ongestraft 4326 worden toegevoegd?
         setMetaData(SERVICEPROVIDER_BASE_HTTP); //??? 7.1.4.5.14
         setQueryable("0");
         setCascaded("0");
