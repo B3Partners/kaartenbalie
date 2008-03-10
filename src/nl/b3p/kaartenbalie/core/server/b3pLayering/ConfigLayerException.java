@@ -27,11 +27,15 @@ public class ConfigLayerException extends Exception {
     }
     
     public ConfigLayerException(ConfigLayer configLayer) {
-        this(configLayer, new HashMap());
+        this(configLayer, null);
     }
     public ConfigLayerException(ConfigLayer configLayer, Map parameterMap) {
         super("Exception for configurationLayer '" + configLayer +"'");
-        parameterMap = new HashMap();
+        
+        this.parameterMap = parameterMap;
+        if (this.parameterMap==null)
+            this.parameterMap = new HashMap();
+        
         this.configLayer = configLayer;
     }
     

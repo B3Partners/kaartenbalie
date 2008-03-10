@@ -181,14 +181,11 @@ public class LayerCalculator {
     public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
         
         if (projection == null) {
-            // TODO waarom niet??
             throw new Exception("Projection cannot be null");
         }
         if (scale == null) {
             scale = new BigDecimal(0);
         }
-        
-        
         
         List possibleLayerPricings = em.createQuery(
                 "FROM LayerPricing AS lp " +
@@ -220,18 +217,16 @@ public class LayerCalculator {
         boolean lpsHaveProjection = false;
         while(layerPricingIter.hasNext()) {
             LayerPricing plp = (LayerPricing) layerPricingIter.next(); // plp == possibleLayerPricing
-            if (layerPricing == null) {
-                if (plp.getProjection() == null) {
-                    layerPricing = plp;
-                } else {
-                    lpsHaveProjection = true;
-                    if ((plp.getMinScale() == null || plp.getMinScale().compareTo(scale) <= 0) &&
-                            (plp.getMaxScale() == null || plp.getMaxScale().compareTo(scale) >= 0) &&
-                            plp.getProjection().equalsIgnoreCase(projection)){
-                        layerPricing = plp;
-                    }
-                }
-                
+            if (plp.getProjection() == null) {
+                layerPricing = plp;
+                break;
+            }
+            lpsHaveProjection = true;
+            if ((plp.getMinScale() == null || plp.getMinScale().compareTo(scale) <= 0) &&
+                    (plp.getMaxScale() == null || plp.getMaxScale().compareTo(scale) >= 0) &&
+                    plp.getProjection().equalsIgnoreCase(projection)){
+                layerPricing = plp;
+                break;
             }
         }
         
@@ -247,7 +242,7 @@ public class LayerCalculator {
     
     
     
-    public BigDecimal calculateLayer(Layer layer, Date validationDate,   String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception {
+    public BigDecimal calculateLayer(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception {
         /*
          *  This function can return four different states/values.
          *  1: NoPrizingException; there is nothing defined for this layer.

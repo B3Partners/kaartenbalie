@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.ogc.utils.KBConstants;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -176,7 +177,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         TransactionLayerUsage transaction = am.getTLU();
         am.commitTransaction(transaction, user);
         am.endTLU();
-        dw.getLayeringParameterMap().put("balance", new Double(am.getBalance()));
+        dw.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
         getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
     }
     // </editor-fold>

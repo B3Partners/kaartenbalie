@@ -21,6 +21,8 @@ public class BalanceLayer extends ConfigLayer{
     
     public static final String NAME = "creditbalance";
     public static final String TITLE = "kb_credit_tegoed";
+    public static final String creditBalance = "balance";
+    
     public BalanceLayer() {
         super(NAME, TITLE);
     }
@@ -30,7 +32,7 @@ public class BalanceLayer extends ConfigLayer{
     
     protected BufferedImage modifyBaseImage(BufferedImage bufImage, Map parameterMap) throws Exception {
         
-        Double balance = (Double) parameterMap.get("balance");
+        Double balance = (Double) parameterMap.get(creditBalance);
         String message = "n/a";
         if (balance != null) {
             message = balance.toString();

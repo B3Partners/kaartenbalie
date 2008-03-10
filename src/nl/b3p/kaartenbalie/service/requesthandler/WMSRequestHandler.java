@@ -37,6 +37,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
@@ -253,10 +254,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         TransactionLayerUsage tlu = am.beginTLU();
         LayerCalculator lc = new LayerCalculator();
         String projection = dw.getOgcrequest().getParameter(WMS_PARAM_SRS);
+        BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
         /* End of Accounting */
         
         /*B3Partners Layers ConfigMap */
-        Map config = new HashMap();
+        Map config = dw.getLayeringParameterMap();
         /*
          */
         try {
@@ -316,7 +318,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
                             /* Accounting... */
                             if (AccountManager.isEnableAccounting()) {
-                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, new BigDecimal(100), units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
+                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, scale, units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
                                 tlu.registerUsage(lpc);
                             }
                             /* End of Accounting */
@@ -341,9 +343,11 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         /* Accounting... */
         if (AccountManager.isEnableAccounting()) {
             if (tlu.getCreditAlteration().doubleValue()> 0) {
+                config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
+                config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
                 Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
                 if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
-                    throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME));
+                    throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME), config);
                 }
             }
         }
