@@ -18,12 +18,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import nl.b3p.wms.capabilities.ContactInformation;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ServiceDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
 
 
-public class ServiceProviderValidator implements KBConstants {
+public class ServiceProviderValidator {
     
 
     private Set serviceProviders;
@@ -67,8 +68,8 @@ public class ServiceProviderValidator implements KBConstants {
                     }
                     sdr.setFormats(formats);
                     sdr.setServiceProvider(newSP);
-                    sdr.setGetUrl(CONTACT_WEBSITE);
-                    sdr.setPostUrl(CONTACT_WEBSITE);
+                    sdr.setGetUrl(KBConfiguration.CONTACT_WEBSITE);
+                    sdr.setPostUrl(KBConfiguration.CONTACT_WEBSITE);
                     resources.add(sdr);
                 }
             }
@@ -77,7 +78,7 @@ public class ServiceProviderValidator implements KBConstants {
             resources = getDefaultResources();
         }
         newSP.setDomainResource(resources);
-        newSP.setAbbr(SERVICEPROVIDER_BASE_ABBR);
+        newSP.setAbbr(KBConfiguration.SERVICEPROVIDER_BASE_ABBR);
         
         Set exception = new HashSet();
         if (serviceProviders!=null && !serviceProviders.isEmpty()) {
@@ -143,25 +144,25 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="fillServiceProviderConstants(ServiceProvider serviceProvider) method.">
     private void fillServiceProviderConstants(ServiceProvider serviceProvider) {
-        serviceProvider.setName(SERVICE_NAME);
-        serviceProvider.setTitle(SERVICE_TITLE);
-        serviceProvider.setAbstracts(SERVICE_ABSTRACT);
-        serviceProvider.setAccessConstraints(SERVICE_FEES);
-        serviceProvider.setFees(SERVICE_CONSTRAINTS);
+        serviceProvider.setName(KBConfiguration.SERVICE_NAME);
+        serviceProvider.setTitle(KBConfiguration.SERVICE_TITLE);
+        serviceProvider.setAbstracts(KBConfiguration.SERVICE_ABSTRACT);
+        serviceProvider.setAccessConstraints(KBConfiguration.SERVICE_FEES);
+        serviceProvider.setFees(KBConfiguration.SERVICE_CONSTRAINTS);
         
         ContactInformation ci = new ContactInformation();
-        ci.setContactPerson(CONTACT_PERSON);
-        ci.setContactPosition(CONTACT_POSITION);
-        ci.setContactOrganization(CONTACT_ORGANIZATION);
-        ci.setAddress(CONTACT_ADDRESS);
-        ci.setAddressType(CONTACT_ADDRESS_TYPE);
-        ci.setPostcode(CONTACT_POSTCODE);
-        ci.setCity(CONTACT_CITY);
-        ci.setStateOrProvince(CONTACT_STATE_OR_PROVINCE);
-        ci.setCountry(CONTACT_COUNTRY);
-        ci.setVoiceTelephone(CONTACT_VOICETELEPHONE);
-        ci.setFascimileTelephone(CONTACT_FASCIMILEPHONE);
-        ci.setEmailAddress(CONTACT_EMAIL);
+        ci.setContactPerson(KBConfiguration.CONTACT_PERSON);
+        ci.setContactPosition(KBConfiguration.CONTACT_POSITION);
+        ci.setContactOrganization(KBConfiguration.CONTACT_ORGANIZATION);
+        ci.setAddress(KBConfiguration.CONTACT_ADDRESS);
+        ci.setAddressType(KBConfiguration.CONTACT_ADDRESS_TYPE);
+        ci.setPostcode(KBConfiguration.CONTACT_POSTCODE);
+        ci.setCity(KBConfiguration.CONTACT_CITY);
+        ci.setStateOrProvince(KBConfiguration.CONTACT_STATE_OR_PROVINCE);
+        ci.setCountry(KBConfiguration.CONTACT_COUNTRY);
+        ci.setVoiceTelephone(KBConfiguration.CONTACT_VOICETELEPHONE);
+        ci.setFascimileTelephone(KBConfiguration.CONTACT_FASCIMILEPHONE);
+        ci.setEmailAddress(KBConfiguration.CONTACT_EMAIL);
         
         serviceProvider.setContactInformation(ci);
     }
@@ -174,11 +175,11 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateGetMapFormat() method.">
     public boolean validate() {
-        return (validateFormats(KBConstants.WMS_REQUEST_GetMap).length > 0) &&
-                (validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0) &&
-                (validateFormats(KBConstants.WMS_REQUEST_GetFeatureInfo).length > 0) &&
-                (validateFormats(KBConstants.WMS_REQUEST_DescribeLayer).length > 0) &&
-                (validateFormats(KBConstants.WMS_REQUEST_GetLegendGraphic).length > 0);
+        return (validateFormats(OGCConstants.WMS_REQUEST_GetMap).length > 0) &&
+                (validateFormats(OGCConstants.WMS_REQUEST_GetCapabilities).length > 0) &&
+                (validateFormats(OGCConstants.WMS_REQUEST_GetFeatureInfo).length > 0) &&
+                (validateFormats(OGCConstants.WMS_REQUEST_DescribeLayer).length > 0) &&
+                (validateFormats(OGCConstants.WMS_REQUEST_GetLegendGraphic).length > 0);
     }
     // </editor-fold>
     
@@ -189,7 +190,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateGetMapFormat() method.">
     public boolean validateGetMapFormat() {
-        return validateFormats(KBConstants.WMS_REQUEST_GetMap).length > 0;
+        return validateFormats(OGCConstants.WMS_REQUEST_GetMap).length > 0;
     }
     // </editor-fold>
     
@@ -200,7 +201,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateGetCapabilitiesFormat() method.">
     public boolean validateGetCapabilitiesFormat(){
-        return validateFormats(KBConstants.WMS_REQUEST_GetCapabilities).length > 0;
+        return validateFormats(OGCConstants.WMS_REQUEST_GetCapabilities).length > 0;
     }
     // </editor-fold>
     
@@ -211,7 +212,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateGetFeatureInfoFormat() method.">
     public boolean validateGetFeatureInfoFormat(){
-        return validateFormats(KBConstants.WMS_REQUEST_GetFeatureInfo).length > 0;
+        return validateFormats(OGCConstants.WMS_REQUEST_GetFeatureInfo).length > 0;
     }
     // </editor-fold>
     
@@ -222,7 +223,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateDescribeLayerFormat() method.">
     public boolean validateDescribeLayerFormat(){
-        return validateFormats(KBConstants.WMS_REQUEST_DescribeLayer).length > 0;
+        return validateFormats(OGCConstants.WMS_REQUEST_DescribeLayer).length > 0;
     }
     // </editor-fold>
     
@@ -233,7 +234,7 @@ public class ServiceProviderValidator implements KBConstants {
      */
     // <editor-fold defaultstate="" desc="validateGetLegendGraphicFormat() method.">
     public boolean validateGetLegendGraphicFormat(){
-        return validateFormats(KBConstants.WMS_REQUEST_GetLegendGraphic).length > 0;
+        return validateFormats(OGCConstants.WMS_REQUEST_GetLegendGraphic).length > 0;
     }
     // </editor-fold>
     

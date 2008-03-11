@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
@@ -37,7 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class OrganizationAction extends KaartenbalieCrudAction implements KBConstants {
+public class OrganizationAction extends KaartenbalieCrudAction {
     
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
@@ -408,7 +408,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
             String [] boxxvalues = bbox.split(",");
             if(boxxvalues.length != 4) {
                 log.error("BBOX wrong size: " + boxxvalues.length);
-                throw new Exception(BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
+                throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
 
             double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
@@ -422,7 +422,7 @@ public class OrganizationAction extends KaartenbalieCrudAction implements KBCons
                 }
             } catch (Exception e) {
                 log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
-                throw new Exception(BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
+                throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
         }
         organization.setBbox(bbox);

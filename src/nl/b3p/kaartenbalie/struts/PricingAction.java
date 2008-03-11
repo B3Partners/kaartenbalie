@@ -31,7 +31,7 @@ import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.action.ActionErrors;
@@ -47,7 +47,7 @@ import org.json.JSONObject;
  *
  * @author Chris Kramer
  */
-public class PricingAction extends KaartenbalieCrudAction implements KBConstants {
+public class PricingAction extends KaartenbalieCrudAction {
     
     private static final String TEST = "test";
     public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
@@ -343,7 +343,7 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
         /*
          * Set the allowed projectsion
          */
-        request.setAttribute("projections", SUPPORTED_PROJECTIONS);
+        request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
         
         if (idString != null && idString.length() > 0) {
             
@@ -358,8 +358,8 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
             /*
              * First load the possible WMS and WFS requests..
              */
-            request.setAttribute("wmsRequests",ACCOUNTING_WMS_REQUESTS);
-            request.setAttribute("wfsRequests",ACCOUNTING_WFS_REQUESTS);
+            request.setAttribute("wmsRequests",KBConfiguration.ACCOUNTING_WMS_REQUESTS);
+            request.setAttribute("wfsRequests",KBConfiguration.ACCOUNTING_WFS_REQUESTS);
             
             
             /*
@@ -402,29 +402,29 @@ public class PricingAction extends KaartenbalieCrudAction implements KBConstants
             
             if (summary != null && summary.equalsIgnoreCase("true")) {
                 
-                Object[][] tableData = new Object[ACCOUNTING_WMS_REQUESTS.length + ACCOUNTING_WFS_REQUESTS.length][3];
+                Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length + KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
                 
                 Date now = new Date();
                 
                 BigDecimal units  = new BigDecimal(1);
-                int totalWMSRequests = ACCOUNTING_WMS_REQUESTS.length;
+                int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
                 for (int i = 0; i < totalWMSRequests; i++) {
                     
                     tableData[i][0] = "WMS";
-                    tableData[i][1] = ACCOUNTING_WMS_REQUESTS[i];
+                    tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
                     try {
-                        tableData[i][2] = lc.calculateLayerComplete(layer, now, DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", ACCOUNTING_WMS_REQUESTS[i]);
+                        tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
                     } catch (NoResultException nre) {
                         tableData[i][2] = null;
                     }
                     
                 }
-                int totalWMFRequests = ACCOUNTING_WFS_REQUESTS.length;
+                int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
                 for (int i = 0; i < totalWMFRequests; i++) {
                     tableData[i +totalWMSRequests ][0] = "WFS";
-                    tableData[i + totalWMSRequests][1] = ACCOUNTING_WFS_REQUESTS[i];
+                    tableData[i + totalWMSRequests][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
                     try {
-                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", ACCOUNTING_WFS_REQUESTS[i]);
+                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
                         
                     } catch (NoResultException nre) {
                         tableData[i + totalWMSRequests][2] = null;

@@ -28,6 +28,7 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
@@ -110,7 +111,8 @@ public class MyEMFDatabase extends HttpServlet{
             log.debug("cache pad: " + cachePath);
         }
         
-        //
+        // configure kb via properties
+        KBConfiguration.configure();
     }
     
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {

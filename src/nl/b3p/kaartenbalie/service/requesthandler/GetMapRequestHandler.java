@@ -20,15 +20,16 @@ import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class GetMapRequestHandler extends WMSRequestHandler implements KBConstants {
+public class GetMapRequestHandler extends WMSRequestHandler {
     
     private static final Log log = LogFactory.getLog(GetMapRequestHandler.class);
     
@@ -57,12 +58,12 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         OGCRequest ogc  = dw.getOgcrequest();
         
         String value = "";
-        if (ogc.containsParameter(WMS_PARAM_FORMAT)) {
-            value = ogc.getParameter(WMS_PARAM_FORMAT);
+        if (ogc.containsParameter(OGCConstants.WMS_PARAM_FORMAT)) {
+            value = ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT);
             if(value != null && value.length() > 0) {
                 dw.setContentType(value);
             } else {
-                dw.setContentType(WMS_PARAM_WMS_XML);
+                dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
             }
         }
         
@@ -71,7 +72,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         Integer width = null;
         try {
-            width = new Integer(ogc.getParameter(WMS_PARAM_WIDTH));
+            width = new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_WIDTH));
         } catch (NumberFormatException nfe) {
             width = new Integer(-1);
         }
@@ -79,23 +80,23 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         
         Integer height = null;
         try {
-            height =  new Integer(ogc.getParameter(WMS_PARAM_HEIGHT));
+            height =  new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
         } catch (NumberFormatException nfe) {
             height = new Integer(-1);
         }
         dw.setRequestParameter("Height",height);
-        dw.setRequestParameter("WmsVersion", ogc.getParameter(WMS_VERSION));
+        dw.setRequestParameter("WmsVersion", ogc.getParameter(OGCConstants.WMS_VERSION));
         dw.setRequestParameter("Srs", null);
-        dw.setRequestParameter("Format", ogc.getParameter(WMS_PARAM_FORMAT));
-        dw.setRequestParameter("BoundingBox", ogc.getParameter(WMS_PARAM_BBOX));
+        dw.setRequestParameter("Format", ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
         
-        String givenSRS         = ogc.getParameter(WMS_PARAM_SRS);
+        String givenSRS         = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
         Map userdefinedParams   = ogc.getNonOGCParameters();
         
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_LAYERS).split(","), orgId, false, dw);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgId, false, dw);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
-            throw new Exception(GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
         
         ArrayList urlWrapper = new ArrayList();
@@ -117,8 +118,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 String [] params = ogc.getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");
-                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                        url.append(WMS_PARAM_LAYERS);
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
                         url.append("=");
                         url.append(layersList);
                         url.append("&");
@@ -151,7 +152,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 }
                 if(!srsFound) {
                     log.error("No suitable srs found.");
-                    throw new Exception(SRS_EXCEPTION);
+                    throw new Exception(KBConfiguration.SRS_EXCEPTION);
                 }
                 
                 StringBuffer url = new StringBuffer();
@@ -159,8 +160,8 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
                 String [] params = ogc.getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");
-                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                        url.append(WMS_PARAM_LAYERS);
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
                         url.append("=");
                         url.append(layersList);
                         url.append("&");
@@ -178,7 +179,7 @@ public class GetMapRequestHandler extends WMSRequestHandler implements KBConstan
         am.commitTransaction(transaction, user);
         am.endTLU();
         dw.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
-        getOnlineData(dw, urlWrapper, true, WMS_REQUEST_GetMap);
+        getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
     // </editor-fold>
     

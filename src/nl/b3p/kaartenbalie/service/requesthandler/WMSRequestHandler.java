@@ -36,7 +36,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -77,7 +78,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
-public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
+public abstract class WMSRequestHandler implements RequestHandler {
     
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     protected User user;
@@ -126,7 +127,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             
             if (!topLayers.isEmpty()) {
                 kaartenbalieTopLayer = new Layer();
-                kaartenbalieTopLayer.setTitle(TOPLAYERNAME);
+                kaartenbalieTopLayer.setTitle(KBConfiguration.TOPLAYERNAME);
                 LayerValidator lv = new LayerValidator(organizationLayers);
                 kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
                 
@@ -221,7 +222,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         List toplayerQuery = em.createNativeQuery(query).getResultList();
         if (toplayerQuery==null || toplayerQuery.isEmpty()) {
             log.error("no toplayers found!");
-            throw new Exception(GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
         
         Iterator toplayerit = toplayerQuery.iterator();
@@ -238,7 +239,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         Map spInfo = new HashMap();
         spInfo.put("spId", new Integer(-1));
         spInfo.put("tlId", new Integer(-1));
-        spInfo.put("spUrl", SERVICEPROVIDER_BASE_HTTP);
+        spInfo.put("spUrl", KBConfiguration.SERVICEPROVIDER_BASE_HTTP);
         toplayerMap.put(spInfo.get("spId"), spInfo);
         /* EO B3P Layering... */
         
@@ -253,7 +254,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         AccountManager am = AccountManager.getAccountManager(orgId);
         TransactionLayerUsage tlu = am.beginTLU();
         LayerCalculator lc = new LayerCalculator();
-        String projection = dw.getOgcrequest().getParameter(WMS_PARAM_SRS);
+        String projection = dw.getOgcrequest().getParameter(OGCConstants.WMS_PARAM_SRS);
         BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
         /* End of Accounting */
         
@@ -279,7 +280,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                      * Check if the layer is an configurationlayer, if it is, proces the info..
                      */
                     
-                    if (layerCode.equals(SERVICEPROVIDER_BASE_ABBR)) {
+                    if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                         ConfigLayer cl = ConfigLayer.forName(layerName);
                         if (cl == null) {
                             throw new Exception("Config Layer " + layerName + " not found!");
@@ -305,7 +306,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                         .getResultList();
                         if(sqlQuery.isEmpty()) {
                             log.error("layer not valid or no rights, name: " + layers[i]);
-                            throw new Exception(GETMAP_EXCEPTION);
+                            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
                         }
                         Object [] objecten = (Object [])sqlQuery.get(0);
                         String layer_queryable      = (String)objecten[0];
@@ -332,7 +333,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 }
             } else {
                 log.error("No layers found!");
-                throw new Exception(GETMAP_EXCEPTION);
+                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
             }
         } catch (Exception e) {
             throw e;
@@ -420,7 +421,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         DataMonitoring rr = dw.getRequestReporting();
         parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         if (urlWrapper.size() > 1) {
-            if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+            if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
                 /*
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
@@ -436,7 +437,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                 rr.addRequestOperation(ServerTransferOperation.class, parameterMap);
                 
                 imagemanager.sendCombinedImages(dw);
-            } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+            } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
                 
                 int totalDataSend = 0;
                 /*
@@ -484,10 +485,10 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
             if(!urlWrapper.isEmpty()) {
                 getOnlineData(dw, (WMSRequest)urlWrapper.get(0), REQUEST_TYPE);
             } else {
-                if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
-                    throw new Exception(FEATUREINFO_EXCEPTION);
-                } else if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
-                    throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+                if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                    throw new Exception(KBConfiguration.FEATUREINFO_EXCEPTION);
+                } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
+                    throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
                 }
             }
         }
@@ -517,7 +518,8 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         localParameterMap.put("BytesSend", new Long(url.getBytes().length));
         long startTime = System.currentTimeMillis();
         try {
-            if (REQUEST_TYPE.equalsIgnoreCase(WMS_REQUEST_GetMap) && url.startsWith(SERVICEPROVIDER_BASE_HTTP)) {
+            if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) &&
+                    url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
                 //B3PLayering...
                 long time = System.currentTimeMillis() - startTime;
                 try {
@@ -549,7 +551,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
                     
                     rhValue = method.getResponseHeader("Content-Type").getValue();
                     
-                    if (rhValue.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                    if (rhValue.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
                         InputStream is = method.getResponseBodyAsStream();
                         String body = getServiceException(is);
                         log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
@@ -597,7 +599,7 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
-        is.setEncoding(CHARSET);
+        is.setEncoding(KBConfiguration.CHARSET);
         reader.parse(is);
         return (String)stack.pop();
     }
@@ -669,14 +671,14 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         int index= 0;
         for (int i = 0; i < layers.length; i++) {
             String[] layerCodeAndName = toCodeAndName(layers[i]);
-            if (!layerCodeAndName[0].equals(SERVICEPROVIDER_BASE_ABBR)) {
+            if (!layerCodeAndName[0].equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 sortedLayers[index] = layers[i];
                 index++;
             }
         }
         for (int i = 0; i < layers.length; i++) {
             String[] layerCodeAndName = toCodeAndName(layers[i]);
-            if (layerCodeAndName[0].equals(SERVICEPROVIDER_BASE_ABBR)) {
+            if (layerCodeAndName[0].equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 sortedLayers[index] = layers[i];
                 index++;
             }
@@ -689,13 +691,13 @@ public abstract class WMSRequestHandler implements RequestHandler, KBConstants {
         int pos = completeLayerName.indexOf("_");
         if (pos==-1 || completeLayerName.length()<=pos+1) {
             log.error("layer not valid: " + completeLayerName);
-            throw new Exception(GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
         String layerCode = completeLayerName.substring(0, pos);
         String layerName = completeLayerName.substring(pos + 1);
         if (layerCode.length()==0 || layerName.length()==0) {
             log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
         return new String[] {layerCode, layerName};
     }

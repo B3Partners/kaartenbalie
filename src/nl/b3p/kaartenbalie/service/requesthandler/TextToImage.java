@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import javax.imageio.ImageIO;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 
-public class TextToImage implements KBConstants {
+public class TextToImage {
     private String imageType;
     
     public void createImage(String message, DataWrapper data) throws IOException {
@@ -42,8 +43,8 @@ public class TextToImage implements KBConstants {
         OGCRequest ogcrequest = data.getOgcrequest();
         
         // calculate the size of the text
-        int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
+        int width  = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
+        int height = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
 
         // prepare some output
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -68,7 +69,7 @@ public class TextToImage implements KBConstants {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
         // output the image as png
-        String requestedImageType = ogcrequest.getParameter(WMS_PARAM_FORMAT);
+        String requestedImageType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT);
         if(requestedImageType.equalsIgnoreCase("image/jpeg")) {
             this.imageType = "JPEG";
         } else if(requestedImageType.equalsIgnoreCase("image/png")) {

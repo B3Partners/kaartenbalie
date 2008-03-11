@@ -10,7 +10,6 @@
 package nl.b3p.kaartenbalie.core.server.b3pLayering;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,7 +22,8 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import nl.b3p.kaartenbalie.service.KBImageTool;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
@@ -32,33 +32,9 @@ import nl.b3p.wms.capabilities.SrsBoundingBox;
  *
  * @author Chris Kramer
  */
-public abstract class ConfigLayer extends Layer implements KBConstants {
+public abstract class ConfigLayer extends Layer {
     
     private static Map configLayers;
-    
-    /*
-     * General
-     */
-    private final static Font messageBoxFont = new Font("monospaced", Font.PLAIN,  12);
-    private final static int alpha = 150;
-    
-    /*
-     * LabelBox
-     */
-    private final static Color labelBoxColor = new Color(255,240,196,alpha);
-    private final static Color labelFontBoxColor = new Color(25,98,153);
-    
-    /*
-     * Box
-     */
-    private final static Color fontBoxColor = new Color(255,240,196);
-    private final static Color borderBoxTopLeft = new Color(88,169,228);
-    private final static Color borderBoxBottomRight = new Color(20,82,126);
-    private final static Color borderBoxBackground = new Color(25,98,153,alpha);
-    private final static int padding = 2;
-    private final static int lineSpacing = 6;
-    
-    
     
     protected ConfigLayer() {
     }
@@ -68,8 +44,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
      */
     protected ConfigLayer(String name, String title) {
         this.setName(name.toLowerCase());
-        //TODO waarom??
-        this.setTitle(title.replace(" ", "_"));
+        this.setTitle(title);
         SrsBoundingBox srsbb1 = new SrsBoundingBox();
         srsbb1.setLayer(this);
         srsbb1.setMinx("3.3");
@@ -85,7 +60,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         srsbb2.setMaxx("280000");
         srsbb2.setMaxy("620000");
         addSrsbb(srsbb2);
-        setMetaData(SERVICEPROVIDER_BASE_HTTP); //??? 7.1.4.5.14
+        setMetaData(KBConfiguration.SERVICEPROVIDER_BASE_HTTP); //??? 7.1.4.5.14
         setQueryable("0");
         setCascaded("0");
         setOpaque("0");
@@ -127,7 +102,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         parameterMap.put("asrequest", new Boolean(true));
         parameterMap.put("transparant", new Boolean(true));
         OGCRequest ogcrequest = new OGCRequest(url);
-        String[] layers = ogcrequest.getParameter(WMS_PARAM_LAYERS).split(",");
+        String[] layers = ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
         BufferedImage[] bufImages = new BufferedImage[layers.length];
         for (int i = 0; i < layers.length; i++) {
             ConfigLayer configLayer = forName(layers[i]);
@@ -172,8 +147,8 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         
         Boolean transparant = (Boolean) parameterMap.get("transparant");
         // Image width & heigth...
-        int width  = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_WIDTH));
-        int height = Integer.parseInt(ogcrequest.getParameter(WMS_PARAM_HEIGHT));
+        int width  = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
+        int height = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
         BufferedImage bufImage = null;
         
         bufImage =  new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -208,7 +183,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
     public void sendImage(DataWrapper data, BufferedImage bufImage) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OGCRequest ogcrequest = data.getOgcrequest();
-        String requestedImageType = ogcrequest.getParameter(WMS_PARAM_FORMAT);
+        String requestedImageType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT);
         String imageType = null;
         if(requestedImageType.equalsIgnoreCase("image/jpeg")) {
             imageType = "JPEG";
@@ -246,12 +221,12 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         }
     }
     protected void drawEdgedBox(Graphics g2d,int x,int y,int w,int h) {
-        g2d.setColor(borderBoxBackground);
+        g2d.setColor(KBConfiguration.OHD_borderBoxBackground);
         g2d.fillRect(x,y,w,h);
-        g2d.setColor(borderBoxTopLeft);
+        g2d.setColor(KBConfiguration.OHD_borderBoxTopLeft);
         g2d.drawLine(x,y,x+w,y); //Top
         g2d.drawLine(x,y+h,x,y); //Left
-        g2d.setColor(borderBoxBottomRight);
+        g2d.setColor(KBConfiguration.OHD_borderBoxBottomRight);
         g2d.drawLine(x+w,y+h,x,y+h); //Bottom
         g2d.drawLine(x+w,y,x+w,y+h); //Right
         
@@ -259,9 +234,9 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
     }
     protected void drawTitledMessageBox(Graphics2D g2d, String title, String message, int x, int y, int w, int h) {
         /* Do some calculations and init variables. */
-        g2d.setFont(messageBoxFont);
+        g2d.setFont(KBConfiguration.OHD_messageBoxFont);
         FontMetrics fm = g2d.getFontMetrics();
-        int labelHeight = messageBoxFont.getSize() + (padding*2);
+        int labelHeight = KBConfiguration.OHD_messageBoxFont.getSize() + (KBConfiguration.OHD_padding * 2);
         int angling = labelHeight;
         Rectangle2D testRectangle = fm.getStringBounds(title, g2d);
         int labelWidth = (int) testRectangle.getWidth();
@@ -274,7 +249,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         drawMessageBox(g2d, message, x,y,w,h);
         
         /* Draw the label background */
-        g2d.setColor(labelBoxColor);
+        g2d.setColor(KBConfiguration.OHD_labelBoxColor);
         GeneralPath label = new GeneralPath();
         label.moveTo(x,y);
         label.lineTo(x+angling,y-labelHeight);
@@ -284,16 +259,16 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         g2d.fill(label);
         
         /* Draw the label Lines..  */
-        g2d.setColor(borderBoxTopLeft);
+        g2d.setColor(KBConfiguration.OHD_borderBoxTopLeft);
         g2d.drawLine(x,y, x+angling,y-labelHeight);
         g2d.drawLine(x+angling,y-labelHeight, x+angling+labelWidth, y-labelHeight);
-        g2d.setColor(borderBoxBottomRight);
+        g2d.setColor(KBConfiguration.OHD_borderBoxBottomRight);
         g2d.drawLine(x+angling+labelWidth, y-labelHeight,  x + (angling*2) + labelWidth, y);
-        g2d.setColor(borderBoxBackground);
+        g2d.setColor(KBConfiguration.OHD_borderBoxBackground);
         g2d.drawLine(x + (angling*2) + labelWidth, y, x,y);
         /*Then add the title... */
-        g2d.setColor(labelFontBoxColor);
-        g2d.drawString(title, x + angling, y - padding);
+        g2d.setColor(KBConfiguration.OHD_labelFontBoxColor);
+        g2d.drawString(title, x + angling, y - KBConfiguration.OHD_padding);
         
     }
     protected void drawMessageBox(Graphics2D g2d, String message, int x, int y, int w, int h) {
@@ -306,17 +281,17 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
         /*
          * Padding...
          */
-        x += padding;
-        y += padding;
-        w -= padding;
-        h -= padding;
+        x += KBConfiguration.OHD_padding;
+        y += KBConfiguration.OHD_padding;
+        w -= KBConfiguration.OHD_padding;
+        h -= KBConfiguration.OHD_padding;
         
-        g2d.setFont(messageBoxFont);
-        g2d.setColor(fontBoxColor);
+        g2d.setFont(KBConfiguration.OHD_messageBoxFont);
+        g2d.setColor(KBConfiguration.OHD_fontBoxColor);
         FontMetrics fm = g2d.getFontMetrics();
         
         
-        int fontHeight = messageBoxFont.getSize();
+        int fontHeight = KBConfiguration.OHD_messageBoxFont.getSize();
         int yOffset = y ;
         String[] lines = message.split("\n");
         for (int j = 0; j< lines.length; j++) {
@@ -334,7 +309,7 @@ public abstract class ConfigLayer extends Layer implements KBConstants {
                 }
             }
             conditionalWrite(g2d, line, x, yOffset + fontHeight,y+ h);
-            yOffset += (fontHeight + lineSpacing);
+            yOffset += (fontHeight + KBConfiguration.OHD_lineSpacing);
         }
         
     }

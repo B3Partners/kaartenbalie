@@ -20,7 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.parsers.DOMParser;
@@ -33,7 +33,7 @@ import org.w3c.dom.NodeList;
  *
  */
 
-public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
+public class FlamingoConfigServlet extends HttpServlet {
     
     public static final long serialVersionUID = 24362462L; 
     
@@ -100,7 +100,7 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
     }
     
     public void write(HttpServletResponse response, Document doc) throws IOException{
-        response.setContentType(CHARSET);
+        response.setContentType(KBConfiguration.CHARSET);
         OutputFormat format = new OutputFormat(doc);
         format.setIndenting(true);
         OutputStream output = new ByteArrayOutputStream();
@@ -108,7 +108,7 @@ public class FlamingoConfigServlet extends HttpServlet implements KBConstants {
         serializer.serialize(doc);
         OutputStream os = response.getOutputStream();
         String s= output.toString();
-        os.write(output.toString().getBytes(CHARSET));
+        os.write(output.toString().getBytes(KBConfiguration.CHARSET));
     }
     
     public void init(ServletConfig config) throws ServletException {

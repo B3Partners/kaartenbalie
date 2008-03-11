@@ -13,6 +13,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.Map;
+import nl.b3p.ogc.utils.KBConfiguration;
 
 /**
  *
@@ -36,9 +37,9 @@ public class KBTitleLayer extends ConfigLayer{
         BigDecimal cm = (BigDecimal) parameterMap.get(AllowTransactionsLayer.creditMutation);
         if (cm != null) {
             message.append(" (");
-            message.append(MESSAGE_TITLE_CREDITS);
+            message.append(KBConfiguration.MESSAGE_TITLE_CREDITS);
             message.append(cm.toString());
-            message.append(MESSAGE_TITLE_UNIT);
+            message.append(KBConfiguration.MESSAGE_TITLE_UNIT);
         }
         
         Double balance = (Double) parameterMap.get(BalanceLayer.creditBalance);
@@ -47,14 +48,14 @@ public class KBTitleLayer extends ConfigLayer{
                 message.append(" (");
             else
                 message.append(", ");
-            message.append(MESSAGE_TITLE_BALANCE);
+            message.append(KBConfiguration.MESSAGE_TITLE_BALANCE);
             message.append(balance.toString());
-            message.append(MESSAGE_TITLE_UNIT);
+            message.append(KBConfiguration.MESSAGE_TITLE_UNIT);
         }
         if (message.length()>0)
             message.append(")");
         
-        message.insert(0,MESSAGE_TITLE_LAYER);
+        message.insert(0,KBConfiguration.MESSAGE_TITLE_LAYER);
         
         Graphics2D g2 = (Graphics2D) bufImage.getGraphics();
         int padding = 20;

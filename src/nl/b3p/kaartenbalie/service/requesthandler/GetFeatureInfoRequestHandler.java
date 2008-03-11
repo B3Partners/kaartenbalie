@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,12 +49,12 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         
         OGCRequest ogcrequest = dw.getOgcrequest();
         String value = "";
-        if (ogcrequest.containsParameter(FEATURE_INFO_FORMAT)) {
-            value = ogcrequest.getParameter(FEATURE_INFO_FORMAT);
+        if (ogcrequest.containsParameter(OGCConstants.FEATURE_INFO_FORMAT)) {
+            value = ogcrequest.getParameter(OGCConstants.FEATURE_INFO_FORMAT);
             if(value != null && value.length() > 0) {
                 dw.setContentType(value);
             } else {
-                dw.setContentType(WMS_PARAM_WMS_XML);
+                dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
             }
         }
         
@@ -64,10 +66,10 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Integer orgId   = user.getOrganization().getId();
         OGCRequest ogc  = dw.getOgcrequest();
         
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(WMS_PARAM_QUERY_LAYERS).split(","), orgId, true,dw);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgId, true,dw);
         if(spUrls==null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
-            throw new Exception(FEATUREINFO_QUERYABLE_EXCEPTION);
+            throw new Exception(KBConfiguration.FEATUREINFO_QUERYABLE_EXCEPTION);
         }
         
         ArrayList urlWrapper = new ArrayList();
@@ -88,13 +90,13 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                 String [] params = dw.getOgcrequest().getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");
-                    if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYERS)) {
-                        url.append(WMS_PARAM_LAYERS);
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
                         url.append("=");
                         url.append(layersList);
                         url.append("&");
-                    } else if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_QUERY_LAYERS)) {
-                        url.append(WMS_PARAM_QUERY_LAYERS);
+                    } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_QUERY_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_QUERY_LAYERS);
                         url.append("=");
                         url.append(layersList);
                         url.append("&");
@@ -108,6 +110,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
             }
         }
         
-        getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetFeatureInfo);
+        getOnlineData(dw, urlWrapper, false, OGCConstants.WMS_REQUEST_GetFeatureInfo);
     }
 }

@@ -20,8 +20,9 @@ import java.util.Stack;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ElementHandler;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Switcher;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -38,7 +39,7 @@ import org.xml.sax.XMLReader;
  * ImageCollector definition:
  */
 
-public class ImageCollector extends Thread implements KBConstants {
+public class ImageCollector extends Thread {
     
     private static final Log log = LogFactory.getLog(ImageCollector.class);
     private static final int maxResponseTime = 60000;
@@ -96,7 +97,7 @@ public class ImageCollector extends Thread implements KBConstants {
         String url = wmsRequest.getProviderRequestURI();
         
         // TODO hier is multi thread versie volgens mij niet nodig omdat instance maar door een thread gebruikt wordt ?
-        if (url.startsWith(SERVICEPROVIDER_BASE_HTTP)) {
+        if (url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
             try {
                 //Say hello to B3P Layering!!
                 setBufferedImage(ConfigLayer.handleRequest(url, dw.getLayeringParameterMap()));
@@ -134,7 +135,7 @@ public class ImageCollector extends Thread implements KBConstants {
              */
                 String mime = method.getResponseHeader("Content-Type").getValue();
                 
-                if (mime.equalsIgnoreCase(WMS_PARAM_EXCEPTION_XML)) {
+                if (mime.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
                     InputStream is = method.getResponseBodyAsStream();
                     String body = getServiceException(is);
                     throw new Exception(body);
@@ -230,7 +231,7 @@ public class ImageCollector extends Thread implements KBConstants {
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
-        is.setEncoding(CHARSET);
+        is.setEncoding(KBConfiguration.CHARSET);
         reader.parse(is);
         return (String)stack.pop();
     }

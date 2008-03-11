@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,29 +50,29 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         OGCRequest ogc  = dw.getOgcrequest();
         
         String value = "";
-        if (ogc.containsParameter(WMS_PARAM_FORMAT)) {
-            value = ogc.getParameter(WMS_PARAM_FORMAT);
+        if (ogc.containsParameter(OGCConstants.WMS_PARAM_FORMAT)) {
+            value = ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT);
             if(value != null && value.length() > 0) {
                 dw.setContentType(value);
             } else {
-                dw.setContentType(WMS_PARAM_WMS_XML);
+                dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
             }
         }
         
-        String [] layers = ogc.getParameter(WMS_PARAM_LAYER).split(",");
+        String [] layers = ogc.getParameter(OGCConstants.WMS_PARAM_LAYER).split(",");
         if(layers.length != 1) {
             log.error("Only one layer for legend graphic.");
-            throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+            throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
         
         List spUrls = getSeviceProviderURLS(layers, orgId, false,dw);
         if(spUrls == null || spUrls.size()!=1) {
-            throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+            throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
         
         Map spInfo = (Map)spUrls.get(0);
         if(spInfo == null) {
-            throw new Exception(LEGENDGRAPHIC_EXCEPTION);
+            throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
         
         
@@ -87,8 +89,8 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             String [] params = ogc.getParametersArray();
             for (int i = 0; i < params.length; i++) {
                 String [] keyValuePair = params[i].split("=");
-                if (keyValuePair[0].equalsIgnoreCase(WMS_PARAM_LAYER)) {
-                    url.append(WMS_PARAM_LAYER);
+                if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYER)) {
+                    url.append(OGCConstants.WMS_PARAM_LAYER);
                     url.append("=");
                     url.append(spInfo.get("layersList"));
                     url.append("&");
@@ -99,7 +101,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             }
             lgrWrapper.setProviderRequestURI(url.toString());
             urlWrapper.add(lgrWrapper);
-            getOnlineData(dw, urlWrapper, false, WMS_REQUEST_GetLegendGraphic);
+            getOnlineData(dw, urlWrapper, false, OGCConstants.WMS_REQUEST_GetLegendGraphic);
         }
         
     }

@@ -19,6 +19,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import org.apache.commons.logging.Log;
@@ -53,7 +55,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
-        dw.setContentType(WMS_PARAM_WMS_XML);
+        dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
         
         ByteArrayOutputStream output    = null;
         this.user                       = user;
@@ -88,14 +90,14 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          * Create a new output format to which this document should be translated and
          * serialize the tree to an XML document type
          */
-        OutputFormat format = new OutputFormat(dom, CHARSET, true);
+        OutputFormat format = new OutputFormat(dom, KBConfiguration.CHARSET, true);
         format.setIndenting(true);
         output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(dom);
         
         DOMValidator dv = new DOMValidator();
-        dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
+        dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(KBConfiguration.CHARSET)));
         
         byte[] data = output.toByteArray();
         dw.write(output);

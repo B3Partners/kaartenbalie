@@ -19,11 +19,12 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.LayerValidator;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBConstants {
+public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(WMSUrlCreatorAction.class);
     protected static final String GETMAP                        = "getMapUrl";
@@ -191,47 +192,47 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBCon
         
         StringBuffer getMapUrl = new StringBuffer(user.getPersonalURL());
         getMapUrl.append("?");
-        getMapUrl.append(WMS_VERSION);
+        getMapUrl.append(OGCConstants.WMS_VERSION);
         getMapUrl.append("=");
-        getMapUrl.append(WMS_VERSION_111);
+        getMapUrl.append(OGCConstants.WMS_VERSION_111);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_REQUEST);
+        getMapUrl.append(OGCConstants.WMS_REQUEST);
         getMapUrl.append("=");
-        getMapUrl.append(WMS_REQUEST_GetMap);
+        getMapUrl.append(OGCConstants.WMS_REQUEST_GetMap);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_LAYERS);
+        getMapUrl.append(OGCConstants.WMS_PARAM_LAYERS);
         getMapUrl.append("=");        
         getMapUrl.append(layer);        
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_BBOX);
+        getMapUrl.append(OGCConstants.WMS_PARAM_BBOX);
         getMapUrl.append("=");
         getMapUrl.append(bbox);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_SRS);
+        getMapUrl.append(OGCConstants.WMS_PARAM_SRS);
         getMapUrl.append("=");
         getMapUrl.append(projectie);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_HEIGHT);
+        getMapUrl.append(OGCConstants.WMS_PARAM_HEIGHT);
         getMapUrl.append("=");
         getMapUrl.append(height);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_WIDTH);
+        getMapUrl.append(OGCConstants.WMS_PARAM_WIDTH);
         getMapUrl.append("=");
         getMapUrl.append(width);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_FORMAT);
+        getMapUrl.append(OGCConstants.WMS_PARAM_FORMAT);
         getMapUrl.append("=");
         getMapUrl.append(format);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_BGCOLOR);
+        getMapUrl.append(OGCConstants.WMS_PARAM_BGCOLOR);
         getMapUrl.append("=");
         getMapUrl.append("0xF0F0F0");
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_EXCEPTIONS);
+        getMapUrl.append(OGCConstants.WMS_PARAM_EXCEPTIONS);
         getMapUrl.append("=");
-        getMapUrl.append(WMS_PARAM_EXCEPTION_INIMAGE);
+        getMapUrl.append(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE);
         getMapUrl.append("&");
-        getMapUrl.append(WMS_PARAM_STYLES);
+        getMapUrl.append(OGCConstants.WMS_PARAM_STYLES);
         getMapUrl.append("=");
         
         user.setDefaultGetMap(getMapUrl.toString());
@@ -291,20 +292,20 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction implements KBCon
         this.createLists(form, request);
         OGCRequest ogcrequest = new OGCRequest(getMapUrl);
         
-        if (ogcrequest.containsParameter(WMS_PARAM_LAYERS)) {
-            form.set("selectedLayers", ogcrequest.getParameter(WMS_PARAM_LAYERS).split(","));
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_LAYERS)) {
+            form.set("selectedLayers", ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","));
         }
-        if (ogcrequest.containsParameter(WMS_PARAM_BBOX)) {
-            form.set("bbox", ogcrequest.getParameter(WMS_PARAM_BBOX));
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_BBOX)) {
+            form.set("bbox", ogcrequest.getParameter(OGCConstants.WMS_PARAM_BBOX));
         }
-        if (ogcrequest.containsParameter(WMS_PARAM_SRS)) {
-            form.set("selectedProjectie", ogcrequest.getParameter(WMS_PARAM_SRS));
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_SRS)) {
+            form.set("selectedProjectie", ogcrequest.getParameter(OGCConstants.WMS_PARAM_SRS));
         }
-        if (ogcrequest.containsParameter(WMS_PARAM_WIDTH)) {
-            form.set("height", new Integer(ogcrequest.getParameter(WMS_PARAM_WIDTH)));
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH)) {
+            form.set("height", new Integer(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH)));
         }
-        if (ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
-            form.set("width", new Integer(ogcrequest.getParameter(WMS_PARAM_HEIGHT)));
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
+            form.set("width", new Integer(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT)));
         }
         
         form.set("defaultGetMap", getMapUrl);

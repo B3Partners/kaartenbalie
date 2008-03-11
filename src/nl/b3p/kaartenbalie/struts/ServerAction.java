@@ -26,7 +26,8 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
@@ -42,7 +43,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
 
-public class ServerAction extends KaartenbalieCrudAction implements KBConstants {
+public class ServerAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(ServerAction.class);
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
@@ -211,7 +212,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        if (abbreviation.equalsIgnoreCase(KBConstants.SERVICEPROVIDER_BASE_ABBR)) {
+        if (abbreviation.equalsIgnoreCase(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -242,7 +243,7 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
             return getAlternateForward(mapping, request);
         }
         
-        if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(WMS_VERSION_111)) {
+        if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
@@ -555,22 +556,25 @@ public class ServerAction extends KaartenbalieCrudAction implements KBConstants 
     protected String checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
         
-        if(ogcrequest.containsParameter(WMS_REQUEST) && !WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(WMS_REQUEST))) {
-            throw new Exception(UNSUPPORTED_REQUEST);
+        if(ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) && 
+                !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
+            throw new Exception(KBConfiguration.UNSUPPORTED_REQUEST);
         } else {
-            ogcrequest.addOrReplaceParameter(WMS_REQUEST, WMS_REQUEST_GetCapabilities);
+            ogcrequest.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
         }
         
-        if(ogcrequest.containsParameter(WMS_SERVICE) && !WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(WMS_SERVICE))) {
-            throw new Exception(UNSUPPORTED_SERVICE);
+        if(ogcrequest.containsParameter(OGCConstants.WMS_SERVICE) && 
+                !OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_SERVICE))) {
+            throw new Exception(KBConfiguration.UNSUPPORTED_SERVICE);
         } else {
-            ogcrequest.addOrReplaceParameter(WMS_SERVICE, WMS_SERVICE_WMS);
+            ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
         }
         
-        if(ogcrequest.containsParameter(WMS_VERSION) && !WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(WMS_VERSION))) {
-            throw new Exception(UNSUPPORTED_VERSION);
+        if(ogcrequest.containsParameter(OGCConstants.WMS_VERSION) && 
+                !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
+            throw new Exception(KBConfiguration.UNSUPPORTED_VERSION);
         } else {
-            ogcrequest.addOrReplaceParameter(WMS_VERSION, WMS_VERSION_111);
+            ogcrequest.addOrReplaceParameter(OGCConstants.WMS_VERSION, OGCConstants.WMS_VERSION_111);
         }
         
         return ogcrequest.getUrl();

@@ -5,7 +5,7 @@
  * Created on 25 oktober 2006, 10:21
  *
  * Purpose: portal to which a client sends his requests. This servlet takes all incoming requests and handles
- * each request differently depending on the input given in the request. The Servlets takes the KBConstants
+ * each request differently depending on the input given in the request. The Servlets takes the KBConfiguration
  * interface to check for all the different parameters which can be send together with the request.
  *
  * @copyright 2007 All rights reserved. B3Partners
@@ -18,6 +18,7 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilit
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
+import nl.b3p.ogc.utils.OGCConstants;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
@@ -45,7 +46,7 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -53,7 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 
-public class CallWMSServlet extends HttpServlet implements KBConstants {
+public class CallWMSServlet extends HttpServlet {
     private static Log log = null;
     public static final long serialVersionUID = 24362462L;
     private String format;
@@ -161,21 +162,23 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         OGCRequest ogcrequest = data.getOgcrequest();
         
         String exType = "";
-        if (ogcrequest.containsParameter(WMS_PARAM_EXCEPTIONS))
-            exType = ogcrequest.getParameter(WMS_PARAM_EXCEPTIONS);
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))
+            exType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS);
         String requestparam = "";
-        if(ogcrequest.containsParameter(REQUEST))
-            requestparam = ogcrequest.getParameter(REQUEST);
+        if(ogcrequest.containsParameter(OGCConstants.REQUEST))
+            requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
         
-        if ((requestparam.equalsIgnoreCase(WMS_REQUEST_GetMap) || requestparam.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) &&
-                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") || exType.equalsIgnoreCase("inimage")) &&
-                ogcrequest.containsParameter(WMS_PARAM_FORMAT) &&
-                ogcrequest.containsParameter(WMS_PARAM_WIDTH) &&
-                ogcrequest.containsParameter(WMS_PARAM_HEIGHT)) {
-            data.setContentType(ogcrequest.getParameter(WMS_PARAM_FORMAT));
+        if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) || 
+                requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
+                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") || 
+                exType.equalsIgnoreCase("inimage")) &&
+                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
+                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
+                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
+            data.setContentType(ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT));
             handleRequestExceptionAsImage(ex, data);
         } else {
-            data.setContentType(WMS_PARAM_EXCEPTION_XML);
+            data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
         }
     }
@@ -252,7 +255,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         
         DOMValidator dv = new DOMValidator();
         try {
-            dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(CHARSET)));
+            dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(KBConfiguration.CHARSET)));
         } catch (Exception e) {
             log.error("error: ", e);
             throw new IOException("Exception occured during validation of error message: " + e);
@@ -382,8 +385,8 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="calcToken(String registeredIP, String username, String password) method.">
     private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         String toBeHashedString = username + password + personalDate;
-        MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
-        md.update(toBeHashedString.getBytes(CHARSET));
+        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
+        md.update(toBeHashedString.getBytes(KBConfiguration.CHARSET));
         byte[] md5hash = md.digest();
         return new String(Hex.encodeHex(md5hash));
     }
@@ -402,7 +405,7 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
     // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         RequestHandler requestHandler = null;
-        String request = data.getOgcrequest().getParameter(REQUEST);
+        String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         
         if (request==null || request.length()==0) {
             // niet bekend, dus moet proxy zijn
@@ -412,16 +415,16 @@ public class CallWMSServlet extends HttpServlet implements KBConstants {
         }
         
         data.setOperation(request);
-        if(request.equalsIgnoreCase(WMS_REQUEST_GetCapabilities)) {
+        if(request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
             data.setRequestClassType(WMSGetCapabilitiesRequest.class);
             requestHandler = new GetCapabilitiesRequestHandler();
-        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetMap)) {
+        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
             data.setRequestClassType(WMSGetMapRequest.class);
             requestHandler = new GetMapRequestHandler();
-        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetFeatureInfo)) {
+        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
             data.setRequestClassType(WMSGetFeatureInfoRequest.class);
             requestHandler = new GetFeatureInfoRequestHandler();
-        } else if (request.equalsIgnoreCase(WMS_REQUEST_GetLegendGraphic)) {
+        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
             data.setRequestClassType(WMSGetLegendGraphicRequest.class);
             requestHandler = new GetLegendGraphicRequestHandler();
         }

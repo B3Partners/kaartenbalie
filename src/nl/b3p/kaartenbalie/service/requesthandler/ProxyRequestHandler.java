@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -40,9 +41,9 @@ public class ProxyRequestHandler extends WMSRequestHandler {
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         OGCRequest ogcrequest = dw.getOgcrequest();
-        String encodedUrl = ogcrequest.getParameter(KB_PROXY_URL);
+        String encodedUrl = ogcrequest.getParameter(KBConfiguration.KB_PROXY_URL);
         if (encodedUrl==null || encodedUrl.length()==0)
-            throw new Exception(KB_PROXY_EXECPTION);
+            throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         
         String purl = KBCrypter.decryptText(encodedUrl);
         ProxyRequest proxyWrapper = new ProxyRequest();
@@ -50,7 +51,7 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);
-        getOnlineData(dw, urlWrapper, false, KB_PROXY);
+        getOnlineData(dw, urlWrapper, false, KBConfiguration.KB_PROXY);
     }
     
 }

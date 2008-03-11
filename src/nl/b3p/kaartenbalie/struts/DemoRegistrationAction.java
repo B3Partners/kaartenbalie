@@ -21,7 +21,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -32,7 +32,7 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
-public class DemoRegistrationAction extends UserAction implements KBConstants {
+public class DemoRegistrationAction extends UserAction {
     
     protected static final String PREDEFINED_SP_ABBR = "demo.spabbr";
     protected static final String SAVESUCCES = "savesucceeded";

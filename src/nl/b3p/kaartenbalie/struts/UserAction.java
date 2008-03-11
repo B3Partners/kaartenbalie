@@ -27,10 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +41,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 
-public class UserAction extends KaartenbalieCrudAction implements KBConstants {
+public class UserAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(UserAction.class);
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
@@ -522,8 +523,8 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
         toBeHashedString.append(rd.nextLong());
         
-        MessageDigest md = MessageDigest.getInstance(MD_ALGORITHM);
-        md.update(toBeHashedString.toString().getBytes(CHARSET));
+        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
+        md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
         byte[] md5hash = md.digest();
         String hashString = new String(Hex.encodeHex(md5hash));
         
@@ -536,7 +537,7 @@ public class UserAction extends KaartenbalieCrudAction implements KBConstants {
         }
         personalURL.append(contextPath);
         personalURL.append("/");
-        personalURL.append(WMS_SERVICE_WMS.toLowerCase());
+        personalURL.append(OGCConstants.WMS_SERVICE_WMS.toLowerCase());
         personalURL.append("/");
         personalURL.append(hashString);
         

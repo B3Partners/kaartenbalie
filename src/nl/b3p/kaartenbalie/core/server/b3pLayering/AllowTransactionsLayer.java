@@ -14,13 +14,13 @@ import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.Map;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.ogc.utils.KBConstants;
+import nl.b3p.ogc.utils.KBConfiguration;
 
 
-public class AllowTransactionsLayer extends ConfigLayer implements KBConstants{
+public class AllowTransactionsLayer extends ConfigLayer{
     
     public static final String NAME = "allowwithdrawals";
-    public static final String TITLE = "AfboekingOK";
+    public static final String TITLE = "Afboekingen toestaan";
     public static final String configValue = "allowTransactions";
     public static final String creditMutation = "creditMutation";
     public static final String pricedLayers = "pricedLayers";
@@ -43,15 +43,15 @@ public class AllowTransactionsLayer extends ConfigLayer implements KBConstants{
             int boxHeight = 150;
             
             StringBuffer message = new StringBuffer();
-            message.append(MESSAGE_AUTHORIZATION_INTRO);
-            message.append(MESSAGE_AUTHORIZATION_START);
+            message.append(KBConfiguration.MESSAGE_AUTHORIZATION_INTRO);
+            message.append(KBConfiguration.MESSAGE_AUTHORIZATION_START);
             message.append(TITLE);
             message.append(" (");
             message.append(NAME);
             message.append(")");
-            message.append(MESSAGE_AUTHORIZATION_END);
-            message.append(MESSAGE_NO_DISPLAY_AGAIN);
-            message.append(MESSAGE_REQUIRED_CREDITS);
+            message.append(KBConfiguration.MESSAGE_AUTHORIZATION_END);
+            message.append(KBConfiguration.MESSAGE_NO_DISPLAY_AGAIN);
+            message.append(KBConfiguration.MESSAGE_REQUIRED_CREDITS);
             
             BigDecimal cm = (BigDecimal) parameterMap.get(creditMutation);
             String cmt = "n/a";
