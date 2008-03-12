@@ -105,7 +105,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private JSONObject createTree() throws JSONException {
         
         EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
         
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();

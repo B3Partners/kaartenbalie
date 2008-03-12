@@ -194,8 +194,7 @@ H5 {
 .ipDiv{
     margin-top: 5px;
     margin-bottom: 5px;
-    width: 400px;
-    height: 90px;
+    width: 220px;
     overflow: auto;
 }
 /* Below are the styles for creating a scrollable table */
@@ -565,59 +564,52 @@ margin: 0;
 Reporting Styles...
 */
 #progressbar {
-    position:relative;
-    width:200px;
-    height:14px;
-    padding:0px;
-    border-top:1px solid #000000;
-    border-bottom:1px solid #000000;
-    display:block;
-}
-#background
-{
-    position:absolute;   
-    background-color:#FFF;
-    width:100%;
-}
-#mask
-{
-    position:absolute;
-    border-right:1px Solid #000;
-}
-#indicator
-{
-    position:absolute;   
-    width:100%;
-    text-align:center;
+    position: relative;
+    width: 250px;
+    height: 14px;
+    padding: 0px;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    border: 1px solid #000000;
+    display: block;
 }
 
+#background {
+    position: absolute;   
+    background-color: #FFF;
+    width: 100%;
+}
 
-fieldset
-{
-    border:1px Solid Black;
-    padding:10px;
+#mask {
+    position: absolute;
 }
-legend {
-    padding:10px;
+
+#indicator {
+    position: absolute;   
+    width: 100%;
+    text-align: center;
 }
-label
-{
+
+label {
     float: left;    
-    width:150px;
+    width: 150px;
     text-align: right;
     padding-right: 20px;
 }
 
-.reportInputField
-{
+.reportInputField {
     margin-bottom: 10px;
-    border:1px Solid Black;
-}
-br{
-    clear: left;
+    border: 1px Solid Black;
 }
 
-.submit
-{
-    margin:10px;
+.submit {
+    margin: 10px;
+}
+
+.infoLabelClass {
+    position: absolute;
+    display: none;
+    background-color: #fff0c5;
+    border: 1px solid #005a9c;
+    padding: 5px;
 }

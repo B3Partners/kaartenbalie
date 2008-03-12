@@ -443,7 +443,7 @@ public class PricingAction extends KaartenbalieCrudAction {
     
     private JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.title ASC").getResultList();
+        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();

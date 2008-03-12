@@ -8,6 +8,7 @@
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
+<script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <html:javascript formName="organizationForm" staticJavascript="false"/>
 <html:form action="/organization" onsubmit="return validateOrganizationForm(this)" focus="name">
@@ -18,145 +19,172 @@
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Organisaties</H1>
         
-        <div class="serverRijTitel">
-            <div style="width: 200px;">Naam organisatie</div>
-            <div style="width: 250px;">Adres</div>
-            <div style="width: 125px;">Plaats</div>
-            <div style="width: 100px;">Telefoon</div>
-        </div>
+        <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+            <thead>
+                <tr class="serverRijTitel" id="topRij">
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="200"><div>Naam organisatie</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="250"><div>Adres</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="125"><div>Plaats</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:3}); sortTable(this);" width="100"><div>Telefoon</div></td>
+                </tr>
+            </thead>
+        </table>
         
         <c:set var="hoogte" value="${(fn:length(organizationlist) * 21)}" />
         <c:if test="${hoogte > 230}">
             <c:set var="hoogte" value="230" />
         </c:if>
         
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px">          
-            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                <div class="serverRij">
-                    <div style="width: 200px;" class="vakSpeciaal" title="<c:out value="${nOrganization.name}"/>">
-                        <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
-                            <c:out value="${nOrganization.name}"/>
-                        </html:link>
-                    </div>
-                    <div style="width: 250px;">
-                        <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
-                    </div>
-                    <div style="width: 125px;">
-                        <c:out value="${nOrganization.province}"/>
-                    </div>
-                    <div style="width: 100px;">
-                        <c:out value="${nOrganization.telephone}"/>
-                    </div>
-                </div>
-            </c:forEach>
+        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px; width: 770px;">          
+            <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+                <tbody>
+                    <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                        
+                        <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
+                            <td width="200">
+                                <div style="width: 190px; overflow: hidden;">
+                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                        <c:out value="${nOrganization.name}"/>
+                                    </html:link>
+                                </div>
+                            </td>
+                            
+                            <td style="width: 250px;">
+                                <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
+                            </td>
+                            <td style="width: 125px;">
+                                <c:out value="${nOrganization.province}"/>
+                            </td>
+                            <td style="width: 100px;">
+                                <c:out value="${nOrganization.telephone}"/>
+                            </td>
+                        </tr>
+                        <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
+                            <strong>Naam:</strong> <c:out value="${nOrganization.name}"/><br />
+                            <strong>Adres:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
+                            <strong>Postcode:</strong> <c:out value="${nOrganization.postalcode}"/><br />
+                            <strong>Plaats:</strong> <c:out value="${nOrganization.province}"/><br />
+                            <strong>Land:</strong> <c:out value="${nOrganization.country}"/><br />
+                            <strong>Telefoon:</strong> <c:out value="${nOrganization.telephone}"/>
+                        </div>
+                    </c:forEach>
+                </tbody>
+            </table>
         </div>
     </div>
     
+    <script type="text/javascript">
+        var server_table = document.getElementById('server_table');
+        Table.stripe(server_table, 'table_alternate_tr');
+        Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
+    </script>
+    
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
-    <c:choose>
-        <c:when test="${action != 'list'}">
-
-                <table >
-                    <tr>
-                        <td width="300" valign="top">
-                            <table>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.name"/>:</B></td>
-                                    <td><html:text property="name"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationStreet"/>:</B></td>
-                                    <td><html:text property="street"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationNumber"/>:</B></td>
-                                    <td><html:text property="number"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationToevoeging"/>:</B></td>
-                                    <td><html:text property="addition"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationPostalcode"/>:</B></td>
-                                    <td><html:text property="postalcode"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationProvince"/>:</B></td>
-                                    <td><html:text property="province"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationCountry"/>:</B></td>
-                                    <td><html:text property="country"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationPostbox"/>:</B></td>
-                                    <td><html:text property="postbox"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationFacturationAddress"/>:</B></td>
-                                    <td><html:text property="billingAddress"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationVisitorAddress"/>:</B></td>
-                                    <td><html:text property="visitorsAddress"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationTelephone"/>:</B></td>
-                                    <td><html:text property="telephone"/></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationFaxnumber"/>:</B></td>
-                                    <td><html:text property="fax" /></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
-                                    <td><html:text property="bbox" /></td>
-                                </tr>
-                                <tr>
-                                    <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
-                                    <td><html:text property="code" /></td>
-                                </tr>
-                            </table>
-                        </td>
-                        <td valign="top" rowspan="0">
-                            <b>Layer rechten:</b><br/><br/>
-                            <div id="treeContainerLarge">
-                                <div class="treeHolderLarge">
-                                    <div id="tree"></div>
+        <c:choose>
+            <c:when test="${action != 'list'}">
+                <div class="serverDetailsClass">
+                    <table >
+                        <tr>
+                            <td width="330" valign="top">
+                                <table>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.name"/>:</B></td>
+                                        <td><html:text property="name" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationStreet"/>:</B></td>
+                                        <td><html:text property="street" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationNumber"/>:</B></td>
+                                        <td><html:text property="number" size="5" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationToevoeging"/>:</B></td>
+                                        <td><html:text property="addition" size="8" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationPostalcode"/>:</B></td>
+                                        <td><html:text property="postalcode" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationProvince"/>:</B></td>
+                                        <td><html:text property="province" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationCountry"/>:</B></td>
+                                        <td><html:text property="country" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationPostbox"/>:</B></td>
+                                        <td><html:text property="postbox" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationFacturationAddress"/>:</B></td>
+                                        <td><html:text property="billingAddress" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationVisitorAddress"/>:</B></td>
+                                        <td><html:text property="visitorsAddress" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationTelephone"/>:</B></td>
+                                        <td><html:text property="telephone" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationFaxnumber"/>:</B></td>
+                                        <td><html:text property="fax" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
+                                        <td><html:text property="bbox" size="22" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
+                                        <td><html:text property="code" size="22" /></td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td valign="top" rowspan="0" style="padding-left: 40px;">
+                                <b>Layer rechten:</b><br/><br/>
+                                <div id="treeContainerLarge">
+                                    <div class="treeHolderLarge">
+                                        <div id="tree"></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-
-            <div class="knoppen">
-                <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.cancel"/>
-                </html:cancel>
-                <c:if test="${empty mainid}">
-                    <html:submit property="save" accesskey="s" styleClass="knop">
-                        <fmt:message key="button.save"/>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <div class="knoppen">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                            <fmt:message key="button.cancel"/>
+                        </html:cancel>
+                        <c:if test="${empty mainid}">
+                            <html:submit property="save" accesskey="s" styleClass="knop">
+                                <fmt:message key="button.save"/>
+                            </html:submit>
+                        </c:if>
+                        <c:if test="${not empty mainid}">
+                            <html:submit property="save" accesskey="s" styleClass="knop">
+                                <fmt:message key="button.update"/>
+                            </html:submit>
+                            <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                                <fmt:message key="button.remove"/>
+                            </html:submit>
+                        </c:if>
+                    </div>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <html:hidden property="name"/>
+                <div class="knoppen">
+                    <html:submit property="create" accesskey="n" styleClass="knop" onclick="bCancel=true">
+                        <fmt:message key="button.new"/>
                     </html:submit>
-                </c:if>
-                <c:if test="${not empty mainid}">
-                    <html:submit property="save" accesskey="s" styleClass="knop">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
-                    <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.remove"/>
-                    </html:submit>
-                </c:if>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <html:hidden property="name"/>
-            <div class="knoppen">
-                <html:submit property="create" accesskey="n" styleClass="knop" onclick="bCancel=true">
-                    <fmt:message key="button.new"/>
-                </html:submit>
-            </div>
-        </c:otherwise>
-    </c:choose>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </div>
     
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
@@ -176,17 +204,21 @@
             var div = document.createElement("div");
             var vink= document.createElement("input");
             
+            div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
+            if(div.className == 'serviceproviderLabel') {
+                currentParent = container.id;
+            }
+            
             if (item.id && item.type != "serviceprovider") {
                 vink.type="checkbox";
                 vink.value=item.id;
                 vink.name="selectedLayers";
                 vink.id=item.id;
                 vink.layerType=item.type;
-                vink.className="layerVink";
+                vink.className="layerVink " + currentParent;
                 container.appendChild(vink);
             }
             
-            div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
             div.onclick = function() {
                 itemClick(item);
             };
@@ -214,7 +246,7 @@
             },
             "saveExpandedState": true,
             "saveScrollState": true,
-            "expandAll": true
+            "expandAll": false
         });
         function reloadLayers(){
             var layersString="";
@@ -271,13 +303,16 @@
         <c:if test="${not empty checkedLayers}">
             var layerstring="${checkedLayers}";
             var layers=layerstring.split(",");
+            
             for (var i=0; i < layers.length; i++){
                 var element=document.getElementById(layers[i]);
                 if (element){
                     element.checked=true;
                     
+                    var prnt = element.className.substring(element.className.indexOf(" ") + 1);
+                    var prntObj = document.getElementById(prnt);
+                    if(prntObj.innerHTML.indexOf("GS") == -1) prntObj.innerHTML += ' GS';
                 }
-                
             }
         </c:if>
         

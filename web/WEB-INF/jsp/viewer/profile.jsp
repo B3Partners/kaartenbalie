@@ -43,32 +43,38 @@
                 <td>Email adres:</td>
                 <td><c:out value="${form.map.emailAddress}"/></td>
             </tr>
+            <tr>
+                <td>Organisatie:</td>
+                <td><c:out value="${form.map.organizationName}"/></td>
+            </tr>
         </table>
     </div>   
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 200px;">
+    <div id="groupDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 200px;">
         <c:choose>
             <c:when test="${action != 'list'}">
-                <table>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
-                        <td><html:password property="password" /></td>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
-                        <td><html:password property="repeatpassword" /></td>
-                    </tr>
-                    <tr>
-                        <td><fmt:message key="viewer.profile.email"/>:</td>
-                        <td><html:text property="emailAddress" /></td>
-                    </tr>
-                </table>
-                <div class="knoppen">
-                    <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.cancel"/>
-                    </html:cancel>
-                    <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
-                        <fmt:message key="button.update"/>
-                    </html:submit>
+                <div class="serverDetailsClass">
+                    <table>
+                        <tr>
+                            <td><fmt:message key="viewer.persoonlijkeurl.nieuwpw"/>:</td>
+                            <td><html:password property="password" /></td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="viewer.persoonlijkeurl.retypepw"/>:</td>
+                            <td><html:password property="repeatpassword" /></td>
+                        </tr>
+                        <tr>
+                            <td><fmt:message key="viewer.profile.email"/>:</td>
+                            <td><html:text property="emailAddress" /></td>
+                        </tr>
+                    </table>
+                    <br /><div class="knoppen">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                            <fmt:message key="button.cancel"/>
+                        </html:cancel>
+                        <html:submit property="save" accesskey="s" styleClass="knop" onclick="bCancel=false">
+                            <fmt:message key="button.update"/>
+                        </html:submit>
+                    </div>
                 </div>
             </c:when>
             <c:otherwise>

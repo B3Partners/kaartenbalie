@@ -7,7 +7,7 @@
 <c:set var="element"><%= request.getParameter("elementStyleId") %></c:set>
 
 <img src="${calImage}" id="cal-button"
-     style="cursor: pointer; border: 1px solid red;" 
+     style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
      title="Date selector"
      alt="Date selector"
      onmouseover="this.style.background='red';" 

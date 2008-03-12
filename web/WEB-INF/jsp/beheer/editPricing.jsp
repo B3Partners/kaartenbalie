@@ -1,42 +1,46 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <tiles:importAttribute/>
 
+<script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
+<script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <c:choose>
     <c:when test="${not empty id}">
         <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
-                <ul>
-                    <li id="pricing" onclick="displayTabBySource(this);">Index</li>
-                    <li id="details" onclick="displayTabBySource(this);">Details</li>
-                    <li id="new"  onclick="displayTabBySource(this);">Nieuwe Prijsbepaling</li>
+                <ul id="tabul">
+                    <li id="pricing" onclick="displayTabBySource(this);"><a href="#">Index</a></li>
+                    <li id="details" onclick="displayTabBySource(this);"><a href="#">Details</a></li>
+                    <li id="new"  onclick="displayTabBySource(this);"><a href="#">Nieuwe Prijsbepaling</a></li>
                 </ul>
             </div>
-            <div id="sheets" style="height:450px;">
+            <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
+            <div id="sheets">
                 <div id="pricing" class="sheet">  
                     <label>Service Provider :</label> ${spName} <br/>
-                    <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${lName}</b><br/>
+                    <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${lName}</b><br/><br />
                     <h1>Samenvatting</h1>
                     <c:if test="${summary == true}">
-                        <table style="padding:0px;margin:0px;border-collapse: collapse;border:1px Solid Black;" class="">
+                        <table id="summaryTable" style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
                             <thead>
-                                <tr>
+                                <tr class="serverRijTitel">
                                     <th colspan="2">&nbsp;</th>
-                                    <th colspan="3" style="border-left: 1px Solid Black; border-right: 1px Solid Black;">Per Request</th>
+                                    <th colspan="3">Per Request</th>
                                 </tr>
-                                <tr>
+                                <tr class="serverRijTitel">
                                     <th style="width:40px;">Serv.</th>
                                     <th style="width:200px;">Operation/Methode</th>
-                                    <th style="border-left: 1px Solid Black;width:60px;">Prijs</th>
+                                    <th style="width:60px;">Prijs</th>
                                     <th style="width:70px;">tCalc</th>
-                                    <th style="border-right: 1px Solid Black;width:60px;">Via</th>
+                                    <th style="width:60px;">Via</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <c:forEach var="dataRow" items="${tableData}">
                                     <tr>
-                                        <td style="text-align:right;">
+                                        <td style="text-align:left;">
                                             <c:choose>
                                                 <c:when test="${dataRow[0] == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
                                                 <c:when test="${dataRow[0] == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
@@ -44,7 +48,7 @@
                                             </c:choose>
                                         </td>
                                         <td>${dataRow[1]}</td>
-                                        <td style="border-left: 1px Solid Black;">
+                                        <td>
                                             <c:choose>
                                                 <c:when test="${dataRow[2].layerIsFree}">
                                                     Gratis
@@ -54,8 +58,8 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        <td>± ${dataRow[2].calculationTime}ms</td>
-                                        <td style="border-right: 1px Solid Black;">
+                                        <td>&plusmn; ${dataRow[2].calculationTime}ms</td>
+                                        <td>
                                             <c:choose>
                                                 <c:when test="${dataRow[2].method == '-1'}"><img src="../images/icons/blocked.gif" alt="Kaart geblokkeerd."></c:when>
                                                 <c:when test="${dataRow[2].method == '0'}"><img src="../images/icons/owner.gif" alt="Prijsinformatie via eigen prijsbepalingen"></c:when>
@@ -68,33 +72,34 @@
                                 </c:forEach>
                             </tbody>
                         </table>
+                        <script type="text/javascript">
+                            Table.stripe(document.getElementById('summaryTable'), 'table_alternate_tr');
+                        </script>
                     </c:if>
                     <p>
                         <input type="checkbox" onchange="location.href='editpricing.do?id=${id}&summary=' + this.checked;" ${summary == true ? 'checked':''}>Samenvatting ophalen</input>
                     </p>
                     <button onclick="parent.showPopup(1000,700,'Transactie Details','pricingtestcalc.do?test=submit&id=${id}');">Proefberekening Maken</button>
                 </div>
-                <div id="details" class="sheet" style="height:450px;">  
-                    <div style="background-color:white;border:1px Solid Black;">
-                        <table style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="pricingTable">
-                            <tr>
-                                <thead>
-                                    <th>planType</th>
-                                    <th>Service/Methode</th>
-                                    <th>Aangemaakt/Verwijderd</th>
+                <div id="details" class="sheet">  
+                    <div>
+                        <table id="planTable" style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
+                            <thead>
+                                <tr class="serverRijTitel">
+                                    <th>Type</th>
+                                    <th>Service / Methode</th>
                                     <th>Geldig vanaf</th>
                                     <th>Verloopt</th>
                                     <th>Schaalbereik</th>
                                     <th>Tarief</th>
-                                    <th>[d]</th>                            
-                                </thead>
-                            </tr>
-                            
-                            <c:forEach var="layerPricing" items="${layerPricings}">
-                                <c:set var="rowstyle" scope="page" value="${not empty layerPricing.deletionDate ? 'deleted': activePricing.id == layerPricing.id ? 'active':'normal'}"/>
-                                <tr>
-                                    <tbody>
-                                        <td class="${rowstyle}">
+                                    <th></th>                            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="layerPricing" items="${layerPricings}">
+                                    <c:set var="rowstyle" scope="page" value="${not empty layerPricing.deletionDate ? 'deleted': activePricing.id == layerPricing.id ? 'active':'normal'}"/>
+                                    <tr>
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${layerPricing.planType == 1}">
                                                     Per Opvraag
@@ -104,7 +109,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        <td class="${rowstyle}">
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${layerPricing.service == 'WMS'}"><img src="../images/icons/wms.gif" alt="WMS"></c:when>
                                                 <c:when test="${layerPricing.service == 'WFS'}"><img src="../images/icons/wfs.gif" alt="WFS"></c:when>
@@ -115,11 +120,7 @@
                                                 <c:otherwise>Alle</c:otherwise>
                                             </c:choose>
                                         </td>                                        
-                                        <td class="${rowstyle}">
-                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.creationDate}"/><br/>
-                                            <fmt:formatDate pattern="yyyy-MM-dd @ HH:mm:ss" value="${layerPricing.deletionDate}"/>                                              
-                                        </td>
-                                        <td class="${rowstyle}">
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.validFrom}">
                                                     <fmt:formatDate pattern="yyyy-MM-dd" value="${layerPricing.validFrom}"/>        
@@ -129,7 +130,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        <td class="${rowstyle}">
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.validUntil}">
                                                     <fmt:formatDate pattern="yyyy-MM-dd" value="${layerPricing.validUntil}"/>
@@ -139,7 +140,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
-                                        <td class="${rowstyle}">
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.projection}">
                                                     ${layerPricing.projection} <br/><c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>        
@@ -148,7 +149,7 @@
                                             </c:choose>
                                             
                                         </td>                                            
-                                        <td class="${rowstyle}">
+                                        <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${layerPricing.layerIsFree == true}">
                                                     Gratis
@@ -160,65 +161,100 @@
                                         </td>
                                         <td class="${rowstyle}">
                                             <c:if test="${empty layerPricing.deletionDate}">
-                                                [<a href="editpricing.do?delete=submit&pricingid=${layerPricing.id}&id=${id}">D</a>]    
+                                                <a href="editpricing.do?delete=submit&pricingid=${layerPricing.id}&id=${id}"><img src="../images/icons/page_delete.gif" alt="Delete" style="border: 0px none;"></a>    
                                             </c:if>
                                         </td>                            
-                                    </tbody>                    
-                                </tr>
-                            </c:forEach>
+                                    </tr>
+                                    <div id="infoLabel${layerPricing.id}" class="infoLabelClass">
+                                        <strong>Type: </strong><c:choose><c:when test="${layerPricing.planType == 1}">Per Opvraag</c:when><c:otherwise>Onbekend</c:otherwise></c:choose><br />
+                                        <strong>Service: </strong>${layerPricing.service}<br />
+                                        <strong>Methode: </strong><c:choose><c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when><c:otherwise>Alle</c:otherwise></c:choose><br />
+                                        <strong>Aangemaakt: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.creationDate}"/><br />
+                                        <strong>Verwijderd: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.deletionDate}"/>
+                                    </div>
+                                </c:forEach>
+                            </tbody>
                         </table>
+                        <script type="text/javascript">
+                            Table.stripe(document.getElementById('planTable'), 'table_alternate_tr');
+                        </script>
                     </div>
                 </div>
                 <div id="new" class="sheet">            
-                    <html:form action="/editpricing.do?id=${id}" focus="startDate" onsubmit="return validateReportingForm(this)">
-                        <label>Type :</label>
-                        <html:select property="planType">
-                            <html:option value="1">Per Opvraag</html:option>
-                        </html:select>
-                        <br/>
-                        <label>Geldig vanaf :</label><html:text styleClass="validFrom" property="validFrom" styleId="validFrom"/>
-                        <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                            <jsp:param name="elementStyleId" value="validFrom"/>
-                        </jsp:include>
-                        <br/>
-                        <label>Geldig tot en met :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
-                        <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                            <jsp:param name="elementStyleId" value="validUntil"/>
-                        </jsp:include>
-                        <br/>   
-                        <label>Tarief :</label><html:text styleId="unitPrice" property="unitPrice"/><html:checkbox styleId="layerIsFree" property="layerIsFree" onclick="unitPriceState(this.checked);"/> Kaart is gratis!<br/>
-                        <script type="text/javascript">
-                               function unitPriceState(state){
-                                    var unitPrice = document.getElementById('unitPrice');
-                                    unitPrice.disabled = state;
-                                    if (state == true) {
-                                        unitPrice.value = '';
-                                    }
-                                }
-                        </script>
-                        <label>Projectie :</label>
-                        <script type="text/javascript">
-                               function setScaleVisible(state){
-                                    var selectScale = document.getElementById('selectScale');
-                                    if (state == true) {
-                                    selectScale.style.display = "block";
-                                    } else {
-                                        selectScale.style.display = "none";
-                                    }
-                                }
-                        </script>                        
-                        <html:select styleId="" property="projection" onchange="setScaleVisible(this.value != '');">
-                            <html:option value="">Unspecified</html:option>
-                            <c:forEach var="projectionString" items="${projections}">
-                                <html:option value="${projectionString}" >${projectionString}</html:option>
-                            </c:forEach>
-                        </html:select>
-                        <div id="selectScale" style="display:none;">
-                            <label>Schaalbereik :</label>    
-                            <html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
-                        </div><br/>
-                        <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}<br/>
-                        
+                    <html:form action="/editpricing.do?id=${id}" onsubmit="return validateReportingForm(this)">
+                        <table>
+                            <tr>
+                                <td>
+                                    <label>Type :</label>
+                                    <html:select property="planType">
+                                        <html:option value="1">Per Opvraag</html:option>
+                                    </html:select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Geldig vanaf :</label><html:text styleClass="validFrom" property="validFrom" styleId="validFrom"/>
+                                    <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
+                                        <jsp:param name="elementStyleId" value="validFrom"/>
+                                    </jsp:include> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Geldig tot en met :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
+                                    <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
+                                        <jsp:param name="elementStyleId" value="validUntil"/>
+                                    </jsp:include>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Tarief :</label>
+                                    <html:text styleId="unitPrice" property="unitPrice"/>
+                                    <html:checkbox styleId="layerIsFree" property="layerIsFree" onclick="unitPriceState(this.checked);"/> Kaart is gratis!
+                                    <script type="text/javascript">
+                                           function unitPriceState(state){
+                                                var unitPrice = document.getElementById('unitPrice');
+                                                unitPrice.disabled = state;
+                                                if (state == true) {
+                                                    unitPrice.value = '';
+                                                }
+                                            }
+                                    </script>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Projectie :</label>
+                                    <script type="text/javascript">
+                                           function setScaleVisible(state){
+                                                var selectScale = document.getElementById('selectScale');
+                                                if (state == true) {
+                                                selectScale.style.display = "block";
+                                                } else {
+                                                    selectScale.style.display = "none";
+                                                }
+                                            }
+                                    </script>                        
+                                    <html:select styleId="" property="projection" onchange="setScaleVisible(this.value != '');">
+                                        <html:option value="">Unspecified</html:option>
+                                        <c:forEach var="projectionString" items="${projections}">
+                                            <html:option value="${projectionString}" >${projectionString}</html:option>
+                                        </c:forEach>
+                                    </html:select>
+                                    <div id="selectScale" style="display:none; margin-top: 4px;">
+                                        <label>Schaalbereik :</label>    
+                                        <html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS}
+                                </td>
+                            </tr>
+                        </table>
+                                               
                         <table style="width:300px;display:none;">
                             <tr>
                                 <td style="width:70px;">
@@ -264,7 +300,7 @@
         </script>
     </c:when>
     <c:otherwise>
-        Selecteer een kaartlaag!
+        Selecteer een kaartlaag
     </c:otherwise>
     
 </c:choose>

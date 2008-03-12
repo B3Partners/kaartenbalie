@@ -1,62 +1,65 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<div class="containerdiv" style=";">
-    <H1>Beheer Accounting</H1>
-    
-    
-    <div class="tabcollection" id="accountCollection">
-        <div id="tabs">
-            <ul>
-                <li id="AccountDetails" onclick="displayTabBySource(this);">Account Details</li>
-                <li id="Deposits"  onclick="displayTabBySource(this);">Laatste 20 Bijboekingen</li>
-                <li id="Withdrawls"  onclick="displayTabBySource(this);">Laatste 20 Afboekingen</li>            
-            </ul>
+<script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
+<link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
+
+<H1>Beheer Accounting</H1>
+
+<div class="tabcollection" id="accountCollection" style="margin-bottom: 15px;">
+    <div id="tabs">
+        <ul id="tabul" style="width: 650px;">
+            <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Account Details</a></li>
+            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste 20 Bijboekingen</a></li>
+            <li id="Withdrawls" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste 20 Afboekingen</a></li>            
+        </ul>
+    </div>
+    <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
+    <div id="sheets" style="height:500px;">
+        <div id="AccountDetails" class="sheet">
+            <label>Credit Balance :</label>
+            <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
+            <p>
+                <button onclick="location.href='deposit.do'">Credits aanschaffen</button>
+            </p>
         </div>
-        <div id="sheets" style="height:500px;">
-            <div id="AccountDetails" class="sheet">
-                <label>Credit Balance :</label>
-                <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
-                <p>
-                    <button onclick="location.href='deposit.do'">Credits aanschaffen</button>
-                </p>
-            </div>
-            <div id="Deposits" class="sheet">
-                <table>
+        <div id="Deposits" class="sheet">
+            <div style="padding-right: 20px;">
+                <table id="depositTable" style="width: 100%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
-                        <tr>
-                            <th style="width: 120px;">Aangemaakt</th>
-                            <th style="width: 140px;">Verwerkt</th>
-                            <th style="width: 75px;">Methode</th>
-                            <th style="width: 60px;text-align:right;padding-right:10px;">Valuta &euro;</th>
-                            <th style="width: 60px;text-align:right;padding-right:10px;">Koers</th>
-                            <th style="width: 110px;text-align:right;padding-right:10px;">Resultaat</th>
-                            <th style="width: 70px;">Status</th>
+                        <tr class="headerRijTitel">
+                            <th>Aangemaakt</th>
+                            <th>Verwerkt</th>
+                            <th>Methode</th>
+                            <th style="padding-right: 10px;">Valuta &euro;</th>
+                            <th style="padding-right: 10px;">Koers</th>
+                            <th style="padding-right: 10px;">Resultaat</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="tpd" items="${paymentDeposits}">
                             <tr>
-                                <td style="width: 120px;" class="">
+                                <td>
                                     <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tpd.id}');">
                                         <fmt:formatDate  value="${tpd.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>
-                                <td style="width: 140px;" class="">
+                                <td>
                                     <fmt:formatDate  value="${tpd.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                 </td>
-                                <td style="width: 75px;" class="">
+                                <td>
                                     iDeal
                                 </td>
-                                <td style="width: 60px;text-align:right;padding-right:10px;" class="">
+                                <td style="text-align: right; padding-right: 10px;" class="">
                                     <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.billingAmount}" />
                                 </td>
-                                <td style="width: 60px;text-align:right;padding-right:10px;" class="">
+                                <td style="text-align: right; padding-right: 10px;" class="">
                                     1:${tpd.txExchangeRate}
                                 </td>                    
-                                <td style="width: 110px;text-align:right;padding-right:10px;" class="">
+                                <td style="text-align: right; padding-right: 10px;" class="">
                                     <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.creditAlteration}" /> c
                                 </td>
-                                <td style="width: 70px;" class="">
+                                <td>
                                     <c:choose>
                                         <c:when test="${tpd.status == 0}">
                                             Wachtrij
@@ -73,34 +76,39 @@
                         </c:forEach>   
                     </tbody>
                 </table>
+                <script type="text/javascript">
+                    Table.stripe(document.getElementById('depositTable'), 'table_alternate_tr');
+                </script>
             </div>
-            <div id="Withdrawls" class="sheet">
-                <table>
+        </div>
+        <div id="Withdrawls" class="sheet">
+            <div style="padding-right: 20px;">
+                <table id="withdrawlTable" style="width: 100%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
-                        <tr>
-                            <th style="width: 120px;">Aangemaakt</th>
-                            <th style="width: 140px;">Verwerkt</th>
-                            <th style="width: 220px;">&nbsp;</th>
-                            <th style="width: 110px;text-align:right;padding-right:10px;">Credits</th>
-                            <th style="width: 70px;">Status</th>
+                        <tr class="headerRijTitel">
+                            <th>Aangemaakt</th>
+                            <th>Verwerkt</th>
+                            <th>&nbsp;</th>
+                            <th style="padding-right: 10px;">Credits</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="tlu" items="${layerUsages}">
                             <tr>
-                                <td style="width: 120px;" class="">
+                                <td>
                                     <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tlu.id}');">
                                         <fmt:formatDate  value="${tlu.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>
-                                <td style="width: 140px;" class="">
+                                <td>
                                     <fmt:formatDate  value="${tlu.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                 </td>
-                                <td style="width: 220px;">&nbsp;</td>
-                                <td style="width: 110px;text-align:right;padding-right:10px;" class="">
+                                <td>&nbsp;</td>
+                                <td style="text-align: right; padding-right: 10px;" class="">
                                     <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tlu.creditAlteration}"/> c
                                 </td>
-                                <td style="width: 70px;" class="">
+                                <td>
                                     <c:choose>
                                         <c:when test="${tlu.status == 0}">
                                             Wachtrij
@@ -117,17 +125,13 @@
                         </c:forEach>
                     </tbody>
                 </table>
+                <script type="text/javascript">
+                    Table.stripe(document.getElementById('withdrawlTable'), 'table_alternate_tr');
+                </script>
             </div>
         </div>
     </div>
-        <script language="JavaScript" type="text/javascript">
-        window.onLoad = registerCollection('accountCollection', 'AccountDetails');
-    </script>
-    
-    
-    
-    
-    
-    
-    
 </div>
+<script language="JavaScript" type="text/javascript">
+        window.onLoad = registerCollection('accountCollection', 'AccountDetails');
+</script>

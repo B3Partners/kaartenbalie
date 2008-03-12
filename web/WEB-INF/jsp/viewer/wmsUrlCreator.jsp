@@ -28,12 +28,12 @@
             </div>    
                 
                 <!-- <b>Layer rechten:</b><br/> --><br />
-                <div id="treeContainerLarge" style="height: 240px;">
-                    <div class="treeHolderLarge" style="height: 240px;">
+                <div id="treeContainerLarge" style="height: 270px;">
+                    <div class="treeHolderLarge" style="height: 270px;">
                         <div id="tree"></div>
                     </div>
                 </div>
-                <div style="float: left;width: 200px; height: 240px;">
+                <div style="float: left; width: 300px; height: 240px; margin-left: 15px; margin-top: 0px;" class="serverDetailsClass">
                     <div class="getMapLabelValue">
                         <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
                         <c:if test="${not empty projectieList}">
@@ -66,16 +66,16 @@
                     </c:if>
                 </div>
                 <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
-                <div class="volgordeBox">    
+                <div class="volgordeBox" style="width: 748px;">    
                     <br /><b>Volgorde</b><br>
                     Bepaal hieronder de volgorde van de kaarten.
                     <br />Selecteer een kaart en verplaats het met de knoppen.
                     <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
                     <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
-                    <div id="orderLayerBox" class="orderLayerBox"></div>
+                    <div id="orderLayerBox" class="orderLayerBox" style="width: 748px;"></div>
                 </div>
                 Persoonlijke GetMap URL:<BR>
-                <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" />
+                <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" style="width: 748px;" />
                 
                 <div style="clear: both; height: 0px;"></div>
                 <html:submit property="getMapUrl">
@@ -138,7 +138,7 @@
                         },
                         "saveExpandedState": true,
                         "saveScrollState": true,
-                        "expandAll": true
+                        "expandAll": false
                     });  
                         
                     function setAllTrue(element){
@@ -166,8 +166,8 @@
                                 if (checked && element.checked){
                                 }else{
                                     element.checked=checked;
-
                                 }
+                                checkboxClick(element);
                             }
                             if (children[i].children){
                                 setAllChilds(children[i].children,checked);

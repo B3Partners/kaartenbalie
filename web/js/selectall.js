@@ -39,5 +39,8 @@ function checkAll(ref, chkAll) {
       totalChecked++;
 	}
   }
-  removeButton.value = "Verwijder ["+totalChecked+"] Selected";
+  if(totalChecked > 0)
+    removeButton.value = "Verwijder "+totalChecked+" geselecteerden";
+  else 
+    removeButton.value = "Verwijder geselecteerd";
 }

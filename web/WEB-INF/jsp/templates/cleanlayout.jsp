@@ -16,6 +16,7 @@
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
         <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
     </head>
     <body style="background-color:#FFFFFF;">

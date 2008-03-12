@@ -7,22 +7,7 @@
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
-<script type="text/javascript">
-    function sortTable(obj) {
-        var childs = document.getElementById('topRij').childNodes;
-        for(i = 0; i < childs.length; i++) {
-            if(childs[i].tagName == 'TD' && childs[i] != obj) {
-                childs[i].className = "serverRijTitel table-sortable";
-            }
-        }
-        if(obj.className == "serverRijTitel table-sortable")
-            obj.className = "serverRijTitel table-sorted-desc";
-        else if(obj.className == "serverRijTitel table-sorted-asc")
-            obj.className = "serverRijTitel table-sorted-desc";
-        else if(obj.className == "serverRijTitel table-sorted-desc")
-            obj.className = "serverRijTitel table-sorted-asc";
-    }
-</script>
+<script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <html:javascript formName="serverForm" staticJavascript="false"/>
 <html:form action="/server" onsubmit="return validateServerForm(this)" focus="givenName">
@@ -36,10 +21,9 @@
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>
                 <tr class="serverRijTitel" id="topRij">
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="200"><div>Naam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="100"><div>Afkorting</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="340"><div>URL</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['date'], col:3}); sortTable(this);" width="100"><div>Datum laatste update</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="350"><div>Naam</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="250"><div>Afkorting</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['date'], col:2}); sortTable(this);" width="140"><div>Datum laatste update</div></td>
                 </tr>
             </thead>
         </table>
@@ -53,30 +37,34 @@
             <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
                 <tbody>
                     <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                        <tr class="serverRij">
-                            <td width="200">
-                                <div style="width: 190px; overflow: hidden;">
+                        <tr class="serverRij" onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
+                            <td width="350">
+                                <div style="width: 340px; overflow: hidden;">
                                     <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
                                         <c:out value="${nServiceProvider.givenName}"/>
                                     </html:link>
                                 </div>
                             </td>
-                            <td width="100">
-                                <div style="width: 90px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
+                            <td width="250">
+                                <div style="width: 240px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
                             </td>
-                            <td width="340">
-                                <div style="width: 330px; overflow: hidden;"><c:out value="${nServiceProvider.url}"/></div>
-                            </td>
-                            <td width="100">
-                                <div style="width: 90px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
+                            <td width="140">
+                                <div style="width: 130px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
                             </td>
                         </tr>
+                        <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
+                            <strong>Naam:</strong> ${nServiceProvider.givenName}<br />
+                            <strong>Afkorting:</strong> ${nServiceProvider.abbr}<br />
+                            <strong>URL:</strong> ${nServiceProvider.url}<br />
+                            <strong>Datum laatste update:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                        </div>
                     </c:forEach>
                 </tbody>
             </table>
         </div>
     </div>
-    <script language="javascript" type="text/javascript">
+    
+    <script type="text/javascript">
         var server_table = document.getElementById('server_table');
         Table.stripe(server_table, 'table_alternate_tr');
         Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
@@ -89,11 +77,11 @@
                     <table>
                         <tr>
                             <td><B><fmt:message key="beheer.serverName"/>:</B></td>
-                            <td><html:text property="givenName" size="15" maxlength="60"/></td>
+                            <td><html:text property="givenName" size="35" maxlength="20"/></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
-                            <td><html:text property="abbr" size="5" maxlength="60"/></td>
+                            <td><html:text property="abbr" size="16" maxlength="10"/></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>

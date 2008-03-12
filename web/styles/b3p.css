@@ -87,6 +87,7 @@ body {
     margin-right: -522px;
 }
 
+
 #nav {
     background-color: transparent;
     padding-top: 0px;
@@ -257,7 +258,7 @@ tbody, td {
     width: 792px;
 }
 
-.serverRijTitel td {
+.serverRijTitel td, .serverRijTitel th {
     font-style: inherit;
     background: #E9F1F7;
     text-align: left;
@@ -266,7 +267,9 @@ tbody, td {
     font-weight: bold;
 }
 
-
+.serverRijTitel th {
+    cursor: auto;
+}
 
 .serverRij td {
     font-style: inherit;
@@ -304,10 +307,11 @@ tbody, td {
 }
 
 .orderLayerBox{
-    border: 1px solid #F4F5F9;
+    background-color: #FFF0C5;
+    border: 1px solid #19619B;
 }
 .orderLayerClass{
-    background-color: #ffffff;
+    background-color: #FFF8E5;
 }
 .orderLayerClassSelected{
     background-color: #bbbbbb;
@@ -474,58 +478,57 @@ tbody, td {
 
 }
 
-.tabcollection div#sheets
-{
-    border:1px Solid Black;
+.tabcollection div#sheets {
+    clear: left;
+    height: 508px;
 
 }
-.tabcollection div#sheets .sheet
-{
-    padding:20px;
-    overflow:auto;
-    padding:10px;
+.tabcollection div#sheets .sheet {
+    overflow: auto;
+    padding: 10px;
+    height: 100%;
+    border: 1px Solid #19619B;
+    color: #19619B;
+}
+/*
+.tabcollection div#tabs ul {
+    margin: 0px;
+    margin-bottom: 5px;
+    padding: 0px;
 }
 
-.tabcollection div#tabs ul
-{
-    maring:0px;
-    padding:0px;
-}
-
-.tabcollection div#tabs ul li
-{
-    border:1px Solid Black;
-    width:200px;
-    display:inline;
+.tabcollection div#tabs ul li {
+    border: 1px Solid Black;
+    width: 200px;
+    display: inline;
     padding: 5px 20px 5px 20px;
-
+    height: 21px;
+    border: 0px none White;
+    border-left: 1px solid #005a9c;
+    border-top: 1px solid #005a9c;
+    border-right: 1px solid #005a9c;
+    color: #005a9c;
+    font-weight: bold;
+    cursor: hand;
+    cursor: pointer;
 }
 
-.tabcollection div#tabs ul li.active
-{
-    background-color: #0000FF;
-    color:#FFFFFF;
+.tabcollection div#tabs ul li.active {
+    background-color: #a0d9ff;
+    color: #FFFFFF;
 }
 
-
+*/
 /* pricingAction */
-table.pricingTable th, table.pricingTable td{
-    font-size:9px;
-}
-
-td.deleted, td.active, td.normal
-{
-    vertical-align:top;
-    border-top:1px Solid Black;
-    height:24px;
-}
-td.deleted
-{
-    color:#AAAAAA;
+/*table.pricingTable th, table.pricingTable td{
+    font-size: 9px;
+}*/
+td.deleted {
+    color: #AAAAAA;
 }
 td.active {
-    color:#000000;
-    background-color:rgb(120,120,255);
+    color: Green;
+    background-color: rgb(120,120,255);
 }
 
 /* CONTENT STYLE */
@@ -580,4 +583,9 @@ td.table-sorted-desc {
     background-image: url("/kaartenbalie/images/icons/table/table_descending.gif");
     background-position: 2px center;
     background-repeat: no-repeat;
+}
+.reportingFieldset {
+    margin: 0px;
+    border: 1px Solid #19619B;
+    padding: 10px;
 }
