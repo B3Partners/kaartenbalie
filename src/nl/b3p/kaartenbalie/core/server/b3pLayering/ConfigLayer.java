@@ -93,13 +93,9 @@ public abstract class ConfigLayer extends Layer {
         return  (ConfigLayer) configLayerClass.newInstance();
     }
     
-    
-    
     public static BufferedImage handleRequest(String url, Map parameterMap) throws Exception {
         String mime = "image/png";
-        parameterMap = handleParameterMap(parameterMap);
         parameterMap.put("showname", new Boolean(false));
-        parameterMap.put("asrequest", new Boolean(true));
         parameterMap.put("transparant", new Boolean(true));
         OGCRequest ogcrequest = new OGCRequest(url);
         String[] layers = ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
@@ -123,10 +119,6 @@ public abstract class ConfigLayer extends Layer {
      * Start of the imageHandling process
      */
     public BufferedImage drawImage(OGCRequest ogcrequest, Map parameterMap) throws Exception {
-        return imageHandler(ogcrequest, handleParameterMap(parameterMap));
-    }
-    
-    protected static Map handleParameterMap(Map parameterMap) throws Exception {
         if (parameterMap == null) {
             parameterMap = new HashMap();
         }
@@ -135,12 +127,7 @@ public abstract class ConfigLayer extends Layer {
             transparant = new Boolean(false);
             parameterMap.put("transparant", transparant);
         }
-        Boolean asrequest = (Boolean) parameterMap.get("asrequest");
-        if (asrequest == null) {
-            asrequest = new Boolean(false);
-            parameterMap.put("asrequest", asrequest);
-        }
-        return parameterMap;
+        return imageHandler(ogcrequest, parameterMap);
     }
     
     protected BufferedImage createBaseImage(OGCRequest ogcrequest, Map parameterMap) throws Exception {
@@ -173,9 +160,6 @@ public abstract class ConfigLayer extends Layer {
         addTagsToImage(bufImage, parameterMap);
         return modifyBaseImage(bufImage, parameterMap);
     }
-    
-    
-    
     
     /*
      * This will send the image to the client.. Only use this when not stacking up images..

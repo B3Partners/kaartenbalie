@@ -60,7 +60,7 @@ public class ImageManager {
         it = ics.iterator();
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();
-            if (ic.getStatus()==ImageCollector.ACTIVE) {//if (ic.isAlive()) { //if (ic.getStatus()==ImageCollector.ACTIVE) {
+            if (ic.getStatus()==ImageCollector.ACTIVE) {//if (ic.isAlive()) { /
                 ic.processWaiting();
             }
         }
@@ -71,15 +71,13 @@ public class ImageManager {
     public void sendCombinedImages(DataWrapper dw) throws Exception {
         //TODO beslissen of we plaatje gaan sturen als een van de onderliggende
         // image niet goed is opgehaald.
-        
+        // lastig omdat ook rekening met betaling gehouden moet worden
         
         ImageCollector ic = null;
         Iterator it = ics.iterator();
         
         Class requestClassType = dw.getRequestClassType();
         DataMonitoring rr = dw.getRequestReporting();
-
-        
         
         while (it.hasNext()) {
             ic = (ImageCollector)it.next();

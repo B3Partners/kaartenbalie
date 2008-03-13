@@ -21,7 +21,8 @@ public class AllowTransactionsLayer extends ConfigLayer{
     
     public static final String NAME = "allowwithdrawals";
     public static final String TITLE = "Afboekingen toestaan";
-    public static final String configValue = "allowTransactions";
+    public static final String allowTransactions = "allowTransactions";
+    public static final String transactionsNeeded = "transactionsNeeded";
     public static final String creditMutation = "creditMutation";
     public static final String pricedLayers = "pricedLayers";
     
@@ -30,12 +31,16 @@ public class AllowTransactionsLayer extends ConfigLayer{
     }
     
     public void processConfig(Map configMap) throws Exception {
-        configMap.put(configValue, new Boolean(true));
+        configMap.put(allowTransactions, new Boolean(true));
+        configMap.put(transactionsNeeded, new Boolean(false));
     }
     
     protected BufferedImage modifyBaseImage(BufferedImage bufImage, Map parameterMap) throws Exception {
-        Boolean asRequest = (Boolean) parameterMap.get("asrequest");
-        if (!asRequest.booleanValue()) {
+        Boolean bAllowTransactions = (Boolean) parameterMap.get(allowTransactions);
+        Boolean bTransactionsNeeded = (Boolean) parameterMap.get(transactionsNeeded);
+        if ((bAllowTransactions==null || bAllowTransactions.booleanValue()==false) &&
+                bTransactionsNeeded!=null && bTransactionsNeeded.booleanValue()==true) {
+            // transacties zijn niet toegestaan maar wel nodig dan toon waarschuwing
             int alignCenter = (bufImage.getWidth() /2);
             int alignMiddle = (bufImage.getHeight() /2);
             Graphics2D g2 = (Graphics2D) bufImage.getGraphics();

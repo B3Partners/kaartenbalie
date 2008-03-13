@@ -81,8 +81,7 @@ public class ImageCollector extends Thread {
     public void processNew() throws InterruptedException {
         status = ACTIVE;
         start();
-        //join();
-    }
+     }
     
     public void processWaiting() throws InterruptedException {
         join(maxResponseTime);

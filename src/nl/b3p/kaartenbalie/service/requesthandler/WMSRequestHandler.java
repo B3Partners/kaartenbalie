@@ -38,7 +38,6 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
@@ -49,7 +48,6 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
@@ -210,6 +208,11 @@ public abstract class WMSRequestHandler implements RequestHandler {
     
     protected List getSeviceProviderURLS(String [] layers, Integer orgId, boolean checkForQueryable, DataWrapper dw) throws Exception {
         
+        if(layers==null || layers.length == 0) {
+            log.error("No layers found!");
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+        }
+        
         EntityManager em = MyEMFDatabase.getEntityManager();
         
         // Hier komt elke sp precies een keer uit als tenminste de database
@@ -247,8 +250,21 @@ public abstract class WMSRequestHandler implements RequestHandler {
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
-        //List spList = null;
         
+        //B3Partners Layers ConfigMap
+        Map config = dw.getLayeringParameterMap();
+        for (int i = 0; i < layers.length; i++) {
+            String[] layerCodeAndName = toCodeAndName(layers[i]);
+            String layerCode = layerCodeAndName[0];
+            String layerName= layerCodeAndName[1];
+            if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
+                ConfigLayer cl = ConfigLayer.forName(layerName);
+                if (cl == null) {
+                    throw new Exception("Config Layer " + layerName + " not found!");
+                }
+                cl.processConfig(config);
+            }
+        }
         
         /* Accounting... */
         AccountManager am = AccountManager.getAccountManager(orgId);
@@ -256,101 +272,88 @@ public abstract class WMSRequestHandler implements RequestHandler {
         LayerCalculator lc = new LayerCalculator();
         String projection = dw.getOgcrequest().getParameter(OGCConstants.WMS_PARAM_SRS);
         BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
+        Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
+        boolean bAllowTransactions = bat==null?false:bat.booleanValue();
         /* End of Accounting */
         
-        /*B3Partners Layers ConfigMap */
-        Map config = dw.getLayeringParameterMap();
-        /*
-         */
+        // Do normal layers
         try {
-            Date validationDate = new Date();
-            BigDecimal units = new BigDecimal(1);
-            if(layers.length >= 1) {
+            for (int i = 0; i < layers.length; i++) {
+                String[] layerCodeAndName = toCodeAndName(layers[i]);
+                String layerCode = layerCodeAndName[0];
+                String layerName= layerCodeAndName[1];
                 
-                /*
-                 * B3P Layering...
-                 * Order the layers so that all the b3p layers are on top!
-                 */
-                layers = sortB3PLayering(layers);
-                for (int i = 0; i < layers.length; i++) {
-                    String[] layerCodeAndName = toCodeAndName(layers[i]);
-                    String layerCode = layerCodeAndName[0];
-                    String layerName= layerCodeAndName[1];
-                    /*
-                     * Check if the layer is an configurationlayer, if it is, proces the info..
-                     */
+                if (!layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
+                    // Check of voldoende rechten op layer bestaan en ophalen url
+                    query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
+                            "from layer, organizationlayer, serviceprovider " +
+                            "where organizationlayer.layerid = layer.layerid and " +
+                            "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
+                            "organizationlayer.organizationid = :orgId and " +
+                            "layer.name = :layerName and " +
+                            "serviceprovider.abbr = :layerCode";
+                    List sqlQuery = em.createNativeQuery(query)
+                    .setParameter("orgId", orgId)
+                    .setParameter("layerName", layerName)
+                    .setParameter("layerCode", layerCode)
+                    .getResultList();
+                    if(sqlQuery.isEmpty()) {
+                        log.error("layer not valid or no rights, name: " + layers[i]);
+                        throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+                    }
+                    Object [] objecten = (Object [])sqlQuery.get(0);
+                    String layer_queryable      = (String)objecten[0];
+                    Integer serviceprovider_id  = (Integer)objecten[1];
+                    Integer layerId  = (Integer)objecten[2];
+                    if (serviceprovider_id==null)
+                        continue;
                     
-                    if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
-                        ConfigLayer cl = ConfigLayer.forName(layerName);
-                        if (cl == null) {
-                            throw new Exception("Config Layer " + layerName + " not found!");
-                        }
-                        cl.processConfig(config);
-                        addToServerProviderList(eventualSPList,new Integer(-1), toplayerMap, layerName);
-                    } else {
-                        
-                        
-                        
-                        // Check of voldoende rechten op layer bestaan en ophalen url
-                        query = "select layer.queryable, layer.serviceproviderid, layer.layerid " +
-                                "from layer, organizationlayer, serviceprovider " +
-                                "where organizationlayer.layerid = layer.layerid and " +
-                                "layer.serviceproviderid = serviceprovider.serviceproviderid and " +
-                                "organizationlayer.organizationid = :orgId and " +
-                                "layer.name = :layerName and " +
-                                "serviceprovider.abbr = :layerCode";
-                        List sqlQuery = em.createNativeQuery(query)
-                        .setParameter("orgId", orgId)
-                        .setParameter("layerName", layerName)
-                        .setParameter("layerCode", layerCode)
-                        .getResultList();
-                        if(sqlQuery.isEmpty()) {
-                            log.error("layer not valid or no rights, name: " + layers[i]);
-                            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-                        }
-                        Object [] objecten = (Object [])sqlQuery.get(0);
-                        String layer_queryable      = (String)objecten[0];
-                        Integer serviceprovider_id  = (Integer)objecten[1];
-                        Integer layerId  = (Integer)objecten[2];
-                        if (serviceprovider_id==null)
-                            continue;
-                        
-                        // layer toevoegen aan sp indien queryable voorwaarde ok
-                        if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
-                            /* Accounting... */
-                            if (AccountManager.isEnableAccounting()) {
-                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, scale, units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
-                                tlu.registerUsage(lpc);
-                            }
-                            /* End of Accounting */
+                    // layer toevoegen aan sp indien queryable voorwaarde ok
+                    if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
+                        /* Accounting... */
+                        if (AccountManager.isEnableAccounting()) {
+                            Date validationDate = new Date(); // today
+                            BigDecimal units = new BigDecimal(1);
+                            LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, scale, units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
+                            tlu.registerUsage(lpc);
                             
-                            // Haal de laatst opgehaalde sp info er bij.
-                            // Hier worden nu ook de layers aan toegevoegd indien
-                            // zelfde sp, anders nieuwe sp aanmaken en list toevoegen
-                            addToServerProviderList(eventualSPList,serviceprovider_id, toplayerMap, layerName);
+                            // Only add layer when free or when transactions allowed
+                            Boolean isFree = lpc.getLayerIsFree();
+                            if ((isFree == null || (isFree!=null && !isFree.booleanValue())) && !bAllowTransactions)
+                                continue;
                         }
+                        /* End of Accounting */
+                        
+                        addToServerProviderList(eventualSPList,serviceprovider_id, toplayerMap, layerName);
                     }
                 }
-            } else {
-                log.error("No layers found!");
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
             }
-        } catch (Exception e) {
-            throw e;
         } finally {
             lc.closeEntityManager();
         }
         
-        /* Accounting... */
-        if (AccountManager.isEnableAccounting()) {
-            if (tlu.getCreditAlteration().doubleValue()> 0) {
-                config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
-                config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
-                Boolean allowTransactions = (Boolean) config.get(AllowTransactionsLayer.configValue);
-                if (allowTransactions == null || (allowTransactions != null && allowTransactions.booleanValue() == false)) {
-                    throw new ConfigLayerException(ConfigLayer.forName(AllowTransactionsLayer.NAME), config);
-                }
+        // B3P Layering: add layers on top
+        boolean foundAllowTransactionsLayer = false;
+        for (int i = 0; i < layers.length; i++) {
+            String[] layerCodeAndName = toCodeAndName(layers[i]);
+            String layerCode = layerCodeAndName[0];
+            String layerName= layerCodeAndName[1];
+            if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
+                if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerName))
+                    foundAllowTransactionsLayer = true;
+                addToServerProviderList(eventualSPList,new Integer(-1), toplayerMap, layerName);
             }
+        }
+        
+        /* Accounting... */
+        if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue()> 0) {
+            config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
+            config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
+            config.put(AllowTransactionsLayer.transactionsNeeded, new Boolean(true));
+            if (!bAllowTransactions)
+                am.endTLU();
+            if (!foundAllowTransactionsLayer)
+                addToServerProviderList(eventualSPList,new Integer(-1), toplayerMap, AllowTransactionsLayer.NAME);
         }
         /* End of Accounting */
         
@@ -398,7 +401,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
+// <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
     protected static void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage [] bi = null;
@@ -493,7 +496,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             }
         }
     }
-    // </editor-fold>
+// </editor-fold>
     
     /** Private method getOnlineData which handels the throughput of information when it is only
      *  about one URL. This is a slightly different method, because no checks have to be done or
@@ -504,7 +507,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
+// <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
     private static void getOnlineData(DataWrapper dw, WMSRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
@@ -581,7 +584,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             rr.addServiceProviderRequest(dw.getRequestClassType(),localParameterMap);
         }
     }
-    // </editor-fold>
+// </editor-fold>
     
     /** Constructor of the WMSCapabilitiesReader.
      *
@@ -591,7 +594,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
      *
      * @throws IOException, SAXException
      */
-    // <editor-fold defaultstate="" desc="getServiceException(InputStream byteStream)">
+// <editor-fold defaultstate="" desc="getServiceException(InputStream byteStream)">
     private static String getServiceException(InputStream byteStream) throws IOException, SAXException {
         Switcher s = new Switcher();
         s.setElementHandler("ServiceException", new ServiceExceptionHandler());
@@ -603,12 +606,12 @@ public abstract class WMSRequestHandler implements RequestHandler {
         reader.parse(is);
         return (String)stack.pop();
     }
-    // </editor-fold>
+// </editor-fold>
     
     /**
      * Below is the Handler defined which reads the Exception from a ServiceException recieved when an error occurs.
      */
-    // <editor-fold defaultstate="" desc="private inner class ServiceExceptionHandler">
+// <editor-fold defaultstate="" desc="private inner class ServiceExceptionHandler">
     private static class ServiceExceptionHandler extends ElementHandler {
         StringBuffer sb;
         public void startElement(String uri, String localName, String qName, Attributes atts) {
@@ -623,7 +626,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             stack.push(sb.toString());
         }
     }
-    // </editor-fold>
+// </editor-fold>
     
     /** Method which copies information from one XML document to another document.
      * It adds information to an document and with this method it's possible to create
@@ -633,7 +636,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
      * @param source Document object
      * @param destination Document object
      */
-    // <editor-fold defaultstate="" desc="copyElements(Document source, Document destination)">
+// <editor-fold defaultstate="" desc="copyElements(Document source, Document destination)">
     private static void copyElements(Document source, Document destination) {
         Element root_source = source.getDocumentElement();
         NodeList nodelist_source = root_source.getChildNodes();
@@ -652,7 +655,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             }
         }
     }
-    // </editor-fold>
+// </editor-fold>
     
     /** Processes the parameters and creates a byte array with the needed information.
      *
@@ -662,29 +665,9 @@ public abstract class WMSRequestHandler implements RequestHandler {
      *
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
+// <editor-fold defaultstate="" desc="abstract getRequest(Map params) method, overriding the getRequest(Map params) declared in the interface.">
     public abstract void getRequest(DataWrapper dw, User user) throws IOException, Exception;
-    // </editor-fold>
-    
-    private String[] sortB3PLayering(String[] layers) throws Exception {
-        String[] sortedLayers = new String[layers.length];
-        int index= 0;
-        for (int i = 0; i < layers.length; i++) {
-            String[] layerCodeAndName = toCodeAndName(layers[i]);
-            if (!layerCodeAndName[0].equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
-                sortedLayers[index] = layers[i];
-                index++;
-            }
-        }
-        for (int i = 0; i < layers.length; i++) {
-            String[] layerCodeAndName = toCodeAndName(layers[i]);
-            if (layerCodeAndName[0].equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
-                sortedLayers[index] = layers[i];
-                index++;
-            }
-        }
-        return sortedLayers;
-    }
+// </editor-fold>
     
     private String[] toCodeAndName(String completeLayerName) throws Exception{
         // Check of layers[i] juiste format heeft

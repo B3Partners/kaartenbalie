@@ -42,7 +42,6 @@ import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayerException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
@@ -168,9 +167,9 @@ public class CallWMSServlet extends HttpServlet {
         if(ogcrequest.containsParameter(OGCConstants.REQUEST))
             requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
         
-        if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) || 
+        if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
                 requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
-                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") || 
+                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") ||
                 exType.equalsIgnoreCase("inimage")) &&
                 ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
                 ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
@@ -184,28 +183,18 @@ public class CallWMSServlet extends HttpServlet {
     }
     
     private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
-        if (ex.getClass().equals(ConfigLayerException.class)) {
-            ConfigLayerException cle = (ConfigLayerException) ex;
-            ConfigLayer cl = cle.getConfigLayer();
-            try {
-                cl.sendImage(data, cl.drawImage(data.getOgcrequest(),cle.getParameterMap()));
-            } catch (Exception e) {
-                log.error("error: ", e);
-            }
-        } else {
-            String message = ex.getMessage();
-            try {
-                ExceptionLayer el = new ExceptionLayer();
-                Map parameterMap = new HashMap();
-                parameterMap.put("type", ex.getClass());
-                parameterMap.put("message", message);
-                parameterMap.put("stacktrace", ex.getStackTrace());
-                el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
-            } catch (Exception e) {
-                TextToImage tti = new TextToImage();
-                tti.createImage(message, data);
-                log.error("error: ", e);
-            }
+        String message = ex.getMessage();
+        try {
+            ExceptionLayer el = new ExceptionLayer();
+            Map parameterMap = new HashMap();
+            parameterMap.put("type", ex.getClass());
+            parameterMap.put("message", message);
+            parameterMap.put("stacktrace", ex.getStackTrace());
+            el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
+        } catch (Exception e) {
+            TextToImage tti = new TextToImage();
+            tti.createImage(message, data);
+            log.error("error: ", e);
         }
     }
     
