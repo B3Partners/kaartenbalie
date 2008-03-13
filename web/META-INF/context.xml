@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/kaartenbalie">
-
-    <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! -->
-    <Resource
-            name="jdbc/kaartenbalie"
-            type="javax.sql.DataSource"
-            driverClassName="com.mysql.jdbc.Driver"
-            password="***REMOVED***"
-            maxIdle="30"
-            maxWait="5000"
-            validationQuery="select now();"
-            username="root"
-            url="jdbc:mysql://localhost:3306/kaartenbalie_mnp?autoReconnect=true&amp;characterEncoding=UTF-8"
-            maxActive="100"
-    />
-
-    <!-- Config voor MNP productie, Tomcat 5.0
+<Context path="/kaartenbalie_test">
+  <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! -->
+  <Resource driverClassName="com.mysql.jdbc.Driver" maxActive="100" maxIdle="30" maxWait="5000" name="jdbc/kaartenbalie" password="kaartenbalie" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/kaartenbalie_test?autoReconnect=true&amp;characterEncoding=UTF-8" username="kaartenbalie" validationQuery="select now();"/>
+  <!-- Config voor MNP productie, Tomcat 5.0
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
     <ResourceParams name="jdbc/kaartenbalie">
     <parameter>
@@ -63,8 +50,7 @@
             <value>SELECT 1</value>
     </parameter>
     </ResourceParams>-->
-
-    <!-- productie x5 (tomcat 5.0), /kaartenbalie_demo
+  <!-- productie x5 (tomcat 5.0), /kaartenbalie_demo
 	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
@@ -113,8 +99,7 @@
 	</parameter>
 	</ResourceParams>
 	-->
-
-	<!-- productie x5 (tomcat 5.0), /kaartenbalie, tbv oa wis demo 
+  <!-- productie x5 (tomcat 5.0), /kaartenbalie, tbv oa wis demo 
  	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
 	<parameter>
