@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
+import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -369,8 +370,16 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("username", user.getUsername());
         dynaForm.set("personalURL", user.getPersonalURL());
         dynaForm.set("currentAddress", request.getRemoteAddr());
+        
+        try {
+            // for debugging
+            String pw = KBCrypter.decryptText(user.getPassword()); // for debugging
+        } catch (Exception ex) {
+            log.error("pw decrypt error: ",ex);
+        } 
         dynaForm.set("password", "");
         dynaForm.set("repeatpassword", "");
+        
         dynaForm.set("personalURL", user.getPersonalURL());
         
         String [] roleSelected = null;
@@ -439,8 +448,10 @@ public class UserAction extends KaartenbalieCrudAction {
         
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
-        if(password != null && repeatpassword != null && password.equals(repeatpassword))
-            user.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
+        if(password != null && repeatpassword != null && password.equals(repeatpassword)) {
+            String encpw = KBCrypter.encryptText(FormUtils.nullIfEmpty(dynaForm.getString("password")));
+            user.setPassword(encpw);
+        }
         
         Integer orgId = FormUtils.StringToInteger(dynaForm.getString("selectedOrganization"));
         if(orgId != null) {

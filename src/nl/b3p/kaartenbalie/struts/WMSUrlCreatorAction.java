@@ -201,8 +201,8 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         getMapUrl.append(OGCConstants.WMS_REQUEST_GetMap);
         getMapUrl.append("&");
         getMapUrl.append(OGCConstants.WMS_PARAM_LAYERS);
-        getMapUrl.append("=");        
-        getMapUrl.append(layer);        
+        getMapUrl.append("=");
+        getMapUrl.append(layer);
         getMapUrl.append("&");
         getMapUrl.append(OGCConstants.WMS_PARAM_BBOX);
         getMapUrl.append("=");
@@ -401,9 +401,15 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getUniqueName());
         jsonLayer.put("name", layer.getTitle());
-        jsonLayer.put("type", "layer");
+        String name = layer.getUniqueName();
+        if (name==null) {
+            jsonLayer.put("id", layer.getTitle().replace(" ",""));
+            jsonLayer.put("type", "placeholder");
+        } else {
+            jsonLayer.put("id", name);
+            jsonLayer.put("type", "layer");
+        }
         return jsonLayer;
     }
     // </editor-fold>

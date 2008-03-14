@@ -110,7 +110,7 @@
                             vink.onclick=function(){checkboxClick(this);};
                             container.appendChild(vink);
                         }
-                        div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
+                        div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
                         div.onclick = function() {
                             itemClick(item);                            
                         };
@@ -121,7 +121,7 @@
                             d.href="#";
                             d.onclick= function(){setAllTrue(this);};
                             d.selecteditem=item;
-                            d.innerHTML=" Selecteer alles";
+                            d.innerHTML="&nbsp;Alles";
                             container.appendChild(d);
                         }
                     }
@@ -144,12 +144,12 @@
                     function setAllTrue(element){
                         setAll(element,true);
                         element.onclick= function(){setAllFalse(this);};
-                        element.innerHTML=" Deselecteer alles";
+                        element.innerHTML="&nbsp;Niets";
                     }
                     function setAllFalse(element){
                         setAll(element,false);
                         element.onclick= function(){setAllTrue(this);};
-                        element.innerHTML=" Selecteer alles";
+                        element.innerHTML="&nbsp;Alles";
                     }
 
                     function setAll(element,checked){

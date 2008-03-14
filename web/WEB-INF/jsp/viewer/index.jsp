@@ -12,10 +12,4 @@
     een GetMap URL gegenereren voor viewers die het GetCapabilities commando niet
     ondersteunen.
 </p>
-<p>
-    Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande 
-    button meteen naar de viewer.
-</p>
-<html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
-    <fmt:message key="button.toviewer"/>
-</html:button>
+

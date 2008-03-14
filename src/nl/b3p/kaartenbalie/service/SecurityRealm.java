@@ -15,6 +15,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.KBCrypter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.securityfilter.realm.ExternalAuthenticatedRealm;
@@ -33,10 +34,35 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      *
      * @return a principal object containing the user if he has been found as a registered user. Otherwise this object wil be empty (null).
      */
-    // <editor-fold defaultstate="" desc="authenticate(String username, String password) method.">
     public Principal authenticate(String username, String password) {
+        
+        String encpw = null;
+        try {
+            encpw = KBCrypter.encryptText(password);
+        } catch (Exception ex) {
+            log.error("error encrypting password: ", ex);
+        }
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        try {
+            User user = (User)em.createQuery(
+                    "from User u where " +
+                    "lower(u.username) = lower(:username) " +
+                    "and u.password = :password")
+                    .setParameter("username", username)
+                    .setParameter("password", encpw)
+                    .getSingleResult();
+            return user;
+        } catch (NoResultException nre) {
+            log.debug("No results using encrypted password");
+        } finally {
+            tx.commit();
+            em.close();
+        }
+        
+        em = MyEMFDatabase.createEntityManager();
+        tx = em.getTransaction();
         tx.begin();
         try {
             User user = (User)em.createQuery(
@@ -46,16 +72,22 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                     .setParameter("username", username)
                     .setParameter("password", password)
                     .getSingleResult();
+            
+            // Volgende keer dus wel encrypted
+            user.setPassword(encpw);
+            em.merge(user);
+            em.flush();
+            log.debug("Cleartext password encrypted!");
             return user;
         } catch (NoResultException nre) {
-            return null;
+            log.debug("No results using cleartext password");
         } finally {
             tx.commit();
             em.close();
         }
         
+        return null;
     }
-    // </editor-fold>
     
     public Principal getAuthenticatedPrincipal(String username) {
         EntityManager em = MyEMFDatabase.createEntityManager();
@@ -84,7 +116,6 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      *
      * @return a boolean which is true if the user is in the defined role otherwise false is returned.
      */
-    // <<editor-fold defaultstate="" defaultstate="collapsed" desc="isUserInRole(Principal principal, String role) method.">
     public boolean isUserInRole(Principal principal, String role) {
         if(!(principal instanceof User)) {
             return false;
@@ -93,5 +124,4 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         //log.info("Check user principal has role");
         return user.checkRole(role);
     }
-    // </editor-fold>
 }

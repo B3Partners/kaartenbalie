@@ -40,7 +40,7 @@
                         <c:forEach var="tpd" items="${paymentDeposits}">
                             <tr>
                                 <td>
-                                    <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tpd.id}');">
+                                    <a href="#" onclick="showPopup(800,600,'Transactie Details','<html:rewrite page="/transaction.do?transaction=submit&id=${tpd.id}"/>');">
                                         <fmt:formatDate  value="${tpd.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>
@@ -97,7 +97,7 @@
                         <c:forEach var="tlu" items="${layerUsages}">
                             <tr>
                                 <td>
-                                    <a href="#" onclick="parent.showPopup(800,600,'Transactie Details','transaction.do?transaction=submit&id=${tlu.id}');">
+                                    <a href="#" onclick="showPopup(800,600,'Transactie Details','<html:rewrite page="/transaction.do?transaction=submit&id=${tlu.id}"/>');">
                                         <fmt:formatDate  value="${tlu.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>

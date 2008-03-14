@@ -172,12 +172,12 @@
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
-            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/selectall.jpg" module=""/>' title='Deselecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/selectall.jpg" module=""/>' title='&nbsp;Niets' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg" module=""/>' title='Selecteer alles' alt='Selecteer alles' height='16' width='22' border=null>";
+            element.innerHTML=" <img src='<html:rewrite page="/images/siteImages/deselectall.jpg" module=""/>' title='&nbsp;Alles' alt='Selecteer alles' height='16' width='22' border=null>";
         }
         
         function setAll(element,checked){

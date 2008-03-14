@@ -24,17 +24,17 @@
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {
-                transDiv = document.getElementById('transdiv');
-                divcontainer = document.getElementById('container');
-                iframe = document.getElementById('popupframe');
+                var transDiv = document.getElementById('transdiv');
+                var divcontainer = document.getElementById('container');
+                var iframe = document.getElementById('popupframe');
                 iframe.src = 'about:blank';
                 transDiv.style.display = 'none';
             }
             
             function showPopupLocalized(width, height, title, source, left, top) {
-               transDiv = document.getElementById('transdiv');
-               divcontainer = document.getElementById('container');
-               iframe = document.getElementById('popupframe');
+               var transDiv = document.getElementById('transdiv');
+               var divcontainer = document.getElementById('container');
+               var iframe = document.getElementById('popupframe');
                divcontainer.style.width = width + 'px';
                divcontainer.style.height = height + 'px';
                divcontainer.style.marginLeft =  left + 'px';
@@ -43,9 +43,9 @@
                transDiv.style.display = 'inline';
             }
             function showPopup(width, height, title, source) {
-                left = ((width/2) * -1);
-                top = ((height/2) * -1);
-                showPopupLocalized(width, height, title, source, left, top)
+                var left = ((width/2) * -1);
+                var top = ((height/2) * -1);
+                showPopupLocalized(width, height, title, source, left, top);
             }
             function navigate(target, source)
             {

@@ -25,6 +25,7 @@ import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -133,6 +134,7 @@ public class KaartenbalieCrudAction extends CrudAction{
         menuParamMap.put("reporting",new Boolean(DataMonitoring.isEnableMonitoring()));
         menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
         menuParamMap.put("warehousing",new Boolean(DataWarehousing.isEnableWarehousing()));
+        menuParamMap.put("metadata",new Boolean(KBConfiguration.METADATA_ENABLED));
         request.setAttribute("menuParameters",menuParamMap);
     }
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {

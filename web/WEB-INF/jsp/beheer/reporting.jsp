@@ -139,9 +139,9 @@
                             <th style="width: 170px;">Datum</th>
                             <th style="width: 75px;">Status</th>
                             <th style="width: 320px;">Bericht</th>
-                            <th style="width: 40px;"><img src="../images/icons/xml.gif"></th>
-                            <th style="width: 40px;"><img src="../images/icons/xslt.gif"></th>
-                            <th style="width: 40px;"><img src="../images/icons/html.gif"></th>
+                            <th style="width: 40px;"><html:img page="/images/icons/xml.gif" module=""/></th>
+                            <th style="width: 40px;"><html:img page="/images/icons/xslt.gif" module=""/></th>
+                            <th style="width: 40px;"><html:img page="/images/icons/html.gif" module=""/></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -180,13 +180,13 @@
                                 </td>
                                 <c:if test="${trs.state == 0}">                        
                                     <td>
-                                        <a href="reporting.do?download=submit&id=${trs.id}&type=0"><img src="../images/icons/xml.gif" style="border:0px;"></a>
+                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=0"><html:img page="/images/icons/xml.gif"  border="0" module=""/></html:link>
                                     </td>
                                     <td>
-                                        <a href="reporting.do?download=submit&id=${trs.id}&type=1"><img src="../images/icons/xslt.gif" style="border:0px;"></a>
+                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=1"><html:img page="/images/icons/xslt.gif" border="0" module=""/></html:link>
                                     </td>
                                     <td>
-                                        <a href="reporting.do?download=submit&id=${trs.id}&type=2"><img src="../images/icons/html.gif" style="border:0px;"></a>
+                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=2"><html:img page="/images/icons/html.gif" border="0" module=""/></html:link>
                                     </td>
                                 </c:if>
                             </tr>                

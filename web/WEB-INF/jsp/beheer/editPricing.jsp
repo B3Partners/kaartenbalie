@@ -79,7 +79,7 @@
                     <p>
                         <input type="checkbox" onchange="location.href='editpricing.do?id=${id}&summary=' + this.checked;" ${summary == true ? 'checked':''}>Samenvatting ophalen</input>
                     </p>
-                    <button onclick="parent.showPopup(1000,700,'Transactie Details','pricingtestcalc.do?test=submit&id=${id}');">Proefberekening Maken</button>
+                    <button onclick="parent.showPopup(1000,700,'Transactie Details','<html:rewrite page="/pricingtestcalc.do?test=submit&id=${id}"/>');">Proefberekening Maken</button>
                 </div>
                 <div id="details" class="sheet">  
                     <div>

@@ -97,7 +97,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
         String fileName = rg.reportName(id) + "." + resultInfo[1];
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         rg.fetchReport(id, response.getOutputStream(), type.intValue(), getServlet().getServletContext());
-        return super.create(mapping, dynaForm, request, response);
+        return null;
     }
     
     

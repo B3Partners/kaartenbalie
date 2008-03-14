@@ -60,9 +60,9 @@
 
         function createLabel(container, item) {
             var div = document.createElement("div");
-            div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
+            div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
             div.style.height = '18px';
-            if(item.type != "serviceprovider") {
+            if(item.type == "layer") {
                 var popupLink = document.createElement("a");
                 popupLink.onclick = function() {
 					newUrl = 'editmetadata.do?edit=submit&id=' + item.id;
@@ -112,12 +112,12 @@
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
-            element.innerHTML=" Deselecteer alles";
+            element.innerHTML="&nbsp;Niets";
         }
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" Selecteer alles";
+            element.innerHTML="&nbsp;Alles";
         }
         
         function setAll(element,checked){

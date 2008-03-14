@@ -204,12 +204,12 @@
             var div = document.createElement("div");
             var vink= document.createElement("input");
             
-            div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
+            div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
             if(div.className == 'serviceproviderLabel') {
                 currentParent = container.id;
             }
             
-            if (item.id && item.type != "serviceprovider") {
+            if (item.id && item.type == "layer") {
                 vink.type="checkbox";
                 vink.value=item.id;
                 vink.name="selectedLayers";
@@ -229,7 +229,7 @@
                 d.href="#";
                 d.onclick= function(){setAllTrue(this);};
                 d.selecteditem=item;
-                d.innerHTML=" Selecteer alles";
+                d.innerHTML="&nbsp;Alles";
                 container.appendChild(d);
             }
         }
@@ -248,31 +248,16 @@
             "saveScrollState": true,
             "expandAll": false
         });
-        function reloadLayers(){
-            var layersString="";
-            var orderLayerBox= document.getElementById("orderLayerBox");
-            var orderLayers=orderLayerBox.childNodes;
-            for (var i=0; i < orderLayers.length; i++){
-                if(layersString.length==0){
-                    layersString+=orderLayers[i].name;
-                }else{
-                    layersString+=","+orderLayers[i].name;
-                }
-            }                
-            //haal de extent op van de mainmap en plaats die in de request
-            var e=flamingo.call("mainMap", "getCurrentExtent");
-            window.location.href="mapviewer.do?layers="+layersString+"&extent="+e.minx + "," + e.miny + "," + e.maxx + "," + e.maxy;
-        } 
         
         function setAllTrue(element){
             setAll(element,true);
             element.onclick= function(){setAllFalse(this);};
-            element.innerHTML=" Deselecteer alles";
+            element.innerHTML="&nbsp;Niets";
         }
         function setAllFalse(element){
             setAll(element,false);
             element.onclick= function(){setAllTrue(this);};
-            element.innerHTML=" Selecteer alles";
+            element.innerHTML="&nbsp;Alles";
         }
         
         function setAll(element,checked){
@@ -296,22 +281,36 @@
                     setAllChilds(children[i].children,checked);
                 }
             }
-        
         }
-        
+        //TODO werkt nog niet
+        function anyChildChecked(root){
+            var children = null;
+            if(root && root.children)
+                children = root.children;
+            else
+                return false;
+            for(var i=0; i < children.length; i++){
+                var element=document.getElementById(children[i].id);
+                if(element){
+                    if (element.checked){
+                        return true;
+                    }
+                }
+                if (children[i].children){
+                    if (anyChildChecked(children[i]))
+                        return true;
+                }
+            }
+            return false;
+        }
         //check the selected layers
         <c:if test="${not empty checkedLayers}">
             var layerstring="${checkedLayers}";
             var layers=layerstring.split(",");
-            
             for (var i=0; i < layers.length; i++){
                 var element=document.getElementById(layers[i]);
                 if (element){
                     element.checked=true;
-                    
-                    var prnt = element.className.substring(element.className.indexOf(" ") + 1);
-                    var prntObj = document.getElementById(prnt);
-                    if(prntObj.innerHTML.indexOf("GS") == -1) prntObj.innerHTML += ' GS';
                 }
             }
         </c:if>
