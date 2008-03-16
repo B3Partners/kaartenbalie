@@ -146,7 +146,7 @@ public class UserAction extends KaartenbalieCrudAction {
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
 
-        prepareMethod(dynaForm, request, LIST, EDIT);
+        prepareMethod(dynaForm, request, EDIT, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }
@@ -267,13 +267,13 @@ public class UserAction extends KaartenbalieCrudAction {
         
         EntityManager em = getEntityManager();
         super.createLists(form, request);
-        List userList = em.createQuery("from User").getResultList();
+        List userList = em.createQuery("from User order by username").getResultList();
         request.setAttribute("userlist", userList);
         
-        List organizationlist = em.createQuery("from Organization").getResultList();
+        List organizationlist = em.createQuery("from Organization order by name").getResultList();
         request.setAttribute("organizationlist", organizationlist);
         
-        List roles = em.createQuery("from Roles").getResultList();
+        List roles = em.createQuery("from Roles order by id").getResultList();
         request.setAttribute("userrolelist", roles);
     }
     // </editor-fold>
@@ -507,7 +507,7 @@ public class UserAction extends KaartenbalieCrudAction {
                 oldDate!=null) {
             urlNeedsRefresh = false;
             // check of timeout veranderd is
-            if (!oldDate.equals(newDate))
+            if (oldDate.before(newDate))
                 urlNeedsRefresh = true;
             else {
                 // check of url goede vorm heeft

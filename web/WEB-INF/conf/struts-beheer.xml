@@ -99,6 +99,7 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- generation form fields-->
+            <form-property name="selectedOrganization" type="java.lang.String"/>
         </form-bean>      
         <form-bean name="pricingForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->

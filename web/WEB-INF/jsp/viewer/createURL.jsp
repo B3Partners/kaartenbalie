@@ -16,7 +16,7 @@
 <script type="text/javascript">
     var cal = new CalendarPopup("calDiv");
     cal.setCssPrefix("calcss_");
-</script>
+    </script>
 
 
 <script type="text/javascript">
@@ -82,43 +82,43 @@
             tbl.removeChild( parent );
             count--;
         } else {
-            alert('U dient minimaal een IP adres op te geven!');
-        }
-        
-        updateDiv();
+        alert('U dient minimaal een IP adres op te geven!');
     }
     
-    function updateDiv() {
-        var objDiv = document.getElementById("ipDiv");
-        if(count > 4)
-            objDiv.style.height = '130px';
-        else
-            objDiv.style.height = count * 32 + 'px';
-        objDiv.scrollTop = objDiv.scrollHeight;
-    }
-    
-    function doCustomSubmit(){
-        var ipadresses="";
-        for(i = 0; i <= count; i++){
-            var element=document.getElementById("regip"+i);            
-            if(element && element.value.length>0){
-                var val=element.value;
-                var val=val.replace(",",".");
-                if (ipadresses.length>0){
-                    ipadresses+=",";
-                }
-                ipadresses+=val;
+    updateDiv();
+}
+
+function updateDiv() {
+    var objDiv = document.getElementById("ipDiv");
+    if(count > 4)
+        objDiv.style.height = '130px';
+    else
+        objDiv.style.height = count * 32 + 'px';
+    objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+function doCustomSubmit(){
+    var ipadresses="";
+    for(i = 0; i <= count; i++){
+        var element=document.getElementById("regip"+i);            
+        if(element && element.value.length>0){
+            var val=element.value;
+            var val=val.replace(",",".");
+            if (ipadresses.length>0){
+                ipadresses+=",";
             }
+            ipadresses+=val;
         }
-        if (ipadresses.length>0){
-            document.getElementById("registeredIP").value=ipadresses;
-        }
-        document.getElementById("hiddenSaveField").name="save";
-        document.getElementById("hiddenSaveField").value="s";
-        document.forms[0].submit();
-        
     }
+    if (ipadresses.length>0){
+        document.getElementById("registeredIP").value=ipadresses;
+    }
+    document.getElementById("hiddenSaveField").name="save";
+    document.getElementById("hiddenSaveField").value="t";
+    document.forms[0].submit();
     
+}
+
 </script>
 
 <html:javascript formName="userForm" staticJavascript="false"/>
@@ -134,6 +134,9 @@
     <html:hidden property="currentAddress" />
     <html:hidden property="organizationName" />
     <html:hidden property="organizationTelephone" />
+    
+    <html:hidden property="registeredIP" styleId="registeredIP"/>
+    <input type="hidden" id="hiddenSaveField"/>
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Persoonlijke URL</H1>
@@ -199,8 +202,6 @@
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass">
-                    <html:hidden property="registeredIP" styleId="registeredIP"/>
-                    <input type="hidden" id="hiddenSaveField"/>
                     <table>
                         <tr>
                             <td><fmt:message key="viewer.persoonlijkeurl.timeout"/>:</td>
@@ -214,12 +215,12 @@
                                      onmouseout="this.style.background=''"
                                      onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy-MM-dd', document.getElementById('cal_date').value); return false;"
                                      name="cal-button"
-                                />
+                                     />
                             </td>
                         </tr>
                         <tr>
                             <td valign="top">
-                                IP adres:
+                                <fmt:message key="viewer.persoonlijkeurl.registeredip"/>:
                             </td>
                             <td valign="top">
                                 <div id='ipDiv' class='ipDiv' style="margin: 0px; padding: 0px; margin-left: -3px; float: left;">
@@ -264,12 +265,12 @@
     
 </html:form>
 <script type="text/javascript">
-   <c:if test="${action != 'list'}">
-       if (iplist!=null && iplist.length>0){        
-            var tokens=iplist.split(",");        
-            for (var b=0;b < tokens.length; b++){            
-                addRow(tokens[b]);
-            }
+    <c:if test="${action != 'list'}">
+    if (iplist!=null && iplist.length>0){        
+        var tokens=iplist.split(",");        
+        for (var b=0;b < tokens.length; b++){            
+            addRow(tokens[b]);
         }
-   </c:if>
-</script>
+    }
+    </c:if>
+    </script>

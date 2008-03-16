@@ -1,12 +1,6 @@
-- XSLT->PDF FOP Processor bouwen
-- GetFeatureInfoRequestHandler --> QueryLayers wordt niet geformateerd..
 
 - Voordat melding allowwithdrawls komt, controleren op credittegoed. 
-- Exception achtergrond/iets? Even kijken wie, wat waar..
-- Serviceproviders in Pricing soorteren op alfabet.
 - Wanneer een abbr bijgewerkt wordt, moeten alle pricings ook worden bijgewerkt... (oid)..
-
-- package nl.b3p.kaartenbalie.core.server.b3pLayering;class ConfigLayer boundingbox op iets echts zetten?
 
 - Kaartenbalie schaalberekening per projectie. Voorwaarde alleen bij geldige projectie, anders kaart niet weergeven -> foutmelding?
 
@@ -22,10 +16,10 @@ OK Sorteer symbolen zitten er niet in bij de tabellen
 OK accounting afboekingen heeft link bij datum maar doet daar niets
 OK java.lang.IllegalStateException: getOutputStream() has already been called for this response bij reporting opvragen van html rapport
 OK Wachtwoord encrypten
- 
-Beheer-gebruikers: ook pers. url, ip ed kunnen invullen
+OK Beheer-gebruikers: ook pers. url, ip ed kunnen invullen
+
 Metadata opslaan geeft org scherm in iframe, layout problemen
-bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
+HALF bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
 demo moet volgende knop krijgen naar registeren
 voortgangsbalkje: intro – registreren – server toevoegen – personal url – viewer
 

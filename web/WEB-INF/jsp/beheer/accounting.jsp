@@ -4,7 +4,20 @@
 <link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
 
 <H1>Beheer Accounting</H1>
-
+<html:form action="/accounting" focus="selectedOrganization">
+    <html:select property="selectedOrganization">
+        <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+            <html:option value="${nOrganization.id}">
+            ${nOrganization.name}
+            </html:option>
+        </c:forEach>
+    </html:select>     
+    <div class="knoppen">
+        <html:submit property="show" accesskey="n" styleClass="knop">
+            <fmt:message key="button.new"/>
+        </html:submit>
+    </div>
+</html:form>
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px;">
     <div id="tabs">
         <ul id="tabul" style="width: 650px;">
@@ -133,5 +146,5 @@
     </div>
 </div>
 <script language="JavaScript" type="text/javascript">
-        window.onLoad = registerCollection('accountCollection', 'AccountDetails');
-</script>
+    window.onLoad = registerCollection('accountCollection', 'AccountDetails');
+    </script>

@@ -141,7 +141,9 @@ public class AccountManager {
     }
     
     public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
-        if (!enableAccounting) { return;}
+        if (!enableAccounting) { 
+            return;
+        }
         if (accountTransaction != null) {
             //Create an EntityManager
             EntityManager em = MyEMFDatabase.createEntityManager();
