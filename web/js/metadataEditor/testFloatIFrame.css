@@ -1,0 +1,38 @@
+/* 
+    Document   : testFloatIFrame
+    Created on : 17 maart 2008, 17:43
+    Author     : Erik
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+.containerdiv {
+    width: 200px;
+    border: 1px solid black;
+	clear: both;
+}
+
+.containerdivFloat {
+	height: 100px;
+	width: 50px; 
+	border: 1px solid red; 
+	overflow: scroll;  /*auto*/
+	float: left;
+}
+
+.containerdivBare {
+	height: 100px;
+	width: 50px; 
+	border: 1px solid green; 
+	overflow: scroll;
+}
+
+.nothing {
+
+}
+

@@ -345,40 +345,31 @@ margin: 0;
 * html #nav-menu ul li a { height: 1%; }
  
 /*------------*/
-
 .containerdiv {
     border: 1px solid #F4F5F9;
     padding: 3px;
     margin-bottom: 5px;
     width: 792px;
+	clear: both;
 }
 
 .containerdivFloat {
 	height: 450px;
-	width: 450px; 
+	width: 250px; 
 	overflow: scroll;  /*auto*/
 	text-align: left;
 	border: 1px solid #F4F5F9; 
 	padding-top: 15px;
-
 	float: left;
-}
-
-.containerdivNoFloat {
-	height: 450px;
-	width: 600px; 
-	/*overflow: auto;*/  /*auto*/
-	text-align: left;
-	border: 1px solid #F4F5F9; 
-	padding-top: 15px;
 }
 
 .containerdivBare {
 	height: 450px;
-	width: 600px; 
-	overflow: auto;
+	width: 500px; 
+	overflow: scroll;
 	text-align: left;
 	border: 1px solid #F4F5F9; 
+	padding-top: 15px;
 }
 
 #tableContainer {

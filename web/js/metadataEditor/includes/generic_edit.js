@@ -577,6 +577,7 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
 	var toBeDeletedNode = findNode(targetPath);
 	
 	debug("toBeDeletedNode.xml: " + toBeDeletedNode.xml);
+	//debugXmlDoc("toBeDeletedNode: " + toBeDeletedNode);
 	
 	// get nr of same nodes in backend
 	var nrOfSameNodes = 0;
@@ -595,7 +596,8 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
 	
 	// confirm delete
 	var returnKey = confirm(confirmDeleteText);
-	if (returnKey == 7) {
+	debug("returnKey: " + returnKey);
+	if (returnKey == 7 || returnKey === false) {
 		return;
 	}
 

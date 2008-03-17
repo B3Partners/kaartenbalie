@@ -81,6 +81,18 @@ function tabHover(obj) {
 function sectionTitleHover(obj) {
   if (obj.className != 'section-title-hover') {
     obj.className = 'section-title-hover';
-	obj.onmouseout = function() { obj.className = 'section-title'; }
+    obj.onmouseout = function() { obj.className = 'section-title'; }
+  }
+}
+
+//verandert css-klasse als over een menu image gehoverd wordt
+function menuImgHover(obj) {
+  if (obj.className == 'menu-img-element') {
+    obj.className = 'menu-img-element-hover';
+    obj.onmouseout = function() { obj.className = 'menu-img-element'; }
+  }
+  else if (obj.className == 'menu-img-section') {
+    obj.className = 'menu-img-section-hover';
+    obj.onmouseout = function() { obj.className = 'menu-img-section'; }
   }
 }

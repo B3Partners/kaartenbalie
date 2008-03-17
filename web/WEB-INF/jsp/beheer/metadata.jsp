@@ -7,17 +7,17 @@
     
     <b>Lijst met beschikbare layers:</b>
     
-	<div id="tree" style="width: 300px;" class="containerdivFloat">
+	<div id="tree" class="containerdivFloat">
 	</div>
 
-	<div id="editMetadataRoot" style="width: 600px;" class="containerdivBare">
+	<div id="editMetadataRoot" class="containerdivBare">
 		test2
 		&nbsp;
 	</div>
 		
 </div>
 
-<div id="groupDetails" style="clear: both; margin-top: 10px; height: 10px;" class="containerdiv">
+<div id="groupDetails" style="margin-top: 10px; height: 10px;" class="containerdiv">
     &nbsp;
 	test
 </div>
@@ -37,17 +37,12 @@
 		var editMetadataRoot = document.getElementById("editMetadataRoot");
 		var editMetadataIFrame = document.createElement("iframe");
 		editMetadataIFrame.src = url;
-		
-		// IE
-		editMetadataIFrame.setAttribute("className", "containerdivNoFloat");
-		// non-IE (the correct way)
-		editMetadataIFrame.setAttribute("class", "containerdivNoFloat");
-		
-		editMetadataIFrame.setAttribute("frameborder", 0);
-		
-		editMetadataIFrame.scrolling = "yes";
+
+		editMetadataIFrame.setAttribute("frameborder", "0");
+
+		editMetadataIFrame.scrolling = "no";
 		editMetadataRoot.innerHTML = "";
-		editMetadataRoot.appendChild(editMetadataIFrame);
+		editMetadataRoot.appendChild(editMetadataIFrame);		
 	}
     
     <c:if test = "${not empty layerList}">
