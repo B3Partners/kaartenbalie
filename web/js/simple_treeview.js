@@ -157,7 +157,7 @@ function treeview_toggleClick(e) {
 }
 
 function treeview_toggleItemChildren(DOMItemId) {
-	var children = document.getElementById(DOMItemId + "_children");
+ 	var children = document.getElementById(DOMItemId + "_children");
 	var toggle = document.getElementById(DOMItemId + "_toggle");
 	if(children != undefined) {
 		var options = treeview_getOptions(DOMItemId);

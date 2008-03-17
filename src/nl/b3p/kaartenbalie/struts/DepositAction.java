@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
@@ -31,9 +32,13 @@ public class DepositAction extends KaartenbalieCrudAction {
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
-        return super.unspecified(mapping, dynaForm, request, response);
+        return mapping.findForward(SUCCESS);
     }
     
+    public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return mapping.findForward(FAILURE);
+    }
+
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         /*
          * Alle gegevens voor de betaling.
@@ -51,7 +56,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         /*
          * Start de transactie
          */
-        Organization organization = getOrganization(request);
+        Organization organization = getOrganization(dynaForm, request);
         AccountManager am = AccountManager.getAccountManager(organization.getId());
         TransactionPaymentDeposit tpd = (TransactionPaymentDeposit) am.prepareTransaction(
                 TransactionPaymentDeposit.class,
@@ -71,15 +76,36 @@ public class DepositAction extends KaartenbalieCrudAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("exchangeRate", TransactionPaymentDeposit.getExchangeRate());
+
+        Organization organization = getOrganization(form, request);
+        form.set("orgName", organization.getName());
     }
     
-    private Organization getOrganization(HttpServletRequest request) {
+    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) {
+
         EntityManager em = getEntityManager();
-        User principalUser = (User) request.getUserPrincipal();
-        User user = (User) em.find(User.class, principalUser.getId());
-        return user.getOrganization();
+        Organization organization = null;
+        Integer id = getID(dynaForm);
+
+        if (id == null) {
+            User principalUser = (User) request.getUserPrincipal();
+            if (principalUser==null)
+                return null;
+            User user = (User) em.find(User.class, principalUser.getId());
+            if (user==null)
+                return null;
+            organization = user.getOrganization();
+        } else {
+            organization = (Organization) em.find(Organization.class, id);
+        }
+
+        return organization;
     }
-    
+
+    private Integer getID(DynaValidatorForm dynaForm) {
+        return FormUtils.StringToInteger(dynaForm.getString("orgId"));
+    }
+
     private static double integersToDouble(Integer amount, Integer fraction) throws Exception{
         if (amount == null && fraction == null) {
             throw new Exception("Amount and fraction cannot both be null");

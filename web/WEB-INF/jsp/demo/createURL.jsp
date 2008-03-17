@@ -138,53 +138,32 @@ function doCustomSubmit(){
     <html:hidden property="registeredIP" styleId="registeredIP"/>
     <input type="hidden" id="hiddenSaveField"/>
     
+    <div class="steps">
+        <div class="step"><html:link module="" page="/demo.do">Start</html:link></div>
+        <div class="step"><html:link module="/demo" page="/registration.do">Registreren</html:link></div>
+        <div class="step"><html:link module="/demo" page="/voegurltoe.do">Kaarten</html:link></div>
+        <div class="stepactive">Pers. URL</div>   
+        <div class="step">Viewer</div>   
+    </div>
+    
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Persoonlijke URL</H1>
         <P>
-            De persoonlijke URL stelt u in staat om op eenvoudige wijze met andere viewers 
-            dan de intern meegeleverde viewer gebruik te maken van de Kaartenbalie. 
-            Hieronder vindt u de huidige gegevens zoals deze in de applicatie bekend zijn. 
-        </P>        
-        <P>
-            Via volgende link kunt u de voor u geldende WMS GetCapabilities ophalen:
-            <html:link page="/wms/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">GetCapabilities</html:link>
-        </P>        
-        
-        <H2>Huidige gegevens:</H2>
-        <table>
-            <tr>
-                <td>Naam:</td>
-                <td><c:out value="${form.map.firstname}"/>&nbsp;<c:out value="${form.map.surname}"/></td>
-            </tr>
-            <tr>
-                <td>Gebruikersnaam:</td>
-                <td><c:out value="${form.map.username}"/></td>
-            </tr>
-            <tr>
-                <td>Email adres:</td>
-                <td><c:out value="${form.map.emailAddress}"/></td>
-            </tr>
-            
+            U kunt B3P Kaartenbalie gebruiken met elke GIS-Viewer die de OGC WMS standaard ondersteunt.<br>
+            Hiertoe dient u onderstaande Persoonlijke URL te kopieren en in uw GIS applicatie te plakken:<br><br>
             <c:choose>
                 <c:when test="${form.map.personalURL != null}">
-                    <tr>
-                        <td>Pers. URL:</td>
-                        <td><c:out value="${form.map.personalURL}"/></td>
-                    </tr>
+                    <b><c:out value="${form.map.personalURL}"/></b>
                 </c:when>
                 <c:otherwise>
-                    <tr>
-                        <td>Pers. URL:</td>
-                        <td>Nog geen URL aangemaakt.</td>
-                    </tr>
+                    Nog geen URL aangemaakt!
                 </c:otherwise>
             </c:choose>
-            
-            <tr>
-                <td>Huidig IP adres:</td>
-                <td><c:out value="${form.map.currentAddress}"/></td>
-            </tr>
-        </table>
+        </p>
+        <p>
+            <br>Als u gebruik wilt maken van onze eigen GIS-Viewer:&nbsp;&nbsp;
+            <button onclick="location.href='/gisviewer/viewer.do'">Verder naar Viewer</button>
+        </p>
     </div>
     
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
@@ -245,11 +224,10 @@ function doCustomSubmit(){
                 <html:hidden property="registeredIP" />
                 <html:hidden property="personalURL" />
                 <html:hidden property="timeout" />
-                <div class="knoppen">
-                    <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
-                        <fmt:message key="button.edit"/>
-                    </html:submit>
-                </div>
+                <br>Geavanceerde gebruikers kunnen hun Persoonlijke URL&nbsp;&nbsp;
+                <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
+                    <fmt:message key="button.edit"/>
+                </html:submit>
             </c:otherwise>
         </c:choose>
     </div>

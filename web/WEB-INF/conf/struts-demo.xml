@@ -72,15 +72,14 @@
         
         <action path="/registration" name="userForm" type="nl.b3p.kaartenbalie.struts.DemoRegistrationAction" scope="request" validate="false">
             <forward name="success" path="base.demo.registration"/>
-            <forward name="savesucceeded" path="base.demo.registrationsuccessfull"/>
+            <forward name="nextPage" path="/voegurltoe.do" redirect="true"/>
             <forward name="failure" path="base.demo.registration"/>
         </action>
         
         <action path="/voegurltoe" name="voegurltoeForm" type="nl.b3p.kaartenbalie.struts.ServerActionDemo" scope="request" validate="false">
             <forward name="success" path="base.demo.addUrl"/>
-            <forward name="nextPage" path="base.demo.addUrlsuccessfull"/>
+            <forward name="nextPage" path="/createPersonalURL.do" redirect="true"/>
             <forward name="failure" path="base.demo.addUrl"/>
-            <forward name="automatic" path="base.demo.mapviewer"/>
         </action>
         
         <action path="/createPersonalURL" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">  

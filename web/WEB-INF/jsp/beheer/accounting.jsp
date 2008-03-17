@@ -2,37 +2,37 @@
 
 <script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
+<c:set var="form" value="${accountingForm.map}"/>
 
 <H1>Beheer Accounting</H1>
 <html:form action="/accounting" focus="selectedOrganization">
-    <html:select property="selectedOrganization">
+    <html:select property="selectedOrganization" onchange="submit();">
         <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
             <html:option value="${nOrganization.id}">
             ${nOrganization.name}
             </html:option>
         </c:forEach>
     </html:select>     
-    <div class="knoppen">
-        <html:submit property="show" accesskey="n" styleClass="knop">
-            <fmt:message key="button.new"/>
-        </html:submit>
-    </div>
+    <html:hidden property="firstResult"/>
+    <html:hidden property="listMax"/>
 </html:form>
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px;">
     <div id="tabs">
         <ul id="tabul" style="width: 650px;">
+            <li id="Withdrawls" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Afboekingen</a></li>            
+            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Bijboekingen</a></li>
             <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Account Details</a></li>
-            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste 20 Bijboekingen</a></li>
-            <li id="Withdrawls" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste 20 Afboekingen</a></li>            
         </ul>
     </div>
     <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
     <div id="sheets" style="height:500px;">
         <div id="AccountDetails" class="sheet">
-            <label>Credit Balance :</label>
+            Credit Overzicht:
             <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
             <p>
-                <button onclick="location.href='deposit.do'">Credits aanschaffen</button>
+            <html:link page="/deposit.do?orgId=${form.selectedOrganization}" module="/beheer">
+                Credits aanschaffen
+            </html:link>
             </p>
         </div>
         <div id="Deposits" class="sheet">

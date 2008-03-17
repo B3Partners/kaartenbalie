@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
@@ -31,6 +32,7 @@ public class AccountManager {
     private BigDecimal balance;
     private static ThreadLocal tluHolder = new ThreadLocal();
     private static Map managers;
+    private Integer organizationId;
     
     private AccountManager() {
     }
@@ -63,10 +65,9 @@ public class AccountManager {
         return accountManager;
     }
     
-    private Integer companyId;
     /** Creates a new instance of AccountManager */
-    public AccountManager(Integer companyId) {
-        this.companyId = companyId;
+    public AccountManager(Integer organizationId) {
+        this.organizationId = organizationId;
     }
     
     public Transaction prepareTransaction(Class transactionClass, String description) throws Exception{
@@ -80,7 +81,7 @@ public class AccountManager {
         Transaction transaction = null;
         try {
             et.begin();
-            Account account = (Account)em.find(Account.class, companyId);
+            Account account = (Account)em.find(Account.class, organizationId);
             transaction = (Transaction) transactionClass.newInstance();
             transaction.setStatus(Transaction.PENDING);
             transaction.setAccount(account);
@@ -141,7 +142,7 @@ public class AccountManager {
     }
     
     public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
-        if (!enableAccounting) { 
+        if (!enableAccounting) {
             return;
         }
         if (accountTransaction != null) {
@@ -151,7 +152,7 @@ public class AccountManager {
             EntityTransaction et = em.getTransaction();
             et.begin();
             //Get the account and set the current balance. Update the class variable at the same time.
-            Account account = (Account)em.find(Account.class, companyId);
+            Account account = (Account)em.find(Account.class, organizationId);
             balance = account.getCreditBalance();
             //Set the account & user for the accountTransaction.
             accountTransaction.setAccount(account);
@@ -218,7 +219,7 @@ public class AccountManager {
         if (!enableAccounting) { return 0.0;}
         if (balance == null) {
             EntityManager em = MyEMFDatabase.createEntityManager();
-            Account account = (Account) em.find(Account.class, companyId);
+            Account account = (Account) em.find(Account.class, organizationId);
             balance = account.getCreditBalance();
             em.close();
         }
@@ -231,12 +232,24 @@ public class AccountManager {
     }
     
     public List getTransactions(int listMax, Class transactionType) {
+        return getTransactions(0, listMax, transactionType);
+    }
+    
+    public List getTransactions(int firstResult, int listMax, Class transactionType) {
         EntityManager em = MyEMFDatabase.createEntityManager();
         List resultList = null;
         if (Transaction.class.isAssignableFrom(transactionType)) {
-            resultList = em.createQuery(
-                    "FROM " + transactionType.getSimpleName() + " AS transaction ORDER by transaction.transactionDate DESC").setMaxResults(listMax).getResultList();
-            
+            StringBuffer q = new StringBuffer();
+            q.append("FROM ");
+            q.append(transactionType.getSimpleName());
+            q.append(" AS transaction ");
+            q.append(" WHERE transaction.account.id = :accid");
+            q.append(" ORDER by transaction.transactionDate DESC");
+            Query query = em.createQuery(q.toString());
+            query.setParameter("accid", organizationId);
+            query.setFirstResult(firstResult);
+            query.setMaxResults(listMax);
+            resultList = query.getResultList();
         }
         em.close();
         return resultList;

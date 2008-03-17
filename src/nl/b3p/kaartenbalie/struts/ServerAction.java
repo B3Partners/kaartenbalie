@@ -602,9 +602,11 @@ public class ServerAction extends KaartenbalieCrudAction {
         }
     }
     
-    protected boolean isAlphaNumeric(String string) {
+    protected boolean isAlphaNumeric(String s) {
+        if (s==null)
+            return false;
         Pattern p = Pattern.compile("[^A-Za-z0-9]");
-        Matcher m = p.matcher(string);
+        Matcher m = p.matcher(s);
         if(m.find()) {
             return false;
         }

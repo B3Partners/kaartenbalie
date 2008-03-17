@@ -35,7 +35,7 @@ import org.securityfilter.filter.SecurityRequestWrapper;
 public class DemoRegistrationAction extends UserAction {
     
     protected static final String PREDEFINED_SP_ABBR = "demo.spabbr";
-    protected static final String SAVESUCCES = "savesucceeded";
+    protected static final String NEXTPAGE = "nextPage";
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
@@ -102,7 +102,7 @@ public class DemoRegistrationAction extends UserAction {
         
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
-        return mapping.findForward(SAVESUCCES);
+        return mapping.findForward(NEXTPAGE);
     }
     // </editor-fold>
     

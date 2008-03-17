@@ -18,20 +18,10 @@
     <definition name="base.demo.registration" extends="base.demo">
         <put name="content" value="/WEB-INF/jsp/demo/registratie.jsp"/>
     </definition>
-    <definition name="base.demo.registrationsuccessfull" extends="base.demo">
-        <put name="content" value="/WEB-INF/jsp/demo/registratiesuccess.jsp"/>
-    </definition>
     <definition name="base.demo.addUrl" extends="base.demo">
         <put name="content" value="/WEB-INF/jsp/demo/addUrl.jsp"/>
     </definition>
-    <definition name="base.demo.addUrlsuccessfull" extends="base.demo">
-        <put name="content" value="/WEB-INF/jsp/demo/addUrlsuccess.jsp"/>
-    </definition>
     <definition name="base.demo.createurl" extends="base.demo">
-        <put name="content" value="/WEB-INF/jsp/viewer/createURL.jsp"/>
-    </definition>
-    <!-- via viewer -->
-    <definition name="base.demo.mapviewer" extends="base.demo">
-        <put name="content" value="/WEB-INF/jsp/viewer/mapviewer.jsp"/>
+        <put name="content" value="/WEB-INF/jsp/demo/createURL.jsp"/>
     </definition>
 </tiles-definitions>

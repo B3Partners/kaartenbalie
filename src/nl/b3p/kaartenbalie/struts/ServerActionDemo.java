@@ -43,6 +43,7 @@ public class ServerActionDemo extends ServerAction {
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
     protected static final String MAP_ALREADY_ADDED = "demo.mapalreadyadded";
+    protected static final String NEXTPAGE = "nextPage";
     
     /** Execute method which handles all executable requests.
      *
@@ -264,7 +265,7 @@ public class ServerActionDemo extends ServerAction {
             srw.setUserPrincipal(principal);
         }
         
-        return mapping.findForward("nextPage");
+        return mapping.findForward(NEXTPAGE);
     }
     // </editor-fold>
     

@@ -74,11 +74,23 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        
         Organization organization = getOrganization(form, request);
+        form.set("selectedOrganization", FormUtils.IntegerToString(organization.getId()));
+        
+        int firstResult = FormUtils.StringToInt(form.getString("firstResult"));
+        int listMax = FormUtils.StringToInt(form.getString("listMax"));
+        if (firstResult==0 && listMax==0) {
+            firstResult = 0;
+            listMax = 20;
+            form.set("firstResult", Integer.toString(firstResult));
+            form.set("listMax", Integer.toString(listMax));
+        }
+       
         AccountManager am = AccountManager.getAccountManager(organization.getId());
         request.setAttribute("balance", new Double(am.getBalance()));
-        request.setAttribute("layerUsages", am.getTransactions(20, TransactionLayerUsage.class));
-        request.setAttribute("paymentDeposits", am.getTransactions(20, TransactionPaymentDeposit.class));
+        request.setAttribute("layerUsages", am.getTransactions(firstResult, listMax, TransactionLayerUsage.class));
+        request.setAttribute("paymentDeposits", am.getTransactions(firstResult, listMax, TransactionPaymentDeposit.class));
 
         EntityManager em = getEntityManager();
         List organizationlist = em.createQuery("from Organization order by name").getResultList();

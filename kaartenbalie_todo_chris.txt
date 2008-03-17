@@ -17,9 +17,8 @@ OK accounting afboekingen heeft link bij datum maar doet daar niets
 OK java.lang.IllegalStateException: getOutputStream() has already been called for this response bij reporting opvragen van html rapport
 OK Wachtwoord encrypten
 OK Beheer-gebruikers: ook pers. url, ip ed kunnen invullen
+OK bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
+OK voortgangsbalkje: intro – registreren – server toevoegen – personal url – viewer
 
 Metadata opslaan geeft org scherm in iframe, layout problemen
-HALF bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
-demo moet volgende knop krijgen naar registeren
-voortgangsbalkje: intro – registreren – server toevoegen – personal url – viewer
 

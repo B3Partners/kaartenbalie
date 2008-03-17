@@ -613,3 +613,70 @@ label {
     border: 1px solid #005a9c;
     padding: 5px;
 }
+
+/* 
+Demo voortgang Styles...
+*/
+.steps {
+    clear: both;
+    height: 30px;
+    margin-top: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.stepactive {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background: #fff;
+    background-image: url(../images/siteImages/arrow.gif);
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+    border-right: 2px solid #fff;
+}
+
+.step {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding: 5px;
+    color: #006633;
+    font-size: 15px;
+    font-weight: bold;
+    background: #e4edec;
+    border-right: 2px solid #fff;
+}
+
+.stepdone {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    /* background: #00624B; */
+    background: #ccc;
+    color: #FFF;
+    font-weight: bold;
+    font-size: 15px;
+    border-right: 2px solid #fff;
+}
+
+.stepempty {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding: 5px;
+    color: #006633;
+    font-size: 15px;
+    font-weight: bold;
+    background: #e4edec;
+    border-right: 2px solid #fff;
+}

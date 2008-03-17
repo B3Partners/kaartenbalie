@@ -10,11 +10,20 @@
     <html:hidden property="registeredIP" />
     <html:hidden property="timeout" />
     
+    <div class="steps">
+        <div class="step"><html:link module="" page="/demo.do">Start</html:link></div>
+        <div class="stepactive">Registreren</div>
+        <div class="step">Kaarten</div>
+        <div class="step">Pers. URL</div>   
+        <div class="step">Viewer</div>   
+    </div>
+        
     <div id='democontent'>
-        <div id="democontentheader">Registratie pagina</div>
+        <div id="democontentheader">Registratie</div>
         <div id="democontenttext">    
             Voordat u gebruik kunt maken van de Kaartenbalie Demo
-            dient u zich eerst te registreren. Zodra u geregistreerd bent als gebruiker
+            dient u zich eerst te registreren.<br>
+            Zodra u geregistreerd bent als gebruiker
             heeft u toegang tot enige testkaarten.
         </div>
     </div>
@@ -62,11 +71,8 @@
         </tr>
         <tr>
             <td colspan="0"><center>
-                    <html:reset>
-                        <fmt:message key="button.reset"/>
-                    </html:reset>
                     <html:submit property="save" >
-                        <fmt:message key="button.ok"/>
+                        Opslaan en Verder
                     </html:submit>                                        
             </center></td>
         </tr>
