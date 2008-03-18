@@ -3,6 +3,7 @@
 - Wanneer een abbr bijgewerkt wordt, moeten alle pricings ook worden bijgewerkt... (oid)..
 
 - Kaartenbalie schaalberekening per projectie. Voorwaarde alleen bij geldige projectie, anders kaart niet weergeven -> foutmelding?
+Metadata opslaan geeft org scherm in iframe, layout problemen
 
 
 
@@ -20,5 +21,4 @@ OK Beheer-gebruikers: ook pers. url, ip ed kunnen invullen
 OK bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
 OK voortgangsbalkje: intro – registreren – server toevoegen – personal url – viewer
 
-Metadata opslaan geeft org scherm in iframe, layout problemen
 

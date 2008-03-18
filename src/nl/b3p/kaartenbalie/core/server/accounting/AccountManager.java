@@ -25,8 +25,12 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AccountManager {
+    private static final Log log = LogFactory.getLog(AccountManager.class);
+
     public static final long serialVersionUID = 856294562L;
     private static boolean enableAccounting = false;
     private BigDecimal balance;
@@ -74,6 +78,7 @@ public class AccountManager {
         if (!isEnableAccounting()) {return null;}
         
         if (!Transaction.class.isAssignableFrom(transactionClass)) {
+            log.error("Class transactionClass is not assignable.");
             throw new Exception("Class transactionClass is not assignable.");
         }
         EntityManager em = MyEMFDatabase.createEntityManager();
@@ -112,14 +117,17 @@ public class AccountManager {
     
     public Transaction nullvalidateTransaction(Transaction accountTransaction) throws Exception {
         if (accountTransaction == null) {
+            log.error("Trying to nullvalidate a null transaction.");
             throw new Exception("Trying to nullvalidate a null transaction.");
         }
         
         if (accountTransaction.getCreditAlteration() == null) {
+            log.error("Trying to nullvalidate a transaction with a nullvalue for creditAlteration.");
             throw new Exception("Trying to nullvalidate a transaction with a nullvalue for creditAlteration.");
         }
         
         if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
+            log.error("Transaction creditalteration cannot be less then zero.");
             throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
         }
         
@@ -193,6 +201,7 @@ public class AccountManager {
                                 "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
                                 "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
                 } else {
+                    log.error("Unsupported transaction type");
                     throw new Exception("Unsupported transaction type");
                 }
                 account.setCreditBalance(newBalance);

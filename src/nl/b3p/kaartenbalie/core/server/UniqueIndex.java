@@ -13,12 +13,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public class UniqueIndex {
+    private static final Log log = LogFactory.getLog(UniqueIndex.class);
     
     private Integer id;
     private String indexName;
@@ -58,6 +61,7 @@ public class UniqueIndex {
      */
     public synchronized static Integer createNextUnique(String indexName) throws Exception {
         if (indexName == null){
+            log.error("Missing indexName");
             throw new Exception("Missing indexName");
         }
         indexName = indexName.toUpperCase();
@@ -90,6 +94,7 @@ public class UniqueIndex {
             em.close();
         }
         if (nextUnique == null) {
+            log.error("Unable to generate next unique number!");
             throw new Exception("Unable to generate next unique number!");
         }
         return nextUnique;

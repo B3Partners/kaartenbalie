@@ -371,12 +371,6 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("personalURL", user.getPersonalURL());
         dynaForm.set("currentAddress", request.getRemoteAddr());
         
-        try {
-            // for debugging
-            String pw = KBCrypter.decryptText(user.getPassword()); // for debugging
-        } catch (Exception ex) {
-            log.error("pw decrypt error: ",ex);
-        } 
         dynaForm.set("password", "");
         dynaForm.set("repeatpassword", "");
         

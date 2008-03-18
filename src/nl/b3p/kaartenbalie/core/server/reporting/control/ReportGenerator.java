@@ -40,11 +40,15 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  *
  * @author Chris Kramer
  */
 public class ReportGenerator {
+    private static final Log log = LogFactory.getLog(ReportGenerator.class);
     
     private final static String XSL_PATH = "/xslt/";
     public static SimpleDateFormat trsDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
@@ -181,6 +185,7 @@ public class ReportGenerator {
         if (trsId != null) {
             ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() == null) {
+                log.error("Report not found!");
                 throw new Exception("Report not found!");
             }
             Object report =  em.find(DataUsageReport.class, trs.getReportId());

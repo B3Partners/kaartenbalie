@@ -32,15 +32,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class KBImageTool {
-
+    
     private static final Log log = LogFactory.getLog(KBImageTool.class);
     private BufferedImage bi;
-
+    
     private static final String TIFF  = "image/tiff";
     private static final String GIF   = "image/gif";
     private static final String JPEG  = "image/jpeg";
     private static final String PNG   = "image/png";
-
+    
     /** Reads an image from an http input stream.
      *
      * @param method Apache HttpClient GetMethod object
@@ -53,13 +53,16 @@ public class KBImageTool {
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
     public static BufferedImage readImage(GetMethod method, String mime, Map parameterMap) throws Exception {
         String mimeType = getMimeType(mime);
-        if (mimeType == null)
+        if (mimeType == null) {
+            log.error("Response from server not understood: " + method.getResponseBodyAsString());
             throw new Exception("Response from server not understood: " + method.getResponseBodyAsString());
-
+        }
+        
         ImageReader ir = getReader(mimeType);
-        if (ir == null)
+        if (ir == null) {
+            log.error("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
             throw new Exception("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
-
+        }
         //TODO Make smarter.. Possibly faster... But keep reporting!
         InputStream is = method.getResponseBodyAsStream();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -70,13 +73,13 @@ public class KBImageTool {
         parameterMap.put("BytesReceived", new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);
-
-
+        
+        
         return ir.read(0);
-
+        
     }
     // </editor-fold>
-
+    
     /** First combines the given images to one image and then sends this image back to the client.
      *
      * @param images BufferedImage array with the images tha have to be combined and sent to the client.
@@ -87,15 +90,16 @@ public class KBImageTool {
      */
     // <editor-fold defaultstate="" desc="writeImage(BufferedImage [] images, String mime, DataWrapper dw) method.">
     public static void writeImage(BufferedImage [] images, String mime, DataWrapper dw) throws Exception {
-
+        
         String mimeType = getMimeType(mime);
-        if (mimeType == null)
+        if (mimeType == null) {
+            log.error("unsupported mime type: " + mime);
             throw new Exception("unsupported mime type: " + mime);
-
+        }
         //Logging the combine operation speed...
         DataMonitoring rr = dw.getRequestReporting();
         Map parameterMap = new HashMap();
-
+        
         if (images != null) {
             parameterMap.put("NumberOfImages", new Integer(images.length));
         } else {
@@ -106,12 +110,12 @@ public class KBImageTool {
         // Log initialized, now start the operation...
         BufferedImage bufferedImage = combineImages(images, mime);
         Long time = new Long(System.currentTimeMillis() - startTime);
-
+        
         // Operation done.. now write the log and for the time being also to requestHeader...
         dw.setHeader("X-Kaartenbalie-CombineImageTime", time.toString());
         parameterMap.put("Duration", time);
         rr.addRequestOperation(CombineImagesOperation.class,parameterMap);
-
+        
         if(mime.equals(TIFF)) {
             writeTIFFImage(bufferedImage, dw);
         } else {
@@ -119,7 +123,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
-
+    
     /** Writes a TIFF image to the outputstream.
      *
      * @param bufferedImage BufferedImage created from the given images.
@@ -135,7 +139,7 @@ public class KBImageTool {
         dw.write(baos);
     }
     // </editor-fold>
-
+    
     /** Writes a JPEG, GIF or PNG image to the outputstream.
      *
      * @param bufferedImage BufferedImage created from the given images.
@@ -155,7 +159,7 @@ public class KBImageTool {
         ios.close();
     }
     // </editor-fold>
-
+    
     /** Method which handles the combining of the images. This method redirects to the right method
      * for the different images, since not every image can be combined in the same way.
      *
@@ -173,7 +177,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
-
+    
     /** Combines JPG images. Combining JPG images is different from the other image types since JPG
      * has to use an other imageType: BufferedImage.TYPE_INT_RGB.
      *
@@ -185,18 +189,18 @@ public class KBImageTool {
     private static BufferedImage combineJPGImages(BufferedImage [] images) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
-
+        
         BufferedImage newBufIm = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D gbi = newBufIm.createGraphics();
         gbi.drawImage(images[0], 0, 0, null);
-
+        
         for (int i = 1; i < images.length; i++) {
             gbi.drawImage(images[i], 0, 0, null);
         }
         return newBufIm;
     }
     // </editor-fold>
-
+    
     /** Combines GIF, TIFF or PNG images. Combining these images is different from the JPG image types since these
      * has to use an other imageType: BufferedImage.TYPE_INT_ARGB_PRE.
      *
@@ -208,20 +212,20 @@ public class KBImageTool {
     private static BufferedImage combineOtherImages(BufferedImage [] images) {
         int width = images[0].getWidth();
         int height = images[0].getHeight();
-
+        
         BufferedImage newBufIm = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
         Graphics2D gbi = newBufIm.createGraphics();
-
+        
         gbi.drawImage(images[0], 0, 0, null);
         gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1.0f));
-
+        
         for (int i = 1; i < images.length; i++) {
             gbi.drawImage(images[i], 0, 0, null);
         }
         return newBufIm;
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported MIME types to check if
      * a certain MIME is supported.
      *
@@ -238,7 +242,7 @@ public class KBImageTool {
         return null;
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME.
      *
@@ -255,7 +259,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME. This method checks spe-
      * cifically for JPG or PNG images because Sun's Java supports two kind of readers
@@ -282,7 +286,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME. This method checks spe-
      * cifically for GIF or TIFF images.
@@ -304,7 +308,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME.
      *
@@ -321,7 +325,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME. This method checks spe-
      * cifically for JPG or PNG images because Sun's Java supports two kind of writers
@@ -346,7 +350,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
-
+    
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME. This method checks spe-
      * cifically for GIF or TIFF images.

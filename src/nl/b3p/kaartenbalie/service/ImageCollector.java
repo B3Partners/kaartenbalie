@@ -81,7 +81,7 @@ public class ImageCollector extends Thread {
     public void processNew() throws InterruptedException {
         status = ACTIVE;
         start();
-     }
+    }
     
     public void processWaiting() throws InterruptedException {
         join(maxResponseTime);
@@ -124,6 +124,7 @@ public class ImageCollector extends Thread {
                 getLocalParameterMap().put("ResponseStatus", new Integer(statusCode));
                 getLocalParameterMap().put("ServiceProviderId", wmsRequest.getServiceProviderId());
                 if (statusCode != HttpStatus.SC_OK) {
+                    log.error("Error connecting to server. Status code: " + statusCode);
                     throw new Exception("Error connecting to server. Status code: " + statusCode);
                 }
                 

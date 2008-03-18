@@ -558,6 +558,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         
         if(ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) && 
                 !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
+            log.error(KBConfiguration.UNSUPPORTED_REQUEST);
             throw new Exception(KBConfiguration.UNSUPPORTED_REQUEST);
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
@@ -565,6 +566,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         
         if(ogcrequest.containsParameter(OGCConstants.WMS_SERVICE) && 
                 !OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_SERVICE))) {
+            log.error(KBConfiguration.UNSUPPORTED_SERVICE);
             throw new Exception(KBConfiguration.UNSUPPORTED_SERVICE);
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
@@ -572,6 +574,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         
         if(ogcrequest.containsParameter(OGCConstants.WMS_VERSION) && 
                 !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
+            log.error(KBConfiguration.UNSUPPORTED_VERSION);
             throw new Exception(KBConfiguration.UNSUPPORTED_VERSION);
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_VERSION, OGCConstants.WMS_VERSION_111);

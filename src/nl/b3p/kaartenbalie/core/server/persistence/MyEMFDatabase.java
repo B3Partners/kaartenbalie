@@ -34,16 +34,22 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class MyEMFDatabase extends HttpServlet{
-    public static final long serialVersionUID = 24574462L;
+public class MyEMFDatabase extends HttpServlet {
+    
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
+
+    public static final long serialVersionUID = 24574462L;
+    
     private static EntityManagerFactory emf;
     private static ThreadLocal tlMap = new ThreadLocal();
     private static String entityManagerName = "entityManager";
     private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     public static String nonServletKaartenbaliePU = "nonServletPU";
-    public static String dtd = "/dtd/capabilities_1_1_1.dtd";
+    
+    public static String capabilitiesdtd = "/dtd/capabilities_1_1_1.dtd";
+    public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
+    
     private static String cachePath = null;
     private static Random rg = null;
     
@@ -104,7 +110,9 @@ public class MyEMFDatabase extends HttpServlet{
         }
         
         
-        dtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
+        capabilitiesdtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
+        exceptiondtd = getConfigValue(config, "dtd","/dtd/exception_1_1_1.dtd");
+        
         cachePath = getConfigValue(config, "cache",null);
         if (cachePath != null) {
             cachePath = getServletContext().getRealPath( cachePath );
@@ -295,9 +303,13 @@ public class MyEMFDatabase extends HttpServlet{
          */
         
     }
-    
-    public static String getDtd() {
-        return dtd;
+
+    public static String getCapabilitiesdtd() {
+        return capabilitiesdtd;
+    }
+
+    public static String getExceptiondtd() {
+        return exceptiondtd;
     }
     
 }

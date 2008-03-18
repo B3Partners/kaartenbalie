@@ -13,12 +13,16 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public class TransactionLayerUsage extends Transaction{
+    private static final Log log = LogFactory.getLog(TransactionLayerUsage.class);
+    
     private Set layerPriceCompositions;
     private Set pricedLayerNames;
     /** Creates a new instance of TransactionLayerUsage */
@@ -30,6 +34,7 @@ public class TransactionLayerUsage extends Transaction{
     }
     public void validate() throws Exception {
         if (this.getType() != WITHDRAW) {
+            log.error("Only WITHDRAW is allowed for this type of transaction.");
             throw new Exception("Only WITHDRAW is allowed for this type of transaction.");
         }
     }
@@ -44,9 +49,11 @@ public class TransactionLayerUsage extends Transaction{
     
     public void registerUsage(LayerPriceComposition lpc) throws Exception{
         if (lpc == null) {
+            log.error("Not allowed to add a null value to registerUsage.");
             throw new Exception("Not allowed to add a null value to registerUsage.");
         }
         if (lpc.getLayerPrice() == null || lpc.getLayerPrice().compareTo(new BigDecimal(0)) < 0) {
+            log.error("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
             throw new Exception("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
         }
         if (lpc.getLayerIsFree() == null || (lpc.getLayerIsFree() != null && !lpc.getLayerIsFree().booleanValue())) {
@@ -56,7 +63,7 @@ public class TransactionLayerUsage extends Transaction{
         lpc.setTransactionLayerUsage(this);
         layerPriceCompositions.add(lpc);
     }
-
+    
     public String getPricedLayerNames() {
         if (pricedLayerNames==null || pricedLayerNames.isEmpty()) {
             return null;

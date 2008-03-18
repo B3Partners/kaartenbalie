@@ -27,6 +27,8 @@ import org.apache.struts.validator.DynaValidatorForm;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -34,6 +36,8 @@ import nl.b3p.kaartenbalie.core.server.User;
  */
 public class ReportingAction extends KaartenbalieCrudAction {
     
+    private static final Log log = LogFactory.getLog(ReportingAction.class);
+
     private static String reportGeneratorName = "reportgenerator";
     public static SimpleDateFormat reportingDate = new SimpleDateFormat("yyyy-MM-dd");
     protected static final String DOWNLOAD                        = "download";
@@ -90,6 +94,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
         }
         String[] resultInfo = ReportGenerator.getReportTypeInfo(type.intValue());
         if (resultInfo == null) {
+            log.error("Unsupported resultType.");
             throw new Exception("Unsupported resultType.");
         }
         response.setContentType(resultInfo[0]);

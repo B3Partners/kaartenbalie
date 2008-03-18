@@ -21,12 +21,15 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDepos
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public class DepositAction extends KaartenbalieCrudAction {
+    private static final Log log = LogFactory.getLog(DepositAction.class);
     
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -38,7 +41,7 @@ public class DepositAction extends KaartenbalieCrudAction {
     public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return mapping.findForward(FAILURE);
     }
-
+    
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         /*
          * Alle gegevens voor de betaling.
@@ -50,6 +53,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         BigDecimal billing  = new BigDecimal(integersToDouble(amount, fraction));
         Integer exchangeRate = TransactionPaymentDeposit.getExchangeRate();
         if (billing.doubleValue() <= 0) {
+            log.error("Amount cannot be less then or equal to zero!");
             throw new Exception("Amount cannot be less then or equal to zero!");
         }
         
@@ -76,17 +80,17 @@ public class DepositAction extends KaartenbalieCrudAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("exchangeRate", TransactionPaymentDeposit.getExchangeRate());
-
+        
         Organization organization = getOrganization(form, request);
         form.set("orgName", organization.getName());
     }
     
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) {
-
+        
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);
-
+        
         if (id == null) {
             User principalUser = (User) request.getUserPrincipal();
             if (principalUser==null)
@@ -98,16 +102,17 @@ public class DepositAction extends KaartenbalieCrudAction {
         } else {
             organization = (Organization) em.find(Organization.class, id);
         }
-
+        
         return organization;
     }
-
+    
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("orgId"));
     }
-
+    
     private static double integersToDouble(Integer amount, Integer fraction) throws Exception{
         if (amount == null && fraction == null) {
+            log.error("Amount and fraction cannot both be null");
             throw new Exception("Amount and fraction cannot both be null");
         }
         if (amount == null) {

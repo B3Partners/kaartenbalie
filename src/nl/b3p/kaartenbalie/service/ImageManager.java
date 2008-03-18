@@ -85,8 +85,10 @@ public class ImageManager {
             if (status != ImageCollector.COMPLETED || ic.getBufferedImage() == null) {
                 // TODO alleen eerste foutmelding of ook nog de andere ???
                 if (status == ImageCollector.ERROR) {
+                    log.error(ic.getMessage());
                     throw new Exception(ic.getMessage());
                 } else {
+                    log.error(ic.getMessage() + " Download aborted.");
                     throw new Exception(ic.getMessage() + " Download aborted.");
                 }
             }
@@ -103,7 +105,7 @@ public class ImageManager {
         //log.debug("Image collection retrieved from providers");
         
         KBImageTool kbi = new KBImageTool();
-
+        
         kbi.writeImage(allImages, "image/png", dw);
     }
     

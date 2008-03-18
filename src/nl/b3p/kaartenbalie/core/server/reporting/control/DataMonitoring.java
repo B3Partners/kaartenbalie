@@ -15,11 +15,15 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 
 public class DataMonitoring {
+    private static final Log log = LogFactory.getLog(DataMonitoring.class);
+
     private User user;
     private Organization organization;
     private ClientRequest clientRequest;
@@ -128,6 +132,7 @@ public class DataMonitoring {
     private static Object createPOJOByReflection(Class classFamily, Class targetObjectClass, Map parameterMap, Map overriddenParameters, List unsupportedMethods)  {
         try {
             if (!classFamily.isAssignableFrom(targetObjectClass)) {
+                log.error(targetObjectClass.getSimpleName() + " is not a member of the " + classFamily.getSimpleName() + " family tree.");
                 throw new Exception(targetObjectClass.getSimpleName() + " is not a member of the " + classFamily.getSimpleName() + " family tree.");
             }
             

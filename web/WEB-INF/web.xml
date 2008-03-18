@@ -48,16 +48,6 @@
             <param-name>accounting</param-name>
             <param-value>enabled</param-value> <!-- enabled/disabled -->
         </init-param>           
-        <init-param>
-            <param-name>cache</param-name>
-            <param-value/>
-        </init-param>
-        <init-param>
-            <param-name>dtd</param-name>
-            <param-value/>
-        </init-param>
-
-        
         <load-on-startup>1</load-on-startup>
     </servlet>
     

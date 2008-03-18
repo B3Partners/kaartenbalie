@@ -10,12 +10,15 @@
 package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
 import java.math.BigDecimal;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public class TransactionPaymentDeposit extends Transaction{
+    private static final Log log = LogFactory.getLog(TransactionPaymentDeposit.class);
     
     private static Integer ExchangeRate = new Integer(100);
     private BigDecimal billingAmount;
@@ -28,11 +31,12 @@ public class TransactionPaymentDeposit extends Transaction{
     
     public void validate() throws Exception {
         if (this.getType() != DEPOSIT) {
+            log.error("Only DEPOSIT is allowed for this type of transaction.");
             throw new Exception("Only DEPOSIT is allowed for this type of transaction.");
         }
         
-        if (billingAmount != null && billingAmount.doubleValue() > 9999)
-        {
+        if (billingAmount != null && billingAmount.doubleValue() > 9999) {
+            log.error("Billingamount larger then 9999.");
             throw new Exception("Billingamount larger then 9999.");
         }
     }

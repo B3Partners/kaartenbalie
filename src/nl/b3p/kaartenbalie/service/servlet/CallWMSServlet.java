@@ -59,6 +59,7 @@ public class CallWMSServlet extends HttpServlet {
     private String format;
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
+    public static String EXCEPTION_DTD = null;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -91,7 +92,10 @@ public class CallWMSServlet extends HttpServlet {
         
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
-            CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getDtd();
+            CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getCapabilitiesdtd();
+        }
+        if (EXCEPTION_DTD == null) {
+            EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
         }
         String iUrl = completeUrl(baseUrl, request).toString();
         log.debug("Incoming URL: " + iUrl);
@@ -114,6 +118,7 @@ public class CallWMSServlet extends HttpServlet {
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             parseRequestAndData(data, user);
         } catch (Exception ex) {
+            log.error("Error while handling request: ", ex);
             rr.setClientRequestException(ex);
             handleRequestException(ex, data);
         } finally {
@@ -214,7 +219,7 @@ public class CallWMSServlet extends HttpServlet {
         
         // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
         // <!-- end of DOCTYPE declaration -->
-        DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,"http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd");
+        DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,CallWMSServlet.EXCEPTION_DTD);
         Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");

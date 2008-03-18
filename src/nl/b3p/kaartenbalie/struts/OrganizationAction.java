@@ -21,7 +21,6 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.service.LayerValidator;
@@ -418,7 +417,8 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 maxx = Double.parseDouble(boxxvalues[2]);
                 maxy = Double.parseDouble(boxxvalues[3]);
                 if (minx > maxx || miny > maxy) {
-                    throw new Exception("");
+                    log.error("BBOX values out of range (minx, miny, maxx, maxy): " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
+                    throw new Exception("BBOX values out of range (minx, miny, maxx, maxy): " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
                 }
             } catch (Exception e) {
                 log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);

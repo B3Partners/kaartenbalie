@@ -27,6 +27,8 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -34,6 +36,8 @@ import nl.b3p.wms.capabilities.SrsBoundingBox;
  */
 public abstract class ConfigLayer extends Layer {
     
+    private static final Log log = LogFactory.getLog(ConfigLayer.class);
+
     private static Map configLayers;
     
     protected ConfigLayer() {
@@ -82,12 +86,14 @@ public abstract class ConfigLayer extends Layer {
     public static ConfigLayer forName(String configLayerName) throws Exception{
         
         if (configLayerName == null || configLayerName.trim().length() == 0) {
+            log.error("ConfigLayerName is a required field!");
             throw new Exception("ConfigLayerName is a required field!");
         }
         configLayerName = configLayerName.trim();
         Class configLayerClass = (Class) configLayers.get(configLayerName);
         
         if (configLayerClass == null) {
+            log.error("Trying to fetch unregistered or non-existing configLayer ' " + configLayerName + "'.");
             throw new Exception("Trying to fetch unregistered or non-existing configLayer ' " + configLayerName + "'.");
         }
         return  (ConfigLayer) configLayerClass.newInstance();
@@ -106,6 +112,7 @@ public abstract class ConfigLayer extends Layer {
         }
         String mimeType = KBImageTool.getMimeType("image/png");
         if (mimeType == null) {
+            log.error("unsupported mime type: " + mime);
             throw new Exception("unsupported mime type: " + mime);
         }
         return KBImageTool.combineImages(bufImages, mimeType);
@@ -176,7 +183,8 @@ public abstract class ConfigLayer extends Layer {
         } else if(requestedImageType.equalsIgnoreCase("image/gif")) {
             imageType = "GIF";
         } else {
-            throw new Exception("Unsupported ImageType");
+            log.error("Unsupported ImageType: " + requestedImageType);
+            throw new Exception("Unsupported ImageType: " + requestedImageType);
         }
         ImageIO.write(bufImage, imageType, baos);
         data.write(baos);

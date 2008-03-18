@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +41,8 @@ import org.hibernate.HibernateException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -49,6 +50,8 @@ import org.json.JSONObject;
  */
 public class PricingAction extends KaartenbalieCrudAction {
     
+    private static final Log log = LogFactory.getLog(PricingAction.class);
+
     private static final String TEST = "test";
     public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
     
@@ -88,10 +91,12 @@ public class PricingAction extends KaartenbalieCrudAction {
                 Date testFrom = getValidDate(dynaForm.getString("testFrom"),DAYMODE_STARTOFDAY, true);
                 Date testUntil = getValidDate(dynaForm.getString("testUntil"),DAYMODE_ENDOFDAY, true);
                 if (testUntil.before(testFrom)) {
+                    log.error("testUntil cannot be before testFrom.");
                     throw new Exception("testUntil cannot be before testFrom.");
                 }
                 String projection = dynaForm.getString("testProjection");
                 if (projection == null || projection.trim().length() == 0) {
+                    log.error("Projection is required!");
                     throw new Exception("Projection is required!");
                 }
                 projection = projection.trim();
@@ -101,13 +106,16 @@ public class PricingAction extends KaartenbalieCrudAction {
                 Integer testSteps    = (Integer) dynaForm.get("testSteps");
                 if (testScale != null) {
                     if (testScale.doubleValue() < 0) {
+                        log.error("testScale cannot be less then zero.");
                         throw new Exception("testScale cannot be less then zero.");
                     }
                     
                     if (testStepSize == null || testStepSize.doubleValue() < 0) {
+                        log.error("testStepSize must be a positive value!");
                         throw new Exception("testStepSize must be a positive value!");
                     }
                     if (testSteps == null || testSteps.intValue() < 0) {
+                        log.error("testSteps must be a positive value!");
                         throw new Exception("testSteps must be a positive value!");
                     } else if (testSteps.intValue() == 0) {
                         testSteps = new Integer(1);
@@ -182,6 +190,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             Integer pricingId = new Integer(Integer.parseInt(strPricingId));
             LayerPricing lp =(LayerPricing) em.find(LayerPricing.class, pricingId);
             if (lp.getDeletionDate() != null) {
+                log.error("Trying to delete an already deleted LayerPricing");
                 throw new Exception("Trying to delete an already deleted LayerPricing");
             }
             lp.setDeletionDate(new Date());
@@ -213,6 +222,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             resultDate = cal.getTime();
         }
         if (resultDate == null && cannotBeNull) {
+            log.error("Could not process date for value '" + value + "'");
             throw new Exception("Could not process date for value '" + value + "'");
         }
         return resultDate;
@@ -241,6 +251,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         
         if (validUntil != null && validFrom != null) {
             if (validUntil.before(validFrom)) {
+                log.error("Enddate cannot be before startdate.");
                 throw new Exception("Enddate cannot be before startdate.");
             }
         }
@@ -279,6 +290,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             Integer layerId = new Integer(Integer.parseInt(idString));
             Layer layer = (Layer) em.find(Layer.class, layerId);
             if (layer.getName() == null || layer.getName().trim().length() == 0) {
+                log.error("Requested layer is not able to register pricinginformation...");
                 throw new Exception("Requested layer is not able to register pricinginformation...");
             }
             LayerPricing lp = new LayerPricing();
@@ -291,11 +303,13 @@ public class PricingAction extends KaartenbalieCrudAction {
                 projection = projection.trim();
                 if (minScale != null && maxScale != null && minScale.doubleValue() > 0 && maxScale.doubleValue() > 0 ) {
                     if (maxScale.compareTo(minScale) < 0) {
+                        log.error("maxScale should always be larger then the minScale.");
                         throw new Exception("maxScale should always be larger then the minScale.");
                     }
                 }
                 if (minScale != null) {
                     if (minScale.doubleValue() < 0) {
+                        log.error("minScale cannot be a negative value!");
                         throw new Exception("minScale cannot be a negative value!");
                     } else if (minScale.doubleValue()> 0) {
                         lp.setMinScale(new BigDecimal(minScale.doubleValue()));
@@ -303,6 +317,7 @@ public class PricingAction extends KaartenbalieCrudAction {
                 }
                 if (maxScale != null) {
                     if (maxScale.doubleValue() < 0) {
+                        log.error("maxScale cannot be a negative value!");
                         throw new Exception("maxScale cannot be a negative value!");
                     } else if (maxScale.doubleValue() > 0) {
                         lp.setMaxScale(new BigDecimal(maxScale.doubleValue()));
@@ -377,6 +392,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             Layer layer = (Layer) em.find(Layer.class, layerId);
             if (layer.getName() == null || layer.getName().trim().length() == 0) {
                 request.setAttribute("id", null);
+                log.error("Requested layer is not able to register pricinginformation. It is probably a folder!");
                 throw new Exception("Requested layer is not able to register pricinginformation. It is probably a folder!");
             }
             ServiceProvider sp = layer.getServiceProvider();

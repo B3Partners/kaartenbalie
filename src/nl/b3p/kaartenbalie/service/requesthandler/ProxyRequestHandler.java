@@ -12,7 +12,6 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -23,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class ProxyRequestHandler extends WMSRequestHandler {
     
-    private static final Log log = LogFactory.getLog(ProxyRequestHandler.class);    
+    private static final Log log = LogFactory.getLog(ProxyRequestHandler.class);
     
     public ProxyRequestHandler() {}
     
@@ -42,8 +41,10 @@ public class ProxyRequestHandler extends WMSRequestHandler {
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         OGCRequest ogcrequest = dw.getOgcrequest();
         String encodedUrl = ogcrequest.getParameter(KBConfiguration.KB_PROXY_URL);
-        if (encodedUrl==null || encodedUrl.length()==0)
+        if (encodedUrl==null || encodedUrl.length()==0) {
+            log.error(KBConfiguration.KB_PROXY_EXECPTION);
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
+        }
         
         String purl = KBCrypter.decryptText(encodedUrl);
         ProxyRequest proxyWrapper = new ProxyRequest();

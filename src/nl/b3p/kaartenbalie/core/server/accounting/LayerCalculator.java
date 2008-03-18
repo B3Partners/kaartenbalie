@@ -20,6 +20,8 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -28,6 +30,7 @@ import nl.b3p.wms.capabilities.Layer;
  */
 public class LayerCalculator {
     
+    private static final Log log = LogFactory.getLog(LayerCalculator.class);
     
     private EntityManager em;
     private boolean externalEm = false;
@@ -181,6 +184,7 @@ public class LayerCalculator {
     public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
         
         if (projection == null) {
+            log.error("Projection cannot be null");
             throw new Exception("Projection cannot be null");
         }
         if (scale == null) {
@@ -254,15 +258,19 @@ public class LayerCalculator {
          * Check the input parameters!
          */
         if (layer == null) {
+            log.error("Layer is required!");
             throw new Exception("Layer is required!");
         }
         if (validationDate == null) {
+            log.error("ValidationDate is a required field!");
             throw new Exception("ValidationDate is a required field!");
         }
         if (units == null) {
+            log.error("Units is a required field!");
             throw new Exception("Units is a required field!");
         }
         if (planType <= 0) {
+            log.error("PlanType is a required field!");
             throw new Exception("PlanType is a required field!");
         }
         /*
@@ -306,6 +314,7 @@ public class LayerCalculator {
     
     public void closeEntityManager() throws Exception {
         if (externalEm) {
+            log.error("Trying to close an external EntityManager. This is not the place to do it!");
             throw new Exception("Trying to close an external EntityManager. This is not the place to do it!");
         }
         em.close();

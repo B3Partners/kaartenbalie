@@ -17,15 +17,16 @@ import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.PropertyValue;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.domain.WarehousedEntity;
 
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public class DataWarehousing {
-    
-    
-    
+    private static final Log log = LogFactory.getLog(DataWarehousing.class);
+ 
     /*
      * Basically use this boolean to enable or disable the warehousing mechanism.
      */
@@ -143,6 +144,7 @@ public class DataWarehousing {
                             .setParameter("referencedId", primaryKey)
                             .getSingleResult();
                 } catch (NoResultException nre) {
+                    log.error("Entity no longer exists and is not stored in the dataWarehouse.");
                     throw new Exception("Entity no longer exists and is not stored in the dataWarehouse.");
                 }
                 /*
@@ -161,6 +163,7 @@ public class DataWarehousing {
                             .setMaxResults(1)
                             .getSingleResult();
                 } catch (NoResultException nre) {
+                    log.error("No EntityMutation found for WarehousedEntity with id " + we.getId() +". This should'nt be possible.");
                     throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() +". This should'nt be possible.");
                 }
                 object = objectClass.newInstance();
@@ -240,6 +243,7 @@ public class DataWarehousing {
         if (safetyMode != PERFORMANCE) {
             we = getManagedEntity(objectClass, primaryKey, em);
             if (we != null) {
+                log.error("Trying to persist an already existing object. Use " + DataWarehousing.class.getSimpleName() + ".merge() instead.");
                 throw new Exception("Trying to persist an already existing object. Use " + DataWarehousing.class.getSimpleName() + ".merge() instead.");
             }
         }
@@ -279,9 +283,11 @@ public class DataWarehousing {
          */
         WarehousedEntity we = getManagedEntity(objectClass, primaryKey, em);
         if (we == null) {
+            log.error("Trying to merge a nonexisting object. Use " + DataWarehousing.class.getSimpleName() + ".persist() instead.");
             throw new Exception("Trying to merge a nonexisting object. Use " + DataWarehousing.class.getSimpleName() + ".persist() instead.");
         }
         if (we.getDateDeleted() != null) {
+            log.error("Trying to update an entity that is already deleted in the warehouse.");
             throw new Exception("Trying to update an entity that is already deleted in the warehouse.");
         }
         /*
@@ -449,6 +455,7 @@ public class DataWarehousing {
                     Object object = getMethod.invoke(refDBObject, null);
                     
                     if (!PropertyValue.isAllowed(getMethod.getReturnType())) {
+                        log.error("Trying to persist an unsupported property '" + object.getClass().getSimpleName() + "'");
                         throw new Exception("Trying to persist an unsupported property '" + object.getClass().getSimpleName() + "'");
                     }
                     

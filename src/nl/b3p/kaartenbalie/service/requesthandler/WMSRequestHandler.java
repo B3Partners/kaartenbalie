@@ -97,6 +97,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             dbUser = (User)em.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
+            log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
         
@@ -260,6 +261,7 @@ public abstract class WMSRequestHandler implements RequestHandler {
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 ConfigLayer cl = ConfigLayer.forName(layerName);
                 if (cl == null) {
+                    log.error("Config Layer " + layerName + " not found!");
                     throw new Exception("Config Layer " + layerName + " not found!");
                 }
                 cl.processConfig(config);
@@ -489,8 +491,10 @@ public abstract class WMSRequestHandler implements RequestHandler {
                 getOnlineData(dw, (WMSRequest)urlWrapper.get(0), REQUEST_TYPE);
             } else {
                 if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                    log.error(KBConfiguration.FEATUREINFO_EXCEPTION);
                     throw new Exception(KBConfiguration.FEATUREINFO_EXCEPTION);
                 } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
+                    log.error(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
                     throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
                 }
             }
