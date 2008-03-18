@@ -162,7 +162,7 @@ function doCustomSubmit(){
         </p>
         <p>
             <br>Als u gebruik wilt maken van onze eigen GIS-Viewer:&nbsp;&nbsp;
-            <button onclick="location.href='/gisviewer/viewer.do'">Verder naar Viewer</button>
+            <button onclick="location.href='/gisviewer/viewer.do'; return false;">Verder naar Viewer</button>
         </p>
     </div>
     

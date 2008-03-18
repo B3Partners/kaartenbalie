@@ -48,7 +48,7 @@
                         <html:submit property="save" >
                             <fmt:message key="button.add"/>
                         </html:submit>
-                        <button onclick="location.href='<html:rewrite page="/createPersonalURL.do" module="/demo"/>'">Verder</button>
+                        <button onclick="location.href='<html:rewrite page="/createPersonalURL.do" module="/demo"/>'; return false;">Verder</button>
                     </td>
                     <td align="left"></td>
                 </tr>

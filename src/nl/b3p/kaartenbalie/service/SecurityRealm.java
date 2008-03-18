@@ -43,46 +43,47 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             log.error("error encrypting password: ", ex);
         }
         EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         try {
-            User user = (User)em.createQuery(
-                    "from User u where " +
-                    "lower(u.username) = lower(:username) " +
-                    "and u.password = :password")
-                    .setParameter("username", username)
-                    .setParameter("password", encpw)
-                    .getSingleResult();
-            return user;
-        } catch (NoResultException nre) {
-            log.debug("No results using encrypted password");
-        } finally {
-            tx.commit();
-            em.close();
-        }
-        
-        em = MyEMFDatabase.createEntityManager();
-        tx = em.getTransaction();
-        tx.begin();
-        try {
-            User user = (User)em.createQuery(
-                    "from User u where " +
-                    "lower(u.username) = lower(:username) " +
-                    "and lower(u.password) = lower(:password)")
-                    .setParameter("username", username)
-                    .setParameter("password", password)
-                    .getSingleResult();
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
+            try {
+                User user = (User)em.createQuery(
+                        "from User u where " +
+                        "lower(u.username) = lower(:username) " +
+                        "and u.password = :password")
+                        .setParameter("username", username)
+                        .setParameter("password", encpw)
+                        .getSingleResult();
+                return user;
+            } catch (NoResultException nre) {
+                log.debug("No results using encrypted password");
+            } finally {
+                tx.commit();
+            }
             
-            // Volgende keer dus wel encrypted
-            user.setPassword(encpw);
-            em.merge(user);
-            em.flush();
-            log.debug("Cleartext password encrypted!");
-            return user;
-        } catch (NoResultException nre) {
-            log.debug("No results using cleartext password");
+            tx = em.getTransaction();
+            tx.begin();
+            try {
+                User user = (User)em.createQuery(
+                        "from User u where " +
+                        "lower(u.username) = lower(:username) " +
+                        "and lower(u.password) = lower(:password)")
+                        .setParameter("username", username)
+                        .setParameter("password", password)
+                        .getSingleResult();
+                
+                // Volgende keer dus wel encrypted
+                user.setPassword(encpw);
+                em.merge(user);
+                em.flush();
+                log.debug("Cleartext password encrypted!");
+                return user;
+            } catch (NoResultException nre) {
+                log.debug("No results using cleartext password");
+            } finally {
+                tx.commit();
+            }
         } finally {
-            tx.commit();
             em.close();
         }
         

@@ -40,12 +40,13 @@ import org.apache.commons.codec.binary.Base64;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -298,7 +299,6 @@ public class CallWMSServlet extends HttpServlet {
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
-        EntityManager em = MyEMFDatabase.getEntityManager();
         // probeer preemptive basic login
         if (user == null) {
             // attempt to dig out authentication info only if the user has not yet been authenticated
@@ -308,17 +308,56 @@ public class CallWMSServlet extends HttpServlet {
                 String decoded = decodeBasicAuthorizationString(authorizationHeader);
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
-                // niet ingelogd dus, dan checken op token in url
+                
+                String encpw = null;
                 try {
-                    user = (User)em.createQuery(
-                            "from User u where " +
-                            "lower(u.username) = lower(:username) " +
-                            "and lower(u.password) = lower(:password)")
-                            .setParameter("username", username)
-                            .setParameter("password", password)
-                            .getSingleResult();
-                } catch (NoResultException nre) {
-                    //Here nothing to do, because user gets second chance if this login fails.
+                    encpw = KBCrypter.encryptText(password);
+                } catch (Exception ex) {
+                    log.error("error encrypting password: ", ex);
+                }
+                EntityManager em = MyEMFDatabase.createEntityManager();
+                try {
+                    EntityTransaction tx = em.getTransaction();
+                    tx.begin();
+                    try {
+                        user = (User)em.createQuery(
+                                "from User u where " +
+                                "lower(u.username) = lower(:username) " +
+                                "and u.password = :password")
+                                .setParameter("username", username)
+                                .setParameter("password", encpw)
+                                .getSingleResult();
+                    } catch (NoResultException nre) {
+                        log.debug("No results using encrypted password");
+                    } finally {
+                        tx.commit();
+                    }
+                    
+                    if (user==null) {
+                        tx = em.getTransaction();
+                        tx.begin();
+                        try {
+                            user = (User)em.createQuery(
+                                    "from User u where " +
+                                    "lower(u.username) = lower(:username) " +
+                                    "and lower(u.password) = lower(:password)")
+                                    .setParameter("username", username)
+                                    .setParameter("password", password)
+                                    .getSingleResult();
+                            
+                            // Volgende keer dus wel encrypted
+                            user.setPassword(encpw);
+                            em.merge(user);
+                            em.flush();
+                            log.debug("Cleartext password encrypted!");
+                        } catch (NoResultException nre) {
+                            log.debug("No results using cleartext password");
+                        } finally {
+                            tx.commit();
+                        }
+                    }
+                } finally {
+                    em.close();
                 }
             }
         }
@@ -326,6 +365,7 @@ public class CallWMSServlet extends HttpServlet {
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
+            EntityManager em = MyEMFDatabase.getEntityManager();
             try {
                 String url = request.getRequestURL().toString();
                 user = (User)em.createQuery(

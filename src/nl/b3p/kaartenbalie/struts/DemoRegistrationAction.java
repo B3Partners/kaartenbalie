@@ -159,7 +159,6 @@ public class DemoRegistrationAction extends UserAction {
         
         EntityManager em = getEntityManager();
         
-        user.setUserroles(null);
         List roles = em.createQuery("from Roles").getResultList();
         Iterator roleIt = roles.iterator();
         while (roleIt.hasNext()) {
