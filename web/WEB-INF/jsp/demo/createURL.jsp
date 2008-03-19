@@ -145,28 +145,25 @@ function doCustomSubmit(){
         <div class="stepactive">Pers. URL</div>   
         <div class="step">Viewer</div>   
     </div>
-    
-    <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Persoonlijke URL</H1>
-        <P>
-            U kunt B3P Kaartenbalie gebruiken met elke GIS-Viewer die de OGC WMS standaard ondersteunt.<br>
-            Hiertoe dient u onderstaande Persoonlijke URL te kopieren en in uw GIS applicatie te plakken:<br><br>
-            <c:choose>
-                <c:when test="${form.map.personalURL != null}">
-                    <b><c:out value="${form.map.personalURL}"/></b>
-                </c:when>
-                <c:otherwise>
-                    Nog geen URL aangemaakt!
-                </c:otherwise>
-            </c:choose>
-        </p>
+    <div id='democontent'>
+        <div id="democontentheader">Persoonlijke URL</div>
+        U kunt B3P Kaartenbalie gebruiken met elke GIS-Viewer die de OGC WMS standaard ondersteunt.<br>
+        Hiertoe dient u onderstaande Persoonlijke URL te kopieren en in uw GIS applicatie te plakken:<br><br>
+        <c:choose>
+            <c:when test="${form.map.personalURL != null}">
+                <b><c:out value="${form.map.personalURL}"/></b>
+            </c:when>
+            <c:otherwise>
+                Nog geen URL aangemaakt!
+            </c:otherwise>
+        </c:choose>
         <p>
             <br>Als u gebruik wilt maken van onze eigen GIS-Viewer:&nbsp;&nbsp;
             <button onclick="location.href='/gisviewer/viewer.do'; return false;">Verder naar Viewer</button>
         </p>
     </div>
     
-    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 250px;">
+    <div id="serverDetails" class="containerdiv" style="clear: left; height: 250px;">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass">

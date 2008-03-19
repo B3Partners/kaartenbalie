@@ -366,7 +366,6 @@ tbody, td {
     margin-left: -480px;
 }
 
-
 /* Stijl voor de content */
 #content_c, #content_c h1, #content_c h2, #content_c div, #content_c td, #content_c th, #content_c a, #content_c li {
     color: #196299;
@@ -577,7 +576,6 @@ td.table-sortable {
 td.table-sorted-asc {
     background-image: url("/kaartenbalie/images/icons/table/table_ascending.gif");
     background-position: 2px center;
-    background-repeat: no-repeat;
 }
 td.table-sorted-desc {
     background-image: url("/kaartenbalie/images/icons/table/table_descending.gif");
@@ -588,4 +586,22 @@ td.table-sorted-desc {
     margin: 0px;
     border: 1px Solid #19619B;
     padding: 10px;
+}
+
+/* Stijl van de balken (LOGIN E.D.) */
+.onderbalk {
+    background-color: #606060;
+    color: #FFF0C4;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #FFD203;
+    background-image: url(/kaartenbalie/images/kaartenbalie/balk_links.gif);
+    background-repeat: no-repeat;
+    background-position: 0% 0%;
+    height: 20px;
+    padding-top: 3px;
+    margin: 0px;
+    margin-top: 0px;
+    margin-bottom: 8px;
+    padding-left: 10px;
 }

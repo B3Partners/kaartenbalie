@@ -16,7 +16,7 @@
     <html:hidden property="firstResult"/>
     <html:hidden property="listMax"/>
 </html:form>
-<div class="tabcollection" id="accountCollection" style="margin-bottom: 15px;">
+<div class="tabcollection" id="accountCollection" style="margin-bottom: 15px; margin-top: 15px;">
     <div id="tabs">
         <ul id="tabul" style="width: 650px;">
             <li id="Withdrawls" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Afboekingen</a></li>            
@@ -53,7 +53,7 @@
                         <c:forEach var="tpd" items="${paymentDeposits}">
                             <tr>
                                 <td>
-                                    <a href="#" onclick="showPopup(800,600,'Transactie Details','<html:rewrite page="/transaction.do?transaction=submit&id=${tpd.id}"/>');">
+                                    <a href="<html:rewrite page="/transaction.do?transaction=submit&id=${tpd.id}"/>" onclick="">
                                         <fmt:formatDate  value="${tpd.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>
@@ -110,7 +110,7 @@
                         <c:forEach var="tlu" items="${layerUsages}">
                             <tr>
                                 <td>
-                                    <a href="#" onclick="showPopup(800,600,'Transactie Details','<html:rewrite page="/transaction.do?transaction=submit&id=${tlu.id}"/>');">
+                                    <a href="<html:rewrite page="/transaction.do?transaction=submit&id=${tlu.id}"/>">
                                         <fmt:formatDate  value="${tlu.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                     </a>
                                 </td>

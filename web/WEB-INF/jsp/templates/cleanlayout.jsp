@@ -20,7 +20,6 @@
         <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
     </head>
     <body style="background-color:#FFFFFF;">
-        
         <tiles:insert definition="common.actionMessages"/>
         <tiles:insert name='content'/>
     </body>

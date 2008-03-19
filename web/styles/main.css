@@ -60,6 +60,7 @@ body {
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: bold;
+    margin-top: 15px;
 }
 
 #democontenttext {
@@ -70,8 +71,9 @@ body {
 
 #demoheader3{
     font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 18px;
+    font-size: 12px;
     margin-top: 0.5cm;
+    font-weight: bold;
 }
 
 H1 {
@@ -350,26 +352,35 @@ margin: 0;
     padding: 3px;
     margin-bottom: 5px;
     width: 792px;
-	clear: both;
+    clear: both;
 }
 
 .containerdivFloat {
-	height: 450px;
-	width: 250px; 
-	overflow: scroll;  /*auto*/
-	text-align: left;
-	border: 1px solid #F4F5F9; 
-	padding-top: 15px;
-	float: left;
+    height: 450px;
+    width: 250px; 
+    overflow: auto;
+    text-align: left;
+    float: left;
 }
 
 .containerdivBare {
-	height: 450px;
-	width: 500px; 
-	overflow: scroll;
-	text-align: left;
-	border: 1px solid #F4F5F9; 
-	padding-top: 15px;
+    height: 450px;
+    width: 500px; 
+    overflow: scroll;
+    text-align: left;
+    border: 1px solid #F4F5F9; 
+    padding-top: 15px;
+}
+
+.mdIframe {
+    border: 0px none White;
+    float: left;
+    margin-left: 20px;
+}
+
+.mdContainerDiv {
+    margin-top: 15px;
+    width: 900px;
 }
 
 #tableContainer {
@@ -611,7 +622,7 @@ Demo voortgang Styles...
 .steps {
     clear: both;
     height: 30px;
-    margin-top: 20px;
+    margin-top: 0px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -642,6 +653,13 @@ Demo voortgang Styles...
     font-weight: bold;
     background: #e4edec;
     border-right: 2px solid #fff;
+}
+
+.step a {
+    color: #006633;
+    font-size: 15px;
+    font-weight: normal;
+    text-decoration: none;
 }
 
 .stepdone {

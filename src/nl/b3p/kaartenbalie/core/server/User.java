@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import nl.b3p.wms.capabilities.Roles;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class User implements Principal {
     
@@ -144,6 +146,7 @@ public class User implements Principal {
     }
     
     public boolean checkRole(String role) {
+        if(userroles == null) return false;
         Iterator it = userroles.iterator();
         while (it.hasNext()) {
             Roles theUserroles = (Roles) it.next();

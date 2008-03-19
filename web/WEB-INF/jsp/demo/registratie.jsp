@@ -17,7 +17,7 @@
         <div class="step">Pers. URL</div>   
         <div class="step">Viewer</div>   
     </div>
-        
+    
     <div id='democontent'>
         <div id="democontentheader">Registratie</div>
         <div id="democontenttext">    
@@ -26,57 +26,66 @@
             Zodra u geregistreerd bent als gebruiker
             heeft u toegang tot enige testkaarten.
         </div>
-    </div>
+    </div><br />
     
-    <div id="demoheader3">Uw Gegevens</div>
-    <c:if test="${not empty message}">
-        <div id="error">
-            <div><c:out value="${message}"/></div>
-        </div>
-    </c:if>
-    <table>
-        <tr>
-            <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
-            <td><html:text property="firstname"/></td>
-            <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
-            <td><html:text property="surname"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
-            <td><html:text property="emailAddress"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
-            <td><html:text property="username"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.userPassword"/>:</B></td>
-            <td><html:password property="password"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
-            <td><html:password property="repeatpassword"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.name"/>:</B></td>
-            <td><html:text property="organizationName"/></td>
-        </tr>
-        <tr>
-            <td><B><fmt:message key="beheer.organizationTelephone"/>:</B></td>
-            <td><html:text property="organizationTelephone"/></td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td colspan="0"><center>
-                    <html:submit property="save" >
-                        Opslaan en Verder
+    <div class="serverDetailsClass">
+        <table>
+            <tr>
+                <td colspan="2">
+                    <div id="demoheader3" style="margin-top: 0px;">Vul hieronder uw gegevens in</div>
+                    <c:if test="${not empty message}">
+                        <div id="error">
+                            <div><c:out value="${message}"/></div>
+                        </div>
+                    </c:if>
+                </td>
+            </tr>
+            <tr>
+                <td width="190"><fmt:message key="beheer.userFirstname"/>:</td>
+                <td><html:text property="firstname" size="25" /></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.userSurname"/>:</td>
+                <td><html:text property="surname" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.userEmail"/>:</td>
+                <td><html:text property="emailAddress" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.userUsername"/>:</td>
+                <td><html:text property="username" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.userPassword"/>:</td>
+                <td><html:password property="password" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.repeatpassword"/>:</td>
+                <td><html:password property="repeatpassword" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.name"/>:</td>
+                <td><html:text property="organizationName" size="25"/></td>
+            </tr>
+            <tr>
+                <td><fmt:message key="beheer.organizationTelephone"/>:</td>
+                <td><html:text property="organizationTelephone" size="25"/></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="2" align="left">
+                    <html:submit property="save">
+                        Registreren
                     </html:submit>                                        
-            </center></td>
-        </tr>
-    </table>
+                </td>
+            </tr>
+        </table>
+        
+    </div>
 </html:form>
 <div id="groupDetails" style="clear: left; padding-top: 1px; height: 1px;" class="containerdiv">
     &nbsp;

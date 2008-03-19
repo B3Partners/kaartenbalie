@@ -4,7 +4,14 @@
 <script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
 <link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
 
-<jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
+<div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
+<script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
+<link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
+<script type="text/javascript">
+    var cal = new CalendarPopup("calDiv");
+    cal.setCssPrefix("calcss_");
+</script>
+
 <c:set var="checkAllSrc" scope="page"><html:rewrite page='/js/selectall.js' module=''/></c:set>
 <script language="JavaScript" type="text/javascript" src="${checkAllSrc}"></script>
 
@@ -42,18 +49,30 @@
                         <td valign="middle">
                             <label>Start Datum :</label>
                             <html:text property="startDate" styleId="startDate"/>
-                            <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                                <jsp:param name="elementStyleId" value="startDate"/>
-                            </jsp:include>
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('startDate'),'cal-button','yyyy-MM-dd', document.getElementById('startDate').value); return false;"
+                                 name="cal-button"
+                            />
                         </td>
                     </tr>
                     <tr>
                         <td valign="middle">
                             <label>Eind Datum :</label>
                             <html:text property="endDate" styleId="endDate"/>
-                            <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                                <jsp:param name="elementStyleId" value="endDate"/>
-                            </jsp:include>
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('endDate'),'cal-button','yyyy-MM-dd', document.getElementById('endDate').value); return false;"
+                                 name="cal-button"
+                            />
                         </td>
                     </tr>
                     <tr>
@@ -178,17 +197,24 @@
                                 <td>
                                     ${trs.statusMessage}
                                 </td>
-                                <c:if test="${trs.state == 0}">                        
-                                    <td>
-                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=0"><html:img page="/images/icons/xml.gif"  border="0" module=""/></html:link>
-                                    </td>
-                                    <td>
-                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=1"><html:img page="/images/icons/xslt.gif" border="0" module=""/></html:link>
-                                    </td>
-                                    <td>
-                                        <html:link page="/reporting.do?download=submit&id=${trs.id}&type=2"><html:img page="/images/icons/html.gif" border="0" module=""/></html:link>
-                                    </td>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${trs.state == 0}">                        
+                                        <td>
+                                            <html:link page="/reporting.do?download=submit&id=${trs.id}&type=0"><html:img page="/images/icons/xml.gif"  border="0" module=""/></html:link>
+                                        </td>
+                                        <td>
+                                            <html:link page="/reporting.do?download=submit&id=${trs.id}&type=1"><html:img page="/images/icons/xslt.gif" border="0" module=""/></html:link>
+                                        </td>
+                                        <td>
+                                            <html:link page="/reporting.do?download=submit&id=${trs.id}&type=2"><html:img page="/images/icons/html.gif" border="0" module=""/></html:link>
+                                        </td>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </c:otherwise>
+                                </c:choose>
                             </tr>                
                         </c:forEach>
                     </tbody>

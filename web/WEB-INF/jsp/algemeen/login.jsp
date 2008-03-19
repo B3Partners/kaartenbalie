@@ -1,26 +1,23 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<form action="j_security_check" method='post' >
-    <div class="item">
-        <fmt:message key="algemeen.username"/>:
-    </div>
-    <div class="value">
-        <input type="text" name="j_username">
-    </div>
-    <div class="item">
-        <fmt:message key="algemeen.password"/>:
-    </div>
-    <div class="value">
-        <input type="password" name="j_password">
-    </div>
-    <html:submit property="login" styleClass="knop">
-        <fmt:message key="button.login"/>
-    </html:submit>
+<div class="onderbalk" style="color: #FFF0C4;">LOGIN</div>
+<form id="loginForm" action="j_security_check" method="POST">
+    <div style="height: 430px">
+        <div style="width: 430px; padding: 10px; border: 1px solid #dddddd;">
+            <html:messages id="message" message="true">
+                <div style="color: red; font-weight: bold"><c:out value="${message}"/></div>
+            </html:messages><br />
+            <table>
+                <tr><td>Gebruikersnaam:</td><td><input type="text" name="j_username" size="36"></td></tr>
+                <tr><td>Wachtwoord:</td><td><input type="password" name="j_password" size="36"></td></tr>
+                <tr><td><input type="Submit" value="Login"></td></tr>
+            </table>
+        </div>
+    </div>    
 </form>
-<script type="text/javascript" language="JavaScript">
-  <!--
-  var focusControl = document.forms[0].elements["j_username"];
-  focusControl.focus();
-  // -->
-</script>
 
+<script language="JavaScript">
+<!--
+    document.forms.loginForm.j_username.focus();
+// -->
+</script>

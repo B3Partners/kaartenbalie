@@ -7,7 +7,15 @@
 
 <c:choose>
     <c:when test="${not empty id}">
-        <jsp:include page="/WEB-INF/jsp/inc_calendar.jsp" flush="true"/>
+        
+        <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
+        <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
+        <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
+        <script type="text/javascript">
+            var cal = new CalendarPopup("calDiv");
+            cal.setCssPrefix("calcss_");
+        </script>
+        
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul id="tabul">
@@ -79,7 +87,7 @@
                     <p>
                         <input type="checkbox" onchange="location.href='editpricing.do?id=${id}&summary=' + this.checked;" ${summary == true ? 'checked':''}>Samenvatting ophalen</input>
                     </p>
-                    <button onclick="parent.showPopup(1000,700,'Transactie Details','<html:rewrite page="/pricingtestcalc.do?test=submit&id=${id}"/>');">Proefberekening Maken</button>
+                    <button onclick="location.href = '<html:rewrite page="/pricingtestcalc.do?test=submit&id=${id}"/>'">Proefberekening Maken</button>
                 </div>
                 <div id="details" class="sheet">  
                     <div>
@@ -123,7 +131,7 @@
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.validFrom}">
-                                                    <fmt:formatDate pattern="yyyy-MM-dd" value="${layerPricing.validFrom}"/>        
+                                                    <fmt:formatDate pattern="dd-MM-yyyy" value="${layerPricing.validFrom}"/>        
                                                 </c:when>
                                                 <c:otherwise>
                                                     Altijd
@@ -133,7 +141,7 @@
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.validUntil}">
-                                                    <fmt:formatDate pattern="yyyy-MM-dd" value="${layerPricing.validUntil}"/>
+                                                    <fmt:formatDate pattern="dd-MM-yyyy" value="${layerPricing.validUntil}"/>
                                                 </c:when>
                                                 <c:otherwise>
                                                     Nooit
@@ -194,17 +202,29 @@
                             <tr>
                                 <td>
                                     <label>Geldig vanaf :</label><html:text styleClass="validFrom" property="validFrom" styleId="validFrom"/>
-                                    <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                                        <jsp:param name="elementStyleId" value="validFrom"/>
-                                    </jsp:include> 
+                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                         style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                         title="Date selector"
+                                         alt="Date selector"
+                                         onmouseover="this.style.background='red';" 
+                                         onmouseout="this.style.background=''"
+                                         onClick="cal.select(document.getElementById('validFrom'),'cal-button','yyyy-MM-dd', document.getElementById('validFrom').value); return false;"
+                                         name="cal-button"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label>Geldig tot en met :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
-                                    <jsp:include page="/WEB-INF/jsp/item_calendar.jsp" flush="true">
-                                        <jsp:param name="elementStyleId" value="validUntil"/>
-                                    </jsp:include>
+                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                         style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                         title="Date selector"
+                                         alt="Date selector"
+                                         onmouseover="this.style.background='red';" 
+                                         onmouseout="this.style.background=''"
+                                         onClick="cal.select(document.getElementById('validUntil'),'cal-button','yyyy-MM-dd', document.getElementById('validUntil').value); return false;"
+                                         name="cal-button"
+                                    />
                                 </td>
                             </tr>
                             <tr>
