@@ -314,15 +314,23 @@ public abstract class WMSRequestHandler implements RequestHandler {
                     if (!checkForQueryable || (checkForQueryable && layer_queryable.equals("1"))) {
                         /* Accounting... */
                         if (AccountManager.isEnableAccounting()) {
-                            Date validationDate = new Date(); // today
-                            BigDecimal units = new BigDecimal(1);
-                            LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, scale, units, LayerPricing.PAY_PER_REQUEST, "WMS", dw.getOperation());
-                            tlu.registerUsage(lpc);
-                            
-                            // Only add layer when free or when transactions allowed
-                            Boolean isFree = lpc.getLayerIsFree();
-                            if ((isFree == null || (isFree!=null && !isFree.booleanValue())) && !bAllowTransactions)
-                                continue;
+                            String operation = dw.getOperation();
+                            if(operation==null) {
+                                log.error("Operation can not be null");
+                                throw new Exception("Operation can not be null");
+                            } else if (operation.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
+                                log.debug("Never pricing for GetLegendGraphic.");
+                            } else {
+                                Date validationDate = new Date(); // today
+                                BigDecimal units = new BigDecimal(1);
+                                LayerPriceComposition lpc = lc.calculateLayerComplete(layerId,validationDate,  projection, scale, units, LayerPricing.PAY_PER_REQUEST, "WMS", operation);
+                                tlu.registerUsage(lpc);
+                                
+                                // Only add layer when free or when transactions allowed
+                                Boolean isFree = lpc.getLayerIsFree();
+                                if ((isFree == null || (isFree!=null && !isFree.booleanValue())) && !bAllowTransactions)
+                                    continue;
+                            }
                         }
                         /* End of Accounting */
                         
