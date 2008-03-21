@@ -576,6 +576,7 @@ td.table-sortable {
 td.table-sorted-asc {
     background-image: url("/kaartenbalie/images/icons/table/table_ascending.gif");
     background-position: 2px center;
+    background-repeat: no-repeat;
 }
 td.table-sorted-desc {
     background-image: url("/kaartenbalie/images/icons/table/table_descending.gif");
