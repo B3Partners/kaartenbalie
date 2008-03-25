@@ -15,7 +15,7 @@
             var cal = new CalendarPopup("calDiv");
             cal.setCssPrefix("calcss_");
         </script>
-        
+
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul id="tabul">
@@ -201,29 +201,29 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Geldig vanaf :</label><html:text styleClass="validFrom" property="validFrom" styleId="validFrom"/>
-                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                    <label>Geldig vanaf :</label><html:text property="validFrom" styleId="validFrom"/>
+                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button1"
                                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                                          title="Date selector"
                                          alt="Date selector"
                                          onmouseover="this.style.background='red';" 
                                          onmouseout="this.style.background=''"
-                                         onClick="cal.select(document.getElementById('validFrom'),'cal-button','yyyy-MM-dd', document.getElementById('validFrom').value); return false;"
-                                         name="cal-button"
+                                         onClick="cal.select(document.getElementById('validFrom'),'cal-button1','yyyy-MM-dd', document.getElementById('validFrom').value); return false;"
+                                         name="cal-button1"
                                     />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label>Geldig tot en met :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
-                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button2"
                                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                                          title="Date selector"
                                          alt="Date selector"
                                          onmouseover="this.style.background='red';" 
                                          onmouseout="this.style.background=''"
-                                         onClick="cal.select(document.getElementById('validUntil'),'cal-button','yyyy-MM-dd', document.getElementById('validUntil').value); return false;"
-                                         name="cal-button"
+                                         onClick="cal.select(document.getElementById('validUntil'),'cal-button2','yyyy-MM-dd', document.getElementById('validUntil').value); return false;"
+                                         name="cal-button2"
                                     />
                                 </td>
                             </tr>

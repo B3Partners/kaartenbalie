@@ -17,7 +17,7 @@
 <script type="text/javascript">
     var cal = new CalendarPopup("calDiv");
     cal.setCssPrefix("calcss_");
-    </script>
+</script>
 
 <script type="text/javascript">
     var count=0;
@@ -126,8 +126,6 @@ function doCustomSubmit(){
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
-    <html:hidden property="personalURL" />
-    <html:hidden property="timeout" />
     <html:hidden property="registeredIP" styleId="registeredIP"/>
     <input type="hidden" id="hiddenSaveField"/>
     
@@ -138,9 +136,9 @@ function doCustomSubmit(){
             <thead>
                 <tr class="serverRijTitel" id="topRij">
                     <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="160"><div>Gebruikersnaam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="160"><div>Voornaam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="160"><div>Achternaam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:3}); sortTable(this);" width="160"><div>E-mailadres</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="160"><div>Achternaam</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="260"><div>Rollen</div></td>
+                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:3}); sortTable(this);" width="100"><div>Timeout</div></td>
                 </tr>
             </thead>
         </table>
@@ -163,13 +161,17 @@ function doCustomSubmit(){
                                 </div>
                             </td>
                             <td width="160">
-                                <div style="width: 150px; overflow: hidden;"><c:out value="${nUser.firstName}"/></div>
-                            </td>
-                            <td width="160">
                                 <div style="width: 150px; overflow: hidden;"><c:out value="${nUser.surname}"/></div>
                             </td>
-                            <td width="160">
-                                <div style="width: 150px; overflow: hidden;"><c:out value="${nUser.emailAddress}"/></div>
+                            <td width="260">
+                                <div style="width: 250px; overflow: hidden;">
+                                    <c:forEach var="nRole" varStatus="status" items="${nUser.userroles}">
+                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                    </c:forEach>
+                                </div>
+                            </td>
+                            <td width="100">
+                                <div style="width: 90px; overflow: hidden;"><fmt:formatDate pattern="yyyy-MM-dd" value="${nUser.timeout}" /></div>
                             </td>
                         </tr>
                         <div id="infoLabel${nUser.id}" class="infoLabelClass">
@@ -208,7 +210,7 @@ function doCustomSubmit(){
                                             <html:select property="selectedOrganization">
                                                 <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                                                     <html:option value="${nOrganization.id}">
-                                                    ${nOrganization.name}
+                                                        ${nOrganization.name}
                                                     </html:option>
                                                 </c:forEach>
                                             </html:select>     
@@ -252,7 +254,7 @@ function doCustomSubmit(){
                                                  onmouseout="this.style.background=''"
                                                  onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy-MM-dd', document.getElementById('cal_date').value); return false;"
                                                  name="cal-button"
-                                                 />
+                                            />
                                         </td>
                                     </tr>
                                     <tr>

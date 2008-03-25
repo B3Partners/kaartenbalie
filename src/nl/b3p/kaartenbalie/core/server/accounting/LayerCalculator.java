@@ -181,17 +181,9 @@ public class LayerCalculator {
         return layerPrice;
         
     }
-    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
-        
-        if (projection == null) {
-            log.error("Projection cannot be null");
-            throw new Exception("Projection cannot be null");
-        }
-        if (scale == null) {
-            scale = new BigDecimal(0);
-        }
-        
-        List possibleLayerPricings = em.createQuery(
+    
+    private List getActiveLayerPricingList(Layer layer, Date validationDate, int planType, String service, String operation) throws Exception{
+        return em.createQuery(
                 "FROM LayerPricing AS lp " +
                 "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
                 "AND lp.planType = :planType " +
@@ -210,8 +202,31 @@ public class LayerCalculator {
                 .setParameter("operation",operation)
                 .setParameter("service",service)
                 .getResultList();
+    }
+    
+    public boolean ActiveLayerPricingExists(Layer layer, Date validationDate, int planType, String service, String operation) {
+        try {
+            List possibleLayerPricings = getActiveLayerPricingList(layer, validationDate, planType, service, operation);
+            if (possibleLayerPricings==null || possibleLayerPricings.size()==0)
+                return false;
+            return true;
+        } catch (Exception e) {
+            log.error("Error collecting layer pricings: ", e);
+            return false;
+        }
+    }
+    
+    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
         
+        if (projection == null) {
+            log.error("Projection cannot be null");
+            throw new Exception("Projection cannot be null");
+        }
+        if (scale == null) {
+            scale = new BigDecimal(0);
+        }
         
+        List possibleLayerPricings = getActiveLayerPricingList(layer, validationDate, planType, service, operation);
         Iterator layerPricingIter = possibleLayerPricings.iterator();
         
         /*

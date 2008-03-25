@@ -65,8 +65,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
         layer.setMetaData(metadata);
         
         em.merge(layer);
-		// flush used because database sometimes doesn't update (merge) quickly enough
-		em.flush();
+        // flush used because database sometimes doesn't update (merge) quickly enough
+        em.flush();
         
         showLayerTree(request);
         
@@ -85,10 +85,10 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         String escapedMetadata = StringEscapeUtils.escapeXml(metadata);
         dynaForm.set("metadata", metadata);
-		StringBuffer buffer = request.getRequestURL();
+        StringBuffer buffer = request.getRequestURL();
     }
     
-     
+    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------

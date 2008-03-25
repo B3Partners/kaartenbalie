@@ -54,7 +54,7 @@
 	</head>
 
 	<body>
-		<html:form action="/metadata" onsubmit="checkForm(this); return false;">
+		<html:form action="/editmetadata" onsubmit="checkForm(this); return false;">
 			<html:hidden property="id" />
 			<html:hidden property="name" />
 			<html:hidden property="save" value="val"/>			
