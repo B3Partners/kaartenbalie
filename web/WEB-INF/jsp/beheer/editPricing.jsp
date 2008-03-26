@@ -189,7 +189,7 @@
                     </div>
                 </div>
                 <div id="new" class="sheet">            
-                    <html:form action="/editpricing.do?id=${id}" onsubmit="return validateReportingForm(this)">
+                    <html:form action="/editpricing.do?id=${id}">
                         <table>
                             <tr>
                                 <td>

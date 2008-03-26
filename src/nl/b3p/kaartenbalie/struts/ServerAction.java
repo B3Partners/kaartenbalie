@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,8 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
@@ -40,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
 
@@ -55,6 +59,10 @@ public class ServerAction extends KaartenbalieCrudAction {
     protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
     protected static final String NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY = "error.abbr.notalphanumeric";
     protected static final String ABBR_RESERVED_ERROR_KEY = "error.abbr.reserved";
+    
+    protected static final String ORG_JOINED_KEY = "beheer.server.org.joined";
+    protected static final String LAYER_JOINED_KEY = "beheer.server.layer.joined";
+    protected static final String PRICING_JOINED_KEY = "beheer.server.pricing.joined";
     
     /* Execute method which handles all unspecified requests.
      *
@@ -122,32 +130,13 @@ public class ServerAction extends KaartenbalieCrudAction {
          * otherwise consume a lot of time.
          */
         getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
-        /*
-         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
-         * everything is valid. First there will be checked if the request is valid. This means that every JSP
-         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
-         * checked when an action will be performed.
-         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
-         * when an action is performed and Struts reads this token we can perform a check if this token is an
-         * old token (the page has been requested again with a new token) or the token has already been used for
-         * an action).
-         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
-         * button this action will perform only the first click. Second, if a user has the same page opened twice
-         * only on one page a action can be performed (this is the page which is opened last). The previous page
-         * isn't valid anymore.
-         */
+        
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * If a token is valid the second validation is necessary. This validation performs a check on the
-         * given parameters supported by the user. Off course this check should already have been performed
-         * by a Javascript which does exactly the same, but some browsers might not support JavaScript or
-         * JavaScript can be disabled by the browser/user.
-         */
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
             super.addMessages(request, errors);
@@ -155,17 +144,6 @@ public class ServerAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
-        
-        
-        /*
-         * If previous check were completed succesfully, we can start performing the real request which is
-         * saving the user input. This means that we can start checking if we are dealing with a new
-         * serviceprovider or with an existing one which has to be updated. In both cases we need to load a
-         * new Serviceprovider into the memory. Before we can take any action we need the users input to read
-         * the variables.
-         */
-        //Session sess = getHibernateSession();
         
         String url = dynaForm.getString("url");
         
@@ -188,16 +166,9 @@ public class ServerAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * We have now a fully checked URL which can be used to add a new ServiceProvider
-         * or to change an already existing ServiceProvider. Therefore we are first going
-         * to create some objects which we need to change the data if necessary.
-         */
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-        
-        
         
         if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -324,6 +295,104 @@ public class ServerAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     
+    public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        
+        EntityManager em = getEntityManager();
+        
+        ServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
+        if (null == serviceProvider) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        prepareMethod(dynaForm, request, DELETE, EDIT);
+        
+        Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
+        if (serviceProviderTopLayer!=null) {
+            
+            //Check if layers are bound to organizations
+            MessageResources messages = getResources(request);
+            Locale locale = getLocale(request);
+            String orgJoinedMessage = messages.getMessage(locale, ORG_JOINED_KEY);
+            String layerJoinedMessage = messages.getMessage(locale, LAYER_JOINED_KEY);
+            StringBuffer strMessage = new StringBuffer();
+            
+            List orgList = em.createQuery("from Organization").getResultList();
+            Iterator orgit = orgList.iterator();
+            boolean notFirstOrg = false;
+            while (orgit.hasNext()) {
+                Organization org = (Organization)orgit.next();
+                Set orgLayers = org.getOrganizationLayer();
+                Iterator orgLayerIterator = orgLayers.iterator();
+                boolean notFirstLayer = false;
+                while (orgLayerIterator.hasNext()) {
+                    Layer organizationLayer = (Layer)orgLayerIterator.next();
+                    Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
+                    if (organizationLayerTopLayer!=null &&
+                            organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
+                        if (notFirstLayer)
+                            strMessage.append(", ");
+                        else {
+                            if (notFirstOrg)
+                                strMessage.append(", ");
+                            else {
+                                strMessage.append(orgJoinedMessage);
+                                strMessage.append(": ");
+                                notFirstOrg = true;
+                            }
+                            strMessage.append(org.getName());
+                            
+                            strMessage.append(" [");
+                            strMessage.append(layerJoinedMessage);
+                            strMessage.append(": ");
+                            notFirstLayer = true;
+                        }
+                        strMessage.append(organizationLayer.getName());
+                    }
+                }
+                if (notFirstLayer)
+                    strMessage.append("]");
+                
+            }
+            addAlternateMessage(mapping, request, null, strMessage.toString());
+            
+            //Check if current pricing is bound to this provider
+            List lpList = null;
+            LayerCalculator lc = new LayerCalculator();
+            try {
+                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date());
+            } finally {
+                lc.closeEntityManager();
+            }
+            if (lpList!=null) {
+                Iterator lpit = lpList.iterator();
+                strMessage = new StringBuffer();
+                String pricingJoinedMessage = messages.getMessage(locale, PRICING_JOINED_KEY);
+                boolean notFirstPrice = false;
+                while (lpit.hasNext()) {
+                    LayerPricing lp = (LayerPricing)lpit.next();
+                    String ln = lp.getLayerName(); // unieke naam
+                    if (strMessage.indexOf(ln)==-1) {
+                        if (notFirstPrice)
+                            strMessage.append(", ");
+                        else {
+                            strMessage.append(pricingJoinedMessage);
+                            strMessage.append(": ");
+                            notFirstPrice = true;
+                        }
+                        strMessage.append(ln);
+                    }
+                    
+                }
+                addAlternateMessage(mapping, request, null, strMessage.toString());
+            }
+        }
+        
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
+    }
+    
     /* Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -335,7 +404,6 @@ public class ServerAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         EntityManager em = getEntityManager();
@@ -344,31 +412,13 @@ public class ServerAction extends KaartenbalieCrudAction {
          * otherwise consume a lot of time.
          */
         getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
-        /*
-         * Before we can start deleting a serviceprovider, we first need to check if the given token
-         * is valid. First there will be checked if the request is valid. This means that every JSP
-         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
-         * checked when an action will be performed.
-         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
-         * when an action is performed and Struts reads this token we can perform a check if this token is an
-         * old token (the page has been requested again with a new token) or the token has already been used for
-         * an action).
-         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
-         * button this action will perform only the first click. Second, if a user has the same page opened twice
-         * only on one page a action can be performed (this is the page which is opened last). The previous page
-         * isn't valid anymore.
-         */
+        
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * Get the serviceprovider which is given in the form. If for some reason this
-         * ServiceProvider doesn't exist anymore in the database then we need to catch
-         * this error and show it to the user.
-         */
         ServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
         if (null == serviceProvider) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -376,18 +426,6 @@ public class ServerAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * Instead of letting the Database decide if it is allowed to delete a serviceprovider
-         * we can decide this ourselves. All there has to be done is checking if there are
-         * still rights connected to this serviceprovider. Since the rights to a certain layer
-         * are going from bottom to top (this means if a sub layer is set with right that all
-         * the superlayers of this sublayer also are set with the same rights) all we have to
-         * do is getting the most upper layer and compare this one with the toplayer in the
-         * servicerpovider.
-         * Therefore we only need to create a loop with all the organizationlayers, ask each
-         * one of them for it's toplayer and compare it. If we find one single equality it is
-         * enough to stop the search and give an error.
-         */
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
         if (serviceProviderTopLayer!=null) {
             List orgList = em.createQuery("from Organization").getResultList();
@@ -395,33 +433,32 @@ public class ServerAction extends KaartenbalieCrudAction {
             while (orgit.hasNext()) {
                 Organization org = (Organization)orgit.next();
                 Set orgLayers = org.getOrganizationLayer();
+                
+                HashSet clonedOrgLayers = new HashSet();
+                clonedOrgLayers.addAll(orgLayers);
+                
                 Iterator orgLayerIterator = orgLayers.iterator();
                 while (orgLayerIterator.hasNext()) {
                     Layer organizationLayer = (Layer)orgLayerIterator.next();
                     Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
                     if (organizationLayerTopLayer!=null &&
                             organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
-                        prepareMethod(dynaForm, request, LIST, EDIT);
-                        addAlternateMessage(mapping, request, SERVICE_LINKED_ERROR_KEY);
-                        return getAlternateForward(mapping, request);
+                        clonedOrgLayers.remove(organizationLayer);
                     }
+                }
+                
+                if (orgLayers.size()!=clonedOrgLayers.size()) {
+                    org.setOrganizationLayer(clonedOrgLayers);
+                    em.merge(org);
                 }
             }
         }
         
-        /*
-         * If no errors occured and no right were set anymore to this serviceprovider
-         * we can assume that all is good and we can safely delete this serviceproiver.
-         * Any other exception that might occur is in the form of an unknown or unsuspected
-         * form and will be thrown in the super class.
-         *
-         */
         em.remove(serviceProvider);
         em.flush();
         getDataWarehousing().enlist(ServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
-    // </editor-fold>
     
     /* Creates a list of all the service providers in the database.
      *
@@ -556,7 +593,7 @@ public class ServerAction extends KaartenbalieCrudAction {
     protected String checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
         
-        if(ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) && 
+        if(ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) &&
                 !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
             log.error(KBConfiguration.UNSUPPORTED_REQUEST);
             throw new Exception(KBConfiguration.UNSUPPORTED_REQUEST);
@@ -564,7 +601,7 @@ public class ServerAction extends KaartenbalieCrudAction {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
         }
         
-        if(ogcrequest.containsParameter(OGCConstants.WMS_SERVICE) && 
+        if(ogcrequest.containsParameter(OGCConstants.WMS_SERVICE) &&
                 !OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_SERVICE))) {
             log.error(KBConfiguration.UNSUPPORTED_SERVICE);
             throw new Exception(KBConfiguration.UNSUPPORTED_SERVICE);
@@ -572,7 +609,7 @@ public class ServerAction extends KaartenbalieCrudAction {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
         }
         
-        if(ogcrequest.containsParameter(OGCConstants.WMS_VERSION) && 
+        if(ogcrequest.containsParameter(OGCConstants.WMS_VERSION) &&
                 !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
             log.error(KBConfiguration.UNSUPPORTED_VERSION);
             throw new Exception(KBConfiguration.UNSUPPORTED_VERSION);

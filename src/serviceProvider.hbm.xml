@@ -22,10 +22,6 @@
                     cascade="all"                    
         />
         
-        <!--
-        use cascade="save-update,persist" somewhere??          
-        -->
-        
         <set name="layers" inverse="true" cascade="all" lazy="true">
             <key column="SERVICEPROVIDERID"/>
             <one-to-many class="nl.b3p.wms.capabilities.Layer"/>

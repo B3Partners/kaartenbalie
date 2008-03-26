@@ -5,6 +5,7 @@
 <html:form action="/deposit">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
+    <html:hidden property="orgId"/>
     <h1>Credits kopen voor ${form.orgName}</h1>
     
     <table>

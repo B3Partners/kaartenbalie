@@ -13,11 +13,14 @@ package nl.b3p.kaartenbalie.struts;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -30,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 import org.json.JSONArray;
@@ -44,9 +48,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     
-    //-------------------------------------------------------------------------------------------------------
-    // PUBLIC METHODS
-    //-------------------------------------------------------------------------------------------------------
+    protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     
     /* Execute method which handles all unspecified requests.
      *
@@ -59,14 +61,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         this.createLists(dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
         return mapping.findForward(SUCCESS);
     }
-    // </editor-fold>
     
     /* Edit method which handles all editable requests.
      *
@@ -104,36 +104,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception, HibernateException
      */
-    // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         
         EntityManager em = getEntityManager();
-        /*
-         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
-         * everything is valid. First there will be checked if the request is valid. This means that every JSP
-         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
-         * checked when an action will be performed.
-         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
-         * when an action is performed and Struts reads this token we can perform a check if this token is an
-         * old token (the page has been requested again with a new token) or the token has already been used for
-         * an action).
-         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
-         * button this action will perform only the first click. Second, if a user has the same page opened twice
-         * only on one page a action can be performed (this is the page which is opened last). The previous page
-         * isn't valid anymore.
-         */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * If a token is valid the second validation is necessary. This validation performs a check on the
-         * given parameters supported by the user. Off course this check should already have been performed
-         * by a Javascript which does exactly the same, but some browsers might not support JavaScript or
-         * JavaScript can be disabled by the browser/user.
-         */
         ActionErrors errors = dynaForm.validate(mapping, request);
         if(!errors.isEmpty()) {
             addMessages(request, errors);
@@ -142,11 +121,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * No errors occured during validation and token check. Therefore we can get a new
-         * organization object if a we are dealing with new input of the user, otherwise we
-         * can change the organization object which is already know, because of it's id.
-         */
         Organization organization = getOrganization(dynaForm, request, true);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -154,10 +128,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * Once we have a (new or existing) organization object we can fill this object with
-         * the user input.
-         */
         populateOrganizationObject(dynaForm, organization);
         
         /*
@@ -168,12 +138,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }
         
-        /*
-         * No errors occured so we can assume that all is good and we can safely
-         * save this organization. Any other exception that might occur is in the
-         * form of an unknown or unsuspected form and will be thrown in the super
-         * class.
-         */
         if (organization.getId() == null) {
             em.persist(organization);
         } else {
@@ -183,7 +147,47 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping,dynaForm,request,response);
     }
-    // </editor-fold>
+    
+    public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        
+        EntityManager em = getEntityManager();
+        Organization organization = getOrganization(dynaForm, request, false);
+        if (null == organization) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        prepareMethod(dynaForm, request, DELETE, EDIT);
+        
+        Set userList = organization.getUser();
+        if(userList!=null && !userList.isEmpty()) {
+            
+            MessageResources messages = getResources(request);
+            Locale locale = getLocale(request);
+            String userJoinedMessage = messages.getMessage(locale, USER_JOINED_KEY);
+            StringBuffer strMessage = new StringBuffer();
+            
+            Iterator it = userList.iterator();
+            boolean notFirstUser = false;
+            while (it.hasNext()) {
+                User u = (User)it.next();
+                if (notFirstUser)
+                    strMessage.append(", ");
+                else {
+                    strMessage.append(userJoinedMessage);
+                    strMessage.append(": ");
+                    notFirstUser = true;
+                }
+                strMessage.append(u.getSurname());
+                
+            }
+            addAlternateMessage(mapping, request, null, strMessage.toString());
+        }
+        
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
+    }
     
     /* Method for deleting an organization selected by a user.
      *
@@ -196,35 +200,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception, HibernateException
      */
-    // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         
         EntityManager em = getEntityManager();
-        /*
-         * Before we can start checking for changes or adding a new serviceprovider, we first need to check if
-         * everything is valid. First there will be checked if the request is valid. This means that every JSP
-         * page, when it is requested, gets a unique hash token. This token is internally saved by Struts and
-         * checked when an action will be performed.
-         * Each time when a JSP page is opened (requested) a new hash token is made and added to the page. Now
-         * when an action is performed and Struts reads this token we can perform a check if this token is an
-         * old token (the page has been requested again with a new token) or the token has already been used for
-         * an action).
-         * This type of check performs therefore two safety's. First of all if a user clicks more then once on a
-         * button this action will perform only the first click. Second, if a user has the same page opened twice
-         * only on one page a action can be performed (this is the page which is opened last). The previous page
-         * isn't valid anymore.
-         */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         
-        /*
-         * No errors occured during validation and token check. Therefore we can get
-         * the selected user from the database. If this user is unknown in the database
-         * something has gone wrong and we need to inform the user about it.
-         */
         Organization organization = getOrganization(dynaForm, request, false);
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -232,32 +216,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        populateOrganizationObject(dynaForm, organization);
-        
-        /*
-         * Instead of letting the Database decide if it is allowed to delete an organization
-         * we can decide this our selfs. All there has to be done is checking if there are
-         * still users connected to this organization. This is easily done by checking if an
-         * organization has a empty set of users or not.
-         */
-        if(!organization.getUser().isEmpty()) {
-            prepareMethod(dynaForm, request, LIST, EDIT);
-            addAlternateMessage(mapping, request, ORGANIZATION_LINKED_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
-        
-        /*
-         * Otherwise we can assume that all is good and we can safely delete this organization.
-         * Any other exception that might occur is in the form of an unknown or unsuspected
-         * form and will be thrown in the super class.
-         */
-        
         em.remove(organization);
         em.flush();
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
-    // </editor-fold>
     
     /* Creates a list with the available layers.
      *
@@ -266,12 +229,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws HibernateException, JSONException, Exception
      */
-    // <editor-fold defaultstate="" desc="create(DynaValidatorForm form, HttpServletRequest request) method.">
+// <editor-fold defaultstate="" desc="create(DynaValidatorForm form, HttpServletRequest request) method.">
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, JSONException, Exception {
         request.setAttribute("layerList", createTree());
         return super.create(mapping, dynaForm, request, response);
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Creates a list with the available layers.
      *
@@ -280,7 +243,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws HibernateException, JSONException, Exception
      */
-    // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+// <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
         
@@ -288,11 +251,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
-    // </editor-fold>
+// </editor-fold>
     
-    //-------------------------------------------------------------------------------------------------------
-    // PRIVATE METHODS
-    //-------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
+// PRIVATE METHODS
+//-------------------------------------------------------------------------------------------------------
     
     /* Method which returns the organization with a specified id.
      *
@@ -303,7 +266,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Organization object.
      */
-    // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
+// <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
         
         EntityManager em = getEntityManager();
@@ -318,7 +281,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
         return organization;
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Method which gets the hidden id in a form.
      *
@@ -331,11 +294,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+// <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Method which will fill the JSP form with the data of  a given organization.
      *
@@ -343,7 +306,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    // <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+// <editor-fold defaultstate="" desc="populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     private void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException {
         dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
@@ -376,7 +339,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         request.setAttribute("checkedLayers", checkedLayers);
         
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Method that fills an organization object with the user input from the forms.
      *
@@ -385,7 +348,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param layerList List with all the layers
      * @param selectedLayers String array with the selected layers for this organization
      */
-    // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] selectedLayers) method.">
+// <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] selectedLayers) method.">
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization) throws Exception {
         
         EntityManager em = getEntityManager();
@@ -409,7 +372,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 log.error("BBOX wrong size: " + boxxvalues.length);
                 throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
-
+            
             double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
             try {
                 minx = Double.parseDouble(boxxvalues[0]);
@@ -460,7 +423,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
         organization.setOrganizationLayer(layers);
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Creates a JSON tree from a list of serviceproviders from the database.
      *
@@ -470,7 +433,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="" desc="createTree() method.">
+// <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
         
         EntityManager em = getEntityManager();
@@ -503,7 +466,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         root.put("children", rootArray);
         return root;
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
@@ -514,7 +477,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
+// <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
     private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
         /* This method has a recusive function in it. Its function is to create a list of layers
          * in a tree like array which can be used to build up a menu structure.
@@ -555,7 +518,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return parent;
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Creates a JSON object from the ServiceProvider with its given name and id.
      *
@@ -565,7 +528,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
+// <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
     private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
@@ -573,7 +536,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         root.put("type", "serviceprovider");
         return root;
     }
-    // </editor-fold>
+// </editor-fold>
     
     /* Creates a JSON object from the Layer with its given name and id.
      *
@@ -583,7 +546,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws JSONException
      */
-    // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
+// <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
     private JSONObject layerToJSON(Layer layer) throws JSONException{
         
         JSONObject jsonLayer = new JSONObject();
@@ -598,5 +561,5 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         return jsonLayer;
     }
-    // </editor-fold>
+// </editor-fold>
 }

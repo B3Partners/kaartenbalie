@@ -157,22 +157,29 @@
                     </table>
                     
                     <div class="knoppen">
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
                             <fmt:message key="button.cancel"/>
                         </html:cancel>
-                        <c:if test="${empty mainid}">
-                            <html:submit property="save" accesskey="s" styleClass="knop">
-                                <fmt:message key="button.save"/>
-                            </html:submit>
-                        </c:if>
-                        <c:if test="${not empty mainid}">
-                            <html:submit property="save" accesskey="s" styleClass="knop">
-                                <fmt:message key="button.update"/>
-                            </html:submit>
-                            <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                                <fmt:message key="button.remove"/>
-                            </html:submit>
-                        </c:if>
+                        <c:choose>
+                            <c:when test="${save || delete}">
+                                <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                                    <fmt:message key="button.ok"/>
+                                </html:submit>
+                            </c:when>
+                            <c:when test="${not empty mainid}">
+                                <html:submit property="save" accesskey="s" styleClass="knop">
+                                    <fmt:message key="button.update"/>
+                                </html:submit>
+                                <html:submit property="deleteConfirm" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                                    <fmt:message key="button.remove"/>
+                                </html:submit>
+                            </c:when>
+                            <c:otherwise>
+                                <html:submit property="save" accesskey="s" styleClass="knop">
+                                    <fmt:message key="button.save"/>
+                                </html:submit>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </c:when>

@@ -182,6 +182,21 @@ public class LayerCalculator {
         
     }
     
+     public List getSpLayerPricingList(String spabbr, Date validationDate) throws Exception{
+        return em.createQuery(
+                "FROM LayerPricing AS lp " +
+                "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
+                "AND lp.serverProviderPrefix = :serverProviderPrefix " +
+                "AND lp.creationDate <= :validationDate " +
+                "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
+                "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
+                "ORDER BY lp.indexCount DESC")
+                .setParameter("serverProviderPrefix",spabbr)
+                .setParameter("validationDate",validationDate)
+                .getResultList();
+    }
+    
+   
     private List getActiveLayerPricingList(Layer layer, Date validationDate, int planType, String service, String operation) throws Exception{
         return em.createQuery(
                 "FROM LayerPricing AS lp " +

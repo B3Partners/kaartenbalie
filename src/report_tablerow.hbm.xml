@@ -8,9 +8,9 @@
         <id name="id" type="int" column="tro_id" >
             <generator class="native"/>
         </id>
-        <many-to-one name="dataTable" column="tro_tab_id" update="true" not-null="false"/>  
-        <set name="rowValues" order-by="rva_valueOrder ASC">
-            <key column="rva_tro_id" update="false"/>
+        <many-to-one name="dataTable" column="tro_tab_id"/>  
+        <set name="rowValues" inverse="true"  cascade="all, delete-orphan" order-by="rva_valueOrder ASC">
+            <key column="rva_tro_id"/>
             <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue"/>
         </set>   
         

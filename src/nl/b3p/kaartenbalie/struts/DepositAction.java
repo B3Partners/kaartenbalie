@@ -20,6 +20,7 @@ import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 public class DepositAction extends KaartenbalieCrudAction {
     private static final Log log = LogFactory.getLog(DepositAction.class);
     
+    protected static final String BACK = "back";
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
@@ -73,7 +75,10 @@ public class DepositAction extends KaartenbalieCrudAction {
         tpd.setCreditAlteration(creditAlt);
         tpd.setTxExchangeRate(exchangeRate);
         am.commitTransaction(tpd, (User) request.getUserPrincipal());
-        return super.create(mapping, dynaForm, request, response);
+        
+        ActionRedirect redirect = new ActionRedirect(mapping.findForward(BACK));
+        redirect.addParameter("selectedOrganization", organization.getId().toString());
+        return redirect;
     }
     
     

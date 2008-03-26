@@ -13,8 +13,8 @@
         <subclass name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepDataDetails" discriminator-value="ReportDataDetails">
             <property name="minHour" column="rpd_minHour"/>
             <property name="maxHour" column="rpd_maxHour"/>
-            <set name="usageDetails" > 
-                <key column="usd_rpd_id" update="true" not-null="false" /> 
+            <set name="usageDetails" inverse="true" cascade="all, delete-orphan"> 
+                <key column="usd_rpd_id"/> 
                 <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.UsageDetails"/> 
             </set>        
             
