@@ -15,10 +15,10 @@
     <formset>
         <form name="reportingForm">
             <field property="endDate" depends="required">
-                <arg0 key="beheer.endDate"/>
+                <arg0 key="beheer.reporting.endDate"/>
              </field>
             <field property="startDate" depends="required">
-                <arg0 key="beheer.startDate"/>
+                <arg0 key="beheer.reporting.startDate"/>
              </field>
         </form>
         <form name="userForm">
@@ -68,6 +68,20 @@
             </field>
             <field property="telephone" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
+            </field>           
+        </form>
+        <form name="depositForm">
+            <field property="amount" depends="required, integer"> <!-- required -->
+                <arg0 key="beheer.deposit.amount"/>
+            </field>
+            <field property="fraction" depends="integer"> <!-- required -->
+                <arg0 key="beheer.deposit.amount"/>
+            </field>
+            <field property="description" depends="required"> <!-- required -->
+                <arg0 key="beheer.deposit.description"/>
+            </field>           
+            <field property="paymentMethod" depends="required"> <!-- required -->
+                <arg0 key="beheer.deposit.paymentMethod"/>
             </field>           
         </form>
     </formset>

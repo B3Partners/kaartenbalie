@@ -18,6 +18,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit;
+import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionRedirect;
@@ -44,7 +45,21 @@ public class DepositAction extends KaartenbalieCrudAction {
         return mapping.findForward(FAILURE);
     }
     
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        ActionErrors errors = dynaForm.validate(mapping, request);
+        if(!errors.isEmpty()) {
+            super.addMessages(request, errors);
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
         /*
          * Alle gegevens voor de betaling.
          */
@@ -62,11 +77,24 @@ public class DepositAction extends KaartenbalieCrudAction {
         /*
          * Start de transactie
          */
+        StringBuffer tdesc = new StringBuffer();
+        if (description!=null)
+            tdesc.append(description);
+        if (paymentMethod!=null) {
+            tdesc.append("/");
+            tdesc.append(paymentMethod);
+        }
+        if (exchangeRate!=null) {
+            tdesc.append("/1:");
+            tdesc.append(exchangeRate);
+        }
+        if (tdesc.length()>32)
+            tdesc = new StringBuffer(tdesc.substring(0,32));
+                    
         Organization organization = getOrganization(dynaForm, request);
         AccountManager am = AccountManager.getAccountManager(organization.getId());
         TransactionPaymentDeposit tpd = (TransactionPaymentDeposit) am.prepareTransaction(
-                TransactionPaymentDeposit.class,
-                "KB koers 1:" + exchangeRate.toString() + " " + description);
+                TransactionPaymentDeposit.class, tdesc.toString());
         /*
          * Prijs, koers, conversie.
          */

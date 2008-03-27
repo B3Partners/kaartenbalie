@@ -101,13 +101,6 @@ function updateDiv() {
         maxcount=count;
 }
 
-function doCustomSubmit(){
-    collectIps();
-    document.getElementById("hiddenSaveField").name="save";
-    document.getElementById("hiddenSaveField").value="t";
-    document.forms[0].submit();
-}
-
 function collectIps(){
     var ipadresses="";
     for(i = 0; i <= maxcount; i++){
@@ -135,7 +128,6 @@ function collectIps(){
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
     <html:hidden property="registeredIP" styleId="registeredIP"/>
-    <input type="hidden" id="hiddenSaveField"/>
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Gebruikers</H1>

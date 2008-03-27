@@ -15,7 +15,7 @@
 <c:set var="checkAllSrc" scope="page"><html:rewrite page='/js/selectall.js' module=''/></c:set>
 <script language="JavaScript" type="text/javascript" src="${checkAllSrc}"></script>
 
-<H1>Beheer Reporting</H1>
+<H1><fmt:message key="beheer.reporting.title"/></H1>
 
 
 <html:form action="/reporting" focus="startDate" onsubmit="return validateReportingForm(this)">
@@ -36,8 +36,8 @@
             <div id="DataUsageReport" class="sheet">
                 <table>
                     <tr>
+                        <td><b><fmt:message key="beheer.reporting.organization"/>:</b></td>
                         <td>
-                            <label>Organisatie :</label>
                             <html:select property="organizationId">
                                 <c:forEach var="organization" items="${organizations}">
                                     <html:option value="${organization.id}"> ${organization.name} (${organization.id})</html:option>
@@ -46,50 +46,48 @@
                         </td>
                     </tr>
                     <tr>
-                        <td valign="middle">
-                            <label>Start Datum :</label>
-                            <html:text property="startDate" styleId="startDate"/>
-                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
-                                 title="Date selector"
-                                 alt="Date selector"
-                                 onmouseover="this.style.background='red';" 
-                                 onmouseout="this.style.background=''"
-                                 onClick="cal.select(document.getElementById('startDate'),'cal-button','yyyy-MM-dd', document.getElementById('startDate').value); return false;"
-                                 name="cal-button"
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="middle">
-                            <label>Eind Datum :</label>
-                            <html:text property="endDate" styleId="endDate"/>
-                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
-                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
-                                 title="Date selector"
-                                 alt="Date selector"
-                                 onmouseover="this.style.background='red';" 
-                                 onmouseout="this.style.background=''"
-                                 onClick="cal.select(document.getElementById('endDate'),'cal-button','yyyy-MM-dd', document.getElementById('endDate').value); return false;"
-                                 name="cal-button"
-                            />
-                        </td>
-                    </tr>
-                    <tr>
+                        <td><b><fmt:message key="beheer.reporting.startDate"/>:</b></td>
                         <td>
-                            <label>Gebruikers :</label>alle
+                            <html:text property="startDate" styleId="startDate"/>
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button1"
+                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('startDate'),'cal-button1','yyyy-MM-dd', document.getElementById('startDate').value); return false;"
+                                 name="cal-button1"
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><b><fmt:message key="beheer.reporting.endDate"/>:</b></td>
+                        <td>
+                            <html:text property="endDate" styleId="endDate"/>
+                            <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button2"
+                                 style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
+                                 title="Date selector"
+                                 alt="Date selector"
+                                 onmouseover="this.style.background='red';" 
+                                 onmouseout="this.style.background=''"
+                                 onClick="cal.select(document.getElementById('endDate'),'cal-button2','yyyy-MM-dd', document.getElementById('endDate').value); return false;"
+                                 name="cal-button2"
+                            />
                         </td>
                     </tr>
                 </table>                
-                <html:submit property="create" styleClass="submit">Maak rapport</html:submit>
+                <html:submit property="create" styleClass="submit">
+                    <fmt:message key="button.report"/>
+                </html:submit>
             </div>
             <div id="ServerPerformanceReport" class="sheet">
+                Under construction
             </div>
         </div>
     </div>
     <div style="height: 25px;"></div>
     <fieldset class="reportingFieldset">
-        <legend>Reporting Server Load</legend>
+        <legend><fmt:message key="beheer.reporting.load"/></legend>
         
         <fmt:formatNumber maxFractionDigits="0" var="percentage" value="${workloadData[0]}"/>
         <c:choose>
@@ -121,32 +119,16 @@
                     </div>
                 </td>
             </tr>
-            <tr>
+             <tr>
                 <td>
-                    <label style="width: 175px;">Status:</label>
-                    <c:choose>
-                        <c:when test="${workloadData[0] > 95}">
-                            Extremely Busy
-                        </c:when>
-                        <c:when test="${workloadData[0] > 0}">
-                            Busy
-                        </c:when>
-                        <c:otherwise>
-                            Idle
-                        </c:otherwise>
-                    </c:choose>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label style="width: 175px;">Reports waiting in Queue:</label> ${workloadData[1]}
+                    Wachtrij rapporten: ${workloadData[1]}
                 </td>
             </tr>
         </table>       
     </fieldset>
     <div style="height: 5px;"></div>
     <fieldset class="reportingFieldset">
-        <legend>Reports</legend>
+        <legend><fmt:message key="beheer.reporting.reports"/></legend>
         <c:choose>
             <c:when test="${fn:length(reportStatus) > 0}">
                 <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Vernieuw</html:submit>
@@ -224,7 +206,7 @@
                 </script>
             </c:when>
             <c:otherwise>
-                Er zijn geen rapporten beschikbaar
+                <fmt:message key="beheer.reporting.noreports"/>
             </c:otherwise>
         </c:choose>
     </fieldset>

@@ -9,17 +9,30 @@
     <html:select property="selectedOrganization" onchange="submit();">
         <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
             <html:option value="${nOrganization.id}">
-            ${nOrganization.name}
+                ${nOrganization.name}
             </html:option>
         </c:forEach>
+    </html:select> 
+    Startregel
+    <html:select property="firstResult" onchange="submit();">
+            <html:option value="0">1</html:option>
+            <html:option value="19">20</html:option>
+            <html:option value="99">100</html:option>
+            <html:option value="999">1000</html:option>
+            <html:option value="9999">10000</html:option>
+    </html:select>
+    Regels per pagina
+    <html:select property="listMax" onchange="submit();">
+            <html:option value="20">20</html:option>
+            <html:option value="50">50</html:option>
+            <html:option value="100">100</html:option>
+            <html:option value="500">500</html:option>
     </html:select>     
-    <html:hidden property="firstResult"/>
-    <html:hidden property="listMax"/>
 </html:form>
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px; margin-top: 15px;">
     <div id="tabs">
         <ul id="tabul" style="width: 650px;">
-            <li id="Withdrawls" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Afboekingen</a></li>            
+            <li id="Withdrawals" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Afboekingen</a></li>            
             <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Bijboekingen</a></li>
             <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Account Details</a></li>
         </ul>
@@ -30,22 +43,21 @@
             Credit Overzicht:
             <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
             <p>
-            <html:link page="/deposit.do?orgId=${form.selectedOrganization}" module="/beheer">
-                Credits aanschaffen
-            </html:link>
+                <html:link page="/deposit.do?orgId=${form.selectedOrganization}" module="/beheer">
+                    Credits aanschaffen
+                </html:link>
             </p>
         </div>
         <div id="Deposits" class="sheet">
             <div style="padding-right: 20px;">
-                <table id="depositTable" style="width: 100%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
+                <table id="depositTable" style="width: 95%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="headerRijTitel">
                             <th>Aangemaakt</th>
                             <th>Verwerkt</th>
-                            <th>Methode</th>
-                            <th style="padding-right: 10px;">Valuta &euro;</th>
-                            <th style="padding-right: 10px;">Koers</th>
-                            <th style="padding-right: 10px;">Resultaat</th>
+                            <th>Valuta &euro;</th>
+                            <th>Omschrijving</th>
+                            <th>Resultaat</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -60,14 +72,11 @@
                                 <td>
                                     <fmt:formatDate  value="${tpd.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/>
                                 </td>
-                                <td>
-                                    iDeal
-                                </td>
                                 <td style="text-align: right; padding-right: 10px;" class="">
                                     <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.billingAmount}" />
                                 </td>
                                 <td style="text-align: right; padding-right: 10px;" class="">
-                                    1:${tpd.txExchangeRate}
+                                    ${tpd.description}
                                 </td>                    
                                 <td style="text-align: right; padding-right: 10px;" class="">
                                     <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${tpd.creditAlteration}" /> c
@@ -94,9 +103,9 @@
                 </script>
             </div>
         </div>
-        <div id="Withdrawls" class="sheet">
+        <div id="Withdrawals" class="sheet">
             <div style="padding-right: 20px;">
-                <table id="withdrawlTable" style="width: 100%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
+                <table id="withdrawlTable" style="width: 95%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="headerRijTitel">
                             <th>Aangemaakt</th>
@@ -147,4 +156,4 @@
 </div>
 <script language="JavaScript" type="text/javascript">
     window.onLoad = registerCollection('accountCollection', 'AccountDetails');
-    </script>
+</script>

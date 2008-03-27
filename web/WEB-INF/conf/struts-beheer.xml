@@ -177,13 +177,14 @@
         </action>        
         <action path="/deposit" name="depositForm" type="nl.b3p.kaartenbalie.struts.DepositAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.deposit"/>
+            <forward name="failure" path="base.beheer.deposit"/>
             <forward name="back" path="/accounting.do"/>
-            <forward name="failure" path="/accounting.do"/>
         </action>            
         
         <action path="/transaction" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.accounting.transaction"/>
             <forward name="failure" path="base.beheer.accounting.transaction"/>
+            <forward name="back" path="/accounting.do"/>
         </action>        
         
         

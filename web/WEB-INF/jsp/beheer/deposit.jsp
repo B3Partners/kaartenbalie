@@ -2,7 +2,8 @@
 
 <c:set var="form" value="${depositForm.map}"/>
 
-<html:form action="/deposit">
+<html:javascript formName="depositForm" staticJavascript="false"/>
+<html:form action="/deposit" onsubmit="return validateDepositForm(this)" focus="amount">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="orgId"/>
@@ -35,11 +36,14 @@
                 Betaalmethode: 
             </td>
             <td>
-                <html:radio property="paymentMethod" value="online"/> Online
+                <html:radio property="paymentMethod" value="Ogone"/> Ogone
+                <html:radio property="paymentMethod" value="DocData"/> DocData
+                <html:radio property="paymentMethod" value="Bibit"/> Bibit
+                <html:radio property="paymentMethod" value="iDeal"/> iDeal
             </td>
         </tr>
     </table>
-    <html:submit property="create" accesskey="c" styleClass="knop">
+    <html:submit property="save" accesskey="s" styleClass="knop">
         <fmt:message key="button.save"/>
     </html:submit>
     <html:cancel/>

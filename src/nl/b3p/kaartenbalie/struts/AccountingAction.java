@@ -37,9 +37,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
         Map map = super.getActionMethodPropertiesMap();
         ExtendedMethodProperties crudProp = new ExtendedMethodProperties(TRANSACTION);
         crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.accounting.transaction.succes");
         crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.accounting.transaction.succes");
         map.put(TRANSACTION, crudProp);
         return map;
     }
