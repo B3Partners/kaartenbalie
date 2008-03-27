@@ -10,6 +10,8 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.dom4j.CDATA;
 import org.hibernate.HibernateException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +52,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
+    protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
     
     /* Execute method which handles all unspecified requests.
      *
@@ -160,13 +164,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
         prepareMethod(dynaForm, request, DELETE, EDIT);
         
+        MessageResources messages = getResources(request);
+        Locale locale = getLocale(request);
+        String userJoinedMessage = messages.getMessage(locale, USER_JOINED_KEY);
+        String creditsJoinedMessage = messages.getMessage(locale, CREDITS_JOINED_KEY);
+        StringBuffer strMessage = null;
+        
         Set userList = organization.getUser();
         if(userList!=null && !userList.isEmpty()) {
             
-            MessageResources messages = getResources(request);
-            Locale locale = getLocale(request);
-            String userJoinedMessage = messages.getMessage(locale, USER_JOINED_KEY);
-            StringBuffer strMessage = new StringBuffer();
+            strMessage = new StringBuffer();
             
             Iterator it = userList.iterator();
             boolean notFirstUser = false;
@@ -183,6 +190,19 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 
             }
             addAlternateMessage(mapping, request, null, strMessage.toString());
+        }
+        
+        Account acc = organization.getAccount();
+        if (acc!=null) {
+            BigDecimal cb = acc.getCreditBalance();
+            if (cb!=null && cb.doubleValue()>0) {
+                cb.setScale(2, RoundingMode.HALF_UP);
+                strMessage = new StringBuffer();
+                strMessage.append(creditsJoinedMessage);
+                strMessage.append(": ");
+                strMessage.append(cb.toString());
+                addAlternateMessage(mapping, request, null, strMessage.toString());
+            }
         }
         
         addDefaultMessage(mapping, request);

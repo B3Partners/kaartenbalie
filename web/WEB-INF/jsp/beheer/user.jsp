@@ -21,6 +21,7 @@
 
 <script type="text/javascript">
     var count=0;
+    var maxcount=0;
     var iplist="${form.map.registeredIP}";
     function addRow(evalue) 
     {        
@@ -95,11 +96,21 @@ function updateDiv() {
     else
         objDiv.style.height = count * 32 + 'px';
     objDiv.scrollTop = objDiv.scrollHeight;
+    
+    if (count>maxcount)
+        maxcount=count;
 }
 
 function doCustomSubmit(){
+    collectIps();
+    document.getElementById("hiddenSaveField").name="save";
+    document.getElementById("hiddenSaveField").value="t";
+    document.forms[0].submit();
+}
+
+function collectIps(){
     var ipadresses="";
-    for(i = 0; i <= count; i++){
+    for(i = 0; i <= maxcount; i++){
         var element=document.getElementById("regip"+i);            
         if(element && element.value.length>0){
             var val=element.value;
@@ -113,16 +124,13 @@ function doCustomSubmit(){
     if (ipadresses.length>0){
         document.getElementById("registeredIP").value=ipadresses;
     }
-    document.getElementById("hiddenSaveField").name="save";
-    document.getElementById("hiddenSaveField").value="t";
-    document.forms[0].submit();
-    
 }
+
 
 </script>
 
 <html:javascript formName="userForm" staticJavascript="false"/>
-<html:form action="/user" onsubmit="return validateUserForm(this)" focus="firstname">
+<html:form action="/user" onsubmit="collectIps(); return validateUserForm(this)" focus="firstname">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -304,18 +312,29 @@ function doCustomSubmit(){
                     </table>
                     
                     <div class="knoppen">
-                        <c:if test="${empty mainid}">
-                            <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.save"/>"/>
-                        </c:if>
-                        <c:if test="${not empty mainid}">
-                            <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.update"/>"/>
-                            <html:submit property="delete" accesskey="d" styleClass="knop" onclick="bCancel=true">
-                                <fmt:message key="button.remove"/>
-                            </html:submit>
-                        </c:if>
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
                             <fmt:message key="button.cancel"/>
                         </html:cancel>
+                        <c:choose>
+                            <c:when test="${save || delete}">
+                                <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                                    <fmt:message key="button.ok"/>
+                                </html:submit>
+                            </c:when>
+                            <c:when test="${not empty mainid}">
+                                <html:submit property="save" accesskey="s" styleClass="knop">
+                                    <fmt:message key="button.update"/>
+                                </html:submit>
+                                <html:submit property="deleteConfirm" accesskey="d" styleClass="knop" onclick="bCancel=true">
+                                    <fmt:message key="button.remove"/>
+                                </html:submit>
+                            </c:when>
+                            <c:otherwise>
+                                <html:submit property="save" accesskey="s" styleClass="knop">
+                                    <fmt:message key="button.save"/>
+                                </html:submit>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </c:when>

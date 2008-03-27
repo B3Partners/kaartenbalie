@@ -18,6 +18,7 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import javax.persistence.EntityManager;
@@ -39,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 
@@ -52,6 +54,8 @@ public class UserAction extends KaartenbalieCrudAction {
     protected static final String DATE_PARSE_ERROR_KEY = "error.dateparse";
     protected static final String DATE_INPUT_ERROR_KEY = "error.dateinput";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
+    
+    protected static final String LAST_JOINED_KEY = "beheer.user.last.joined";
     
     /* Execute method which handles all executable requests.
      *
@@ -145,7 +149,7 @@ public class UserAction extends KaartenbalieCrudAction {
         
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
-
+        
         prepareMethod(dynaForm, request, EDIT, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
@@ -210,6 +214,39 @@ public class UserAction extends KaartenbalieCrudAction {
         
         // Alles ok
         return null;
+    }
+    
+    public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        
+        EntityManager em = getEntityManager();
+        User user = getUser(dynaForm, request, false);
+        if (user == null) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        User sessionUser = (User) request.getUserPrincipal();
+        if(sessionUser.getId().equals(user.getId())) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        prepareMethod(dynaForm, request, DELETE, EDIT);
+        
+        MessageResources messages = getResources(request);
+        Locale locale = getLocale(request);
+        String lastJoinedMessage = messages.getMessage(locale, LAST_JOINED_KEY);
+        
+        Organization org = user.getOrganization();
+        Set userList = org.getUser();
+        if(userList==null || userList.size()<=1) {
+            addAlternateMessage(mapping, request, null, lastJoinedMessage);
+        }
+        
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
     }
     
     /* Method for deleting a user.
