@@ -59,6 +59,7 @@
 			<html:hidden property="name" />
 			<html:hidden property="save" value="val"/>			
 
+			<!--[if! ie]><!-->This will show to everyone except Internet Explorer users.<![endif]-->
 			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 
 			<div id="write-root" onclick="click();"></div>

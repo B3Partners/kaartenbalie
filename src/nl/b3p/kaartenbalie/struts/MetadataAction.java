@@ -10,6 +10,9 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.*;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -29,6 +33,8 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class MetadataAction extends KaartenbalieCrudAction {
     
@@ -62,6 +68,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         
         String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
+		
         layer.setMetaData(metadata);
         
         em.merge(layer);

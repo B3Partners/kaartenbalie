@@ -71,7 +71,36 @@ function initWithXmlString() {
 	xmlTransformer = new XML.Transformer(xslDoc);
 	xmlTransformer.setParameter("basePath", baseFullPath);
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
+	
+	insertTitle();
 }
+
+function insertTitle() {
+	var titleXMLNode = findNode("gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString");
+	debug("titleXMLNode.nodeType: " + titleXMLNode.nodeType);
+	debug("titleXMLNode.childNodes.length: " + titleXMLNode.childNodes.length);
+	var titleString = "";
+	for (var i = 0; i < titleXMLNode.childNodes.length; i++) {
+		var node = titleXMLNode.childNodes[i];
+		debug("node.nodeType: " + node.nodeType);
+		if (node.nodeType == Node.TEXT_NODE) {
+			debug("node.nodeValue: " + node.nodeValue);
+			titleString += node.nodeValue;
+		}
+	}
+	debug("titleString: " + titleString);
+	
+	var titleXHTMLElement = document.createElement("h1");
+	titleXHTMLElement.innerHTML = "";
+	titleXHTMLElement.appendChild(document.createTextNode(titleString));
+	debug("titleXHTMLElement.innerHTML: " + titleXHTMLElement.innerHTML);
+	
+	var writeRootElement = document.getElementById("write-root");
+	debug("writeRootElement.nodeType: " + writeRootElement.nodeType);
+	debug("writeRootElement.firstChild.nodeType: " + writeRootElement.firstChild.nodeType);	
+	writeRootElement.insertBefore(titleXHTMLElement, writeRootElement.firstChild);
+}
+
 
 // parameters: 
 //				- path: is a XPath-path represented as a string; must start at the root
@@ -97,8 +126,9 @@ function saveChangesInXMLDom(newValue, path) {
 	}
 }
 
-// parameters: 
-//				- path: is a XPath-path represented as a string; must start at the root
+// Note: an xml document must have been assigned to the variable "xmlDoc" before calling this function
+// Parameters: 
+//	- path: is a XPath-path represented as a string; must start at the root of the xmlDoc
 function findNode(path) {
 	var pathArray = path.split("/");
 	
@@ -110,6 +140,7 @@ function findNode(path) {
 	return targetNode;
 }
 
+// Note: an xml document must have been assigned to the variable "xmlDoc" before calling this function
 function findChildNode(searchParent, targetRawChildTag) {
 	if (targetRawChildTag == null || targetRawChildTag == "") {
 		//debug("empty tagName");
@@ -149,12 +180,12 @@ function findChildNode(searchParent, targetRawChildTag) {
 		else { // searchChildSplit.length == 1
 			searchChildNodeName = searchChildSplit[0];
 		}
-		//debug("searchChildNodeName: " + searchChildNodeName);		
+		debug("searchChildNodeName: " + searchChildNodeName);		
 		//debug("searchChildSplit.length: " + searchChildSplit.length);
-		//debug("searchChild.nodeType: " + searchChild.nodeType);
+		debug("searchChildNode.nodeType: " + searchChildNode.nodeType);
 		//debug("searchChildNode.nodeName: " + searchChildNode.nodeName);
 		//debug("targetChildTag: " + splitQname[1]);		
-		if (searchChildNode.nodeType == 1 && searchChildNodeName == splitQname[1]) {
+		if (searchChildNode.nodeType == Node.ELEMENT_NODE && searchChildNodeName == splitQname[1]) {
 			// Xpath begint met tellen bij 1, dus eerst deze variable ophogen.
 			correctChildCount++;
 			if (correctChildCount == splitQname[2]) {

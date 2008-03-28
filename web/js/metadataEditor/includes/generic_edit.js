@@ -82,7 +82,9 @@ function trim(value) {
 function changeFlag(changed) {
 	var root = document.getElementById("edit-doc-root");
 	if (changed) {
-		document.getElementById("saveButton").disabled = false;
+		var saveButton = document.getElementById("saveButton");
+		if (saveButton !== "undefined" && saveButton !== null)
+			saveButton.disabled = false;
 		if (document.title.substring(document.title.length - 1) != "*")
 			document.title += "*";
 	}
@@ -282,6 +284,15 @@ function saveValueOnClientSide(parentNode, newValue) {
 	changeFlag(true);
 	//debug("parentNode.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentNode.attributes.getNamedItem("fullPath").nodeValue);		
 	saveChangesInXMLDom(newValue, parentNode.attributes.getNamedItem("fullPath").nodeValue);
+	debug("in node: " + parentNode.attributes.getNamedItem("fullPath").nodeValue);
+	debug("title: " + "/MD_Metadata[1]/identificationInfo[1]/MD_DataIdentification[1]/citation[1]/CI_Citation[1]/title[1]/gco:CharacterString[1]");
+	if (parentNode.attributes.getNamedItem("fullPath").nodeValue === "/MD_Metadata[1]/identificationInfo[1]/MD_DataIdentification[1]/citation[1]/CI_Citation[1]/title[1]/gco:CharacterString[1]") {
+		// create entirely new xhtml representation of xmlDoc and add it to the current page
+		xmlTransformer.transformAndAppend(xmlDoc, "write-root");
+
+		// insert the title of the xml doc
+		insertTitle();
+	}
 }
 
 // Description:
@@ -502,6 +513,9 @@ function addElementOrSection(path, above) {
 	
 	// create entirely new xhtml representation of xmlDoc and add it to the current page
 	xmlTransformer.transformAndAppend(xmlDoc, "write-root");
+	
+	// insert the title of the xml doc
+	insertTitle();
 	
 	// page changed value
 	changeFlag(true);

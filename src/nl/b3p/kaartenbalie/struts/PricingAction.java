@@ -180,7 +180,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (unitPrice != null || unitPrice.doubleValue()>0.0) {
             lp.setUnitPrice(unitPrice.setScale(2, RoundingMode.HALF_UP));
         } else {
-            lp.setLayerIsFree(true);
+            lp.setLayerIsFree(Boolean.TRUE);
         }
         
         lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
