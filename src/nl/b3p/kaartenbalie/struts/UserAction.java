@@ -233,8 +233,6 @@ public class UserAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        prepareMethod(dynaForm, request, DELETE, EDIT);
-        
         MessageResources messages = getResources(request);
         Locale locale = getLocale(request);
         String lastJoinedMessage = messages.getMessage(locale, LAST_JOINED_KEY);
@@ -245,6 +243,7 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, lastJoinedMessage);
         }
         
+        prepareMethod(dynaForm, request, DELETE, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }

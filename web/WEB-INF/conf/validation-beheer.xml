@@ -51,38 +51,63 @@
         </form>
         
         <form name="serverForm">
-            <field property="givenName" depends="required"> <!-- required -->
+            <field property="givenName" depends="required">
                 <arg0 key="beheer.serviceProviderGivenName"/>
             </field>
-            <field property="url" depends="required"> <!-- required -->
+            <field property="url" depends="required">
                 <arg0 key="beheer.serviceProviderUrl"/>
             </field>
-            <field property="abbr" depends="required"> <!-- required -->
+            <field property="abbr" depends="required">
                 <arg0 key="beheer.serviceProviderAbbr"/>
             </field>
         </form>
         
         <form name="organizationForm">
-            <field property="name" depends="required"> <!-- required -->
+            <field property="name" depends="required">
                 <arg0 key="beheer.name"/>
             </field>
-            <field property="telephone" depends="required"> <!-- required -->
+            <field property="telephone" depends="required">
                 <arg0 key="beheer.organizationTelephone"/>
             </field>           
         </form>
         <form name="depositForm">
-            <field property="amount" depends="required, integer"> <!-- required -->
+            <field property="amount" depends="required, integer">
                 <arg0 key="beheer.deposit.amount"/>
             </field>
-            <field property="fraction" depends="integer"> <!-- required -->
+            <field property="fraction" depends="integer">
                 <arg0 key="beheer.deposit.amount"/>
             </field>
-            <field property="description" depends="required"> <!-- required -->
+            <field property="description" depends="required">
                 <arg0 key="beheer.deposit.description"/>
             </field>           
-            <field property="paymentMethod" depends="required"> <!-- required -->
+            <field property="paymentMethod" depends="required">
                 <arg0 key="beheer.deposit.paymentMethod"/>
             </field>           
+        </form>
+        <form name="pricingForm">
+            <field property="unitPrice" depends="required, float">
+                <arg0 key="beheer.pricing.price"/>
+            </field>
+        </form>
+        <form name="testPricingForm">
+            <field property="testFrom" depends="required">
+                <arg0 key="beheer.pricing.test.testFrom"/>
+            </field>
+            <field property="testUntil" depends="required">
+                <arg0 key="beheer.pricing.test.testUntil"/>
+            </field>
+            <field property="testProjection" depends="required">
+                <arg0 key="beheer.pricing.test.testProjection"/>
+            </field>
+            <field property="testScale" depends="required, float">
+                <arg0 key="beheer.pricing.test.testScale"/>
+            </field>
+            <field property="testStepSize" depends="required, float">
+                <arg0 key="beheer.pricing.test.testStepSize"/>
+            </field>          
+            <field property="testSteps" depends="required, float">
+                <arg0 key="beheer.pricing.test.testSteps"/>
+            </field>         
         </form>
     </formset>
 </form-validation>

@@ -479,49 +479,13 @@ tbody, td {
 
 .tabcollection div#sheets {
     clear: left;
-    height: 508px;
-
 }
 .tabcollection div#sheets .sheet {
     overflow: auto;
     padding: 10px;
-    height: 100%;
     border: 1px Solid #19619B;
     color: #19619B;
 }
-/*
-.tabcollection div#tabs ul {
-    margin: 0px;
-    margin-bottom: 5px;
-    padding: 0px;
-}
-
-.tabcollection div#tabs ul li {
-    border: 1px Solid Black;
-    width: 200px;
-    display: inline;
-    padding: 5px 20px 5px 20px;
-    height: 21px;
-    border: 0px none White;
-    border-left: 1px solid #005a9c;
-    border-top: 1px solid #005a9c;
-    border-right: 1px solid #005a9c;
-    color: #005a9c;
-    font-weight: bold;
-    cursor: hand;
-    cursor: pointer;
-}
-
-.tabcollection div#tabs ul li.active {
-    background-color: #a0d9ff;
-    color: #FFFFFF;
-}
-
-*/
-/* pricingAction */
-/*table.pricingTable th, table.pricingTable td{
-    font-size: 9px;
-}*/
 td.deleted {
     color: #AAAAAA;
 }

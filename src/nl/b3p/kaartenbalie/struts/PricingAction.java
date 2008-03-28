@@ -10,6 +10,7 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,6 +25,7 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
@@ -51,182 +53,32 @@ import org.apache.commons.logging.LogFactory;
 public class PricingAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(PricingAction.class);
-
-    private static final String TEST = "test";
-    public static SimpleDateFormat pricingDate = new SimpleDateFormat("yyyy-MM-dd");
     
-    private static int DAYMODE_DONTCARE   = 0;
-    private static int DAYMODE_ENDOFDAY   = 1;
-    private static int DAYMODE_STARTOFDAY = 2;
+    private static final String TESTFW = "test";
     
-    
-    protected Map getActionMethodPropertiesMap() {
-        Map map = super.getActionMethodPropertiesMap();
-        
-        ExtendedMethodProperties crudPropTest = new ExtendedMethodProperties(TEST);
-        crudPropTest.setDefaultForwardName(SUCCESS);
-        crudPropTest.setDefaultMessageKey("beheer.pricing.test.succes");
-        crudPropTest.setAlternateForwardName(FAILURE);
-        crudPropTest.setAlternateMessageKey("beheer.pricing.test.failed");
-        map.put(TEST, crudPropTest);
-        
-        return map;
-    }
-    
+    private static final String START_END_ERROR_KEY = "error.dateinput";
+    private static final String LAYER_PLACEHOLDER_ERROR_KEY = "beheer.princing.placeholder.error";
+    private static final String SCALE_ERROR_KEY = "beheer.pricing.scale.error";
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("id", request.getParameter("id"));
-        return super.unspecified(mapping, dynaForm, request, response);
+        JSONObject root = this.createTree();
+        request.setAttribute("layerList", root);
+        return mapping.findForward(SUCCESS);
     }
-    public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("id", request.getParameter("id"));
-        String idString = (String) request.getAttribute("id");
-        if (request.getMethod().equalsIgnoreCase("post")) {
-            
-            
-            if (idString != null && idString.trim().length() > 0) {
-                Integer layerId = new Integer(Integer.parseInt(idString));
-                
-                
-                Date testFrom = getValidDate(dynaForm.getString("testFrom"),DAYMODE_STARTOFDAY, true);
-                Date testUntil = getValidDate(dynaForm.getString("testUntil"),DAYMODE_ENDOFDAY, true);
-                if (testUntil.before(testFrom)) {
-                    log.error("testUntil cannot be before testFrom.");
-                    throw new Exception("testUntil cannot be before testFrom.");
-                }
-                String projection = dynaForm.getString("testProjection");
-                if (projection == null || projection.trim().length() == 0) {
-                    log.error("Projection is required!");
-                    throw new Exception("Projection is required!");
-                }
-                projection = projection.trim();
-                
-                Double testScale    = (Double) dynaForm.get("testScale");
-                Double testStepSize = (Double) dynaForm.get("testStepSize");
-                Integer testSteps    = (Integer) dynaForm.get("testSteps");
-                if (testScale != null) {
-                    if (testScale.doubleValue() < 0) {
-                        log.error("testScale cannot be less then zero.");
-                        throw new Exception("testScale cannot be less then zero.");
-                    }
-                    
-                    if (testStepSize == null || testStepSize.doubleValue() < 0) {
-                        log.error("testStepSize must be a positive value!");
-                        throw new Exception("testStepSize must be a positive value!");
-                    }
-                    if (testSteps == null || testSteps.intValue() < 0) {
-                        log.error("testSteps must be a positive value!");
-                        throw new Exception("testSteps must be a positive value!");
-                    } else if (testSteps.intValue() == 0) {
-                        testSteps = new Integer(1);
-                    }else if (testSteps.intValue()> 20) {
-                        testSteps = new Integer(20);
-                    }
-                }
-                
-                LayerCalculator lc = new LayerCalculator();
-                try {
-                    
-                    //Get all the dates in an array..
-                    List testDates = new ArrayList();
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(testFrom);
-                    int maxDays = 7;
-                    int dayCounter = 0;
-                    testDates.add(new Date());
-                    while(cal.getTime().before(testUntil) && dayCounter < maxDays) {
-                        Date testDate = cal.getTime();
-                        testDates.add(testDate);
-                        cal.add(Calendar.DAY_OF_YEAR, 1);
-                        dayCounter++;
-                    }
-                    
-                    List resultSet = new ArrayList();
-                    List scaleSet = new ArrayList();
-                    BigDecimal scale = new BigDecimal(testScale.doubleValue());
-                    for (int i = 0; i < testSteps.intValue(); i++) {
-                        List subSet = new ArrayList();
-                        Iterator iterDates = testDates.iterator();
-                        scaleSet.add(scale);
-                        while(iterDates.hasNext()) {
-                            Date testDate = (Date) iterDates.next();
-                            LayerPriceComposition lpc = lc.calculateLayerComplete(layerId, testDate, projection, scale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
-                            subSet.add(lpc);
-                        }
-                        scale = scale.add(new BigDecimal(testStepSize.doubleValue()));
-                        resultSet.add(subSet);
-                    }
-                    request.setAttribute("resultSet", resultSet);
-                    request.setAttribute("testDates", testDates);
-                    request.setAttribute("scaleSet", scaleSet);
-                } catch (Exception e) {
-                    throw e;
-                } finally {
-                    lc.closeEntityManager();
-                }
-            }
-        } else {
-            Calendar cal = Calendar.getInstance();
-            dynaForm.set("testFrom",pricingDate.format(cal.getTime()));
-            cal.add(Calendar.DAY_OF_YEAR,7);
-            dynaForm.set("testUntil",pricingDate.format(cal.getTime()));
-        }
-        return super.unspecified(mapping, dynaForm, request, response);
-        
-    }
-    
-    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setAttribute("id", request.getParameter("id"));
-        return super.edit(mapping, dynaForm, request, response);
-    }
-    
     
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        EntityManager em = getEntityManager();
-        request.setAttribute("id", request.getParameter("id"));
-        String strPricingId = request.getParameter("pricingid");
-        if (strPricingId != null && strPricingId.trim().length() > 0) {
-            strPricingId = strPricingId.trim();
-            Integer pricingId = new Integer(Integer.parseInt(strPricingId));
-            LayerPricing lp =(LayerPricing) em.find(LayerPricing.class, pricingId);
-            if (lp.getDeletionDate() != null) {
-                log.error("Trying to delete an already deleted LayerPricing");
-                throw new Exception("Trying to delete an already deleted LayerPricing");
-            }
-            lp.setDeletionDate(new Date());
-        }
-        return  super.delete(mapping, dynaForm, request, response);
-    }
-    
-    
-    public Date getValidDate(String value, int dayMode,boolean cannotBeNull) throws Exception {
-        Date resultDate = null;
-        try {
-            resultDate =  pricingDate.parse(value);
-        } catch (Exception e) {
-        }
-        if (resultDate != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(resultDate);
-            if (dayMode == DAYMODE_ENDOFDAY) {
-                cal.set(Calendar.HOUR_OF_DAY,23);
-                cal.set(Calendar.MINUTE, 59);
-                cal.set(Calendar.SECOND, 59);
-                cal.set(Calendar.MILLISECOND, 99);
-            } else if (dayMode == DAYMODE_STARTOFDAY) {
-                cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
-            }
-            resultDate = cal.getTime();
-        }
-        if (resultDate == null && cannotBeNull) {
-            log.error("Could not process date for value '" + value + "'");
-            throw new Exception("Could not process date for value '" + value + "'");
-        }
-        return resultDate;
         
+        LayerPricing lp = getLayerPricing(dynaForm, request, false);
+        if (lp==null) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
+        lp.setDeletionDate(new Date());
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
     }
     
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -245,106 +97,97 @@ public class PricingAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        Integer planType = (Integer) dynaForm.get("planType");
-        Date validFrom = getValidDate(dynaForm.getString("validFrom"),DAYMODE_STARTOFDAY, false);
-        Date validUntil = getValidDate(dynaForm.getString("validUntil"),DAYMODE_STARTOFDAY, false);
+        
+        Date validFrom = FormUtils.FormStringToDate(dynaForm.getString("validFrom"), null);
+        Date validUntil = FormUtils.FormStringToDate(dynaForm.getString("validUntil"), null);
         
         if (validUntil != null && validFrom != null) {
             if (validUntil.before(validFrom)) {
-                log.error("Enddate cannot be before startdate.");
-                throw new Exception("Enddate cannot be before startdate.");
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, START_END_ERROR_KEY);
+                return getAlternateForward(mapping, request);
             }
         }
         
-        
-        
-        String idString = (String) request.getAttribute("id");
-        
-        
-        if (idString != null && idString.trim().length() > 0) {
-            
-            String service = dynaForm.getString("service");
-            String operation = null;
-            
-            if (service != null && service.equalsIgnoreCase("WMS")) {
-                operation = dynaForm.getString("operationWMS");
-            } else if (service != null && service.equalsIgnoreCase("WFS")) {
-                operation = dynaForm.getString("operationWFS");
-            } else {
-                service = null;
-            }
-            if (operation != null && operation.trim().length() == 0) {
-                operation = null;
-            }
-            
-            Boolean layerIsFree = (Boolean) dynaForm.get("layerIsFree");
-            Double unitPrice = null;
-            if (layerIsFree == null) {
-                layerIsFree = new Boolean(false);
-            }
-            
-            if (layerIsFree.booleanValue() == false) {
-                unitPrice = (Double) dynaForm.get("unitPrice");
-            }
-            
-            Integer layerId = new Integer(Integer.parseInt(idString));
-            Layer layer = (Layer) em.find(Layer.class, layerId);
-            if (layer.getName() == null || layer.getName().trim().length() == 0) {
-                log.error("Requested layer is not able to register pricinginformation...");
-                throw new Exception("Requested layer is not able to register pricinginformation...");
-            }
-            LayerPricing lp = new LayerPricing();
-            Double minScale = null;
-            Double maxScale = null;
-            String projection = dynaForm.getString("projection");
-            if (projection != null && projection.trim().length() > 0) {
-                minScale = (Double) dynaForm.get("minScale");
-                maxScale = (Double) dynaForm.get("maxScale");
-                projection = projection.trim();
-                if (minScale != null && maxScale != null && minScale.doubleValue() > 0 && maxScale.doubleValue() > 0 ) {
-                    if (maxScale.compareTo(minScale) < 0) {
-                        log.error("maxScale should always be larger then the minScale.");
-                        throw new Exception("maxScale should always be larger then the minScale.");
-                    }
-                }
-                if (minScale != null) {
-                    if (minScale.doubleValue() < 0) {
-                        log.error("minScale cannot be a negative value!");
-                        throw new Exception("minScale cannot be a negative value!");
-                    } else if (minScale.doubleValue()> 0) {
-                        lp.setMinScale(new BigDecimal(minScale.doubleValue()));
-                    }
-                }
-                if (maxScale != null) {
-                    if (maxScale.doubleValue() < 0) {
-                        log.error("maxScale cannot be a negative value!");
-                        throw new Exception("maxScale cannot be a negative value!");
-                    } else if (maxScale.doubleValue() > 0) {
-                        lp.setMaxScale(new BigDecimal(maxScale.doubleValue()));
-                    }
-                }
-                lp.setProjection(projection);
-            }
-            
-            lp.setPlanType(planType.intValue());
-            lp.setValidFrom(validFrom);
-            lp.setValidUntil(validUntil);
-            if (unitPrice != null) {
-                lp.setUnitPrice(new BigDecimal(unitPrice.doubleValue()));
-            } else {
-                lp.setLayerIsFree(layerIsFree);
-            }
-            lp.setServerProviderPrefix(layer.getSpAbbr());
-            lp.setLayerName(layer.getName());
-            lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
-            lp.setService(service);
-            lp.setOperation(operation);
-            em.persist(lp);
-            getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
-            
+        LayerPricing lp = getLayerPricing(dynaForm, request, true);
+        if (lp==null) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
         }
         
-        request.setAttribute("gotoTab", new String("details"));
+        lp.setValidFrom(validFrom);
+        lp.setValidUntil(validUntil);
+        
+        Layer layer = getLayer(dynaForm, request);
+        if (layer.getName() == null || layer.getName().trim().length() == 0) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        lp.setServerProviderPrefix(layer.getSpAbbr());
+        lp.setLayerName(layer.getName());
+        
+        
+        lp.setPlanType(FormUtils.StringToInt(dynaForm.getString("planType")));
+        
+        String service = dynaForm.getString("service");
+        String operation = null;
+        
+        if (service != null && service.equalsIgnoreCase("WMS")) {
+            operation = dynaForm.getString("operationWMS");
+        } else if (service != null && service.equalsIgnoreCase("WFS")) {
+            operation = dynaForm.getString("operationWFS");
+        } else {
+            service = null;
+        }
+        if (operation != null && operation.trim().length() == 0) {
+            operation = null;
+        }
+        lp.setService(service);
+        lp.setOperation(operation);
+        
+        BigDecimal minScale = FormUtils.bdValueNull(dynaForm.getString("minScale"));
+        BigDecimal maxScale = FormUtils.bdValueNull(dynaForm.getString("maxScale"));
+        String projection = dynaForm.getString("projection");
+        if (projection != null && projection.trim().length() == 0) {
+            projection = null;
+        }
+        
+        if (projection != null && (minScale!=null || maxScale!=null)) {
+            boolean scaleOK = false;
+            if (minScale != null && minScale.doubleValue() > 0 ) {
+                if (maxScale != null && maxScale.doubleValue() > 0 ) {
+                    if (maxScale.compareTo(minScale) > 0) {
+                        scaleOK = true;
+                    }
+                }
+            }
+            if (!scaleOK) {
+                prepareMethod(dynaForm, request, LIST, EDIT);
+                addAlternateMessage(mapping, request, SCALE_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
+            if (minScale!=null)
+                lp.setMinScale(minScale.setScale(2, RoundingMode.HALF_UP));
+            if (maxScale!=null)
+                lp.setMaxScale(maxScale.setScale(2, RoundingMode.HALF_UP));
+            lp.setProjection(projection);
+        }
+        
+        
+        BigDecimal unitPrice = FormUtils.bdValueNull(dynaForm.getString("unitPrice"));
+        if (unitPrice != null || unitPrice.doubleValue()>0.0) {
+            lp.setUnitPrice(unitPrice.setScale(2, RoundingMode.HALF_UP));
+        } else {
+            lp.setLayerIsFree(true);
+        }
+        
+        lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
+        em.persist(lp);
+        
+        getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
+        
         return super.save(mapping, dynaForm, request, response);
     }
     
@@ -352,110 +195,77 @@ public class PricingAction extends KaartenbalieCrudAction {
     
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        HttpSession session = request.getSession();
+        
         EntityManager em = getEntityManager();
-        String idString = (String) request.getAttribute("id");
         /*
          * Set the allowed projectsion
          */
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
+        request.setAttribute("wmsRequests",KBConfiguration.ACCOUNTING_WMS_REQUESTS);
+        request.setAttribute("wfsRequests",KBConfiguration.ACCOUNTING_WFS_REQUESTS);
         
-        if (idString != null && idString.length() > 0) {
-            
-            String summary = request.getParameter("summary");
-            if (summary != null && summary.trim().length() > 0) {
-                session.setAttribute("summary", summary);
-            } else {
-                summary = (String) session.getAttribute("summary");
-            }
-            request.setAttribute("summary", summary);
-            
-            /*
-             * First load the possible WMS and WFS requests..
-             */
-            request.setAttribute("wmsRequests",KBConfiguration.ACCOUNTING_WMS_REQUESTS);
-            request.setAttribute("wfsRequests",KBConfiguration.ACCOUNTING_WFS_REQUESTS);
-            
-            
-            /*
-             * Now set the default service to WMS - if appliable..
-             */
-            if (form.getString("service") == null || form.getString("service").trim().length() == 0) {
-                form.set("service", new String("WMS"));
-                form.set("operationWMS", new String("GetMap"));
-            }
-            
-            /*
-             * Now gather layerinformation...
-             */
-            Integer layerId = new Integer(Integer.parseInt(idString));
-            Layer layer = (Layer) em.find(Layer.class, layerId);
-            if (layer.getName() == null || layer.getName().trim().length() == 0) {
-                request.setAttribute("id", null);
-                log.error("Requested layer is not able to register pricinginformation. It is probably a folder!");
-                throw new Exception("Requested layer is not able to register pricinginformation. It is probably a folder!");
-            }
-            ServiceProvider sp = layer.getServiceProvider();
-            request.setAttribute("spName", sp.getTitle());
-            request.setAttribute("lName", layer.getName());
-            /*
-             * Now fetch the layerpricings that match with this layer.
-             */
-            request.setAttribute("layerPricings",
-                    em.createQuery(
-                    "FROM LayerPricing AS lp " +
-                    "WHERE lp.layerName = :layerName AND lp.serverProviderPrefix = :serverProviderPrefix ORDER BY  lp.deletionDate ASC, lp.creationDate DESC")
-                    .setParameter("layerName", layer.getName())
-                    .setParameter("serverProviderPrefix", layer.getSpAbbr())
-                    .getResultList());
-            
-            
-            
-            /*
-             * Then calculate all the different prizes for all requesttypes..
-             */
-            LayerCalculator lc = new LayerCalculator(em);
-            
-            if (summary != null && summary.equalsIgnoreCase("true")) {
-                
-                Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length + KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
-                
-                Date now = new Date();
-                
-                BigDecimal units  = new BigDecimal(1);
-                int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
-                for (int i = 0; i < totalWMSRequests; i++) {
-                    
-                    tableData[i][0] = "WMS";
-                    tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
-                    try {
-                        tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
-                    } catch (NoResultException nre) {
-                        tableData[i][2] = null;
-                    }
-                    
-                }
-                int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
-                for (int i = 0; i < totalWMFRequests; i++) {
-                    tableData[i +totalWMSRequests ][0] = "WFS";
-                    tableData[i + totalWMSRequests][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
-                    try {
-                        tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
-                        
-                    } catch (NoResultException nre) {
-                        tableData[i + totalWMSRequests][2] = null;
-                    }
-                }
-                request.setAttribute("tableData",tableData);
-            }
-        } else {
-            JSONObject root = this.createTree();
-            request.setAttribute("layerList", root);
+        /*
+         * Now set the default service to WMS - if appliable..
+         */
+        if (form.getString("service") == null || form.getString("service").trim().length() == 0) {
+            form.set("service", new String("WMS"));
+            form.set("operationWMS", new String("GetMap"));
         }
         
+        Layer layer = getLayer(form, request);
+        if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
+            return;
+        
+        ServiceProvider sp = layer.getServiceProvider();
+        request.setAttribute("spName", sp.getTitle());
+        request.setAttribute("lName", layer.getName());
+        
+        /*
+         * Now fetch the layerpricings that match with this layer.
+         */
+        request.setAttribute("layerPricings",
+                em.createQuery(
+                "FROM LayerPricing AS lp " +
+                "WHERE lp.layerName = :layerName AND lp.serverProviderPrefix = :serverProviderPrefix ORDER BY  lp.deletionDate ASC, lp.creationDate DESC")
+                .setParameter("layerName", layer.getName())
+                .setParameter("serverProviderPrefix", layer.getSpAbbr())
+                .getResultList());
+        
+        /*
+         * Then calculate all the different prices for all requesttypes..
+         */
+        LayerCalculator lc = new LayerCalculator(em);
+        
+        Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length + KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
+        
+        Date now = new Date();
+        
+        BigDecimal units  = new BigDecimal(1);
+        int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
+        for (int i = 0; i < totalWMSRequests; i++) {
+            
+            tableData[i][0] = "WMS";
+            tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
+            try {
+                tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
+            } catch (NoResultException nre) {
+                tableData[i][2] = null;
+            }
+            
+        }
+        int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
+        for (int i = 0; i < totalWMFRequests; i++) {
+            tableData[i +totalWMSRequests ][0] = "WFS";
+            tableData[i + totalWMSRequests][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
+            try {
+                tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
+                
+            } catch (NoResultException nre) {
+                tableData[i + totalWMSRequests][2] = null;
+            }
+        }
+        request.setAttribute("tableData",tableData);
     }
-    
-    
     
     private JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
@@ -517,6 +327,38 @@ public class PricingAction extends KaartenbalieCrudAction {
         return jsonLayer;
     }
     
+    private LayerPricing getLayerPricing(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+        
+        EntityManager em = getEntityManager();
+        LayerPricing lp = null;
+        Integer id = getPricingID(dynaForm);
+        
+        if(null == id && createNew) {
+            lp = new LayerPricing();
+        } else if (null != id) {
+            lp = (LayerPricing)em.find(LayerPricing.class, id);
+        }
+        
+        return lp;
+    }
     
+    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+        
+        EntityManager em = getEntityManager();
+        LayerPricing lp = null;
+        Integer id = getLayerID(dynaForm);
+        
+        if(id==null)
+            return null;
+        return (Layer)em.find(Layer.class, id);
+    }
+    
+    private Integer getPricingID(DynaValidatorForm dynaForm) {
+        return FormUtils.StringToInteger(dynaForm.getString("pricingid"));
+    }
+    
+    private Integer getLayerID(DynaValidatorForm dynaForm) {
+        return FormUtils.StringToInteger(dynaForm.getString("id"));
+    }
     
 }

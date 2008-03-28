@@ -50,6 +50,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
+    protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
@@ -162,8 +163,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
-        prepareMethod(dynaForm, request, DELETE, EDIT);
-        
         MessageResources messages = getResources(request);
         Locale locale = getLocale(request);
         String userJoinedMessage = messages.getMessage(locale, USER_JOINED_KEY);
@@ -205,6 +204,17 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             }
         }
         
+        User sessionUser = (User) request.getUserPrincipal();
+        Organization sessionOrg = null;
+        if (sessionUser!=null) 
+            sessionOrg = sessionUser.getOrganization();
+        if(sessionOrg!=null && sessionOrg.getId().equals(organization.getId())) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+
+        prepareMethod(dynaForm, request, DELETE, EDIT);
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }
@@ -236,6 +246,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         
+        User sessionUser = (User) request.getUserPrincipal();
+        Organization sessionOrg = null;
+        if (sessionUser!=null) 
+            sessionOrg = sessionUser.getOrganization();
+        if(sessionOrg!=null && sessionOrg.getId().equals(organization.getId())) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+
         em.remove(organization);
         em.flush();
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
@@ -286,7 +306,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Organization object.
      */
-// <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) method.">
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
         
         EntityManager em = getEntityManager();
@@ -301,7 +320,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         
         return organization;
     }
-// </editor-fold>
     
     /* Method which gets the hidden id in a form.
      *
@@ -314,11 +332,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
-// <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
-// </editor-fold>
     
     /* Method which will fill the JSP form with the data of  a given organization.
      *

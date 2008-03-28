@@ -109,25 +109,30 @@
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- generation form fields-->
-            <form-property name="planType" type="java.lang.Integer"/>
+            <form-property name="pricingid" type="java.lang.String"/>
+            <form-property name="planType" type="java.lang.String"/>
             <form-property name="validFrom" type="java.lang.String"/>
             <form-property name="validUntil" type="java.lang.String"/>
-            <form-property name="unitPrice" type="java.lang.Double"/>
-            <form-property name="layerIsFree" type="java.lang.Boolean"/>
+            <form-property name="unitPrice" type="java.lang.String"/>
             <form-property name="service" type="java.lang.String"/>
             <form-property name="operationWMS" type="java.lang.String"/>
             <form-property name="operationWFS" type="java.lang.String"/>
-            <form-property name="minScale" type="java.lang.Double"/>
-            <form-property name="maxScale" type="java.lang.Double"/>            
+            <form-property name="minScale" type="java.lang.String"/>
+            <form-property name="maxScale" type="java.lang.String"/>            
             <form-property name="projection" type="java.lang.String"/>
-            <!-- testing-->
+        </form-bean>  
+        <form-bean name="testPricingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
             <form-property name="testFrom" type="java.lang.String"/>
             <form-property name="testUntil" type="java.lang.String"/>
             <form-property name="testProjection" type="java.lang.String"/>
-            <form-property name="testScale" type="java.lang.Double"/>
-            <form-property name="testStepSize" type="java.lang.Double"/>            
-            <form-property name="testSteps" type="java.lang.Integer"/>           
-            
+            <form-property name="testScale" type="java.lang.String"/>
+            <form-property name="testStepSize" type="java.lang.String"/>            
+            <form-property name="testSteps" type="java.lang.String"/>           
         </form-bean>  
         <form-bean name="depositForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -187,8 +192,6 @@
             <forward name="back" path="/accounting.do"/>
         </action>        
         
-        
-        
         <action path="/reporting" name="reportingForm" type="nl.b3p.kaartenbalie.struts.ReportingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.reporting"/>
             <forward name="failure" path="base.beheer.reporting"/>
@@ -200,14 +203,13 @@
         <action path="/editpricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.editpricing"/>
             <forward name="failure" path="base.beheer.editpricing"/>
+            <forward name="test" path="/pricingtest.do"/>
         </action>        
-        <action path="/pricingtestcalc" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
+        <action path="/pricingtest" name="testPricingForm" type="nl.b3p.kaartenbalie.struts.TestPricingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.pricing.testcalculation"/>
             <forward name="failure" path="base.beheer.pricing.testcalculation"/>
-        </action>     
-        
-        
-        
+            <forward name="back" path="/editpricing.do"/>
+        </action>        
         
         <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.metadata"/>

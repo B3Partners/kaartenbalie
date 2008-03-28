@@ -1,49 +1,59 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
+<c:set var="form" value="${testPricingForm}"/>
+<c:set var="action" value="${form.map.action}"/>
+<c:set var="id" value="${form.map.id}"/>
+
 <div id="content_c">
     <h1>Proefberekening</h1>
+    <label>Service Provider:</label> ${spName} <br/>
+    <label style="margin-bottom:10px;">Kaartlaag:</label> <b>${lName}</b><br/><br />
     
     <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
     <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
     <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
     <script type="text/javascript">
-    var cal = new CalendarPopup("calDiv");
-    cal.setCssPrefix("calcss_");
+        var cal = new CalendarPopup("calDiv");
+        cal.setCssPrefix("calcss_");
     </script>
     
-    <html:form action="/pricingtestcalc.do?id=${id}" focus="startDate" onsubmit="return validateReportingForm(this)">
+    <html:javascript formName="testPricingForm" staticJavascript="false"/>
+    <html:form action="/pricingtest.do" focus="testFrom" onsubmit="return validateTestPricingForm(this)">
+        <html:hidden property="action"/>
+        <html:hidden property="alt_action"/>
+        <html:hidden property="id"/>
         <table>
             <tr>
                 <td>
-                    <label>Test vanaf :</label><html:text styleClass="testFrom" property="testFrom" styleId="testFrom"/>
-                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                    <label><fmt:message key="beheer.pricing.test.testFrom"/>:</label><html:text styleClass="testFrom" property="testFrom" styleId="testFrom"/>
+                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button1"
                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                          title="Date selector"
                          alt="Date selector"
                          onmouseover="this.style.background='red';" 
                          onmouseout="this.style.background=''"
-                         onClick="cal.select(document.getElementById('testFrom'),'cal-button','yyyy-MM-dd', document.getElementById('testFrom').value); return false;"
-                         name="cal-button"
+                         onClick="cal.select(document.getElementById('testFrom'),'cal-button1','yyyy-MM-dd', document.getElementById('testFrom').value); return false;"
+                         name="cal-button1"
                     />
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>Test tot en met :</label><html:text styleClass="testUntil" property="testUntil" styleId="testUntil"/>
-                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
+                    <label><fmt:message key="beheer.pricing.test.testUntil"/>:</label><html:text styleClass="testUntil" property="testUntil" styleId="testUntil"/>
+                    <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button2"
                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                          title="Date selector"
                          alt="Date selector"
                          onmouseover="this.style.background='red';" 
                          onmouseout="this.style.background=''"
-                         onClick="cal.select(document.getElementById('testUntil'),'cal-button','yyyy-MM-dd', document.getElementById('testUntil').value); return false;"
-                         name="cal-button"
+                         onClick="cal.select(document.getElementById('testUntil'),'cal-button2','yyyy-MM-dd', document.getElementById('testUntil').value); return false;"
+                         name="cal-button2"
                     /> (Max. 7 dagen)
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>Projectie :</label>
+                    <label><fmt:message key="beheer.pricing.test.testProjection"/>:</label>
                     <html:select styleId="" property="testProjection" onchange="">
                         <c:forEach var="projectionString" items="${projections}">
                             <html:option value="${projectionString}" >${projectionString}</html:option>
@@ -53,36 +63,38 @@
             </tr>
             <tr>
                 <td>
-                    <label>startSchaal :</label><html:text property="testScale" style="width:100px;"/>
+                    <label><fmt:message key="beheer.pricing.test.testScale"/>:</label><html:text property="testScale" style="width:100px;"/>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>stapGrootte :</label><html:text property="testStepSize" style="width:100px;"/>
+                    <label><fmt:message key="beheer.pricing.test.testStepSize"/>:</label><html:text property="testStepSize" style="width:100px;"/>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <label>Stappen :</label><html:text property="testSteps" style="width:100px;"/> (Max. 20 stappen)
+                    <label><fmt:message key="beheer.pricing.test.testSteps"/>:</label><html:text property="testSteps" style="width:100px;"/> (Max. 20 stappen)
                 </td>
             </tr>
         </table>
         <html:submit property="test" style="margin-top: 10px; margin-bottom: 10px;">Voer proefberekening uit</html:submit>
+        <button style="margin-top: 10px; margin-bottom: 10px;" onclick="location.href = '<html:rewrite page="/pricingtest.do?back=t&id=${id}" module="/beheer"/>'">Annuleren</button>
     </html:form>
+    
     <c:if test="${not empty resultSet}">
-        <c:set var="lpWidth" value="${60}" scope="page"/>
-        <c:set var="mWidth" value="${60}" scope="page"/>
-        <c:set var="ctWidth" value="${50}" scope="page"/>
-        <c:set var="tWidth" value="${lpWidth + mWidth + ctWidth}" scope="page"/>
+        <c:set var="lpWidth" value="60"/>
+        <c:set var="mWidth" value="60"/>
+        <c:set var="ctWidth" value="50"/>
+        <c:set var="tWidth" value="${lpWidth + mWidth + ctWidth}"/>
         <table id="testCalcTable" style="width:${(fn:length(testDates) * tWidth) + tWidth}px;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
             <thead>
                 <tr class="serverRijTitel">
                     <th style="width: 120px;">Schaal/Datum</th>
-                    <c:set var="firstDateCheck" scope="page" value="${false}"/>
+                    <c:set var="firstDateCheck" value="${false}"/>
                     <c:forEach items="${testDates}" var="date">
                         <c:choose>
                             <c:when test="${firstDateCheck == false}">
-                                <c:set var="firstDateCheck" scope="page" value="${true}"/>        
+                                <c:set var="firstDateCheck" value="${true}"/>        
                                 <th colspan="3" style="width:${tWidth}px;">Huidige tijd</th>        
                             </c:when>
                             <c:otherwise>
@@ -93,7 +105,7 @@
                 </tr>
             </thead>
             <tbody>
-                <c:set var="count" value="${0}" scope="page"/>
+                <c:set var="count" value="0"/>
                 <c:forEach items="${resultSet}" var="subSet">
                     <tr>
                         <td>${scaleSet[count]}</td>
@@ -123,7 +135,7 @@
                             </td>
                         </c:forEach>
                     </tr>
-                    <c:set var="count" value="${count + 1}" scope="page"/>
+                    <c:set var="count" value="${count + 1}"/>
                 </c:forEach>
             </tbody>
         </table>

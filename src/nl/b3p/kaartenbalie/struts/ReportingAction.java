@@ -40,7 +40,19 @@ public class ReportingAction extends KaartenbalieCrudAction {
 
     private static String reportGeneratorName = "reportgenerator";
     public static SimpleDateFormat reportingDate = new SimpleDateFormat("yyyy-MM-dd");
-    protected static final String DOWNLOAD                        = "download";
+    protected static final String DOWNLOAD = "download";
+    
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(DOWNLOAD);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.reporting.download.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.reporting.download.failed");
+        map.put(DOWNLOAD, crudProp);
+        return map;
+    }
+    
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
@@ -140,17 +152,6 @@ public class ReportingAction extends KaartenbalieCrudAction {
         request.setAttribute("reportStatus", rg.requestReportStatus());
         request.setAttribute("organizations",em.createQuery("FROM Organization AS org ORDER BY org.name ASC").getResultList());
         
-    }
-    
-    protected Map getActionMethodPropertiesMap() {
-        Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(DOWNLOAD);
-        crudProp.setDefaultForwardName(SUCCESS);
-        crudProp.setDefaultMessageKey("beheer.reporting.download.succes");
-        crudProp.setAlternateForwardName(FAILURE);
-        crudProp.setAlternateMessageKey("beheer.reporting.download.failed");
-        map.put(DOWNLOAD, crudProp);
-        return map;
     }
     
     private static ReportGenerator getReportGenerator(HttpServletRequest request) {
