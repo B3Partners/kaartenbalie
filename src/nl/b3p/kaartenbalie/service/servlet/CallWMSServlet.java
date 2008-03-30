@@ -175,8 +175,8 @@ public class CallWMSServlet extends HttpServlet {
         
         if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
                 requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
-                (exType.equalsIgnoreCase("application/vnd.ogc.se_inimage") ||
-                exType.equalsIgnoreCase("inimage")) &&
+                (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE) ||
+                exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) &&
                 ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
                 ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
                 ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {

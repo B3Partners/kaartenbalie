@@ -1,24 +1,4 @@
+layout rommelig wanneer op groot scherm in kleiner window owrdt gewerkt
 
-- Voordat melding allowwithdrawls komt, controleren op credittegoed. 
-- Wanneer een abbr bijgewerkt wordt, moeten alle pricings ook worden bijgewerkt... (oid)..
-
-- Kaartenbalie schaalberekening per projectie. Voorwaarde alleen bij geldige projectie, anders kaart niet weergeven -> foutmelding?
-Metadata opslaan geeft org scherm in iframe, layout problemen
-
-
-
-OK layers tree geeft nog problemen:  iccon en lange naam, imagem 2 niveaus diep klapt niet open
-OK Layer tree: selecteer alles/deselecteer alles is te lang: alles/niets (* voor gedeeltelijk)
-OK Beheer menu: servers metadata pricing organisaties gebruikers reporting accounting
-OK Getfeatureinfo testen
-OK Intro pagina: kort beheer personelijke pagina en demo beschrijven
-OK Persoonlijke pagina-persoonlijke pagina mag weg
-OK Sorteer symbolen zitten er niet in bij de tabellen
-OK accounting afboekingen heeft link bij datum maar doet daar niets
-OK java.lang.IllegalStateException: getOutputStream() has already been called for this response bij reporting opvragen van html rapport
-OK Wachtwoord encrypten
-OK Beheer-gebruikers: ook pers. url, ip ed kunnen invullen
-OK bij accounting moet je organisatie kunnen kiezen voor bij/afboekingen
-OK voortgangsbalkje: intro – registreren – server toevoegen – personal url – viewer
 
 
