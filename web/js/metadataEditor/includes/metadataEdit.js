@@ -20,7 +20,9 @@ function addLoadEvent(func) {
 }
 
 function initWithXmlString() {
-	//debug("baseURL: " + baseURL);
+	debug("baseURL: " + baseURL);
+	debug("layerId: " + layerId);
+	debug("layerName: " + layerName);
 	
 	// if no metadata is present we start the editor with all elements empty
 	if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
@@ -77,6 +79,10 @@ function initWithXmlString() {
 
 function insertTitle() {
 	var titleXMLNode = findNode("gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString");
+	if (titleXMLNode == null) {
+		debug("title not found");
+		return;
+	}
 	debug("titleXMLNode.nodeType: " + titleXMLNode.nodeType);
 	debug("titleXMLNode.childNodes.length: " + titleXMLNode.childNodes.length);
 	var titleString = "";
