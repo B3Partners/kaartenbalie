@@ -60,9 +60,7 @@
 			<html:hidden property="metadata" styleId="metadata"/>
 			<html:hidden property="save" value="t"/>
 						
-			<!--[if! ie]><!-->
 			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
-			<![endif]-->
 			
 			<div id="write-root" onclick="click();"></div>
 

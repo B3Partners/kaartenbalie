@@ -10,15 +10,16 @@
 
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.*;
@@ -30,11 +31,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
 import org.xml.sax.*;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class MetadataAction extends KaartenbalieCrudAction {
     
@@ -68,17 +71,55 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         
         String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
-		
+        
+        
+        String newMetadata = null;
+        try {
+            newMetadata = reparseXML(metadata);
+        } catch (Exception e) {
+            log.error("error parsing metadata xml: ", e);
+        }
+        if (newMetadata!=null && newMetadata.length()>0)
+            metadata = newMetadata;
+        
         layer.setMetaData(metadata);
         
         em.merge(layer);
         // flush used because database sometimes doesn't update (merge) quickly enough
         em.flush();
         
-		populateMetadataEditorForm(layer, dynaForm, request);
+        populateMetadataEditorForm(layer, dynaForm, request);
         //showLayerTree(request);
         
         return getDefaultForward(mapping, request);
+    }
+    
+    /* FF heeft problemen met xml dat IE produceert. Alleen lege tags met een
+     * additionele namespace worden verkeerd geparsed
+     * <code>
+     *  <x:y x:z="" xmlns:x="een namespace"></x:y>
+     * </code>
+     * wordt door FF gepasrsed als:
+     * <code>
+     *  <y x:z="" xmlns:x="een namespace"></x:y>
+     * </code>
+     * De afsluittag is dus niet goed.
+     * Reparsen van IE output lijkt zaak te verbeteren, maar een eenmale fout
+     * xml (in de ogen van FF, want is wel valid) wordt hiermee niet hersteld.
+     */
+    private String reparseXML(String metadata) throws Exception {
+        StringReader sr = new StringReader(metadata);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document dom = db.parse(new InputSource(sr));
+        
+        StringWriter sw = new StringWriter();
+        OutputFormat format = new OutputFormat(dom);
+        format.setIndenting(true);
+        XMLSerializer serializer = new XMLSerializer(sw, format);
+        serializer.serialize(dom);
+        
+        return sw.toString();
     }
     
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
