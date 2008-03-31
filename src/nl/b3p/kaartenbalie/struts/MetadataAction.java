@@ -75,7 +75,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
         // flush used because database sometimes doesn't update (merge) quickly enough
         em.flush();
         
-        showLayerTree(request);
+		populateMetadataEditorForm(layer, dynaForm, request);
+        //showLayerTree(request);
         
         return getDefaultForward(mapping, request);
     }

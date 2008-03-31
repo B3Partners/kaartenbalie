@@ -58,8 +58,8 @@ function initWithXmlString() {
 	xmlDoc.async = false;
 	xmlDoc.loadXML(rawPreprocessedXML);
 	
-	//debug("xmlDoc:");
-	//debugXmlDoc(xmlDoc);
+	debug("xmlDoc:");
+	debugXmlDoc(xmlDoc);
 
 	//var freeThreadedIfPossible = true;
 	var xslDoc = jsXML.createDOMDocument(true);
@@ -285,12 +285,20 @@ function checkForm(source) {
 	if (sourceName != null && sourceName == "save") {
 		addDateStampToXMLDom();
 		//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
-		var xmlHiddenInput = document.createElement("input");
-		xmlHiddenInput.setAttribute("type", "hidden");
-		xmlHiddenInput.setAttribute("value", xmlDoc.xml.escapeHTML());	
-		xmlHiddenInput.setAttribute("name", "metadata");
+		var metadataHiddenInput = document.getElementById("metadata");
 		var form = document.getElementById("metadataForm");
-		form.appendChild(xmlHiddenInput);
+		if (metadataHiddenInput) {
+			debug("metadataHiddenInput exists");
+			metadataHiddenInput.value = xmlDoc.xml.escapeHTML();
+		}
+		else {
+			debug("metadataHiddenInput not exists");
+			var xmlHiddenInput = document.createElement("input");
+			xmlHiddenInput.setAttribute("type", "hidden");
+			xmlHiddenInput.setAttribute("value", xmlDoc.xml.escapeHTML());	
+			xmlHiddenInput.setAttribute("name", "metadata");
+			form.appendChild(xmlHiddenInput);
+		}
 		form.submit();
 		//self.close();
 	}

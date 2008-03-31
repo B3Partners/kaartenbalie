@@ -57,8 +57,9 @@
 		<html:form action="/editmetadata" onsubmit="checkForm(this); return false;">
 			<html:hidden property="id" />
 			<html:hidden property="name" />
-			<html:hidden property="save" value="val"/>			
-
+			<html:hidden property="metadata" styleId="metadata"/>
+			<html:hidden property="save" value="t"/>
+						
 			<!--[if! ie]><!-->
 			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
 			<![endif]-->
