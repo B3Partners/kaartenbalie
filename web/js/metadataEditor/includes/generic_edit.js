@@ -14,17 +14,17 @@ var MIN_TEXTINPUT_SIZE = 50;
 var MAX_TEXTINPUT_SIZE = 75;
 
 // Tekst constanten in het Nederlands
-var GLOBAL_DEFAULT = "Klik hier om deze tekst te bewerken.";
-var DEFAULT_PICKLIST_TEXT = "Klik hier om opties te zien";
+var GLOBAL_DEFAULT = "Klik om te bewerken.";
+var DEFAULT_PICKLIST_TEXT = "Klik voor opties";
 
 // add/delete elements/sections menu text 
-var ADD_ELEMENT_ABOVE_TEXT = "Voeg element hierboven toe";
-var ADD_ELEMENT_BELOW_TEXT = "Voeg element hieronder toe";
-var DELETE_ELEMENT_TEXT = "Verwijder dit element";
+var ADD_ELEMENT_ABOVE_TEXT = "Voeg boven toe";
+var ADD_ELEMENT_BELOW_TEXT = "Voeg onder toe";
+var DELETE_ELEMENT_TEXT = "Verwijder";
 
-var ADD_SECTION_ABOVE_TEXT = "Voeg sectie hierboven toe";
-var ADD_SECTION_BELOW_TEXT = "Voeg sectie hieronder toe";
-var DELETE_SECTION_TEXT = "Verwijder deze sectie";
+var ADD_SECTION_ABOVE_TEXT = "Voeg boven toe";
+var ADD_SECTION_BELOW_TEXT = "Voeg onder toe";
+var DELETE_SECTION_TEXT = "Verwijder";
 
 var CONFIRM_DELETE_ELEMENT_TEXT = "Weet u zeker dat u dit element wilt verwijderen?";
 var NOT_ALLOWED_DELETE_ELEMENT_TEXT = "Het is niet toegestaan het laatste element van dit type te verwijderen.";

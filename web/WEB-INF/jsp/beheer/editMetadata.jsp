@@ -11,15 +11,14 @@
 
 		<script type="text/javascript">
 		/* <![CDATA[ */
-			//var debugMode = true;
-			var debugMode = false;
+			var debugMode = true;
+			//var debugMode = false;
 			
 			var layerId = "<c:out value="${metadataForm.map.id}"/>";
 			var layerName = "<c:out value="${metadataForm.map.name}"/>";
 			var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
 			
-			// FIXME: kaartenbalie staat hier nu hard in. Nettere manier vinden om baseURL eruit te halen.
-			var baseURL = document.URL.substring(0, document.URL.lastIndexOf("/kaartenbalie"));			
+			var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));			
 			var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-16\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
 			
 			var mainXslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
