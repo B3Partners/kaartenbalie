@@ -6,10 +6,10 @@
 <tiles:importAttribute/>
 
 <html:html xhtml="true">
-	<head>
-		<meta http-equiv="pragma" content="no-cache" />
-
-		<script type="text/javascript">
+    <head>
+        <meta http-equiv="pragma" content="no-cache" />
+        
+        <script type="text/javascript">
 		/* <![CDATA[ */
 			var debugMode = true;
 			//var debugMode = false;
@@ -31,49 +31,62 @@
 			var MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
 			var MENU_IMAGE = "<html:rewrite page='/js/metadataEditor/images/arrow.gif' module='' />";
 		/* ]]> */
-		</script>	
-
-		<title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
-
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
-
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
-
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
-		
-		<script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
-
-		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/styles/metadataEdit.css' module='' />" />
-
-	</head>
-
-	<body>
-		<html:form action="/editmetadata" onsubmit="checkForm(this); return false;">
-			<html:hidden property="id" />
-			<html:hidden property="name" />
-			<html:hidden property="metadata" styleId="metadata"/>
-			<html:hidden property="save" value="t"/>
-						
-			<html:submit property="save" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
-			
-			<div id="write-root" onclick="click();"></div>
-
-		</html:form>
-
-		<div class="hidden">
-			<!-- plus/minus images used for expanding/collapsing sections -->
-			<img id="plus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />"></img>
-			<img id="minus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />"></img>
-		</div>
-
-	</body>
-	<!-- another head: prevents IE cache bug/feature -->
-	<head>
-		<meta http-equiv="pragma" content="no-cache" />
-	</head>
+        </script>	
+        
+        <title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
+        
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
+        
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
+        
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
+        
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
+        
+        <link rel="stylesheet" type="text/css" href="<html:rewrite page='/styles/metadataEdit.css' module='' />" />
+        
+    </head>
+    <body>
+        <div class="messages"> 
+            <html:messages id="message" message="true" >
+                <div id="error">
+                    <c:out value="${message}" escapeXml="false"/>
+                </div>
+            </html:messages> 
+        </div> 
+        <html:form action="/editmetadata">
+            <html:hidden property="id" />
+            <html:hidden property="name" />
+            <html:hidden property="metadata" styleId="metadata"/>
+            
+            <h1>B3P Metadata Editor</h1>
+            <h4>Conform metadatastandaard kernset voor geografie 1.1<br/>(Nederlands profiel op ISO19115:2003/ISO19139)</h4>
+            <div id="write-root" onclick="click();"></div>
+            <input type="hidden" name="save" value="">
+            <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
+            <input type="hidden" name="download" value="">
+            <html:button property="downloadButton" value="Downloaden" disabled="true" styleId="downloadButton" onclick="checkForm(this);"/> 
+            <br/>
+            <html:text property="email" size="50"/>
+            <input type="hidden" name="send" value="">
+            <html:button property="sendButton" value="Verzenden" disabled="true" styleId="sendButton" onclick="checkForm(this);"/> 
+            
+        </html:form>
+        
+        <div class="hidden">
+            <!-- plus/minus images used for expanding/collapsing sections -->
+            <img id="plus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />"></img>
+            <img id="minus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />"></img>
+        </div>
+        
+    </body>
+    <!-- another head: prevents IE cache bug/feature -->
+    <head>
+        <meta http-equiv="pragma" content="no-cache" />
+    </head>
 </html:html>

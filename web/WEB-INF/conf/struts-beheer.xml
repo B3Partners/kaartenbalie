@@ -80,6 +80,7 @@
             <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="name" type="java.lang.String"/>            
             <form-property name="metadata" type="java.lang.String"/>
+            <form-property name="email" type="java.lang.String"/>
         </form-bean>
         <form-bean name="reportingForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->

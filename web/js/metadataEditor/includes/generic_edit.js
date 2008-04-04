@@ -85,6 +85,12 @@ function changeFlag(changed) {
 		var saveButton = document.getElementById("saveButton");
 		if (saveButton !== "undefined" && saveButton !== null)
 			saveButton.disabled = false;
+		var sendButton = document.getElementById("sendButton");
+		if (sendButton !== "undefined" && sendButton !== null)
+			sendButton.disabled = false;
+		var downloadButton = document.getElementById("downloadButton");
+		if (downloadButton !== "undefined" && downloadButton !== null)
+			downloadButton.disabled = false;
 		if (document.title.substring(document.title.length - 1) != "*")
 			document.title += "*";
 	}

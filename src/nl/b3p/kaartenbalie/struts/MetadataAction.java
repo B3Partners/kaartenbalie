@@ -10,19 +10,20 @@
 
 package nl.b3p.kaartenbalie.struts;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.*;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -42,6 +43,30 @@ import org.xml.sax.*;
 public class MetadataAction extends KaartenbalieCrudAction {
     
     private final static Log log = LogFactory.getLog(MetadataAction.class);
+    
+    protected static final String SEND = "send";
+    protected static final String DOWNLOAD = "download";
+    
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        
+        ExtendedMethodProperties crudProp = null;
+        
+        crudProp = new ExtendedMethodProperties(SEND);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("message.send.ok");
+        crudProp.setAlternateForwardName(SUCCESS);
+        crudProp.setAlternateMessageKey("message.send.problem");
+        map.put(SEND, crudProp);
+        
+        crudProp = new ExtendedMethodProperties(DOWNLOAD);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("message.download.ok");
+        crudProp.setAlternateForwardName(SUCCESS);
+        crudProp.setAlternateMessageKey("message.download.problem");
+        map.put(DOWNLOAD, crudProp);
+        return map;
+    }
     
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         showLayerTree(request);
@@ -92,6 +117,47 @@ public class MetadataAction extends KaartenbalieCrudAction {
         //showLayerTree(request);
         
         return getDefaultForward(mapping, request);
+    }
+    
+    public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String metadata = StringEscapeUtils.unescapeXml((String)dynaForm.get("metadata"));
+        dynaForm.set("metadata","");
+        if (metadata==null || metadata.length()==0) {
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return edit(mapping, dynaForm, request, response);
+        }
+        
+        String newMetadata = null;
+        try {
+            newMetadata = reparseXML(metadata);
+        } catch (Exception e) {
+            log.error("error parsing metadata xml: ", e);
+            prepareMethod(dynaForm, request, LIST, EDIT);
+            addAlternateMessage(mapping, request, null, e.getMessage());
+            return edit(mapping, dynaForm, request, response);
+        }
+        if (newMetadata!=null && newMetadata.length()>0)
+            metadata = newMetadata;
+        
+        response.setContentType("text/xml");
+        response.setContentLength(metadata.length());
+        
+        String fileName = "metadata.xml";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
+        // response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
+        
+        try {
+            Writer rw = response.getWriter();
+            rw.write(metadata);
+        } catch (IOException ex) {
+            log.error("error parsing metadata xml: ", ex);
+        }
+        return null;
+    }
+    
+    public ActionForward send(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        return save(mapping, dynaForm, request, response);
     }
     
     /* FF heeft problemen met xml dat IE produceert. Alleen lege tags met een

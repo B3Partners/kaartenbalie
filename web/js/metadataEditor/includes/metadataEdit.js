@@ -96,7 +96,7 @@ function insertTitle() {
 	}
 	debug("titleString: " + titleString);
 	
-	var titleXHTMLElement = document.createElement("h1");
+	var titleXHTMLElement = document.createElement("h5");
 	titleXHTMLElement.innerHTML = "";
 	titleXHTMLElement.appendChild(document.createTextNode(titleString));
 	debug("titleXHTMLElement.innerHTML: " + titleXHTMLElement.innerHTML);
@@ -281,27 +281,36 @@ function removeEmptyStringValuesFromArray(array) {
 }
 
 function checkForm(source) {
+        var form = document.forms[0];
+
+	var metadataHiddenInput = document.getElementById("metadata");
+  	if (metadataHiddenInput) {
+            debug("metadataHiddenInput exists");
+            metadataHiddenInput.value = xmlDoc.xml.escapeHTML();
+	} else {
+            debug("metadataHiddenInput not exists");
+            var xmlHiddenInput = document.createElement("input");
+            xmlHiddenInput.setAttribute("type", "hidden");
+            xmlHiddenInput.setAttribute("value", xmlDoc.xml.escapeHTML());	
+            xmlHiddenInput.setAttribute("name", "metadata");
+            form.appendChild(xmlHiddenInput);
+        }
+
+        addDateStampToXMLDom();
+
 	var sourceName = source.getAttribute("name");
-	if (sourceName != null && sourceName == "save") {
-		addDateStampToXMLDom();
-		//document.getElementById("xml").setAttribute("value", xmlDoc.xml);
-		var metadataHiddenInput = document.getElementById("metadata");
-		var form = document.getElementById("metadataForm");
-		if (metadataHiddenInput) {
-			debug("metadataHiddenInput exists");
-			metadataHiddenInput.value = xmlDoc.xml.escapeHTML();
-		}
-		else {
-			debug("metadataHiddenInput not exists");
-			var xmlHiddenInput = document.createElement("input");
-			xmlHiddenInput.setAttribute("type", "hidden");
-			xmlHiddenInput.setAttribute("value", xmlDoc.xml.escapeHTML());	
-			xmlHiddenInput.setAttribute("name", "metadata");
-			form.appendChild(xmlHiddenInput);
-		}
-		form.submit();
-		//self.close();
+	if (sourceName != null && sourceName == "saveButton") {
+             form.save.value = "t";
 	}
+	if (sourceName != null && sourceName == "sendButton") {
+             form.send.value = "t";
+	}
+	if (sourceName != null && sourceName == "downloadButton") {
+             form.download.value = "t";
+	}
+
+        form.submit();
+	//self.close();
 }
 
 function addDateStampToXMLDom() {
