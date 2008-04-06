@@ -3,9 +3,7 @@
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <div class="containerdiv" style="height: 500px;">
-    <h1>Beheer Metadata</h1>
-    
-    <b>Lijst met beschikbare layers:</b>
+    <h1>B3P Metadata Editor (metadatastandaard kernset voor geografie 1.1)</h1>
     <div class="mdContainerDiv">
         <div id="tree" class="containerdivFloat"></div>
         

@@ -72,12 +72,13 @@
                 </html:messages> 
             </div> 
             <div id="write-root" onclick="click();"></div>
+            <%--
             <input type="hidden" name="save" value="">
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
             <h4>Direct metadata.xml downloaden</h4>
             <input type="hidden" name="download" value="">
-            <html:button property="downloadButton" value="Downloaden" styleId="downloadButton" onclick="checkForm(this);"/> 
-            <%--
+            <html:button property="downloadButton" value="Downloaden" disabled="true" styleId="downloadButton" onclick="checkForm(this);"/> 
+            --%>
             <h4>Email met metadata.xml verzenden</h4>
             <table>
                 <tr>
@@ -123,7 +124,6 @@
                     </td>
                 </tr>
             </table>
-            --%>
         </html:form>
         
         <div class="hidden">

@@ -80,7 +80,22 @@
             <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="name" type="java.lang.String"/>            
             <form-property name="metadata" type="java.lang.String"/>
-            <form-property name="email" type="java.lang.String"/>
+            <form-property name="mailhost" type="java.lang.String" initial="mail.b3partners.nl"/>
+            <form-property name="xsl" type="java.lang.String"/>
+            <form-property name="to" type="java.lang.String"/>
+            <form-property name="from" type="java.lang.String"/>
+            <form-property name="subject" type="java.lang.String"/>
+            <form-property name="cc" type="java.lang.String"/>
+            <form-property name="bcc" type="java.lang.String"/>
+            <form-property name="body" type="java.lang.String"/>
+            <form-property name="fullname" type="java.lang.String"/>
+            <form-property name="company" type="java.lang.String"/>
+            <form-property name="address" type="java.lang.String"/>
+            <form-property name="zipcode" type="java.lang.String"/>
+            <form-property name="city" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="phone" type="java.lang.String"/>
+            <form-property name="fax" type="java.lang.String"/>
         </form-bean>
         <form-bean name="reportingForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->

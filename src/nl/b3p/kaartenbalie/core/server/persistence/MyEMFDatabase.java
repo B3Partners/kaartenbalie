@@ -113,7 +113,7 @@ public class MyEMFDatabase extends HttpServlet {
         capabilitiesdtd = getConfigValue(config, "dtd","/dtd/capabilities_1_1_1.dtd");
         exceptiondtd = getConfigValue(config, "dtd","/dtd/exception_1_1_1.dtd");
         
-        cachePath = getConfigValue(config, "cache",null);
+        cachePath = getConfigValue(config, "cache", "/");
         if (cachePath != null) {
             cachePath = getServletContext().getRealPath( cachePath );
             log.debug("cache pad: " + cachePath);

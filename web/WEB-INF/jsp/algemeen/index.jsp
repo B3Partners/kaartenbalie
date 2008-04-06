@@ -27,6 +27,9 @@
                 <dd>Wachtwoord en ipadres aanpassen en uw personelijke url opvragen
                     of een volledige kaartadres genereren.
                 </dd>
+                <dt>B3P Metadata Editor</dt>
+                <dd>Conform metadatastandaard kernset voor geografie 1.1 (Nederlands profiel op ISO19115:2003/ ISO19139)
+                 </dd>
                 <dt>Demo</dt>
                 <dd>Nieuwe gebruikers kunnen via de demo kennismaken van de mogelijkheden van
                     B3P Kaartenbalie.

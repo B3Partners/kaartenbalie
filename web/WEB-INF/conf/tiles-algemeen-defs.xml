@@ -38,4 +38,8 @@
     <definition name="base.algemeen.login" extends="base.algemeen">
         <put name="content" value="/WEB-INF/jsp/algemeen/login.jsp"/>
     </definition>  
+    <definition name="base.algemeen.metadata" extends="base.algemeen">
+        <put name="content" value="/WEB-INF/jsp/algemeen/metadata.jsp"/>
+    </definition>
+    <definition name="base.algemeen.editmetadata" path="/WEB-INF/jsp/algemeen/editMetadata.jsp"/>
 </tiles-definitions>
