@@ -48,6 +48,7 @@
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
         
+        
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
         
@@ -120,7 +121,7 @@
                     <td>
                         <html:text property="to" size="50"/>
                         <input type="hidden" name="send" value="">
-                        <html:button property="sendButton" value="Verzenden" disabled="true" styleId="sendButton" onclick="checkForm(this);"/> 
+                        <html:button property="sendButton" value="Verzenden" styleId="sendButton" onclick="checkForm(this);"/> 
                     </td>
                 </tr>
             </table>
@@ -136,5 +137,4 @@
     <head>
         <meta http-equiv="pragma" content="no-cache" />
     </head>
-    </html:html>
-    
+</html:html>

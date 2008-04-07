@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.mail.ByteArrayDataSource;
+import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMessages;
@@ -47,23 +48,23 @@ import org.w3c.dom.Document;
 import org.xml.sax.*;
 
 public class MetadataAction extends KaartenbalieCrudAction {
-
+    
     private final static Log log = LogFactory.getLog(MetadataAction.class);
     protected static final String SEND = "send";
     protected static final String DOWNLOAD = "download";
-
+    
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
-
+        
         ExtendedMethodProperties crudProp = null;
-
+        
         crudProp = new ExtendedMethodProperties(SEND);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.send.ok");
         crudProp.setAlternateForwardName(SUCCESS);
         crudProp.setAlternateMessageKey("beheer.send.problem");
         map.put(SEND, crudProp);
-
+        
         crudProp = new ExtendedMethodProperties(DOWNLOAD);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.download.ok");
@@ -72,7 +73,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         map.put(DOWNLOAD, crudProp);
         return map;
     }
-
+    
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Principal user = request.getUserPrincipal();
         if (user != null) {
@@ -80,22 +81,24 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         return mapping.findForward(SUCCESS);
     }
-
+    
     private void showLayerTree(HttpServletRequest request) throws Exception {
         JSONObject root = this.createTree();
         request.setAttribute("layerList", root);
     }
-
+    
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Principal user = request.getUserPrincipal();
         if (user != null) {
             String layerUniqueName = (String) dynaForm.get("id");
-            Layer layer = getLayerByUniqueName(layerUniqueName);
-            populateMetadataEditorForm(layer, dynaForm, request);
+            if (layerUniqueName!=null && layerUniqueName.length()>0) {
+                Layer layer = getLayerByUniqueName(layerUniqueName);
+                populateMetadataEditorForm(layer, dynaForm, request);
+            }
         }
         return mapping.findForward(SUCCESS);
     }
-
+    
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Principal user = request.getUserPrincipal();
         if (user != null) {
@@ -107,7 +110,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
                 return getAlternateForward(mapping, request);
             }
-
+            
             String metadata = null;
             try {
                 metadata = getMetadata(dynaForm);
@@ -117,18 +120,18 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 addAlternateMessage(mapping, request, null, e.getMessage());
                 return edit(mapping, dynaForm, request, response);
             }
-
+            
             layer.setMetaData(metadata);
-
+            
             em.merge(layer);
             // flush used because database sometimes doesn't update (merge) quickly enough
             em.flush();
-
+            
             populateMetadataEditorForm(layer, dynaForm, request);
         }
         return getDefaultForward(mapping, request);
     }
-
+    
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String metadata = null;
         try {
@@ -139,14 +142,14 @@ public class MetadataAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return edit(mapping, dynaForm, request, response);
         }
-
+        
         response.setContentType("text/xml");
         response.setContentLength(metadata.length());
-
+        
         String fileName = "metadata.xml";
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
         // response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
-
+        
         try {
             Writer rw = response.getWriter();
             rw.write(metadata);
@@ -155,68 +158,86 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         return null;
     }
-
+    
     public ActionForward send(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+        
+        String metadata = getMetadata(dynaForm);
+        
+        ActionErrors errors = dynaForm.validate(mapping, request);
+        if(!errors.isEmpty()) {
+            if (metadata != null) {
+                // remove all newline and return characters using RegEx
+                metadata = metadata.replaceAll("[\\n\\r]+", "");
+            }
+            dynaForm.set("metadata", metadata);
+            
+            addMessages(request, errors);
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         Mailer mailer = new Mailer();
         populateMailerObject(mailer, dynaForm, request);
-
-        String metadata = getMetadata(dynaForm);
+        
         String type = "text/xml; charset=utf-8";
         ByteArrayDataSource bads = new ByteArrayDataSource(metadata.getBytes("utf-8"), type);
         mailer.setAttachmentDataSource(bads);
         mailer.setAttachmentName("metadata.xml");
-
+        
         ActionMessages messages = getMessages(request);
         messages = mailer.send(messages);
         saveMessages(request, messages);
-
+        
         if (metadata != null) {
             // remove all newline and return characters using RegEx
             metadata = metadata.replaceAll("[\\n\\r]+", "");
         }
         dynaForm.set("metadata", metadata);
-        addDefaultMessage(mapping, request);
+        if (messages.isEmpty())
+            addDefaultMessage(mapping, request);
+        else
+            addAlternateMessage(mapping, request, null, "zie hiervoor");
         return mapping.findForward(SUCCESS);
     }
-
+    
     protected void populateMailerObject(Mailer infoMailer, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         Locale locale = request.getLocale();
         HttpSession session = request.getSession();
-
+        
         infoMailer.setMessages(messages);
         infoMailer.setLocale(locale);
         infoMailer.setSession(session);
-
+        
         String xsl = dynaForm.getString("xsl");
         if (xsl != null && xsl.length() > 0) {
             infoMailer.setXsl(xsl);
         }
-
+        
         String mailh = dynaForm.getString("mailhost");
         if ((mailh == null) || (mailh.length() == 0)) {
             addMessage(request, "error.message.nomailhost");
         }
         infoMailer.setMailHost(mailh);
         infoMailer.setMailer("B3PKaartenbalie");
-
+        
         if (request.getParameter("receipt") != null && !request.getParameter("receipt").equals("")) {
             log.info("Return receipt actief.");
             infoMailer.setReturnReceipt(true);
         }
-
+        
         String to = dynaForm.getString("to");
         if ((to == null) || (to.length() == 0)) {
             addMessage(request, "error.message.noto");
         }
         infoMailer.setMailTo(to);
-
+        
         String from = dynaForm.getString("from");
         if ((from == null) || (from.length() == 0)) {
             addMessage(request, "error.message.nofrom");
         }
         infoMailer.setMailFrom(from);
-
+        
         String tempFrom = infoMailer.getMailFrom();
         if (request.getParameter("reverse") != null && !request.getParameter("reverse").equals("")) {
             log.info("email reverse actief.");
@@ -224,7 +245,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             infoMailer.setMailTo(infoMailer.getMailFrom());
             infoMailer.setMailFrom(tempFrom);
         }
-
+        
         String cc = dynaForm.getString("cc");
         if (cc != null && !cc.equals("") && tempFrom != null) {
             cc = cc + ", " + tempFrom;
@@ -233,15 +254,15 @@ public class MetadataAction extends KaartenbalieCrudAction {
             cc = tempFrom;
         }
         infoMailer.setMailCc(cc);
-
+        
         String bcc = dynaForm.getString("bcc");
         if (bcc != null && bcc.length() != 0) {
             infoMailer.setMailBcc(bcc);
         }
-
+        
         infoMailer.setSubject(dynaForm.getString("subject"));
         infoMailer.setBody(dynaForm.getString("body"));
-
+        
         Hashtable params = new Hashtable();
         Enumeration cenum = request.getParameterNames();
         while (cenum.hasMoreElements()) {
@@ -257,12 +278,12 @@ public class MetadataAction extends KaartenbalieCrudAction {
             params.put(theParameter, request.getParameter(theParameter));
         }
         infoMailer.setExtraParams(params);
-
+        
         infoMailer.setFooter(messages.getMessage(locale, "message.moreinfo"));
-
+        
         return;
     }
-
+    
     /* FF heeft problemen met xml dat IE produceert. Alleen lege tags met een
      * additionele namespace worden verkeerd geparsed
      * <code>
@@ -281,16 +302,16 @@ public class MetadataAction extends KaartenbalieCrudAction {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document dom = db.parse(new InputSource(sr));
-
+        
         StringWriter sw = new StringWriter();
         OutputFormat format = new OutputFormat(dom);
         format.setIndenting(true);
         XMLSerializer serializer = new XMLSerializer(sw, format);
         serializer.serialize(dom);
-
+        
         return sw.toString();
     }
-
+    
     private String getMetadata(DynaValidatorForm dynaForm) throws Exception {
         String metadata = StringEscapeUtils.unescapeXml((String) dynaForm.get("metadata"));
         if (metadata == null || metadata.length() == 0) {
@@ -302,7 +323,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         return newMetadata;
     }
-
+    
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
         if (layer == null) {
             return;
@@ -316,7 +337,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         dynaForm.set("metadata", metadata);
     }
-
+    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
@@ -330,13 +351,13 @@ public class MetadataAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
-
+        
         EntityManager em = getEntityManager();
         List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
-
+        
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
-
+        
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
             ServiceProvider sp = (ServiceProvider) it.next();
@@ -377,13 +398,13 @@ public class MetadataAction extends KaartenbalieCrudAction {
              * list of layer objects.
              */
             Layer layer = (Layer) layerIterator.next();
-
+            
             /* When we have retrieved this array we are able to save our object we are working with
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
             JSONObject layerObj = this.layerToJSON(layer);
-
+            
             /* Before we are going to save the present object we can first use our object to recieve and store
              * any information which there might be for the child layers. First we check if the set of layers
              * is not empty, because if it is, no effort has to be taken.
@@ -394,7 +415,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
             }
-
+            
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MD_Metadata><language>
+<?xml-stylesheet type="text/xsl" href="C:\dev\nb5-projects\kaartenbalie\web\js\metadataEditor\preprocessors\metadataEditPreprocessor.xsl"?>
+<MD_Metadata>
+	<language>
 		<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
-	</language><characterSet>
+	</language>
+	<characterSet>
 		<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
-	</characterSet><contact>
+	</characterSet>
+	<contact>
 		<CI_ResponsibleParty>
 			<organisationName>
 				<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
@@ -23,13 +27,17 @@
 				</CI_Contact>
 			</contactInfo>
 		</CI_ResponsibleParty>
-	</contact><dateStamp>
+	</contact>
+	<dateStamp>
 		<gco:Date xmlns:gco="http://www.isotc211.org/2005/gco"/>
-	</dateStamp><metadataStandardName>
+	</dateStamp>
+	<metadataStandardName>
 		<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
-	</metadataStandardName><metadataStandardVersion>
+	</metadataStandardName>
+	<metadataStandardVersion>
 		<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
-	</metadataStandardVersion><referenceSystemInfo>
+	</metadataStandardVersion>
+	<referenceSystemInfo>
 		<MD_ReferenceSystem>
 			<referenceSystemIdentifier>
 				<RS_Identifier>
@@ -39,22 +47,9 @@
 				</RS_Identifier>
 			</referenceSystemIdentifier>
 		</MD_ReferenceSystem>
-	</referenceSystemInfo><identificationInfo>
+	</referenceSystemInfo>
+	<identificationInfo>
 		<MD_DataIdentification>
-			<citation>
-				<CI_Citation>
-					<title>
-						<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
-					</title>
-					<date>
-						<CI_Date>
-							<date>
-								<gco:Date xmlns:gco="http://www.isotc211.org/2005/gco"/>
-							</date>
-						</CI_Date>
-					</date>
-				</CI_Citation>
-			</citation>
 			<abstract>
 				<gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco"/>
 			</abstract>
@@ -90,5 +85,4 @@
 			</topicCategory>
 		</MD_DataIdentification>
 	</identificationInfo>
-
 </MD_Metadata>

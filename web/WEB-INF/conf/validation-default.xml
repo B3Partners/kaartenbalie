@@ -14,28 +14,28 @@
     
     <formset>
         <form name="userForm">
-            <field property="firstname" depends="required, maxlength"> <!-- required -->
+            <field property="firstname" depends="required"> <!-- required -->
                 <arg0 key="beheer.firstname"/>
             </field>
-            <field property="surname" depends="required, maxlength"> <!-- required -->
+            <field property="surname" depends="required"> <!-- required -->
                 <arg0 key="beheer.surname"/>
             </field>
-            <field property="emailAddress" depends="required, maxlength"> <!-- required -->
+            <field property="emailAddress" depends="required"> <!-- required -->
                 <arg0 key="beheer.emailAddress"/>
             </field>
-            <field property="username" depends="required, maxlength"> <!-- required -->
+            <field property="username" depends="required"> <!-- required -->
                 <arg0 key="beheer.username"/>
             </field>
-            <field property="password" depends="required, maxlength"> <!-- required -->
+            <field property="password" depends="required"> <!-- required -->
                 <arg0 key="beheer.password"/>
             </field>
         </form>
         
         <form name="serverForm">
-            <field property="serviceProviderGivenName" depends="required, maxlength"> <!-- required -->
+            <field property="serviceProviderGivenName" depends="required"> <!-- required -->
                 <arg0 key="beheer.serviceProviderGivenName"/>
             </field>
-            <field property="serviceProviderUrl" depends="required, maxlength"> <!-- required -->
+            <field property="serviceProviderUrl" depends="required"> <!-- required -->
                 <arg0 key="beheer.serviceProviderUrl"/>
             </field>
             <field property="abbr" depends="required"> <!-- required -->
@@ -47,21 +47,33 @@
             <field property="name" depends="required, maxlength"> <!-- required -->
                 <arg0 key="beheer.name"/>
             </field>
-            <field property="organizationStreet" depends="required, maxlength"> <!-- required -->
+            <field property="organizationStreet" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationStreet"/>
             </field>
-            <field property="organizationNumber" depends="required, maxlength"> <!-- required -->
+            <field property="organizationNumber" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationNumber"/>
             </field>
-            <field property="organizationProvince" depends="required, maxlength"> <!-- required -->
+            <field property="organizationProvince" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationProvince"/>
             </field>
-            <field property="organizationCountry" depends="required, maxlength"> <!-- required -->
+            <field property="organizationCountry" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationCountry"/>
             </field>
-            <field property="organizationTelephone" depends="required, maxlength"> <!-- required -->
+            <field property="organizationTelephone" depends="required"> <!-- required -->
                 <arg0 key="beheer.organizationTelephone"/>
             </field>            
+        </form>
+        
+        <form name="metadataForm">
+            <field property="to" depends="required, email"> <!-- required -->
+                <arg0 key="message.to"/>
+            </field>
+            <field property="fullname" depends="required"> <!-- required -->
+                <arg0 key="message.fullname"/>
+            </field>
+            <field property="company" depends="required"> <!-- required -->
+                <arg0 key="message.company"/>
+            </field>
         </form>
     </formset>
 </form-validation>
