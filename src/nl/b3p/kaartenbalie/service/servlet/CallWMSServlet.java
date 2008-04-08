@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
@@ -48,11 +49,13 @@ import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCRequest;
+import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class CallWMSServlet extends HttpServlet {
     private static Log log = null;
@@ -98,6 +101,7 @@ public class CallWMSServlet extends HttpServlet {
         if (EXCEPTION_DTD == null) {
             EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
         }
+        
         String iUrl = completeUrl(baseUrl, request).toString();
         log.debug("Incoming URL: " + iUrl);
         
@@ -106,15 +110,32 @@ public class CallWMSServlet extends HttpServlet {
         User user = null;
         
         DataWrapper data = new DataWrapper(response);
-        OGCRequest ogcrequest = new OGCRequest(iUrl);
-        data.setOgcrequest(ogcrequest);
+        
+        OGCRequest ogcrequest;
+        if(request.getMethod().equalsIgnoreCase("GET")){
+            ogcrequest = new OGCRequest(iUrl);
+            data.setOgcrequest(ogcrequest);
+        }
+        else if(request.getMethod().equalsIgnoreCase("POST")){
+            try{
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = dbf.newDocumentBuilder();
+                Document doc = builder.parse(request.getInputStream());            
+                ogcrequest = new OGCRequest(doc.getDocumentElement(), iUrl);
+                data.setOgcrequest(ogcrequest);
+            }catch(Exception e){
+                log.error("Error while handling request: ",e);
+                handleRequestException(e, data);
+            }
+        }
+        
         DataMonitoring rr = new DataMonitoring();
         data.setRequestReporting(rr);
         
         try {
             rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
             user = checkLogin(request);
-            ogcrequest.checkRequestURL();
+            data.getOgcrequest().checkRequestURL();
             rr.setUserAndOrganization(user, user.getOrganization());
             data.setHeader("X-Kaartenbalie-User", user.getUsername());
             parseRequestAndData(data, user);
@@ -440,6 +461,7 @@ public class CallWMSServlet extends HttpServlet {
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
+        String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
         
         if (request==null || request.length()==0) {
             // niet bekend, dus moet proxy zijn
@@ -447,20 +469,30 @@ public class CallWMSServlet extends HttpServlet {
             requestHandler = new ProxyRequestHandler();
             requestHandler.getRequest(data, user);
         }
-        
         data.setOperation(request);
-        if(request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
-            data.setRequestClassType(WMSGetCapabilitiesRequest.class);
-            requestHandler = new GetCapabilitiesRequestHandler();
-        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
-            data.setRequestClassType(WMSGetMapRequest.class);
-            requestHandler = new GetMapRequestHandler();
-        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
-            data.setRequestClassType(WMSGetFeatureInfoRequest.class);
-            requestHandler = new GetFeatureInfoRequestHandler();
-        } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
-            data.setRequestClassType(WMSGetLegendGraphicRequest.class);
-            requestHandler = new GetLegendGraphicRequestHandler();
+        
+        if(service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)){
+            if(request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
+                data.setRequestClassType(WMSGetCapabilitiesRequest.class);
+                requestHandler = new GetCapabilitiesRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
+                data.setRequestClassType(WMSGetMapRequest.class);
+                requestHandler = new GetMapRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                data.setRequestClassType(WMSGetFeatureInfoRequest.class);
+                requestHandler = new GetFeatureInfoRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
+                data.setRequestClassType(WMSGetLegendGraphicRequest.class);
+                requestHandler = new GetLegendGraphicRequestHandler();
+            }
+        } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
+            if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){
+                throw new UnsupportedOperationException("No WFS GetCapabilities handler available yet!");
+            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
+                throw new UnsupportedOperationException("No WFS DescribeFeatureType handler available yet!");
+            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
+                throw new UnsupportedOperationException("No WFS GetFeature handler available yet!");
+            }
         }
         requestHandler.getRequest(data, user);
     }
