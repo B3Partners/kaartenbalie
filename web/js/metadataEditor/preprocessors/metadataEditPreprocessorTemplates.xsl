@@ -551,7 +551,6 @@
     </xsl:template>
     <xsl:template name="add-TimeInstant-After">
         <xsl:element name="gmd:TimeInstant">
-            <xsl:attribute name="gmd:frame">#ISO-8601</xsl:attribute>
             <xsl:element name="gmd:timePosition">
                 <xsl:attribute name="gmd:frame">#ISO-8601</xsl:attribute>
                 <xsl:attribute name="gmd:indeterminatePosition">after</xsl:attribute>			
@@ -560,7 +559,6 @@
     </xsl:template>
     <xsl:template name="add-TimeInstant-Before">
         <xsl:element name="gmd:TimeInstant">
-            <xsl:attribute name="gmd:frame">#ISO-8601</xsl:attribute>
             <xsl:element name="gmd:timePosition">
                 <xsl:attribute name="gmd:frame">#ISO-8601</xsl:attribute>
                 <xsl:attribute name="gmd:indeterminatePosition">before</xsl:attribute>			
