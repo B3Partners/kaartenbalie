@@ -20,6 +20,10 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureIn
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCConstants;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
@@ -64,6 +68,8 @@ public class CallWMSServlet extends HttpServlet {
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
+    private HashMap serviceProviders;
+    private String serviceProvider;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -94,6 +100,9 @@ public class CallWMSServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
         
+        serviceProviders = new HashMap();
+        serviceProviders.put("joo","http://b3p-roy:8080/deegree-wfs/services");
+        
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
             CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getCapabilitiesdtd();
@@ -118,10 +127,11 @@ public class CallWMSServlet extends HttpServlet {
         }
         else if(request.getMethod().equalsIgnoreCase("POST")){
             try{
+                serviceProvider = request.getParameter("ServiceProvider");
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(request.getInputStream());            
-                ogcrequest = new OGCRequest(doc.getDocumentElement(), iUrl);
+                ogcrequest = new OGCRequest(doc.getDocumentElement());
                 data.setOgcrequest(ogcrequest);
             }catch(Exception e){
                 log.error("Error while handling request: ",e);
@@ -485,18 +495,42 @@ public class CallWMSServlet extends HttpServlet {
                 data.setRequestClassType(WMSGetLegendGraphicRequest.class);
                 requestHandler = new GetLegendGraphicRequestHandler();
             }
+            requestHandler.getRequest(data, user);
         } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
-            if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){
-                throw new UnsupportedOperationException("No WFS GetCapabilities handler available yet!");
+            if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){   
+                recieveAndSendCapabilities(data);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
                 throw new UnsupportedOperationException("No WFS DescribeFeatureType handler available yet!");
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
                 throw new UnsupportedOperationException("No WFS GetFeature handler available yet!");
             }
         }
-        requestHandler.getRequest(data, user);
     }
     // </editor-fold>
+    
+    private void recieveAndSendCapabilities(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
+        String url = (String)serviceProviders.get(serviceProvider);
+        PostMethod method = null;
+        HttpClient client = new HttpClient();        
+        String host = url;
+        method = new PostMethod(host); 
+        String body = data.getOgcrequest().getXMLBody();
+        method.setRequestEntity(new StringRequestEntity(body,"text/xml", "UTF-8"));
+        int status=client.executeMethod(method);
+        if (status == HttpStatus.SC_OK){
+            data.setContentType("text/xml");
+            OutputStream os = data.getOutputStream(); 
+            InputStream is = method.getResponseBodyAsStream();
+            int len = 1;
+            byte[] buffer= new byte[2024];
+            while((len=is.read(buffer,0,len))>0){
+                os.write(buffer,0,len);
+            }
+        }else{
+            log.error("Failed to connect with "+ url +" Using body: "+body);
+            throw new UnsupportedOperationException("Failed to connect with "+ url +" Using body: "+body);
+        }
+    }
     
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
