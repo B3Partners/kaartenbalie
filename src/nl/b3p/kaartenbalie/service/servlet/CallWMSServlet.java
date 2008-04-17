@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import javax.persistence.EntityManagerFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
@@ -62,6 +63,10 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class CallWMSServlet extends HttpServlet {
+
+    private EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("defaultKaartenbaliePU");
+
+    private EntityManager em = emf.createEntityManager();
     private static Log log = null;
     public static final long serialVersionUID = 24362462L;
     private String format;
@@ -101,7 +106,7 @@ public class CallWMSServlet extends HttpServlet {
         int totalDatasize = 0;
         
         serviceProviders = new HashMap();
-        serviceProviders.put("joo","http://b3p-roy:8080/deegree-wfs/services");
+        serviceProviders.put("joo","http://localhost:8084/deegree-wfs/services");
         
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
@@ -131,7 +136,7 @@ public class CallWMSServlet extends HttpServlet {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(request.getInputStream());            
-                ogcrequest = new OGCRequest(doc.getDocumentElement());
+                ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
                 data.setOgcrequest(ogcrequest);
             }catch(Exception e){
                 log.error("Error while handling request: ",e);
@@ -494,21 +499,27 @@ public class CallWMSServlet extends HttpServlet {
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
                 data.setRequestClassType(WMSGetLegendGraphicRequest.class);
                 requestHandler = new GetLegendGraphicRequestHandler();
+            } else{
+                throw new UnsupportedOperationException("Request "+ request +" is not suported!");
             }
             requestHandler.getRequest(data, user);
         } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
             if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){   
-                recieveAndSendCapabilities(data);
+                recieveAndSend(data);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
-                throw new UnsupportedOperationException("No WFS DescribeFeatureType handler available yet!");
+                recieveAndSend(data);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
-                throw new UnsupportedOperationException("No WFS GetFeature handler available yet!");
+                recieveAndSend(data);
+            } else{
+                throw new UnsupportedOperationException("Request "+ request +" is not suported!");
             }
+        } else{
+            throw new UnsupportedOperationException("Service "+ service +" is not suported!");
         }
     }
     // </editor-fold>
     
-    private void recieveAndSendCapabilities(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
+    private void recieveAndSend(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
         String url = (String)serviceProviders.get(serviceProvider);
         PostMethod method = null;
         HttpClient client = new HttpClient();        
@@ -609,6 +620,19 @@ public class CallWMSServlet extends HttpServlet {
             authorization = authorization.substring(6).trim();
             // Decode and parse the authorization credentials
             return new String(Base64.decodeBase64(authorization.getBytes()));
+        }
+    }
+
+    public void persist(Object object) {
+        try {
+            em.getTransaction().begin();
+            // TODO:
+            // em.persist(object);    em.getTransaction().commit();
+        } catch(Exception e) {
+            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE,"exception caught", e);
+            em.getTransaction().rollback();
+        } finally {
+            em.close();
         }
     }
 }
