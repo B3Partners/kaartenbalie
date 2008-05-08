@@ -147,7 +147,7 @@ function doCustomSubmit(){
         </P>        
         <P>
             Via volgende link kunt u de voor u geldende WMS GetCapabilities ophalen:
-            <html:link page="/wms/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">GetCapabilities</html:link>
+            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">GetCapabilities</html:link>
         </P>        
         
         <H2>Huidige gegevens:</H2>

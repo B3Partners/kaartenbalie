@@ -13,6 +13,7 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
@@ -21,6 +22,8 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureIn
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -520,7 +523,25 @@ public class CallWMSServlet extends HttpServlet {
     // </editor-fold>
     
     private void recieveAndSend(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
-        String url = (String)serviceProviders.get(serviceProvider);
+        // takes the first WFS server vrom the list
+        ServiceProvider provider = null;
+        EntityManager em = MyEMFDatabase.getEntityManager();
+        try{
+            provider = (ServiceProvider) em.createQuery("from ServiceProvider p where " +
+                    "p.service = (:service)").setParameter("service", "WFS").getSingleResult();
+        }catch (NoResultException nre){
+            throw new Exception("No serviceprovider found!");
+        }
+        
+        String url = provider.getUrl();
+        
+        // serviceprovider uit db halen
+        // anders:
+        if(url == null || url == ""){
+            //url = (String)serviceProviders.get(serviceProvider);
+            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
+        }
+        
         PostMethod method = null;
         HttpClient client = new HttpClient();        
         String host = url;

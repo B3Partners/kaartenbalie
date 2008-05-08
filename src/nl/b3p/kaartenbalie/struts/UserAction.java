@@ -577,8 +577,8 @@ public class UserAction extends KaartenbalieCrudAction {
             personalURL.append(port);
         }
         personalURL.append(contextPath);
-        personalURL.append("/");
-        personalURL.append(OGCConstants.WMS_SERVICE_WMS.toLowerCase());
+        personalURL.append("/");     
+        personalURL.append("services");
         personalURL.append("/");
         personalURL.append(hashString);
         

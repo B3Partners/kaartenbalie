@@ -119,8 +119,11 @@ public abstract class WMSRequestHandler implements RequestHandler {
                 if(!topLayers.contains(topLayer))
                     topLayers.add(topLayer);
                 ServiceProvider sp = layer.getServiceProvider();
-                if(!serviceproviders.contains(sp))
-                    serviceproviders.add(sp);
+                if(!serviceproviders.contains(sp)){
+                    if(sp.getService().equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)){
+                        serviceproviders.add(sp);       
+                    }
+                }
             }
             
             
