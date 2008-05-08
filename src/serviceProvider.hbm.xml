@@ -72,8 +72,5 @@
         <property name="wmsVersion">
             <column name="WMSVERSION" not-null="true" default="0" length="50"/>
         </property>
-        <property name="service">
-            <column name="SERVICE" not-null="true" default="0" length="50"/>
-        </property>
     </class>
 </hibernate-mapping>

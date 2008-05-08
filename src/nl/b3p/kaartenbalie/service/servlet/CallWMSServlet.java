@@ -76,8 +76,8 @@ public class CallWMSServlet extends HttpServlet {
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
-    private HashMap serviceProviders;
-    private String serviceProvider;
+    //private HashMap serviceProviders;
+    //private String serviceProvider;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -108,8 +108,8 @@ public class CallWMSServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
         
-        serviceProviders = new HashMap();
-        serviceProviders.put("joo","http://localhost:8084/deegree-wfs/services");
+        //serviceProviders = new HashMap();
+        //serviceProviders.put("joo","http://localhost:8084/deegree-wfs/services");
         
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
@@ -135,7 +135,7 @@ public class CallWMSServlet extends HttpServlet {
         }
         else if(request.getMethod().equalsIgnoreCase("POST")){
             try{
-                serviceProvider = request.getParameter("ServiceProvider");
+                //serviceProvider = request.getParameter("ServiceProvider");
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(request.getInputStream());            
@@ -523,22 +523,19 @@ public class CallWMSServlet extends HttpServlet {
     // </editor-fold>
     
     private void recieveAndSend(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
-        // takes the first WFS server vrom the list
+        // takes the first WFS server from the list
         ServiceProvider provider = null;
         EntityManager em = MyEMFDatabase.getEntityManager();
-        try{
+        /*try{
             provider = (ServiceProvider) em.createQuery("from ServiceProvider p where " +
                     "p.service = (:service)").setParameter("service", "WFS").getSingleResult();
         }catch (NoResultException nre){
             throw new Exception("No serviceprovider found!");
-        }
+        }*/
         
         String url = provider.getUrl();
         
-        // serviceprovider uit db halen
-        // anders:
         if(url == null || url == ""){
-            //url = (String)serviceProviders.get(serviceProvider);
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         

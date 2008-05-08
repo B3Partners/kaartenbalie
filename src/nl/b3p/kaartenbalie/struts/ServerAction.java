@@ -475,7 +475,7 @@ public class ServerAction extends KaartenbalieCrudAction {
         EntityTransaction tx = em.getTransaction();
         
         // Only shows WMS servers for now
-        List serviceproviderlist = em.createQuery("from ServiceProvider where service=(:service)").setParameter("service", "WMS").getResultList();
+        List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
         
     }
