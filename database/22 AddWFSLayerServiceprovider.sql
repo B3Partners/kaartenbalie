@@ -24,7 +24,7 @@ ALTER TABLE `kaartenbalie`.`wfs_layer` ADD CONSTRAINT `FK_wfs_layer_1` FOREIGN K
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
    
-CREATE TABLE `kaartenbalie`.`wfs_organisationlayer` (
+CREATE TABLE `kaartenbalie`.`wfs_organizationlayer` (
   `ORGANIZATIONID` INTEGER NOT NULL,
   `WFSLAYERID` INTEGER NOT NULL,
   PRIMARY KEY (`ORGANIZATIONID`, `WFSLAYERID`),
