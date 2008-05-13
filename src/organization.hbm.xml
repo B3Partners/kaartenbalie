@@ -20,6 +20,10 @@
             <key column="ORGANIZATIONID"/>
             <many-to-many column="LAYERID" class="nl.b3p.wms.capabilities.Layer" lazy="false"/>
         </set>
+        <set name="wfsOrganizationLayer" table="Wfs_OrganizationLayer" lazy="false" order-by="WFSLAYERID ASC">
+            <key column="ORGANIZATIONID"/>
+            <many-to-many column="WFSLAYERID" class="nl.b3p.ogc.wfs.v110.WfsLayer" lazy="false"/>
+        </set>
         
         <set name="user" lazy="false" inverse="true" cascade="delete">
             <key column="ORGANIZATIONID"/>

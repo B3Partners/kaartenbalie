@@ -13,6 +13,8 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,6 +24,8 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureIn
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.httpclient.HttpClient;
@@ -508,11 +512,11 @@ public class CallWMSServlet extends HttpServlet {
             requestHandler.getRequest(data, user);
         } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
             if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){   
-                recieveAndSend(data);
+                recieveAndSend(data, user);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
-                recieveAndSend(data);
+                recieveAndSend(data, user);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
-                recieveAndSend(data);
+                recieveAndSend(data, user);
             } else{
                 throw new UnsupportedOperationException("Request "+ request +" is not suported!");
             }
@@ -522,18 +526,42 @@ public class CallWMSServlet extends HttpServlet {
     }
     // </editor-fold>
     
-    private void recieveAndSend(DataWrapper data) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
-        // takes the first WFS server from the list
-        ServiceProvider provider = null;
+    private void recieveAndSend(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
         EntityManager em = MyEMFDatabase.getEntityManager();
-        /*try{
-            provider = (ServiceProvider) em.createQuery("from ServiceProvider p where " +
-                    "p.service = (:service)").setParameter("service", "WFS").getSingleResult();
-        }catch (NoResultException nre){
-            throw new Exception("No serviceprovider found!");
-        }*/
+        User dbUser = null;
+        String url = null;
+        try {
+            dbUser = (User)em.createQuery("from User u where " +
+                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
+        } catch (NoResultException nre) {
+            log.error("No serviceprovider for user found.");
+            throw new Exception("No serviceprovider for user found.");
+        }
         
-        String url = provider.getUrl();
+        Set serviceproviders = null;
+        
+        Set organizationLayers = dbUser.getOrganization().getWfsOrganizationLayer();
+        if (organizationLayers != null && !organizationLayers.isEmpty()) {
+            
+            serviceproviders = new HashSet();
+            Iterator it = organizationLayers.iterator();
+            
+            while(it.hasNext()) {
+                WfsLayer layer = (WfsLayer)it.next();
+                WfsServiceProvider sp = layer.getWfsServiceProvider();
+                if(!serviceproviders.contains(sp)){
+                    serviceproviders.add(sp); 
+                }
+            }
+        }
+        
+        WfsServiceProvider provider = null;
+        Iterator iter = serviceproviders.iterator();
+        while(iter.hasNext()){
+            provider = (WfsServiceProvider)iter.next();
+        }
+        
+        url = provider.getUrl();
         
         if(url == null || url == ""){
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");

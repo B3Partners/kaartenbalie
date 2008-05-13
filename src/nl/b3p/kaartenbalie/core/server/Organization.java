@@ -33,6 +33,7 @@ public class Organization {
     private Set user;
     private Set billing;
     private Set organizationLayer;
+    private Set wfsOrganizationLayer;
     private Set reports;
     private Set reportStatus;
     private Account account;
@@ -152,6 +153,20 @@ public class Organization {
             setOrganizationLayer(new HashSet());
         }
         getOrganizationLayer().add(layer);
+    }
+    
+    public Set getWfsOrganizationLayer() {
+        return wfsOrganizationLayer;
+    }
+    public void setWfsOrganizationLayer(Set wfsOrganizationLayer) {
+        this.wfsOrganizationLayer = wfsOrganizationLayer;
+    }
+    
+    public void addWfsOrganizationLayer(Layer layer) {
+        if (null == getWfsOrganizationLayer()) {
+            setWfsOrganizationLayer(new HashSet());
+        }
+        getWfsOrganizationLayer().add(layer);
     }
     
     public String getPostbox() {
