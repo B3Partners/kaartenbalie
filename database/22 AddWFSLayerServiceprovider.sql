@@ -1,13 +1,13 @@
-CREATE TABLE `kaartenbalie`.`wfs_layer` (
+CREATE TABLE `wfs_layer` (
   `WFSLAYERID` INTEGER NOT NULL AUTO_INCREMENT,
   `WFSSERVICEPROVIDERID` INTEGER,
   `NAME` VARCHAR(50),
   `TITLE` VARCHAR(200) NOT NULL,
   `METADATA` TEXT,
   PRIMARY KEY (`WFSLAYERID`)
-)
+);
 
-CREATE TABLE `kaartenbalie`.`wfs_serviceprovider` (
+CREATE TABLE `wfs_serviceprovider` (
   `WFSSERVICEPROVIDERID` INTEGER NOT NULL AUTO_INCREMENT,
   `NAME` VARCHAR(60) NOT NULL,
   `TITLE` VARCHAR(50) NOT NULL,
@@ -17,14 +17,14 @@ CREATE TABLE `kaartenbalie`.`wfs_serviceprovider` (
   `WFSVERSION` VARCHAR(50),
   `ABBR` VARCHAR(60),
   PRIMARY KEY (`WFSSERVICEPROVIDERID`)
-)
+);
 
-ALTER TABLE `kaartenbalie`.`wfs_layer` ADD CONSTRAINT `FK_wfs_layer_1` FOREIGN KEY `FK_wfs_layer_1` (`WFSSERVICEPROVIDERID`)
+ALTER TABLE `wfs_layer` ADD CONSTRAINT `FK_wfs_layer_1` FOREIGN KEY `FK_wfs_layer_1` (`WFSSERVICEPROVIDERID`)
     REFERENCES `wfs_serviceprovider` (`WFSSERVICEPROVIDERID`)
     ON DELETE RESTRICT
     ON UPDATE RESTRICT;
    
-CREATE TABLE `kaartenbalie`.`wfs_organizationlayer` (
+CREATE TABLE `wfs_organizationlayer` (
   `ORGANIZATIONID` INTEGER NOT NULL,
   `WFSLAYERID` INTEGER NOT NULL,
   PRIMARY KEY (`ORGANIZATIONID`, `WFSLAYERID`),
@@ -35,4 +35,4 @@ CREATE TABLE `kaartenbalie`.`wfs_organizationlayer` (
   CONSTRAINT `FK_wfs_organisationlayer_2` FOREIGN KEY `FK_wfs_organisationlayer_2` (`ORGANIZATIONID`)
     REFERENCES `organization` (`ORGANIZATIONID`)
     ON DELETE RESTRICT
-    ON UPDATE RESTRICT;
+    ON UPDATE RESTRICT);
