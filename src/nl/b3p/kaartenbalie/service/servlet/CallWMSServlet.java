@@ -24,10 +24,18 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureIn
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCResponse;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.KBCrypter;
+import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.xml.ows.v100.DCP;
+import nl.b3p.xml.ows.v100.Get;
+import nl.b3p.xml.ows.v100.HTTP;
+import nl.b3p.xml.ows.v100.Operation;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -58,9 +66,9 @@ import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.utils.KBCrypter;
-import nl.b3p.ogc.utils.OGCRequest;
+import org.exolab.castor.xml.Marshaller;
+import org.exolab.castor.xml.UnmarshalHandler;
+import org.exolab.castor.xml.Unmarshaller;
 import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -142,7 +150,7 @@ public class CallWMSServlet extends HttpServlet {
                 //serviceProvider = request.getParameter("ServiceProvider");
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(request.getInputStream());            
+                Document doc = builder.parse(request.getInputStream());
                 ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
                 data.setOgcrequest(ogcrequest);
             }catch(Exception e){
@@ -528,6 +536,7 @@ public class CallWMSServlet extends HttpServlet {
     
     private void recieveAndSend(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
         EntityManager em = MyEMFDatabase.getEntityManager();
+        OGCResponse ogcresponse = new OGCResponse();
         User dbUser = null;
         String url = null;
         try {
@@ -539,13 +548,10 @@ public class CallWMSServlet extends HttpServlet {
         }
         
         Set serviceproviders = null;
-        
         Set organizationLayers = dbUser.getOrganization().getWfsOrganizationLayer();
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
-            
             serviceproviders = new HashSet();
             Iterator it = organizationLayers.iterator();
-            
             while(it.hasNext()) {
                 WfsLayer layer = (WfsLayer)it.next();
                 WfsServiceProvider sp = layer.getWfsServiceProvider();
@@ -562,7 +568,6 @@ public class CallWMSServlet extends HttpServlet {
         }
         
         url = provider.getUrl();
-        
         if(url == null || url == ""){
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
@@ -578,10 +583,25 @@ public class CallWMSServlet extends HttpServlet {
             data.setContentType("text/xml");
             OutputStream os = data.getOutputStream(); 
             InputStream is = method.getResponseBodyAsStream();
-            int len = 1;
-            byte[] buffer= new byte[2024];
-            while((len=is.read(buffer,0,len))>0){
-                os.write(buffer,0,len);
+            
+            if(data.getOgcrequest().getParameter(OGCConstants.REQUEST) == OGCConstants.WFS_REQUEST_DescribeFeatureType){
+                int len = 1;
+                byte[] buffer= new byte[2024];
+                while((len=is.read(buffer,0,len))>0){
+                    os.write(buffer,0,len); 
+                }
+            } else{
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = dbf.newDocumentBuilder();
+                Document doc = builder.parse(is);
+                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost());
+                String responseBody = ogcresponse.getResponseBody();
+                if(responseBody != null && !responseBody.equals("")){
+                    byte[] buffer = responseBody.getBytes();
+                    os.write(buffer);
+                }else{
+                    throw new UnsupportedOperationException("XMLbody empty!");
+                }
             }
         }else{
             log.error("Failed to connect with "+ url +" Using body: "+body);
