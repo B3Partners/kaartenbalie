@@ -48,6 +48,18 @@
             <form-property name="abbr" type="java.lang.String"/>
         </form-bean>
         
+        <form-bean name="wfsServerForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="givenName" type="java.lang.String"/>
+            <form-property name="url" type="java.lang.String"/>
+            <form-property name="updatedDate" type="java.lang.String"/>
+            <form-property name="abbr" type="java.lang.String"/>
+        </form-bean>
+        
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
@@ -187,6 +199,10 @@
         <action path="/server" name="serverForm" type="nl.b3p.kaartenbalie.struts.ServerAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.server"/>
             <forward name="failure" path="base.beheer.server"/>
+        </action>
+        <action path="/wfsserver" name="wfsServerForm" type="nl.b3p.kaartenbalie.struts.WfsServerAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.wfsserver"/>
+            <forward name="failure" path="base.beheer.wfsserver"/>
         </action>
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>

@@ -62,6 +62,18 @@
             </field>
         </form>
         
+        <form name="wfsServerForm">
+            <field property="givenName" depends="required">
+                <arg0 key="beheer.serviceProviderGivenName"/>
+            </field>
+            <field property="url" depends="required">
+                <arg0 key="beheer.serviceProviderUrl"/>
+            </field>
+            <field property="abbr" depends="required">
+                <arg0 key="beheer.serviceProviderAbbr"/>
+            </field>
+        </form>
+        
         <form name="organizationForm">
             <field property="name" depends="required">
                 <arg0 key="beheer.name"/>

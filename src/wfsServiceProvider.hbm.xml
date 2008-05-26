@@ -31,7 +31,7 @@
             <column name="ABBR" default="0" not-null="true" length="60"/>
         </property>
         <property name="title">
-            <column name="TITLE" default="0" not-null="true" length="255"/>
+            <column name="TITLE" default="0" not-null="true" length="50"/>
         </property>
         <property name="givenName">
             <column name="GIVENNAME" not-null="true" default="0" length="50"/>
