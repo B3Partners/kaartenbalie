@@ -17,6 +17,7 @@
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer WMS Servers</H1>
+        <a href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.wfsserver"/></a><p>
         
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>

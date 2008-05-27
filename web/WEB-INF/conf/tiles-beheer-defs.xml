@@ -26,6 +26,9 @@
     <definition name="base.beheer.organization" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/organization.jsp"/>
     </definition>
+    <definition name="base.beheer.wfsorganization" extends="base.beheer">
+        <put name="content" value="/WEB-INF/jsp/beheer/wfsorganization.jsp"/>
+    </definition>
     <definition name="base.beheer.metadata" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/metadata.jsp"/>
     </definition>

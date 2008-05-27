@@ -1,6 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${organizationForm}"/>
+<c:set var="form" value="${wfsorganizationForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
@@ -10,15 +10,14 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
-<html:javascript formName="organizationForm" staticJavascript="false"/>
-<html:form action="/organization" onsubmit="return validateOrganizationForm(this)" focus="name">
+<html:javascript formName="wfsorganizationForm" staticJavascript="false"/>
+<html:form action="/wfsorganization" onsubmit="return validateWfsOrganizationForm(this)" focus="name">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer Organisaties</H1>
-        <a href="wfsorganization.do">WFS Organisaties</a><p>
+        <H1>Beheer Organisaties (WFS layers)</H1>
         
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>
@@ -44,7 +43,7 @@
                         <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
                             <td width="200">
                                 <div style="width: 190px; overflow: hidden;">
-                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                    <html:link page="/wfsorganization.do?edit=submit&id=${nOrganization.id}">
                                         <c:out value="${nOrganization.name}"/>
                                     </html:link>
                                 </div>

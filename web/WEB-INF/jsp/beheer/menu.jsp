@@ -7,7 +7,6 @@
             
             <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
             <a href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.server"/></a>
-            <a href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.wfsserver"/></a>
             <c:if test="${menuParameters.metadata == true}">
                 <a href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
             </c:if>

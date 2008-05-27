@@ -26,6 +26,7 @@ import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,6 +158,32 @@ public class KaartenbalieCrudAction extends CrudAction{
         if (ll==null || ll.isEmpty())
             return null;
         return (Layer)ll.get(0);
+    }
+    public WfsLayer getWfsLayerByUniqueName(String uniqueName) throws Exception {
+        EntityManager em = getEntityManager();
+        
+        // Check of selectedLayers[i] juiste format heeft
+        int pos = uniqueName.indexOf("_");
+        if (pos==-1 || uniqueName.length()<=pos+1) {
+            log.error("layer not valid: " + uniqueName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+        }
+        String spAbbr = uniqueName.substring(0, pos);
+        String layerName = uniqueName.substring(pos + 1);
+        if (spAbbr.length()==0 || layerName.length()==0) {
+            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+        }
+        
+        String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
+        List ll = em.createQuery(query)
+        .setParameter("layerName", layerName)
+        .setParameter("spAbbr", spAbbr)
+        .getResultList();
+        
+        if (ll==null || ll.isEmpty())
+            return null;
+        return (WfsLayer)ll.get(0);
     }
     
     public String findLayer(String layerToBeFound, Set layers) {

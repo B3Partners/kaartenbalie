@@ -2,18 +2,7 @@
 <Context path="/kaartenbalie">
 
     <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! -->
-    <Resource
-            name="jdbc/kaartenbalie"
-            type="javax.sql.DataSource"
-            driverClassName="com.mysql.jdbc.Driver"
-            password="kaartenbalie"
-            maxIdle="30"
-            maxWait="5000"
-            validationQuery="select now();"
-            username="kaartenbalie"
-            url="jdbc:mysql://x5.b3p.nl:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8"
-            maxActive="100"
-    />-->
+    <Resource driverClassName="com.mysql.jdbc.Driver" maxActive="100" maxIdle="30" maxWait="5000" name="jdbc/kaartenbalie" password="***REMOVED***" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8" username="root" validationQuery="select now();"/>--&gt;
 
     <!-- Config voor MNP productie, Tomcat 5.0
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
@@ -117,50 +106,50 @@
 	<!-- productie x5 (tomcat 5.0), /kaartenbalie, tbv oa wis demo -->
  	<Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
 	<ResourceParams name="jdbc/kaartenbalie">
-	<parameter>
-		<name>factory</name>
-		<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-	</parameter>
-	<parameter>
-		<name>maxActive</name>
-		<value>100</value>
-	</parameter>
-	<parameter>
-		<name>maxIdle</name>
-		<value>30</value>
-	</parameter>
-	<parameter>
-		<name>maxWait</name>
-		<value>10000</value>
-	</parameter>
-	<parameter>
-		<name>minEvictableIdleTimeMillis</name>
-		<value>10000</value>
-	</parameter>
-	<parameter>
-		<name>timeBetweenEvictionRunsMillis</name>
-		<value>60000</value>
-	</parameter>
-	<parameter>
-		<name>username</name>
-		<value>kaartenbalie</value>
-	</parameter>
-	<parameter>
-		<name>password</name>
-		<value>kaartenbalie</value>
-	</parameter>
-	<parameter>
-		<name>driverClassName</name>
-		<value>com.mysql.jdbc.Driver</value>
-	</parameter>
-	<parameter>
-		<name>url</name>
-		<value>jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8</value>
-	</parameter>
-	<parameter>
-		<name>validationQuery</name>
-		<value>SELECT 1</value>
-	</parameter>
-	</ResourceParams>
+    <parameter>
+      <name>factory</name>
+      <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+    </parameter>
+    <parameter>
+      <name>maxActive</name>
+      <value>100</value>
+    </parameter>
+    <parameter>
+      <name>maxIdle</name>
+      <value>30</value>
+    </parameter>
+    <parameter>
+      <name>maxWait</name>
+      <value>10000</value>
+    </parameter>
+    <parameter>
+      <name>minEvictableIdleTimeMillis</name>
+      <value>10000</value>
+    </parameter>
+    <parameter>
+      <name>timeBetweenEvictionRunsMillis</name>
+      <value>60000</value>
+    </parameter>
+    <parameter>
+      <name>username</name>
+      <value>root</value>
+    </parameter>
+    <parameter>
+      <name>password</name>
+      <value>***REMOVED***</value>
+    </parameter>
+    <parameter>
+      <name>driverClassName</name>
+      <value>com.mysql.jdbc.Driver</value>
+    </parameter>
+    <parameter>
+      <name>url</name>
+      <value>jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8</value>
+    </parameter>
+    <parameter>
+      <name>validationQuery</name>
+      <value>SELECT 1</value>
+    </parameter>
+  </ResourceParams>
 
 </Context>

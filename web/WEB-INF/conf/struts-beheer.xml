@@ -82,6 +82,28 @@
             <form-property name="bbox" type="java.lang.String"/>
             <form-property name="code" type="java.lang.String"/>
         </form-bean>
+        <form-bean name="wfsorganizationForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="street" type="java.lang.String"/>
+            <form-property name="number" type="java.lang.String"/>
+            <form-property name="addition" type="java.lang.String"/>
+            <form-property name="postalcode" type="java.lang.String"/>
+            <form-property name="province" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="postbox" type="java.lang.String"/>
+            <form-property name="billingAddress" type="java.lang.String"/>
+            <form-property name="visitorsAddress" type="java.lang.String"/>
+            <form-property name="telephone" type="java.lang.String"/>
+            <form-property name="fax" type="java.lang.String"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="bbox" type="java.lang.String"/>
+            <form-property name="code" type="java.lang.String"/>
+        </form-bean>
         
         <form-bean name="metadataForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -207,6 +229,10 @@
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
+        </action>
+        <action path="/wfsorganization" name="wfsorganizationForm" type="nl.b3p.kaartenbalie.struts.WfsOrganizationAction" scope="request" validate="false">  
+            <forward name="success" path="base.beheer.wfsorganization"/>
+            <forward name="failure" path="base.beheer.wfsorganization"/>
         </action>
         <action path="/accounting" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.accounting"/>
