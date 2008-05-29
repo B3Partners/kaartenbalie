@@ -44,6 +44,9 @@
     <definition name="base.beheer.pricing" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/pricing.jsp"/>
     </definition>    
+    <definition name="base.beheer.wfspricing" extends="base.beheer">
+        <put name="content" value="/WEB-INF/jsp/beheer/wfspricing.jsp"/>
+    </definition>    
     <definition name="base.beheer.reporting" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/reporting.jsp"/>
     </definition>
@@ -51,8 +54,14 @@
     <definition name="base.beheer.editpricing" extends="clean">
         <put name="content" value="/WEB-INF/jsp/beheer/editPricing.jsp"/>
     </definition>
+    <definition name="base.beheer.wfseditpricing" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/wfseditPricing.jsp"/>
+    </definition>
     <definition name="base.beheer.pricing.testcalculation" extends="clean">
         <put name="content" value="/WEB-INF/jsp/beheer/testcalculation.jsp"/>
+    </definition>
+    <definition name="base.beheer.pricing.wfstestcalculation" extends="clean">
+        <put name="content" value="/WEB-INF/jsp/beheer/wfstestcalculation.jsp"/>
     </definition>
     <definition name="base.beheer.accounting.transaction" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/transaction.jsp"/>

@@ -4,16 +4,15 @@
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <div class="containerDiv" style=";">
-    <h1>Beheer Layer prijzen</h1>
-    <a href="wfspricing.do">WFS Layer prijzen</a><p>
+    <h1>Beheer WFS Layer prijzen</h1>
     
-    <b>Lijst met beschikbare layers:</b>
+    <b>Lijst met beschikbare WFS layers:</b>
     
     <div style="height: 600px; margin: 0px; border: 0px Solid Black; padding: 0px;">
         <div id="tree" style="border: 0px none White; float: left; width: 230px; height: 550px; overflow: auto; margin: 5px;">
         </div>
         <div style="border: 0px Solid Black; float: left; margin: 5px; width: 670px; height: 550px;">
-            <iframe name="pricingframe" id="pricingframe" src="editpricing.do?edit=submit&id=" style="width: 100%; height: 100%;" frameborder="0"></iframe>
+            <iframe name="pricingframe" id="pricingframe" src="wfseditpricing.do?edit=submit&id=" style="width: 100%; height: 100%;" frameborder="0"></iframe>
         </div>    
     </div>
 </div>
@@ -36,7 +35,7 @@
                 
                     var popupLink = document.createElement("a");
                     popupLink.innerHTML = item.name;
-                    popupLink.href='editpricing.do?edit=submit&id=' + item.id;
+                    popupLink.href='wfseditpricing.do?edit=submit&id=' + item.id;
                     popupLink.target='pricingframe';
                     div.appendChild(popupLink);
                 }  else {

@@ -1,10 +1,8 @@
 /*
- * AccountingAction.java
+ * WfsPricingAction.java
  *
- * Created on November 19, 2007, 9:29 AM
+ * Created on Mei 27, 2008
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 
 package nl.b3p.kaartenbalie.struts;
@@ -28,11 +26,14 @@ import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
-import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+//import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.action.ActionErrors;
@@ -50,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Chris Kramer
  */
-public class PricingAction extends KaartenbalieCrudAction {
+public class WfsPricingAction extends KaartenbalieCrudAction {
     
     private static final Log log = LogFactory.getLog(PricingAction.class);
     
@@ -119,7 +120,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         lp.setValidFrom(validFrom);
         lp.setValidUntil(validUntil);
         
-        Layer layer = getLayer(dynaForm, request);
+        WfsLayer layer = getLayer(dynaForm, request);
         if (layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
@@ -144,6 +145,8 @@ public class PricingAction extends KaartenbalieCrudAction {
         if (operation != null && operation.trim().length() == 0) {
             operation = null;
         }
+        //String operationRequest = dynaForm.getString("operationWFSs");
+        
         lp.setService(service);
         lp.setOperation(operation);
         
@@ -205,24 +208,22 @@ public class PricingAction extends KaartenbalieCrudAction {
          * Set the allowed projectsion
          */
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
-        request.setAttribute("wmsRequests",KBConfiguration.ACCOUNTING_WMS_REQUESTS);
+        //request.setAttribute("wmsRequests",KBConfiguration.ACCOUNTING_WMS_REQUESTS);
         request.setAttribute("wfsRequests",KBConfiguration.ACCOUNTING_WFS_REQUESTS);
         
-        /*
-         * Now set the default service to WMS - if appliable..
-         */
         if (form.getString("service") == null || form.getString("service").trim().length() == 0) {
-            form.set("service", new String("WMS"));
-            form.set("operationWMS", new String("GetMap"));
+            form.set("service", new String("WFS"));
+            form.set("operationWFS", new String("GetFeature"));
         }
         
-        Layer layer = getLayer(form, request);
+        WfsLayer layer = getLayer(form, request);
         if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
             return;
         
-        ServiceProvider sp = layer.getServiceProvider();
+        WfsServiceProvider sp = layer.getWfsServiceProvider();
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
+        String service = sp.getName().split(":")[1];
         
         /*
          * Now fetch the layerpricings that match with this layer.
@@ -234,68 +235,65 @@ public class PricingAction extends KaartenbalieCrudAction {
                 "ORDER BY  lp.deletionDate ASC, lp.creationDate DESC")
                 .setParameter("layerName", layer.getName())
                 .setParameter("serverProviderPrefix", layer.getSpAbbr())
-                .setParameter("service", "WMS")
+                .setParameter("service", service)
                 .getResultList());
         
         /*
          * Then calculate all the different prices for all requesttypes..
          */
-        LayerCalculator lc = new LayerCalculator(em);
+        WfsLayerCalculator lc = new WfsLayerCalculator(em);
         
-        Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length /*+ KBConfiguration.ACCOUNTING_WFS_REQUESTS.length*/][3];
+        Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
         
         Date now = new Date();
         
         BigDecimal units  = new BigDecimal(1);
-        int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
+        /*int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
         for (int i = 0; i < totalWMSRequests; i++) {
             
             tableData[i][0] = "WMS";
             tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
             try {
-                tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
+                //tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
             } catch (NoResultException nre) {
                 tableData[i][2] = null;
             }
             
-        }
-        /*
-         * Uitgezet omdat er een aparte pagina is voor WFS. Later kan het altijd nog samengevoegt worden
-         * Er moet dan wel op gelet worden dat WFS layers anders zijn dan WMS layers en ook in aparte tabellen
-         * zitten en aparte modelen hebben.
-         */
-        /*int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
-        for (int i = 0; i < totalWMFRequests; i++) {
-            tableData[i +totalWMSRequests ][0] = "WFS";
-            tableData[i + totalWMSRequests][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
-            try {
-                tableData[i + totalWMSRequests][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
-                
-            } catch (NoResultException nre) {
-                tableData[i + totalWMSRequests][2] = null;
-            }
         }*/
+        int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
+        for (int i = 0; i < totalWMFRequests; i++) {
+            tableData[i][0] = "WFS";
+            tableData[i][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
+            try {
+                tableData[i][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
+            } catch (NoResultException nre) {
+                tableData[i][2] = null;
+            }
+        }
         request.setAttribute("tableData",tableData);
     }
     
     private JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
+        List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
         JSONObject root = new JSONObject();
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)it.next();
+            WfsServiceProvider sp = (WfsServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
-            Layer topLayer = sp.getTopLayer();
-            if (topLayer!=null) {
+            //Layer topLayer = sp.getTopLayer();
+            Set layers = sp.getWfsLayers();
+            parentObj = createTreeList(layers, parentObj);
+            rootArray.put(parentObj);
+            /*if (topLayer!=null) {
                 HashSet set= new HashSet();
                 set.add(topLayer);
                 parentObj = createTreeList(set, parentObj);
                 if (parentObj.has("children")){
                     rootArray.put(parentObj);
                 }
-            }
+            }*/
         }
         root.put("name","root");
         root.put("children", rootArray);
@@ -307,12 +305,12 @@ public class PricingAction extends KaartenbalieCrudAction {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
-            Layer layer = (Layer)layerIterator.next();
+            WfsLayer layer = (WfsLayer)layerIterator.next();
             JSONObject layerObj = this.layerToJSON(layer);
-            Set childLayers = layer.getLayers();
+            /*Set childLayers = layer.getLayers();
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
-            }
+            }*/
             parentArray.put(layerObj);
         }
         if (parentArray.length() > 0){
@@ -321,7 +319,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         return parent;
     }
     
-    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
+    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
         root.put("name", serviceProvider.getGivenName());
@@ -329,7 +327,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         return root;
     }
     
-    private JSONObject layerToJSON(Layer layer) throws JSONException{
+    private JSONObject layerToJSON(WfsLayer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getId());
         jsonLayer.put("name", layer.getTitle());
@@ -353,7 +351,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         return lp;
     }
     
-    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
         
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
@@ -361,7 +359,7 @@ public class PricingAction extends KaartenbalieCrudAction {
         
         if(id==null)
             return null;
-        return (Layer)em.find(Layer.class, id);
+        return (WfsLayer)em.find(WfsLayer.class, id);
     }
     
     private Integer getPricingID(DynaValidatorForm dynaForm) {

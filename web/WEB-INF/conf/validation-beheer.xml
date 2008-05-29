@@ -109,7 +109,32 @@
                 <arg0 key="beheer.pricing.price"/>
             </field>
         </form>
+        <form name="wfsPricingForm">
+            <field property="unitPrice" depends="required, float">
+                <arg0 key="beheer.pricing.price"/>
+            </field>
+        </form>
         <form name="testPricingForm">
+            <field property="testFrom" depends="required">
+                <arg0 key="beheer.pricing.test.testFrom"/>
+            </field>
+            <field property="testUntil" depends="required">
+                <arg0 key="beheer.pricing.test.testUntil"/>
+            </field>
+            <field property="testProjection" depends="required">
+                <arg0 key="beheer.pricing.test.testProjection"/>
+            </field>
+            <field property="testScale" depends="required, float">
+                <arg0 key="beheer.pricing.test.testScale"/>
+            </field>
+            <field property="testStepSize" depends="required, float">
+                <arg0 key="beheer.pricing.test.testStepSize"/>
+            </field>          
+            <field property="testSteps" depends="required, float">
+                <arg0 key="beheer.pricing.test.testSteps"/>
+            </field>         
+        </form>
+        <form name="wfstestPricingForm">
             <field property="testFrom" depends="required">
                 <arg0 key="beheer.pricing.test.testFrom"/>
             </field>

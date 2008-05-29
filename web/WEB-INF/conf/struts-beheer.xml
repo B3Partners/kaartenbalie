@@ -170,8 +170,39 @@
             <form-property name="minScale" type="java.lang.String"/>
             <form-property name="maxScale" type="java.lang.String"/>            
             <form-property name="projection" type="java.lang.String"/>
-        </form-bean>  
+        </form-bean>
+        <form-bean name="wfsPricingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="pricingid" type="java.lang.String"/>
+            <form-property name="planType" type="java.lang.String"/>
+            <form-property name="validFrom" type="java.lang.String"/>
+            <form-property name="validUntil" type="java.lang.String"/>
+            <form-property name="unitPrice" type="java.lang.String"/>
+            <form-property name="service" type="java.lang.String"/>
+            <form-property name="operationWMS" type="java.lang.String"/>
+            <form-property name="operationWFS" type="java.lang.String"/>
+            <form-property name="minScale" type="java.lang.String"/>
+            <form-property name="maxScale" type="java.lang.String"/>            
+            <form-property name="projection" type="java.lang.String"/>
+        </form-bean>
         <form-bean name="testPricingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="testFrom" type="java.lang.String"/>
+            <form-property name="testUntil" type="java.lang.String"/>
+            <form-property name="testProjection" type="java.lang.String"/>
+            <form-property name="testScale" type="java.lang.String"/>
+            <form-property name="testStepSize" type="java.lang.String"/>            
+            <form-property name="testSteps" type="java.lang.String"/>           
+        </form-bean>  
+        <form-bean name="wfstestPricingForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
@@ -257,17 +288,31 @@
         <action path="/pricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.pricing"/>
             <forward name="failure" path="base.beheer.pricing"/>
-        </action>        
+        </action>
+        <action path="/wfspricing" name="wfsPricingForm" type="nl.b3p.kaartenbalie.struts.WfsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.wfspricing"/>
+            <forward name="failure" path="base.beheer.wfspricing"/>
+        </action>  
         <action path="/editpricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.PricingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.editpricing"/>
             <forward name="failure" path="base.beheer.editpricing"/>
             <forward name="test" path="/pricingtest.do"/>
-        </action>        
+        </action>       
+        <action path="/wfseditpricing" name="wfsPricingForm" type="nl.b3p.kaartenbalie.struts.WfsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.wfseditpricing"/>
+            <forward name="failure" path="base.beheer.wfseditpricing"/>
+            <forward name="test" path="/wfspricingtest.do"/>
+        </action>
         <action path="/pricingtest" name="testPricingForm" type="nl.b3p.kaartenbalie.struts.TestPricingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.pricing.testcalculation"/>
             <forward name="failure" path="base.beheer.pricing.testcalculation"/>
             <forward name="back" path="/editpricing.do"/>
-        </action>        
+        </action>  
+        <action path="/wfspricingtest" name="wfstestPricingForm" type="nl.b3p.kaartenbalie.struts.WfsTestPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing.wfstestcalculation"/>
+            <forward name="failure" path="base.beheer.pricing.wfstestcalculation"/>
+            <forward name="back" path="/wfseditpricing.do"/>
+        </action>
         
         <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.metadata"/>
