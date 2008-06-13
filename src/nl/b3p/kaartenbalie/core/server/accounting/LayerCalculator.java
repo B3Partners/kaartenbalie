@@ -190,9 +190,11 @@ public class LayerCalculator {
                 "AND lp.creationDate <= :validationDate " +
                 "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
                 "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
+                "AND (lp.service = :service OR lp.service IS null) " +
                 "ORDER BY lp.indexCount DESC")
                 .setParameter("serverProviderPrefix",spabbr)
                 .setParameter("validationDate",validationDate)
+                .setParameter("service","WMS")
                 .getResultList();
     }
     

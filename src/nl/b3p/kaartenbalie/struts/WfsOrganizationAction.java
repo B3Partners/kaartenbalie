@@ -33,7 +33,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.kaartenbalie.service.WfsLayerValidator;
+//import nl.b3p.kaartenbalie.service.WfsLayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

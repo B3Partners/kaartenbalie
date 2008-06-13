@@ -97,6 +97,7 @@ public class WfsLayerCalculator {
         } else {
             tLC.setLayerPrice(layerPrice);
         }
+        tLC.setService("WFS");
         tLC.setCalculationTime(System.currentTimeMillis() - startTime);
         return tLC;
     }

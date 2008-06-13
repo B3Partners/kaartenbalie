@@ -13,16 +13,26 @@
 
 package nl.b3p.kaartenbalie.service.servlet;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
+import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSRequestHandler;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCResponse;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -519,12 +529,13 @@ public class CallWMSServlet extends HttpServlet {
             }
             requestHandler.getRequest(data, user);
         } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
+            WFSRequestHandler wfsRequestHandler = new WFSRequestHandler();
             if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){   
-                recieveAndSend(data, user);
+                wfsRequestHandler.recieveAndSend(data, user);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
-                recieveAndSend(data, user);
+                wfsRequestHandler.recieveAndSend(data, user);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
-                recieveAndSend(data, user);
+                wfsRequestHandler.recieveAndSend(data, user);
             } else{
                 throw new UnsupportedOperationException("Request "+ request +" is not suported!");
             }
@@ -534,80 +545,6 @@ public class CallWMSServlet extends HttpServlet {
     }
     // </editor-fold>
     
-    private void recieveAndSend(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception{
-        EntityManager em = MyEMFDatabase.getEntityManager();
-        OGCResponse ogcresponse = new OGCResponse();
-        User dbUser = null;
-        String url = null;
-        try {
-            dbUser = (User)em.createQuery("from User u where " +
-                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
-        } catch (NoResultException nre) {
-            log.error("No serviceprovider for user found.");
-            throw new Exception("No serviceprovider for user found.");
-        }
-        
-        Set serviceproviders = null;
-        Set organizationLayers = dbUser.getOrganization().getWfsOrganizationLayer();
-        if (organizationLayers != null && !organizationLayers.isEmpty()) {
-            serviceproviders = new HashSet();
-            Iterator it = organizationLayers.iterator();
-            while(it.hasNext()) {
-                WfsLayer layer = (WfsLayer)it.next();
-                WfsServiceProvider sp = layer.getWfsServiceProvider();
-                if(!serviceproviders.contains(sp)){
-                    serviceproviders.add(sp); 
-                }
-            }
-        }
-        
-        WfsServiceProvider provider = null;
-        Iterator iter = serviceproviders.iterator();
-        while(iter.hasNext()){
-            provider = (WfsServiceProvider)iter.next();
-        }
-        
-        url = provider.getUrl();
-        if(url == null || url == ""){
-            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-        }
-        
-        PostMethod method = null;
-        HttpClient client = new HttpClient();        
-        String host = url;
-        method = new PostMethod(host); 
-        String body = data.getOgcrequest().getXMLBody();
-        method.setRequestEntity(new StringRequestEntity(body,"text/xml", "UTF-8"));
-        int status=client.executeMethod(method);
-        if (status == HttpStatus.SC_OK){
-            data.setContentType("text/xml");
-            OutputStream os = data.getOutputStream(); 
-            InputStream is = method.getResponseBodyAsStream();
-            
-            if(data.getOgcrequest().getParameter(OGCConstants.REQUEST) == OGCConstants.WFS_REQUEST_DescribeFeatureType){
-                int len = 1;
-                byte[] buffer= new byte[2024];
-                while((len=is.read(buffer,0,len))>0){
-                    os.write(buffer,0,len); 
-                }
-            } else{
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(is);
-                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost());
-                String responseBody = ogcresponse.getResponseBody();
-                if(responseBody != null && !responseBody.equals("")){
-                    byte[] buffer = responseBody.getBytes();
-                    os.write(buffer);
-                }else{
-                    throw new UnsupportedOperationException("XMLbody empty!");
-                }
-            }
-        }else{
-            log.error("Failed to connect with "+ url +" Using body: "+body);
-            throw new UnsupportedOperationException("Failed to connect with "+ url +" Using body: "+body);
-        }
-    }
     
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
@@ -701,4 +638,5 @@ public class CallWMSServlet extends HttpServlet {
             em.close();
         }
     }
+    
 }
