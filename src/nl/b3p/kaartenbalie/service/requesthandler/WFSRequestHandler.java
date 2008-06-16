@@ -74,37 +74,22 @@ public class WFSRequestHandler {
             layerNames = new String[allLayers.length];
             for(int i = 0; i < allLayers.length; i++){
                 String[] temp = allLayers[i].split("}");
-                layerNames[i] = temp[1];
+                //String layer = temp[1];
+                layerNames[i] = temp[1]; //layer.split("_")[0];
             }
         }
         String url = null;
         List spInfo = null;
-        /*
-         *Hier onderscheid maken tussen getCapabilities en de rest
-         */      
-        if(ogcrequest.getParameter(OGCConstants.REQUEST) != OGCConstants.WFS_REQUEST_GetCapabilities){
-            spInfo = getServiceProviderURLS(layerNames, orgId, data);
-            if(spInfo == null || spInfo.isEmpty()){
+        
+        spInfo = getServiceProviders(layerNames, orgId, data);
+        if(spInfo == null || spInfo.isEmpty()){
                 throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
-            }
-            Iterator iter = spInfo.iterator();
-            while(iter.hasNext()){
-                HashMap sp = (HashMap)iter.next();
-                url = sp.get("spUrl").toString();
-            }
-        }else{
-            Set serviceproviders = this.getServiceProviders(user, layerNames);
-            WfsServiceProvider provider = null;
-            
-            if(serviceproviders == null || serviceproviders.isEmpty()){
-                throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
-            }
-            
-            Iterator iter = serviceproviders.iterator();
-            while(iter.hasNext()){
-                provider = (WfsServiceProvider)iter.next();
-            }
-            url = provider.getUrl();
+        }
+        Iterator iter = spInfo.iterator();
+        while(iter.hasNext()){
+            HashMap sp = (HashMap)iter.next();
+            url = sp.get("spUrl").toString();
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("lName"));
         }
 
         if(url == null || url == ""){
@@ -137,7 +122,7 @@ public class WFSRequestHandler {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(is);
-                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost());
+                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), url, spInfo);
                 String responseBody = ogcresponse.getResponseBody();
                 if(responseBody != null && !responseBody.equals("")){
                     byte[] buffer = responseBody.getBytes();
@@ -165,7 +150,7 @@ public class WFSRequestHandler {
 
         for(int i = 0; i < spInfo.size(); i++){
             HashMap layer = (HashMap)spInfo.get(i);
-            int layerId = Integer.parseInt(layer.get("tlId").toString());
+            int layerId = Integer.parseInt(layer.get("lId").toString());
 
             if (AccountManager.isEnableAccounting()) {
                 String operation = data.getOperation();
@@ -190,115 +175,70 @@ public class WFSRequestHandler {
         data.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
     }
     
-    public List getServiceProviderURLS(String[] layers, int orgID, DataWrapper dw)throws Exception{
+     /*
+     * Makes a list of serviceProviders the user has rights to.
+     */ 
+    public List getServiceProviders(String[] layers, int orgID, DataWrapper dw)throws Exception{
         List eventualSPList = new ArrayList();
         EntityManager em = MyEMFDatabase.getEntityManager();
+        String request = dw.getOgcrequest().getParameter(OGCConstants.REQUEST);
         
-        if(layers==null || layers.length == 0) {
+        if((layers==null || layers.length == 0) && !request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)) {
             log.error("No layers found!");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
-
-        String query = "select l.wfsserviceproviderid, l.wfslayerid, sp.url, l.name " +
-                "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
-                "where o.organizationid = :orgID and l.wfslayerid = o.wfslayerid and " +
-                "l.wfsserviceproviderid = sp.wfsserviceproviderid";
+        String query = "select l.wfsserviceproviderid, l.wfslayerid, sp.url, sp.abbr, l.name " +
+            "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
+            "where o.organizationid = :orgID and l.wfslayerid = o.wfslayerid and " +
+            "l.wfsserviceproviderid = sp.wfsserviceproviderid";
         List layerQuery = em.createNativeQuery(query).setParameter("orgID", orgID).getResultList();
         if (layerQuery==null || layerQuery.isEmpty()) {
             log.error("no layers found!");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
-
-
-        Iterator layerit = layerQuery.iterator();
-        List oldLayers = new ArrayList();
-        while (layerit.hasNext()) {
-            Object [] objecten = (Object [])layerit.next();
+        
+        if(layers==null || layers.length == 0){    
+            Iterator layerit = layerQuery.iterator();
+            while (layerit.hasNext()) {
+                Object [] objecten = (Object [])layerit.next();
+                Map spInfo = new HashMap();
+                spInfo.put("spId", (Integer)objecten[0]);
+                spInfo.put("lId", (Integer)objecten[1]);
+                spInfo.put("spUrl", (String)objecten[2]);
+                spInfo.put("spAbbr", (String)objecten[3]);
+                spInfo.put("lName", (String)objecten[4]);
+                eventualSPList.add(spInfo);
+            }
+        }else{   
+            String[][] splitLayer = new String[layers.length][2];
             for(int i = 0; i < layers.length; i++){
-                if(layers[i].equalsIgnoreCase(objecten[3].toString())){
-                    if(oldLayers != null && !oldLayers.isEmpty()){
-                        Iterator it = oldLayers.iterator();
-                        boolean isNewLayer = true;
-                        while(it.hasNext()){
-                            String oldlayer = it.next().toString();
-                            if(oldlayer.equalsIgnoreCase(layers[i])){
-                                isNewLayer = false;
-                            }
-                        }
-                        if(isNewLayer == true){
-                            Map spInfo = new HashMap();
-                            spInfo.put("spId", (Integer)objecten[0]);
-                            spInfo.put("tlId", (Integer)objecten[1]);
-                            spInfo.put("spUrl", (String)objecten[2]);
-                            eventualSPList.add(spInfo);
-                            oldLayers.add(layers[i]);
-                        }
-                    }else{
+                String[] serverLayer = layers[i].split("_");
+                if(serverLayer.length <= 1){
+                    throw new Exception("Layer is not correct. Layer should look like: serverPrefix_layerName!");
+                }
+                splitLayer[i][0] = serverLayer[0];
+                splitLayer[i][1] = serverLayer[1];
+            }
+            Iterator layerit = layerQuery.iterator();
+            while (layerit.hasNext()) {
+                Object [] objecten = (Object [])layerit.next();
+                String abbr = objecten[3].toString();
+                String layerName = objecten[4].toString();
+                for(int b = 0; b < splitLayer.length; b++){
+                    if(abbr.equalsIgnoreCase(splitLayer[b][0]) && layerName.equalsIgnoreCase(splitLayer[b][1])){
                         Map spInfo = new HashMap();
                         spInfo.put("spId", (Integer)objecten[0]);
-                        spInfo.put("tlId", (Integer)objecten[1]);
+                        spInfo.put("lId", (Integer)objecten[1]);
                         spInfo.put("spUrl", (String)objecten[2]);
+                        spInfo.put("spAbbr", (String)objecten[3]);
+                        spInfo.put("lName", (String)objecten[4]);
                         eventualSPList.add(spInfo);
-                        oldLayers.add(layers[i]);
                     }
                 }
             }
-            
         }
 
         return eventualSPList;
-    }
-    
-     /*
-     * Makes a list of serviceProviders the user has rights to.
-     */
-    public Set getServiceProviders(User user, String[] layerNames) throws NoResultException, Exception{
-        EntityManager em = MyEMFDatabase.getEntityManager();
-        User dbUser = null;
-        
-        try {
-            dbUser = (User)em.createQuery("from User u where " +
-                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
-        } catch (NoResultException nre) {
-            log.error("No serviceprovider for user found.");
-            throw new Exception("No serviceprovider for user found.");
-        }
-        
-        Set serviceproviders = null;
-        Set organizationLayers = dbUser.getOrganization().getWfsOrganizationLayer();
-            
-        if(layerNames == null || layerNames.length == 0){
-            if (organizationLayers != null && !organizationLayers.isEmpty()) {
-                serviceproviders = new HashSet();
-                Iterator it = organizationLayers.iterator();
-                while(it.hasNext()) {
-                    WfsLayer layer = (WfsLayer)it.next();
-                    WfsServiceProvider sp = layer.getWfsServiceProvider();
-                    if(!serviceproviders.contains(sp)){
-                        serviceproviders.add(sp); 
-                    }
-                }
-            }
-            return serviceproviders;
-        }
-        else{
-            if (organizationLayers != null && !organizationLayers.isEmpty()) {
-                serviceproviders = new HashSet();
-                Iterator it = organizationLayers.iterator();
-                while(it.hasNext()) {
-                    WfsLayer layer = (WfsLayer)it.next();
-                    for(int x = 0; x < layerNames.length; x++){
-                        if(layer.getName().equalsIgnoreCase(layerNames[x])){
-                            WfsServiceProvider sp = layer.getWfsServiceProvider();
-                            if(!serviceproviders.contains(sp)){
-                                serviceproviders.add(sp); 
-                            }
-                        }
-                    }
-                }
-            }
-            return serviceproviders;
-        }
     }
     
 }

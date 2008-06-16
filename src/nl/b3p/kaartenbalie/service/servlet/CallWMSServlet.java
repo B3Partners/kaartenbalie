@@ -98,8 +98,6 @@ public class CallWMSServlet extends HttpServlet {
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
-    //private HashMap serviceProviders;
-    //private String serviceProvider;
     
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -130,8 +128,6 @@ public class CallWMSServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
         
-        //serviceProviders = new HashMap();
-        //serviceProviders.put("joo","http://localhost:8084/deegree-wfs/services");
         
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
