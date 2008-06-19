@@ -124,7 +124,7 @@ public class WFSRequestHandler {
                     Document doc = builder.parse(is);
 
                     ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), prefix); //url, spInfo);
-                    String responseBody = ogcresponse.getResponseBody();
+                    String responseBody = ogcresponse.getResponseBody(spInfo);
                     if(responseBody != null && !responseBody.equals("")){
                         byte[] buffer = responseBody.getBytes();
                         os.write(buffer);
@@ -138,31 +138,35 @@ public class WFSRequestHandler {
             }
         }else{
             Iterator it = spInfo.iterator();
+            List servers = new ArrayList();
             while(it.hasNext()){
                 HashMap sp = (HashMap)it.next();
                 
-                url = sp.get("spUrl").toString();
-                prefix = sp.get("spAbbr").toString();
-                      
-                String host = url;
-                method = new PostMethod(host); 
-                method.setRequestEntity(new StringRequestEntity(body,"text/xml", "UTF-8"));
-                int status=client.executeMethod(method);
-                if (status == HttpStatus.SC_OK){
-                    data.setContentType("text/xml");
-                    InputStream is = method.getResponseBodyAsStream();
-                    
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = dbf.newDocumentBuilder();
-                    Document doc = builder.parse(is);
+                if(!servers.contains(sp.get("spAbbr"))){
+                    servers.add(sp.get("spAbbr"));
+                    url = sp.get("spUrl").toString();
+                    prefix = sp.get("spAbbr").toString();
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), prefix); //url, spInfo);
-                }else{
-                    log.error("Failed to connect with "+ url +" Using body: "+body);
-                    throw new UnsupportedOperationException("Failed to connect with "+ url +" Using body: "+body);
-                }  
+                    String host = url;
+                    method = new PostMethod(host); 
+                    method.setRequestEntity(new StringRequestEntity(body,"text/xml", "UTF-8"));
+                    int status=client.executeMethod(method);
+                    if (status == HttpStatus.SC_OK){
+                        data.setContentType("text/xml");
+                        InputStream is = method.getResponseBodyAsStream();
+
+                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder builder = dbf.newDocumentBuilder();
+                        Document doc = builder.parse(is);
+
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), prefix); //url, spInfo);
+                    }else{
+                        log.error("Failed to connect with "+ url +" Using body: "+body);
+                        throw new UnsupportedOperationException("Failed to connect with "+ url +" Using body: "+body);
+                    }  
+                }
             }
-            String responseBody = ogcresponse.getResponseBody();
+            String responseBody = ogcresponse.getResponseBody(spInfo);
             if(responseBody != null && !responseBody.equals("")){
                 byte[] buffer = responseBody.getBytes();
                 os.write(buffer);
