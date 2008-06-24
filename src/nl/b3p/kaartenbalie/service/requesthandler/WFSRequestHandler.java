@@ -111,7 +111,10 @@ public class WFSRequestHandler {
                 InputStream is = method.getResponseBodyAsStream();
 
                 doAccounting(orgId, ogcresponse, data, spInfo, user);
-
+                
+                /*
+                 * Nothing has to be done with DescribeFeatureType so it will be sent to the client at ones.
+                 */
                 if(data.getOgcrequest().getParameter(OGCConstants.REQUEST) == OGCConstants.WFS_REQUEST_DescribeFeatureType){
                     int len = 1;
                     byte[] buffer= new byte[2024];
@@ -123,7 +126,7 @@ public class WFSRequestHandler {
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(is);
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), prefix); //url, spInfo);
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
                     String responseBody = ogcresponse.getResponseBody(spInfo);
                     if(responseBody != null && !responseBody.equals("")){
                         byte[] buffer = responseBody.getBytes();
@@ -159,7 +162,7 @@ public class WFSRequestHandler {
                         DocumentBuilder builder = dbf.newDocumentBuilder();
                         Document doc = builder.parse(is);
 
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest().getHost(), prefix); //url, spInfo);
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
                     }else{
                         log.error("Failed to connect with "+ url +" Using body: "+body);
                         throw new UnsupportedOperationException("Failed to connect with "+ url +" Using body: "+body);

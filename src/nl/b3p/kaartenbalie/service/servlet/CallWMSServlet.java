@@ -153,7 +153,6 @@ public class CallWMSServlet extends HttpServlet {
         }
         else if(request.getMethod().equalsIgnoreCase("POST")){
             try{
-                //serviceProvider = request.getParameter("ServiceProvider");
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(request.getInputStream());
