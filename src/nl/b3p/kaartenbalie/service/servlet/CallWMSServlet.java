@@ -10,46 +10,18 @@
  *
  * @copyright 2007 All rights reserved. B3Partners
  */
-
 package nl.b3p.kaartenbalie.service.servlet;
 
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import javax.persistence.EntityManagerFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
-import nl.b3p.kaartenbalie.service.requesthandler.WFSRequestHandler;
 import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.ogc.utils.OGCResponse;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCRequest;
-import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.xml.ows.v100.DCP;
-import nl.b3p.xml.ows.v100.Get;
-import nl.b3p.xml.ows.v100.HTTP;
-import nl.b3p.xml.ows.v100.Operation;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import java.util.HashMap;
@@ -76,21 +48,15 @@ import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import org.exolab.castor.xml.Marshaller;
-import org.exolab.castor.xml.UnmarshalHandler;
-import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 public class CallWMSServlet extends HttpServlet {
 
     private EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("defaultKaartenbaliePU");
-
     private EntityManager em = emf.createEntityManager();
     private static Log log = null;
     public static final long serialVersionUID = 24362462L;
@@ -98,7 +64,7 @@ public class CallWMSServlet extends HttpServlet {
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
-    
+
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
      *
@@ -114,8 +80,6 @@ public class CallWMSServlet extends HttpServlet {
         log.info("Initializing Call WMS Servlet");
     }
     // </editor-fold>
-    
-    
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *
      * @param request servlet request
@@ -127,8 +91,8 @@ public class CallWMSServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
-        
-        
+
+
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
             CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getCapabilitiesdtd();
@@ -136,37 +100,36 @@ public class CallWMSServlet extends HttpServlet {
         if (EXCEPTION_DTD == null) {
             EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
         }
-        
+
         String iUrl = completeUrl(baseUrl, request).toString();
         log.debug("Incoming URL: " + iUrl);
-        
+
         MyEMFDatabase.initEntityManager();
         EntityManager em = MyEMFDatabase.getEntityManager();
         User user = null;
-        
+
         DataWrapper data = new DataWrapper(response);
-        
+
         OGCRequest ogcrequest;
-        if(request.getMethod().equalsIgnoreCase("GET")){
+        if (request.getMethod().equalsIgnoreCase("GET")) {
             ogcrequest = new OGCRequest(iUrl);
             data.setOgcrequest(ogcrequest);
-        }
-        else if(request.getMethod().equalsIgnoreCase("POST")){
-            try{
+        } else if (request.getMethod().equalsIgnoreCase("POST")) {
+            try {
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(request.getInputStream());
                 ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
                 data.setOgcrequest(ogcrequest);
-            }catch(Exception e){
-                log.error("Error while handling request: ",e);
+            } catch (Exception e) {
+                log.error("Error while handling request: ", e);
                 handleRequestException(e, data);
             }
         }
-        
+
         DataMonitoring rr = new DataMonitoring();
         data.setRequestReporting(rr);
-        
+
         try {
             rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
             user = checkLogin(request);
@@ -179,60 +142,61 @@ public class CallWMSServlet extends HttpServlet {
             rr.setClientRequestException(ex);
             handleRequestException(ex, data);
         } finally {
-            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(),System.currentTimeMillis() - startTime);
+            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
         }
         MyEMFDatabase.closeEntityManager();
     }
-    
+
     private StringBuffer createBaseUrl(HttpServletRequest request) {
-        String scheme       = request.getScheme();
-        String serverName   = request.getServerName();
-        int serverPort      = request.getServerPort();
-        String contextPath  = request.getContextPath();
-        
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath();
+
         StringBuffer theUrl = new StringBuffer(scheme);
         theUrl.append("://");
         theUrl.append(serverName);
-        if ((scheme.equals("http") && serverPort!=80) || (scheme.equals("https") && serverPort!=443)) {
+        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
             theUrl.append(":");
             theUrl.append(serverPort);
         }
         theUrl.append(contextPath);
         return theUrl;
     }
-    
+
     private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
-        String servletPath= request.getServletPath();
-        String pathInfo= request.getPathInfo();
-        String queryString= request.getQueryString();
-        
-        if (servletPath!=null && servletPath.length()!=0) {
+        String servletPath = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+        String queryString = request.getQueryString();
+
+        if (servletPath != null && servletPath.length() != 0) {
             baseUrl.append(servletPath);
         }
-        if (pathInfo!=null && pathInfo.length()!=0) {
+        if (pathInfo != null && pathInfo.length() != 0) {
             baseUrl.append(pathInfo);
         }
-        if (queryString!=null && queryString.length()!=0) {
+        if (queryString != null && queryString.length() != 0) {
             baseUrl.append("?");
             baseUrl.append(queryString);
         }
         return baseUrl;
     }
-    
+
     private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
         OGCRequest ogcrequest = data.getOgcrequest();
-        
-        if(ogcrequest == null){
+
+        if (ogcrequest == null) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
-        }else{
+        } else {
             String exType = "";
-            if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))
+            if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS)) {
                 exType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS);
+            }
             String requestparam = "";
-            if(ogcrequest.containsParameter(OGCConstants.REQUEST))
+            if (ogcrequest.containsParameter(OGCConstants.REQUEST)) {
                 requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
-
+            }
             if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
                     requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
                     (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE) ||
@@ -248,7 +212,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
         String message = ex.getMessage();
         try {
@@ -264,7 +228,7 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
         }
     }
-    
+
     private void handleRequestExceptionAsXML(Exception ex, DataWrapper data) throws IOException {
         ByteArrayOutputStream output = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -276,39 +240,39 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
             throw new IOException("Exception occured during creation of error message: " + e);
         }
-        
+
         DOMImplementation di = db.getDOMImplementation();
-        
+
         // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
         // <!-- end of DOCTYPE declaration -->
-        DocumentType dt = di.createDocumentType("ServiceExceptionReport",null,CallWMSServlet.EXCEPTION_DTD);
+        DocumentType dt = di.createDocumentType("ServiceExceptionReport", null, CallWMSServlet.EXCEPTION_DTD);
         Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");
-        
+
         Element serviceExceptionElement = dom.createElement("ServiceException");
-        
+
         String exceptionName = ex.getClass().getName();
         String message = ex.getMessage();
         Throwable cause = ex.getCause();
-        
+
         serviceExceptionElement.setAttribute("code", exceptionName);
         CDATASection cdata = null;
-        if(cause != null) {
+        if (cause != null) {
             cdata = dom.createCDATASection(message + " - " + cause);
         } else {
             cdata = dom.createCDATASection(message);
         }
-        
+
         serviceExceptionElement.appendChild(cdata);
         rootElement.appendChild(serviceExceptionElement);
-        
+
         OutputFormat format = new OutputFormat(dom);
         format.setIndenting(true);
         output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(dom);
-        
+
         DOMValidator dv = new DOMValidator();
         try {
             dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(KBConfiguration.CHARSET)));
@@ -316,11 +280,11 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
             throw new IOException("Exception occured during validation of error message: " + e);
         }
-        
+
         data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
         data.write(output);
     }
-    
+
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -334,18 +298,17 @@ public class CallWMSServlet extends HttpServlet {
         Set paramKeySet = parameters.keySet();
         Iterator keySetIterator = paramKeySet.iterator();
         while (keySetIterator.hasNext()) {
-            String key   = (String)keySetIterator.next();
+            String key = (String) keySetIterator.next();
             String value = ((String[]) parameters.get(key))[0];
-            
-            String caseInsensitiveKey   = key.toUpperCase();
+
+            String caseInsensitiveKey = key.toUpperCase();
             String caseInsensitiveValue = value.toUpperCase();
-            
+
             newParameterMap.put(caseInsensitiveKey, caseInsensitiveValue);
         }
         return newParameterMap;
     }
     // </editor-fold>
-    
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -369,7 +332,7 @@ public class CallWMSServlet extends HttpServlet {
                 String decoded = decodeBasicAuthorizationString(authorizationHeader);
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
-                
+
                 String encpw = null;
                 try {
                     encpw = KBCrypter.encryptText(password);
@@ -381,31 +344,25 @@ public class CallWMSServlet extends HttpServlet {
                     EntityTransaction tx = em.getTransaction();
                     tx.begin();
                     try {
-                        user = (User)em.createQuery(
+                        user = (User) em.createQuery(
                                 "from User u where " +
                                 "lower(u.username) = lower(:username) " +
-                                "and u.password = :password")
-                                .setParameter("username", username)
-                                .setParameter("password", encpw)
-                                .getSingleResult();
+                                "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
                     } catch (NoResultException nre) {
                         log.debug("No results using encrypted password");
                     } finally {
                         tx.commit();
                     }
-                    
-                    if (user==null) {
+
+                    if (user == null) {
                         tx = em.getTransaction();
                         tx.begin();
                         try {
-                            user = (User)em.createQuery(
+                            user = (User) em.createQuery(
                                     "from User u where " +
                                     "lower(u.username) = lower(:username) " +
-                                    "and lower(u.password) = lower(:password)")
-                                    .setParameter("username", username)
-                                    .setParameter("password", password)
-                                    .getSingleResult();
-                            
+                                    "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
+
                             // Volgende keer dus wel encrypted
                             user.setPassword(encpw);
                             em.merge(user);
@@ -422,50 +379,47 @@ public class CallWMSServlet extends HttpServlet {
                 }
             }
         }
-        
+
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
             EntityManager em = MyEMFDatabase.getEntityManager();
             try {
                 String url = request.getRequestURL().toString();
-                user = (User)em.createQuery(
+                user = (User) em.createQuery(
                         "from User u where " +
-                        "u.personalURL = :personalURL")
-                        .setParameter("personalURL", url)
-                        .getSingleResult();
+                        "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
             } catch (NoResultException nre) {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             }
-            
+
             java.util.Date date = user.getTimeout();
-            
+
             if (date.compareTo(new java.util.Date()) <= 0) {
                 throw new AccessDeniedException("Personal URL key has expired!");
             }
-            
+
             String remoteaddress = request.getRemoteAddr();
             boolean validip = false;
-            
+
             Set ipaddresses = user.getUserips();
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
                 String ipaddress = (String) it.next();
-                if(ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
+                if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
                     validip = true;
                     break;
                 }
             }
-            
-            if(!validip) {
+
+            if (!validip) {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
-        
+
         return user;
     }
     // </editor-fold>
-    
     /** Creates a hash of the IP address, username and the password.
      *
      * @param registeredIP string representing the ip address of this user
@@ -486,7 +440,6 @@ public class CallWMSServlet extends HttpServlet {
         return new String(Hex.encodeHex(md5hash));
     }
     // </editor-fold>
-    
     /** Parses any incoming request and redirects this request to the right handler.
      *
      * @param parameters map with the given parameters
@@ -502,17 +455,17 @@ public class CallWMSServlet extends HttpServlet {
         RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
-        
-        if (request==null || request.length()==0) {
+
+        if (request == null || request.length() == 0) {
             // niet bekend, dus moet proxy zijn
             data.setRequestClassType(ProxyRequest.class);
             requestHandler = new ProxyRequestHandler();
             requestHandler.getRequest(data, user);
         }
         data.setOperation(request);
-        
-        if(service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)){
-            if(request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
+
+        if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+            if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
                 data.setRequestClassType(WMSGetCapabilitiesRequest.class);
                 requestHandler = new GetCapabilitiesRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
@@ -524,62 +477,61 @@ public class CallWMSServlet extends HttpServlet {
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
                 data.setRequestClassType(WMSGetLegendGraphicRequest.class);
                 requestHandler = new GetLegendGraphicRequestHandler();
-            } else{
-                throw new UnsupportedOperationException("Request "+ request +" is not suported!");
+            } else {
+                throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
             requestHandler.getRequest(data, user);
-        } else if(service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)){
-            WFSRequestHandler wfsRequestHandler = new WFSRequestHandler();
-            if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)){   
-                wfsRequestHandler.recieveAndSend(data, user);
-            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
-                wfsRequestHandler.recieveAndSend(data, user);
-            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
-                wfsRequestHandler.recieveAndSend(data, user);
-            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)){
-                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
-            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)){
-                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
-            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_LockFeature)){
-                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
-            } else{
-                throw new UnsupportedOperationException("Request "+ request +" is not suported!");
+        } else if (service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)) {
+            if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)) {
+                data.setRequestClassType(WFSGetCapabilitiesRequestHandler.class);
+                requestHandler = new WFSGetCapabilitiesRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)) {
+                data.setRequestClassType(WFSDescribeFeatureTypeRequestHandler.class);
+                requestHandler = new WFSDescribeFeatureTypeRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)) {
+                data.setRequestClassType(WFSGetFeatureRequestHandler.class);
+                requestHandler = new WFSGetFeatureRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)) {
+                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)) {
+                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_LockFeature)) {
+                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
+            } else {
+                throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
-        } else{
-            throw new UnsupportedOperationException("Service "+ service +" is not suported!");
+        } else {
+            throw new UnsupportedOperationException("Service " + service + " is not suported!");
         }
     }
     // </editor-fold>
-    
-    
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-    
+
     /** Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-    
+
     /** Returns a short description of the servlet.
      */
     public String getServletInfo() {
         return "CallWMSServlet info";
     }
     // </editor-fold>
-    
     /**
      * Parse the username out of the BASIC authorization header string.
      * @param decoded
@@ -597,7 +549,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     /**
      * Parse the password out of the decoded BASIC authorization header string.
      * @param decoded
@@ -615,7 +567,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     /**
      * Decode the BASIC authorization string.
      *
@@ -635,14 +587,13 @@ public class CallWMSServlet extends HttpServlet {
     public void persist(Object object) {
         try {
             em.getTransaction().begin();
-            // TODO:
-            // em.persist(object);    em.getTransaction().commit();
-        } catch(Exception e) {
-            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE,"exception caught", e);
+        // TODO:
+        // em.persist(object);    em.getTransaction().commit();
+        } catch (Exception e) {
+            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", e);
             em.getTransaction().rollback();
         } finally {
             em.close();
         }
     }
-    
 }

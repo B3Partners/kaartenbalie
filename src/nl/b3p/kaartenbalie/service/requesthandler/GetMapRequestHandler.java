@@ -142,7 +142,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                         "layer.layerid = :toplayer";
                 
                 boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("tlId")).getResultList();
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("lId")).getResultList();
                 Iterator sqlIterator = sqlQuery.iterator();
                 while (sqlIterator.hasNext()) {
                     String srs = (String)sqlIterator.next();
