@@ -222,25 +222,30 @@ public class CallWMSServlet extends HttpServlet {
     private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
         OGCRequest ogcrequest = data.getOgcrequest();
         
-        String exType = "";
-        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))
-            exType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS);
-        String requestparam = "";
-        if(ogcrequest.containsParameter(OGCConstants.REQUEST))
-            requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
-        
-        if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
-                requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
-                (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE) ||
-                exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) &&
-                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
-                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
-                ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
-            data.setContentType(ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT));
-            handleRequestExceptionAsImage(ex, data);
-        } else {
+        if(ogcrequest == null){
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
+        }else{
+            String exType = "";
+            if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))
+                exType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS);
+            String requestparam = "";
+            if(ogcrequest.containsParameter(OGCConstants.REQUEST))
+                requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
+
+            if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
+                    requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
+                    (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE) ||
+                    exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) &&
+                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
+                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
+                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
+                data.setContentType(ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT));
+                handleRequestExceptionAsImage(ex, data);
+            } else {
+                data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
+                handleRequestExceptionAsXML(ex, data);
+            }
         }
     }
     
@@ -531,6 +536,12 @@ public class CallWMSServlet extends HttpServlet {
                 wfsRequestHandler.recieveAndSend(data, user);
             } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)){
                 wfsRequestHandler.recieveAndSend(data, user);
+            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)){
+                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
+            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)){
+                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
+            } else if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_LockFeature)){
+                throw new UnsupportedOperationException("Request "+ request +" is not suported yet!");
             } else{
                 throw new UnsupportedOperationException("Request "+ request +" is not suported!");
             }

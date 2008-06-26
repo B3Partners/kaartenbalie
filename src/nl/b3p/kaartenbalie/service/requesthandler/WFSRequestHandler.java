@@ -68,13 +68,28 @@ public class WFSRequestHandler {
         int orgId = user.getOrganization().getId();
         
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
-        if(request == OGCConstants.WFS_REQUEST_GetFeature || request == OGCConstants.WFS_REQUEST_DescribeFeatureType){
+        if(request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature) || request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
             layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
             String[] allLayers = layers.split(",");
+            
+            if(allLayers.length > 1){
+                throw new UnsupportedOperationException(request + " request with more then one maplayer is not supported yet!");
+            }
+            
             layerNames = new String[allLayers.length];
             for(int i = 0; i < allLayers.length; i++){
                 String[] temp = allLayers[i].split("}");
-                layerNames[i] = temp[1];
+                if(temp.length > 1){
+                    layerNames[i] = temp[1];
+                }
+                else{
+                    String temp2[] = temp[0].split(":");
+                    if(temp2.length < 1){
+                        layerNames[i] = temp2[1];
+                    }else{
+                        layerNames[i] = allLayers[i];
+                    }
+                }
             }
         }
         String url = null;
@@ -115,7 +130,7 @@ public class WFSRequestHandler {
                 /*
                  * Nothing has to be done with DescribeFeatureType so it will be sent to the client at ones.
                  */
-                if(data.getOgcrequest().getParameter(OGCConstants.REQUEST) == OGCConstants.WFS_REQUEST_DescribeFeatureType){
+                if(data.getOgcrequest().getParameter(OGCConstants.REQUEST).equals(OGCConstants.WFS_REQUEST_DescribeFeatureType)){
                     int len = 1;
                     byte[] buffer= new byte[2024];
                     while((len=is.read(buffer,0,len))>0){
