@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
@@ -20,29 +21,30 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public abstract class OGCRequestHandler implements RequestHandler {
-
+    
     private static final Log log = LogFactory.getLog(OGCRequestHandler.class);
     protected User user;
     protected String url;
     protected static long maxResponseTime = 100000;
-
+    
     public OGCRequestHandler() {
     }
-
+    
     /**
      * abstracte methode die door implementatie van handler moet worden gedefinieerd.
      * feitelijke moet alleen de juiste query gedefinieerd te worden waar dan de
-     * volgende invoerparameters bijhoren: 
+     * volgende invoerparameters bijhoren:
      * <ul>
      *    <li>orgId</li>
      *    <li>layerName</li>
      *    <li>layerCode (ofwel spAbbr)</li>
      * </ul>
-     * als resultaat moet de query de volgende kolommen geven: 
+     * als resultaat moet de query de volgende kolommen geven:
      * <ul>
      *    <li>layerQueryable</li>
      *    <li>serviceproviderId</li>
@@ -63,7 +65,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
     protected abstract Object[] getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception;
-
+    
     /**
      * methode die alleen een query nodig heeft om bestaan en rechten van layer
      * te bepalen.
@@ -85,16 +87,16 @@ public abstract class OGCRequestHandler implements RequestHandler {
         if (b3pLayering) {
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 return new Object[]{"0", new Integer(-1), new Integer(-1),
-                            layerName,
-                            KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
-                            KBConfiguration.SERVICEPROVIDER_BASE_ABBR
-                        };
+                layerName,
+                KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
+                KBConfiguration.SERVICEPROVIDER_BASE_ABBR
+                };
             }
             return null;
         } else if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             return null;
         }
-
+        
         List sqlQuery = em.createNativeQuery(query).
                 setParameter("orgId", orgId).
                 setParameter("layerName", layerName).
@@ -109,7 +111,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
         return (Object[]) sqlQuery.get(0);
     }
-
+    
     /**
      * methode is complexer dan op het eerste gezicht nodig lijkt. per service provider
      * worden de layers opgezocht. echter de volgorde van de layers moet bewaard blijven.
@@ -123,7 +125,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * te komen met de volgorde in de request.
      * <p>
      * er zijn 2 soorten layers: normale layers zoals deze door de gebruiker zijn
-     * geselecteerd en service layers (b3playering) welke gebruikt worden door 
+     * geselecteerd en service layers (b3playering) welke gebruikt worden door
      * kaartenbalie om gebruikers in de gelegenheid te stellen afrekenen toe te staan,
      * hun credit hoeveelheid te zien en om over-head-display foutmeldingen te geven.
      * de layers van b3playering worden altijd boven op geplaatst, zodat de layers 2x
@@ -137,37 +139,37 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception fout bij ophalen layer informatie
      */
     protected List getSeviceProviderURLS(String[] layers, Integer orgId, boolean checkForQueryable, DataWrapper dw) throws Exception {
-
+        
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
-
+        
         EntityManager em = MyEMFDatabase.getEntityManager();
-
+        
         Map config = dw.getLayeringParameterMap();
         configB3pLayering(layers, config);
-
+        
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
-            for (int i = 0; i < layers.length; i++) {
-                Object[] objecten = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
-                if (objecten == null) {
-                    continue;
-                }
-                String layerQueryable = (String) objecten[0];
-                Integer serviceproviderId = (Integer) objecten[1];
-                Integer layerId = (Integer) objecten[2];
-                String layerName = (String) objecten[3];
-                String spUrl = (String) objecten[4];
-                String spAbbr = (String) objecten[5];
-
-                // layer toevoegen aan sp indien queryable voorwaarde ok
-                if (!checkForQueryable || (checkForQueryable && layerQueryable.equals("1"))) {
-                     addToServerProviderList(eventualSPList, serviceproviderId, layerId, layerName, spUrl, spAbbr);
-                }
+        for (int i = 0; i < layers.length; i++) {
+            Object[] objecten = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
+            if (objecten == null) {
+                continue;
             }
-
+            String layerQueryable = (String) objecten[0];
+            Integer serviceproviderId = (Integer) objecten[1];
+            Integer layerId = (Integer) objecten[2];
+            String layerName = (String) objecten[3];
+            String spUrl = (String) objecten[4];
+            String spAbbr = (String) objecten[5];
+            
+            // layer toevoegen aan sp indien queryable voorwaarde ok
+            if (!checkForQueryable || (checkForQueryable && layerQueryable.equals("1"))) {
+                addToServerProviderList(eventualSPList, serviceproviderId, layerId, layerName, spUrl, spAbbr);
+            }
+        }
+        
         //als laatste b3pLayering meenemen
         b3pLayering = true;
         for (int i = 0; i < layers.length; i++) {
@@ -185,10 +187,10 @@ public abstract class OGCRequestHandler implements RequestHandler {
             }
             addToServerProviderList(eventualSPList, serviceproviderId, layerId, layerName, spUrl, spAbbr);
         }
-
+        
         return eventualSPList;
     }
-
+    
     /**
      * abstracte methode die voor wms en wfs specifiek geimplmenteerd word.
      * @param dw datawrapper
@@ -198,7 +200,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception fout bij prijsbepaling
      */
     protected abstract LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, LayerCalculator lc, Integer layerId) throws Exception;
-
+    protected abstract LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, WfsLayerCalculator lc, Integer layerId) throws Exception;
+    
     /**
      * deze methode doorloopt alle service providers en daarbinnen weer alle layers
      * om vast te stellen of er betaling noodzakelijk is. de bepaalde beprijzing wordt
@@ -215,7 +218,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception fout bij bepaling prijs
      */
     protected List prepareAccounting(Integer orgId, DataWrapper dw, List foundSpList) throws Exception {
-
+        
         if (foundSpList==null)
             return null;
         
@@ -223,13 +226,14 @@ public abstract class OGCRequestHandler implements RequestHandler {
         
         AccountManager am = AccountManager.getAccountManager(orgId);
         TransactionLayerUsage tlu = am.beginTLU();
-
-        LayerCalculator lc = new LayerCalculator();
-
+        
         Map config = dw.getLayeringParameterMap();
         Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
         boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
-
+        
+        LayerCalculator lc = null;
+        WfsLayerCalculator wfslc = null;
+        
         Iterator it = foundSpList.iterator();
         try {
             
@@ -238,21 +242,39 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 Integer layerId = (Integer) spInfo.get("lId");
                 // TODO lijst van layers nog doorlopen, zo is het fout!
 
-                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, layerId);
-                    if (lpc != null) {
-                        tlu.registerUsage(lpc);
-                        // Only add layer when free or when transactions allowed
-                        Boolean isFree = lpc.getLayerIsFree();
-                        if ((isFree == null || (isFree != null && !isFree.booleanValue())) && !bAllowTransactions) {
-                            continue;
-                        }
+                /* 
+                 * todo Probleem met de LayerCalculator en de WfslayerCalculator
+                 * Deze verschillen namelijk een beetje vanwegen het ontbreken van toplayers bij wfs.
+                 * Dit is even een snelle oplossing en niet zo heel netjes om onderscheid te maken tussen
+                 * WMS en WFS in deze klasse. Er moet dus nog na gedacht worden over een betere oplossing.
+                 */
+                LayerPriceComposition lpc = null;
+                if(dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)){
+                    lc = new LayerCalculator();
+                    lpc = calculateLayerPriceComposition(dw, lc, layerId);
+                }else{
+                    wfslc = new WfsLayerCalculator();
+                    lpc = calculateLayerPriceComposition(dw, wfslc, layerId);
+                }
+                
+                
+                if (lpc != null) {
+                    tlu.registerUsage(lpc);
+                    // Only add layer when free or when transactions allowed
+                    Boolean isFree = lpc.getLayerIsFree();
+                    if ((isFree == null || (isFree != null && !isFree.booleanValue())) && !bAllowTransactions) {
+                        continue;
                     }
-                    cleanedSpList.add(spInfo);
+                }
+                cleanedSpList.add(spInfo);
             }
         } finally {
-            lc.closeEntityManager();
+            if(lc != null)
+                lc.closeEntityManager();
+            if(wfslc != null)
+                wfslc.closeEntityManager();
         }
-
+        
         Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
         boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
@@ -313,15 +335,15 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
         return new String[]{layerCode, layerName};
     }
-
+    
     /**
      * methode om nieuwe layer toe te voegen aan lijst met service providers. eerst wordt
-     * de laatste service provider opgezocht. als de nieuwe layer bij deze 
+     * de laatste service provider opgezocht. als de nieuwe layer bij deze
      * service provider hoort dan kan de layer aan deze service provider worden
      * toegevoegd. Als de nieuwe layer bij een andere service provider hoort, dan
-     * moet een nieuwe service provider worden aangemaakt en de layer hier aan toe 
+     * moet een nieuwe service provider worden aangemaakt en de layer hier aan toe
      * gevoegd worden.
-     * <p> 
+     * <p>
      * een nieuwe layer mag niet aan een eerder in de lijst geplaatste service provider
      * worden toegevoegd (ook al is dat wel de zelfde) omdat dan de volgorde van
      * de layers niet meer klopt. Consequentie is dat service providers soms meerdere
@@ -366,13 +388,13 @@ public abstract class OGCRequestHandler implements RequestHandler {
             sp_layerlist.append(layerName);
         }
     }
-
+    
     /**
      * methode doorloopt alle layers om te zien of er service layers bij zitten
-     * (b3playering). als zo'n layer wordt gevonden dan wordt de processConfig van 
+     * (b3playering). als zo'n layer wordt gevonden dan wordt de processConfig van
      * die service layer aangeroepen. Deze processConfig kan dan informatie toevoegen
      * aan de algemene config map.
-     * <p> 
+     * <p>
      * de service layer AllowTransactionsLayer plaatst bv een boolean in de config
      * map, zodat verder op de accouting methodes weten dan de gebruiker afrekenen
      * heeft toegestaan.
@@ -396,5 +418,5 @@ public abstract class OGCRequestHandler implements RequestHandler {
             }
         }
     }
-
+    
 }

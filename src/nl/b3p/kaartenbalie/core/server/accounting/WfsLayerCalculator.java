@@ -20,7 +20,6 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
-//import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -66,27 +65,7 @@ public class WfsLayerCalculator {
                 layerPrice = calculateLayer(layer, validationDate,projection,scale, units, planType, service, operation);
                 tLC.setMethod(LayerPriceComposition.METHOD_OWN);
             } catch(NoPrizingException npe) {
-            /*
-             * Begin zoektocht naar alternatieven!
-             * Zoek bij de parentlayers voor een prijs...
-             */
-                //try {
-                    //layerPrice = calculateParentLayer(layer, validationDate, projection, scale,  units,  planType, service, operation);
-                    //tLC.setMethod(LayerPriceComposition.METHOD_PARENTS);
-                //} catch (NoPrizingException npeParent) {
-                 /*
-                  * Er kon geen prijs worden bepaald via de parents... Zoek bij de childs...
-                  */
-                    //try {
-                        //layerPrice = calculateChildLayers(layer, validationDate, projection, scale, units,  planType, service, operation);
-                        //tLC.setMethod(LayerPriceComposition.METHOD_CHILDS);
-                    //} catch (NoPrizingException npeChilds) {
-                        //tLC.setMethod(LayerPriceComposition.METHOD_NONE);
-                     /*
-                      * Er kon geen prijs worden bepaald via de childs... Kaart is gratis :S
-                      */
-                    //}
-                //}
+                
             }
         } catch (LayerNotAvailableException lnae) {
             tLC.setMethod(LayerPriceComposition.METHOD_BLOCKED);
@@ -113,76 +92,6 @@ public class WfsLayerCalculator {
         
         return returnValue;
     }
-    
-    // nooit childlayers bij wfs
-    //private BigDecimal calculateChildLayers(WfsLayer layer, Date validationDate, String projection,  BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception{
-         /*
-          * "Controleer of " + layer.getName() + " childlayers heeft.");
-          */
-        BigDecimal layerPrice = null;
-        
-        //Set childLayers = layer.getLayers();
-        
-        //if (childLayers != null && childLayers.size() > 0) {
-            /*
-             * Er zijn " + childLayers.size() + " childlayers die we nu gaan opvragen...");
-             */
-            /*Iterator iterChilds = childLayers.iterator();
-            while (iterChilds.hasNext()) {
-                Layer childLayer = (Layer) iterChilds.next();
-                boolean hasNoPrice = false;
-                BigDecimal thisLayerPrice = null;
-                try {
-                    layerPrice = addToLayerPrice(layerPrice, calculateLayer( childLayer,  validationDate, projection, scale,   units,  planType, service, operation));
-                } catch (NoPrizingException npe) {
-                    /*
-                     * Geen prijs gevonden, zoek bij de childs van " + layer.getName() + ".");
-                     */
-                    /*try {
-                        layerPrice = addToLayerPrice(layerPrice, calculateChildLayers( childLayer,  validationDate, projection, scale,  units,  planType, service, operation));
-                    } catch (NoPrizingException npe2) {
-                        
-                    }
-                }
-                
-            }
-        } else {
-            /*
-             * Er zijn geen childlayers...
-             */
-            /*throw new NoPrizingException("Geen childlayers meer om prijzen voor te zoeken.");
-        }*/
-        /*
-         * Prijs wordt teruggegen.
-         */
-        //return layerPrice;
-    //}
-    //private BigDecimal calculateParentLayer(WfsLayer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception{
-        /*
-         * Controleer of " + layer.getName() + " een parentlayer heeft.
-         */
-        //BigDecimal layerPrice = null;
-        //Layer parentLayer = layer.getParent();
-        //if (parentLayer != null) {
-           /*
-            * parent layer is != null");
-            */
-            /*try {
-                layerPrice = calculateLayer(parentLayer, validationDate, projection, scale, units, planType, service, operation);
-            } catch (NoPrizingException npe) {
-               /*
-                * No prizing info available...
-                */
-                /*layerPrice = calculateParentLayer(parentLayer, validationDate, projection, scale, units, planType, service, operation);
-            }
-        } else {
-            /*
-             * Er is geen parentlayer (meer) en dus ook geen prijs info.....
-             */
-            /*throw new NoPrizingException();
-        }*/
-        //return layerPrice;    
-    //}
     
      public List getSpLayerPricingList(String spabbr, Date validationDate) throws Exception{
         return em.createQuery(
@@ -235,10 +144,13 @@ public class WfsLayerCalculator {
     
     public LayerPricing getActiveLayerPricing(WfsLayer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
         
-        if (projection == null) {
+        /*
+         * Todo mag projection nie null zijn voor WFS?
+         */
+        /*if (projection == null) {
             log.error("Projection cannot be null");
             throw new Exception("Projection cannot be null");
-        }
+        }*/
         if (scale == null) {
             scale = new BigDecimal(0);
         }

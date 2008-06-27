@@ -65,7 +65,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             HashMap sp = (HashMap) iter.next();
             url = sp.get("spUrl").toString();
             prefix = sp.get("spAbbr").toString();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("lName")); // todo wat is lName, zelfde als layerlist?????
+            //ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("layerlist")); // todo wat is lName, zelfde als layerlist?????
         }
 
         if (url == null || url.length() == 0) {

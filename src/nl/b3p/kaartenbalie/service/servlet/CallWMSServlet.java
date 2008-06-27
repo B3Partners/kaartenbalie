@@ -497,6 +497,7 @@ public class CallWMSServlet extends HttpServlet {
             } else {
                 throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
+            requestHandler.getRequest(data, user);
         } else {
             throw new UnsupportedOperationException("Service " + service + " is not suported!");
         }
@@ -581,7 +582,7 @@ public class CallWMSServlet extends HttpServlet {
         }
     }
     
-    public void persist(Object object) {
+    /*public void persist(Object object) {
         try {
             em.getTransaction().begin();
             // TODO:
@@ -592,5 +593,5 @@ public class CallWMSServlet extends HttpServlet {
         } finally {
             em.close();
         }
-    }
+    }*/
 }
