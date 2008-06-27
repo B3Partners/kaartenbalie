@@ -25,6 +25,7 @@ public class AllowTransactionsLayer extends ConfigLayer{
     public static final String transactionsNeeded = "transactionsNeeded";
     public static final String creditMutation = "creditMutation";
     public static final String pricedLayers = "pricedLayers";
+    public static final String foundAllowTransactionsLayer = "foundAllowTransactionsLayer";
     
     public AllowTransactionsLayer() {
         super(NAME, TITLE);

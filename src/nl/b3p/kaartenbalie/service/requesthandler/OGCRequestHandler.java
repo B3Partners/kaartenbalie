@@ -6,6 +6,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -124,7 +125,6 @@ public abstract class OGCRequestHandler implements RequestHandler {
 
         //als laatste b3pLayering meenemen
         b3pLayering = true;
-        boolean foundAllowTransactionsLayer = false;
         for (int i = 0; i < layers.length; i++) {
             Object[] objecten = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
             if (objecten == null) {
@@ -136,11 +136,13 @@ public abstract class OGCRequestHandler implements RequestHandler {
             String spUrl = (String) objecten[4];
             String spAbbr = (String) objecten[5];
             if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerName)) {
-                foundAllowTransactionsLayer = true;
+                config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, new Boolean(true));
             }
             addToServerProviderList(eventualSPList, serviceproviderId, layerId, layerName, spUrl, spAbbr);
         }
 
+        Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
+        boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
             config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
             config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
@@ -148,7 +150,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
             if (!bAllowTransactions) {
                 am.endTLU();
             }
-            if (!foundAllowTransactionsLayer) {
+            if (!bFoundAllowTransactionsLayer) {
                 addToServerProviderList(eventualSPList,
                         new Integer(-1), new Integer(-1),
                         AllowTransactionsLayer.NAME,
@@ -160,6 +162,72 @@ public abstract class OGCRequestHandler implements RequestHandler {
         return eventualSPList;
     }
 
+    protected List prepareAccounting(Integer orgId, DataWrapper dw, List foundSpList) throws Exception {
+
+        if (foundSpList==null)
+            return null;
+        
+        List cleanedSpList = new ArrayList();
+        
+        AccountManager am = AccountManager.getAccountManager(orgId);
+        TransactionLayerUsage tlu = am.beginTLU();
+
+        LayerCalculator lc = new LayerCalculator();
+
+        Map config = dw.getLayeringParameterMap();
+        Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
+        boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
+
+        Iterator it = foundSpList.iterator();
+        try {
+            
+            while (it.hasNext()) {
+                Map spInfo = (Map)it.next();
+                Integer layerId = (Integer) spInfo.get("lId");
+
+                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, layerId);
+                    if (lpc != null) {
+                        tlu.registerUsage(lpc);
+                        // Only add layer when free or when transactions allowed
+                        Boolean isFree = lpc.getLayerIsFree();
+                        if ((isFree == null || (isFree != null && !isFree.booleanValue())) && !bAllowTransactions) {
+                            continue;
+                        }
+                    }
+                    cleanedSpList.add(spInfo);
+            }
+        } finally {
+            lc.closeEntityManager();
+        }
+
+        Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
+        boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
+        if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
+            config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
+            config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
+            config.put(AllowTransactionsLayer.transactionsNeeded, new Boolean(true));
+            if (!bAllowTransactions) {
+                am.endTLU();
+            }
+            if (!bFoundAllowTransactionsLayer) {
+                addToServerProviderList(cleanedSpList,
+                        new Integer(-1), new Integer(-1),
+                        AllowTransactionsLayer.NAME,
+                        KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
+                        KBConfiguration.SERVICEPROVIDER_BASE_ABBR);
+            }
+        }
+        return cleanedSpList;
+    }
+    
+    public void doAccounting(Integer orgId, DataWrapper data, User user) throws Exception {
+        AccountManager am = AccountManager.getAccountManager(orgId);
+        TransactionLayerUsage transaction = am.getTLU();
+        am.commitTransaction(transaction, user);
+        am.endTLU();
+        data.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
+    }
+    
     protected String[] toCodeAndName(String completeLayerName) throws Exception {
         // Check of layers[i] juiste format heeft
         int pos = completeLayerName.indexOf("_");
@@ -225,11 +293,4 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
     }
 
-    public void doAccounting(Integer orgId, DataWrapper data, User user) throws Exception {
-        AccountManager am = AccountManager.getAccountManager(orgId);
-        TransactionLayerUsage transaction = am.getTLU();
-        am.commitTransaction(transaction, user);
-        am.endTLU();
-        data.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
-    }
 }
