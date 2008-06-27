@@ -1,6 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${wfsServerForm}"/>
+<c:set var="form" value="${serverForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
@@ -9,8 +9,8 @@
 
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
-<html:javascript formName="wfsServerForm" staticJavascript="false"/>
-<html:form action="/wfsserver" onsubmit="return validateWfsServerForm(this)" focus="givenName">
+<html:javascript formName="serverForm" staticJavascript="false"/>
+<html:form action="/wfsserver" onsubmit="return validateServerForm(this)" focus="givenName">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />

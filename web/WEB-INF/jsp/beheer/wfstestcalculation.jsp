@@ -1,6 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${wfstestPricingForm}"/>
+<c:set var="form" value="${testPricingForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="id" value="${form.map.id}"/>
 

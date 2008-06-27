@@ -1,6 +1,6 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${wfsorganizationForm}"/>
+<c:set var="form" value="${organizationForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="mainid" value="${form.map.id}"/>
 
@@ -10,8 +10,8 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
-<html:javascript formName="wfsorganizationForm" staticJavascript="false"/>
-<html:form action="/wfsorganization" onsubmit="return validateWfsOrganizationForm(this)" focus="name">
+<html:javascript formName="organizationForm" staticJavascript="false"/>
+<html:form action="/wfsorganization" onsubmit="return validateOrganizationForm(this)" focus="name">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />

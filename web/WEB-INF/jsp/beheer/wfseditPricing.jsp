@@ -1,7 +1,7 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <tiles:importAttribute/>
 
-<c:set var="form" value="${wfsPricingForm}"/>
+<c:set var="form" value="${pricingForm}"/>
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="id" value="${form.map.id}"/>
 
