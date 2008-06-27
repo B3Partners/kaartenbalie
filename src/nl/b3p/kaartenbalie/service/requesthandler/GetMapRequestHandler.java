@@ -98,11 +98,14 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
+        spUrls = prepareAccounting(orgId, dw, spUrls);
+        if(spUrls==null || spUrls.isEmpty()) {
+            log.error("No urls qualify for request.");
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+        }
         
         ArrayList urlWrapper = new ArrayList();
-        //ArrayList urls = new ArrayList();
         Iterator it = spUrls.iterator();
-        AccountManager am = AccountManager.getAccountManager(orgId);
         while (it.hasNext()) {
             
             
@@ -175,10 +178,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             }
         }
         
-        TransactionLayerUsage transaction = am.getTLU();
-        am.commitTransaction(transaction, user);
-        am.endTLU();
-        dw.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
+        doAccounting(orgId, dw, user);
+
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
     // </editor-fold>

@@ -78,6 +78,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
+        
         Iterator iter = spInfo.iterator();
         while (iter.hasNext()) {
             HashMap sp = (HashMap) iter.next();
