@@ -144,6 +144,14 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                         "srs.srs is not null and " +
                         "layer.layerid = :toplayer";
                 
+                /* Ik ging kijken of het werkte, maar blijkbaar staan er WMS layers in de database die geen SRS hebben.
+                 * En daar door dacht ik dat het niet meer werkte, maar dat is niet het geval.
+                 * Het gaat om de kaarten van B3p Public (iedergeval in mijn lokale db)
+                 *
+                 * todo
+                 * Is het verplicht om een srs te hebben? en er was onderwater wel een exeptoin, maar niet zichtbaar voor
+                 * de gebruiker.
+                 */
                 boolean srsFound = false;
                 List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("lId")).getResultList();
                 Iterator sqlIterator = sqlQuery.iterator();

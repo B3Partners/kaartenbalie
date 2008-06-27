@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -395,7 +396,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             rr.addServiceProviderRequest(dw.getRequestClassType(), localParameterMap);
         }
     }
-// </editor-fold>
+    
+    protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, WfsLayerCalculator lc, Integer layerId) throws Exception {
+        return null;
+    }
+
     protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, LayerCalculator lc, Integer layerId) throws Exception {
         String operation = dw.getOperation();
         if (operation == null) {
