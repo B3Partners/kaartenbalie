@@ -32,7 +32,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -40,7 +39,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
@@ -397,11 +396,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
     }
     
-    protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, WfsLayerCalculator lc, Integer layerId) throws Exception {
-        return null;
-    }
-
-    protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, LayerCalculator lc, Integer layerId) throws Exception {
+    protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, ExtLayerCalculator lc, String spAbbr, String layerName) throws Exception {
         String operation = dw.getOperation();
         if (operation == null) {
             log.error("Operation can not be null");
@@ -413,12 +408,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         String projection = dw.getOgcrequest().getParameter(OGCConstants.WMS_PARAM_SRS);
         BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
         int planType = LayerPricing.PAY_PER_REQUEST;
-        String service = "WMS";
+        String service = OGCConstants.WMS_SERVICE_WMS;
 
-        return lc.calculateLayerComplete(layerId, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
+        return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
     }
 
-    protected Object[] getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
         String query = "select l.queryable, l.serviceproviderid, l.layerid, l.name, sp.url, sp.abbr " +
                 "from layer l, organizationlayer ol, serviceprovider sp " +
                 "where ol.layerid = l.layerid and " +

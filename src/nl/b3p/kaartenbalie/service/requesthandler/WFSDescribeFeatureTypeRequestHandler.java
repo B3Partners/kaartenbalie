@@ -81,10 +81,10 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         
         Iterator iter = spInfo.iterator();
         while (iter.hasNext()) {
-            HashMap sp = (HashMap) iter.next();
-            url = sp.get("spUrl").toString();
-            prefix = sp.get("spAbbr").toString();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("layersList"));
+            SpLayerSummary sp = (SpLayerSummary) iter.next();
+            url = sp.getSpUrl();
+            prefix = sp.getSpAbbr();
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
         }
 
         if (url == null || url == "") {

@@ -28,9 +28,16 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * 
+ * @author Chris
+ */
 public class AccountManager {
     private static final Log log = LogFactory.getLog(AccountManager.class);
 
+    /**
+     * 
+     */
     public static final long serialVersionUID = 856294562L;
     private static boolean enableAccounting = false;
     private BigDecimal balance;
@@ -45,6 +52,11 @@ public class AccountManager {
         managers = new HashMap();
     }
     
+    /**
+     * 
+     * @param organizationId
+     * @return
+     */
     public synchronized static AccountManager getAccountManager(Integer organizationId) {
         AccountManager accountManager = (AccountManager) managers.get(organizationId);
         if (accountManager == null) {
@@ -69,11 +81,20 @@ public class AccountManager {
         return accountManager;
     }
     
-    /** Creates a new instance of AccountManager */
+    /** Creates a new instance of AccountManager
+     * @param organizationId 
+     */
     public AccountManager(Integer organizationId) {
         this.organizationId = organizationId;
     }
     
+    /**
+     * 
+     * @param transactionClass
+     * @param description
+     * @return
+     * @throws java.lang.Exception
+     */
     public Transaction prepareTransaction(Class transactionClass, String description) throws Exception{
         if (!isEnableAccounting()) {return null;}
         
@@ -101,20 +122,38 @@ public class AccountManager {
         }
         return transaction;
     }
+    /**
+     * 
+     * @return
+     * @throws java.lang.Exception
+     */
     public TransactionLayerUsage beginTLU() throws Exception {
         TransactionLayerUsage tlu = (TransactionLayerUsage) prepareTransaction(TransactionLayerUsage.class, null);
         tluHolder.set(tlu);
         return tlu;
     }
+    /**
+     * 
+     * @return
+     */
     public TransactionLayerUsage getTLU() {
         return  (TransactionLayerUsage) tluHolder.get();
     }
     
+    /**
+     * 
+     */
     public void endTLU() {
         tluHolder.set(null);
     }
     
     
+    /**
+     * 
+     * @param accountTransaction
+     * @return
+     * @throws java.lang.Exception
+     */
     public Transaction nullvalidateTransaction(Transaction accountTransaction) throws Exception {
         if (accountTransaction == null) {
             log.error("Trying to nullvalidate a null transaction.");
@@ -149,6 +188,12 @@ public class AccountManager {
         return accountTransaction;
     }
     
+    /**
+     * 
+     * @param accountTransaction
+     * @param user
+     * @throws java.lang.Exception
+     */
     public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
         if (!enableAccounting) {
             return;
@@ -224,6 +269,10 @@ public class AccountManager {
             }
         }
     }
+    /**
+     * 
+     * @return
+     */
     public double getBalance() {
         if (!enableAccounting) { return 0.0;}
         if (balance == null) {
@@ -240,10 +289,23 @@ public class AccountManager {
         
     }
     
+    /**
+     * 
+     * @param listMax
+     * @param transactionType
+     * @return
+     */
     public List getTransactions(int listMax, Class transactionType) {
         return getTransactions(0, listMax, transactionType);
     }
     
+    /**
+     * 
+     * @param firstResult
+     * @param listMax
+     * @param transactionType
+     * @return
+     */
     public List getTransactions(int firstResult, int listMax, Class transactionType) {
         EntityManager em = MyEMFDatabase.createEntityManager();
         List resultList = null;
@@ -264,10 +326,18 @@ public class AccountManager {
         return resultList;
     }
     
+    /**
+     * 
+     * @param state
+     */
     public static void setEnableAccounting(boolean state) {
         enableAccounting = state;
     }
     
+    /**
+     * 
+     * @return
+     */
     public static boolean isEnableAccounting() {
         return enableAccounting;
     }

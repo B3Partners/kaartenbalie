@@ -71,7 +71,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
         
-        Map spInfo = (Map)spUrls.get(0);
+        SpLayerSummary spInfo = (SpLayerSummary)spUrls.get(0);
         if(spInfo == null) {
             log.error("No urls found!");
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
@@ -80,21 +80,21 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         
         ArrayList urlWrapper = new ArrayList();
         WMSGetLegendGraphicRequest lgrWrapper = new WMSGetLegendGraphicRequest();
-        Integer serviceProviderId = (Integer)spInfo.get("spId");
+        Integer serviceProviderId = spInfo.getServiceproviderId();
         
         if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
             //Say hello to B3P Layering!!
         } else {
             lgrWrapper.setServiceProviderId(serviceProviderId);
             StringBuffer url = new StringBuffer();
-            url.append((String)spInfo.get("spUrl"));
+            url.append(spInfo.getSpUrl());
             String [] params = ogc.getParametersArray();
             for (int i = 0; i < params.length; i++) {
                 String [] keyValuePair = params[i].split("=");
                 if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYER)) {
                     url.append(OGCConstants.WMS_PARAM_LAYER);
                     url.append("=");
-                    url.append(spInfo.get("layersList"));
+                    url.append(spInfo.getLayersAsString());
                     url.append("&");
                 } else {
                     url.append(params[i]);

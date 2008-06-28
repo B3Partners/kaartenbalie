@@ -72,10 +72,9 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         }
 
         String url = null;
-        List spUrls = null;
         String prefix = null;
 
-        spUrls = getSeviceProviderURLS(layerNames, orgId, false, data);
+        List spUrls = getSeviceProviderURLS(layerNames, orgId, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
@@ -87,10 +86,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         
         Iterator iter = spUrls.iterator();
         while (iter.hasNext()) {
-            HashMap sp = (HashMap) iter.next();
-            url = sp.get("spUrl").toString();
-            prefix = sp.get("spAbbr").toString();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("layersList"));
+            SpLayerSummary sp = (SpLayerSummary) iter.next();
+            url = sp.getSpUrl();
+            prefix = sp.getSpAbbr();
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
         }
 
         if (url == null || url.length()==0) {

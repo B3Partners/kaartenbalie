@@ -361,7 +361,7 @@ public class ServerAction extends KaartenbalieCrudAction {
             List lpList = null;
             LayerCalculator lc = new LayerCalculator();
             try {
-                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date());
+                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date(), OGCConstants.WMS_SERVICE_WMS);
             } finally {
                 lc.closeEntityManager();
             }

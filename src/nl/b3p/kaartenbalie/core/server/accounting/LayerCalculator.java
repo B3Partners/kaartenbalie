@@ -3,89 +3,81 @@
  *
  * Created on December 24, 2007, 1:52 PM
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
-
 package nl.b3p.kaartenbalie.core.server.accounting;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  *
- * @author Chris Kramer
+ * @author Chris van Lith, Jytte Schaeffer
  */
 public class LayerCalculator {
-    
+
     private static final Log log = LogFactory.getLog(LayerCalculator.class);
-    
-    private EntityManager em;
-    private boolean externalEm = false;
-    
-    
+    /**
+     * 
+     */
+    protected EntityManager em;
+    /**
+     * 
+     */
+    protected boolean externalEm = false;
+
+    /**
+     * Constructor met eigen Entitymanager
+     */
     public LayerCalculator() {
         em = MyEMFDatabase.createEntityManager();
-        
     }
+
+    /**
+     * Constructor met entitymanager van buiten
+     * @param em
+     */
     public LayerCalculator(EntityManager em) {
         this.em = em;
         externalEm = true;
     }
-    
-    public LayerPriceComposition calculateLayerComplete(Integer layerId, Date validationDate, String projection,  BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception {
-        Layer layer = (Layer) em.find(Layer.class, layerId);
-        return calculateLayerComplete(layer, validationDate, projection, scale, units, planType, service, operation);
-    }
-    
-    public LayerPriceComposition calculateLayerComplete(Layer layer, Date validationDate, String projection, BigDecimal scale,BigDecimal units, int planType, String service, String operation) throws Exception {
+
+    /**
+     * Deze methode berekent de prijs van een layer. Het kan zijn dat een layer
+     * niet toegankelijk is of geen prijs info heeft; dit wordt dan in de
+     * LayerPriceComposition als status opgenomen.
+     * <p>
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param projection
+     * @param scale
+     * @param units
+     * @param planType
+     * @param service
+     * @param operation
+     * @return
+     */
+    public LayerPriceComposition calculateLayerComplete(String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) {
         long startTime = System.currentTimeMillis();
         if (!AccountManager.isEnableAccounting()) {
             return null;
         }
-        /*
-         * Start van het traject voor het opvragen van een prijs..
-         */
-        LayerPriceComposition tLC = new LayerPriceComposition(layer.getSpAbbr(), layer.getName(), validationDate, scale, projection,  planType, units, service, operation);
+        LayerPriceComposition tLC = new LayerPriceComposition(spAbbr, layerName, validationDate, scale, projection, planType, units, service, operation);
+        tLC.setService(service);
         BigDecimal layerPrice = null;
         try {
             try {
-                layerPrice = calculateLayer(layer, validationDate,projection,scale, units, planType, service, operation);
-                tLC.setMethod(LayerPriceComposition.METHOD_OWN);
-            } catch(NoPrizingException npe) {
-            /*
-             * Begin zoektocht naar alternatieven!
-             * Zoek bij de parentlayers voor een prijs...
-             */
-                try {
-                    layerPrice = calculateParentLayer(layer, validationDate, projection, scale,  units,  planType, service, operation);
-                    tLC.setMethod(LayerPriceComposition.METHOD_PARENTS);
-                } catch (NoPrizingException npeParent) {
-                 /*
-                  * Er kon geen prijs worden bepaald via de parents... Zoek bij de childs...
-                  */
-                    try {
-                        layerPrice = calculateChildLayers(layer, validationDate, projection, scale, units,  planType, service, operation);
-                        tLC.setMethod(LayerPriceComposition.METHOD_CHILDS);
-                    } catch (NoPrizingException npeChilds) {
-                        tLC.setMethod(LayerPriceComposition.METHOD_NONE);
-                     /*
-                      * Er kon geen prijs worden bepaald via de childs... Kaart is gratis :S
-                      */
-                    }
-                }
+                layerPrice = calculateLayer(tLC, spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+            } catch (NoPrizingException npe) {
+                tLC.setMethod(LayerPriceComposition.METHOD_NONE);
             }
         } catch (LayerNotAvailableException lnae) {
             tLC.setMethod(LayerPriceComposition.METHOD_BLOCKED);
@@ -99,90 +91,42 @@ public class LayerCalculator {
         tLC.setCalculationTime(System.currentTimeMillis() - startTime);
         return tLC;
     }
-    
-    
-    private BigDecimal addToLayerPrice(BigDecimal returnValue, BigDecimal addValue) {
-        if  (addValue != null) {
-            if (returnValue == null) {
-                returnValue = new BigDecimal(0);
-            }
-            returnValue = returnValue.add(addValue);
-        }
-        
-        return returnValue;
-    }
-    
-    private BigDecimal calculateChildLayers(Layer layer, Date validationDate, String projection,  BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception{
-         /*
-          * "Controleer of " + layer.getName() + " childlayers heeft.");
-          */
+
+    /**
+     * Deze methode verwijst naar methode waar het echte werk wordt gedaan. De
+     * methode bestaat om specialisatie in subklasse mogelijk te maken.
+     * <p>
+     * @param tLC
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param projection
+     * @param scale
+     * @param units
+     * @param planType
+     * @param service
+     * @param operation
+     * @return prijs van de layer
+     * @throws nl.b3p.kaartenbalie.core.server.accounting.LayerNotAvailableException
+     * @throws nl.b3p.kaartenbalie.core.server.accounting.NoPrizingException
+     */
+    protected BigDecimal calculateLayer(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws LayerNotAvailableException, NoPrizingException {
         BigDecimal layerPrice = null;
-        
-        Set childLayers = layer.getLayers();
-        
-        if (childLayers != null && childLayers.size() > 0) {
-            /*
-             * Er zijn " + childLayers.size() + " childlayers die we nu gaan opvragen...");
-             */
-            Iterator iterChilds = childLayers.iterator();
-            while (iterChilds.hasNext()) {
-                Layer childLayer = (Layer) iterChilds.next();
-                boolean hasNoPrice = false;
-                BigDecimal thisLayerPrice = null;
-                try {
-                    layerPrice = addToLayerPrice(layerPrice, calculateLayer( childLayer,  validationDate, projection, scale,   units,  planType, service, operation));
-                } catch (NoPrizingException npe) {
-                    /*
-                     * Geen prijs gevonden, zoek bij de childs van " + layer.getName() + ".");
-                     */
-                    try {
-                        layerPrice = addToLayerPrice(layerPrice, calculateChildLayers( childLayer,  validationDate, projection, scale,  units,  planType, service, operation));
-                    } catch (NoPrizingException npe2) {
-                        
-                    }
-                }
-                
-            }
-        } else {
-            /*
-             * Er zijn geen childlayers...
-             */
-            throw new NoPrizingException("Geen childlayers meer om prijzen voor te zoeken.");
-        }
-        /*
-         * Prijs wordt teruggegen.
-         */
+        layerPrice = calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+        tLC.setMethod(LayerPriceComposition.METHOD_OWN);
         return layerPrice;
     }
-    private BigDecimal calculateParentLayer(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception{
-        /*
-         * Controleer of " + layer.getName() + " een parentlayer heeft.
-         */
-        BigDecimal layerPrice = null;
-        Layer parentLayer = layer.getParent();
-        if (parentLayer != null) {
-           /*
-            * parent layer is != null");
-            */
-            try {
-                layerPrice = calculateLayer(parentLayer, validationDate, projection, scale, units, planType, service, operation);
-            } catch (NoPrizingException npe) {
-               /*
-                * No prizing info available...
-                */
-                layerPrice = calculateParentLayer(parentLayer, validationDate, projection, scale, units, planType, service, operation);
-            }
-        } else {
-            /*
-             * Er is geen parentlayer (meer) en dus ook geen prijs info.....
-             */
-            throw new NoPrizingException();
-        }
-        return layerPrice;
-        
-    }
-    
-     public List getSpLayerPricingList(String spabbr, Date validationDate) throws Exception{
+
+    /**
+     * Deze methode haalt alle geldige prijsbepalingen op voor een service
+     * provider en een bepaald type service (WMS of WFS)
+     * <p>
+     * @param spabbr
+     * @param validationDate
+     * @param service
+     * @return lijst van geldige prijsbepalingen voor service provider
+     */
+    public List getSpLayerPricingList(String spabbr, Date validationDate, String service) {
         return em.createQuery(
                 "FROM LayerPricing AS lp " +
                 "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
@@ -190,16 +134,28 @@ public class LayerCalculator {
                 "AND lp.creationDate <= :validationDate " +
                 "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
                 "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
-                "AND (lp.service = :service OR lp.service IS null) " +
-                "ORDER BY lp.indexCount DESC")
-                .setParameter("serverProviderPrefix",spabbr)
-                .setParameter("validationDate",validationDate)
-                .setParameter("service","WMS")
-                .getResultList();
+                "AND (lp.service = :service) " +
+                "ORDER BY lp.indexCount DESC").
+                setParameter("serverProviderPrefix", spabbr).
+                setParameter("validationDate", validationDate).
+                setParameter("service", service).
+                getResultList();
     }
-    
-   
-    private List getActiveLayerPricingList(Layer layer, Date validationDate, int planType, String service, String operation) throws Exception{
+
+    /**
+     * Deze methode haalt alle geldige prijsbepalingen op voor een bepaalde
+     * kaartlaag, service (WMS of WFS), operation (bv GetMap), plantype 
+     * (bv per request).
+     * <p>
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param planType
+     * @param service
+     * @param operation
+     * @return lijst met prijsbepalingen
+     */
+    protected List getActiveLayerPricingList(String spAbbr, String layerName, Date validationDate, int planType, String service, String operation) {
         return em.createQuery(
                 "FROM LayerPricing AS lp " +
                 "WHERE (lp.deletionDate IS null OR lp.deletionDate > :validationDate) " +
@@ -209,141 +165,185 @@ public class LayerCalculator {
                 "AND lp.creationDate <= :validationDate " +
                 "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
                 "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
-                "AND (lp.service = :service OR lp.service IS null) " +
+                "AND (lp.service = :service) " +
                 "AND (lp.operation = :operation OR lp.operation IS null) " +
-                "ORDER BY lp.indexCount DESC")
-                .setParameter("layerName",layer.getName())
-                .setParameter("serverProviderPrefix",layer.getSpAbbr())
-                .setParameter("validationDate",validationDate)
-                .setParameter("planType",new Integer(planType))
-                .setParameter("operation",operation)
-                .setParameter("service",service)
-                .getResultList();
+                "ORDER BY lp.indexCount DESC").
+                setParameter("layerName", layerName).
+                setParameter("serverProviderPrefix", spAbbr).
+                setParameter("validationDate", validationDate).
+                setParameter("planType", new Integer(planType)).
+                setParameter("operation", operation).
+                setParameter("service", service).
+                getResultList();
     }
-    
-    public boolean ActiveLayerPricingExists(Layer layer, Date validationDate, int planType, String service, String operation) {
+
+    /**
+     * Deze methode checkt of een bepaalde prijsbepaling bestaat.
+     * <p>
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param planType
+     * @param service
+     * @param operation
+     * @return true als prijsbepaling bestaat
+     * @see getActiveLayerPricingList
+     */
+    public boolean ActiveLayerPricingExists(String spAbbr, String layerName, Date validationDate, int planType, String service, String operation) {
         try {
-            List possibleLayerPricings = getActiveLayerPricingList(layer, validationDate, planType, service, operation);
-            if (possibleLayerPricings==null || possibleLayerPricings.size()==0)
+            List possibleLayerPricings = getActiveLayerPricingList(spAbbr, layerName, validationDate, planType, service, operation);
+            if (possibleLayerPricings == null || possibleLayerPricings.size() == 0) {
                 return false;
+            }
             return true;
         } catch (Exception e) {
             log.error("Error collecting layer pricings: ", e);
             return false;
         }
     }
-    
-    public LayerPricing getActiveLayerPricing(Layer layer, Date validationDate,  String projection,  BigDecimal scale, int planType, String service, String operation) throws Exception{
-        
-        if (projection == null) {
-            log.error("Projection cannot be null");
-            throw new Exception("Projection cannot be null");
-        }
-        if (scale == null) {
-            scale = new BigDecimal(0);
-        }
-        
-        List possibleLayerPricings = getActiveLayerPricingList(layer, validationDate, planType, service, operation);
+
+    /**
+     * Deze methode doorloopt alle mogelijke layer pricings. De lijst is gesorteerd
+     * van nieuw naar oud, dus de nieuwste (eerste) prijs wordt geselecteerd. 
+     * Als er een pricing bij zit die een projectie heeft, dan wordt vereist 
+     * dat de aanvraag ook een schaal en projectie heeft en dat deze overeenkomen 
+     * met de pricing.
+     * <p>
+     * Deze methode geeft een LayerNotAvailableException wanneer de layer pricing
+     * een projectie heeft, maar de projectie en schaal niet overeenkomen. Het is 
+     * dan niet toegestaan deze layer te zien (ook niet via een andere princing).
+     * <p>
+     * Indien de layer pricing geen projectie heeft geeft deze methode 
+     * NoPrizingException indien er geen pricing gevonden kan worden. Via een 
+     * andere methode kan dan alsnog een pricing gevonden worden.
+     * <p>
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param projection
+     * @param scale
+     * @param planType
+     * @param service
+     * @param operation
+     * @return
+     * @throws LayerNotAvailableException layer mag niet getoond worden
+     * @throws NoPrizingException geen prijsinfo bekend, dus verder zoeken
+     */
+    public LayerPricing getActiveLayerPricing(String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, int planType, String service, String operation) throws LayerNotAvailableException, NoPrizingException {
+
+        List possibleLayerPricings = getActiveLayerPricingList(spAbbr, layerName, validationDate, planType, service, operation);
         Iterator layerPricingIter = possibleLayerPricings.iterator();
-        
-        /*
-         * This results in a list of all possible layerPricings. However, scale and projection have yet to be checked.
-         */
+
         LayerPricing layerPricing = null;
-        boolean lpsHaveProjection = false;
-        while(layerPricingIter.hasNext()) {
+        boolean requireProjection = false;
+        while (layerPricingIter.hasNext()) {
             LayerPricing plp = (LayerPricing) layerPricingIter.next(); // plp == possibleLayerPricing
-            if (plp.getProjection() == null) {
+            // sortering is van nieuw naar oud, eerste pricing
+            if (layerPricing == null) {
                 layerPricing = plp;
-                break;
             }
-            lpsHaveProjection = true;
-            if ((plp.getMinScale() == null || plp.getMinScale().compareTo(scale) <= 0) &&
-                    (plp.getMaxScale() == null || plp.getMaxScale().compareTo(scale) >= 0) &&
-                    plp.getProjection().equalsIgnoreCase(projection)){
-                layerPricing = plp;
+            if (plp.getProjection() != null) {
+                requireProjection = true;
                 break;
             }
         }
-        
-        if (layerPricing == null) {
-            if (projection != null && lpsHaveProjection) {
+
+        if (requireProjection) {
+            if (projection == null) {
+                log.error("Projection cannot be null");
+                throw new LayerNotAvailableException("Projection cannot be null");
+            }
+            if (scale == null) {
+                log.error("Scale cannot be null");
+                throw new LayerNotAvailableException("Scale cannot be null");
+            }
+            while (layerPricingIter.hasNext()) {
+                LayerPricing plp = (LayerPricing) layerPricingIter.next(); // plp == possibleLayerPricing
+                if (plp.getProjection() == null) {
+                    continue;
+                }
+
+                if ((plp.getMinScale() == null || plp.getMinScale().compareTo(scale) <= 0) &&
+                        (plp.getMaxScale() == null || plp.getMaxScale().compareTo(scale) >= 0) &&
+                        plp.getProjection().equalsIgnoreCase(projection)) {
+                    layerPricing = plp;
+                    break;
+                }
+            }
+            if (layerPricing == null) {
                 throw new LayerNotAvailableException();
             }
-            throw new NoResultException();
+        }
+
+        if (layerPricing == null) {
+            throw new NoPrizingException();
         }
         return layerPricing;
     }
-    
-    
-    
-    
-    public BigDecimal calculateLayer(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws Exception {
-        /*
-         *  This function can return four different states/values.
-         *  1: NoPrizingException; there is nothing defined for this layer.
-         *  2: null; this layer is free!
-         *  3: 0.00; For some reason the total sum of layerprizings is less then or equal to 0.
-         *  4: >0.00; the actual cost of this layer...
-         */
-        /*
-         * Check the input parameters!
-         */
-        if (layer == null) {
-            log.error("Layer is required!");
-            throw new Exception("Layer is required!");
+
+    /**
+     * Deze methode bepaalt de prijs van de layer. Indien een van de vereiste
+     * gegevens niet is opgegeven dan wordt de layer niet beschikbaar gemeld
+     * via LayerNotAvailableException. 
+     * <p>
+     * De layer naam is verplicht, speciaal bij WMS layers worden layers zonder 
+     * naam gebruikt als placeholders voor sublayers. Dergelijke layers kunnen 
+     * geen prijsinfo hebben. Er wordt dan een NoPrizingException gegooid.
+     * <p>
+     * @param spAbbr
+     * @param layerName
+     * @param validationDate
+     * @param projection
+     * @param scale
+     * @param units
+     * @param planType
+     * @param service
+     * @param operation
+     * @return
+     * @throws NoPrizingException 
+     * @throws LayerNotAvailableException 
+     */
+    public BigDecimal calculateLayer(String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException, LayerNotAvailableException {
+        if (spAbbr == null) {
+            log.error("spAbbr is required!");
+            throw new LayerNotAvailableException("spAbbr is required!");
         }
         if (validationDate == null) {
             log.error("ValidationDate is a required field!");
-            throw new Exception("ValidationDate is a required field!");
+            throw new LayerNotAvailableException("ValidationDate is a required field!");
         }
         if (units == null) {
             log.error("Units is a required field!");
-            throw new Exception("Units is a required field!");
+            throw new LayerNotAvailableException("Units is a required field!");
         }
         if (planType <= 0) {
             log.error("PlanType is a required field!");
-            throw new Exception("PlanType is a required field!");
+            throw new LayerNotAvailableException("PlanType is a required field!");
         }
-        /*
-         * If the layer has no name, it's a placeholder.. No need to query...
-         */
-        if (layer.getName() == null || layer.getName().trim().length()==0) {
+        if (layerName == null || layerName.trim().length() == 0) {
             throw new NoPrizingException("Layer is a placeholder and therefor cannot hold pricingInformation.");
         }
-        /*
-         * De prijs voor " + layer.getSpAbbr() + "_" + layer.getName() + " wordt opgevraagd...
-         */
+
         BigDecimal layerPrice = null;
-        
-        try {
-            LayerPricing layerPricing = getActiveLayerPricing(layer, validationDate, projection, scale, planType, service, operation);
-            if (layerPricing.getUnitPrice() != null &&
-                    (layerPricing.getLayerIsFree() == null  || (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
-                
-                layerPrice = layerPricing.getUnitPrice().multiply(units);
-            }
-                /*
-                 * layer.getSpAbbr() + "_" + layer.getName() + " bevat prijsinformatie, prijs: " + layerPrice);
-                 */
-        } catch (NoResultException nre) {
-                /*
-                 * layer.getSpAbbr() + "_" + layer.getName() + " bevat geen prijsinformatie.");
-                 */
-            throw new NoPrizingException(nre.getMessage());
+
+        LayerPricing layerPricing = getActiveLayerPricing(spAbbr, layerName, validationDate, projection, scale, planType, service, operation);
+        if (layerPricing.getUnitPrice() != null &&
+                (layerPricing.getLayerIsFree() == null ||
+                (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
+            layerPrice = layerPricing.getUnitPrice().multiply(units);
         }
-        
-        
-        /*
-         * Final check!
-         */
+
         if (layerPrice != null && layerPrice.compareTo(new BigDecimal(0)) < 0) {
             layerPrice = new BigDecimal(0);
         }
         return layerPrice;
-        
+
     }
-    
+
+    /**
+     * Sluit een eigen entity manager
+     * @throws java.lang.Exception
+     */
     public void closeEntityManager() throws Exception {
         if (externalEm) {
             log.error("Trying to close an external EntityManager. This is not the place to do it!");
@@ -351,6 +351,4 @@ public class LayerCalculator {
         }
         em.close();
     }
-    
-    
 }

@@ -9,33 +9,23 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 //import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
-import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
+import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -217,6 +207,8 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
         }
         
         WfsLayer layer = getLayer(form, request);
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
         if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
             return;
         
@@ -241,7 +233,7 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
         /*
          * Then calculate all the different prices for all requesttypes..
          */
-        WfsLayerCalculator lc = new WfsLayerCalculator(em);
+        ExtLayerCalculator lc = new ExtLayerCalculator(em);
         
         Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
         
@@ -265,7 +257,7 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
             tableData[i][0] = "WFS";
             tableData[i][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
             try {
-                tableData[i][2] = lc.calculateLayerComplete(layer, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
+                tableData[i][2] = lc.calculateLayerComplete(spAbbr, layerName, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
             } catch (NoResultException nre) {
                 tableData[i][2] = null;
             }

@@ -10,43 +10,27 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.kaartenbalie.core.server.UniqueIndex;
-import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
-import nl.b3p.kaartenbalie.core.server.accounting.WfsLayerCalculator;
+import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
-import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.HibernateException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -114,7 +98,9 @@ public class WfsTestPricingAction extends KaartenbalieCrudAction {
         }
         
         WfsLayer layer = getLayer(dynaForm, request);
-        if (layer.getName() == null || layer.getName().trim().length() == 0) {
+        String layerName =  layer.getName();
+        String spAbbr = layer.getSpAbbr();
+        if (layerName == null || layerName.trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -139,7 +125,7 @@ public class WfsTestPricingAction extends KaartenbalieCrudAction {
         if (testSteps>20 || testSteps<=0)
             testSteps = 20;
         
-        WfsLayerCalculator lc = new WfsLayerCalculator();
+        ExtLayerCalculator lc = new ExtLayerCalculator();
         try {
             
             //Get all the dates in an array..
@@ -164,7 +150,7 @@ public class WfsTestPricingAction extends KaartenbalieCrudAction {
                 scaleSet.add(testScale);
                 while(iterDates.hasNext()) {
                     Date testDate = (Date) iterDates.next();
-                    LayerPriceComposition lpc = lc.calculateLayerComplete(layer.getId(), testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
+                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WFS", "GetFeature");
                     subSet.add(lpc);
                 }
                 testScale = testScale.add(testStepSize);

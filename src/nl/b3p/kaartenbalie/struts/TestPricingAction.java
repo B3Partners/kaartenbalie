@@ -111,6 +111,8 @@ public class TestPricingAction extends KaartenbalieCrudAction {
         }
         
         Layer layer = getLayer(dynaForm, request);
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
         if (layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
@@ -161,7 +163,7 @@ public class TestPricingAction extends KaartenbalieCrudAction {
                 scaleSet.add(testScale);
                 while(iterDates.hasNext()) {
                     Date testDate = (Date) iterDates.next();
-                    LayerPriceComposition lpc = lc.calculateLayerComplete(layer.getId(), testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
+                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
                     subSet.add(lpc);
                 }
                 testScale = testScale.add(testStepSize);

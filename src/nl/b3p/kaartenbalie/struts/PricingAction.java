@@ -217,6 +217,8 @@ public class PricingAction extends KaartenbalieCrudAction {
         }
         
         Layer layer = getLayer(form, request);
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
         if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
             return;
         
@@ -253,7 +255,7 @@ public class PricingAction extends KaartenbalieCrudAction {
             tableData[i][0] = "WMS";
             tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
             try {
-                tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
+                tableData[i][2] = lc.calculateLayerComplete(spAbbr, layerName, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
             } catch (NoResultException nre) {
                 tableData[i][2] = null;
             }

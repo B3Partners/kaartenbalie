@@ -20,6 +20,10 @@ public class LayerNotAvailableException extends Exception{
     public LayerNotAvailableException() {
         super("The requested layer is not available");
     }
+    /**
+     * 
+     * @param message
+     */
     public LayerNotAvailableException(String message) {
         super(message);
     }

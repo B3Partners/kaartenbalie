@@ -360,7 +360,7 @@ public class WfsServerAction extends KaartenbalieCrudAction {
             List lpList = null;
             LayerCalculator lc = new LayerCalculator();
             try {
-                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date());
+                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date(), OGCConstants.WFS_SERVICE_WFS);
             } finally {
                 lc.closeEntityManager();
             }

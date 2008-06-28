@@ -76,17 +76,17 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
             
-            Map spInfo = (Map) it.next();
+            SpLayerSummary spInfo = (SpLayerSummary) it.next();
             WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
-            Integer serviceProviderId = (Integer)spInfo.get("spId");
+            Integer serviceProviderId = spInfo.getServiceproviderId();
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!
             } else {
                 firWrapper.setServiceProviderId(serviceProviderId);
-                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
+                String layersList = spInfo.getLayersAsString();
 
                 StringBuffer url = new StringBuffer();
-                url.append((String)spInfo.get("spUrl"));
+                url.append(spInfo.getSpUrl());
                 String [] params = dw.getOgcrequest().getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");

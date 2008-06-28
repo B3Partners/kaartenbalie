@@ -109,15 +109,15 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         while (it.hasNext()) {
             
             
-            Map spInfo = (Map) it.next();
+            SpLayerSummary spInfo = (SpLayerSummary) it.next();
             WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
-            Integer serviceProviderId = (Integer)spInfo.get("spId");
+            Integer serviceProviderId = spInfo.getServiceproviderId();
             
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!
                 StringBuffer url = new StringBuffer();
-                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
-                url.append((String)spInfo.get("spUrl"));
+                String layersList = spInfo.getLayersAsString();
+                url.append(spInfo.getSpUrl());
                 String [] params = ogc.getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");
@@ -137,7 +137,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             } else {
                 gmrWrapper.setServiceProviderId(serviceProviderId);
                 
-                StringBuffer layersList = (StringBuffer)spInfo.get("layersList");
+                String layersList = spInfo.getLayersAsString();
                 
                 String query = "select distinct srs.srs from layer, srs " +
                         "where layer.layerid = srs.layerid and " +
@@ -153,7 +153,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                  * de gebruiker.
                  */
                 boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", (Integer)spInfo.get("lId")).getResultList();
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
                 Iterator sqlIterator = sqlQuery.iterator();
                 while (sqlIterator.hasNext()) {
                     String srs = (String)sqlIterator.next();
@@ -167,7 +167,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 }
                 
                 StringBuffer url = new StringBuffer();
-                url.append((String)spInfo.get("spUrl"));
+                url.append(spInfo.getSpUrl());
                 String [] params = ogc.getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String [] keyValuePair = params[i].split("=");
