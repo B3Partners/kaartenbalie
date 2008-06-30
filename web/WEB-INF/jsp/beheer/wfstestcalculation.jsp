@@ -17,7 +17,7 @@
         cal.setCssPrefix("calcss_");
     </script>
     
-    <html:javascript formName="wfstestPricingForm" staticJavascript="false"/>
+    <html:javascript formName="testPricingForm" staticJavascript="false"/>
     <html:form action="/wfspricingtest.do" focus="testFrom" onsubmit="return validateTestPricingForm(this)">
         <html:hidden property="action"/>
         <html:hidden property="alt_action"/>

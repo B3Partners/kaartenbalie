@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
-//import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
@@ -207,10 +206,12 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
         }
         
         WfsLayer layer = getLayer(form, request);
-        String layerName = layer.getName();
-        String spAbbr = layer.getSpAbbr();
+        
         if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
             return;
+        
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
         
         WfsServiceProvider sp = layer.getWfsServiceProvider();
         request.setAttribute("spName", sp.getTitle());
@@ -240,18 +241,7 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
         Date now = new Date();
         
         BigDecimal units  = new BigDecimal(1);
-        /*int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
-        for (int i = 0; i < totalWMSRequests; i++) {
-            
-            tableData[i][0] = "WMS";
-            tableData[i][1] = KBConfiguration.ACCOUNTING_WMS_REQUESTS[i];
-            try {
-                //tableData[i][2] = lc.calculateLayerComplete(layer, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WMS", KBConfiguration.ACCOUNTING_WMS_REQUESTS[i]);
-            } catch (NoResultException nre) {
-                tableData[i][2] = null;
-            }
-            
-        }*/
+        
         int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
         for (int i = 0; i < totalWMFRequests; i++) {
             tableData[i][0] = "WFS";
@@ -329,7 +319,6 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
     }
     
     private LayerPricing getLayerPricing(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
-        
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getPricingID(dynaForm);
@@ -343,8 +332,7 @@ public class WfsPricingAction extends KaartenbalieCrudAction {
         return lp;
     }
     
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
-        
+    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {      
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);

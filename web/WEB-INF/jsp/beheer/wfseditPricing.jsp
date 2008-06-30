@@ -197,8 +197,8 @@
                     </div>
                 </div>
                 <div id="new" class="sheet">            
-                    <html:javascript formName="wfsPricingForm" staticJavascript="false"/>
-                    <html:form action="/wfseditpricing" onsubmit="return validateWfsPricingForm(this)" focus="unitPrice">
+                    <html:javascript formName="pricingForm" staticJavascript="false"/>
+                    <html:form action="/wfseditpricing" onsubmit="return validatePricingForm(this)" focus="unitPrice">
                         <html:hidden property="action"/>
                         <html:hidden property="alt_action"/>
                         <html:hidden property="id"/>
@@ -272,7 +272,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Service & Methode :</label> ${wfsPricingForm.map.service} ${wfsPricingForm.map.operationWMS} ${wfsPricingForm.map.operationWFS}
+                                    <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS} ${pricingForm.map.operationWFS}
                                 </td>
                             </tr>
                         </table>
@@ -288,7 +288,7 @@
                                     <html:radio property="service" onclick="document.getElementById('operationWMS').disabled = false;document.getElementById('operationWFS').disabled = true;" value="WMS">WMS</html:radio>
                                 </td>
                                 <td>
-                                    <html:select styleId="operationWMS" property="operationWMS" disabled="${wfsPricingForm.map.service != 'WMS'}">
+                                    <html:select styleId="operationWMS" property="operationWMS" disabled="${pricingForm.map.service != 'WMS'}">
                                         <html:option value="">Alle</html:option>
                                         <c:forEach var="request" items="${wmsRequests}">
                                             <html:option value="${request}"/>
@@ -301,7 +301,7 @@
                                     <html:radio disabled="false" onclick="document.getElementById('operationWMS').disabled = true;document.getElementById('operationWFS').disabled = false;" property="service" value="WFS">WFS</html:radio>
                                 </td>
                                 <td>
-                                    <html:select styleId="operationWFS" property="operationWFS" disabled="${wfsPricingForm.map.service != 'WFS'}">
+                                    <html:select styleId="operationWFS" property="operationWFS" disabled="${pricingForm.map.service != 'WFS'}">
                                         <!--<html:option value="">Alle</html:option>!-->
                                         <c:forEach var="request" items="${wfsRequests}">
                                             <html:option value="${request}"/>

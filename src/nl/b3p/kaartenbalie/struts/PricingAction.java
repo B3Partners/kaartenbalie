@@ -217,10 +217,12 @@ public class PricingAction extends KaartenbalieCrudAction {
         }
         
         Layer layer = getLayer(form, request);
-        String layerName = layer.getName();
-        String spAbbr = layer.getSpAbbr();
+        
         if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
             return;
+        
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
         
         ServiceProvider sp = layer.getServiceProvider();
         request.setAttribute("spName", sp.getTitle());
