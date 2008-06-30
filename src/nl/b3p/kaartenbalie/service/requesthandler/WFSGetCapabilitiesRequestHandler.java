@@ -61,10 +61,15 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
         Iterator iter = spInfo.iterator();
+        List spLayers = new ArrayList();
         while (iter.hasNext()) {
-            HashMap sp = (HashMap) iter.next();
-            url = sp.get("spUrl").toString();
-            prefix = sp.get("spAbbr").toString();
+            SpLayerSummary sp = (SpLayerSummary) iter.next();
+            HashMap layer = new HashMap();
+            layer.put("spAbbr", sp.getSpAbbr());
+            layer.put("layer", sp.getLayerName());
+            spLayers.add(layer);
+            url = sp.getSpUrl();
+            prefix = sp.getSpAbbr();
             //ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("layerlist")); // todo wat is lName, zelfde als layerlist?????
         }
 
@@ -79,12 +84,12 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         Iterator it = spInfo.iterator();
         List servers = new ArrayList();
         while (it.hasNext()) {
-            HashMap sp = (HashMap) it.next();
+            SpLayerSummary sp = (SpLayerSummary) it.next();
 
-            if (!servers.contains(sp.get("spAbbr"))) {
-                servers.add(sp.get("spAbbr"));
-                url = sp.get("spUrl").toString();
-                prefix = sp.get("spAbbr").toString();
+            if (!servers.contains(sp.getSpAbbr())) {
+                servers.add(sp.getSpAbbr());
+                url = sp.getSpUrl();
+                prefix = sp.getSpAbbr();
 
                 String host = url;
                 method = new PostMethod(host);
@@ -105,7 +110,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 }
             }
         }
-        String responseBody = ogcresponse.getResponseBody(spInfo);
+        String responseBody = ogcresponse.getResponseBody(spLayers);
         if (responseBody != null && !responseBody.equals("")) {
             byte[] buffer = responseBody.getBytes();
             os.write(buffer);

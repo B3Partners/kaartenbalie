@@ -84,9 +84,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
         
+        List spLayers = new ArrayList();
         Iterator iter = spUrls.iterator();
         while (iter.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) iter.next();
+            HashMap layer = new HashMap();
+            layer.put("spAbbr", sp.getSpAbbr());
+            layer.put("layer", sp.getLayerName());
+            spLayers.add(layer);
             url = sp.getSpUrl();
             prefix = sp.getSpAbbr();
             ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
@@ -115,7 +120,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             Document doc = builder.parse(is);
 
             ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-            String responseBody = ogcresponse.getResponseBody(spUrls);
+            String responseBody = ogcresponse.getResponseBody(spLayers);
             if (responseBody != null && !responseBody.equals("")) {
                 byte[] buffer = responseBody.getBytes();
                 os.write(buffer);

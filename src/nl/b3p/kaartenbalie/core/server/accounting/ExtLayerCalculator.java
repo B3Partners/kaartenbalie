@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -55,12 +56,18 @@ public class ExtLayerCalculator extends LayerCalculator {
      * @return WMS layer object
      */
     protected Layer getWMSLayer(String spAbbr, String layerName) {
+        ServiceProvider prov = (ServiceProvider) em.createQuery(
+                "FROM ServiceProvider sp " +
+                "WHERE sp.abbr = :serverProviderPrefix").
+                setParameter("serverProviderPrefix", spAbbr).
+                getSingleResult();
+        int serverid = prov.getId();
         return (Layer) em.createQuery(
                 "FROM Layer AS l " +
-                "AND l.name = :layerName " +
-                "AND l.spAbbr = :serverProviderPrefix").
+                "WHERE l.name = :layerName " +
+                "AND sp.serviceproviderid = :serverid").
                 setParameter("layerName", layerName).
-                setParameter("serverProviderPrefix", spAbbr).
+                setParameter("serverid", serverid).
                 getSingleResult();
     }
 
