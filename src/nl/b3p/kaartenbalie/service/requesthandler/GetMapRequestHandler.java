@@ -17,9 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
-import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
-import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -108,7 +105,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
             
-            
             SpLayerSummary spInfo = (SpLayerSummary) it.next();
             WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
             Integer serviceProviderId = spInfo.getServiceproviderId();
@@ -149,7 +145,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                  * Het gaat om de kaarten van B3p Public (iedergeval in mijn lokale db)
                  *
                  * todo
-                 * Is het verplicht om een srs te hebben? en er was onderwater wel een exeptoin, maar niet zichtbaar voor
+                 * Is het verplicht om een srs te hebben? en er was onderwater wel een exception, maar niet zichtbaar voor
                  * de gebruiker.
                  */
                 boolean srsFound = false;

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
@@ -62,13 +63,14 @@ public class ExtLayerCalculator extends LayerCalculator {
                 setParameter("serverProviderPrefix", spAbbr).
                 getSingleResult();
         int serverid = prov.getId();
-        return (Layer) em.createQuery(
+        Layer laag = (Layer) em.createQuery(
                 "FROM Layer AS l " +
                 "WHERE l.name = :layerName " +
                 "AND sp.serviceproviderid = :serverid").
                 setParameter("layerName", layerName).
                 setParameter("serverid", serverid).
                 getSingleResult();
+        return laag;
     }
 
     /**
@@ -90,11 +92,13 @@ public class ExtLayerCalculator extends LayerCalculator {
     @Override
     protected BigDecimal calculateLayer(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws LayerNotAvailableException, NoPrizingException {
         BigDecimal layerPrice = null;
-        try {
-            layerPrice = super.calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
-        } catch (NoPrizingException npe) {
-            layerPrice = calculateParentAndChildLayers(tLC, spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
-        }
+        ///if(!layerName.equals("allowwithdrawals")){
+            try {
+                layerPrice = super.calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+            } catch (NoPrizingException npe) {
+                layerPrice = calculateParentAndChildLayers(tLC, spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+            }
+        //}
         return layerPrice;
     }
 
@@ -122,7 +126,14 @@ public class ExtLayerCalculator extends LayerCalculator {
      * @throws NoPrizingException 
      */
     protected BigDecimal calculateParentAndChildLayers(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
-        Layer layer = getWMSLayer(spAbbr, layerName);
+        Layer layer = null;
+        
+        try{
+            layer = getWMSLayer(spAbbr, layerName);
+        }catch(NoResultException e){
+            log.debug("Geen layer gevonden: " + layerName);
+            throw new NoPrizingException();
+        }
 
         BigDecimal layerPrice = null;
         try {

@@ -159,6 +159,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager();
 
         Map config = dw.getLayeringParameterMap();
+        
         configB3pLayering(layers, config);
 
         //eerst geen b3pLayering meenemen
@@ -229,6 +230,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         Map config = dw.getLayeringParameterMap();
         Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
         boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
+        //boolean bAllowTransactions = true;
 
         ExtLayerCalculator lc = new ExtLayerCalculator();
 
@@ -244,7 +246,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 }
                 List checkedLayers = new ArrayList();
                 Iterator it2 = layers.iterator();
-                if (it2.hasNext()) {
+                while (it2.hasNext()) {
                     String layerName = (String) it2.next();
                     LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, spAbbr, layerName);
                     if (lpc != null) {
@@ -252,6 +254,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                         Boolean isFree = lpc.getLayerIsFree();
                         boolean bIsFree = isFree == null ? false : isFree.booleanValue();
                         if (!bIsFree && !bAllowTransactions) {
+                            tlu.registerUsage(lpc);
                             continue;
                         }
                         tlu.registerUsage(lpc);
