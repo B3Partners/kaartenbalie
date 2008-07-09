@@ -20,6 +20,7 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary;
@@ -230,7 +231,16 @@ public abstract class OGCRequestHandler implements RequestHandler {
         Map config = dw.getLayeringParameterMap();
         Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
         boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
-        //boolean bAllowTransactions = true;
+        
+        /* 
+         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
+         * if a WFS layer has a price and never show it.
+         */
+        if(dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)){
+            bAllowTransactions = bat == null ? false : bat.booleanValue();
+        }else{
+            bAllowTransactions = true;
+        }
 
         ExtLayerCalculator lc = new ExtLayerCalculator();
 
@@ -271,9 +281,23 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 lc.closeEntityManager();
             }
         }
+        
 
+        
+        
         Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
         boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
+        
+        /* 
+         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
+         * if a WFS layer has a price and never show it.
+         */
+        if(dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)){
+            bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
+        }else{
+            bFoundAllowTransactionsLayer = true;
+        }
+        
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
             config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
             config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
@@ -291,6 +315,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 addToServerProviderList(cleanedSpList, layerInfo);
             }
         }
+        
         return cleanedSpList;
     }
 
