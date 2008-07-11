@@ -41,7 +41,6 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     }
 
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
-
         OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
         String layers = null;

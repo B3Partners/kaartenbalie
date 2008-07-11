@@ -179,6 +179,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         /*
          * B3Partners Configuration Layers..
          */
+        //boolean test = false;
+        //if(test == true){
         Map configLayers = ConfigLayer.getConfigLayers();
         Iterator iterLayerKeys = configLayers.keySet().iterator();
         while (iterLayerKeys.hasNext()) {
@@ -186,6 +188,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             configLayer.setServiceProvider(validServiceProvider);
             kaartenbalieTopLayer.addLayer(configLayer);
         }
+        //}
 
 
         Set roles = dbUser.getUserroles();

@@ -30,6 +30,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSTransactionRequestHandler;
 import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
@@ -489,7 +490,8 @@ public class CallWMSServlet extends HttpServlet {
                 data.setRequestClassType(WFSGetFeatureRequestHandler.class);
                 requestHandler = new WFSGetFeatureRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)) {
-                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
+                data.setRequestClassType(WFSTransactionRequestHandler.class);
+                requestHandler = new WFSTransactionRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)) {
                 throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_LockFeature)) {

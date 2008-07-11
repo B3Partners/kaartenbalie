@@ -186,7 +186,7 @@
             <forward name="success" path="base.beheer.user"/>
             <forward name="failure" path="base.beheer.user"/>
         </action>
-        <action path="/server" name="serverForm" type="nl.b3p.kaartenbalie.struts.WmsServerAction" scope="request" validate="false">  
+        <action path="/server" name="serverForm" type="nl.b3p.kaartenbalie.struts.ServerAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.server"/>
             <forward name="failure" path="base.beheer.server"/>
         </action>

@@ -38,7 +38,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
-public class ServerActionDemo extends WmsServerAction {
+public class ServerActionDemo extends ServerAction {
     
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
