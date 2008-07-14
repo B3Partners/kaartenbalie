@@ -72,15 +72,15 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler extends OGCRequestHandler {
-
+    
     private static final Log log = LogFactory.getLog(WMSRequestHandler.class);
     private XMLReader parser;
     private static Stack stack = new Stack();
     private Switcher s;
-
+    
     public WMSRequestHandler() {
     }
-
+    
     public ServiceProvider getServiceProvider() throws Exception {
         EntityManager em = MyEMFDatabase.getEntityManager();
         User dbUser = null;
@@ -91,18 +91,18 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
-
+        
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
-
+        
         Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
-
+            
             serviceproviders = new HashSet();
             Set topLayers = new HashSet();
             Set orgLayerIds = new HashSet();
             Iterator it = organizationLayers.iterator();
-
+            
             while (it.hasNext()) {
                 Layer layer = (Layer) it.next();
                 orgLayerIds.add(layer.getId());
@@ -115,16 +115,16 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     serviceproviders.add(sp);
                 }
             }
-
-
+            
+            
             if (!topLayers.isEmpty()) {
                 kaartenbalieTopLayer = new Layer();
                 kaartenbalieTopLayer.setTitle(KBConfiguration.TOPLAYERNAME);
                 LayerValidator lv = new LayerValidator(organizationLayers);
                 kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
-
-
-
+                
+                
+                
                 Iterator tlId = topLayers.iterator();
                 while (tlId.hasNext()) {
                     Layer layer = (Layer) tlId.next();
@@ -145,7 +145,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     }
                     kaartenbalieTopLayer.addLayer(layerCloned);
                 }
-
+                
                 // Valideer SRS van toplayers
                 lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
                 String[] supportedSRS = lv.validateSRS();
@@ -156,7 +156,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
             }
         }
-
+        
         //controleer of een organisatie een bepaalde startpostitie heeft voor de BBOX
         //indien dit het geval is, voeg deze bbox toe aan de toplayer.
         String orgBbox = dbUser.getOrganization().getBbox();
@@ -170,27 +170,28 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             srsbb.setMaxy(values[3]);
             kaartenbalieTopLayer.addSrsbb(srsbb);
         }
-
+        
         // Creeer geldige service provider
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
         validServiceProvider.setTopLayer(kaartenbalieTopLayer);
-
+        
         /*
          * B3Partners Configuration Layers..
          */
-        //boolean test = false;
-        //if(test == true){
-        Map configLayers = ConfigLayer.getConfigLayers();
-        Iterator iterLayerKeys = configLayers.keySet().iterator();
-        while (iterLayerKeys.hasNext()) {
-            Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
-            configLayer.setServiceProvider(validServiceProvider);
-            kaartenbalieTopLayer.addLayer(configLayer);
+        boolean allowAccountingLayers = dbUser.getOrganization().getAllowAccountingLayers();
+        
+        if(allowAccountingLayers == true){
+            Map configLayers = ConfigLayer.getConfigLayers();
+            Iterator iterLayerKeys = configLayers.keySet().iterator();
+            while (iterLayerKeys.hasNext()) {
+                Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
+                configLayer.setServiceProvider(validServiceProvider);
+                kaartenbalieTopLayer.addLayer(configLayer);
+            }
         }
-        //}
-
-
+        
+        
         Set roles = dbUser.getUserroles();
         if (roles != null) {
             Iterator roleIt = roles.iterator();
@@ -201,7 +202,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
         return validServiceProvider;
     }
-
+    
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
      * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the
      * DataWrapper, which will sent the data to the client requested for this information.
@@ -218,7 +219,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     protected static void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage[] bi = null;
-
+        
         //The list is given in the opposit ranking. Therefore we first need to swap the list.
         int size = urlWrapper.size();
         ArrayList swaplist = new ArrayList(size);
@@ -226,7 +227,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             swaplist.add(urlWrapper.get(i));
         }
         urlWrapper = swaplist;
-
+        
         /* To save time, this method checks first if the ArrayList contains more then one url
          * If it contains only one url then the method doesn't have to load the image into the G2D
          * environment, which saves a lot of time and capacity because it doesn't have to decode
@@ -241,20 +242,20 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 /*
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
-
+                
                 ImageManager imagemanager = new ImageManager(urlWrapper, dw);
                 imagemanager.process();
                 long endprocestime = System.currentTimeMillis();
                 Long time = new Long(endprocestime - startprocestime);
                 dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", time.toString());
-
-
+                
+                
                 parameterMap.put("Duration", time);
                 rr.addRequestOperation(ServerTransferOperation.class, parameterMap);
-
+                
                 imagemanager.sendCombinedImages(dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
-
+                
                 int totalDataSend = 0;
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo
@@ -266,7 +267,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 dbf.setValidating(false);
                 dbf.setNamespaceAware(true);
                 dbf.setIgnoringElementContentWhitespace(true);
-
+                
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document destination = builder.newDocument();
                 Element rootElement = destination.createElement("msGMLOutput");
@@ -290,7 +291,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     localParameterMap.put("ResponseStatus", new Integer(-1));
                     rr.addServiceProviderRequest(dw.getRequestClassType(), localParameterMap);
                 }
-
+                
                 OutputFormat format = new OutputFormat(destination);
                 format.setIndenting(true);
                 XMLSerializer serializer = new XMLSerializer(baos, format);
@@ -354,7 +355,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 GetMethod method = new GetMethod(url);
                 client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
                 String rhValue = "";
-
+                
                 try {
                     int statusCode = client.executeMethod(method);
                     long time = System.currentTimeMillis() - startTime;
@@ -365,16 +366,16 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         log.error("Error connecting to server. Status code: " + statusCode);
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
                     }
-
+                    
                     rhValue = method.getResponseHeader("Content-Type").getValue();
-
+                    
                     if (rhValue.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
                         InputStream is = method.getResponseBodyAsStream();
                         String body = getServiceException(is);
                         log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
                         throw new Exception(body);
                     }
-
+                    
                     dw.setContentType(rhValue);
                     dw.write(method.getResponseBodyAsStream());
                     localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
@@ -412,10 +413,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
         int planType = LayerPricing.PAY_PER_REQUEST;
         String service = OGCConstants.WMS_SERVICE_WMS;
-
+        
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
     }
-
+    
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
         String query = "select l.queryable, l.serviceproviderid, l.layerid, l.name, sp.url, sp.abbr " +
                 "from layer l, organizationlayer ol, serviceprovider sp " +
@@ -426,8 +427,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 "sp.abbr = :layerCode";
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
-
-    /** 
+    
+    /**
      *
      * @param byteStream InputStream object in which the serviceexception is stored.
      *
@@ -438,7 +439,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     private static String getServiceException(InputStream byteStream) throws IOException, SAXException {
         Switcher s = new Switcher();
         s.setElementHandler("ServiceException", new ServiceExceptionHandler());
-
+        
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
@@ -446,27 +447,27 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         reader.parse(is);
         return (String) stack.pop();
     }
-
+    
     /**
      * Below is the Handler defined which reads the Exception from a ServiceException recieved when an error occurs.
      */
     private static class ServiceExceptionHandler extends ElementHandler {
-
+        
         StringBuffer sb;
-
+        
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             sb = new StringBuffer();
         }
-
+        
         public void characters(char[] chars, int start, int len) {
             sb.append(chars, start, len);
         }
-
+        
         public void endElement(String uri, String localName, String qName) {
             stack.push(sb.toString());
         }
     }
-
+    
     /** Method which copies information from one XML document to another document.
      * It adds information to an document and with this method it's possible to create
      * one document from several other documents as used to create an GetFeatureInfo
@@ -479,7 +480,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Element root_source = source.getDocumentElement();
         NodeList nodelist_source = root_source.getChildNodes();
         int size_source = nodelist_source.getLength();
-
+        
         for (int i = 0; i < size_source; i++) {
             Node node_source = nodelist_source.item(i);
             if (node_source instanceof Element) {

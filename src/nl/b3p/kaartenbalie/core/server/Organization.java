@@ -40,7 +40,7 @@ public class Organization {
     private boolean hasValidGetCapabilities;
     private String bbox;
     private String code;
-    
+    private boolean allowAccountingLayers;
     
     
     // <editor-fold defaultstate="" desc="getter and setter methods.">
@@ -246,7 +246,11 @@ public class Organization {
         this.code = code;
     }
     
-    
-    
+    public void setAllowAccountingLayers(boolean allowAccountingLayers){
+        this.allowAccountingLayers = allowAccountingLayers;
+    }
+    public boolean getAllowAccountingLayers(){
+        return allowAccountingLayers;
+    }
     
 }

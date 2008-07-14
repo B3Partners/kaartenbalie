@@ -90,5 +90,8 @@
         <property name="code" >
             <column name="CODE" length="50"/>
         </property>
+        <property name="allowAccountingLayers" >
+            <column name="ALLOWACCOUNTINGLAYERS" sql-type="tinyint"/>
+        </property>
     </class>
 </hibernate-mapping>
