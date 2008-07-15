@@ -180,7 +180,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          * B3Partners Configuration Layers..
          */
         boolean allowAccountingLayers = dbUser.getOrganization().getAllowAccountingLayers();
-        
+        /*
+         *Only adds AllowTransaction layer and creditInfo layer if the user has the rights to see these layers.
+         */
         if(allowAccountingLayers == true){
             Map configLayers = ConfigLayer.getConfigLayers();
             Iterator iterLayerKeys = configLayers.keySet().iterator();

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -33,28 +34,35 @@ import org.apache.commons.logging.LogFactory;
  * @author Jytte
  */
 public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
-
+    
     private static final Log log = LogFactory.getLog(WFSGetFeatureRequestHandler.class);
-
+    
     /** Creates a new instance of WFSRequestHandler */
     public WFSGetFeatureRequestHandler() {
     }
-
+    
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
         OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
-        String layers = null;
+        Set layers = null;
         String[] layerNames = null;
         Integer orgId = user.getOrganization().getId();
-
+        
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
-        layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
-        String[] allLayers = layers.split(",");
-
-        if (allLayers.length > 1) {
-            throw new UnsupportedOperationException(request + " request with more then one maplayer is not supported yet!");
+        layers = ogcrequest.getGetFeatureMap().keySet();
+        Iterator it = layers.iterator();
+        String[] allLayers = new String[layers.size()];
+        int x = 0;
+        while(it.hasNext()){
+            String layer = it.next().toString();
+            allLayers[x] = layer;
+            x++;
         }
-
+        
+        if (allLayers.length < 1) {
+            throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported yet!");
+        }
+        
         layerNames = new String[allLayers.length];
         for (int i = 0; i < allLayers.length; i++) {
             String[] temp = allLayers[i].split("}");
@@ -69,10 +77,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 }
             }
         }
-
+        
         String url = null;
         String prefix = null;
-
+        
         List spUrls = getSeviceProviderURLS(layerNames, orgId, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
@@ -91,45 +99,57 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             layer.put("spAbbr", sp.getSpAbbr());
             layer.put("layer", sp.getLayerName());
             spLayers.add(layer);
-            url = sp.getSpUrl();
-            prefix = sp.getSpAbbr();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
+            //url = sp.getSpUrl();
+            //prefix = sp.getSpAbbr();
+            //ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
         }
-
-        if (url == null || url.length()==0) {
+        
+        if (spLayers == null || spLayers.size()==0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         PostMethod method = null;
         HttpClient client = new HttpClient();
         OutputStream os = data.getOutputStream();
-        String body = data.getOgcrequest().getXMLBody();
-
-        String host = url;
-        method = new PostMethod(host);
-        method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-        int status = client.executeMethod(method);
-        if (status == HttpStatus.SC_OK) {
-            data.setContentType("text/xml");
-            InputStream is = method.getResponseBodyAsStream();
-
-            doAccounting(orgId, data, user);
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = dbf.newDocumentBuilder();
-            Document doc = builder.parse(is);
-
-            ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-            String responseBody = ogcresponse.getResponseBody(spLayers);
-            if (responseBody != null && !responseBody.equals("")) {
-                byte[] buffer = responseBody.getBytes();
-                os.write(buffer);
-            } else {
-                throw new UnsupportedOperationException("XMLbody empty!");
+        
+        Iterator spIt = spUrls.iterator();
+        while (spIt.hasNext()) {
+            SpLayerSummary sp = (SpLayerSummary) spIt.next();
+            url = sp.getSpUrl();
+            prefix = sp.getSpAbbr();
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayerName());
+            String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
+            if(filter != null){
+                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
             }
             
-        } else {
-            log.error("Failed to connect with " + url + " Using body: " + body);
-            throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+            String body = data.getOgcrequest().getXMLBody();
+            
+            String host = url;
+            method = new PostMethod(host);
+            method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+            int status = client.executeMethod(method);
+            if (status == HttpStatus.SC_OK) {
+                data.setContentType("text/xml");
+                InputStream is = method.getResponseBodyAsStream();
+                
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = dbf.newDocumentBuilder();
+                Document doc = builder.parse(is);
+                
+                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+            } else {
+                log.error("Failed to connect with " + url + " Using body: " + body);
+                throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+            }
         }
+        doAccounting(orgId, data, user);
+        String responseBody = ogcresponse.getResponseBody(spLayers);
+        if (responseBody != null && !responseBody.equals("")) {
+            byte[] buffer = responseBody.getBytes();
+            os.write(buffer);
+        } else {
+            throw new UnsupportedOperationException("XMLbody empty!");
+        }
+        
     }
 }

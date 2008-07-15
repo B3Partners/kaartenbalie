@@ -68,12 +68,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             layer.put("spAbbr", sp.getSpAbbr());
             layer.put("layer", sp.getLayerName());
             spLayers.add(layer);
-            url = sp.getSpUrl();
-            prefix = sp.getSpAbbr();
-            //ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.get("layerlist")); // todo wat is lName, zelfde als layerlist?????
         }
 
-        if (url == null || url.length() == 0) {
+        if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         PostMethod method = null;
