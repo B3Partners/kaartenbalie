@@ -144,6 +144,10 @@
                                         <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
                                         <td><html:text property="code" size="22" /></td>
                                     </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.allowAccountingLayers"/>:</B></td>
+                                        <td><html:checkbox property="allow" /></td>
+                                    </tr>
                                 </table>
                             </td>
                             <td valign="top" rowspan="0" style="padding-left: 40px;">

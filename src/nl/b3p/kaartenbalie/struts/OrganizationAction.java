@@ -359,6 +359,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("fax", organization.getFax());
         dynaForm.set("bbox", organization.getBbox());
         dynaForm.set("code", organization.getCode());
+        if(organization.getAllowAccountingLayers() == true){
+            dynaForm.set("allow", "on");
+        }else{
+            dynaForm.set("allow", "");
+        }
         
         Set l = organization.getOrganizationLayer();
         Object [] organizationLayer = l.toArray();
@@ -426,6 +431,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         organization.setBbox(bbox);
         organization.setCode(FormUtils.nullIfEmpty(dynaForm.getString("code")));
+        
+        if(FormUtils.nullIfEmpty(dynaForm.getString("allow")).equalsIgnoreCase("on")){
+            organization.setAllowAccountingLayers(true);
+        }else{
+            organization.setAllowAccountingLayers(false);
+        }
         
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();

@@ -29,12 +29,8 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
-import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
-import nl.b3p.wms.capabilities.ServiceProvider;
-//import nl.b3p.kaartenbalie.service.WfsLayerValidator;
-import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -42,7 +38,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.dom4j.CDATA;
 import org.hibernate.HibernateException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -364,6 +359,11 @@ public class WfsOrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("fax", organization.getFax());
         dynaForm.set("bbox", organization.getBbox());
         dynaForm.set("code", organization.getCode());
+        if(organization.getAllowAccountingLayers() == true){
+            dynaForm.set("allow", "on");
+        }else{
+            dynaForm.set("allow", "");
+        }
         
         Set l = organization.getWfsOrganizationLayer();
         Object [] organizationLayer = l.toArray();
@@ -431,6 +431,12 @@ public class WfsOrganizationAction extends KaartenbalieCrudAction {
         }
         organization.setBbox(bbox);
         organization.setCode(FormUtils.nullIfEmpty(dynaForm.getString("code")));
+
+        if(FormUtils.nullIfEmpty(dynaForm.getString("allow")).equalsIgnoreCase("on")){
+            organization.setAllowAccountingLayers(true);
+        }else{
+            organization.setAllowAccountingLayers(false);
+        }
         
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();

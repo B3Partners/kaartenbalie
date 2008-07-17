@@ -9,11 +9,13 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,6 +27,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.exolab.castor.xml.Unmarshaller;
 import org.w3c.dom.Document;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +63,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         }
         
         if (allLayers.length < 1) {
-            throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported yet!");
+            throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported!");
         }
         
         layerNames = new String[allLayers.length];
@@ -99,9 +102,6 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             layer.put("spAbbr", sp.getSpAbbr());
             layer.put("layer", sp.getLayerName());
             spLayers.add(layer);
-            //url = sp.getSpUrl();
-            //prefix = sp.getSpAbbr();
-            //ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
         }
         
         if (spLayers == null || spLayers.size()==0) {
@@ -150,6 +150,5 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         } else {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
-        
     }
 }
