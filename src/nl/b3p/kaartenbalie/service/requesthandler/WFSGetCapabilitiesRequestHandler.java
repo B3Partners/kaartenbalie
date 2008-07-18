@@ -54,7 +54,13 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         String prefix = null;
 
         EntityManager em = MyEMFDatabase.getEntityManager();
-        String[] layerNames = getOrganisationLayers(em, orgId);
+        String version = ""; 
+        if (ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_100) || ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_110)){
+            version = ogcrequest.getFinalVersion();
+        }else{
+            version = OGCConstants.WFS_VERSION_110;
+        }
+        String[] layerNames = getOrganisationLayers(em, orgId, version);
 
         spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
         if (spInfo == null || spInfo.isEmpty()) {

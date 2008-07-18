@@ -58,13 +58,15 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
 
-    protected String[] getOrganisationLayers(EntityManager em, Integer orgId) throws Exception {
+    protected String[] getOrganisationLayers(EntityManager em, Integer orgId, String version) throws Exception {
         String query = "select sp.abbr, l.name " +
                 "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
                 "where o.organizationid = :orgId and l.wfslayerid = o.wfslayerid and " +
-                "l.wfsserviceproviderid = sp.wfsserviceproviderid";
+                "l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                "sp.wfsversion = :version";
         List sqlQuery = em.createNativeQuery(query).
                 setParameter("orgId", orgId).
+                setParameter("version", version).
                 getResultList();
         if (sqlQuery == null) {
             return null;
