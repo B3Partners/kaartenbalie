@@ -147,9 +147,10 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                  * todo
                  * Is het verplicht om een srs te hebben? en er was onderwater wel een exception, maar niet zichtbaar voor
                  * de gebruiker.
+                 * Roy: Ja dat is verplicht maar een layer kan het ook erfen van een bovenliggende layer.
                  */
                 boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();                
                 Iterator sqlIterator = sqlQuery.iterator();
                 while (sqlIterator.hasNext()) {
                     String srs = (String)sqlIterator.next();
