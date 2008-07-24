@@ -140,22 +140,23 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                         "srs.srs is not null and " +
                         "layer.layerid = :toplayer";
                 
-                /* Ik ging kijken of het werkte, maar blijkbaar staan er WMS layers in de database die geen SRS hebben.
-                 * En daar door dacht ik dat het niet meer werkte, maar dat is niet het geval.
-                 * Het gaat om de kaarten van B3p Public (iedergeval in mijn lokale db)
-                 *
-                 * todo
-                 * Is het verplicht om een srs te hebben? en er was onderwater wel een exception, maar niet zichtbaar voor
-                 * de gebruiker.
-                 * Roy: Ja dat is verplicht maar een layer kan het ook erfen van een bovenliggende layer.
-                 */
                 boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();                
-                Iterator sqlIterator = sqlQuery.iterator();
-                while (sqlIterator.hasNext()) {
-                    String srs = (String)sqlIterator.next();
-                    if(srs.equals(givenSRS)) {
-                        srsFound = true;
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
+                
+                /* 
+                 * If there isn't a SRS it will try to get the SRS of the parentlayer 
+                 */
+                if(sqlQuery.size() == 0 || sqlQuery == null){
+                    sqlQuery = getSRS(spInfo.getLayerId(), em);
+                }
+                
+                if(sqlQuery != null){
+                    Iterator sqlIterator = sqlQuery.iterator();
+                    while (sqlIterator.hasNext()) {
+                        String srs = (String)sqlIterator.next();
+                        if(srs.equals(givenSRS)) {
+                            srsFound = true;
+                        }
                     }
                 }
                 if(!srsFound) {
@@ -184,10 +185,32 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         }
         
         doAccounting(orgId, dw, user);
-
+        
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
     // </editor-fold>
     
-    
+    /*
+     * Recursieve functie om de SRS van een parentlayer op te halen.
+     * Return null als er geen parentlayers meer zijn en er geen SRS gevonden is
+     */
+    private List getSRS(int layerId, EntityManager em){
+        String parentId = em.createNativeQuery("select parentid from layer where layer.layerid = :layerid")
+        .setParameter("layerid", layerId).getSingleResult().toString();
+        if(parentId == null || parentId.equals("")){
+            return null;
+        }else{
+            String query = "select distinct srs.srs from layer, srs " +
+                    "where layer.layerid = srs.layerid and " +
+                    "srs.srs is not null and " +
+                    "layer.layerid = :toplayer";
+            List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", parentId).getResultList();
+            if(sqlQuery.size() == 0 || sqlQuery == null){
+                int parent = Integer.parseInt(parentId);
+                return getSRS(parent, em);
+            }else{
+                return sqlQuery;
+            }
+        }
+    }
 }
