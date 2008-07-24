@@ -90,6 +90,11 @@
                 <arg0 key="beheer.pricing.price"/>
             </field>
         </form>
+        <form name="testPricingForm">
+            <field property="unitPrice" depends="required, float">
+                <arg0 key="beheer.pricing.price"/>
+            </field>
+        </form>
         
     </formset>
 </form-validation>

@@ -38,7 +38,7 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
-public class ServerActionDemo extends ServerAction {
+public class ServerActionDemo extends WmsServerAction {
     
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
@@ -98,7 +98,6 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         /*
          * If a token is valid the second validation is necessary. This validation performs a check on the
          * given parameters supported by the user. Off course this check should already have been performed
@@ -112,7 +111,6 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         /*
          * First lets check if the user still exists.
          */
@@ -124,7 +122,6 @@ public class ServerActionDemo extends ServerAction {
         }
         User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();
         Organization org = dbUser.getOrganization();
-        
         /*
          * Now check if the given abbreviation is unique.
          */
@@ -133,20 +130,17 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
         if(!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         if (abbreviation.equalsIgnoreCase(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
         /*
          * If previous check were completed succesfully, we can start performing the real request which is
          * saving the user input. This means that we can start checking if we are dealing with a new
@@ -166,7 +160,6 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
         try {
             url = checkWmsUrl(url);
         } catch (Exception e) {
@@ -207,13 +200,11 @@ public class ServerActionDemo extends ServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
-        
         if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
         /*
          * Now we first need to save this serviceprovider.
          */
@@ -223,34 +214,28 @@ public class ServerActionDemo extends ServerAction {
             Set testSet = newServiceProvider.getAllLayers();
             em.persist(newServiceProvider);
         }
-        
         Set organizationLayers = new HashSet();
         Iterator it = org.getOrganizationLayer().iterator();
         while (it.hasNext()) {
             organizationLayers.add(((Layer)it.next()).clone());
         }
-        
         Iterator newLayers = newServiceProvider.getAllLayers().iterator();
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer)newLayers.next());
         }
-        
         org.setOrganizationLayer(organizationLayers);
         user.setOrganization(org);
-        
         if (org.getId() == null) {
             em.persist(org);
         } else {
             em.merge(org);
         }
-        
         if (user.getId() == null) {
             em.persist(user);
         } else {
             em.merge(user);
         }
         em.flush();
-        
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
@@ -264,10 +249,7 @@ public class ServerActionDemo extends ServerAction {
             SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
             srw.setUserPrincipal(principal);
         }
-        
         return mapping.findForward(NEXTPAGE);
     }
     // </editor-fold>
-    
-    
 }

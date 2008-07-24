@@ -23,8 +23,8 @@ import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
@@ -35,13 +35,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Chris Kramer
  */
-public class WfsTestPricingAction extends TestPricingAction {
+public class WmsTestPricingAction extends TestPricingAction {
     
-    private static final Log log = LogFactory.getLog(WfsPricingAction.class);
-    
+    private static final Log log = LogFactory.getLog(WmsPricingAction.class);
+
     private static final String START_END_ERROR_KEY = "error.dateinput";
     private static final String LAYER_PLACEHOLDER_ERROR_KEY = "beheer.princing.placeholder.error";
-    
+
     public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Date testFrom = FormUtils.FormStringToDate(dynaForm.getString("testFrom"), null);
         Date testUntil = FormUtils.FormStringToDate(dynaForm.getString("testUntil"), null);
@@ -52,10 +52,10 @@ public class WfsTestPricingAction extends TestPricingAction {
                 return getAlternateForward(mapping, request);
             }
         }
-        WfsLayer layer = getLayer(dynaForm, request);
-        String layerName =  layer.getName();
+        Layer layer = getLayer(dynaForm, request);
+        String layerName = layer.getName();
         String spAbbr = layer.getSpAbbr();
-        if (layerName == null || layerName.trim().length() == 0) {
+        if (layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -101,7 +101,7 @@ public class WfsTestPricingAction extends TestPricingAction {
                 scaleSet.add(testScale);
                 while(iterDates.hasNext()) {
                     Date testDate = (Date) iterDates.next();
-                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WFS", "GetFeature");
+                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
                     subSet.add(lpc);
                 }
                 testScale = testScale.add(testStepSize);
@@ -117,25 +117,25 @@ public class WfsTestPricingAction extends TestPricingAction {
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }
-    
+
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
-        WfsLayer layer = getLayer(form, request);
+        Layer layer = getLayer(form, request);
         if (layer==null || layer.getName() == null)
             return;
         
-        WfsServiceProvider sp = layer.getWfsServiceProvider();
+        ServiceProvider sp = layer.getServiceProvider();
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
     }
-    
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+        
+    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);
         if(id==null)
             return null;
-        return (WfsLayer)em.find(WfsLayer.class, id);
+        return (Layer)em.find(Layer.class, id);
     }
 }

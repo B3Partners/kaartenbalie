@@ -9,6 +9,7 @@ package nl.b3p.kaartenbalie.core.server.accounting;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -31,16 +32,16 @@ import org.apache.commons.logging.LogFactory;
  * @see LayerCalculator
  */
 public class ExtLayerCalculator extends LayerCalculator {
-
+    
     private static final Log log = LogFactory.getLog(ExtLayerCalculator.class);
-
+    
     /**
      * Constructor met eigen Entitymanager
      */
     public ExtLayerCalculator() {
         em = MyEMFDatabase.createEntityManager();
     }
-
+    
     /**
      * Constructor met entitymanager van buiten
      * @param em
@@ -49,9 +50,9 @@ public class ExtLayerCalculator extends LayerCalculator {
         this.em = em;
         externalEm = true;
     }
-
+    
     /**
-     * 
+     *
      * @param spAbbr
      * @param layerName
      * @return WMS layer object
@@ -63,18 +64,24 @@ public class ExtLayerCalculator extends LayerCalculator {
                 setParameter("serverProviderPrefix", spAbbr).
                 getSingleResult();
         int serverid = prov.getId();
-        Layer laag = (Layer) em.createQuery(
+        List lagen = em.createQuery(
                 "FROM Layer AS l " +
-                "WHERE l.name = :layerName " +
-                "AND sp.serviceproviderid = :serverid").
+                "WHERE l.name = :layerName ").
                 setParameter("layerName", layerName).
-                setParameter("serverid", serverid).
-                getSingleResult();
+                getResultList();
+        Layer laag = null;
+        Iterator it = lagen.iterator();
+        while(it.hasNext()){
+            Layer layer = (Layer)it.next();
+            if(layer.getServiceProvider().getId() == serverid){
+                laag = layer;
+            }
+        }
         return laag;
     }
-
+    
     /**
-     * 
+     *
      * @param tLC
      * @param spAbbr
      * @param layerName
@@ -92,21 +99,19 @@ public class ExtLayerCalculator extends LayerCalculator {
     @Override
     protected BigDecimal calculateLayer(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws LayerNotAvailableException, NoPrizingException {
         BigDecimal layerPrice = null;
-        ///if(!layerName.equals("allowwithdrawals")){
-            try {
-                layerPrice = super.calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
-            } catch (NoPrizingException npe) {
-                layerPrice = calculateParentAndChildLayers(tLC, spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
-            }
-        //}
+        try {
+            layerPrice = super.calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+        } catch (NoPrizingException npe) {
+            layerPrice = calculateParentAndChildLayers(tLC, spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
+        }
         return layerPrice;
     }
-
+    
     /**
      * Deze methode wordt aangeroepen indien in de kaartlaag zelf geen prijsinfo
      * is gevonden. Eerst wordt dan in de parant layers gekeken of er prijs info
      * gevonden kan worden. Als dat niet het geval is worden de child layers
-     * doorzocht. Als er uiteindelijk geen prijs info gevonden is dan is de 
+     * doorzocht. Als er uiteindelijk geen prijs info gevonden is dan is de
      * layer gratis.
      * <p>
      * Deze methode wordt alleen aangeroepen voor WMS omdat daar geneste layers
@@ -123,7 +128,7 @@ public class ExtLayerCalculator extends LayerCalculator {
      * @param service
      * @param operation
      * @return de prijs van de layer
-     * @throws NoPrizingException 
+     * @throws NoPrizingException
      */
     protected BigDecimal calculateParentAndChildLayers(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
         Layer layer = null;
@@ -134,7 +139,7 @@ public class ExtLayerCalculator extends LayerCalculator {
             log.debug("Geen layer gevonden: " + layerName);
             throw new NoPrizingException();
         }
-
+        
         BigDecimal layerPrice = null;
         try {
             layerPrice = calculateParentLayer(layer, validationDate, projection, scale, units, planType, service, operation);
@@ -145,7 +150,7 @@ public class ExtLayerCalculator extends LayerCalculator {
         }
         return layerPrice;
     }
-
+    
     /**
      * Deze methode telt 2 prijs BigDecimals op.
      * @param returnValue
@@ -158,20 +163,19 @@ public class ExtLayerCalculator extends LayerCalculator {
             if (returnValue == null) {
                 returnValue = new BigDecimal(0);
             }
-
+            
             returnValue = returnValue.add(addValue);
         }
-
         return returnValue;
     }
-
+    
     /**
      * Deze methode probeert de prijs van een layer te bepalen op basis van prijzen
      * van child layers. Als geen van de child layers een prijs heeft dan wordt
      * een NoPrizingException gegooid.
      * <p>
      * Alle child layers worden doorlopen. Als een child layer geen prijs heeft,
-     * dan wordt voor dat child recursief onderzocht of childs daarvan een prijs 
+     * dan wordt voor dat child recursief onderzocht of childs daarvan een prijs
      * heeft.
      * <p>
      * @param layer
@@ -183,12 +187,12 @@ public class ExtLayerCalculator extends LayerCalculator {
      * @param service
      * @param operation
      * @return de prijs op basis van child layer pricing.
-     * @throws NoPrizingException 
+     * @throws NoPrizingException
      */
     protected BigDecimal calculateChildLayers(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
         BigDecimal layerPrice = null;
         boolean hasNoPrice = true;
-
+        
         Set childLayers = layer.getLayers();
         log.debug("Controleer of " + layer.getName() + " childlayers heeft.");
         if (childLayers != null && childLayers.size() > 0) {
@@ -216,19 +220,18 @@ public class ExtLayerCalculator extends LayerCalculator {
                         //LayerNotAvailableException en NoPrizingException
                         log.debug("Geen pricing in childlayers gevonden van layer: " + childLayer.getName() + ", oorzaak: ", npe2);
                     }
-
+                    
                 }
-
+                
             }
         }
         if (hasNoPrice) {
             log.debug("Geen pricing gevonden in layer: " + layer.getName());
             throw new NoPrizingException();
         }
-
         return layerPrice;
     }
-
+    
     /**
      * Deze methode probeert de prijs van een layer te bepalen op basis van een
      * prijs van een parent layer. Alle parent layers worden recursief doorzocht
@@ -243,7 +246,7 @@ public class ExtLayerCalculator extends LayerCalculator {
      * @param service
      * @param operation
      * @return de prijs op basis van een parent prijs
-     * @throws NoPrizingException 
+     * @throws NoPrizingException
      */
     protected BigDecimal calculateParentLayer(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
         log.debug("Controleer of " + layer.getName() + " een parentlayer heeft.");
@@ -264,8 +267,6 @@ public class ExtLayerCalculator extends LayerCalculator {
             log.debug("Geen parent gevonden van layer: " + layer.getName());
             throw new NoPrizingException();
         }
-
         return layerPrice;
-
     }
 }

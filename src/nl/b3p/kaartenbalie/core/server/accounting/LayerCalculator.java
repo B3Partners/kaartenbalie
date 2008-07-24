@@ -230,7 +230,6 @@ public class LayerCalculator {
      * @throws NoPrizingException geen prijsinfo bekend, dus verder zoeken
      */
     public LayerPricing getActiveLayerPricing(String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, int planType, String service, String operation) throws LayerNotAvailableException, NoPrizingException {
-
         List possibleLayerPricings = getActiveLayerPricingList(spAbbr, layerName, validationDate, planType, service, operation);
         Iterator layerPricingIter = possibleLayerPricings.iterator();
 
@@ -247,7 +246,6 @@ public class LayerCalculator {
                 break;
             }
         }
-
         if (requireProjection) {
             if (projection == null) {
                 log.error("Projection cannot be null");
@@ -274,7 +272,6 @@ public class LayerCalculator {
                 throw new LayerNotAvailableException();
             }
         }
-
         if (layerPricing == null) {
             throw new NoPrizingException();
         }
@@ -323,7 +320,6 @@ public class LayerCalculator {
         if (layerName == null || layerName.trim().length() == 0) {
             throw new NoPrizingException("Layer is a placeholder and therefor cannot hold pricingInformation.");
         }
-
         BigDecimal layerPrice = null;
 
         LayerPricing layerPricing = getActiveLayerPricing(spAbbr, layerName, validationDate, projection, scale, planType, service, operation);
@@ -332,12 +328,10 @@ public class LayerCalculator {
                 (layerPricing.getLayerIsFree() != null && layerPricing.getLayerIsFree().booleanValue() == false))) {
             layerPrice = layerPricing.getUnitPrice().multiply(units);
         }
-
         if (layerPrice != null && layerPrice.compareTo(new BigDecimal(0)) < 0) {
             layerPrice = new BigDecimal(0);
         }
         return layerPrice;
-
     }
 
     /**

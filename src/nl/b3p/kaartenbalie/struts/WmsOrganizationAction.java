@@ -3,9 +3,6 @@
  * @author N. de Goeij
  * @version 1.00 2006/10/02
  *
- * Copy for WFS 2008/05/27
- * By Jytte
- *
  * Purpose: a Struts action class defining all the Action for the Organization view.
  *
  * @copyright 2007 All rights reserved. B3Partners
@@ -22,10 +19,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
+import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
+import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.kaartenbalie.service.LayerValidator;
+import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -37,15 +36,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class WfsOrganizationAction extends OrganizationAction {
+public class WmsOrganizationAction extends OrganizationAction {
     
-    private static final Log log = LogFactory.getLog(WfsOrganizationAction.class);
-    
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward af= super.create(mapping,dynaForm,request,response);
-        dynaForm.set("serverType","wfs");
-        return af;
-    }
+    private static final Log log = LogFactory.getLog(WmsOrganizationAction.class);
     
     /* Method for saving a new organization from input of a user.
      *
@@ -84,9 +77,9 @@ public class WfsOrganizationAction extends OrganizationAction {
          * A warning has to be given if the organization has an invalid capability with the
          * selected layers.
          */
-        /*if(!organization.getHasValidGetCapabilities()) {
+        if(!organization.getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
-        }*/
+        }
         if (organization.getId() == null) {
             em.persist(organization);
         } else {
@@ -96,7 +89,7 @@ public class WfsOrganizationAction extends OrganizationAction {
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping,dynaForm,request,response);
     }
-    
+
 //-------------------------------------------------------------------------------------------------------
 // PRIVATE METHODS
 //-------------------------------------------------------------------------------------------------------
@@ -129,14 +122,14 @@ public class WfsOrganizationAction extends OrganizationAction {
         }else{
             dynaForm.set("allow", "");
         }
-        Set l = organization.getWfsOrganizationLayer();
+        Set l = organization.getOrganizationLayer();
         Object [] organizationLayer = l.toArray();
         String checkedLayers = "";
         for (int i = 0; i < organizationLayer.length; i++) {
             if (i < organizationLayer.length - 1) {
-                checkedLayers += ((WfsLayer)organizationLayer[i]).getUniqueName() + ",";
+                checkedLayers += ((Layer)organizationLayer[i]).getUniqueName() + ",";
             } else {
-                checkedLayers += ((WfsLayer)organizationLayer[i]).getUniqueName();
+                checkedLayers += ((Layer)organizationLayer[i]).getUniqueName();
             }
         }
         JSONObject root = this.createTree();
@@ -201,15 +194,15 @@ public class WfsOrganizationAction extends OrganizationAction {
         String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
         int size = selectedLayers.length;
         for(int i = 0; i < size; i++) {
-            // nieuwe methode voor maken
-            WfsLayer l = getWfsLayerByUniqueName(selectedLayers[i]);
+            Layer l = getLayerByUniqueName(selectedLayers[i]);
             if (l==null)
                 continue;
             layers.add(l);
-            WfsServiceProvider sp = l.getWfsServiceProvider();
+            ServiceProvider sp = l.getServiceProvider();
             if (!serviceProviders.contains(sp))
                 serviceProviders.add(sp);
         }
+        
         /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
          * Some might have compatibility some others not. To make sure this wont give any problems, we need to
          * check which formats and srs's are the same. If and only if this complies we can say for sure that
@@ -221,7 +214,10 @@ public class WfsOrganizationAction extends OrganizationAction {
          * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
          * work properly.
          */
-        organization.setWfsOrganizationLayer(layers);
+        LayerValidator lv = new LayerValidator(layers);
+        ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
+        organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
+        organization.setOrganizationLayer(layers);
     }
 // </editor-fold>
     
@@ -236,20 +232,27 @@ public class WfsOrganizationAction extends OrganizationAction {
 // <editor-fold defaultstate="" desc="createTree() method.">
     public JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders =em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
-        
+        List serviceProviders =em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
-            WfsServiceProvider sp = (WfsServiceProvider)it.next();
+            ServiceProvider sp = (ServiceProvider)it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             HashSet set= new HashSet();
-            Set layers = sp.getWfsLayers();
-            set.addAll(layers);
-            parentObj = createTreeList(set, parentObj);
+            Layer topLayer = sp.getTopLayer();
+            if (topLayer != null) {
+                set.add(topLayer);
+                parentObj = createTreeList(set, parentObj);
                 if (parentObj.has("children")){
                     rootArray.put(parentObj);
                 }
+            } else {
+                String name = sp.getGivenName();
+                if(name == null) {
+                    name = "onbekend";
+                }
+                log.debug("Toplayer is null voor serviceprovider: " + name);
+            }
         }
         JSONObject root = new JSONObject();
         root.put("name","root");
@@ -278,12 +281,22 @@ public class WfsOrganizationAction extends OrganizationAction {
             /* For each layer in the set we are going to create a JSON object which we will add to de total
              * list of layer objects.
              */
-            WfsLayer layer = (WfsLayer)layerIterator.next();
+            Layer layer = (Layer)layerIterator.next();
             /* When we have retrieved this array we are able to save our object we are working with
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
              */
             JSONObject layerObj = this.layerToJSON(layer);
+            /* Before we are going to save the present object we can first use our object to recieve and store
+             * any information which there might be for the child layers. First we check if the set of layers
+             * is not empty, because if it is, no effort has to be taken.
+             * If, on the other hand, this layer does have children then the method is called recursivly to
+             * add these childs to the present layer we are working on.
+             */
+            Set childLayers = layer.getLayers();
+            if (childLayers != null && !childLayers.isEmpty()) {
+                layerObj = createTreeList(childLayers, layerObj);
+            }
             /* After creating the JSONObject for this layer and if necessary, filling this
              * object with her childs, we can add this JSON layer object back into its parent array.
              */
@@ -305,11 +318,11 @@ public class WfsOrganizationAction extends OrganizationAction {
      * @throws JSONException
      */
 // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
-    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
+    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
         root.put("name", serviceProvider.getGivenName());
-        root.put("type", "wfsserviceprovider");
+        root.put("type", "serviceprovider");
         return root;
     }
 // </editor-fold>
@@ -323,7 +336,7 @@ public class WfsOrganizationAction extends OrganizationAction {
      * @throws JSONException
      */
 // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException{
+    private JSONObject layerToJSON(Layer layer) throws JSONException{
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("name", layer.getTitle());
         String name = layer.getUniqueName();

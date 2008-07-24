@@ -1,8 +1,8 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${organizationForm}"/>
-<c:set var="action" value="${form.map.action}"/>
-<c:set var="mainid" value="${form.map.id}"/>
+<c:set var="form" value="${organizationForm.map}"/>
+<c:set var="action" value="${form.action}"/>
+<c:set var="mainid" value="${form.id}"/>
 
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
@@ -11,14 +11,23 @@
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <html:javascript formName="organizationForm" staticJavascript="false"/>
-<html:form action="/organization" onsubmit="return validateOrganizationForm(this)" focus="name">
+<html:form action="/${form.serverType}organization" onsubmit="return validateOrganizationForm(this)" focus="name">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
+    <html:hidden property="serverType" />
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer Organisaties</H1>
-        <a href="wfsorganization.do">WFS Organisaties</a><p>
+        <c:choose>
+            <c:when test="${form.serverType == 'wfs'}">
+                <H1>Beheer WFS Organisaties</H1>
+                <a href="organization.do">WMS Organisaties</a><p>
+            </c:when>
+            <c:otherwise>
+                <H1>Beheer Organisaties</H1>
+                <a href="wfsorganization.do?serverType=wfs">WFS Organisaties</a><p>
+            </c:otherwise>
+        </c:choose>
         
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>
@@ -44,7 +53,7 @@
                         <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
                             <td width="200">
                                 <div style="width: 190px; overflow: hidden;">
-                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                    <html:link page="/${form.serverType}organization.do?edit=submit&id=${nOrganization.id}&serverType=${form.serverType}">
                                         <c:out value="${nOrganization.name}"/>
                                     </html:link>
                                 </div>

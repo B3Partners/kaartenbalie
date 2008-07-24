@@ -1,24 +1,32 @@
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<c:set var="form" value="${serverForm}"/>
-<c:set var="action" value="${form.map.action}"/>
-<c:set var="mainid" value="${form.map.id}"/>
+<c:set var="form" value="${serverForm.map}"/>
+<c:set var="action" value="${form.action}"/>
+<c:set var="mainid" value="${form.id}"/>
 
 <c:set var="save" value="${action == 'save'}"/>
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
+    <html:javascript formName="serverForm" staticJavascript="false"/>
 
-<html:javascript formName="serverForm" staticJavascript="false"/>
-<html:form action="/server" onsubmit="return validateServerForm(this)" focus="givenName">
+    <html:form action="/${form.serverType}server" onsubmit="return validateServerForm(this)" focus="givenName">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
+    <html:hidden property="serverType" />
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer WMS Servers</H1>
-        <a href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.wfsserver"/></a><p>
-        
+        <c:choose>
+            <c:when test="${form.serverType == 'wfs'}">
+                <H1>Beheer WFS Servers</H1>
+                <a href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.server"/></a><p>
+            </c:when>
+            <c:otherwise>
+                <H1>Beheer WMS Servers</H1>
+                <a href="<html:rewrite page='/beheer/wfsserver.do?serverType=wfs' module='' />"><fmt:message key="beheer.wfsserver"/></a><p>
+            </c:otherwise>
+        </c:choose>
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>
                 <tr class="serverRijTitel" id="topRij">
@@ -41,7 +49,7 @@
                         <tr class="serverRij" onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
                             <td width="350">
                                 <div style="width: 340px; overflow: hidden;">
-                                    <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
+                                    <html:link page="/${form.serverType}server.do?edit=submit&id=${nServiceProvider.id}&serverType=${form.serverType}">
                                         <c:out value="${nServiceProvider.givenName}"/>
                                     </html:link>
                                 </div>
