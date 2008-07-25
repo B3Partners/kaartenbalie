@@ -184,7 +184,7 @@ public class WmsOrganizationAction extends OrganizationAction {
         }
         organization.setBbox(bbox);
         organization.setCode(FormUtils.nullIfEmpty(dynaForm.getString("code")));
-        if(FormUtils.nullIfEmpty(dynaForm.getString("allow")).equalsIgnoreCase("on")){
+        if("on".equalsIgnoreCase(FormUtils.nullIfEmpty(dynaForm.getString("allow")))){
             organization.setAllowAccountingLayers(true);
         }else{
             organization.setAllowAccountingLayers(false);

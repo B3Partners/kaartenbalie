@@ -84,19 +84,21 @@ public class TextToImage {
     
     private ArrayList cutMessage(String message, int width, int height) {
         ArrayList sentences = new ArrayList();
-        int length = message.length();
-        int divide = (width / 7);
-        int parts = length / divide;
-        int leftOver = length - (parts* divide);
-        
-        for(int part = 0; part <= parts; part++) {
-            int begin = part * divide;
-            int end = part * divide + divide;
-            if(part == parts) {
-                end = part * divide + leftOver;
+        if (message!=null){
+            int length = message.length();
+            int divide = (width / 7);
+            int parts = length / divide;
+            int leftOver = length - (parts* divide);
+
+            for(int part = 0; part <= parts; part++) {
+                int begin = part * divide;
+                int end = part * divide + divide;
+                if(part == parts) {
+                    end = part * divide + leftOver;
+                }
+                String curString = message.substring(begin, end);
+                sentences.add(curString);
             }
-            String curString = message.substring(begin, end);
-            sentences.add(curString);
         }
         return sentences;
     }    
