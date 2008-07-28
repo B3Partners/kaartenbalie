@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -84,6 +85,17 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     public ServiceProvider getServiceProvider() throws Exception {
         EntityManager em = MyEMFDatabase.getEntityManager();
         User dbUser = null;
+        Set userRoles = user.getUserroles();
+        boolean isAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while(rolIt.hasNext()){
+            Roles role = (Roles)rolIt.next();
+            if(role.getId()== 1 && role.getRole().equalsIgnoreCase("beheerder")){
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
+            }
+        }
+        
         try {
             dbUser = (User) em.createQuery("from User u where " +
                     "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
@@ -95,7 +107,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
         
-        Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+        Set organizationLayers = new HashSet();
+        
+        if(isAdmin == false){
+            organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+        } else{
+            List layerlist = em.createQuery("from Layer").getResultList();
+            organizationLayers.addAll(layerlist);
+        }
+        
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
             
             serviceproviders = new HashSet();
@@ -116,14 +136,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
             }
             
-            
             if (!topLayers.isEmpty()) {
                 kaartenbalieTopLayer = new Layer();
                 kaartenbalieTopLayer.setTitle(KBConfiguration.TOPLAYERNAME);
                 LayerValidator lv = new LayerValidator(organizationLayers);
                 kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
-                
-                
                 
                 Iterator tlId = topLayers.iterator();
                 while (tlId.hasNext()) {
