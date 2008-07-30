@@ -14,14 +14,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -35,34 +38,51 @@ import org.apache.commons.logging.LogFactory;
  * @author Jytte
  */
 public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
-
+    
     private static final Log log = LogFactory.getLog(WFSGetCapabilitiesRequestHandler.class);
-
+    
     /** Creates a new instance of WFSRequestHandler */
     public WFSGetCapabilitiesRequestHandler() {
     }
-
+    
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
-
+        
         OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
         Integer orgId = user.getOrganization().getId();
-
+        
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         String url = null;
         List spInfo = null;
         String prefix = null;
-
+        
         EntityManager em = MyEMFDatabase.getEntityManager();
-        String version = ""; 
+        String version = "";
         if (ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_100) || ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_110)){
             version = ogcrequest.getFinalVersion();
         }else{
             version = OGCConstants.WFS_VERSION_110;
         }
-        String[] layerNames = getOrganisationLayers(em, orgId, version);
-
-        spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+        
+        Set userRoles = user.getUserroles();
+        boolean isAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while(rolIt.hasNext()){
+            Roles role = (Roles)rolIt.next();
+            if(role.getId()== 1 && role.getRole().equalsIgnoreCase("beheerder")){
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
+            }
+        }
+        
+        String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin);
+        
+        if(isAdmin == false){
+            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+        }else{
+            spInfo = getSPURLS(layerNames, em);
+        }
+        
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
@@ -75,7 +95,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             layer.put("layer", sp.getLayerName());
             spLayers.add(layer);
         }
-
+        
         if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
@@ -83,17 +103,17 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         HttpClient client = new HttpClient();
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
-
+        
         Iterator it = spInfo.iterator();
         List servers = new ArrayList();
         while (it.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) it.next();
-
+            
             if (!servers.contains(sp.getSpAbbr())) {
                 servers.add(sp.getSpAbbr());
                 url = sp.getSpUrl();
                 prefix = sp.getSpAbbr();
-
+                
                 String host = url;
                 method = new PostMethod(host);
                 method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
@@ -101,11 +121,11 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 if (status == HttpStatus.SC_OK) {
                     data.setContentType("text/xml");
                     InputStream is = method.getResponseBodyAsStream();
-
+                    
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(is);
-
+                    
                     ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
                 } else {
                     log.error("Failed to connect with " + url + " Using body: " + body);
@@ -120,5 +140,45 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         } else {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
+    }
+    
+    private List getSPURLS(String[] layers, EntityManager em) throws Exception{
+        List spList = new ArrayList();
+        for (int i = 0; i < layers.length; i++) {
+            String layer = layers[i];
+
+            String[] split = layer.split("_");
+            String abbr = split[0];
+            String name = split[1];
+
+            String query = "select 'true', l.wfsserviceproviderid, l.wfslayerid, l.name, sp.url, sp.abbr " +
+                    "from wfs_Layer l, Wfs_ServiceProvider sp " +
+                    "where l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                    "l.name = :layerName and " +
+                    "sp.abbr = :layerCode";
+            List sqlQuery = em.createNativeQuery(query).
+                    setParameter("layerName", name).
+                    setParameter("layerCode", abbr).
+                    getResultList();
+            
+            if (sqlQuery == null || sqlQuery.isEmpty()) {
+                log.error("layer not valid or no rights, name: " + layer);
+                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            } else if (sqlQuery.size() > 1) {
+                log.error("layers with duplicate names, name: " + layer);
+                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            }
+            
+            Object[] objecten = (Object[]) sqlQuery.get(0);
+            SpLayerSummary layerInfo = new SpLayerSummary(
+                    (Integer) objecten[1],
+                    (Integer) objecten[2],
+                    (String) objecten[3],
+                    (String) objecten[4],
+                    (String) objecten[5],
+                    (String) objecten[0]);
+            spList.add(layerInfo);
+        }
+        return spList;
     }
 }

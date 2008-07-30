@@ -7,6 +7,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import java.util.Date;
 import java.util.List;
@@ -23,9 +24,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Jytte
  */
 public abstract class WFSRequestHandler extends OGCRequestHandler {
-
+    
     private static final Log log = LogFactory.getLog(WFSRequestHandler.class);
-
+    
     /** Creates a new instance of WFSRequestHandler */
     public WFSRequestHandler() {
     }
@@ -42,10 +43,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
         int planType = LayerPricing.PAY_PER_REQUEST;
         String service = OGCConstants.WFS_SERVICE_WFS;
-
+        
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
     }
-
+    
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
         String query = "select 'true', l.wfsserviceproviderid, l.wfslayerid, l.name, sp.url, sp.abbr " +
                 "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer ol " +
@@ -54,20 +55,32 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 "ol.organizationid = :orgId and " +
                 "l.name = :layerName and " +
                 "sp.abbr = :layerCode";
-
+        
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
-
-    protected String[] getOrganisationLayers(EntityManager em, Integer orgId, String version) throws Exception {
-        String query = "select sp.abbr, l.name " +
-                "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
-                "where o.organizationid = :orgId and l.wfslayerid = o.wfslayerid and " +
-                "l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
-                "sp.wfsversion = :version";
-        List sqlQuery = em.createNativeQuery(query).
-                setParameter("orgId", orgId).
-                setParameter("version", version).
-                getResultList();
+    
+    protected String[] getOrganisationLayers(EntityManager em, Integer orgId, String version, boolean isAdmin) throws Exception {
+        List sqlQuery = new ArrayList();
+        if(isAdmin == false){
+            String query = "select sp.abbr, l.name " +
+                    "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
+                    "where o.organizationid = :orgId and l.wfslayerid = o.wfslayerid and " +
+                    "l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                    "sp.wfsversion = :version";
+            sqlQuery = em.createNativeQuery(query).
+                    setParameter("orgId", orgId).
+                    setParameter("version", version).
+                    getResultList();
+        }
+        else{
+            String query = "select sp.abbr, l.name " +
+                    "from wfs_Layer l, Wfs_ServiceProvider sp " +
+                    "where l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                    "sp.wfsversion = :version";
+            sqlQuery = em.createNativeQuery(query).
+                    setParameter("version", version).
+                    getResultList();
+        }
         if (sqlQuery == null) {
             return null;
         }
