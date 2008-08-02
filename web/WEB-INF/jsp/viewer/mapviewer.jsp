@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <%@ page isELIgnored="false"%>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/swfobject.js' module='' />"></script>
@@ -7,58 +28,58 @@
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/intellihelp.js' module='' />"></script>
 
 <script language="JavaScript" type="text/javascript">
-        var titleArray = new Array();
-        titleArray[0] = "De Layers";
+    var titleArray = new Array();
+    titleArray[0] = "De Layers";
         
-        //TOOLTIP BODY TEXT
-        var bodyArray = new Array();
-        bodyArray[0] = "Hieronder vindt u een lijst met Layers. Als u zelf een WMS server toegevoegd heeft dan " +
-                       "zullen er meer dan een server in de lijst staan die u kunt gebruiken om de Kaartenbalie " + 
-                       "uit te proberen.<BR>Door de boom structuur op verschillende niveau's in en uit te klappen " + 
-                       "en een of meer kaartlagen te selecteren zullen deze kaartlagen onder in het beeld bij " + 
-                       "<b>volgorde</b> verschijnen. Hier kunt u de volgorde waarin de kaartlagen over elkaar heen geprojecteerd " + 
-                       "moeten worden aanpassen, door in deze box de kaarten te selecteren en met behulp " + 
-                       "van de twee buttons (pijl omhoog en pijl omlaag) de volgorde aan te passen. <br>Door vervolgens " + 
-                       "op de button vernieuwen te klikken zal de viewer de geselecteerde kaarten ophalen en in de " + 
-                       "viewer tonen.";
+    //TOOLTIP BODY TEXT
+    var bodyArray = new Array();
+    bodyArray[0] = "Hieronder vindt u een lijst met Layers. Als u zelf een WMS server toegevoegd heeft dan " +
+        "zullen er meer dan een server in de lijst staan die u kunt gebruiken om de Kaartenbalie " + 
+        "uit te proberen.<BR>Door de boom structuur op verschillende niveau's in en uit te klappen " + 
+        "en een of meer kaartlagen te selecteren zullen deze kaartlagen onder in het beeld bij " + 
+        "<b>volgorde</b> verschijnen. Hier kunt u de volgorde waarin de kaartlagen over elkaar heen geprojecteerd " + 
+        "moeten worden aanpassen, door in deze box de kaarten te selecteren en met behulp " + 
+        "van de twee buttons (pijl omhoog en pijl omlaag) de volgorde aan te passen. <br>Door vervolgens " + 
+        "op de button vernieuwen te klikken zal de viewer de geselecteerde kaarten ophalen en in de " + 
+        "viewer tonen.";
         
-        //TOOLTIP DISPLAY LINK
-        var linkArray = new Array();
-        linkArray[0] = "http://www.b3p.nl/";
+    //TOOLTIP DISPLAY LINK
+    var linkArray = new Array();
+    linkArray[0] = "http://www.b3p.nl/";
         
-        //TOOLTIP URL
-        var urlArray = new Array();
-        urlArray[0] = "http://www.b3p.nl/";
+    //TOOLTIP URL
+    var urlArray = new Array();
+    urlArray[0] = "http://www.b3p.nl/";
         
-        //TOOLTIP OFFSET
-        var xOffsetArray = new Array();
-        xOffsetArray[0] = 10;
-        var yOffsetArray = new Array();
-        yOffsetArray[0] = 15;
+    //TOOLTIP OFFSET
+    var xOffsetArray = new Array();
+    xOffsetArray[0] = 10;
+    var yOffsetArray = new Array();
+    yOffsetArray[0] = 15;
         
-        //TOOLTIP BOX DEFAULT WIDTH
-        var toolTipDefaultWidth = 300;
+    //TOOLTIP BOX DEFAULT WIDTH
+    var toolTipDefaultWidth = 300;
         
-        //TOOLTIP STYLING
-        // 	Allows you to adjust the tooltip background color for the 
-        //	roll-over and roll-off states, the font used for the tooltip,
-        // 	the colors of the title and display URL links for the roll-over
-        //	and roll-off states and whether or not the links should be
-        // 	underlined at any point.
-        //-------------- 
-        var tooltipBkgColor = "#EEEEEE";
-        var tooltipHighlightColor = "#FFFFE0";
-        var tooltipFont = "Verdana, Arial, Helvetica";
-        var tooltipTitleColorOff = "#0000DE";
-        var tooltipTitleColorOn = "#0000DE";
-        var tooltipURLColorOff = "#008000";
-        var tooltipURLColorOn = "#008000";
-        var tooltipTitleDecorationOff = "none";
-        var tooltipTitleDecorationOn = "none";
-        var tooltipURLDecorationOff = "none";
-        var tooltipURLDecorationOn = "none";
-        //............................................................
-        //END EDITABLE TOOLTIP VARIABLES
+    //TOOLTIP STYLING
+    // 	Allows you to adjust the tooltip background color for the 
+    //	roll-over and roll-off states, the font used for the tooltip,
+    // 	the colors of the title and display URL links for the roll-over
+    //	and roll-off states and whether or not the links should be
+    // 	underlined at any point.
+    //-------------- 
+    var tooltipBkgColor = "#EEEEEE";
+    var tooltipHighlightColor = "#FFFFE0";
+    var tooltipFont = "Verdana, Arial, Helvetica";
+    var tooltipTitleColorOff = "#0000DE";
+    var tooltipTitleColorOn = "#0000DE";
+    var tooltipURLColorOff = "#008000";
+    var tooltipURLColorOn = "#008000";
+    var tooltipTitleDecorationOff = "none";
+    var tooltipTitleDecorationOn = "none";
+    var tooltipURLDecorationOff = "none";
+    var tooltipURLDecorationOn = "none";
+    //............................................................
+    //END EDITABLE TOOLTIP VARIABLES
 </script>
 
 
@@ -218,19 +239,19 @@
             }
         </c:if>
         
-        function mainMap_onUpdateProgress(){
-            setMapInfo();
+            function mainMap_onUpdateProgress(){
+                setMapInfo();
             
-        }
-        function setMapInfo(){
-            var e=flamingo.call("mainMap", "getCurrentExtent");
-            var s=flamingo.call("mainMap", "getCurrentScale");
+            }
+            function setMapInfo(){
+                var e=flamingo.call("mainMap", "getCurrentExtent");
+                var s=flamingo.call("mainMap", "getCurrentScale");
             
-            var x=Math.round((e.minx+e.maxx)/2);
-            var y=Math.round((e.miny+e.maxy)/2);
-            document.getElementById("currentScale").innerHTML="Schaal= "+s;
-            document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
-        }       
+                var x=Math.round((e.minx+e.maxx)/2);
+                var y=Math.round((e.miny+e.maxy)/2);
+                document.getElementById("currentScale").innerHTML="Schaal= "+s;
+                document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
+            }       
     </c:if>
 </script>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/enableJsFlamingo.js' module='' />"></script>

@@ -1,15 +1,26 @@
 /*
- * RequestOperation.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on October 16, 2007, 8:43 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.reporting.domain.operations;
 
-import java.util.Date;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 
 /**
@@ -17,30 +28,32 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
  * @author Chris Kramer
  */
 public abstract class Operation {
-    
+
     private Integer id;
     private Long msSinceRequestStart;
     private Long duration;
     private ClientRequest clientRequest;
+
     public Operation() {
     }
-    public Operation(ClientRequest clientRequest){
+
+    public Operation(ClientRequest clientRequest) {
         this();
         this.setClientRequest(clientRequest);
     }
-    
+
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
-   
+
     public Long getDuration() {
         return duration;
     }
-    
+
     public void setDuration(Long duration) {
         this.duration = duration;
     }
@@ -60,7 +73,4 @@ public abstract class Operation {
     public void setMsSinceRequestStart(Long msSinceRequestStart) {
         this.msSinceRequestStart = msSinceRequestStart;
     }
-    
-    
-    
 }

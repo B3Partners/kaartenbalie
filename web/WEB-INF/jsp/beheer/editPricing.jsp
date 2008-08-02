@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <tiles:importAttribute/>
 
@@ -13,14 +34,14 @@
     function confirmDeletion(lpid, lid) {
         if (confirm("Wilt u deze regel wissen?"))
             location.href="<html:rewrite page='/editpricing.do' module='/beheer' />?delete=t&pricingid=" + lpid + "&id=" + lid;
-        return false;
+            return false;
     }
 </script>
 
 <c:choose>
     <c:when test="${not empty id}">
-        
-        <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
+    
+        <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
         <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
         <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
         <script type="text/javascript">
@@ -92,7 +113,7 @@
                         </tbody>
                     </table>
                     <script type="text/javascript">
-                            Table.stripe(document.getElementById('summaryTable'), 'table_alternate_tr');
+                        Table.stripe(document.getElementById('summaryTable'), 'table_alternate_tr');
                     </script>
                     <p></p>
                     <button onclick="location.href = '<html:rewrite page="/pricingtest.do?id=${id}"/>'" module="/beheer">Proefberekening Maken</button>
@@ -159,7 +180,7 @@
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.projection}">
-                                                    ${layerPricing.projection} <br/><c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>        
+                                                ${layerPricing.projection} <br/><c:out default="0" value="${layerPricing.minScale}"/> &lt;-&gt; <c:out default="&#8734;" value="${layerPricing.maxScale}" escapeXml="false"/>        
                                                 </c:when>
                                                 <c:otherwise>n/a</c:otherwise>
                                             </c:choose>
@@ -222,7 +243,7 @@
                                          onmouseout="this.style.background=''"
                                          onClick="cal.select(document.getElementById('validFrom'),'cal-button1','yyyy-MM-dd', document.getElementById('validFrom').value); return false;"
                                          name="cal-button1"
-                                    />
+                                         />
                                 </td>
                             </tr>
                             <tr>
@@ -236,7 +257,7 @@
                                          onmouseout="this.style.background=''"
                                          onClick="cal.select(document.getElementById('validUntil'),'cal-button2','yyyy-MM-dd', document.getElementById('validUntil').value); return false;"
                                          name="cal-button2"
-                                    />
+                                         />
                                 </td>
                             </tr>
                             <tr>
@@ -249,14 +270,14 @@
                                 <td>
                                     <label>Projectie :</label>
                                     <script type="text/javascript">
-                                           function setScaleVisible(state){
-                                                var selectScale = document.getElementById('selectScale');
-                                                if (state == true) {
+                                        function setScaleVisible(state){
+                                            var selectScale = document.getElementById('selectScale');
+                                            if (state == true) {
                                                 selectScale.style.display = "block";
-                                                } else {
-                                                    selectScale.style.display = "none";
-                                                }
+                                            } else {
+                                                selectScale.style.display = "none";
                                             }
+                                        }
                                     </script>                        
                                     <html:select styleId="" property="projection" onchange="setScaleVisible(this.value != '');">
                                         <html:option value="">Unspecified</html:option>

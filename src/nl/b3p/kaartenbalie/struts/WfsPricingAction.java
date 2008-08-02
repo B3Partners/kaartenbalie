@@ -1,10 +1,24 @@
 /*
- * WfsPricingAction.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on Mei 27, 2008
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
@@ -36,13 +50,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class WfsPricingAction extends PricingAction {
-    
-    private static final Log log = LogFactory.getLog(WfsPricingAction.class);
 
+    private static final Log log = LogFactory.getLog(WfsPricingAction.class);
     private static final String START_END_ERROR_KEY = "error.dateinput";
     private static final String LAYER_PLACEHOLDER_ERROR_KEY = "beheer.princing.placeholder.error";
     private static final String SCALE_ERROR_KEY = "beheer.pricing.scale.error";
-    
+
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
         request.setAttribute("id", request.getParameter("id"));
@@ -52,7 +65,7 @@ public class WfsPricingAction extends PricingAction {
             return getAlternateForward(mapping, request);
         }
         ActionErrors errors = dynaForm.validate(mapping, request);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
@@ -68,7 +81,7 @@ public class WfsPricingAction extends PricingAction {
             }
         }
         LayerPricing lp = getLayerPricing(dynaForm, request, true);
-        if (lp==null) {
+        if (lp == null) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -104,10 +117,10 @@ public class WfsPricingAction extends PricingAction {
         if (projection != null && projection.trim().length() == 0) {
             projection = null;
         }
-        if (projection != null && (minScale!=null || maxScale!=null)) {
+        if (projection != null && (minScale != null || maxScale != null)) {
             boolean scaleOK = false;
-            if (minScale != null && minScale.doubleValue() > 0 ) {
-                if (maxScale != null && maxScale.doubleValue() > 0 ) {
+            if (minScale != null && minScale.doubleValue() > 0) {
+                if (maxScale != null && maxScale.doubleValue() > 0) {
                     if (maxScale.compareTo(minScale) > 0) {
                         scaleOK = true;
                     }
@@ -118,10 +131,12 @@ public class WfsPricingAction extends PricingAction {
                 addAlternateMessage(mapping, request, SCALE_ERROR_KEY);
                 return getAlternateForward(mapping, request);
             }
-            if (minScale!=null)
+            if (minScale != null) {
                 lp.setMinScale(minScale.setScale(2, RoundingMode.HALF_UP));
-            if (maxScale!=null)
+            }
+            if (maxScale != null) {
                 lp.setMaxScale(maxScale.setScale(2, RoundingMode.HALF_UP));
+            }
             lp.setProjection(projection);
         }
         BigDecimal unitPrice = FormUtils.bdValueNull(dynaForm.getString("unitPrice"));
@@ -129,7 +144,7 @@ public class WfsPricingAction extends PricingAction {
          * || door && vervangen. Price is namelijk verplicht en dus nooit null
          * en hij kwam dus altijd door de check. Ook als het bedrag 0 was.
          */
-        if (unitPrice != null && unitPrice.doubleValue()>0.0) {
+        if (unitPrice != null && unitPrice.doubleValue() > 0.0) {
             lp.setUnitPrice(unitPrice.setScale(2, RoundingMode.HALF_UP));
         } else {
             lp.setLayerIsFree(Boolean.TRUE);
@@ -139,7 +154,7 @@ public class WfsPricingAction extends PricingAction {
         getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping, dynaForm, request, response);
     }
-    
+
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         EntityManager em = getEntityManager();
@@ -147,14 +162,15 @@ public class WfsPricingAction extends PricingAction {
          * Set the allowed projectsion
          */
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
-        request.setAttribute("wfsRequests",KBConfiguration.ACCOUNTING_WFS_REQUESTS);
+        request.setAttribute("wfsRequests", KBConfiguration.ACCOUNTING_WFS_REQUESTS);
         if (form.getString("service") == null || form.getString("service").trim().length() == 0) {
             form.set("service", new String("WFS"));
             form.set("operationWFS", new String("GetFeature"));
         }
         WfsLayer layer = getLayer(form, request);
-        if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0)
+        if (layer == null || layer.getName() == null || layer.getName().trim().length() == 0) {
             return;
+        }
         String layerName = layer.getName();
         String spAbbr = layer.getSpAbbr();
         WfsServiceProvider sp = layer.getWfsServiceProvider();
@@ -168,31 +184,27 @@ public class WfsPricingAction extends PricingAction {
                 em.createQuery(
                 "FROM LayerPricing AS lp " +
                 "WHERE lp.layerName = :layerName AND lp.serverProviderPrefix = :serverProviderPrefix AND lp.service = :service " +
-                "ORDER BY  lp.deletionDate ASC, lp.creationDate DESC")
-                .setParameter("layerName", layer.getName())
-                .setParameter("serverProviderPrefix", layer.getSpAbbr())
-                .setParameter("service", service)
-                .getResultList());
+                "ORDER BY  lp.deletionDate ASC, lp.creationDate DESC").setParameter("layerName", layer.getName()).setParameter("serverProviderPrefix", layer.getSpAbbr()).setParameter("service", service).getResultList());
         /*
          * Then calculate all the different prices for all requesttypes..
          */
         ExtLayerCalculator lc = new ExtLayerCalculator(em);
         Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
         Date now = new Date();
-        BigDecimal units  = new BigDecimal(1);
+        BigDecimal units = new BigDecimal(1);
         int totalWMFRequests = KBConfiguration.ACCOUNTING_WFS_REQUESTS.length;
         for (int i = 0; i < totalWMFRequests; i++) {
             tableData[i][0] = "WFS";
             tableData[i][1] = KBConfiguration.ACCOUNTING_WFS_REQUESTS[i];
             try {
-                tableData[i][2] = lc.calculateLayerComplete(spAbbr, layerName, now,  KBConfiguration.DEFAULT_PROJECTION, null, units,LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
+                tableData[i][2] = lc.calculateLayerComplete(spAbbr, layerName, now, KBConfiguration.DEFAULT_PROJECTION, null, units, LayerPricing.PAY_PER_REQUEST, "WFS", KBConfiguration.ACCOUNTING_WFS_REQUESTS[i]);
             } catch (NoResultException nre) {
                 tableData[i][2] = null;
             }
         }
-        request.setAttribute("tableData",tableData);
+        request.setAttribute("tableData", tableData);
     }
-    
+
     public JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
         List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
@@ -200,13 +212,13 @@ public class WfsPricingAction extends PricingAction {
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
-            WfsServiceProvider sp = (WfsServiceProvider)it.next();
+            WfsServiceProvider sp = (WfsServiceProvider) it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
             Set layers = sp.getWfsLayers();
             parentObj = createTreeList(layers, parentObj);
             rootArray.put(parentObj);
         }
-        root.put("name","root");
+        root.put("name", "root");
         root.put("children", rootArray);
         return root;
     }
@@ -215,16 +227,16 @@ public class WfsPricingAction extends PricingAction {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
-            WfsLayer layer = (WfsLayer)layerIterator.next();
+            WfsLayer layer = (WfsLayer) layerIterator.next();
             JSONObject layerObj = this.layerToJSON(layer);
             parentArray.put(layerObj);
         }
-        if (parentArray.length() > 0){
+        if (parentArray.length() > 0) {
             parent.put("children", parentArray);
         }
         return parent;
     }
-    
+
     private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", serviceProvider.getId());
@@ -232,8 +244,8 @@ public class WfsPricingAction extends PricingAction {
         root.put("type", "serviceprovider");
         return root;
     }
-    
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException{
+
+    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("id", layer.getId());
         jsonLayer.put("name", layer.getTitle());
@@ -241,13 +253,14 @@ public class WfsPricingAction extends PricingAction {
         jsonLayer.put("type", "layer");
         return jsonLayer;
     }
-    
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {      
+
+    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);
-        if(id==null)
+        if (id == null) {
             return null;
-        return (WfsLayer)em.find(WfsLayer.class, id);
+        }
+        return (WfsLayer) em.find(WfsLayer.class, id);
     }
 }

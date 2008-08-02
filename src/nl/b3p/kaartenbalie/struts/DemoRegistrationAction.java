@@ -1,13 +1,24 @@
 /*
- * @(#)DemoRegistrationAction.java
- * @author N. de Goeij
- * @version 1.00, 8 februari 2007
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * @copyright 2007 B3Partners. All rights reserved.
- * B3Partners PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.security.Principal;
@@ -21,7 +32,6 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -33,20 +43,21 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class DemoRegistrationAction extends UserAction {
-    
+
     protected static final String PREDEFINED_SP_ABBR = "demo.spabbr";
     protected static final String NEXTPAGE = "nextPage";
-    
+
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
-        if (user==null)
+        if (user == null) {
             user = new User();
+        }
         populateUserForm(user, dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
         return mapping.findForward(SUCCESS);
     }
-    
+
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -62,16 +73,16 @@ public class DemoRegistrationAction extends UserAction {
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, true);
         ActionForward af = saveCheck(user, mapping, dynaForm, request);
-        if (af!=null)
+        if (af != null) {
             return af;
-        
+        }
         Organization organization = user.getOrganization();
         if (organization == null) {
             organization = new Organization();
         }
-        
+
         populateRegistrationObject(user, organization, dynaForm, request);
-        
+
         EntityManager em = getEntityManager();
         if (organization.getId() == null) {
             em.persist(organization);
@@ -83,29 +94,28 @@ public class DemoRegistrationAction extends UserAction {
         } else {
             em.merge(user);
         }
-        
+
         em.flush();
-        
+
         /*
          * Make sure that the system will accept the user already as logged in.
          * In order to do this we need to get the SecurityRequestWrapper and set
          * this user as Principal in the requets.
          */
-        
+
         Principal principal = (Principal) user;
         if (request instanceof SecurityRequestWrapper) {
-            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            SecurityRequestWrapper srw = (SecurityRequestWrapper) request;
             srw.setUserPrincipal(principal);
         }
-        
+
         populateUserForm(user, dynaForm, request);
-        
+
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request);
         return mapping.findForward(NEXTPAGE);
     }
     // </editor-fold>
-    
     /* Method which will fill-in the JSP form with the data of a given user.
      *
      * @param request The HTTP Request we are processing.
@@ -114,7 +124,7 @@ public class DemoRegistrationAction extends UserAction {
     // <editor-fold defaultstate="" desc="getStandardDemoLayerSet(HttpServletRequest request, Session session) method.">
     private Set getStandardDemoLayerSet(HttpServletRequest request) {
         EntityManager em = getEntityManager();
-        
+
         /*
          * Because every new demo user has access to the predefined server which will
          * be supported by B3Partners we first need to get this WMS server from the database
@@ -123,21 +133,18 @@ public class DemoRegistrationAction extends UserAction {
         MessageResources messages = getResources(request);
         Locale locale = getLocale(request);
         String spAbbr = messages.getMessage(locale, PREDEFINED_SP_ABBR);
-        
+
         ServiceProvider stdServiceProvider = null;
         try {
-            stdServiceProvider = (ServiceProvider)em.createQuery(
+            stdServiceProvider = (ServiceProvider) em.createQuery(
                     "from ServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ")
-                    .setParameter("abbr", spAbbr)
-                    .getSingleResult();
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", spAbbr).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
         return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
-    
     /** Method that fills a user and organization object with the user input from the forms.
      *
      * @param request The HTTP Request we are processing.
@@ -147,21 +154,21 @@ public class DemoRegistrationAction extends UserAction {
      */
     // <editor-fold defaultstate="" desc="populateRegistrationObject(HttpServletRequest request, DynaValidatorForm dynaForm, User user, Organization organization) method.">
     private void populateRegistrationObject(User user, Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-        
+
         populateUserObject(user, dynaForm, request);
-        
+
         Set orglayers = organization.getOrganizationLayer();
-        if (orglayers==null || orglayers.isEmpty()) {
+        if (orglayers == null || orglayers.isEmpty()) {
             Set layers = getStandardDemoLayerSet(request);
-            if (layers!=null) {
+            if (layers != null) {
                 organization.setOrganizationLayer(new HashSet(layers));
                 // We nemen aan dat de standard set ok is
                 organization.setHasValidGetCapabilities(true);
             }
         }
-        
+
         EntityManager em = getEntityManager();
-        
+
         if (!user.checkRole("demogebruiker")) {
             List roles = em.createQuery("from Roles").getResultList();
             Iterator roleIt = roles.iterator();
@@ -172,13 +179,12 @@ public class DemoRegistrationAction extends UserAction {
                 }
             }
         }
-        
+
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-        
+
         user.setOrganization(organization);
-        
+
     }
     // </editor-fold>
-    
 }

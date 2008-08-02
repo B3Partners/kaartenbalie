@@ -1,16 +1,24 @@
-/**
- * @(#)ServerAction.java
- * @author N. de Goeij
- * @version 1.00 2006/10/02
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Copy for WFS 2008/05/21
- * By Jytte
- *
- * Purpose: a Struts action class defining all the Action for the WFSServiceProvider view.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.io.IOException;
@@ -47,9 +55,9 @@ import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 
 public class WfsServerAction extends ServerAction {
-    
+
     private static final Log log = LogFactory.getLog(WfsServerAction.class);
-    
+
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -74,15 +82,15 @@ public class WfsServerAction extends ServerAction {
     }
     // </editor-fold>
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-       return super.unspecified(mapping,dynaForm,request,response);
+        return super.unspecified(mapping, dynaForm, request, response);
     }
-    
+
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward af= super.create(mapping,dynaForm,request,response);
-        dynaForm.set("serverType","wfs");
+        ActionForward af = super.create(mapping, dynaForm, request, response);
+        dynaForm.set("serverType", "wfs");
         return af;
     }
-    
+
     /* Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -108,7 +116,7 @@ public class WfsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         ActionErrors errors = dynaForm.validate(mapping, request);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             super.addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
@@ -129,19 +137,19 @@ public class WfsServerAction extends ServerAction {
         WfsServiceProvider newServiceProvider = null;
         WfsServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
-        
+
         if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
-        if(!isAlphaNumeric(abbreviation)) {
+        if (!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         if (abbreviation.equalsIgnoreCase(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
@@ -175,36 +183,36 @@ public class WfsServerAction extends ServerAction {
         em.persist(newServiceProvider);
         em.flush();
         getDataWarehousing().enlist(WfsServiceProvider.class, newServiceProvider.getId(), DwObjectAction.PERSIST);
-        Iterator dwIter= testSet.iterator();
+        Iterator dwIter = testSet.iterator();
         while (dwIter.hasNext()) {
             WfsLayer layer = (WfsLayer) dwIter.next();
             getDataWarehousing().enlist(WfsLayer.class, layer.getId(), DwObjectAction.PERSIST);
         }
-         /*
-          * All tests have been completed succesfully.
-          * We have now a newServiceProvider object and all we need to check
-          * is if this serviceprovider has been changed or newly added. The
-          * easiest way of doing so, is by checking the id.
-          */
-        try{
+        /*
+         * All tests have been completed succesfully.
+         * We have now a newServiceProvider object and all we need to check
+         * is if this serviceprovider has been changed or newly added. The
+         * easiest way of doing so, is by checking the id.
+         */
+        try {
             int id = oldServiceProvider.getId();
             /*
              * The serviceProviderId already existed so the old serviceprovide has to removed from the database.
              */
-            try{
+            try {
                 List orgList = em.createQuery("from Organization").getResultList();
                 Iterator orgit = orgList.iterator();
                 while (orgit.hasNext()) {
                     Set newOrganizationLayer = new HashSet();
-                    Organization org = (Organization)orgit.next();
+                    Organization org = (Organization) orgit.next();
                     Set orgLayers = org.getWfsOrganizationLayer();
                     Iterator layerit = orgLayers.iterator();
                     while (layerit.hasNext()) {
-                        WfsLayer organizationLayer = (WfsLayer)layerit.next();
+                        WfsLayer organizationLayer = (WfsLayer) layerit.next();
                         WfsServiceProvider orgLayerServiceProvider = organizationLayer.getWfsServiceProvider();
                         if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
                             WfsLayer newLayer = checkLayer(organizationLayer, newServiceProvider.getWfsLayers());
-                            if (newLayer != null){
+                            if (newLayer != null) {
                                 newOrganizationLayer.add(newLayer);
                             }
                         } else {
@@ -230,7 +238,7 @@ public class WfsServerAction extends ServerAction {
                 addAlternateMessage(mapping, request, null, e.getMessage());
                 return getAlternateForward(mapping, request);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             /*
              * If he failed to get a serviceProviderId from the form on the website it means
              * that the user was adding a new server.
@@ -244,7 +252,6 @@ public class WfsServerAction extends ServerAction {
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
         WfsServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
@@ -254,44 +261,44 @@ public class WfsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         prepareMethod(dynaForm, request, DELETE, EDIT);
-        
+
         Set serviceLayers = serviceProvider.getWfsLayers();
-        if(serviceLayers.size() > 0){
+        if (serviceLayers.size() > 0) {
             //Check if layers are bound to organizations
             MessageResources messages = getResources(request);
             Locale locale = getLocale(request);
             String orgJoinedMessage = messages.getMessage(locale, ORG_JOINED_KEY);
             String layerJoinedMessage = messages.getMessage(locale, LAYER_JOINED_KEY);
             StringBuffer strMessage = new StringBuffer();
-            
+
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
             boolean notFirstOrg = false;
             while (orgit.hasNext()) {
-                Organization org = (Organization)orgit.next();
+                Organization org = (Organization) orgit.next();
                 Set orgLayers = org.getWfsOrganizationLayer();
-                if(orgLayers.size() > 0){
+                if (orgLayers.size() > 0) {
                     Iterator orgLayerIterator = orgLayers.iterator();
                     boolean notFirstLayer = false;
-                    
-                    while(orgLayerIterator.hasNext()){
-                        WfsLayer orgLayer = (WfsLayer)orgLayerIterator.next();
+
+                    while (orgLayerIterator.hasNext()) {
+                        WfsLayer orgLayer = (WfsLayer) orgLayerIterator.next();
                         Iterator serviceLayerIter = serviceLayers.iterator();
-                        while(serviceLayerIter.hasNext()){
-                            WfsLayer serviceLayer = (WfsLayer)serviceLayerIter.next();
-                            if(orgLayer.equals(serviceLayer)){
-                                if (notFirstLayer)
+                        while (serviceLayerIter.hasNext()) {
+                            WfsLayer serviceLayer = (WfsLayer) serviceLayerIter.next();
+                            if (orgLayer.equals(serviceLayer)) {
+                                if (notFirstLayer) {
                                     strMessage.append(", ");
-                                else {
-                                    if (notFirstOrg)
+                                } else {
+                                    if (notFirstOrg) {
                                         strMessage.append(", ");
-                                    else {
+                                    } else {
                                         strMessage.append(orgJoinedMessage);
                                         strMessage.append(": ");
                                         notFirstOrg = true;
                                     }
                                     strMessage.append(org.getName());
-                                    
+
                                     strMessage.append(" [");
                                     strMessage.append(layerJoinedMessage);
                                     strMessage.append(": ");
@@ -301,14 +308,16 @@ public class WfsServerAction extends ServerAction {
                             }
                         }
                     }
-                    if (notFirstLayer)
+                    if (notFirstLayer) {
                         strMessage.append("]");
+                    }
                 }
             }
             // Small check so it doesn't show empty warning boxes
-            if(strMessage.toString() != "" && strMessage != null && strMessage.length() > 0)
+            if (strMessage.toString() != "" && strMessage != null && strMessage.length() > 0) {
                 addAlternateMessage(mapping, request, null, strMessage.toString());
             //Check if current pricing is bound to this provider
+            }
             List lpList = null;
             LayerCalculator lc = new LayerCalculator();
             try {
@@ -316,35 +325,36 @@ public class WfsServerAction extends ServerAction {
             } finally {
                 lc.closeEntityManager();
             }
-            if (lpList!=null) {
+            if (lpList != null) {
                 Iterator lpit = lpList.iterator();
                 strMessage = new StringBuffer();
                 String pricingJoinedMessage = messages.getMessage(locale, PRICING_JOINED_KEY);
                 boolean notFirstPrice = false;
                 while (lpit.hasNext()) {
-                    LayerPricing lp = (LayerPricing)lpit.next();
+                    LayerPricing lp = (LayerPricing) lpit.next();
                     String ln = lp.getLayerName(); // unieke naam
-                    if (strMessage.indexOf(ln)==-1) {
-                        if (notFirstPrice)
+                    if (strMessage.indexOf(ln) == -1) {
+                        if (notFirstPrice) {
                             strMessage.append(", ");
-                        else {
+                        } else {
                             strMessage.append(pricingJoinedMessage);
                             strMessage.append(": ");
                             notFirstPrice = true;
                         }
                         strMessage.append(ln);
                     }
-                    
+
                 }
                 // Small check so it doesn't show empty warning boxes
-                if(strMessage.toString() != "" && strMessage != null && strMessage.length() > 0)
+                if (strMessage.toString() != "" && strMessage != null && strMessage.length() > 0) {
                     addAlternateMessage(mapping, request, null, strMessage.toString());
+                }
             }
         }
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }
-    
+
     /* Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -379,22 +389,22 @@ public class WfsServerAction extends ServerAction {
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
-                Organization org = (Organization)orgit.next();
+                Organization org = (Organization) orgit.next();
                 Set orgLayers = org.getWfsOrganizationLayer();
                 HashSet clonedOrgLayers = new HashSet();
                 clonedOrgLayers.addAll(orgLayers);
                 Iterator orgLayerIterator = orgLayers.iterator();
                 while (orgLayerIterator.hasNext()) {
-                    WfsLayer organizationLayer = (WfsLayer)orgLayerIterator.next();
+                    WfsLayer organizationLayer = (WfsLayer) orgLayerIterator.next();
                     Iterator serviceLayerIter = serviceProviderLayers.iterator();
-                    while (serviceLayerIter.hasNext()){
-                        WfsLayer serviceProviderLayer = (WfsLayer)serviceLayerIter.next();
-                        if (organizationLayer!=null && organizationLayer.getId() == serviceProviderLayer.getId()) {
+                    while (serviceLayerIter.hasNext()) {
+                        WfsLayer serviceProviderLayer = (WfsLayer) serviceLayerIter.next();
+                        if (organizationLayer != null && organizationLayer.getId() == serviceProviderLayer.getId()) {
                             clonedOrgLayers.remove(organizationLayer);
                         }
                     }
                 }
-                if (orgLayers.size()!=clonedOrgLayers.size()) {
+                if (orgLayers.size() != clonedOrgLayers.size()) {
                     org.setWfsOrganizationLayer(clonedOrgLayers);
                     em.merge(org);
                 }
@@ -405,7 +415,7 @@ public class WfsServerAction extends ServerAction {
         getDataWarehousing().enlist(WfsServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
-    
+
     /* Creates a list of all the service providers in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -422,11 +432,9 @@ public class WfsServerAction extends ServerAction {
         request.setAttribute("serviceproviderlist", serviceproviderlist);
     }
     // </editor-fold>
-    
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
-    
     /* Method which returns the service provider with a specified id or a new object if no id is given.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -441,15 +449,14 @@ public class WfsServerAction extends ServerAction {
         EntityManager em = getEntityManager();
         WfsServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);
-        if(null == id && createNew) {
+        if (null == id && createNew) {
             serviceProvider = new WfsServiceProvider();
         } else if (null != id) {
-            serviceProvider = (WfsServiceProvider)em.find(WfsServiceProvider.class, new Integer(id.intValue()));
+            serviceProvider = (WfsServiceProvider) em.find(WfsServiceProvider.class, new Integer(id.intValue()));
         }
         return serviceProvider;
     }
     // </editor-fold>
-    
     /* Method that fills a serive provider object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -462,11 +469,9 @@ public class WfsServerAction extends ServerAction {
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
     }
     // </editor-fold>
-    
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    
     /* Method which will fill the JSP form with the data of a given service provider.
      *
      * @param serviceProvider ServiceProvider object from which the information has to be printed.
@@ -482,7 +487,6 @@ public class WfsServerAction extends ServerAction {
         dynaForm.set("abbr", serviceProvider.getAbbr());
     }
     // </editor-fold>
-    
     /* Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
@@ -492,35 +496,34 @@ public class WfsServerAction extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="checkLayer(Layer orgLayer, Set layers) method.">
     private WfsLayer checkLayer(WfsLayer orgLayer, Set layers) {
-        if (layers==null || layers.isEmpty())
+        if (layers == null || layers.isEmpty()) {
             return null;
+        }
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             WfsLayer layer = (WfsLayer) it.next();
-            
-            if (orgLayer.getName()==null && layer.getName()==null &&
-                    orgLayer.getTitle().equalsIgnoreCase(layer.getTitle()))
+
+            if (orgLayer.getName() == null && layer.getName() == null &&
+                    orgLayer.getTitle().equalsIgnoreCase(layer.getTitle())) {
                 return layer;
-            
-            if (orgLayer.getName()!=null && layer.getName()!=null &&
-                    orgLayer.getName().equalsIgnoreCase(layer.getName()))
+            }
+            if (orgLayer.getName() != null && layer.getName() != null &&
+                    orgLayer.getName().equalsIgnoreCase(layer.getName())) {
                 return layer;
+            }
         }
         return null;
     }
     // </editor-fold>
-    
     protected boolean isAbbrUnique(WfsServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
         try {
-            WfsServiceProvider dbSp = (WfsServiceProvider)em.createQuery(
+            WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
                     "from WfsServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ")
-                    .setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr")))
-                    .getSingleResult();
-            
-            if(dbSp != null){
-                if(sp != null){
-                    if(dbSp.getId() == sp.getId()){
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr"))).getSingleResult();
+
+            if (dbSp != null) {
+                if (sp != null) {
+                    if (dbSp.getId() == sp.getId()) {
                         return true;
                     }
                 }

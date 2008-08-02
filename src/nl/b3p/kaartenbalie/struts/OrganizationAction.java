@@ -1,10 +1,24 @@
 /*
- * OrganizationAction.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on July 21, 2008, 11:22 AM
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
@@ -36,21 +50,20 @@ import org.json.JSONObject;
  * @author Jytte
  */
 public abstract class OrganizationAction extends KaartenbalieCrudAction {
-    
+
     private final static String SUCCESS = "success";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
-    
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
-    
+
     /** Creates a new instance of OrganizationAction */
     public OrganizationAction() {
     }
-    
+
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -68,7 +81,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         addDefaultMessage(mapping, request);
         return mapping.findForward(SUCCESS);
     }
-    
+
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -92,7 +105,6 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-    
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
         Organization organization = getOrganization(dynaForm, request, false);
@@ -106,17 +118,17 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         String userJoinedMessage = messages.getMessage(locale, USER_JOINED_KEY);
         String creditsJoinedMessage = messages.getMessage(locale, CREDITS_JOINED_KEY);
         StringBuffer strMessage = null;
-        
+
         Set userList = organization.getUser();
-        if(userList!=null && !userList.isEmpty()) {
+        if (userList != null && !userList.isEmpty()) {
             strMessage = new StringBuffer();
             Iterator it = userList.iterator();
             boolean notFirstUser = false;
             while (it.hasNext()) {
-                User u = (User)it.next();
-                if (notFirstUser)
+                User u = (User) it.next();
+                if (notFirstUser) {
                     strMessage.append(", ");
-                else {
+                } else {
                     strMessage.append(userJoinedMessage);
                     strMessage.append(": ");
                     notFirstUser = true;
@@ -126,9 +138,9 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, strMessage.toString());
         }
         Account acc = organization.getAccount();
-        if (acc!=null) {
+        if (acc != null) {
             BigDecimal cb = acc.getCreditBalance();
-            if (cb!=null && cb.doubleValue()>0) {
+            if (cb != null && cb.doubleValue() > 0) {
                 cb.setScale(2, RoundingMode.HALF_UP);
                 strMessage = new StringBuffer();
                 strMessage.append(creditsJoinedMessage);
@@ -139,9 +151,10 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         }
         User sessionUser = (User) request.getUserPrincipal();
         Organization sessionOrg = null;
-        if (sessionUser!=null)
+        if (sessionUser != null) {
             sessionOrg = sessionUser.getOrganization();
-        if(sessionOrg!=null && sessionOrg.getId().equals(organization.getId())) {
+        }
+        if (sessionOrg != null && sessionOrg.getId().equals(organization.getId())) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -150,7 +163,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         addDefaultMessage(mapping, request);
         return getDefaultForward(mapping, request);
     }
-    
+
     /* Method for deleting an organization selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -177,9 +190,10 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         }
         User sessionUser = (User) request.getUserPrincipal();
         Organization sessionOrg = null;
-        if (sessionUser!=null)
+        if (sessionUser != null) {
             sessionOrg = sessionUser.getOrganization();
-        if(sessionOrg!=null && sessionOrg.getId().equals(organization.getId())) {
+        }
+        if (sessionOrg != null && sessionOrg.getId().equals(organization.getId())) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -189,7 +203,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
-    
+
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -203,7 +217,6 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         return super.create(mapping, dynaForm, request, response);
     }
     // </editor-fold
-    
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -219,7 +232,6 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         request.setAttribute("organizationlist", organizationlist);
     }
 // </editor-fold>
-    
     /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -233,15 +245,15 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);
-        
-        if(null == id && createNew) {
+
+        if (null == id && createNew) {
             organization = new Organization();
         } else if (null != id) {
-            organization = (Organization)em.find(Organization.class, id);
+            organization = (Organization) em.find(Organization.class, id);
         }
         return organization;
     }
-    
+
     /* Method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -256,7 +268,8 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
-    
+
     protected abstract JSONObject createTree() throws JSONException;
+
     protected abstract void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException;
 }

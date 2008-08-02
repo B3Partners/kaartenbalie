@@ -1,16 +1,24 @@
-/**
- * @(#)OrganizationAction.java
- * @author N. de Goeij
- * @version 1.00 2006/10/02
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Copy for WFS 2008/05/27
- * By Jytte
- *
- * Purpose: a Struts action class defining all the Action for the Organization view.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.HashSet;
@@ -38,15 +46,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class WfsOrganizationAction extends OrganizationAction {
-    
+
     private static final Log log = LogFactory.getLog(WfsOrganizationAction.class);
-    
+
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward af= super.create(mapping,dynaForm,request,response);
-        dynaForm.set("serverType","wfs");
+        ActionForward af = super.create(mapping, dynaForm, request, response);
+        dynaForm.set("serverType", "wfs");
         return af;
     }
-    
+
     /* Method for saving a new organization from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -66,7 +74,7 @@ public class WfsOrganizationAction extends OrganizationAction {
             return getAlternateForward(mapping, request);
         }
         ActionErrors errors = dynaForm.validate(mapping, request);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
@@ -79,13 +87,13 @@ public class WfsOrganizationAction extends OrganizationAction {
             return getAlternateForward(mapping, request);
         }
         populateOrganizationObject(dynaForm, organization);
-        
+
         /*
          * A warning has to be given if the organization has an invalid capability with the
          * selected layers.
          */
         /*if(!organization.getHasValidGetCapabilities()) {
-            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
+        addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }*/
         if (organization.getId() == null) {
             em.persist(organization);
@@ -94,13 +102,11 @@ public class WfsOrganizationAction extends OrganizationAction {
         }
         em.flush();
         getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
-        return super.save(mapping,dynaForm,request,response);
+        return super.save(mapping, dynaForm, request, response);
     }
-    
 //-------------------------------------------------------------------------------------------------------
 // PRIVATE METHODS
 //-------------------------------------------------------------------------------------------------------
-    
     /* Method which will fill the JSP form with the data of  a given organization.
      *
      * @param organization Organization object from which the information has to be printed.
@@ -124,19 +130,19 @@ public class WfsOrganizationAction extends OrganizationAction {
         dynaForm.set("fax", organization.getFax());
         dynaForm.set("bbox", organization.getBbox());
         dynaForm.set("code", organization.getCode());
-        if(organization.getAllowAccountingLayers() == true){
+        if (organization.getAllowAccountingLayers() == true) {
             dynaForm.set("allow", "on");
-        }else{
+        } else {
             dynaForm.set("allow", "");
         }
         Set l = organization.getWfsOrganizationLayer();
-        Object [] organizationLayer = l.toArray();
+        Object[] organizationLayer = l.toArray();
         String checkedLayers = "";
         for (int i = 0; i < organizationLayer.length; i++) {
             if (i < organizationLayer.length - 1) {
-                checkedLayers += ((WfsLayer)organizationLayer[i]).getUniqueName() + ",";
+                checkedLayers += ((WfsLayer) organizationLayer[i]).getUniqueName() + ",";
             } else {
-                checkedLayers += ((WfsLayer)organizationLayer[i]).getUniqueName();
+                checkedLayers += ((WfsLayer) organizationLayer[i]).getUniqueName();
             }
         }
         JSONObject root = this.createTree();
@@ -144,7 +150,6 @@ public class WfsOrganizationAction extends OrganizationAction {
         request.setAttribute("checkedLayers", checkedLayers);
     }
 // </editor-fold>
-    
     /* Method that fills an organization object with the user input from the forms.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -168,47 +173,49 @@ public class WfsOrganizationAction extends OrganizationAction {
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("telephone")));
         organization.setFax(FormUtils.nullIfEmpty(dynaForm.getString("fax")));
         String bbox = FormUtils.nullIfEmpty(dynaForm.getString("bbox"));
-        if(bbox != null) {
-            String [] boxxvalues = bbox.split(",");
-            if(boxxvalues.length != 4) {
+        if (bbox != null) {
+            String[] boxxvalues = bbox.split(",");
+            if (boxxvalues.length != 4) {
                 log.error("BBOX wrong size: " + boxxvalues.length);
                 throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
-            double minx=0.0, miny=0.0, maxx=-1.0, maxy=-1.0;
+            double minx = 0.0, miny = 0.0, maxx = -1.0, maxy = -1.0;
             try {
                 minx = Double.parseDouble(boxxvalues[0]);
                 miny = Double.parseDouble(boxxvalues[1]);
                 maxx = Double.parseDouble(boxxvalues[2]);
                 maxy = Double.parseDouble(boxxvalues[3]);
                 if (minx > maxx || miny > maxy) {
-                    log.error("BBOX values out of range (minx, miny, maxx, maxy): " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
-                    throw new Exception("BBOX values out of range (minx, miny, maxx, maxy): " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
+                    log.error("BBOX values out of range (minx, miny, maxx, maxy): " + minx + ", " + miny + ", " + maxx + ", " + maxy);
+                    throw new Exception("BBOX values out of range (minx, miny, maxx, maxy): " + minx + ", " + miny + ", " + maxx + ", " + maxy);
                 }
             } catch (Exception e) {
-                log.error("BBOX error minx, miny, maxx, maxy: " + minx+ ", "+ miny+ ", "+maxx+ ", "+maxy);
+                log.error("BBOX error minx, miny, maxx, maxy: " + minx + ", " + miny + ", " + maxx + ", " + maxy);
                 throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
         }
         organization.setBbox(bbox);
         organization.setCode(FormUtils.nullIfEmpty(dynaForm.getString("code")));
-        if(FormUtils.nullIfEmpty(dynaForm.getString("allow")).equalsIgnoreCase("on")){
+        if (FormUtils.nullIfEmpty(dynaForm.getString("allow")).equalsIgnoreCase("on")) {
             organization.setAllowAccountingLayers(true);
-        }else{
+        } else {
             organization.setAllowAccountingLayers(false);
         }
         Set layers = new HashSet();
         Set serviceProviders = new HashSet();
-        String [] selectedLayers = (String [])dynaForm.get("selectedLayers");
+        String[] selectedLayers = (String[]) dynaForm.get("selectedLayers");
         int size = selectedLayers.length;
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             // nieuwe methode voor maken
             WfsLayer l = getWfsLayerByUniqueName(selectedLayers[i]);
-            if (l==null)
+            if (l == null) {
                 continue;
+            }
             layers.add(l);
             WfsServiceProvider sp = l.getWfsServiceProvider();
-            if (!serviceProviders.contains(sp))
+            if (!serviceProviders.contains(sp)) {
                 serviceProviders.add(sp);
+            }
         }
         /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
          * Some might have compatibility some others not. To make sure this wont give any problems, we need to
@@ -224,7 +231,6 @@ public class WfsOrganizationAction extends OrganizationAction {
         organization.setWfsOrganizationLayer(layers);
     }
 // </editor-fold>
-    
     /* Creates a JSON tree from a list of serviceproviders from the database.
      *
      * @param layers Set of layers from which the part of the tree ahs to be build
@@ -236,28 +242,27 @@ public class WfsOrganizationAction extends OrganizationAction {
 // <editor-fold defaultstate="" desc="createTree() method.">
     public JSONObject createTree() throws JSONException {
         EntityManager em = getEntityManager();
-        List serviceProviders =em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
-        
+        List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
+
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
-            WfsServiceProvider sp = (WfsServiceProvider)it.next();
+            WfsServiceProvider sp = (WfsServiceProvider) it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet set= new HashSet();
+            HashSet set = new HashSet();
             Set layers = sp.getWfsLayers();
             set.addAll(layers);
             parentObj = createTreeList(set, parentObj);
-                if (parentObj.has("children")){
-                    rootArray.put(parentObj);
-                }
+            if (parentObj.has("children")) {
+                rootArray.put(parentObj);
+            }
         }
         JSONObject root = new JSONObject();
-        root.put("name","root");
+        root.put("name", "root");
         root.put("children", rootArray);
         return root;
     }
 // </editor-fold>
-    
     /* Creates a JSON tree list of a given set of Layers and a set of restrictions
      * of which layer is visible and which isn't.
      *
@@ -278,7 +283,7 @@ public class WfsOrganizationAction extends OrganizationAction {
             /* For each layer in the set we are going to create a JSON object which we will add to de total
              * list of layer objects.
              */
-            WfsLayer layer = (WfsLayer)layerIterator.next();
+            WfsLayer layer = (WfsLayer) layerIterator.next();
             /* When we have retrieved this array we are able to save our object we are working with
              * at the moment. This object is our present layer object. This object first needs to be
              * transformed into a JSONObject, which we do by calling the method to do so.
@@ -289,13 +294,12 @@ public class WfsOrganizationAction extends OrganizationAction {
              */
             parentArray.put(layerObj);
         }
-        if (parentArray.length() > 0){
+        if (parentArray.length() > 0) {
             parent.put("children", parentArray);
         }
         return parent;
     }
 // </editor-fold>
-    
     /* Creates a JSON object from the ServiceProvider with its given name and id.
      *
      * @param serviceProvider The ServiceProvider object which has to be converted
@@ -313,7 +317,6 @@ public class WfsOrganizationAction extends OrganizationAction {
         return root;
     }
 // </editor-fold>
-    
     /* Creates a JSON object from the Layer with its given name and id.
      *
      * @param layer The Layer object which has to be converted
@@ -323,12 +326,12 @@ public class WfsOrganizationAction extends OrganizationAction {
      * @throws JSONException
      */
 // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException{
+    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("name", layer.getTitle());
         String name = layer.getUniqueName();
-        if (name==null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ",""));
+        if (name == null) {
+            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
             jsonLayer.put("type", "placeholder");
         } else {
             jsonLayer.put("id", name);

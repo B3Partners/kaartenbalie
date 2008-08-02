@@ -1,3 +1,24 @@
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
+ *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 var tabCollections = new Object();
 var tabCookieName = 'tabCookie';
@@ -28,12 +49,12 @@ function registerCollection(id, defaultCollection, overrideCookieCollection)
 }
 
 function readCookie(cookieName) {
-     var theCookie=""+document.cookie;
-     var ind=theCookie.indexOf(cookieName);
-     if (ind==-1 || cookieName=="") return ""; 
-     var ind1=theCookie.indexOf(';',ind);
-     if (ind1==-1) ind1=theCookie.length; 
-     return unescape(theCookie.substring(ind+cookieName.length+1,ind1));
+    var theCookie=""+document.cookie;
+    var ind=theCookie.indexOf(cookieName);
+    if (ind==-1 || cookieName=="") return ""; 
+    var ind1=theCookie.indexOf(';',ind);
+    if (ind1==-1) ind1=theCookie.length; 
+    return unescape(theCookie.substring(ind+cookieName.length+1,ind1));
 }
 
 
@@ -72,8 +93,8 @@ function TabContainer(tce){
         childList = tabCollectionElement.childNodes;
         for( var x = 0; x < childList.length; x++ ) {
             if (childList[x].id == 'tabs'){
-               tabElements = childList[x].getElementsByTagName('li');
-               for( var j = 0; j < tabElements.length; j++ ) {
+                tabElements = childList[x].getElementsByTagName('li');
+                for( var j = 0; j < tabElements.length; j++ ) {
                     tabElement = tabElements[j];
                     if (tabElement.id != null && tabElement.id != '')
                     {
@@ -81,7 +102,7 @@ function TabContainer(tce){
                         tabs[tabElement.id] = tab;
                         tabs[tabs.length] = tab;
                     }
-               }
+                }
             } else if (childList[x].id == 'sheets'){
                 var sheetList = childList[x].childNodes;
                 for( var y = 0; y < sheetList.length; y++ ) {
@@ -96,8 +117,8 @@ function TabContainer(tce){
             }
         }
         //Match sheets with tabs!
-        for( var y = 0; y < sheets.length; y++ ) {
-            sheet = sheets[y];
+        for( var z = 0; z < sheets.length; z++ ) {
+            sheet = sheets[z];
             tab = tabs[sheet.getElement().id];
             if (tab == null)
             {
@@ -109,7 +130,7 @@ function TabContainer(tce){
         }
     }
 
-   this.activateTab = function(tabId){
+    this.activateTab = function(tabId){
         //Find the active tab!
         activeTab = tabs[tabId];
         if (activeTab == null){
@@ -132,7 +153,7 @@ function TabContainer(tce){
                 activeSheet.display();
             }
         }
-   }
+    }
 }
 
 

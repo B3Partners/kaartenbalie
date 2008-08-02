@@ -1,21 +1,34 @@
 /*
- * WFSRequestHandler.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on June 10, 2008, 9:48 AM
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,7 +40,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.exolab.castor.xml.Unmarshaller;
 import org.w3c.dom.Document;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,35 +49,35 @@ import org.apache.commons.logging.LogFactory;
  * @author Jytte
  */
 public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
-    
+
     private static final Log log = LogFactory.getLog(WFSGetFeatureRequestHandler.class);
-    
+
     /** Creates a new instance of WFSRequestHandler */
     public WFSGetFeatureRequestHandler() {
     }
-    
+
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
         OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
         Set layers = null;
         String[] layerNames = null;
         Integer orgId = user.getOrganization().getId();
-        
+
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         layers = ogcrequest.getGetFeatureMap().keySet();
         Iterator it = layers.iterator();
         String[] allLayers = new String[layers.size()];
         int x = 0;
-        while(it.hasNext()){
+        while (it.hasNext()) {
             String layer = it.next().toString();
             allLayers[x] = layer;
             x++;
         }
-        
+
         if (allLayers.length < 1) {
             throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported!");
         }
-        
+
         layerNames = new String[allLayers.length];
         for (int i = 0; i < allLayers.length; i++) {
             String[] temp = allLayers[i].split("}");
@@ -80,20 +92,20 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 }
             }
         }
-        
+
         String url = null;
         String prefix = null;
-        
+
         List spUrls = getSeviceProviderURLS(layerNames, orgId, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
         spUrls = prepareAccounting(orgId, data, spUrls);
-        if(spUrls==null || spUrls.isEmpty()) {
+        if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
-        
+
         List spLayers = new ArrayList();
         Iterator iter = spUrls.iterator();
         while (iter.hasNext()) {
@@ -103,14 +115,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             layer.put("layer", sp.getLayerName());
             spLayers.add(layer);
         }
-        
-        if (spLayers == null || spLayers.size()==0) {
+
+        if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         PostMethod method = null;
         HttpClient client = new HttpClient();
         OutputStream os = data.getOutputStream();
-        
+
         Iterator spIt = spUrls.iterator();
         while (spIt.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) spIt.next();
@@ -118,12 +130,12 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             prefix = sp.getSpAbbr();
             ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayerName());
             String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
-            if(filter != null){
+            if (filter != null) {
                 ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
             }
-            
+
             String body = data.getOgcrequest().getXMLBody();
-            
+
             String host = url;
             method = new PostMethod(host);
             method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
@@ -131,11 +143,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             if (status == HttpStatus.SC_OK) {
                 data.setContentType("text/xml");
                 InputStream is = method.getResponseBodyAsStream();
-                
+
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(is);
-                
+
                 ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
             } else {
                 log.error("Failed to connect with " + url + " Using body: " + body);

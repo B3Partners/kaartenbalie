@@ -1,21 +1,30 @@
-/**
- * @(#)GetCapabilitiesRequestHandler.java
- * @author N. de Goeij
- * @version 1.00 2006/12/13
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: the function of this class is to create a list of url's which direct to the right servers that have the desired layers
- * for the WMS GetFeatureInfo request.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -25,13 +34,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
-    
+
     private static final Log log = LogFactory.getLog(GetFeatureInfoRequestHandler.class);
-    
     // <editor-fold defaultstate="" desc="default GetFeatureInfoRequestHandler() constructor.">
-    public GetFeatureInfoRequestHandler() {}
+    public GetFeatureInfoRequestHandler() {
+    }
     // </editor-fold>
-    
     /**
      * Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
@@ -46,36 +54,36 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
-        
+
         OGCRequest ogcrequest = dw.getOgcrequest();
         String value = "";
         if (ogcrequest.containsParameter(OGCConstants.FEATURE_INFO_FORMAT)) {
             value = ogcrequest.getParameter(OGCConstants.FEATURE_INFO_FORMAT);
-            if(value != null && value.length() > 0) {
+            if (value != null && value.length() > 0) {
                 dw.setContentType(value);
             } else {
                 dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
             }
         }
-        
+
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
         dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
-        
-        this.user       = user;
-        this.url        = user.getPersonalURL();
-        Integer orgId   = user.getOrganization().getId();
-        OGCRequest ogc  = dw.getOgcrequest();
-        
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgId, true,dw);
-        if(spUrls==null || spUrls.isEmpty()) {
+
+        this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId();
+        OGCRequest ogc = dw.getOgcrequest();
+
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgId, true, dw);
+        if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.FEATUREINFO_QUERYABLE_EXCEPTION);
         }
-        
+
         ArrayList urlWrapper = new ArrayList();
         Iterator it = spUrls.iterator();
         while (it.hasNext()) {
-            
+
             SpLayerSummary spInfo = (SpLayerSummary) it.next();
             WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
             Integer serviceProviderId = spInfo.getServiceproviderId();
@@ -87,9 +95,9 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
 
                 StringBuffer url = new StringBuffer();
                 url.append(spInfo.getSpUrl());
-                String [] params = dw.getOgcrequest().getParametersArray();
+                String[] params = dw.getOgcrequest().getParametersArray();
                 for (int i = 0; i < params.length; i++) {
-                    String [] keyValuePair = params[i].split("=");
+                    String[] keyValuePair = params[i].split("=");
                     if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
                         url.append(OGCConstants.WMS_PARAM_LAYERS);
                         url.append("=");
@@ -109,7 +117,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                 urlWrapper.add(firWrapper);
             }
         }
-        
+
         getOnlineData(dw, urlWrapper, false, OGCConstants.WMS_REQUEST_GetFeatureInfo);
     }
 }

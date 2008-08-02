@@ -1,11 +1,27 @@
-/**
- * @(#)OGCRequestHandler.java
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -160,7 +176,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager();
 
         Map config = dw.getLayeringParameterMap();
-        
+
         configB3pLayering(layers, config);
 
         //eerst geen b3pLayering meenemen
@@ -231,14 +247,14 @@ public abstract class OGCRequestHandler implements RequestHandler {
         Map config = dw.getLayeringParameterMap();
         Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
         boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
-        
+
         /* 
          * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
          * if a WFS layer has a price and never show it.
          */
-        if(dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)){
+        if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
             bAllowTransactions = bat == null ? false : bat.booleanValue();
-        }else{
+        } else {
             bAllowTransactions = true;
         }
 
@@ -281,23 +297,23 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 lc.closeEntityManager();
             }
         }
-        
 
-        
-        
+
+
+
         Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
         boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
-        
+
         /* 
          * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
          * if a WFS layer has a price and never show it.
          */
-        if(dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)){
+        if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
             bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
-        }else{
+        } else {
             bFoundAllowTransactionsLayer = true;
         }
-        
+
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
             config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
             config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
@@ -315,7 +331,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 addToServerProviderList(cleanedSpList, layerInfo);
             }
         }
-        
+
         return cleanedSpList;
     }
 

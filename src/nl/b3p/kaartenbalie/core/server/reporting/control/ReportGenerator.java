@@ -1,12 +1,24 @@
 /*
- * ReportGenerator.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on October 23, 2007, 11:28 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.io.File;
@@ -48,42 +60,42 @@ import org.apache.commons.logging.LogFactory;
  * @author Chris Kramer
  */
 public class ReportGenerator {
+
     private static final Log log = LogFactory.getLog(ReportGenerator.class);
-    
     private final static String XSL_PATH = "/xslt/";
     public static SimpleDateFormat trsDate = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
     private static List reportStatusMap;
     private static Stack reportStack;
     private static int maxSimultaneousReports = 15;
-    
     private static Map reportTypeInfo;
-    public final static int RESPONSE_XML         =0;
-    public final static int RESPONSE_XML_XSLT    =1;
-    public final static int RESPONSE_HTML        = 2;
-    
-    
+    public final static int RESPONSE_XML = 0;
+    public final static int RESPONSE_XML_XSLT = 1;
+    public final static int RESPONSE_HTML = 2;
     private User user;
     private Organization organization;
+    
+
     static {
         reportStatusMap = new ArrayList();
         reportStack = new Stack();
         reportTypeInfo = new HashMap();
-        reportTypeInfo.put(new Integer(RESPONSE_XML), new String[] {"text/xml", "xml"});
-        reportTypeInfo.put(new Integer(RESPONSE_XML_XSLT), new String[] {"text/xml", "xml"});
-        reportTypeInfo.put(new Integer(RESPONSE_HTML), new String[] {"text/html", "html"});
+        reportTypeInfo.put(new Integer(RESPONSE_XML), new String[]{"text/xml", "xml"});
+        reportTypeInfo.put(new Integer(RESPONSE_XML_XSLT), new String[]{"text/xml", "xml"});
+        reportTypeInfo.put(new Integer(RESPONSE_HTML), new String[]{"text/html", "html"});
     }
+
     public static String[] getReportTypeInfo(int reportType) {
         return (String[]) reportTypeInfo.get(new Integer(reportType));
     }
-    
+
     private ReportGenerator() {
     }
-    
+
     public ReportGenerator(User user, Organization organization) {
         this.user = user;
         this.organization = organization;
     }
-    
+
     public void createReport(Class reportThreadType, Map parameters) throws Exception {
         try {
             if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
@@ -96,21 +108,23 @@ public class ReportGenerator {
                     reportStatusMap.add(rtt);
                     rtt.start();
                 }
-                
+
             }
         } catch (Exception e) {
             throw e;
         }
     }
+
     public Object[] getWorkload() {
-        
-        Double workloadPercentage = new Double(((double)reportStatusMap.size() / (double)maxSimultaneousReports) * 100.0);
+
+        Double workloadPercentage = new Double(((double) reportStatusMap.size() / (double) maxSimultaneousReports) * 100.0);
         Integer itemsOnStack = new Integer(reportStack.size());
-        return new Object[] {workloadPercentage, itemsOnStack};
-        
+        return new Object[]{workloadPercentage, itemsOnStack};
+
     }
+
     public void notifyClosed(ReportThreadTemplate rtt) {
-        
+
         if (!reportStack.empty()) {
             try {
                 ReportThreadTemplate newRtt = (ReportThreadTemplate) reportStack.pop();
@@ -124,30 +138,24 @@ public class ReportGenerator {
         }
         reportStatusMap.remove(rtt);
     }
-    
-    
+
     public List requestReportStatus() {
         EntityManager em = MyEMFDatabase.createEntityManager();
         List trsList = em.createQuery("" +
                 "FROM ThreadReportStatus AS trs " +
                 "WHERE trs.organization.id = :organizationId " +
-                "ORDER BY trs.state DESC, trs.creationDate DESC")
-                .setParameter("organizationId", organization.getId())
-                .getResultList();
+                "ORDER BY trs.state DESC, trs.creationDate DESC").setParameter("organizationId", organization.getId()).getResultList();
         em.close();
         return trsList;
     }
-    
+
     public static void startupClear() {
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
         et.begin();
         List trsList = em.createQuery(
                 "FROM ThreadReportStatus AS trs " +
-                "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ")
-                .setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED))
-                .setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED))
-                .getResultList();
+                "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ").setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED)).setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED)).getResultList();
         Iterator listIter = trsList.iterator();
         while (listIter.hasNext()) {
             ThreadReportStatus trs = (ThreadReportStatus) listIter.next();
@@ -156,17 +164,16 @@ public class ReportGenerator {
         }
         et.commit();
         em.close();
-        
-        
+
+
     }
-    
-    
+
     public void removeReport(Integer trsId) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         EntityTransaction et = em.getTransaction();
         et.begin();
         if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
+            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() != null) {
                 BaseReport reportTemplate = (BaseReport) em.find(BaseReport.class, trs.getReportId());
                 if (reportTemplate != null) {
@@ -178,69 +185,68 @@ public class ReportGenerator {
         et.commit();
         em.close();
     }
-    
+
     public String reportName(Integer trsId) throws Exception {
         EntityManager em = MyEMFDatabase.createEntityManager();
         String result = null;
         if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
+            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() == null) {
                 log.error("Report not found!");
                 throw new Exception("Report not found!");
             }
-            Object report =  em.find(DataUsageReport.class, trs.getReportId());
-            
+            Object report = em.find(DataUsageReport.class, trs.getReportId());
+
             if (report != null) {
-                result =  trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
+                result = trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
             }
         }
         em.close();
         return result;
     }
-    
-    
-    public void fetchReport(Integer trsId, OutputStream outStream, int responseMode,ServletContext servletContext) throws Exception {
-        
+
+    public void fetchReport(Integer trsId, OutputStream outStream, int responseMode, ServletContext servletContext) throws Exception {
+
         EntityManager em = MyEMFDatabase.createEntityManager();
         if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus)em.find(ThreadReportStatus.class, trsId);
+            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
             if (trs.getReportId() != null) {
                 BaseReport report = (BaseReport) em.find(BaseReport.class, trs.getReportId());
                 //Create instance of DocumentBuilderFactory
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                
+
                 //Get the DocumentBuilder
                 DocumentBuilder docBuilder = factory.newDocumentBuilder();
-                
+
                 //Create blank DOM Document
                 Document doc = docBuilder.newDocument();
-                
+
                 //get the root element
                 Element reportElement = report.buildElement(doc);
                 doc.appendChild(reportElement);
                 Source reportSource = new DOMSource(doc);
-                
-                
+
+
                 String reportType = report.getClass().getSimpleName();
                 TransformerFactory transFactory = TransformerFactory.newInstance();
                 Transformer xmlTransformer = transFactory.newTransformer();
                 xmlTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
                 xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 xmlTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
-                
+
                 switch (responseMode) {
-                    case RESPONSE_XML :
+                    case RESPONSE_XML:
                         xmlTransformer.transform(reportSource, new StreamResult(outStream));
                         break;
-                    case RESPONSE_XML_XSLT :
+                    case RESPONSE_XML_XSLT:
                         Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/" + reportType + "/mnp/report.xsl\"");
                         doc.insertBefore(reportXsl, reportElement);
                         xmlTransformer.transform(reportSource, new StreamResult(outStream));
-                        
+
                         break;
-                    case RESPONSE_HTML :
-                        
-                        File xslFile = new File(servletContext.getRealPath(XSL_PATH +  reportType + "/mnp/report.xsl"));
+                    case RESPONSE_HTML:
+
+                        File xslFile = new File(servletContext.getRealPath(XSL_PATH + reportType + "/mnp/report.xsl"));
                         File xmlPath = new File(xslFile.getParent());
                         Source xsltSource = new StreamSource(new FileInputStream(xslFile));
                         xsltSource.setSystemId(xmlPath.toURI().toString());
@@ -252,6 +258,4 @@ public class ReportGenerator {
         }
         em.close();
     }
-    
-    
 }

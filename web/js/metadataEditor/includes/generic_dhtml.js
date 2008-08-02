@@ -1,3 +1,24 @@
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
+ *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+ */
 // 3/8/07 Erik van de Pol
 
 // Loosely based on "generic_dhtml.vbs" by Eric Compas (2/3/05).
@@ -23,71 +44,71 @@ var openedMenuNode = null;
 
 // Show popup window that's embedded in code
 function showMenu(event) {
-	var element = getTarget(event);
-	element = element.parentNode;
-	//debug("showMenu");
+    var element = getTarget(event);
+    element = element.parentNode;
+    //debug("showMenu");
 
-	while (element.tagName.toLowerCase() != "span" && element.tagName.toLowerCase() != "html")
-		element = element.parentNode;
+    while (element.tagName.toLowerCase() != "span" && element.tagName.toLowerCase() != "html")
+        element = element.parentNode;
 	
-	//current value
-	var list;
-	var listFound = false;
-	for (var i = 0; i < element.childNodes.length; i++) {		
-		list = element.childNodes[i];
-		if (list.nodeType == Node.ELEMENT_NODE && list.tagName.toLowerCase() == "ul") {
-			listFound = true;
-			break;
-		}
-	}
+    //current value
+    var list;
+    var listFound = false;
+    for (var i = 0; i < element.childNodes.length; i++) {		
+        list = element.childNodes[i];
+        if (list.nodeType == Node.ELEMENT_NODE && list.tagName.toLowerCase() == "ul") {
+            listFound = true;
+            break;
+        }
+    }
 
-	if (!listFound) {
-		alert("Cannot locate menu to display.");
-		return;
-	}
+    if (!listFound) {
+        alert("Cannot locate menu to display.");
+        return;
+    }
 
-	// get image to use for positioning
-	var image;
-	var imageFound = false;
-	for (var i = 0; i < element.childNodes.length; i++) {		
-		image = element.childNodes[i];
-		if (image.nodeType == Node.ELEMENT_NODE && image.tagName.toLowerCase() == "img") {
-			imageFound = true;
-			break;
-		}
-	}
+    // get image to use for positioning
+    var image;
+    var imageFound = false;
+    for (var i = 0; i < element.childNodes.length; i++) {		
+        image = element.childNodes[i];
+        if (image.nodeType == Node.ELEMENT_NODE && image.tagName.toLowerCase() == "img") {
+            imageFound = true;
+            break;
+        }
+    }
 
-	if (!imageFound) {
-		alert("Cannot locate menu image.");
-		return;
-	}
+    if (!imageFound) {
+        alert("Cannot locate menu image.");
+        return;
+    }
 	
-	// show/hide menu
-	if (isMenuShowing(list))
-		hideMenu(list);
-	else
-		_showMenu(list);
+    // show/hide menu
+    if (isMenuShowing(list))
+        hideMenu(list);
+    else
+        _showMenu(list);
 	
-	stopPropagation(event);
+    stopPropagation(event);
 }
 
 function _showMenu(element) {
-	//debug("show");
-	hideMenu(openedMenuNode);
-	element.style.display = "inline";
-	openedMenuNode = element;
+    //debug("show");
+    hideMenu(openedMenuNode);
+    element.style.display = "inline";
+    openedMenuNode = element;
 }
 
 function hideMenu(element) {
-	//debug("hide");
-	if (element != null)
-		element.style.display = "none";
-	openedMenuNode = null;
+    //debug("hide");
+    if (element != null)
+        element.style.display = "none";
+    openedMenuNode = null;
 }
 
 function isMenuShowing(element) {
-	//debug("element.style.display: " + element.style.display);
-	return element.style.display !== "none";
+    //debug("element.style.display: " + element.style.display);
+    return element.style.display !== "none";
 }
 
 // Description:
@@ -103,49 +124,49 @@ function isMenuShowing(element) {
 // Arguments:
 //   pElem = reference to the object calling the routine
 function expandNode(pElem) {
-	// get elements (anchor and child div)
-	var pFolderAnchor = pElem.parentNode.getElementsByTagName("a")[0];
-	var pChildDiv = pElem.parentNode.parentNode.getElementsByTagName("div")[1];
-	if (pFolderAnchor == null || pChildDiv == null) {
-		// error encountered;
-		alert("Error encountered expanding/collapsing this section.");
-		return;
-	}
+    // get elements (anchor and child div)
+    var pFolderAnchor = pElem.parentNode.getElementsByTagName("a")[0];
+    var pChildDiv = pElem.parentNode.parentNode.getElementsByTagName("div")[1];
+    if (pFolderAnchor == null || pChildDiv == null) {
+        // error encountered;
+        alert("Error encountered expanding/collapsing this section.");
+        return;
+    }
 
-	// switch folder content display or hide
-	var sDisplay = pChildDiv.style.display;
-	if (sDisplay == "none") {
-		pChildDiv.style.display = "block";
-	}
-	else {
-		pChildDiv.style.display = "none";
-	}
+    // switch folder content display or hide
+    var sDisplay = pChildDiv.style.display;
+    if (sDisplay == "none") {
+        pChildDiv.style.display = "block";
+    }
+    else {
+        pChildDiv.style.display = "none";
+    }
 
-	// switch plus/minus text or plus/minus images
+    // switch plus/minus text or plus/minus images
 
-	// get first img child (must be + or - image)
-	var pCurrentIMG;
-	//for (var childIndex in pFolderAnchor.childNodes) {
-	for (var i = 0; i < pFolderAnchor.childNodes.length; i++) {
-		pCurrentIMG = pFolderAnchor.childNodes[i];
-		if (pCurrentIMG.nodeType == 1 && pCurrentIMG.tagName.toLowerCase() == "img") {
-			// switch images
-			var pNewIMG;			
-			if (sDisplay == "none") {
-				pNewIMG = document.getElementById("minus_img").cloneNode(true);
-			}
-			else {
-				pNewIMG = document.getElementById("plus_img").cloneNode(true);
-			}
+    // get first img child (must be + or - image)
+    var pCurrentIMG;
+    //for (var childIndex in pFolderAnchor.childNodes) {
+    for (var i = 0; i < pFolderAnchor.childNodes.length; i++) {
+        pCurrentIMG = pFolderAnchor.childNodes[i];
+        if (pCurrentIMG.nodeType == 1 && pCurrentIMG.tagName.toLowerCase() == "img") {
+            // switch images
+            var pNewIMG;			
+            if (sDisplay == "none") {
+                pNewIMG = document.getElementById("minus_img").cloneNode(true);
+            }
+            else {
+                pNewIMG = document.getElementById("plus_img").cloneNode(true);
+            }
 
-			if (pNewIMG == null) {
-				alert("No image to switch found");
-				return;
-			}
-			pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
-			break;
-		}
-	}
+            if (pNewIMG == null) {
+                alert("No image to switch found");
+                return;
+            }
+            pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
+            break;
+        }
+    }
 
 }
 
@@ -158,49 +179,49 @@ function expandNode(pElem) {
 //   expand = true, expands all
 //          = false, collapses all
 function expandAll(expand) {
-	// get all div elements in document and loop through them
-	var pDIVElements = document.getElementsByTagName("div");
+    // get all div elements in document and loop through them
+    var pDIVElements = document.getElementsByTagName("div");
 
-	for (var childIndex in pDIVElements) {
-		var pElem = pDIVElements[childIndex];
-		if (pElem.className == "folder") {
-			// current div element's anchor and content div
-			pFolderAnchor = pElem.getElementsByTagName("a")[0];
-			pChildDiv = pElem.getElementsByTagName("div")[0];
-			if (pFolderAnchor != null && pChildDiv != null) {
-				// switch folder content display or hide
-				if (expand)
-					pChildDiv.style.display = "block";
-				else
-					pChildDiv.style.display = "none";
+    for (var childIndex in pDIVElements) {
+        var pElem = pDIVElements[childIndex];
+        if (pElem.className == "folder") {
+            // current div element's anchor and content div
+            pFolderAnchor = pElem.getElementsByTagName("a")[0];
+            pChildDiv = pElem.getElementsByTagName("div")[0];
+            if (pFolderAnchor != null && pChildDiv != null) {
+                // switch folder content display or hide
+                if (expand)
+                    pChildDiv.style.display = "block";
+                else
+                    pChildDiv.style.display = "none";
 
-				// switch plus/minus text or plus/minus images
+                // switch plus/minus text or plus/minus images
 
-				// image first child?
-				if (pFolderAnchor.childNodes[0].tagName == "IMG") {
-					pCurrentIMG = pFolderAnchor.getElementsByTagName("img")[0];
+                // image first child?
+                if (pFolderAnchor.childNodes[0].tagName == "IMG") {
+                    pCurrentIMG = pFolderAnchor.getElementsByTagName("img")[0];
 					
-					// switch images
-					if (expand)
-						pNewIMG = document.getElementById("minus_img").cloneNode(true);
-					else
-						pNewIMG = document.getElementById("plus_img").cloneNode(true);
+                    // switch images
+                    if (expand)
+                        pNewIMG = document.getElementById("minus_img").cloneNode(true);
+                    else
+                        pNewIMG = document.getElementById("plus_img").cloneNode(true);
 
-					pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
-				}
-				else {
-					// switch text
-					if (expand)
-						sSymbol = "-";
-					else
-						sSymbol = "+";
+                    pFolderAnchor.replaceChild(pNewIMG, pCurrentIMG);
+                }
+                else {
+                    // switch text
+                    if (expand)
+                        sSymbol = "-";
+                    else
+                        sSymbol = "+";
 
-					pFolderAnchor.childNodes[0].innerText = sSymbol;
-				}
-			}
-			else {
-				// error encountered - skip this folder
-			}
-		}
-	}
+                    pFolderAnchor.childNodes[0].innerText = sSymbol;
+                }
+            }
+            else {
+                // error encountered - skip this folder
+            }
+        }
+    }
 }

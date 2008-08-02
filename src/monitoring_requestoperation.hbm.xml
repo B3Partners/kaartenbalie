@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
 
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="mon_requestoperation" discriminator-value="Operation">
-        <id name="id" type="int" column="rqo_id" >
-            <generator class="native"/>
-        </id>
-        <discriminator column="rqo_discriminator" type="string" />
-        <many-to-one name="clientRequest" column="rqo_clr_id" update="true" not-null="false"/>    
-        <property name="duration" column="rqo_duration"/>       
-        <property name="msSinceRequestStart" column="rqo_msSinceRequestStart"/>       
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation" discriminator-value="CombineImagesOperation">
-            <property name="numberOfImages" column="rqo_numberOfImages"/>
-        </subclass>
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation" discriminator-value="ServerTransferOperation"/>        
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation" discriminator-value="ClientXFerOperation">        
-            <property name="dataSize" column="rqo_dataSize"/>
-        </subclass>
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation" discriminator-value="RequestOperation">        
-            <property name="bytesReceivedFromUser" column="rqo_bytesReceivedFromUser"/>
-            <property name="bytesSendToUser" column="rqo_bytesSendToUser"/>
-        </subclass>
-        <subclass name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.AccountingOperation" discriminator-value="AccountingOperation"/>
-    </class>
+  <class discriminator-value="Operation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="mon_requestoperation">
+    <id column="rqo_id" name="id" type="int">
+      <generator class="native"/>
+    </id>
+    <discriminator column="rqo_discriminator" type="string"/>
+    <many-to-one column="rqo_clr_id" name="clientRequest" not-null="false" update="true"/>
+    <property column="rqo_duration" name="duration"/>
+    <property column="rqo_msSinceRequestStart" name="msSinceRequestStart"/>
+    <subclass discriminator-value="CombineImagesOperation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation">
+      <property column="rqo_numberOfImages" name="numberOfImages"/>
+    </subclass>
+    <subclass discriminator-value="ServerTransferOperation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation"/>
+    <subclass discriminator-value="ClientXFerOperation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation">
+      <property column="rqo_dataSize" name="dataSize"/>
+    </subclass>
+    <subclass discriminator-value="RequestOperation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation">
+      <property column="rqo_bytesReceivedFromUser" name="bytesReceivedFromUser"/>
+      <property column="rqo_bytesSendToUser" name="bytesSendToUser"/>
+    </subclass>
+    <subclass discriminator-value="AccountingOperation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.AccountingOperation"/>
+  </class>
 </hibernate-mapping>

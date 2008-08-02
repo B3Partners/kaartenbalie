@@ -1,38 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
 
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition" table="acc_pricecomp">
-        
-        <id name="id" type="int" column="prc_id" >
-            <generator class="native"/>
-        </id>
-        <many-to-one name="transactionLayerUsage" column="prc_tra_id"/> 
-        
-        <property name="serverProviderPrefix" column="prc_serverProviderPrefix"/>
-        <property name="layerName" column="prc_layerName"/>
-        <property name="calculationDate" column="prc_calculationDate"/>
-        <property name="planType" column="prc_planType"/>
-        <property name="service" column="prc_service"/>
-        <property name="operation" column="prc_operation"/>
-        <property name="units">
-            <column name="lpr_units" precision="5" scale="2" />            
-        </property>  
-        <property name="scale">
-            <column name="prc_scale" precision="20" scale="10" />            
-        </property>  
-        <property name="projection" column="prc_projection"/>
-        
-
-        <property name="layerIsFree" column="prc_layerIsFree"/>
-        <property name="method" column="prc_method"/>
-        <property name="calculationTime" column="prc_calculationTime"/>
-        <property name="layerPrice">
-            <column name="lpr_layerPrice" precision="12" scale="2" />            
-        </property>  
-        
-        
-    </class>
+  <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition" table="acc_pricecomp">
+    <id column="prc_id" name="id" type="int">
+      <generator class="native"/>
+    </id>
+    <many-to-one column="prc_tra_id" name="transactionLayerUsage"/>
+    <property column="prc_serverProviderPrefix" name="serverProviderPrefix"/>
+    <property column="prc_layerName" name="layerName"/>
+    <property column="prc_calculationDate" name="calculationDate"/>
+    <property column="prc_planType" name="planType"/>
+    <property column="prc_service" name="service"/>
+    <property column="prc_operation" name="operation"/>
+    <property name="units">
+      <column name="lpr_units" precision="5" scale="2"/>
+    </property>
+    <property name="scale">
+      <column name="prc_scale" precision="20" scale="10"/>
+    </property>
+    <property column="prc_projection" name="projection"/>
+    <property column="prc_layerIsFree" name="layerIsFree"/>
+    <property column="prc_method" name="method"/>
+    <property column="prc_calculationTime" name="calculationTime"/>
+    <property name="layerPrice">
+      <column name="lpr_layerPrice" precision="12" scale="2"/>
+    </property>
+  </class>
 </hibernate-mapping>

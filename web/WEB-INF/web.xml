@@ -10,7 +10,6 @@
         <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
         <param-value>nl</param-value>
     </context-param>
-    
     <filter>
         <filter-name>Security Filter</filter-name>
         <filter-class>org.securityfilter.filter.SecurityFilter</filter-class>
@@ -40,14 +39,13 @@
         <init-param>
             <param-name>warehousing</param-name>
             <param-value>disabled</param-value> <!-- enabled/disabled -->
-        </init-param>        
+        </init-param>
         <init-param>
             <param-name>accounting</param-name>
             <param-value>enabled</param-value> <!-- enabled/disabled -->
-        </init-param>           
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    
     <servlet>
         <servlet-name>action</servlet-name>
         <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
@@ -111,12 +109,16 @@
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SelectCSS</servlet-name>
         <url-pattern>/styles/selectcss</url-pattern>
     </servlet-mapping>
     <!-- EINDE Select CSS Servlet -->
-	
     <servlet>
         <servlet-name>FlamingoConfigServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>
@@ -136,6 +138,10 @@
     <servlet-mapping>
         <servlet-name>FlamingoConfigServlet</servlet-name>
         <url-pattern>/flamingo/servlet/FlamingoConfigServlet/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServletAdaptor</servlet-name>
+        <url-pattern>/resources/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

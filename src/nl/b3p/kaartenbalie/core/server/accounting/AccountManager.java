@@ -1,12 +1,24 @@
 /*
- * AccountManager.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on November 15, 2007, 9:55 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.accounting;
 
 import java.math.BigDecimal;
@@ -33,8 +45,8 @@ import org.apache.commons.logging.LogFactory;
  * @author Chris
  */
 public class AccountManager {
-    private static final Log log = LogFactory.getLog(AccountManager.class);
 
+    private static final Log log = LogFactory.getLog(AccountManager.class);
     /**
      * 
      */
@@ -44,14 +56,15 @@ public class AccountManager {
     private static ThreadLocal tluHolder = new ThreadLocal();
     private static Map managers;
     private Integer organizationId;
-    
+
     private AccountManager() {
     }
     
-    static  {
+
+    static {
         managers = new HashMap();
     }
-    
+
     /**
      * 
      * @param organizationId
@@ -63,7 +76,7 @@ public class AccountManager {
             accountManager = new AccountManager(organizationId);
             if (enableAccounting) {
                 EntityManager em = MyEMFDatabase.createEntityManager();
-                Account account = (Account)em.find(Account.class, organizationId);
+                Account account = (Account) em.find(Account.class, organizationId);
                 //Organization organization = (Organization) em.find(Organization.class, organizationId);
                 if (account == null) {
                     EntityTransaction et = em.getTransaction();
@@ -80,14 +93,14 @@ public class AccountManager {
         }
         return accountManager;
     }
-    
+
     /** Creates a new instance of AccountManager
      * @param organizationId 
      */
     public AccountManager(Integer organizationId) {
         this.organizationId = organizationId;
     }
-    
+
     /**
      * 
      * @param transactionClass
@@ -95,9 +108,11 @@ public class AccountManager {
      * @return
      * @throws java.lang.Exception
      */
-    public Transaction prepareTransaction(Class transactionClass, String description) throws Exception{
-        if (!isEnableAccounting()) {return null;}
-        
+    public Transaction prepareTransaction(Class transactionClass, String description) throws Exception {
+        if (!isEnableAccounting()) {
+            return null;
+        }
+
         if (!Transaction.class.isAssignableFrom(transactionClass)) {
             log.error("Class transactionClass is not assignable.");
             throw new Exception("Class transactionClass is not assignable.");
@@ -107,7 +122,7 @@ public class AccountManager {
         Transaction transaction = null;
         try {
             et.begin();
-            Account account = (Account)em.find(Account.class, organizationId);
+            Account account = (Account) em.find(Account.class, organizationId);
             transaction = (Transaction) transactionClass.newInstance();
             transaction.setStatus(Transaction.PENDING);
             transaction.setAccount(account);
@@ -117,11 +132,12 @@ public class AccountManager {
         } catch (Exception e) {
             et.rollback();
             throw e;
-        } finally{
+        } finally {
             em.close();
         }
         return transaction;
     }
+
     /**
      * 
      * @return
@@ -132,22 +148,22 @@ public class AccountManager {
         tluHolder.set(tlu);
         return tlu;
     }
+
     /**
      * 
      * @return
      */
     public TransactionLayerUsage getTLU() {
-        return  (TransactionLayerUsage) tluHolder.get();
+        return (TransactionLayerUsage) tluHolder.get();
     }
-    
+
     /**
      * 
      */
     public void endTLU() {
         tluHolder.set(null);
     }
-    
-    
+
     /**
      * 
      * @param accountTransaction
@@ -159,17 +175,17 @@ public class AccountManager {
             log.error("Trying to nullvalidate a null transaction.");
             throw new Exception("Trying to nullvalidate a null transaction.");
         }
-        
+
         if (accountTransaction.getCreditAlteration() == null) {
             log.error("Trying to nullvalidate a transaction with a nullvalue for creditAlteration.");
             throw new Exception("Trying to nullvalidate a transaction with a nullvalue for creditAlteration.");
         }
-        
+
         if (accountTransaction.getCreditAlteration().doubleValue() < 0) {
             log.error("Transaction creditalteration cannot be less then zero.");
             throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
         }
-        
+
         if (accountTransaction.getCreditAlteration().doubleValue() == 0) {
             EntityManager em = MyEMFDatabase.createEntityManager();
             EntityTransaction et = em.getTransaction();
@@ -178,23 +194,23 @@ public class AccountManager {
                 em.remove(em.find(Transaction.class, accountTransaction.getId()));
                 et.commit();
                 accountTransaction = null;
-            }catch (Exception e){
+            } catch (Exception e) {
                 et.rollback();
                 throw e;
-            }finally {
+            } finally {
                 em.close();
             }
         }
         return accountTransaction;
     }
-    
+
     /**
      * 
      * @param accountTransaction
      * @param user
      * @throws java.lang.Exception
      */
-    public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception{
+    public synchronized void commitTransaction(Transaction accountTransaction, User user) throws Exception {
         if (!enableAccounting) {
             return;
         }
@@ -205,20 +221,20 @@ public class AccountManager {
             EntityTransaction et = em.getTransaction();
             et.begin();
             //Get the account and set the current balance. Update the class variable at the same time.
-            Account account = (Account)em.find(Account.class, organizationId);
+            Account account = (Account) em.find(Account.class, organizationId);
             balance = account.getCreditBalance();
             //Set the account & user for the accountTransaction.
             accountTransaction.setAccount(account);
             accountTransaction.setUser(user);
             try {
-            /*
-             * If the class is an TransactionLayerUsage, we'll have to do some work before testing.
-             * We need to persist the LayerPriceCompositions into the entityManager..
-             */
+                /*
+                 * If the class is an TransactionLayerUsage, we'll have to do some work before testing.
+                 * We need to persist the LayerPriceCompositions into the entityManager..
+                 */
                 if (accountTransaction.getClass().equals(TransactionLayerUsage.class)) {
                     TransactionLayerUsage tlu = (TransactionLayerUsage) accountTransaction;
                     Iterator iterPriceComp = tlu.getLayerPriceCompositions().iterator();
-                    while(iterPriceComp.hasNext()) {
+                    while (iterPriceComp.hasNext()) {
                         LayerPriceComposition lpc = (LayerPriceComposition) iterPriceComp.next();
                         em.persist(lpc);
                     }
@@ -233,18 +249,19 @@ public class AccountManager {
                 accountTransaction.validate();
                 //Scale the creditAlteration...
                 accountTransaction.setCreditAlteration(accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
-                
+
                 //Now check if the transaction either has to deposit or withdraw...
                 BigDecimal newBalance = null;
                 if (accountTransaction.getType() == accountTransaction.DEPOSIT) {
                     newBalance = balance.add(accountTransaction.getCreditAlteration());
                 } else if (accountTransaction.getType() == accountTransaction.WITHDRAW) {
                     newBalance = balance.subtract(accountTransaction.getCreditAlteration());
-                    if (newBalance.doubleValue() < 0)
+                    if (newBalance.doubleValue() < 0) {
                         throw new TransactionDeniedException(
                                 "Insufficient credits for transaction. " +
-                                "Required credits: "  + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() +  ", " +
+                                "Required credits: " + accountTransaction.getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP).toString() + ", " +
                                 "Current balance: " + balance.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                    }
                 } else {
                     log.error("Unsupported transaction type");
                     throw new Exception("Unsupported transaction type");
@@ -269,12 +286,15 @@ public class AccountManager {
             }
         }
     }
+
     /**
      * 
      * @return
      */
     public double getBalance() {
-        if (!enableAccounting) { return 0.0;}
+        if (!enableAccounting) {
+            return 0.0;
+        }
         if (balance == null) {
             EntityManager em = MyEMFDatabase.createEntityManager();
             Account account = (Account) em.find(Account.class, organizationId);
@@ -286,9 +306,9 @@ public class AccountManager {
         } else {
             return 0.0;
         }
-        
+
     }
-    
+
     /**
      * 
      * @param listMax
@@ -298,7 +318,7 @@ public class AccountManager {
     public List getTransactions(int listMax, Class transactionType) {
         return getTransactions(0, listMax, transactionType);
     }
-    
+
     /**
      * 
      * @param firstResult
@@ -325,7 +345,7 @@ public class AccountManager {
         em.close();
         return resultList;
     }
-    
+
     /**
      * 
      * @param state
@@ -333,7 +353,7 @@ public class AccountManager {
     public static void setEnableAccounting(boolean state) {
         enableAccounting = state;
     }
-    
+
     /**
      * 
      * @return
@@ -341,5 +361,4 @@ public class AccountManager {
     public static boolean isEnableAccounting() {
         return enableAccounting;
     }
-    
 }

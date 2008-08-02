@@ -1,13 +1,24 @@
-/**
- * @(#)GetLegendGraphicRequestHandler.java
- * @author N. de Goeij
- * @version 1.00 2006/12/13
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: *
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
@@ -21,11 +32,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class ProxyRequestHandler extends WMSRequestHandler {
-    
+
     private static final Log log = LogFactory.getLog(ProxyRequestHandler.class);
-    
-    public ProxyRequestHandler() {}
-    
+
+    public ProxyRequestHandler() {
+    }
+
     /**
      * Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
@@ -41,18 +53,17 @@ public class ProxyRequestHandler extends WMSRequestHandler {
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         OGCRequest ogcrequest = dw.getOgcrequest();
         String encodedUrl = ogcrequest.getParameter(KBConfiguration.KB_PROXY_URL);
-        if (encodedUrl==null || encodedUrl.length()==0) {
+        if (encodedUrl == null || encodedUrl.length() == 0) {
             log.error(KBConfiguration.KB_PROXY_EXECPTION);
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         }
-        
+
         String purl = KBCrypter.decryptText(encodedUrl);
         ProxyRequest proxyWrapper = new ProxyRequest();
         proxyWrapper.setProviderRequestURI(purl);
-        
+
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);
         getOnlineData(dw, urlWrapper, false, KBConfiguration.KB_PROXY);
     }
-    
 }

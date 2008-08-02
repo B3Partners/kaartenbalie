@@ -1,109 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!--
-    Document   : kaartenbalie.hbm.xml.xml
-    Created on : 7 september 2006, 11:01
-    Author     : Roy
-    Description:
-        Purpose of the document follows.
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
-
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-
 <hibernate-mapping>
-    <class name="nl.b3p.wms.capabilities.Layer" table="Layer">
-    	<id name="id" type="int" length="10">
-            <!-- sql-type="INTEGER UNSIGNED"-->
-            <column name="LAYERID"/>
-            <generator class="native" />
-        </id>
-        
-        <many-to-one name="parent" column="PARENTID" class="nl.b3p.wms.capabilities.Layer" />
-        
-
-        <set name="layers" inverse="true" cascade="all-delete-orphan" order-by="name"> 
-            <key column="PARENTID" /> 
-            <one-to-many class="nl.b3p.wms.capabilities.Layer"></one-to-many>
-            
-        </set>        
-        
-        <set name="dimensions" inverse="true" cascade="all">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
-        </set>
-        
-        <set name="layerKeywordList" cascade="all" table="layerkeywordlist">
-            <key column="LAYERID"/>
-            <element column="KEYWORD" type="string" not-null="true" length="50"/>
-        </set>
-                
-        <set name="styles" inverse="true" cascade="all" table="">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.wms.capabilities.Style"/>
-        </set>
-        
-        <set name="domainResource" inverse="true" cascade="all">
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
-        </set>
-        
-        <set name="identifiers" inverse="true" cascade="all" >
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
-        </set>
-                
-        <set name="srsbb" inverse="true" cascade="all" lazy="false" >
-            <key column="LAYERID"/>
-            <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
-        </set>
-        
-        <one-to-one name="attribution"
-                    class="nl.b3p.wms.capabilities.Attribution"
-                    cascade="all"                    
-                    fetch="join"
-                    lazy="false"
-        />
-        
-        
-        
-        <many-to-one name="serviceProvider" column="SERVICEPROVIDERID" not-null="true"/><!--   /-->
-                
-        <property name="name">
-            <column name="NAME" length="200"/>
-        </property>
-        <property name="title">
-            <column name="TITLE"  not-null="true" length="255" default="0"/>
-        </property>
-        <property name="abstracts" type="text">
-            <column name="ABSTRACTS" length="65530"/>
-        </property>
-        <property name="queryable">
-            <column name="QUERYABLE" default="0" length="50" />
-        </property>
-        <property name="cascaded">
-            <column name="CASCADED" default="0" length="50" />
-        </property>
-        <property name="opaque">
-            <column name="OPAQUE" default="0" length="50" />
-        </property>
-        <property name="nosubsets">
-            <column name="NOSUBSETS" default="0" length="50"/>
-        </property>
-        <property name="fixedWidth">
-            <column name="FIXEDWIDTH" default="0" length="50"/>
-        </property>
-        <property name="fixedHeight">
-            <column name="FIXEDHEIGHT" default="0" length="50" />
-        </property>
-        <property name="scaleHintMin">
-            <column name="SCALEHINTMIN" default="0" length="50" />
-        </property>
-        <property name="scaleHintMax">
-            <column name="SCALEHINTMAX" default="0" length="50"/>
-        </property>
-        <property name="metaData" type="text">
-            <column name="METADATA" length="65530"/>
-        </property>
-    </class>
+  <class name="nl.b3p.wms.capabilities.Layer" table="Layer">
+    <id length="10" name="id" type="int">
+      <!-- sql-type="INTEGER UNSIGNED"-->
+      <column name="LAYERID"/>
+      <generator class="native"/>
+    </id>
+    <many-to-one class="nl.b3p.wms.capabilities.Layer" column="PARENTID" name="parent"/>
+    <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="name">
+      <key column="PARENTID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
+    </set>
+    <set cascade="all" inverse="true" name="dimensions">
+      <key column="LAYERID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
+    </set>
+    <set cascade="all" name="layerKeywordList" table="layerkeywordlist">
+      <key column="LAYERID"/>
+      <element column="KEYWORD" length="50" not-null="true" type="string"/>
+    </set>
+    <set cascade="all" inverse="true" name="styles" table="">
+      <key column="LAYERID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.Style"/>
+    </set>
+    <set cascade="all" inverse="true" name="domainResource">
+      <key column="LAYERID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
+    </set>
+    <set cascade="all" inverse="true" name="identifiers">
+      <key column="LAYERID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
+    </set>
+    <set cascade="all" inverse="true" lazy="false" name="srsbb">
+      <key column="LAYERID"/>
+      <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
+    </set>
+    <one-to-one cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false" name="attribution"/>
+    <many-to-one column="SERVICEPROVIDERID" name="serviceProvider" not-null="true"/>
+    <!--   /-->
+    <property name="name">
+      <column length="200" name="NAME"/>
+    </property>
+    <property name="title">
+      <column default="0" length="255" name="TITLE" not-null="true"/>
+    </property>
+    <property name="abstracts" type="text">
+      <column length="65530" name="ABSTRACTS"/>
+    </property>
+    <property name="queryable">
+      <column default="0" length="50" name="QUERYABLE"/>
+    </property>
+    <property name="cascaded">
+      <column default="0" length="50" name="CASCADED"/>
+    </property>
+    <property name="opaque">
+      <column default="0" length="50" name="OPAQUE"/>
+    </property>
+    <property name="nosubsets">
+      <column default="0" length="50" name="NOSUBSETS"/>
+    </property>
+    <property name="fixedWidth">
+      <column default="0" length="50" name="FIXEDWIDTH"/>
+    </property>
+    <property name="fixedHeight">
+      <column default="0" length="50" name="FIXEDHEIGHT"/>
+    </property>
+    <property name="scaleHintMin">
+      <column default="0" length="50" name="SCALEHINTMIN"/>
+    </property>
+    <property name="scaleHintMax">
+      <column default="0" length="50" name="SCALEHINTMAX"/>
+    </property>
+    <property name="metaData" type="text">
+      <column length="65530" name="METADATA"/>
+    </property>
+  </class>
 </hibernate-mapping>

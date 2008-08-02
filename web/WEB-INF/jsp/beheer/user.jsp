@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <c:set var="form" value="${userForm}"/>
@@ -11,7 +32,7 @@
 <!-- Scripts and settings for the calendar function -->
 <html:link href="calendar-brown" title="summer" />
 
-<div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
+<div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
 <script type="text/javascript">
@@ -83,41 +104,41 @@
             tbl.removeChild( parent );
             count--;
         } else {
-        alert('U dient minimaal een IP adres op te geven!');
+            alert('U dient minimaal een IP adres op te geven!');
+        }
+    
+        updateDiv();
     }
-    
-    updateDiv();
-}
 
-function updateDiv() {
-    var objDiv = document.getElementById("ipDiv");
-    if(count > 4)
-        objDiv.style.height = '130px';
-    else
-        objDiv.style.height = count * 32 + 'px';
-    objDiv.scrollTop = objDiv.scrollHeight;
+    function updateDiv() {
+        var objDiv = document.getElementById("ipDiv");
+        if(count > 4)
+            objDiv.style.height = '130px';
+        else
+            objDiv.style.height = count * 32 + 'px';
+        objDiv.scrollTop = objDiv.scrollHeight;
     
-    if (count>maxcount)
-        maxcount=count;
-}
+        if (count>maxcount)
+            maxcount=count;
+    }
 
-function collectIps(){
-    var ipadresses="";
-    for(i = 0; i <= maxcount; i++){
-        var element=document.getElementById("regip"+i);            
-        if(element && element.value.length>0){
-            var val=element.value;
-            var val=val.replace(",",".");
-            if (ipadresses.length>0){
-                ipadresses+=",";
+    function collectIps(){
+        var ipadresses="";
+        for(i = 0; i <= maxcount; i++){
+            var element=document.getElementById("regip"+i);            
+            if(element && element.value.length>0){
+                var val=element.value;
+                val=val.replace(",",".");
+                if (ipadresses.length>0){
+                    ipadresses+=",";
+                }
+                ipadresses+=val;
             }
-            ipadresses+=val;
+        }
+        if (ipadresses.length>0){
+            document.getElementById("registeredIP").value=ipadresses;
         }
     }
-    if (ipadresses.length>0){
-        document.getElementById("registeredIP").value=ipadresses;
-    }
-}
 
 
 </script>
@@ -205,12 +226,12 @@ function collectIps(){
                             <td>
                                 <table>
                                     <tr>
-                                        <td><B><fmt:message key="beheer.userOrganization"/>:<B></td>
+                                        <td><B><fmt:message key="beheer.userOrganization"/>:</B></td>
                                         <td>
                                             <html:select property="selectedOrganization">
                                                 <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                                                     <html:option value="${nOrganization.id}">
-                                                        ${nOrganization.name}
+                                                    ${nOrganization.name}
                                                     </html:option>
                                                 </c:forEach>
                                             </html:select>     
@@ -254,7 +275,7 @@ function collectIps(){
                                                  onmouseout="this.style.background=''"
                                                  onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy-MM-dd', document.getElementById('cal_date').value); return false;"
                                                  name="cal-button"
-                                            />
+                                                 />
                                         </td>
                                     </tr>
                                     <tr>
@@ -344,10 +365,10 @@ function collectIps(){
 <script type="text/javascript">
    <c:if test="${action != 'list'}">
        if (iplist!=null && iplist.length>0){        
-            var tokens=iplist.split(",");        
-            for (var b=0;b < tokens.length; b++){            
-                addRow(tokens[b]);
-            }
-        }
+           var tokens=iplist.split(",");        
+           for (var b=0;b < tokens.length; b++){            
+               addRow(tokens[b]);
+           }
+       }
    </c:if>
 </script>

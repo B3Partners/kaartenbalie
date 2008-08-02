@@ -1,13 +1,24 @@
-/**
- * @(#)MapviewerAction.java
- * @author N. de Goeij
- * @version 1.00 2006/10/24
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: a Struts action class defining all the Action for the map viewer.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.ArrayList;
@@ -55,19 +66,18 @@ public class MapviewerAction extends KaartenbalieCrudAction {
 
 
         User sessionUser = (User) request.getUserPrincipal();
-        if(sessionUser == null) {
+        if (sessionUser == null) {
             addAlternateMessage(mapping, request, UNKNOWN_SES_USER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
 
-        String checkedLayers=request.getParameter("layers");
-        String extend=request.getParameter("extent");
-        request.setAttribute("checkedLayers",checkedLayers);
-        request.setAttribute("extent",extend);
-        return super.unspecified(mapping,dynaForm,request,response);
+        String checkedLayers = request.getParameter("layers");
+        String extend = request.getParameter("extent");
+        request.setAttribute("checkedLayers", checkedLayers);
+        request.setAttribute("extent", extend);
+        return super.unspecified(mapping, dynaForm, request, response);
     }
     // </editor-fold>
-
     /** Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -81,7 +91,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         EntityManager em = getEntityManager();
 
         User sesuser = (User) request.getUserPrincipal();
-        if (sesuser==null)
+        if (sesuser == null) {
             return;
         /*
          * THIS LINE CAN NOT BE REMOVED. THIS IS NOT REDUNDANT!!!!
@@ -91,29 +101,30 @@ public class MapviewerAction extends KaartenbalieCrudAction {
          * RE-LOGIN OF THE USER IS NOT USEFULL HERE SINCE THE USER DID NOT MAKE
          * ANY CHANGES, THE ADMINISTRATOR DID!!!!
          */
-        User user = (User)em.find(User.class, sesuser.getId());
-        if (user==null)
+        }
+        User user = (User) em.find(User.class, sesuser.getId());
+        if (user == null) {
             return;
-
+        }
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
         List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
 
         JSONArray rootArray = new JSONArray();
         Iterator it = serviceProviders.iterator();
         while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)it.next();
+            ServiceProvider sp = (ServiceProvider) it.next();
             JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet set= new HashSet();
+            HashSet set = new HashSet();
             Layer topLayer = sp.getTopLayer();
             if (topLayer != null) {
                 set.add(topLayer);
                 parentObj = createTreeList(set, organizationLayers, parentObj);
-                if (parentObj.has("children")){
+                if (parentObj.has("children")) {
                     rootArray.put(parentObj);
                 }
             } else {
                 String name = sp.getGivenName();
-                if(name == null) {
+                if (name == null) {
                     name = "onbekend";
                 }
                 log.debug("Toplayer is null voor serviceprovider: " + name);
@@ -121,7 +132,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         }
 
         JSONObject root = new JSONObject();
-        root.put("name","root");
+        root.put("name", "root");
         root.put("children", rootArray);
         request.setAttribute("layerList", root);
     }
@@ -147,12 +158,12 @@ public class MapviewerAction extends KaartenbalieCrudAction {
             /* For each layer in the set we are going to create a JSON object which we will add to de total
              * list of layer objects.
              */
-            Layer layer = (Layer)layerIterator.next();
+            Layer layer = (Layer) layerIterator.next();
             /* Before a layer is going to be added we need to make sure that this layer is allowed to be seen
              * If a layer is not allowed to be seen there is no use to create a JSON object for it, neither
              * is it necessary to check if child layers shoudl be added.
              */
-            if(hasVisibility(layer, organizationLayers)) {
+            if (hasVisibility(layer, organizationLayers)) {
                 /* When the visibility check has turned out to be ok. we start adding this layer to
                  * the list of layers.
                  */
@@ -182,8 +193,8 @@ public class MapviewerAction extends KaartenbalieCrudAction {
 
             }
         }
-        if (parentArray.length()>0){
-            parent.put("children",parentArray);
+        if (parentArray.length() > 0) {
+            parent.put("children", parentArray);
         }
         return parent;
     }
@@ -201,7 +212,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         Iterator it = organizationLayers.iterator();
         while (it.hasNext()) {
             Layer organizationLayer = (Layer) it.next();
-            if(layer.getId().equals(organizationLayer.getId())) {
+            if (layer.getId().equals(organizationLayer.getId())) {
                 return true;
             }
         }
@@ -236,12 +247,12 @@ public class MapviewerAction extends KaartenbalieCrudAction {
      * @throws JSONException
      */
     // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(Layer layer) throws JSONException{
+    private JSONObject layerToJSON(Layer layer) throws JSONException {
         JSONObject jsonLayer = new JSONObject();
         jsonLayer.put("name", layer.getTitle());
         String name = layer.getUniqueName();
-        if (name==null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ",""));
+        if (name == null) {
+            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
             jsonLayer.put("type", "placeholder");
         } else {
             jsonLayer.put("id", name);
@@ -250,5 +261,4 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         return jsonLayer;
     }
     // </editor-fold>
-
 }

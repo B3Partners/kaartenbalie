@@ -1,11 +1,24 @@
 /*
- * ServerAction.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on July 18, 2008, 3:26 PM
- *
- * @author Jytte
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.regex.Matcher;
@@ -20,7 +33,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
 
 public abstract class ServerAction extends KaartenbalieCrudAction {
-    
+
     private static final Log log = LogFactory.getLog(ServerAction.class);
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
@@ -31,15 +44,14 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
     protected static final String NON_UNIQUE_ABBREVIATION_ERROR_KEY = "error.abbr.notunique";
     protected static final String NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY = "error.abbr.notalphanumeric";
     protected static final String ABBR_RESERVED_ERROR_KEY = "error.abbr.reserved";
-    
     protected static final String ORG_JOINED_KEY = "beheer.server.org.joined";
     protected static final String LAYER_JOINED_KEY = "beheer.server.layer.joined";
     protected static final String PRICING_JOINED_KEY = "beheer.server.pricing.joined";
-    
+
     /** Creates a new instance of ServerAction */
     public ServerAction() {
     }
-    
+
     /* Execute method which handles all unspecified requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -59,8 +71,7 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
-    
-     /* Method which gets the hidden id in a form.
+    /* Method which gets the hidden id in a form.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -76,13 +87,13 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
     // </editor-fold>
-    
     protected boolean isAlphaNumeric(String s) {
-        if (s==null)
+        if (s == null) {
             return false;
+        }
         Pattern p = Pattern.compile("[^A-Za-z0-9]");
         Matcher m = p.matcher(s);
-        if(m.find()) {
+        if (m.find()) {
             return false;
         }
         return true;

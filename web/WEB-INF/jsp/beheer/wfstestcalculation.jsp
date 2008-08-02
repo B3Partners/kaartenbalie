@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <c:set var="form" value="${testPricingForm}"/>
@@ -9,7 +30,7 @@
     <label>Service Provider:</label> ${spName} <br/>
     <label style="margin-bottom:10px;">Kaartlaag:</label> <b>${lName}</b><br/><br />
     
-    <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white; layer-background-color:white;"></div>
+    <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
     <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
     <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
     <script type="text/javascript">
@@ -34,7 +55,7 @@
                          onmouseout="this.style.background=''"
                          onClick="cal.select(document.getElementById('testFrom'),'cal-button1','yyyy-MM-dd', document.getElementById('testFrom').value); return false;"
                          name="cal-button1"
-                    />
+                         />
                 </td>
             </tr>
             <tr>
@@ -48,7 +69,7 @@
                          onmouseout="this.style.background=''"
                          onClick="cal.select(document.getElementById('testUntil'),'cal-button2','yyyy-MM-dd', document.getElementById('testUntil').value); return false;"
                          name="cal-button2"
-                    /> (Max. 7 dagen)
+                         /> (Max. 7 dagen)
                 </td>
             </tr>
             <tr>
@@ -140,7 +161,7 @@
             </tbody>
         </table>
         <script type="text/javascript">
-        Table.stripe(document.getElementById('testCalcTable'), 'table_alternate_tr');
+            Table.stripe(document.getElementById('testCalcTable'), 'table_alternate_tr');
         </script>
     </c:if>
 </div>

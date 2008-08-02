@@ -1,12 +1,24 @@
 /*
- * AccountingAction.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on November 19, 2007, 9:29 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
@@ -36,9 +48,8 @@ import org.apache.commons.logging.LogFactory;
  * @author Chris Kramer
  */
 public class WmsTestPricingAction extends TestPricingAction {
-    
-    private static final Log log = LogFactory.getLog(WmsPricingAction.class);
 
+    private static final Log log = LogFactory.getLog(WmsPricingAction.class);
     private static final String START_END_ERROR_KEY = "error.dateinput";
     private static final String LAYER_PLACEHOLDER_ERROR_KEY = "beheer.princing.placeholder.error";
 
@@ -69,15 +80,17 @@ public class WmsTestPricingAction extends TestPricingAction {
             throw new Exception("Projection is required!");
         }
         BigDecimal testScale = FormUtils.bdValueNull(dynaForm.getString("testScale"));
-        if (testScale == null || testScale.doubleValue() <= 0 )
+        if (testScale == null || testScale.doubleValue() <= 0) {
             testScale = new BigDecimal(100000.0);
+        }
         BigDecimal testStepSize = FormUtils.bdValueNull(dynaForm.getString("testStepSize"));
-        if (testStepSize == null || testStepSize.doubleValue() <= 0 )
+        if (testStepSize == null || testStepSize.doubleValue() <= 0) {
             testStepSize = new BigDecimal(100000.0);
+        }
         int testSteps = FormUtils.StringToInt(dynaForm.getString("testSteps"));
-        if (testSteps>20 || testSteps<=0)
+        if (testSteps > 20 || testSteps <= 0) {
             testSteps = 20;
-        
+        }
         ExtLayerCalculator lc = new ExtLayerCalculator();
         try {
             //Get all the dates in an array..
@@ -87,7 +100,7 @@ public class WmsTestPricingAction extends TestPricingAction {
             int maxDays = 7;
             int dayCounter = 0;
             testDates.add(new Date());
-            while(cal.getTime().before(testUntil) && dayCounter < maxDays) {
+            while (cal.getTime().before(testUntil) && dayCounter < maxDays) {
                 Date testDate = cal.getTime();
                 testDates.add(testDate);
                 cal.add(Calendar.DAY_OF_YEAR, 1);
@@ -99,7 +112,7 @@ public class WmsTestPricingAction extends TestPricingAction {
                 List subSet = new ArrayList();
                 Iterator iterDates = testDates.iterator();
                 scaleSet.add(testScale);
-                while(iterDates.hasNext()) {
+                while (iterDates.hasNext()) {
                     Date testDate = (Date) iterDates.next();
                     LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
                     subSet.add(lpc);
@@ -122,20 +135,21 @@ public class WmsTestPricingAction extends TestPricingAction {
         super.createLists(form, request);
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
         Layer layer = getLayer(form, request);
-        if (layer==null || layer.getName() == null)
+        if (layer == null || layer.getName() == null) {
             return;
-        
+        }
         ServiceProvider sp = layer.getServiceProvider();
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
     }
-        
+
     private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);
-        if(id==null)
+        if (id == null) {
             return null;
-        return (Layer)em.find(Layer.class, id);
+        }
+        return (Layer) em.find(Layer.class, id);
     }
 }

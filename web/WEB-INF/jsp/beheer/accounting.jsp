@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
@@ -9,24 +30,24 @@
     <html:select property="selectedOrganization" onchange="submit();">
         <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
             <html:option value="${nOrganization.id}">
-                ${nOrganization.name}
+            ${nOrganization.name}
             </html:option>
         </c:forEach>
     </html:select> 
     Startregel
     <html:select property="firstResult" onchange="submit();">
-            <html:option value="0">1</html:option>
-            <html:option value="19">20</html:option>
-            <html:option value="99">100</html:option>
-            <html:option value="999">1000</html:option>
-            <html:option value="9999">10000</html:option>
+        <html:option value="0">1</html:option>
+        <html:option value="19">20</html:option>
+        <html:option value="99">100</html:option>
+        <html:option value="999">1000</html:option>
+        <html:option value="9999">10000</html:option>
     </html:select>
     Regels per pagina
     <html:select property="listMax" onchange="submit();">
-            <html:option value="20">20</html:option>
-            <html:option value="50">50</html:option>
-            <html:option value="100">100</html:option>
-            <html:option value="500">500</html:option>
+        <html:option value="20">20</html:option>
+        <html:option value="50">50</html:option>
+        <html:option value="100">100</html:option>
+        <html:option value="500">500</html:option>
     </html:select>     
 </html:form>
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px; margin-top: 15px;">

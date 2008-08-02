@@ -1,13 +1,24 @@
 /*
- * @(#)TextToImage.java
- * @author N. de Goeij
- * @version 1.00, 4 april 2007
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * @copyright 2007 B3Partners. All rights reserved.
- * B3Partners PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.awt.Color;
@@ -20,30 +31,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import javax.imageio.ImageIO;
-import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 
 public class TextToImage {
+
     private String imageType;
-    
+
     public void createImage(String message, DataWrapper data) throws IOException {
         this.imageType = imageType;
         Color background = Color.white;
         Color textColor = Color.black;
         Font font = new Font("Serif", Font.PLAIN, 14);
-        
-        BufferedImage buffer = new BufferedImage(1,1,BufferedImage.TYPE_INT_RGB);
+
+        BufferedImage buffer = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = buffer.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         FontRenderContext fc = g2.getFontRenderContext();
-        
+
         OGCRequest ogcrequest = data.getOgcrequest();
-        
+
         // calculate the size of the text
-        int width  = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
+        int width = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
         int height = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
 
         // prepare some output
@@ -56,7 +66,7 @@ public class TextToImage {
         g2.setColor(background);
         g2.fillRect(0, 0, width, height);
         g2.setColor(textColor);
-        
+
         ArrayList sentences = cutMessage(message, width, height);
         Iterator it = sentences.iterator();
         int x = 0;
@@ -65,35 +75,35 @@ public class TextToImage {
             g2.drawString(sentence, 0, x + 30);
             x += 15;
         }
-                
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        
+
         // output the image as png
         String requestedImageType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT);
-        if(requestedImageType.equalsIgnoreCase("image/jpeg")) {
+        if (requestedImageType.equalsIgnoreCase("image/jpeg")) {
             this.imageType = "JPEG";
-        } else if(requestedImageType.equalsIgnoreCase("image/png")) {
-            this.imageType = "PNG";            
-        } else if(requestedImageType.equalsIgnoreCase("image/gif")) {
+        } else if (requestedImageType.equalsIgnoreCase("image/png")) {
+            this.imageType = "PNG";
+        } else if (requestedImageType.equalsIgnoreCase("image/gif")) {
             this.imageType = "GIF";
         }
-        
+
         ImageIO.write(buffer, imageType, baos);
         data.write(baos);
     }
-    
+
     private ArrayList cutMessage(String message, int width, int height) {
         ArrayList sentences = new ArrayList();
-        if (message!=null){
+        if (message != null) {
             int length = message.length();
             int divide = (width / 7);
             int parts = length / divide;
-            int leftOver = length - (parts* divide);
+            int leftOver = length - (parts * divide);
 
-            for(int part = 0; part <= parts; part++) {
+            for (int part = 0; part <= parts; part++) {
                 int begin = part * divide;
                 int end = part * divide + divide;
-                if(part == parts) {
+                if (part == parts) {
                     end = part * divide + leftOver;
                 }
                 String curString = message.substring(begin, end);
@@ -101,5 +111,5 @@ public class TextToImage {
             }
         }
         return sentences;
-    }    
+    }
 }

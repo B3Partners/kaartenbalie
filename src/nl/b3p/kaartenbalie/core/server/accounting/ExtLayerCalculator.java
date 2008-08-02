@@ -1,8 +1,23 @@
 /*
- * ExtLayerCalculator.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on December 24, 2007, 1:52 PM
- *
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.core.server.accounting;
 
@@ -32,16 +47,16 @@ import org.apache.commons.logging.LogFactory;
  * @see LayerCalculator
  */
 public class ExtLayerCalculator extends LayerCalculator {
-    
+
     private static final Log log = LogFactory.getLog(ExtLayerCalculator.class);
-    
+
     /**
      * Constructor met eigen Entitymanager
      */
     public ExtLayerCalculator() {
         em = MyEMFDatabase.createEntityManager();
     }
-    
+
     /**
      * Constructor met entitymanager van buiten
      * @param em
@@ -50,7 +65,7 @@ public class ExtLayerCalculator extends LayerCalculator {
         this.em = em;
         externalEm = true;
     }
-    
+
     /**
      *
      * @param spAbbr
@@ -71,15 +86,15 @@ public class ExtLayerCalculator extends LayerCalculator {
                 getResultList();
         Layer laag = null;
         Iterator it = lagen.iterator();
-        while(it.hasNext()){
-            Layer layer = (Layer)it.next();
-            if(layer.getServiceProvider().getId() == serverid){
+        while (it.hasNext()) {
+            Layer layer = (Layer) it.next();
+            if (layer.getServiceProvider().getId() == serverid) {
                 laag = layer;
             }
         }
         return laag;
     }
-    
+
     /**
      *
      * @param tLC
@@ -106,7 +121,7 @@ public class ExtLayerCalculator extends LayerCalculator {
         }
         return layerPrice;
     }
-    
+
     /**
      * Deze methode wordt aangeroepen indien in de kaartlaag zelf geen prijsinfo
      * is gevonden. Eerst wordt dan in de parant layers gekeken of er prijs info
@@ -132,14 +147,14 @@ public class ExtLayerCalculator extends LayerCalculator {
      */
     protected BigDecimal calculateParentAndChildLayers(LayerPriceComposition tLC, String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
         Layer layer = null;
-        
-        try{
+
+        try {
             layer = getWMSLayer(spAbbr, layerName);
-        }catch(NoResultException e){
+        } catch (NoResultException e) {
             log.debug("Geen layer gevonden: " + layerName);
             throw new NoPrizingException();
         }
-        
+
         BigDecimal layerPrice = null;
         try {
             layerPrice = calculateParentLayer(layer, validationDate, projection, scale, units, planType, service, operation);
@@ -150,7 +165,7 @@ public class ExtLayerCalculator extends LayerCalculator {
         }
         return layerPrice;
     }
-    
+
     /**
      * Deze methode telt 2 prijs BigDecimals op.
      * @param returnValue
@@ -163,12 +178,12 @@ public class ExtLayerCalculator extends LayerCalculator {
             if (returnValue == null) {
                 returnValue = new BigDecimal(0);
             }
-            
+
             returnValue = returnValue.add(addValue);
         }
         return returnValue;
     }
-    
+
     /**
      * Deze methode probeert de prijs van een layer te bepalen op basis van prijzen
      * van child layers. Als geen van de child layers een prijs heeft dan wordt
@@ -192,7 +207,7 @@ public class ExtLayerCalculator extends LayerCalculator {
     protected BigDecimal calculateChildLayers(Layer layer, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException {
         BigDecimal layerPrice = null;
         boolean hasNoPrice = true;
-        
+
         Set childLayers = layer.getLayers();
         log.debug("Controleer of " + layer.getName() + " childlayers heeft.");
         if (childLayers != null && childLayers.size() > 0) {
@@ -220,9 +235,9 @@ public class ExtLayerCalculator extends LayerCalculator {
                         //LayerNotAvailableException en NoPrizingException
                         log.debug("Geen pricing in childlayers gevonden van layer: " + childLayer.getName() + ", oorzaak: ", npe2);
                     }
-                    
+
                 }
-                
+
             }
         }
         if (hasNoPrice) {
@@ -231,7 +246,7 @@ public class ExtLayerCalculator extends LayerCalculator {
         }
         return layerPrice;
     }
-    
+
     /**
      * Deze methode probeert de prijs van een layer te bepalen op basis van een
      * prijs van een parent layer. Alle parent layers worden recursief doorzocht

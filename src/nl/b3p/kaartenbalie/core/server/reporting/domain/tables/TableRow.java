@@ -1,12 +1,24 @@
 /*
- * TableRow.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on February 18, 2008, 1:30 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.reporting.domain.tables;
 
 import java.util.HashSet;
@@ -21,55 +33,52 @@ import org.w3c.dom.Element;
  * @author Chris Kramer
  */
 public class TableRow implements XMLElement {
-    
+
     private Integer id;
     private Boolean header;
     private Integer rowOrder;
     private int valueCounter;
-    
     private DataTable dataTable;
     private Set rowValues;
-    
+
     public TableRow() {
         setRowValues(new HashSet());
         this.setHeader(new Boolean(false));
         valueCounter = 0;
     }
-    
-    
-    
+
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
-    
+
     public DataTable getDataTable() {
         return dataTable;
     }
-    
+
     public void setDataTable(DataTable dataTable) {
         this.dataTable = dataTable;
     }
-    
+
     public Set getRowValues() {
         return rowValues;
     }
-    
+
     private void setRowValues(Set rowValues) {
         this.rowValues = rowValues;
     }
-    
+
     public Integer getRowOrder() {
         return rowOrder;
     }
-    
+
     public void setRowOrder(Integer rowOrder) {
         this.rowOrder = rowOrder;
     }
-    
+
     public Element toElement(Document doc, Element rootElement) {
         Element tableRow = doc.createElement("tableRow");
         if (getHeader() != null) {
@@ -86,7 +95,7 @@ public class TableRow implements XMLElement {
         }
         return tableRow;
     }
-    
+
     public void addValue(RowValue rowValue) {
         rowValue.setValueOrder(new Integer(valueCounter));
         rowValues.add(rowValue);
@@ -101,6 +110,4 @@ public class TableRow implements XMLElement {
     public void setHeader(Boolean header) {
         this.header = header;
     }
-    
-    
 }

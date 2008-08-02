@@ -1,14 +1,24 @@
-/**
- * @(#)GetCapabilitiesRequestHandler.java
- * @author R. Braam
- * @version 1.00 2007/03/02
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: the function of this class is to create a list of url's which direct to the right servers that
- * have the desired layers for the WMS GetCapabilities request.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.service;
 
 import java.util.ArrayList;
@@ -23,12 +33,10 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ServiceDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
 
-
 public class ServiceProviderValidator {
-    
 
     private Set serviceProviders;
-    
+
     /**
      * Create a ServiceProvider object which has only Capabilities and Formats which are supported by all ServiceProviders.
      *
@@ -39,7 +47,6 @@ public class ServiceProviderValidator {
         setServiceProviders(serviceProviders);
     }
     // </editor-fold>
-    
     /**
      * Create a ServiceProvider object which has only Capabilities and Formats which are supported by all ServiceProviders.
      *
@@ -49,22 +56,23 @@ public class ServiceProviderValidator {
     public ServiceProvider getValidServiceProvider() {
         ServiceProvider newSP = new ServiceProvider();
         this.fillServiceProviderConstants(newSP);
-        
+
         Set resources = new HashSet();
-        if (serviceProviders!=null && !serviceProviders.isEmpty()) {
+        if (serviceProviders != null && !serviceProviders.isEmpty()) {
             //create a set with domain resources which apply to all valid statements.
-            String [] domains = this.validateDomains();
+            String[] domains = this.validateDomains();
             for (int i = 0; i < domains.length; i++) {
                 String domain = domains[i];
-                if(domain != null && !"null".equalsIgnoreCase(domain)) {
-                    String [] f = this.validateFormats(domain);
-                    
+                if (domain != null && !"null".equalsIgnoreCase(domain)) {
+                    String[] f = this.validateFormats(domain);
+
                     ServiceDomainResource sdr = new ServiceDomainResource();
                     sdr.setDomain(domain);
                     Set formats = new HashSet();
-                    for(int j = 0; j < f.length; j++) {
-                        if (f[j] != null && !"null".equalsIgnoreCase(f[j]))
+                    for (int j = 0; j < f.length; j++) {
+                        if (f[j] != null && !"null".equalsIgnoreCase(f[j])) {
                             formats.add(f[j]);
+                        }
                     }
                     sdr.setFormats(formats);
                     sdr.setServiceProvider(newSP);
@@ -79,25 +87,25 @@ public class ServiceProviderValidator {
         }
         newSP.setDomainResource(resources);
         newSP.setAbbr(KBConfiguration.SERVICEPROVIDER_BASE_ABBR);
-        
+
         Set exception = new HashSet();
-        if (serviceProviders!=null && !serviceProviders.isEmpty()) {
+        if (serviceProviders != null && !serviceProviders.isEmpty()) {
             //Now we still need to check for the right Exception formats.....
-            String [] exceptions = this.validateExceptions();
-            for(int j = 0; j < exceptions.length; j++) {
-                if (exceptions[j] != null && !"null".equalsIgnoreCase(exceptions[j]))
+            String[] exceptions = this.validateExceptions();
+            for (int j = 0; j < exceptions.length; j++) {
+                if (exceptions[j] != null && !"null".equalsIgnoreCase(exceptions[j])) {
                     exception.add(exceptions[j]);
+                }
             }
         }
-        if(exception.isEmpty()) {
+        if (exception.isEmpty()) {
             exception = getDefaultException();
         }
         newSP.setExceptions(exception);
-        
+
         return newSP;
     }
     // </editor-fold>
-    
     private Set getDefaultException() {
         Set exception = new HashSet();
         exception.add("application/vnd.ogc.se_xml");
@@ -105,18 +113,18 @@ public class ServiceProviderValidator {
         exception.add("application/vnd.ogc.se_blank");
         return exception;
     }
-    
+
     private Set getDefaultResources() {
         Set resources = new HashSet();
-        
+
         ServiceDomainResource sdr = new ServiceDomainResource();
         sdr.setDomain("GetCapabilities"); //
         Set formats = new HashSet();
         formats.add("application/vnd.ogc.wms_xml");
         sdr.setFormats(formats);
         resources.add(sdr);
-        
-        
+
+
         sdr = new ServiceDomainResource();
         sdr.setDomain("GetMap"); //
         formats = new HashSet();
@@ -125,7 +133,7 @@ public class ServiceProviderValidator {
         formats.add("image/tiff");
         sdr.setFormats(formats);
         resources.add(sdr);
-        
+
         sdr = new ServiceDomainResource();
         sdr.setDomain("GetFeatureInfo"); //
         formats = new HashSet();
@@ -133,10 +141,10 @@ public class ServiceProviderValidator {
         formats.add("application/vnd.ogc.gml");
         sdr.setFormats(formats);
         resources.add(sdr);
-        
+
         return resources;
     }
-    
+
     /**
      * Fill the serviceprovider object with predefined static constants.
      *
@@ -149,7 +157,7 @@ public class ServiceProviderValidator {
         serviceProvider.setAbstracts(KBConfiguration.SERVICE_ABSTRACT);
         serviceProvider.setAccessConstraints(KBConfiguration.SERVICE_FEES);
         serviceProvider.setFees(KBConfiguration.SERVICE_CONSTRAINTS);
-        
+
         ContactInformation ci = new ContactInformation();
         ci.setContactPerson(KBConfiguration.CONTACT_PERSON);
         ci.setContactPosition(KBConfiguration.CONTACT_POSITION);
@@ -163,11 +171,10 @@ public class ServiceProviderValidator {
         ci.setVoiceTelephone(KBConfiguration.CONTACT_VOICETELEPHONE);
         ci.setFascimileTelephone(KBConfiguration.CONTACT_FASCIMILEPHONE);
         ci.setEmailAddress(KBConfiguration.CONTACT_EMAIL);
-        
+
         serviceProvider.setContactInformation(ci);
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a GetMap Capability.
      *
@@ -182,7 +189,6 @@ public class ServiceProviderValidator {
                 (validateFormats(OGCConstants.WMS_REQUEST_GetLegendGraphic).length > 0);
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a GetMap Capability.
      *
@@ -193,51 +199,46 @@ public class ServiceProviderValidator {
         return validateFormats(OGCConstants.WMS_REQUEST_GetMap).length > 0;
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a GetCapabilities Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetCapabilities Capability.
      */
     // <editor-fold defaultstate="" desc="validateGetCapabilitiesFormat() method.">
-    public boolean validateGetCapabilitiesFormat(){
+    public boolean validateGetCapabilitiesFormat() {
         return validateFormats(OGCConstants.WMS_REQUEST_GetCapabilities).length > 0;
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a GetFeatureInfo Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetFeatureInfo Capability.
      */
     // <editor-fold defaultstate="" desc="validateGetFeatureInfoFormat() method.">
-    public boolean validateGetFeatureInfoFormat(){
+    public boolean validateGetFeatureInfoFormat() {
         return validateFormats(OGCConstants.WMS_REQUEST_GetFeatureInfo).length > 0;
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a DescribeLayer Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a DescribeLayer Capability.
      */
     // <editor-fold defaultstate="" desc="validateDescribeLayerFormat() method.">
-    public boolean validateDescribeLayerFormat(){
+    public boolean validateDescribeLayerFormat() {
         return validateFormats(OGCConstants.WMS_REQUEST_DescribeLayer).length > 0;
     }
     // </editor-fold>
-    
     /**
      * Check whether the set of ServiceProviders all have a GetLegendGraphic Capability.
      *
      * @return a boolean which is true if all ServiceProviders in the set have a GetLegendGraphic Capability.
      */
     // <editor-fold defaultstate="" desc="validateGetLegendGraphicFormat() method.">
-    public boolean validateGetLegendGraphicFormat(){
+    public boolean validateGetLegendGraphicFormat() {
         return validateFormats(OGCConstants.WMS_REQUEST_GetLegendGraphic).length > 0;
     }
     // </editor-fold>
-    
     /**
      * Check the domains that are supported by all the Serviceproviders.
      *
@@ -248,17 +249,16 @@ public class ServiceProviderValidator {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
         while (serviceProviderIterator.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)serviceProviderIterator.next();
+            ServiceProvider sp = (ServiceProvider) serviceProviderIterator.next();
             Iterator exceptionIterator = sp.getExceptions().iterator();
-            while(exceptionIterator.hasNext()) {
-                String exception = (String)exceptionIterator.next();
+            while (exceptionIterator.hasNext()) {
+                String exception = (String) exceptionIterator.next();
                 hashmapFilter(hm, exception);
             }
         }
         return formats(hm);
     }
     // </editor-fold>
-    
     /**
      * Check the domains that are supported by all the Serviceproviders.
      *
@@ -269,10 +269,10 @@ public class ServiceProviderValidator {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
         while (serviceProviderIterator.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)serviceProviderIterator.next();
+            ServiceProvider sp = (ServiceProvider) serviceProviderIterator.next();
             Iterator domainResourceIterator = sp.getDomainResource().iterator();
-            while(domainResourceIterator.hasNext()) {
-                ServiceDomainResource sdr = (ServiceDomainResource)domainResourceIterator.next();
+            while (domainResourceIterator.hasNext()) {
+                ServiceDomainResource sdr = (ServiceDomainResource) domainResourceIterator.next();
                 String domain = sdr.getDomain();
                 hashmapFilter(hm, domain);
             }
@@ -280,7 +280,6 @@ public class ServiceProviderValidator {
         return formats(hm);
     }
     // </editor-fold>
-    
     /**
      * Check the formats that are supported by all the serviceproviders
      *
@@ -293,15 +292,15 @@ public class ServiceProviderValidator {
         HashMap hm = new HashMap();
         Iterator serviceProviderIterator = serviceProviders.iterator();
         while (serviceProviderIterator.hasNext()) {
-            ServiceProvider sp = (ServiceProvider)serviceProviderIterator.next();
+            ServiceProvider sp = (ServiceProvider) serviceProviderIterator.next();
             Iterator domainResourceIterator = sp.getDomainResource().iterator();
-            while(domainResourceIterator.hasNext()) {
-                ServiceDomainResource sdr = (ServiceDomainResource)domainResourceIterator.next();
+            while (domainResourceIterator.hasNext()) {
+                ServiceDomainResource sdr = (ServiceDomainResource) domainResourceIterator.next();
                 if (sdr.getDomain().equalsIgnoreCase(domain)) {
-                    Set formats= sdr.getFormats();
+                    Set formats = sdr.getFormats();
                     Iterator itf = formats.iterator();
-                    while(itf.hasNext()){
-                        String format=(String)itf.next();
+                    while (itf.hasNext()) {
+                        String format = (String) itf.next();
                         hashmapFilter(hm, format);
                     }
                 }
@@ -310,7 +309,6 @@ public class ServiceProviderValidator {
         return formats(hm);
     }
     // </editor-fold>
-    
     /**
      * Methode that creates an Array of supported formats, given a certain HashMap.
      *
@@ -319,21 +317,20 @@ public class ServiceProviderValidator {
      * @return a String Array with the supported formats.
      */
     // <editor-fold defaultstate="" desc="formats(HashMap hashMap) method.">
-    private String [] formats(HashMap hashMap) {
+    private String[] formats(HashMap hashMap) {
         ArrayList supportedFormats = new ArrayList();
         Iterator it = hashMap.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            int i = ((Integer)entry.getValue()).intValue();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            int i = ((Integer) entry.getValue()).intValue();
             if (i >= serviceProviders.size()) {
-                supportedFormats.add((String)entry.getKey());
+                supportedFormats.add((String) entry.getKey());
             }
         }
-        String [] formats = new String[supportedFormats.size() + 1];
+        String[] formats = new String[supportedFormats.size() + 1];
         return (String[]) supportedFormats.toArray(formats);
     }
     // </editor-fold>
-    
     /**
      * Methode that counts the values of filterValue. Each value is counted seperatly.
      *
@@ -341,21 +338,20 @@ public class ServiceProviderValidator {
      * @param filterValue The value to add to the count.
      */
     // <editor-fold defaultstate="" desc="hashmapFilter(HashMap results, String filterValue) method.">
-    private void hashmapFilter(HashMap results, String filterValue){
+    private void hashmapFilter(HashMap results, String filterValue) {
         if (results.containsKey(filterValue)) {
-            int i = ((Integer)results.get(filterValue)).intValue() + 1;
+            int i = ((Integer) results.get(filterValue)).intValue() + 1;
             results.put(filterValue, new Integer(i));
         } else {
             results.put(filterValue, new Integer("1"));
         }
     }
     // </editor-fold>
-    
     //<editor-fold defaultstate="" desc="Getter and setter methods.">
     public Set getServiceProviders() {
         return serviceProviders;
     }
-    
+
     public void setServiceProviders(Set serviceProviders) {
         this.serviceProviders = serviceProviders;
     }

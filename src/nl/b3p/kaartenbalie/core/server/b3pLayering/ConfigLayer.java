@@ -1,12 +1,24 @@
 /*
- * CustomLayer.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on January 25, 2008, 10:19 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.b3pLayering;
 
 import java.awt.Color;
@@ -35,14 +47,13 @@ import org.apache.commons.logging.LogFactory;
  * @author Chris Kramer
  */
 public abstract class ConfigLayer extends Layer {
-    
-    private static final Log log = LogFactory.getLog(ConfigLayer.class);
 
+    private static final Log log = LogFactory.getLog(ConfigLayer.class);
     private static Map configLayers;
-    
+
     protected ConfigLayer() {
     }
-    
+
     /*
      * This should be the default constructor...
      */
@@ -69,36 +80,37 @@ public abstract class ConfigLayer extends Layer {
         setCascaded("0");
         setOpaque("0");
     }
-    
     /*
      * This initializes the configLayers hashMap...
      */
+    
+
     static {
         configLayers = new HashMap();
         configLayers.put(AllowTransactionsLayer.NAME, AllowTransactionsLayer.class);
 //        configLayers.put(BalanceLayer.NAME, BalanceLayer.class);
         configLayers.put(KBTitleLayer.NAME, KBTitleLayer.class);
     }
-    
+
     /*
      * use this to get the right instance of a class..
      */
-    public static ConfigLayer forName(String configLayerName) throws Exception{
-        
+    public static ConfigLayer forName(String configLayerName) throws Exception {
+
         if (configLayerName == null || configLayerName.trim().length() == 0) {
             log.error("ConfigLayerName is a required field!");
             throw new Exception("ConfigLayerName is a required field!");
         }
         configLayerName = configLayerName.trim();
         Class configLayerClass = (Class) configLayers.get(configLayerName);
-        
+
         if (configLayerClass == null) {
             log.error("Trying to fetch unregistered or non-existing configLayer ' " + configLayerName + "'.");
             throw new Exception("Trying to fetch unregistered or non-existing configLayer ' " + configLayerName + "'.");
         }
-        return  (ConfigLayer) configLayerClass.newInstance();
+        return (ConfigLayer) configLayerClass.newInstance();
     }
-    
+
     public static BufferedImage handleRequest(String url, Map parameterMap) throws Exception {
         String mime = "image/png";
         parameterMap.put("showname", new Boolean(false));
@@ -117,11 +129,11 @@ public abstract class ConfigLayer extends Layer {
         }
         return KBImageTool.combineImages(bufImages, mimeType);
     }
-    
+
     public static Map getConfigLayers() {
         return configLayers;
     }
-    
+
     /*
      * Start of the imageHandling process
      */
@@ -136,38 +148,38 @@ public abstract class ConfigLayer extends Layer {
         }
         return imageHandler(ogcrequest, parameterMap);
     }
-    
+
     protected BufferedImage createBaseImage(OGCRequest ogcrequest, Map parameterMap) throws Exception {
-        
+
         Boolean transparant = (Boolean) parameterMap.get("transparant");
         // Image width & heigth...
-        int width  = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
+        int width = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
         int height = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
         BufferedImage bufImage = null;
-        
-        bufImage =  new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        bufImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bufImage.createGraphics();
         if (!transparant.booleanValue()) {
             g2d.setColor(Color.WHITE);
-            g2d.fillRect(0,0,width,height);
+            g2d.fillRect(0, 0, width, height);
         }
         return bufImage;
     }
-    
-    protected void addTagsToImage(BufferedImage bufImage, Map parameterMap){
+
+    protected void addTagsToImage(BufferedImage bufImage, Map parameterMap) {
         Graphics2D g2d = (Graphics2D) bufImage.getGraphics();
         Boolean showName = (Boolean) parameterMap.get("showname");
         if (showName == null || (showName != null && showName.booleanValue() == true)) {
-            drawTitledMessageBox(g2d,"KaartenBalie", "Message for Layer '" + super.getName() + "'", 20,20,300,30);
+            drawTitledMessageBox(g2d, "KaartenBalie", "Message for Layer '" + super.getName() + "'", 20, 20, 300, 30);
         }
     }
-    
+
     public BufferedImage imageHandler(OGCRequest ogcrequest, Map parameterMap) throws Exception {
         BufferedImage bufImage = createBaseImage(ogcrequest, parameterMap);
         addTagsToImage(bufImage, parameterMap);
         return modifyBaseImage(bufImage, parameterMap);
     }
-    
+
     /*
      * This will send the image to the client.. Only use this when not stacking up images..
      */
@@ -176,11 +188,11 @@ public abstract class ConfigLayer extends Layer {
         OGCRequest ogcrequest = data.getOgcrequest();
         String requestedImageType = ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT);
         String imageType = null;
-        if(requestedImageType.equalsIgnoreCase("image/jpeg")) {
+        if (requestedImageType.equalsIgnoreCase("image/jpeg")) {
             imageType = "JPEG";
-        } else if(requestedImageType.equalsIgnoreCase("image/png")) {
+        } else if (requestedImageType.equalsIgnoreCase("image/png")) {
             imageType = "PNG";
-        } else if(requestedImageType.equalsIgnoreCase("image/gif")) {
+        } else if (requestedImageType.equalsIgnoreCase("image/gif")) {
             imageType = "GIF";
         } else {
             log.error("Unsupported ImageType: " + requestedImageType);
@@ -189,41 +201,40 @@ public abstract class ConfigLayer extends Layer {
         ImageIO.write(bufImage, imageType, baos);
         data.write(baos);
     }
-    
+
     /*
      * Abstracts
      */
-    
     /* Will be called after the drawImage function and allows extending classes to modify the base.. */
     protected abstract BufferedImage modifyBaseImage(BufferedImage bufImage, Map parameterMap) throws Exception;
-    
+
     /* Function for setting values in a configMap... */
     public abstract void processConfig(Map configMap) throws Exception;
-    
+
     /**/
-    
-    
     /*
      * Drawing....
      */
-    private void conditionalWrite(Graphics2D g2d, String line, int x, int y, int maxY ) {
+    private void conditionalWrite(Graphics2D g2d, String line, int x, int y, int maxY) {
         line = line.trim();
         if (line.length() > 0 && y < maxY) {
-            g2d.drawString(line,x,y);
+            g2d.drawString(line, x, y);
         }
     }
-    protected void drawEdgedBox(Graphics g2d,int x,int y,int w,int h) {
+
+    protected void drawEdgedBox(Graphics g2d, int x, int y, int w, int h) {
         g2d.setColor(KBConfiguration.OHD_borderBoxBackground);
-        g2d.fillRect(x,y,w,h);
+        g2d.fillRect(x, y, w, h);
         g2d.setColor(KBConfiguration.OHD_borderBoxTopLeft);
-        g2d.drawLine(x,y,x+w,y); //Top
-        g2d.drawLine(x,y+h,x,y); //Left
+        g2d.drawLine(x, y, x + w, y); //Top
+        g2d.drawLine(x, y + h, x, y); //Left
         g2d.setColor(KBConfiguration.OHD_borderBoxBottomRight);
-        g2d.drawLine(x+w,y+h,x,y+h); //Bottom
-        g2d.drawLine(x+w,y,x+w,y+h); //Right
-        
-        
+        g2d.drawLine(x + w, y + h, x, y + h); //Bottom
+        g2d.drawLine(x + w, y, x + w, y + h); //Right
+
+
     }
+
     protected void drawTitledMessageBox(Graphics2D g2d, String title, String message, int x, int y, int w, int h) {
         /* Do some calculations and init variables. */
         g2d.setFont(KBConfiguration.OHD_messageBoxFont);
@@ -232,44 +243,45 @@ public abstract class ConfigLayer extends Layer {
         int angling = labelHeight;
         Rectangle2D testRectangle = fm.getStringBounds(title, g2d);
         int labelWidth = (int) testRectangle.getWidth();
-        
-        if (w  < labelWidth+ (2*angling)) {
-            w = labelWidth + (2*angling);
+
+        if (w < labelWidth + (2 * angling)) {
+            w = labelWidth + (2 * angling);
         }
-        y+=labelHeight;
+        y += labelHeight;
         /* Now draw the box...    */
-        drawMessageBox(g2d, message, x,y,w,h);
-        
+        drawMessageBox(g2d, message, x, y, w, h);
+
         /* Draw the label background */
         g2d.setColor(KBConfiguration.OHD_labelBoxColor);
         GeneralPath label = new GeneralPath();
-        label.moveTo(x,y);
-        label.lineTo(x+angling,y-labelHeight);
-        label.lineTo(x+angling+labelWidth, y-labelHeight);
-        label.lineTo( x + (angling*2) + labelWidth, y);
+        label.moveTo(x, y);
+        label.lineTo(x + angling, y - labelHeight);
+        label.lineTo(x + angling + labelWidth, y - labelHeight);
+        label.lineTo(x + (angling * 2) + labelWidth, y);
         label.closePath();
         g2d.fill(label);
-        
+
         /* Draw the label Lines..  */
         g2d.setColor(KBConfiguration.OHD_borderBoxTopLeft);
-        g2d.drawLine(x,y, x+angling,y-labelHeight);
-        g2d.drawLine(x+angling,y-labelHeight, x+angling+labelWidth, y-labelHeight);
+        g2d.drawLine(x, y, x + angling, y - labelHeight);
+        g2d.drawLine(x + angling, y - labelHeight, x + angling + labelWidth, y - labelHeight);
         g2d.setColor(KBConfiguration.OHD_borderBoxBottomRight);
-        g2d.drawLine(x+angling+labelWidth, y-labelHeight,  x + (angling*2) + labelWidth, y);
+        g2d.drawLine(x + angling + labelWidth, y - labelHeight, x + (angling * 2) + labelWidth, y);
         g2d.setColor(KBConfiguration.OHD_borderBoxBackground);
-        g2d.drawLine(x + (angling*2) + labelWidth, y, x,y);
+        g2d.drawLine(x + (angling * 2) + labelWidth, y, x, y);
         /*Then add the title... */
         g2d.setColor(KBConfiguration.OHD_labelFontBoxColor);
         g2d.drawString(title, x + angling, y - KBConfiguration.OHD_padding);
-        
+
     }
+
     protected void drawMessageBox(Graphics2D g2d, String message, int x, int y, int w, int h) {
-        drawEdgedBox(g2d, x,y,w,h);
-        
+        drawEdgedBox(g2d, x, y, w, h);
+
         if (message == null) {
             message = "null";
         }
-        
+
         /*
          * Padding...
          */
@@ -277,35 +289,32 @@ public abstract class ConfigLayer extends Layer {
         y += KBConfiguration.OHD_padding;
         w -= KBConfiguration.OHD_padding;
         h -= KBConfiguration.OHD_padding;
-        
+
         g2d.setFont(KBConfiguration.OHD_messageBoxFont);
         g2d.setColor(KBConfiguration.OHD_fontBoxColor);
         FontMetrics fm = g2d.getFontMetrics();
-        
-        
+
+
         int fontHeight = KBConfiguration.OHD_messageBoxFont.getSize();
-        int yOffset = y ;
+        int yOffset = y;
         String[] lines = message.split("\n");
-        for (int j = 0; j< lines.length; j++) {
+        for (int j = 0; j < lines.length; j++) {
             String[] words = lines[j].split(" ");
             String line = "";
-            for (int i = 0; i< words.length; i++) {
+            for (int i = 0; i < words.length; i++) {
                 String testLine = new String(line + " " + words[i]);
                 Rectangle2D testRectangle = fm.getStringBounds(testLine, g2d);
                 if (testRectangle.getWidth() > w) {
-                    conditionalWrite(g2d, line, x, yOffset + fontHeight, y+h);
+                    conditionalWrite(g2d, line, x, yOffset + fontHeight, y + h);
                     line = words[i];
                     yOffset += fontHeight;
                 } else {
                     line = testLine;
                 }
             }
-            conditionalWrite(g2d, line, x, yOffset + fontHeight,y+ h);
+            conditionalWrite(g2d, line, x, yOffset + fontHeight, y + h);
             yOffset += (fontHeight + KBConfiguration.OHD_lineSpacing);
         }
-        
+
     }
-    
-    
-    
 }

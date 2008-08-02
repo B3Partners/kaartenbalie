@@ -1,13 +1,24 @@
-/**
- * @(#)KaartenbalieCrudAction.java
- * @author R. Braam
- * @version 1.00 2006/09/08
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: a class handling the different actions which come from classes extending this class.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
@@ -36,22 +47,21 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 
-public class KaartenbalieCrudAction extends CrudAction{
-    
+public class KaartenbalieCrudAction extends CrudAction {
+
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
-    
+
     protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
         return mapping.findForward(FAILURE);
     }
-    
+
     /** Protected method which returns the current Hibernate session.
      *
      * @return the current Hibernate Session
      */
     // <editor-fold defaultstate="" desc="getHibernateSession() method.">
     // </editor-fold>
-    
     /** Execute method which handles all incoming request.
      *
      * @param mapping action mapping
@@ -65,7 +75,7 @@ public class KaartenbalieCrudAction extends CrudAction{
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
-    throws Exception {
+            throws Exception {
         MyEMFDatabase.initEntityManager();
         EntityManager em = getEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -80,23 +90,23 @@ public class KaartenbalieCrudAction extends CrudAction{
             MyEMFDatabase.closeEntityManager();
             getDataWarehousing().end();
             return forward;
-        } catch(Exception e) {
+        } catch (Exception e) {
             tx.rollback();
             log.error("Exception occured, rollback", e);
             MessageResources messages = getResources(request);
-            
+
             if (e instanceof org.hibernate.JDBCException) {
                 msg = e.toString();
-                SQLException sqle = ((org.hibernate.JDBCException)e).getSQLException();
+                SQLException sqle = ((org.hibernate.JDBCException) e).getSQLException();
                 msg = msg + ": " + sqle;
                 SQLException nextSqlE = sqle.getNextException();
-                if(nextSqlE != null) {
+                if (nextSqlE != null) {
                     msg = msg + ": " + nextSqlE;
                 }
             } else if (e instanceof java.sql.SQLException) {
                 msg = e.toString();
-                SQLException nextSqlE = ((java.sql.SQLException)e).getNextException();
-                if(nextSqlE != null) {
+                SQLException nextSqlE = ((java.sql.SQLException) e).getNextException();
+                if (nextSqlE != null) {
                     msg = msg + ": " + nextSqlE;
                 }
             } else {
@@ -104,14 +114,14 @@ public class KaartenbalieCrudAction extends CrudAction{
             }
             addAlternateMessage(mapping, request, null, msg);
         }
-        
-        
+
+
         tx.begin();
-        
+
         try {
-            prepareMethod((DynaValidatorForm)form, request, LIST, EDIT);
+            prepareMethod((DynaValidatorForm) form, request, LIST, EDIT);
             tx.commit();
-        } catch(Exception e) {
+        } catch (Exception e) {
             tx.rollback();
             log.error("Exception occured in second session, rollback", e);
             addAlternateMessage(mapping, request, null, e.toString());
@@ -120,91 +130,90 @@ public class KaartenbalieCrudAction extends CrudAction{
         MyEMFDatabase.closeEntityManager();
         return getAlternateForward(mapping, request);
     }
-    
+
     public static EntityManager getEntityManager() {
         return MyEMFDatabase.getEntityManager();
     }
+
     private static void setMenuParams(HttpServletRequest request) {
         Map menuParamMap = new HashMap();
-        menuParamMap.put("pricing",new Boolean(AccountManager.isEnableAccounting()));
-        menuParamMap.put("reporting",new Boolean(DataMonitoring.isEnableMonitoring()));
+        menuParamMap.put("pricing", new Boolean(AccountManager.isEnableAccounting()));
+        menuParamMap.put("reporting", new Boolean(DataMonitoring.isEnableMonitoring()));
         menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
-        menuParamMap.put("warehousing",new Boolean(DataWarehousing.isEnableWarehousing()));
-        menuParamMap.put("metadata",new Boolean(KBConfiguration.METADATA_ENABLED));
-        request.setAttribute("menuParameters",menuParamMap);
+        menuParamMap.put("warehousing", new Boolean(DataWarehousing.isEnableWarehousing()));
+        menuParamMap.put("metadata", new Boolean(KBConfiguration.METADATA_ENABLED));
+        request.setAttribute("menuParameters", menuParamMap);
     }
+
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
-        
+
         // Check of selectedLayers[i] juiste format heeft
         int pos = uniqueName.indexOf("_");
-        if (pos==-1 || uniqueName.length()<=pos+1) {
+        if (pos == -1 || uniqueName.length() <= pos + 1) {
             log.error("layer not valid: " + uniqueName);
             throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
         }
         String spAbbr = uniqueName.substring(0, pos);
         String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length()==0 || layerName.length()==0) {
+        if (spAbbr.length() == 0 || layerName.length() == 0) {
             log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
             throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
         }
-        
+
         String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query)
-        .setParameter("layerName", layerName)
-        .setParameter("spAbbr", spAbbr)
-        .getResultList();
-        
-        if (ll==null || ll.isEmpty())
+        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+        if (ll == null || ll.isEmpty()) {
             return null;
-        return (Layer)ll.get(0);
+        }
+        return (Layer) ll.get(0);
     }
+
     public WfsLayer getWfsLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
-        
+
         // Check of selectedLayers[i] juiste format heeft
         int pos = uniqueName.indexOf("_");
-        if (pos==-1 || uniqueName.length()<=pos+1) {
+        if (pos == -1 || uniqueName.length() <= pos + 1) {
             log.error("layer not valid: " + uniqueName);
             throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
         }
         String spAbbr = uniqueName.substring(0, pos);
         String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length()==0 || layerName.length()==0) {
+        if (spAbbr.length() == 0 || layerName.length() == 0) {
             log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
             throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
         }
-        
+
         String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query)
-        .setParameter("layerName", layerName)
-        .setParameter("spAbbr", spAbbr)
-        .getResultList();
-        
-        if (ll==null || ll.isEmpty())
+        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+        if (ll == null || ll.isEmpty()) {
             return null;
-        return (WfsLayer)ll.get(0);
+        }
+        return (WfsLayer) ll.get(0);
     }
-    
+
     public String findLayer(String layerToBeFound, Set layers) {
-        if (layers==null || layers.isEmpty())
+        if (layers == null || layers.isEmpty()) {
             return null;
-        
+        }
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
             String identity = layer.getUniqueName();
-            if(identity.equalsIgnoreCase(layerToBeFound))
+            if (identity.equalsIgnoreCase(layerToBeFound)) {
                 return layer.getName();
-            
+            }
             String foundLayer = findLayer(layerToBeFound, layer.getLayers());
-            if (foundLayer != null)
+            if (foundLayer != null) {
                 return foundLayer;
+            }
         }
         return null;
     }
-    
-    
+
     public static DataWarehousing getDataWarehousing() {
         return MyEMFDatabase.getDataWarehouse();
     }

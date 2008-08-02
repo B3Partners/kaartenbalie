@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!--
-    Document   : kaartenbalie.hbm.xml.xml
-    Created on : 7 september 2006, 11:01
-    Author     : Roy
-    Description:
-        Purpose of the document follows.
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
-
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-
 <hibernate-mapping>
-    <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="StyleDomainResource">
-        <id name="id" type="int" column="SDRID" >
-            <generator class="native"/>
-        </id>
-        
-        <many-to-one name="style" column="STYLEID" not-null="true"/>
-        
-        <set name="formats" lazy="true" table="StyleDomainFormat">
-            <key column="SDRID" not-null="true"/>
-            <element column="format" type="string" not-null="true" length="45"/>
-        </set>
-
-        <property name="domain">
-            <column name="DOMAIN" length="45" not-null="true"/>
-        </property>
-        <property name="url">
-            <column name="URL" length="4000" not-null="true"/>
-        </property>
-        <property name="width">
-            <column name="WIDTH" length="45"/>
-        </property>
-        <property name="height">
-            <column name="HEIGHT" length="45"/>
-        </property>
-    </class>
+  <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="StyleDomainResource">
+    <id column="SDRID" name="id" type="int">
+      <generator class="native"/>
+    </id>
+    <many-to-one column="STYLEID" name="style" not-null="true"/>
+    <set lazy="true" name="formats" table="StyleDomainFormat">
+      <key column="SDRID" not-null="true"/>
+      <element column="format" length="45" not-null="true" type="string"/>
+    </set>
+    <property name="domain">
+      <column length="45" name="DOMAIN" not-null="true"/>
+    </property>
+    <property name="url">
+      <column length="4000" name="URL" not-null="true"/>
+    </property>
+    <property name="width">
+      <column length="45" name="WIDTH"/>
+    </property>
+    <property name="height">
+      <column length="45" name="HEIGHT"/>
+    </property>
+  </class>
 </hibernate-mapping>

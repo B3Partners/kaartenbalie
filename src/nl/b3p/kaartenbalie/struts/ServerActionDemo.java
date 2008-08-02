@@ -1,13 +1,24 @@
-/**
- * @(#)ServerAction.java
- * @author N. de Goeij
- * @version 1.00 2006/10/02
+/*
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: a Struts action class defining all the Action for the ServiceProvider view.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.struts;
 
 import java.io.IOException;
@@ -39,12 +50,12 @@ import org.securityfilter.filter.SecurityRequestWrapper;
 import org.xml.sax.SAXException;
 
 public class ServerActionDemo extends WmsServerAction {
-    
+
     private static final Log log = LogFactory.getLog(ServerActionDemo.class);
     protected static final String NOTREGISTERED_ERROR_KEY = "demo.errornotregistered";
     protected static final String MAP_ALREADY_ADDED = "demo.mapalreadyadded";
     protected static final String NEXTPAGE = "nextPage";
-    
+
     /** Execute method which handles all executable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -64,7 +75,6 @@ public class ServerActionDemo extends WmsServerAction {
         return action;
     }
     // </editor-fold>
-    
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -105,7 +115,7 @@ public class ServerActionDemo extends WmsServerAction {
          * JavaScript can be disabled by the browser/user.
          */
         ActionErrors errors = dynaForm.validate(mapping, request);
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
@@ -114,7 +124,7 @@ public class ServerActionDemo extends WmsServerAction {
         /*
          * First lets check if the user still exists.
          */
-        User user = (User)request.getUserPrincipal();
+        User user = (User) request.getUserPrincipal();
         if (user == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NOTREGISTERED_ERROR_KEY);
@@ -131,7 +141,7 @@ public class ServerActionDemo extends WmsServerAction {
             return getAlternateForward(mapping, request);
         }
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
-        if(!isAlphaNumeric(abbreviation)) {
+        if (!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -148,7 +158,7 @@ public class ServerActionDemo extends WmsServerAction {
          * new Serviceprovider into the memory. Before we can take any action we need the users input to read
          * the variables.
          */
-        
+
         /*
          * First we need to check if the given url is conform the url standard.
          */
@@ -167,7 +177,7 @@ public class ServerActionDemo extends WmsServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * We have now a fully checked URL which can be used to add a new ServiceProvider
          * or to change an already existing ServiceProvider. Therefore we are first going
@@ -175,7 +185,7 @@ public class ServerActionDemo extends WmsServerAction {
          */
         ServiceProvider newServiceProvider = null;
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-        
+
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -200,7 +210,7 @@ public class ServerActionDemo extends WmsServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
-        if(!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
+        if (!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
@@ -217,11 +227,11 @@ public class ServerActionDemo extends WmsServerAction {
         Set organizationLayers = new HashSet();
         Iterator it = org.getOrganizationLayer().iterator();
         while (it.hasNext()) {
-            organizationLayers.add(((Layer)it.next()).clone());
+            organizationLayers.add(((Layer) it.next()).clone());
         }
         Iterator newLayers = newServiceProvider.getAllLayers().iterator();
         while (newLayers.hasNext()) {
-            organizationLayers.add((Layer)newLayers.next());
+            organizationLayers.add((Layer) newLayers.next());
         }
         org.setOrganizationLayer(organizationLayers);
         user.setOrganization(org);
@@ -246,7 +256,7 @@ public class ServerActionDemo extends WmsServerAction {
          */
         Principal principal = (Principal) user;
         if (request instanceof SecurityRequestWrapper) {
-            SecurityRequestWrapper srw = (SecurityRequestWrapper)request;
+            SecurityRequestWrapper srw = (SecurityRequestWrapper) request;
             srw.setUserPrincipal(principal);
         }
         return mapping.findForward(NEXTPAGE);

@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <c:set var="form" value="${wmsUrlCreatorForm}"/>
@@ -26,64 +47,64 @@
                 Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
                 U kunt deze GetMap URL gebruiken voor viewers die het GetCapabilities commando niet ondersteunen.
             </div>    
-                
-                <!-- <b>Layer rechten:</b><br/> --><br />
-                <div id="treeContainerLarge" style="height: 270px;">
-                    <div class="treeHolderLarge" style="height: 270px;">
-                        <div id="tree"></div>
-                    </div>
+            
+            <!-- <b>Layer rechten:</b><br/> --><br />
+            <div id="treeContainerLarge" style="height: 270px;">
+                <div class="treeHolderLarge" style="height: 270px;">
+                    <div id="tree"></div>
                 </div>
-                <div style="float: left; width: 300px; height: 240px; margin-left: 15px; margin-top: 0px;" class="serverDetailsClass">
-                    <div class="getMapLabelValue">
-                        <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
-                        <c:if test="${not empty projectieList}">
-                            <div class="getMapValue">
-                                <html:select property="selectedProjectie">
-                                    <c:forEach items="${projectieList}" var="p">
-                                        <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
-                                    </c:forEach>
-                                </html:select>
-                            </div>
-                        </c:if>
-                    </div>
-                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.height"/>:</div>
-                    <div class="getMapValue"><html:text property="height"/></div>
-                    
-                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.width"/>:</div>
-                    <div class="getMapValue"><html:text property="width"/></div>
-                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.bbox"/>:</div>
-                    <div class="getMapValue"><html:text property="bbox" size="40"/></div>
-                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.format"/>:</div>
-                    
-                    <c:if test="${not empty formatList}">
+            </div>
+            <div style="float: left; width: 300px; height: 240px; margin-left: 15px; margin-top: 0px;" class="serverDetailsClass">
+                <div class="getMapLabelValue">
+                    <div class="getMapLabel"><fmt:message key="beheer.getmapurl.projecties"/>:</div>
+                    <c:if test="${not empty projectieList}">
                         <div class="getMapValue">
-                            <html:select property="selectedFormat">
-                                <c:forEach items="${formatList}" var="f">
-                                    <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
+                            <html:select property="selectedProjectie">
+                                <c:forEach items="${projectieList}" var="p">
+                                    <html:option value="${p}"><c:out value="${p}"/></html:option><br/>
                                 </c:forEach>
                             </html:select>
                         </div>
                     </c:if>
                 </div>
-                <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
-                <div class="volgordeBox" style="width: 748px;">    
-                    <br /><b>Volgorde</b><br>
-                    Bepaal hieronder de volgorde van de kaarten.
-                    <br />Selecteer een kaart en verplaats het met de knoppen.
-                    <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
-                    <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
-                    <div id="orderLayerBox" class="orderLayerBox" style="width: 748px;"></div>
-                </div>
-                Persoonlijke GetMap URL:<BR>
-                <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" style="width: 748px;" />
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.height"/>:</div>
+                <div class="getMapValue"><html:text property="height"/></div>
                 
-                <div style="clear: both; height: 0px;"></div>
-                <html:submit property="getMapUrl">
-                    <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
-                </html:submit>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.width"/>:</div>
+                <div class="getMapValue"><html:text property="width"/></div>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.bbox"/>:</div>
+                <div class="getMapValue"><html:text property="bbox" size="40"/></div>
+                <div class="getMapLabel"><fmt:message key="beheer.getmapurl.format"/>:</div>
                 
-                
-                <script type="text/javascript">
+                <c:if test="${not empty formatList}">
+                    <div class="getMapValue">
+                        <html:select property="selectedFormat">
+                            <c:forEach items="${formatList}" var="f">
+                                <html:option value="${f}"><c:out value="${f}"/></html:option><br/>
+                            </c:forEach>
+                        </html:select>
+                    </div>
+                </c:if>
+            </div>
+            <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
+            <div class="volgordeBox" style="width: 748px;">    
+                <br /><b>Volgorde</b><br>
+                Bepaal hieronder de volgorde van de kaarten.
+                <br />Selecteer een kaart en verplaats het met de knoppen.
+                <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
+                <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
+                <div id="orderLayerBox" class="orderLayerBox" style="width: 748px;"></div>
+            </div>
+            Persoonlijke GetMap URL:<BR>
+            <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" style="width: 748px;" />
+            
+            <div style="clear: both; height: 0px;"></div>
+            <html:submit property="getMapUrl">
+                <fmt:message key="beheer.kaarten.wmsurlcreator.getMap"/>
+            </html:submit>
+            
+            
+            <script type="text/javascript">
                 <c:if test = "${not empty layerList}">
 
                     var root = ${layerList};
@@ -191,7 +212,7 @@
                    
 
                 </c:if>
-                </script>
+            </script>
             
         </c:when>
         <c:otherwise>

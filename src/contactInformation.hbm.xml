@@ -1,58 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!--
-    Document   : kaartenbalie.hbm.xml.xml
-    Created on : 7 september 2006, 11:01
-    Author     : Roy
-    Description:
-        Purpose of the document follows.
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
-
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-
 <hibernate-mapping>
-    <class name="nl.b3p.wms.capabilities.ContactInformation" table="ContactInformation">
-        <id name="id" type="int" column="SERVICEPROVIDERID">
-            <generator class="foreign">
-                <param name="property">serviceProvider</param>
-            </generator>
-        </id>
-        
-        <one-to-one name="serviceProvider" constrained="true" class="nl.b3p.wms.capabilities.ServiceProvider" />
-        
-        <property name="contactPerson">
-            <column name="CONTACTPERSON" length="50"/>
-        </property>
-        <property name="contactPosition">
-            <column name="CONTACTPOSITION" length="50"/>
-        </property>
-        <property name="address">
-            <column name="ADDRESS" length="50"/>
-        </property>
-        <property name="addressType">
-            <column name="ADDRESSTYPE" length="50"/>
-        </property>
-        <property name="postcode">
-            <column name="POSTCODE" length="50"/>
-        </property>
-        <property name="city">
-            <column name="CITY" length="50"/>
-        </property>
-        <property name="stateOrProvince">
-            <column name="STATEORPROVINCE" length="50"/>
-        </property>
-        <property name="country">
-            <column name="COUNTRY" length="50"/>
-        </property>
-        <property name="voiceTelephone">
-            <column name="VOICETELEPHONE" length="50"/>
-        </property>
-        <property name="fascimileTelephone">
-            <column name="FASCIMILETELEPHONE" length="50"/>
-        </property>
-        <property name="emailAddress">
-            <column name="EMAILADDRESS" length="50"/>
-        </property>
-    </class>
+  <class name="nl.b3p.wms.capabilities.ContactInformation" table="ContactInformation">
+    <id column="SERVICEPROVIDERID" name="id" type="int">
+      <generator class="foreign">
+        <param name="property">serviceProvider</param>
+      </generator>
+    </id>
+    <one-to-one class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true" name="serviceProvider"/>
+    <property name="contactPerson">
+      <column length="50" name="CONTACTPERSON"/>
+    </property>
+    <property name="contactPosition">
+      <column length="50" name="CONTACTPOSITION"/>
+    </property>
+    <property name="address">
+      <column length="50" name="ADDRESS"/>
+    </property>
+    <property name="addressType">
+      <column length="50" name="ADDRESSTYPE"/>
+    </property>
+    <property name="postcode">
+      <column length="50" name="POSTCODE"/>
+    </property>
+    <property name="city">
+      <column length="50" name="CITY"/>
+    </property>
+    <property name="stateOrProvince">
+      <column length="50" name="STATEORPROVINCE"/>
+    </property>
+    <property name="country">
+      <column length="50" name="COUNTRY"/>
+    </property>
+    <property name="voiceTelephone">
+      <column length="50" name="VOICETELEPHONE"/>
+    </property>
+    <property name="fascimileTelephone">
+      <column length="50" name="FASCIMILETELEPHONE"/>
+    </property>
+    <property name="emailAddress">
+      <column length="50" name="EMAILADDRESS"/>
+    </property>
+  </class>
 </hibernate-mapping>

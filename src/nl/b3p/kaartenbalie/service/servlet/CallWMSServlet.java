@@ -1,14 +1,23 @@
 /*
- * @(#)CallWMSServlet.java
- * @author Nando De Goeij
- * @version 1.00
- * Created on 25 oktober 2006, 10:21
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Purpose: portal to which a client sends his requests. This servlet takes all incoming requests and handles
- * each request differently depending on the input given in the request. The Servlets takes the KBConfiguration
- * interface to check for all the different parameters which can be send together with the request.
- *
- * @copyright 2007 All rights reserved. B3Partners
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
@@ -56,7 +65,7 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 
 public class CallWMSServlet extends HttpServlet {
-    
+
     private EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("defaultKaartenbaliePU");
     private EntityManager em = emf.createEntityManager();
     private static Log log = null;
@@ -65,7 +74,7 @@ public class CallWMSServlet extends HttpServlet {
     private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
-    
+
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
      *
@@ -92,8 +101,8 @@ public class CallWMSServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
         int totalDatasize = 0;
-        
-        
+
+
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
             CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getCapabilitiesdtd();
@@ -101,20 +110,20 @@ public class CallWMSServlet extends HttpServlet {
         if (EXCEPTION_DTD == null) {
             EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
         }
-        
+
         String iUrl = completeUrl(baseUrl, request).toString();
         log.debug("Incoming URL: " + iUrl);
-        
+
         MyEMFDatabase.initEntityManager();
         EntityManager em = MyEMFDatabase.getEntityManager();
         User user = null;
-        
+
         DataWrapper data = new DataWrapper(response);
-        
+
         DataMonitoring rr = new DataMonitoring();
         data.setRequestReporting(rr);
         OGCRequest ogcrequest = null;
-        
+
         try {
             if (request.getMethod().equalsIgnoreCase("GET")) {
                 ogcrequest = new OGCRequest(iUrl);
@@ -125,7 +134,7 @@ public class CallWMSServlet extends HttpServlet {
                 ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
             }
             data.setOgcrequest(ogcrequest);
-            
+
             rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
             user = checkLogin(request);
             data.getOgcrequest().checkRequestURL();
@@ -141,13 +150,13 @@ public class CallWMSServlet extends HttpServlet {
         }
         MyEMFDatabase.closeEntityManager();
     }
-    
+
     private StringBuffer createBaseUrl(HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
         String contextPath = request.getContextPath();
-        
+
         StringBuffer theUrl = new StringBuffer(scheme);
         theUrl.append("://");
         theUrl.append(serverName);
@@ -158,12 +167,12 @@ public class CallWMSServlet extends HttpServlet {
         theUrl.append(contextPath);
         return theUrl;
     }
-    
+
     private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
         String servletPath = request.getServletPath();
         String pathInfo = request.getPathInfo();
         String queryString = request.getQueryString();
-        
+
         if (servletPath != null && servletPath.length() != 0) {
             baseUrl.append(servletPath);
         }
@@ -176,14 +185,14 @@ public class CallWMSServlet extends HttpServlet {
         }
         return baseUrl;
     }
-    
+
     private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
         OGCRequest ogcrequest = data.getOgcrequest();
-        
+
         if (ogcrequest == null) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
-        }else if(ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)){
+        } else if (ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
         } else {
@@ -210,7 +219,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
         String message = ex.getMessage();
         try {
@@ -226,7 +235,7 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
         }
     }
-    
+
     private void handleRequestExceptionAsXML(Exception ex, DataWrapper data) throws IOException {
         ByteArrayOutputStream output = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -238,22 +247,22 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
             throw new IOException("Exception occured during creation of error message: " + e);
         }
-        
+
         DOMImplementation di = db.getDOMImplementation();
-        
+
         // <!DOCTYPE ServiceExceptionReport SYSTEM "http://schemas.opengeospatial.net/wms/1.1.1/exception_1_1_1.dtd"
         // <!-- end of DOCTYPE declaration -->
         DocumentType dt = di.createDocumentType("ServiceExceptionReport", null, CallWMSServlet.EXCEPTION_DTD);
         Document dom = di.createDocument(null, "ServiceExceptionReport", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1");
-        
+
         Element serviceExceptionElement = dom.createElement("ServiceException");
-        
+
         String exceptionName = ex.getClass().getName();
         String message = ex.getMessage();
         Throwable cause = ex.getCause();
-        
+
         serviceExceptionElement.setAttribute("code", exceptionName);
         CDATASection cdata = null;
         if (cause != null) {
@@ -261,16 +270,16 @@ public class CallWMSServlet extends HttpServlet {
         } else {
             cdata = dom.createCDATASection(message);
         }
-        
+
         serviceExceptionElement.appendChild(cdata);
         rootElement.appendChild(serviceExceptionElement);
-        
+
         OutputFormat format = new OutputFormat(dom);
         format.setIndenting(true);
         output = new ByteArrayOutputStream();
         XMLSerializer serializer = new XMLSerializer(output, format);
         serializer.serialize(dom);
-        
+
         DOMValidator dv = new DOMValidator();
         try {
             dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(KBConfiguration.CHARSET)));
@@ -278,11 +287,11 @@ public class CallWMSServlet extends HttpServlet {
             log.error("error: ", e);
             throw new IOException("Exception occured during validation of error message: " + e);
         }
-        
+
         data.setHeader("Content-Disposition", "inline; filename=\"ServiceException.xml\";");
         data.write(output);
     }
-    
+
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -298,10 +307,10 @@ public class CallWMSServlet extends HttpServlet {
         while (keySetIterator.hasNext()) {
             String key = (String) keySetIterator.next();
             String value = ((String[]) parameters.get(key))[0];
-            
+
             String caseInsensitiveKey = key.toUpperCase();
             String caseInsensitiveValue = value.toUpperCase();
-            
+
             newParameterMap.put(caseInsensitiveKey, caseInsensitiveValue);
         }
         return newParameterMap;
@@ -330,7 +339,7 @@ public class CallWMSServlet extends HttpServlet {
                 String decoded = decodeBasicAuthorizationString(authorizationHeader);
                 String username = parseUsername(decoded);
                 String password = parsePassword(decoded);
-                
+
                 String encpw = null;
                 try {
                     encpw = KBCrypter.encryptText(password);
@@ -351,7 +360,7 @@ public class CallWMSServlet extends HttpServlet {
                     } finally {
                         tx.commit();
                     }
-                    
+
                     if (user == null) {
                         tx = em.getTransaction();
                         tx.begin();
@@ -360,7 +369,7 @@ public class CallWMSServlet extends HttpServlet {
                                     "from User u where " +
                                     "lower(u.username) = lower(:username) " +
                                     "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
-                            
+
                             // Volgende keer dus wel encrypted
                             user.setPassword(encpw);
                             em.merge(user);
@@ -377,7 +386,7 @@ public class CallWMSServlet extends HttpServlet {
                 }
             }
         }
-        
+
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
@@ -390,16 +399,16 @@ public class CallWMSServlet extends HttpServlet {
             } catch (NoResultException nre) {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             }
-            
+
             java.util.Date date = user.getTimeout();
-            
+
             if (date.compareTo(new java.util.Date()) <= 0) {
                 throw new AccessDeniedException("Personal URL key has expired!");
             }
-            
+
             String remoteaddress = request.getRemoteAddr();
             boolean validip = false;
-            
+
             Set ipaddresses = user.getUserips();
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
@@ -409,12 +418,12 @@ public class CallWMSServlet extends HttpServlet {
                     break;
                 }
             }
-            
+
             if (!validip) {
                 throw new AccessDeniedException("Personal URL not usuable for this IP address!");
             }
         }
-        
+
         return user;
     }
     // </editor-fold>
@@ -453,7 +462,7 @@ public class CallWMSServlet extends HttpServlet {
         RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
-        
+
         if (request == null || request.length() == 0) {
             // niet bekend, dus moet proxy zijn
             data.setRequestClassType(ProxyRequest.class);
@@ -461,7 +470,7 @@ public class CallWMSServlet extends HttpServlet {
             requestHandler.getRequest(data, user);
         }
         data.setOperation(request);
-        
+
         if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
                 data.setRequestClassType(WMSGetCapabilitiesRequest.class);
@@ -511,21 +520,21 @@ public class CallWMSServlet extends HttpServlet {
      * @param response servlet response
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-    
+
     /** Handles the HTTP <code>POST</code> method.
      * @param request servlet request
      * @param response servlet response
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
-    
+
     /** Returns a short description of the servlet.
      */
     public String getServletInfo() {
@@ -549,7 +558,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     /**
      * Parse the password out of the decoded BASIC authorization header string.
      * @param decoded
@@ -567,7 +576,7 @@ public class CallWMSServlet extends HttpServlet {
             }
         }
     }
-    
+
     /**
      * Decode the BASIC authorization string.
      *
@@ -583,17 +592,16 @@ public class CallWMSServlet extends HttpServlet {
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
     }
-    
     /*public void persist(Object object) {
-        try {
-            em.getTransaction().begin();
-            // TODO:
-            // em.persist(object);    em.getTransaction().commit();
-        } catch (Exception e) {
-            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", e);
-            em.getTransaction().rollback();
-        } finally {
-            em.close();
-        }
+    try {
+    em.getTransaction().begin();
+    // TODO:
+    // em.persist(object);    em.getTransaction().commit();
+    } catch (Exception e) {
+    java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", e);
+    em.getTransaction().rollback();
+    } finally {
+    em.close();
+    }
     }*/
 }

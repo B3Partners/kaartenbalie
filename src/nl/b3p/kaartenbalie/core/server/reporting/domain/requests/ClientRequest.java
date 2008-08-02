@@ -1,12 +1,24 @@
 /*
- * ClientRequest.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on September 27, 2007, 4:24 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
 import java.util.Date;
@@ -17,7 +29,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 
 public class ClientRequest {
-    
+
     private Integer id;
     private Date timeStamp;
     private String clientRequestURI;
@@ -29,69 +41,63 @@ public class ClientRequest {
     private Integer organizationId;
     private String service;
     private String operation;
-
     private Class exceptionClass;
-    private String exceptionMessage;    
-    
-    
+    private String exceptionMessage;
+
     public ClientRequest() {
         setTimeStamp(new Date());
         setServiceProviderRequests(new HashSet());
         setRequestOperations(new HashSet());
     }
-    
+
     public Integer getId() {
         return id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
-    
+
     public Date getTimeStamp() {
         return timeStamp;
     }
-    
+
     public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
     }
-    
-    
-    
+
     public Set getServiceProviderRequests() {
         return serviceProviderRequests;
     }
-    
+
     public void setServiceProviderRequests(Set serviceProviderRequests) {
         this.serviceProviderRequests = serviceProviderRequests;
     }
-    
-    
+
     public String getClientRequestURI() {
         return clientRequestURI;
     }
-    
+
     public void setClientRequestURI(String clientRequestURI) {
         this.clientRequestURI = clientRequestURI;
     }
-    
+
     public Set getRequestOperations() {
         return requestOperations;
     }
-    
+
     public void setRequestOperations(Set requestOperations) {
         this.requestOperations = requestOperations;
     }
-    
+
     private Integer getUserId() {
         return userId;
     }
-    
+
     private void setUserId(Integer userId) {
         this.userId = userId;
     }
-    
-    
+
     public void setUser(User user) {
         if (user != null) {
             setUserId(user.getId());
@@ -99,7 +105,7 @@ public class ClientRequest {
             setUserId(null);
         }
     }
-    
+
     public User getUser() {
         try {
             return (User) DataWarehousing.find(User.class, getUserId());
@@ -107,15 +113,15 @@ public class ClientRequest {
             return null;
         }
     }
-    
+
     private Integer getOrganizationId() {
         return organizationId;
     }
-    
+
     private void setOrganizationId(Integer organizationId) {
         this.organizationId = organizationId;
     }
-    
+
     public void setOrganization(Organization organization) {
         if (organization != null) {
             setOrganizationId(organization.getId());
@@ -123,7 +129,7 @@ public class ClientRequest {
             setOrganizationId(null);
         }
     }
-    
+
     public Organization getOrganization() {
         try {
             return (Organization) DataWarehousing.find(Organization.class, getOrganizationId());
@@ -131,35 +137,35 @@ public class ClientRequest {
             return null;
         }
     }
-    
+
     public String getClientIp() {
         return clientIp;
     }
-    
+
     public void setClientIp(String clientIp) {
         this.clientIp = clientIp;
     }
-    
+
     public String getMethod() {
         return method;
     }
-    
+
     public void setMethod(String method) {
         this.method = method;
     }
-    
+
     public String getService() {
         return service;
     }
-    
+
     public void setService(String service) {
         this.service = service;
     }
-    
+
     public String getOperation() {
         return operation;
     }
-    
+
     public void setOperation(String operation) {
         this.operation = operation;
     }
@@ -179,5 +185,4 @@ public class ClientRequest {
     public void setExceptionMessage(String exceptionMessage) {
         this.exceptionMessage = exceptionMessage;
     }
-
 }

@@ -1,10 +1,23 @@
 /*
- * AccountingAction.java
+ * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+ * for authentication/authorization, pricing and usage reporting.
  *
- * Created on November 19, 2007, 9:29 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Copyright 2006, 2007, 2008 B3Partners BV
+ * 
+ * This file is part of B3P Kaartenbalie.
+ * 
+ * B3P Kaartenbalie is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * B3P Kaartenbalie is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.struts;
 
@@ -72,19 +85,19 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        
+
         Organization organization = getOrganization(form, request);
         form.set("selectedOrganization", FormUtils.IntegerToString(organization.getId()));
-        
+
         int firstResult = FormUtils.StringToInt(form.getString("firstResult"));
         int listMax = FormUtils.StringToInt(form.getString("listMax"));
-        if (firstResult==0 && listMax==0) {
+        if (firstResult == 0 && listMax == 0) {
             firstResult = 0;
             listMax = 20;
             form.set("firstResult", Integer.toString(firstResult));
             form.set("listMax", Integer.toString(listMax));
         }
-       
+
         AccountManager am = AccountManager.getAccountManager(organization.getId());
         request.setAttribute("balance", new Double(am.getBalance()));
         request.setAttribute("layerUsages", am.getTransactions(firstResult, listMax, TransactionLayerUsage.class));
@@ -103,11 +116,13 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
         if (id == null) {
             User principalUser = (User) request.getUserPrincipal();
-            if (principalUser==null)
+            if (principalUser == null) {
                 return null;
+            }
             User user = (User) em.find(User.class, principalUser.getId());
-            if (user==null)
+            if (user == null) {
                 return null;
+            }
             organization = user.getOrganization();
         } else {
             organization = (Organization) em.find(Organization.class, id);

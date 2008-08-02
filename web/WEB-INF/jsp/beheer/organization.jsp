@@ -1,3 +1,24 @@
+<%--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+--%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <c:set var="form" value="${organizationForm.map}"/>
@@ -49,7 +70,7 @@
             <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
                 <tbody>
                     <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                        
+                    
                         <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
                             <td width="200">
                                 <div style="width: 190px; overflow: hidden;">
@@ -336,18 +357,18 @@
             }
         </c:if>
         
-        function mainMap_onUpdateProgress(){
-            setMapInfo();
-        }
-        function setMapInfo(){
-            var e=flamingo.call("mainMap", "getCurrentExtent");
-            var s=flamingo.call("mainMap", "getCurrentScale");
+            function mainMap_onUpdateProgress(){
+                setMapInfo();
+            }
+            function setMapInfo(){
+                var e=flamingo.call("mainMap", "getCurrentExtent");
+                var s=flamingo.call("mainMap", "getCurrentScale");
             
-            var x=Math.round((e.minx+e.maxx)/2);
-            var y=Math.round((e.miny+e.maxy)/2);
-            document.getElementById("currentScale").innerHTML="Schaal= "+s;
-            document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
-        }
+                var x=Math.round((e.minx+e.maxx)/2);
+                var y=Math.round((e.miny+e.maxy)/2);
+                document.getElementById("currentScale").innerHTML="Schaal= "+s;
+                document.getElementById("currentCoordinates").innerHTML="X= "+x+ " Y= "+y;
+            }
         
     </c:if>
     </script>

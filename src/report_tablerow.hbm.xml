@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
 
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+-->
 <hibernate-mapping>
-        <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow" table="rep_tablerow">
-        <id name="id" type="int" column="tro_id" >
-            <generator class="native"/>
-        </id>
-        <many-to-one name="dataTable" column="tro_tab_id"/>  
-        <set name="rowValues" inverse="true"  cascade="all, delete-orphan" order-by="rva_valueOrder ASC">
-            <key column="rva_tro_id"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue"/>
-        </set>   
-        
-        <property name="header" column="tro_header"/>
-        <property name="rowOrder" column="tro_rowOrder"/>
-        
-    </class>
+  <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow" table="rep_tablerow">
+    <id column="tro_id" name="id" type="int">
+      <generator class="native"/>
+    </id>
+    <many-to-one column="tro_tab_id" name="dataTable"/>
+    <set cascade="all, delete-orphan" inverse="true" name="rowValues" order-by="rva_valueOrder ASC">
+      <key column="rva_tro_id"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue"/>
+    </set>
+    <property column="tro_header" name="header"/>
+    <property column="tro_rowOrder" name="rowOrder"/>
+  </class>
 </hibernate-mapping>
