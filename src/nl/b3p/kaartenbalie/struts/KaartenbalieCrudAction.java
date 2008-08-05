@@ -56,12 +56,6 @@ public class KaartenbalieCrudAction extends CrudAction {
         return mapping.findForward(FAILURE);
     }
 
-    /** Protected method which returns the current Hibernate session.
-     *
-     * @return the current Hibernate Session
-     */
-    // <editor-fold defaultstate="" desc="getHibernateSession() method.">
-    // </editor-fold>
     /** Execute method which handles all incoming request.
      *
      * @param mapping action mapping
@@ -193,25 +187,6 @@ public class KaartenbalieCrudAction extends CrudAction {
             return null;
         }
         return (WfsLayer) ll.get(0);
-    }
-
-    public String findLayer(String layerToBeFound, Set layers) {
-        if (layers == null || layers.isEmpty()) {
-            return null;
-        }
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            Layer layer = (Layer) it.next();
-            String identity = layer.getUniqueName();
-            if (identity.equalsIgnoreCase(layerToBeFound)) {
-                return layer.getName();
-            }
-            String foundLayer = findLayer(layerToBeFound, layer.getLayers());
-            if (foundLayer != null) {
-                return foundLayer;
-            }
-        }
-        return null;
     }
 
     public static DataWarehousing getDataWarehousing() {

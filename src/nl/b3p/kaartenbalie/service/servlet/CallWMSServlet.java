@@ -147,8 +147,8 @@ public class CallWMSServlet extends HttpServlet {
             handleRequestException(ex, data);
         } finally {
             rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
+            MyEMFDatabase.closeEntityManager();
         }
-        MyEMFDatabase.closeEntityManager();
     }
 
     private StringBuffer createBaseUrl(HttpServletRequest request) {
@@ -192,7 +192,8 @@ public class CallWMSServlet extends HttpServlet {
         if (ogcrequest == null) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
-        } else if (ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
+        } else if (ogcrequest.getParameter(OGCConstants.SERVICE)!=null && 
+                ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
         } else {
