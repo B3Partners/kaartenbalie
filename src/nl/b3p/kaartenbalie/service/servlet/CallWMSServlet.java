@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
+import java.util.Enumeration;
 import javax.persistence.EntityManagerFactory;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
@@ -41,6 +42,7 @@ import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
 import nl.b3p.kaartenbalie.service.requesthandler.WFSTransactionRequestHandler;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.*;
@@ -129,6 +131,31 @@ public class CallWMSServlet extends HttpServlet {
                 ogcrequest = new OGCRequest(iUrl);
             } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)){
                 ogcrequest = new OGCRequest(iUrl);
+                Enumeration params= request.getParameterNames();
+                while(params.hasMoreElements()){
+                    String paramName= (String) params.nextElement();
+                    String paramValue=request.getParameter(paramName);
+                    //Parameters zijn niet UTF8.
+                    if(paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata")|| paramName.equalsIgnoreCase("loadmovie")|| paramName.equalsIgnoreCase("oldloadmovie")){
+                        //do nothing
+                    }else{
+                        ogcrequest.addOrReplaceParameter(paramName, paramValue);
+                    }                                        
+                }
+                if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY)!=null){
+                    //<Name>demo_gemeenten_2006</Name>
+                    String sld_body=ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
+                    if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS)!=null){
+                        String[] layersArray=ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
+                        for (int i=0; i < layersArray.length; i++){
+                            if (layersArray[i].indexOf("_")>-1 && layersArray[i].indexOf("_")<layersArray[i].length()-1){
+                                String newLayer= layersArray[i].substring(layersArray[i].indexOf("_")+1);
+                                sld_body=sld_body.replaceAll("(?i)name>"+layersArray[i]+"<", "Name>"+newLayer+"<");
+                            }
+                        }
+                    }
+                    ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY,URLEncoder.encode(sld_body, "UTF-8"));
+                }
             } else{
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dbf.newDocumentBuilder();
