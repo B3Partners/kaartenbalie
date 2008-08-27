@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -427,7 +426,6 @@ public class WfsServerAction extends ServerAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
         List serviceproviderlist = em.createQuery("from WfsServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
     }
@@ -445,7 +443,7 @@ public class WfsServerAction extends ServerAction {
      * @return a service provider object.
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected WfsServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    protected WfsServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
         EntityManager em = getEntityManager();
         WfsServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);

@@ -364,28 +364,32 @@ public class MetadataAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createTree() method.">
     private JSONObject createTree() throws JSONException {
 
-        EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
-
         JSONObject root = new JSONObject();
-        JSONArray rootArray = new JSONArray();
+        root.put("name", "root");
+        try {
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
 
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider) it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            Layer topLayer = sp.getTopLayer();
-            if (topLayer != null) {
-                HashSet set = new HashSet();
-                set.add(topLayer);
-                parentObj = createTreeList(set, parentObj);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
+            JSONArray rootArray = new JSONArray();
+
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                ServiceProvider sp = (ServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                Layer topLayer = sp.getTopLayer();
+                if (topLayer != null) {
+                    HashSet set = new HashSet();
+                    set.add(topLayer);
+                    parentObj = createTreeList(set, parentObj);
+                    if (parentObj.has("children")) {
+                        rootArray.put(parentObj);
+                    }
                 }
             }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         }
-        root.put("name", "root");
-        root.put("children", rootArray);
         return root;
     }
     // </editor-fold>

@@ -241,25 +241,29 @@ public class WfsOrganizationAction extends OrganizationAction {
      */
 // <editor-fold defaultstate="" desc="createTree() method.">
     public JSONObject createTree() throws JSONException {
-        EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
-
-        JSONArray rootArray = new JSONArray();
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            WfsServiceProvider sp = (WfsServiceProvider) it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet set = new HashSet();
-            Set layers = sp.getWfsLayers();
-            set.addAll(layers);
-            parentObj = createTreeList(set, parentObj);
-            if (parentObj.has("children")) {
-                rootArray.put(parentObj);
-            }
-        }
         JSONObject root = new JSONObject();
         root.put("name", "root");
-        root.put("children", rootArray);
+        try {
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
+
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                WfsServiceProvider sp = (WfsServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                HashSet set = new HashSet();
+                Set layers = sp.getWfsLayers();
+                set.addAll(layers);
+                parentObj = createTreeList(set, parentObj);
+                if (parentObj.has("children")) {
+                    rootArray.put(parentObj);
+                }
+            }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        }
         return root;
     }
 // </editor-fold>

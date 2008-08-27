@@ -29,13 +29,16 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
 public abstract class ReportThreadTemplate extends Thread {
-    //Owning user & organization..
+
+    private static final Log log = LogFactory.getLog(ReportThreadTemplate.class);    //Owning user & organization..
     private User user;
     private Organization organization;
     private ReportGenerator reportGenerator;
@@ -54,10 +57,13 @@ public abstract class ReportThreadTemplate extends Thread {
         /*
          * Start a new EntityManager and transaction.
          */
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
+        Object identity = null;
+        EntityTransaction et = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            et = em.getTransaction();
+            et.begin();
             /*
              * Initialize a new report.
              */
@@ -76,38 +82,45 @@ public abstract class ReportThreadTemplate extends Thread {
              */
             trsId = trs.getId();
         } catch (Exception e) {
-            et.rollback();
+            if (et != null) {
+                et.rollback();
+            }
             throw e;
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
     }
 
-    public void notifyOnQueue() {
+    public void notifyOnQueue() throws Exception {
         notifyStateChanged(ThreadReportStatus.ONQUEUE, "The Report Generator is currently busy. Your report is on queue.", null);
     }
 
-    protected void notifyStateChanged(int newState, String message, Integer reportId) {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
+    protected void notifyStateChanged(int newState, String message, Integer reportId) throws Exception {
+        Object identity = null;
+        EntityTransaction et = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            et = em.getTransaction();
+            et.begin();
             ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
             trs.setState(newState);
             trs.setStatusMessage(message);
             trs.setReportId(reportId);
             et.commit();
         } catch (Exception e) {
-            et.rollback();
+            if (et != null) {
+                et.rollback();
+            }
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
         if (newState == ThreadReportStatus.COMPLETED || newState == ThreadReportStatus.FAILED) {
             reportGenerator.notifyClosed(this);
         }
     }
 
-    protected void notifyBreak(Throwable e) {
+    protected void notifyBreak(Throwable e) throws Exception {
         notifyStateChanged(ThreadReportStatus.FAILED, e.getMessage(), null);
     }
 

@@ -241,7 +241,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @return an Organization object.
      */
-    protected Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    protected Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);

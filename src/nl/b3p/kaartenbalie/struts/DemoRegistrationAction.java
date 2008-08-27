@@ -122,7 +122,7 @@ public class DemoRegistrationAction extends UserAction {
      * @param session Session object for the database.
      */
     // <editor-fold defaultstate="" desc="getStandardDemoLayerSet(HttpServletRequest request, Session session) method.">
-    private Set getStandardDemoLayerSet(HttpServletRequest request) {
+    private Set getStandardDemoLayerSet(HttpServletRequest request) throws Exception {
         EntityManager em = getEntityManager();
 
         /*

@@ -345,7 +345,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a User object.
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
 
         EntityManager em = getEntityManager();
 
@@ -381,7 +381,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a Organization object.
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
-    private Organization getOrganization(Integer id) throws HibernateException {
+    private Organization getOrganization(Integer id) throws Exception {
         EntityManager em = getEntityManager();
         return (Organization) em.find(Organization.class, id);
     }
@@ -393,7 +393,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
-    protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) {
+    protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
         EntityManager em = getEntityManager();
 

@@ -108,7 +108,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
         request.setAttribute("organizationlist", organizationlist);
     }
 
-    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) {
+    private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
         EntityManager em = getEntityManager();
         Organization organization = null;

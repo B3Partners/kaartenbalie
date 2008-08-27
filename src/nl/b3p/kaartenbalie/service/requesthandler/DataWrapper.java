@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
@@ -170,7 +172,11 @@ public class DataWrapper {
         // Operation done.. now write the log...
         if (requestReporting != null) {
             parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
-            requestReporting.addRequestOperation(ClientXFerOperation.class, parameterMap);
+            try {
+                requestReporting.addRequestOperation(ClientXFerOperation.class, parameterMap);
+            } catch (Throwable t) {
+                log.warn("", t);
+            }
         }
 
     }

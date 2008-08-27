@@ -159,7 +159,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
 
     }
 
-    private static ReportGenerator getReportGenerator(HttpServletRequest request) {
+    private static ReportGenerator getReportGenerator(HttpServletRequest request) throws Exception {
         HttpSession session = request.getSession();
         ReportGenerator rg = null;
         if (session.getAttribute(reportGeneratorName) != null) {

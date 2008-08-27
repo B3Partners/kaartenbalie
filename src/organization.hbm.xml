@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC 
-"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!--
 B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
 for authentication/authorization, pricing and usage reporting.
@@ -24,86 +22,78 @@ You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <hibernate-mapping>
-    <class name="nl.b3p.kaartenbalie.core.server.Organization" table="Organization">
-        <id name="id" type="int" column="ORGANIZATIONID" >
-            <generator class="native"/>
-        </id>
-        <set name="organizationLayer" table="OrganizationLayer" lazy="false" order-by="LAYERID ASC">
-            <key column="ORGANIZATIONID"/>
-            <many-to-many column="LAYERID" class="nl.b3p.wms.capabilities.Layer" lazy="false"/>
-        </set>
-        <set name="wfsOrganizationLayer" table="Wfs_OrganizationLayer" lazy="false" order-by="WFSLAYERID ASC">
-            <key column="ORGANIZATIONID"/>
-            <many-to-many column="WFSLAYERID" class="nl.b3p.ogc.wfs.v110.WfsLayer" lazy="false"/>
-        </set>
-        
-        <set name="user" lazy="false" inverse="true" cascade="delete">
-            <key column="ORGANIZATIONID"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
-        </set>
-        <set name="reports" inverse="true" cascade="all, delete-orphan">
-            <key column="rpd_org_id"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport"/>
-        </set>   
-        <set name="reportStatus" inverse="true" cascade="all, delete-orphan">
-            <key column="sta_org_id"/>
-            <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus"/>
-        </set>            
-
-        <one-to-one name="account"
-                    class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account"
-                    cascade="all"                    
-                    fetch="join"
-                    lazy="false"
-        />
-        
-        <property name="name">
-            <column name="NAME" default="0" length="50" not-null="true"/>
-        </property>
-        <property name="street">
-            <column name="STREET" default="0" length="50"/>
-        </property>
-        <property name="number">
-            <column name="NUMBER" default="0" length="5" />
-        </property>
-        <property name="addition">
-            <column name="ADDITION" length="10"/>
-        </property>
-        <property name="postalcode">
-            <column name="POSTALCODE" length="45"/>
-        </property>
-        <property name="province">
-            <column name="PROVINCE" default="0" length="50"/>
-        </property>
-        <property name="country">
-            <column name="COUNTRY" default="0" length="50"/>
-        </property>
-        <property name="postbox">
-            <column name="POSTBOX" length="50"/>
-        </property>
-        <property name="billingAddress">
-            <column name="BILLINGADDRESS" length="50"/>
-        </property>
-        <property name="visitorsAddress">
-            <column name="VISITORSADDRESS" length="50"/>
-        </property>
-        <property name="telephone" >
-            <column name="TELEPHONE" default="0" length="50" not-null="true"/>
-        </property>
-        <property name="fax">
-            <column name="FAX" length="50"/>
-        </property>
-        <property name="hasValidGetCapabilities" >
-            <column name="HASVALIDGETCAPABILITIES" not-null="true" sql-type="tinyint"/>
-        </property>
-        <property name="bbox" >
-            <column name="BBOX" length="50"/>
-        </property>
-        <property name="code" >
-            <column name="CODE" length="50"/>
-        </property>
-        <property name="allowAccountingLayers" >
-            <column name="ALLOWACCOUNTINGLAYERS" sql-type="tinyint"/>
-        </property>
-    </class>
+  <class name="nl.b3p.kaartenbalie.core.server.Organization" table="Organization">
+    <id column="ORGANIZATIONID" name="id" type="int">
+      <generator class="native"/>
+    </id>
+    <set lazy="false" name="organizationLayer" order-by="LAYERID ASC" table="OrganizationLayer">
+      <key column="ORGANIZATIONID"/>
+      <many-to-many class="nl.b3p.wms.capabilities.Layer" column="LAYERID" lazy="false"/>
+    </set>
+    <set lazy="false" name="wfsOrganizationLayer" order-by="WFSLAYERID ASC" table="Wfs_OrganizationLayer">
+      <key column="ORGANIZATIONID"/>
+      <many-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer" column="WFSLAYERID" lazy="false"/>
+    </set>
+    <set cascade="delete" inverse="true" lazy="false" name="user">
+      <key column="ORGANIZATIONID"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
+    </set>
+    <set cascade="all, delete-orphan" inverse="true" name="reports">
+      <key column="rpd_org_id"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport"/>
+    </set>
+    <set cascade="all, delete-orphan" inverse="true" name="reportStatus">
+      <key column="sta_org_id"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus"/>
+    </set>
+    <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
+    <property name="name">
+      <column default="0" length="50" name="NAME" not-null="true"/>
+    </property>
+    <property name="street">
+      <column default="0" length="50" name="STREET"/>
+    </property>
+    <property name="number">
+      <column default="0" length="5" name="NUMBER"/>
+    </property>
+    <property name="addition">
+      <column length="10" name="ADDITION"/>
+    </property>
+    <property name="postalcode">
+      <column length="45" name="POSTALCODE"/>
+    </property>
+    <property name="province">
+      <column default="0" length="50" name="PROVINCE"/>
+    </property>
+    <property name="country">
+      <column default="0" length="50" name="COUNTRY"/>
+    </property>
+    <property name="postbox">
+      <column length="50" name="POSTBOX"/>
+    </property>
+    <property name="billingAddress">
+      <column length="50" name="BILLINGADDRESS"/>
+    </property>
+    <property name="visitorsAddress">
+      <column length="50" name="VISITORSADDRESS"/>
+    </property>
+    <property name="telephone">
+      <column default="0" length="50" name="TELEPHONE" not-null="true"/>
+    </property>
+    <property name="fax">
+      <column length="50" name="FAX"/>
+    </property>
+    <property name="hasValidGetCapabilities">
+      <column name="HASVALIDGETCAPABILITIES" not-null="true" sql-type="tinyint"/>
+    </property>
+    <property name="bbox">
+      <column length="50" name="BBOX"/>
+    </property>
+    <property name="code">
+      <column length="50" name="CODE"/>
+    </property>
+    <property name="allowAccountingLayers">
+      <column name="ALLOWACCOUNTINGLAYERS" sql-type="tinyint"/>
+    </property>
+  </class>
 </hibernate-mapping>

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -163,10 +162,12 @@ public class WmsServerAction extends ServerAction {
         try {
             newServiceProvider = wms.getProvider(url);
         } catch (IOException e) {
+            log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
             return getAlternateForward(mapping, request);
         } catch (SAXException e) {
+            log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_CAPABILITY_ERRORKEY);
             return getAlternateForward(mapping, request);
@@ -408,7 +409,6 @@ public class WmsServerAction extends ServerAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
         // Only shows WMS servers for now
         List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
@@ -427,7 +427,7 @@ public class WmsServerAction extends ServerAction {
      * @return a service provider object.
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);

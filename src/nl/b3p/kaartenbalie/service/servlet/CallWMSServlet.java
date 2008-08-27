@@ -68,12 +68,8 @@ import org.w3c.dom.Element;
 
 public class CallWMSServlet extends HttpServlet {
 
-    private EntityManagerFactory emf = javax.persistence.Persistence.createEntityManagerFactory("defaultKaartenbaliePU");
-    private EntityManager em = emf.createEntityManager();
     private static Log log = null;
     public static final long serialVersionUID = 24362462L;
-    private String format;
-    private String inimageType;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
 
@@ -102,8 +98,6 @@ public class CallWMSServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
-        int totalDatasize = 0;
-
 
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
@@ -116,67 +110,74 @@ public class CallWMSServlet extends HttpServlet {
         String iUrl = completeUrl(baseUrl, request).toString();
         log.debug("Incoming URL: " + iUrl);
 
-        MyEMFDatabase.initEntityManager();
-        EntityManager em = MyEMFDatabase.getEntityManager();
-        User user = null;
 
         DataWrapper data = new DataWrapper(response);
 
-        DataMonitoring rr = new DataMonitoring();
-        data.setRequestReporting(rr);
-        OGCRequest ogcrequest = null;
-
+        User user = null;
+        Object identity = null;
         try {
-            if (request.getMethod().equalsIgnoreCase("GET")) {
-                ogcrequest = new OGCRequest(iUrl);
-            } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)){
-                ogcrequest = new OGCRequest(iUrl);
-                Enumeration params= request.getParameterNames();
-                while(params.hasMoreElements()){
-                    String paramName= (String) params.nextElement();
-                    String paramValue=request.getParameter(paramName);
-                    //Parameters zijn niet UTF8.
-                    if(paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata")|| paramName.equalsIgnoreCase("loadmovie")|| paramName.equalsIgnoreCase("oldloadmovie")){
-                        //do nothing
-                    }else{
-                        ogcrequest.addOrReplaceParameter(paramName, paramValue);
-                    }                                        
-                }
-                if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY)!=null){
-                    //<Name>demo_gemeenten_2006</Name>
-                    String sld_body=ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
-                    if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS)!=null){
-                        String[] layersArray=ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
-                        for (int i=0; i < layersArray.length; i++){
-                            if (layersArray[i].indexOf("_")>-1 && layersArray[i].indexOf("_")<layersArray[i].length()-1){
-                                String newLayer= layersArray[i].substring(layersArray[i].indexOf("_")+1);
-                                sld_body=sld_body.replaceAll("(?i)name>"+layersArray[i]+"<", "Name>"+newLayer+"<");
-                            }
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+
+            DataMonitoring rr = new DataMonitoring();
+            data.setRequestReporting(rr);
+            OGCRequest ogcrequest = null;
+
+            try {
+                if (request.getMethod().equalsIgnoreCase("GET")) {
+                    ogcrequest = new OGCRequest(iUrl);
+                } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+                    ogcrequest = new OGCRequest(iUrl);
+                    Enumeration params = request.getParameterNames();
+                    while (params.hasMoreElements()) {
+                        String paramName = (String) params.nextElement();
+                        String paramValue = request.getParameter(paramName);
+                        //Parameters zijn niet UTF8.
+                        if (paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata") || paramName.equalsIgnoreCase("loadmovie") || paramName.equalsIgnoreCase("oldloadmovie")) {
+                            //do nothing
+                        } else {
+                            ogcrequest.addOrReplaceParameter(paramName, paramValue);
                         }
                     }
-                    ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY,URLEncoder.encode(sld_body, "UTF-8"));
+                    if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY) != null) {
+                        //<Name>demo_gemeenten_2006</Name>
+                        String sld_body = ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
+                        if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
+                            String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
+                            for (int i = 0; i < layersArray.length; i++) {
+                                if (layersArray[i].indexOf("_") > -1 && layersArray[i].indexOf("_") < layersArray[i].length() - 1) {
+                                    String newLayer = layersArray[i].substring(layersArray[i].indexOf("_") + 1);
+                                    sld_body = sld_body.replaceAll("(?i)name>" + layersArray[i] + "<", "Name>" + newLayer + "<");
+                                }
+                            }
+                        }
+                        ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
+                    }
+                } else {
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = dbf.newDocumentBuilder();
+                    Document doc = builder.parse(request.getInputStream());
+                    ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
                 }
-            } else{
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(request.getInputStream());
-                ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
-            }
-            data.setOgcrequest(ogcrequest);
+                data.setOgcrequest(ogcrequest);
 
-            rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
-            user = checkLogin(request);
-            data.getOgcrequest().checkRequestURL();
-            rr.setUserAndOrganization(user, user.getOrganization());
-            data.setHeader("X-Kaartenbalie-User", user.getUsername());
-            parseRequestAndData(data, user);
+                rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
+                user = checkLogin(request);
+                data.getOgcrequest().checkRequestURL();
+                rr.setUserAndOrganization(user, user.getOrganization());
+                data.setHeader("X-Kaartenbalie-User", user.getUsername());
+                parseRequestAndData(data, user);
+            } catch (Exception ex) {
+                log.error("Error while handling request: ", ex);
+                rr.setClientRequestException(ex);
+                handleRequestException(ex, data);
+            } finally {
+                rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
+            }
         } catch (Exception ex) {
-            log.error("Error while handling request: ", ex);
-            rr.setClientRequestException(ex);
+            log.warn("Error creating EntityManager: ", ex);
             handleRequestException(ex, data);
         } finally {
-            rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
-            MyEMFDatabase.closeEntityManager();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
 
@@ -221,7 +222,7 @@ public class CallWMSServlet extends HttpServlet {
         if (ogcrequest == null) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
-        } else if (ogcrequest.getParameter(OGCConstants.SERVICE)!=null && 
+        } else if (ogcrequest.getParameter(OGCConstants.SERVICE) != null &&
                 ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
@@ -357,14 +358,13 @@ public class CallWMSServlet extends HttpServlet {
      * @throws UnsupportedEncodingException
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
-    public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException {
+    public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         // probeer preemptive basic login
         if (user == null) {
             // attempt to dig out authentication info only if the user has not yet been authenticated
             String authorizationHeader = request.getHeader("Authorization");
-            HttpSession session = request.getSession();
             if (authorizationHeader != null) {
                 String decoded = decodeBasicAuthorizationString(authorizationHeader);
                 String username = parseUsername(decoded);
@@ -376,8 +376,10 @@ public class CallWMSServlet extends HttpServlet {
                 } catch (Exception ex) {
                     log.error("error encrypting password: ", ex);
                 }
-                EntityManager em = MyEMFDatabase.createEntityManager();
+                Object identity = null;
                 try {
+                    identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+                    EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
                     EntityTransaction tx = em.getTransaction();
                     tx.begin();
                     try {
@@ -411,8 +413,10 @@ public class CallWMSServlet extends HttpServlet {
                             tx.commit();
                         }
                     }
+                } catch (Exception ex) {
+                    throw new AccessDeniedException("Cannot contact login database!");
                 } finally {
-                    em.close();
+                    MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
                 }
             }
         }
@@ -420,38 +424,46 @@ public class CallWMSServlet extends HttpServlet {
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
-            EntityManager em = MyEMFDatabase.getEntityManager();
+            Object identity = null;
             try {
-                String url = request.getRequestURL().toString();
-                user = (User) em.createQuery(
-                        "from User u where " +
-                        "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
-            } catch (NoResultException nre) {
-                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
-            }
+                identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+                EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            java.util.Date date = user.getTimeout();
-
-            if (date.compareTo(new java.util.Date()) <= 0) {
-                throw new AccessDeniedException("Personal URL key has expired!");
-            }
-
-            String remoteaddress = request.getRemoteAddr();
-            boolean validip = false;
-
-            Set ipaddresses = user.getUserips();
-            Iterator it = ipaddresses.iterator();
-            while (it.hasNext()) {
-                String ipaddress = (String) it.next();
-                if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
-                    validip = true;
-                    break;
+                try {
+                    String url = request.getRequestURL().toString();
+                    user = (User) em.createQuery(
+                            "from User u where " +
+                            "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
+                } catch (NoResultException nre) {
+                    throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
                 }
+
+                java.util.Date date = user.getTimeout();
+
+                if (date.compareTo(new java.util.Date()) <= 0) {
+                    throw new AccessDeniedException("Personal URL key has expired!");
+                }
+
+                String remoteaddress = request.getRemoteAddr();
+                boolean validip = false;
+
+                Set ipaddresses = user.getUserips();
+                Iterator it = ipaddresses.iterator();
+                while (it.hasNext()) {
+                    String ipaddress = (String) it.next();
+                    if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
+                        validip = true;
+                        break;
+                    }
+                }
+
+                if (!validip) {
+                    throw new AccessDeniedException("Personal URL not usuable for this IP address!");
+                }
+            } finally {
+                MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
             }
 
-            if (!validip) {
-                throw new AccessDeniedException("Personal URL not usuable for this IP address!");
-            }
         }
 
         return user;
@@ -631,7 +643,7 @@ public class CallWMSServlet extends HttpServlet {
     java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", e);
     em.getTransaction().rollback();
     } finally {
-    em.close();
+    //    MyEMFDatabase.closeEntityManager();
     }
     }*/
 }

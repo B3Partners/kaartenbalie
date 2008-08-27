@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
@@ -44,18 +43,17 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 
 public class KaartenbalieCrudAction extends CrudAction {
-    
+
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
-    
+
     protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
         return mapping.findForward(FAILURE);
     }
-    
+
     /** Execute method which handles all incoming request.
      *
      * @param mapping action mapping
@@ -68,67 +66,75 @@ public class KaartenbalieCrudAction extends CrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
-    throws Exception {
-        MyEMFDatabase.initEntityManager();
-        EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
-        ActionForward forward = null;
-        String msg = null;
-        setMenuParams(request);
-        getDataWarehousing().begin();
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Object identity = null;
         try {
-            forward = super.execute(mapping, form, request, response);
-            tx.commit();
-            MyEMFDatabase.closeEntityManager();
-            getDataWarehousing().end();
-            return forward;
-        } catch (Exception e) {
-            tx.rollback();
-            log.error("Exception occured, rollback", e);
-            MessageResources messages = getResources(request);
-            
-            if (e instanceof org.hibernate.JDBCException) {
-                msg = e.toString();
-                SQLException sqle = ((org.hibernate.JDBCException) e).getSQLException();
-                msg = msg + ": " + sqle;
-                SQLException nextSqlE = sqle.getNextException();
-                if (nextSqlE != null) {
-                    msg = msg + ": " + nextSqlE;
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
+            ActionForward forward = null;
+            String msg = null;
+            setMenuParams(request);
+            MyEMFDatabase.getDataWarehouse().begin();
+            try {
+                forward = super.execute(mapping, form, request, response);
+                tx.commit();
+                MyEMFDatabase.getDataWarehouse().end();
+                return forward;
+            } catch (Exception e) {
+                tx.rollback();
+                log.error("Exception occured, rollback", e);
+
+                if (e instanceof org.hibernate.JDBCException) {
+                    msg = e.toString();
+                    SQLException sqle = ((org.hibernate.JDBCException) e).getSQLException();
+                    msg = msg + ": " + sqle;
+                    SQLException nextSqlE = sqle.getNextException();
+                    if (nextSqlE != null) {
+                        msg = msg + ": " + nextSqlE;
+                    }
+                } else if (e instanceof java.sql.SQLException) {
+                    msg = e.toString();
+                    SQLException nextSqlE = ((java.sql.SQLException) e).getNextException();
+                    if (nextSqlE != null) {
+                        msg = msg + ": " + nextSqlE;
+                    }
+                } else {
+                    msg = e.toString();
                 }
-            } else if (e instanceof java.sql.SQLException) {
-                msg = e.toString();
-                SQLException nextSqlE = ((java.sql.SQLException) e).getNextException();
-                if (nextSqlE != null) {
-                    msg = msg + ": " + nextSqlE;
-                }
-            } else {
-                msg = e.toString();
+                addAlternateMessage(mapping, request, null, msg);
             }
-            addAlternateMessage(mapping, request, null, msg);
-        }
-        
-        
-        tx.begin();
-        
-        try {
-            prepareMethod((DynaValidatorForm) form, request, LIST, EDIT);
-            tx.commit();
-        } catch (Exception e) {
-            tx.rollback();
-            log.error("Exception occured in second session, rollback", e);
+
+
+            tx.begin();
+
+            try {
+                prepareMethod((DynaValidatorForm) form, request, LIST, EDIT);
+                tx.commit();
+            } catch (Exception e) {
+                tx.rollback();
+                log.error("Exception occured in second session, rollback", e);
+                addAlternateMessage(mapping, request, null, e.toString());
+            }
+        } catch (Throwable e) {
+            log.error("Exception occured while getting EntityManager: ", e);
             addAlternateMessage(mapping, request, null, e.toString());
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
-        //addAlternateMessage(mapping, request, null, message);
-        MyEMFDatabase.closeEntityManager();
         return getAlternateForward(mapping, request);
     }
-    
-    public static EntityManager getEntityManager() {
-        return MyEMFDatabase.getEntityManager();
+
+    protected static EntityManager getEntityManager() throws Exception {
+        return MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
-    
+
+    protected static DataWarehousing getDataWarehousing() {
+        return MyEMFDatabase.getDataWarehouse();
+    }
+
     private static void setMenuParams(HttpServletRequest request) {
         Map menuParamMap = new HashMap();
         menuParamMap.put("pricing", new Boolean(AccountManager.isEnableAccounting()));
@@ -138,70 +144,78 @@ public class KaartenbalieCrudAction extends CrudAction {
         menuParamMap.put("metadata", new Boolean(KBConfiguration.METADATA_ENABLED));
         request.setAttribute("menuParameters", menuParamMap);
     }
-    
+
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
-        EntityManager em = getEntityManager();
-        
-        // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-        }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
-        
-        String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
-        
-        if (ll == null || ll.isEmpty()) {
-            return null;
-        }
-        // Dit is nodig omdat mysql case insensitive selecteert
-        Iterator it = ll.iterator();
-        while (it.hasNext()) {
-            Layer l = (Layer)it.next();
-            String dbLayerName = l.getName();
-            String dbSpAbbr = l.getSpAbbr();
-            if (dbLayerName!=null && dbSpAbbr!=null) {
-                if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
-                    return l;
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+            // Check of selectedLayers[i] juiste format heeft
+            int pos = uniqueName.indexOf("_");
+            if (pos == -1 || uniqueName.length() <= pos + 1) {
+                log.error("layer not valid: " + uniqueName);
+                throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+            }
+            String spAbbr = uniqueName.substring(0, pos);
+            String layerName = uniqueName.substring(pos + 1);
+            if (spAbbr.length() == 0 || layerName.length() == 0) {
+                log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+                throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+            }
+
+            String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
+            List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+            if (ll == null || ll.isEmpty()) {
+                return null;
+            }
+            // Dit is nodig omdat mysql case insensitive selecteert
+            Iterator it = ll.iterator();
+            while (it.hasNext()) {
+                Layer l = (Layer) it.next();
+                String dbLayerName = l.getName();
+                String dbSpAbbr = l.getSpAbbr();
+                if (dbLayerName != null && dbSpAbbr != null) {
+                    if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
+                        return l;
+                    }
                 }
             }
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
         return null;
     }
-    
+
     public WfsLayer getWfsLayerByUniqueName(String uniqueName) throws Exception {
-        EntityManager em = getEntityManager();
-        
-        // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+            // Check of selectedLayers[i] juiste format heeft
+            int pos = uniqueName.indexOf("_");
+            if (pos == -1 || uniqueName.length() <= pos + 1) {
+                log.error("layer not valid: " + uniqueName);
+                throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+            }
+            String spAbbr = uniqueName.substring(0, pos);
+            String layerName = uniqueName.substring(pos + 1);
+            if (spAbbr.length() == 0 || layerName.length() == 0) {
+                log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+                throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+            }
+
+            String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
+            List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+            if (ll == null || ll.isEmpty()) {
+                return null;
+            }
+            return (WfsLayer) ll.get(0);
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
-        
-        String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
-        
-        if (ll == null || ll.isEmpty()) {
-            return null;
-        }
-        return (WfsLayer) ll.get(0);
-    }
-    
-    public static DataWarehousing getDataWarehousing() {
-        return MyEMFDatabase.getDataWarehouse();
     }
 }

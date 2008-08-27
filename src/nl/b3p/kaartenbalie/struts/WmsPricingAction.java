@@ -230,30 +230,35 @@ public class WmsPricingAction extends PricingAction {
     }
 
     public JSONObject createTree() throws JSONException {
-        EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
         JSONObject root = new JSONObject();
-        JSONArray rootArray = new JSONArray();
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider) it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            Layer topLayer = sp.getTopLayer();
-            if (topLayer != null) {
-                HashSet set = new HashSet();
-                set.add(topLayer);
-                parentObj = createTreeList(set, parentObj);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
+        root.put("name", "root");
+        try {
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                ServiceProvider sp = (ServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                Layer topLayer = sp.getTopLayer();
+                if (topLayer != null) {
+                    HashSet set = new HashSet();
+                    set.add(topLayer);
+                    parentObj = createTreeList(set, parentObj);
+                    if (parentObj.has("children")) {
+                        rootArray.put(parentObj);
+                    }
                 }
             }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         }
-        root.put("name", "root");
-        root.put("children", rootArray);
         return root;
     }
 
-    private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
+    private JSONObject createTreeList(
+            Set layers, JSONObject parent) throws JSONException {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
@@ -263,11 +268,14 @@ public class WmsPricingAction extends PricingAction {
             if (childLayers != null && !childLayers.isEmpty()) {
                 layerObj = createTreeList(childLayers, layerObj);
             }
+
             parentArray.put(layerObj);
         }
+
         if (parentArray.length() > 0) {
             parent.put("children", parentArray);
         }
+
         return parent;
     }
 
@@ -288,7 +296,7 @@ public class WmsPricingAction extends PricingAction {
         return jsonLayer;
     }
 
-    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);

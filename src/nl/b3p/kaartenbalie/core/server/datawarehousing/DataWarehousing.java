@@ -98,39 +98,47 @@ public class DataWarehousing {
         if (!enableWarehousing) {
             return;
         }
-        Iterator i = objects.iterator();
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
-        if (safetyMode == DEFAULT) {
-            safetyMode = setSafety;
-        }
+        Object identity = null;
         try {
-            while (i.hasNext()) {
-                DwObjectAction doa = (DwObjectAction) i.next();
-                if (doa != null) {
-                    switch (doa.getObjectAction()) {
-                        case DwObjectAction.PERSIST:
-                            persist(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                            break;
-                        case DwObjectAction.MERGE:
-                            merge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                            break;
-                        case DwObjectAction.REMOVE:
-                            remove(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                            break;
-                        case DwObjectAction.PERSIST_OR_MERGE:
-                            persistOrMerge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                            break;
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            EntityTransaction et = em.getTransaction();
+            et.begin();
+            if (safetyMode == DEFAULT) {
+                safetyMode = setSafety;
+            }
+            Iterator i = objects.iterator();
+            try {
+                while (i.hasNext()) {
+                    DwObjectAction doa = (DwObjectAction) i.next();
+                    if (doa != null) {
+                        switch (doa.getObjectAction()) {
+                            case DwObjectAction.PERSIST:
+                                persist(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                                break;
+                            case DwObjectAction.MERGE:
+                                merge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                                break;
+                            case DwObjectAction.REMOVE:
+                                remove(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                                break;
+                            case DwObjectAction.PERSIST_OR_MERGE:
+                                persistOrMerge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                                break;
+                        }
                     }
                 }
+                et.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (et != null) {
+                    et.rollback();
+                }
             }
-            et.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            et.rollback();
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
     }
 
@@ -154,9 +162,12 @@ public class DataWarehousing {
     }
 
     public static Object find(Class objectClass, Integer primaryKey) throws Exception {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        //First check if the entity still exists and possible save the trouble of building it again.
+        Object identity = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+            //First check if the entity still exists and possible save the trouble of building it again.
             Object object = em.find(objectClass, primaryKey);
             if (object == null && enableWarehousing) {
                 /*
@@ -209,15 +220,14 @@ public class DataWarehousing {
                     setMethod.setAccessible(true);
                     setMethod.invoke(object, new Object[]{propertyValue.requestValue()});
                 }
-                em.close();
-
             }
             return object;
         } catch (Exception e) {
             throw e;
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
+
     }
 
     /*
@@ -318,9 +328,12 @@ public class DataWarehousing {
         if (!enableWarehousing) {
             return;
         }
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
+        Object identity = null;
+        EntityTransaction et = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            et = em.getTransaction();
             et.begin();
             EntityClass ec = null;
             try {
@@ -397,10 +410,13 @@ public class DataWarehousing {
             }
             et.commit();
         } catch (Exception e) {
-            et.rollback();
+            log.error("",e);
+            if (et != null) {
+                et.rollback();
+            }
             throw e;
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
     }
 

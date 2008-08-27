@@ -53,15 +53,16 @@ public class ExtLayerCalculator extends LayerCalculator {
     /**
      * Constructor met eigen Entitymanager
      */
-    public ExtLayerCalculator() {
-        em = MyEMFDatabase.createEntityManager();
+    public ExtLayerCalculator() throws Exception {
+        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.LC_EM);
+        em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.LC_EM);
     }
 
     /**
      * Constructor met entitymanager van buiten
      * @param em
      */
-    public ExtLayerCalculator(EntityManager em) {
+    public ExtLayerCalculator(EntityManager em)  throws Exception{
         this.em = em;
         externalEm = true;
     }

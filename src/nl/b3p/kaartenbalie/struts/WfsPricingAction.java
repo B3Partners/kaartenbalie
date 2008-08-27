@@ -206,20 +206,24 @@ public class WfsPricingAction extends PricingAction {
     }
 
     public JSONObject createTree() throws JSONException {
-        EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
         JSONObject root = new JSONObject();
-        JSONArray rootArray = new JSONArray();
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            WfsServiceProvider sp = (WfsServiceProvider) it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            Set layers = sp.getWfsLayers();
-            parentObj = createTreeList(layers, parentObj);
-            rootArray.put(parentObj);
-        }
         root.put("name", "root");
-        root.put("children", rootArray);
+        try {
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                WfsServiceProvider sp = (WfsServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                Set layers = sp.getWfsLayers();
+                parentObj = createTreeList(layers, parentObj);
+                rootArray.put(parentObj);
+            }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        }
         return root;
     }
 
@@ -254,7 +258,7 @@ public class WfsPricingAction extends PricingAction {
         return jsonLayer;
     }
 
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);

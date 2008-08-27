@@ -143,7 +143,7 @@ public class WfsTestPricingAction extends TestPricingAction {
         request.setAttribute("lName", layer.getName());
     }
 
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) {
+    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);

@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -37,6 +39,8 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -44,6 +48,7 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow;
  */
 public class DataUsageReportThread extends ReportThreadTemplate {
 
+    private static final Log log = LogFactory.getLog(DataUsageReportThread.class);
     private Date startDate;
     private Date endDate;
     private Organization organization;
@@ -52,14 +57,17 @@ public class DataUsageReportThread extends ReportThreadTemplate {
     public void run() {
 
         long processStart = System.currentTimeMillis();
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        super.notifyStateChanged(ThreadReportStatus.GENERATING, null, null);
-        et.begin();
-
-        DataUsageReport dur = (DataUsageReport) report;
-
+        Object identity = null;
+        EntityTransaction et = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            et = em.getTransaction();
+            super.notifyStateChanged(ThreadReportStatus.GENERATING, null, null);
+            et.begin();
+
+            DataUsageReport dur = (DataUsageReport) report;
+
             em.persist(report);
 
             /*
@@ -293,13 +301,18 @@ public class DataUsageReportThread extends ReportThreadTemplate {
             et.commit();
             super.notifyStateChanged(ThreadReportStatus.COMPLETED, null, report.getId());
         } catch (Throwable e) {
-            et.rollback();
-            super.notifyBreak(e);
-            em.close();
-            e.printStackTrace();
+            if (et != null) {
+                et.rollback();
+            }
+            try {
+                super.notifyBreak(e);
+                log.error("", e);
+            } catch (Exception ex) {
+                log.error("",ex);
+            }
             return;
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
     }
 

@@ -55,8 +55,10 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         } catch (Exception ex) {
             log.error("error encrypting password: ", ex);
         }
-        EntityManager em = MyEMFDatabase.createEntityManager();
+        Object identity = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -90,29 +92,39 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             } finally {
                 tx.commit();
             }
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
 
         return null;
     }
 
     public Principal getAuthenticatedPrincipal(String username) {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+        Object identity = null;
         try {
-            User user = (User) em.createQuery(
-                    "from User u where " +
-                    "lower(u.username) = lower(:username) ").setParameter("username", username).getSingleResult();
-            return user;
-        } catch (NoResultException nre) {
-            return null;
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
+            try {
+                User user = (User) em.createQuery(
+                        "from User u where " +
+                        "lower(u.username) = lower(:username) ").setParameter("username", username).getSingleResult();
+                return user;
+            } catch (NoResultException nre) {
+                return null;
+            } finally {
+                tx.commit();
+                em.close();
+            }
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         } finally {
-            tx.commit();
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
-
+        return null;
     }
 
     /** Checks if a user is in the given role. A role represents a level of priviliges.

@@ -71,7 +71,7 @@ public abstract class PricingAction extends KaartenbalieCrudAction {
         return getDefaultForward(mapping, request);
     }
 
-    public LayerPricing getLayerPricing(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) {
+    public LayerPricing getLayerPricing(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getPricingID(dynaForm);

@@ -43,6 +43,7 @@ public class LayerCalculator {
      * 
      */
     protected EntityManager em;
+    protected Object identity;
     /**
      * 
      */
@@ -51,8 +52,9 @@ public class LayerCalculator {
     /**
      * Constructor met eigen Entitymanager
      */
-    public LayerCalculator() {
-        em = MyEMFDatabase.createEntityManager();
+    public LayerCalculator() throws Exception {
+        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.LC_EM);
+        em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.LC_EM);
     }
 
     /**
@@ -358,6 +360,6 @@ public class LayerCalculator {
             log.error("Trying to close an external EntityManager. This is not the place to do it!");
             throw new Exception("Trying to close an external EntityManager. This is not the place to do it!");
         }
-        em.close();
+        MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.LC_EM);
     }
 }

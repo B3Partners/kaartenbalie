@@ -109,7 +109,7 @@ public class DataMonitoring {
      * sprClass.
      */
 
-    public void addServiceProviderRequest(Class sprClass, Map parameterMap) {
+    public void addServiceProviderRequest(Class sprClass, Map parameterMap) throws Exception {
         if (!isEnableMonitoring()) {
             return;
         }
@@ -125,7 +125,7 @@ public class DataMonitoring {
      * every call to a RequestOperation. It should contain a parameterMap that matches the setters of the specified
      * rqoClass.
      */
-    public void addRequestOperation(Class rqoClass, Map parameterMap) {
+    public void addRequestOperation(Class rqoClass, Map parameterMap) throws Exception {
         if (!isEnableMonitoring()) {
             return;
         }
@@ -152,7 +152,7 @@ public class DataMonitoring {
      * unsupportedMethod, an Exception will be thrown. Use this to protect your class from setting things like the Id
      * and relations.
      */
-    private static Object createPOJOByReflection(Class classFamily, Class targetObjectClass, Map parameterMap, Map overriddenParameters, List unsupportedMethods) {
+    private static Object createPOJOByReflection(Class classFamily, Class targetObjectClass, Map parameterMap, Map overriddenParameters, List unsupportedMethods) throws Exception {
         try {
             if (!classFamily.isAssignableFrom(targetObjectClass)) {
                 log.error(targetObjectClass.getSimpleName() + " is not a member of the " + classFamily.getSimpleName() + " family tree.");
@@ -203,8 +203,9 @@ public class DataMonitoring {
                     validMessage = validMessage.substring(0, validMessage.length() - 1) + ") \n";
                 }
             }
-            throw new Error(ex.getMessage() + "\n" + validMessage);
-        } catch (Exception e) {            //TODO Error Handling..
+            throw new Exception(ex.getMessage() + "\n" + validMessage);
+        } catch (Exception e) {
+            log.error("", e);
         }
         return null;
     }
@@ -222,36 +223,42 @@ public class DataMonitoring {
         if (!isEnableMonitoring()) {
             return;
         }
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
+        Object identity = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
+            try {
 
-            tRequestOperationMap.put("Duration", new Long(totalResponseTime));
-            tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
-            this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
-            clientRequest.setService(service);
-            clientRequest.setOperation(operation);
-            clientRequest.setUser(user);
-            clientRequest.setOrganization(organization);
-            //Now Persist...
-            Iterator iterRO = clientRequest.getRequestOperations().iterator();
-            em.persist(clientRequest);
-            while (iterRO.hasNext()) {
-                em.persist(iterRO.next());
+                tRequestOperationMap.put("Duration", new Long(totalResponseTime));
+                tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
+                this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
+                clientRequest.setService(service);
+                clientRequest.setOperation(operation);
+                clientRequest.setUser(user);
+                clientRequest.setOrganization(organization);
+                //Now Persist...
+                Iterator iterRO = clientRequest.getRequestOperations().iterator();
+                em.persist(clientRequest);
+                while (iterRO.hasNext()) {
+                    em.persist(iterRO.next());
+                }
+                Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
+                while (iterSPR.hasNext()) {
+                    em.persist(iterSPR.next());
+                }
+                tx.commit();
+                clientRequest = null;
+                tRequestOperationMap = null;
+            } catch (Exception e) {
+                log.error("", e);
+                tx.rollback();
             }
-            Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
-            while (iterSPR.hasNext()) {
-                em.persist(iterSPR.next());
-            }
-            tx.commit();
-            clientRequest = null;
-            tRequestOperationMap = null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            tx.rollback();
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
     }
 

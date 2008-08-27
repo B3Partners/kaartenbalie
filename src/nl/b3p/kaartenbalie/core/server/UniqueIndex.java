@@ -77,10 +77,13 @@ public class UniqueIndex {
         }
         indexName = indexName.toUpperCase();
         Integer nextUnique = null;
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
+        Object identity = null;
+        EntityTransaction et = null;
         try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            et = em.getTransaction();
+            et.begin();
             UniqueIndex ui = null;
             try {
                 ui = (UniqueIndex) em.createQuery(
@@ -97,10 +100,12 @@ public class UniqueIndex {
             }
             et.commit();
         } catch (Exception e) {
-            et.rollback();
+            if (et != null) {
+                et.rollback();
+            }
             throw e;
         } finally {
-            em.close();
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
         if (nextUnique == null) {
             log.error("Unable to generate next unique number!");

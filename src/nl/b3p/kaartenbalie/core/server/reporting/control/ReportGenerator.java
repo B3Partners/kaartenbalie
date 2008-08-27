@@ -139,123 +139,151 @@ public class ReportGenerator {
         reportStatusMap.remove(rtt);
     }
 
-    public List requestReportStatus() {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        List trsList = em.createQuery("" +
-                "FROM ThreadReportStatus AS trs " +
-                "WHERE trs.organization.id = :organizationId " +
-                "ORDER BY trs.state DESC, trs.creationDate DESC").setParameter("organizationId", organization.getId()).getResultList();
-        em.close();
-        return trsList;
+    public List requestReportStatus() throws Exception {
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            List trsList = em.createQuery("" +
+                    "FROM ThreadReportStatus AS trs " +
+                    "WHERE trs.organization.id = :organizationId " +
+                    "ORDER BY trs.state DESC, trs.creationDate DESC").setParameter("organizationId", organization.getId()).getResultList();
+            return trsList;
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+        }
+
     }
 
-    public static void startupClear() {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
-        List trsList = em.createQuery(
-                "FROM ThreadReportStatus AS trs " +
-                "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ").setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED)).setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED)).getResultList();
-        Iterator listIter = trsList.iterator();
-        while (listIter.hasNext()) {
-            ThreadReportStatus trs = (ThreadReportStatus) listIter.next();
-            trs.setState(ThreadReportStatus.FAILED);
-            trs.setStatusMessage("Application halted.");
+    public static void startupClear() throws Exception {
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            EntityTransaction et = em.getTransaction();
+            et.begin();
+            List trsList = em.createQuery(
+                    "FROM ThreadReportStatus AS trs " +
+                    "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ").setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED)).setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED)).getResultList();
+            Iterator listIter = trsList.iterator();
+            while (listIter.hasNext()) {
+                ThreadReportStatus trs = (ThreadReportStatus) listIter.next();
+                trs.setState(ThreadReportStatus.FAILED);
+                trs.setStatusMessage("Application halted.");
+            }
+            et.commit();
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
-        et.commit();
-        em.close();
-
-
     }
 
     public void removeReport(Integer trsId) throws Exception {
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        EntityTransaction et = em.getTransaction();
-        et.begin();
-        if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
-            if (trs.getReportId() != null) {
-                BaseReport reportTemplate = (BaseReport) em.find(BaseReport.class, trs.getReportId());
-                if (reportTemplate != null) {
-                    em.remove(reportTemplate);
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            EntityTransaction et = em.getTransaction();
+            et.begin();
+            if (trsId != null) {
+                ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
+                if (trs.getReportId() != null) {
+                    BaseReport reportTemplate = (BaseReport) em.find(BaseReport.class, trs.getReportId());
+                    if (reportTemplate != null) {
+                        em.remove(reportTemplate);
+                    }
                 }
+                em.remove(trs);
             }
-            em.remove(trs);
+            et.commit();
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
-        et.commit();
-        em.close();
     }
 
     public String reportName(Integer trsId) throws Exception {
-        EntityManager em = MyEMFDatabase.createEntityManager();
         String result = null;
-        if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
-            if (trs.getReportId() == null) {
-                log.error("Report not found!");
-                throw new Exception("Report not found!");
-            }
-            Object report = em.find(DataUsageReport.class, trs.getReportId());
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            if (report != null) {
-                result = trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
+            if (trsId != null) {
+                ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
+                if (trs.getReportId() == null) {
+                    log.error("Report not found!");
+                    throw new Exception("Report not found!");
+                }
+                Object report = em.find(DataUsageReport.class, trs.getReportId());
+
+                if (report != null) {
+                    result = trsDate.format(trs.getCreationDate()) + "_" + report.getClass().getSimpleName() + "_" + trs.getId();
+                }
             }
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
-        em.close();
+
         return result;
     }
 
     public void fetchReport(Integer trsId, OutputStream outStream, int responseMode, ServletContext servletContext) throws Exception {
 
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        if (trsId != null) {
-            ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
-            if (trs.getReportId() != null) {
-                BaseReport report = (BaseReport) em.find(BaseReport.class, trs.getReportId());
-                //Create instance of DocumentBuilderFactory
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-                //Get the DocumentBuilder
-                DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            if (trsId != null) {
+                ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
+                if (trs.getReportId() != null) {
+                    BaseReport report = (BaseReport) em.find(BaseReport.class, trs.getReportId());
+                    //Create instance of DocumentBuilderFactory
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-                //Create blank DOM Document
-                Document doc = docBuilder.newDocument();
+                    //Get the DocumentBuilder
+                    DocumentBuilder docBuilder = factory.newDocumentBuilder();
 
-                //get the root element
-                Element reportElement = report.buildElement(doc);
-                doc.appendChild(reportElement);
-                Source reportSource = new DOMSource(doc);
+                    //Create blank DOM Document
+                    Document doc = docBuilder.newDocument();
+
+                    //get the root element
+                    Element reportElement = report.buildElement(doc);
+                    doc.appendChild(reportElement);
+                    Source reportSource = new DOMSource(doc);
 
 
-                String reportType = report.getClass().getSimpleName();
-                TransformerFactory transFactory = TransformerFactory.newInstance();
-                Transformer xmlTransformer = transFactory.newTransformer();
-                xmlTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
-                xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                xmlTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+                    String reportType = report.getClass().getSimpleName();
+                    TransformerFactory transFactory = TransformerFactory.newInstance();
+                    Transformer xmlTransformer = transFactory.newTransformer();
+                    xmlTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                    xmlTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                    xmlTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
 
-                switch (responseMode) {
-                    case RESPONSE_XML:
-                        xmlTransformer.transform(reportSource, new StreamResult(outStream));
-                        break;
-                    case RESPONSE_XML_XSLT:
-                        Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/" + reportType + "/mnp/report.xsl\"");
-                        doc.insertBefore(reportXsl, reportElement);
-                        xmlTransformer.transform(reportSource, new StreamResult(outStream));
+                    switch (responseMode) {
+                        case RESPONSE_XML:
+                            xmlTransformer.transform(reportSource, new StreamResult(outStream));
+                            break;
+                        case RESPONSE_XML_XSLT:
+                            Node reportXsl = doc.createProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"http://localhost:8084/kaartenbalie/xslt/" + reportType + "/mnp/report.xsl\"");
+                            doc.insertBefore(reportXsl, reportElement);
+                            xmlTransformer.transform(reportSource, new StreamResult(outStream));
 
-                        break;
-                    case RESPONSE_HTML:
+                            break;
+                        case RESPONSE_HTML:
 
-                        File xslFile = new File(servletContext.getRealPath(XSL_PATH + reportType + "/mnp/report.xsl"));
-                        File xmlPath = new File(xslFile.getParent());
-                        Source xsltSource = new StreamSource(new FileInputStream(xslFile));
-                        xsltSource.setSystemId(xmlPath.toURI().toString());
-                        Transformer xsltTransformer = transFactory.newTransformer(xsltSource);
-                        xsltTransformer.transform(reportSource, new StreamResult(outStream));
-                        break;
+                            File xslFile = new File(servletContext.getRealPath(XSL_PATH + reportType + "/mnp/report.xsl"));
+                            File xmlPath = new File(xslFile.getParent());
+                            Source xsltSource = new StreamSource(new FileInputStream(xslFile));
+                            xsltSource.setSystemId(xmlPath.toURI().toString());
+                            Transformer xsltTransformer = transFactory.newTransformer(xsltSource);
+                            xsltTransformer.transform(reportSource, new StreamResult(outStream));
+                            break;
+                    }
                 }
             }
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
-        em.close();
+
     }
 }

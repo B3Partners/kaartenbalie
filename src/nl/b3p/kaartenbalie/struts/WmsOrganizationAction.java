@@ -241,32 +241,37 @@ public class WmsOrganizationAction extends OrganizationAction {
      */
 // <editor-fold defaultstate="" desc="createTree() method.">
     public JSONObject createTree() throws JSONException {
-        EntityManager em = getEntityManager();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
-        JSONArray rootArray = new JSONArray();
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider) it.next();
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            HashSet set = new HashSet();
-            Layer topLayer = sp.getTopLayer();
-            if (topLayer != null) {
-                set.add(topLayer);
-                parentObj = createTreeList(set, parentObj);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
-                }
-            } else {
-                String name = sp.getGivenName();
-                if (name == null) {
-                    name = "onbekend";
-                }
-                log.debug("Toplayer is null voor serviceprovider: " + name);
-            }
-        }
         JSONObject root = new JSONObject();
         root.put("name", "root");
-        root.put("children", rootArray);
+        try {
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                ServiceProvider sp = (ServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                HashSet set = new HashSet();
+                Layer topLayer = sp.getTopLayer();
+                if (topLayer != null) {
+                    set.add(topLayer);
+                    parentObj = createTreeList(set, parentObj);
+                    if (parentObj.has("children")) {
+                        rootArray.put(parentObj);
+                    }
+                } else {
+                    String name = sp.getGivenName();
+                    if (name == null) {
+                        name = "onbekend";
+                    }
+                    log.debug("Toplayer is null voor serviceprovider: " + name);
+                }
+            }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        }
+
         return root;
     }
 // </editor-fold>

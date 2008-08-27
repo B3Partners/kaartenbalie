@@ -47,44 +47,37 @@ import org.apache.commons.logging.LogFactory;
 public class MyEMFDatabase extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
-    public static final long serialVersionUID = 24574462L;
-    private static EntityManagerFactory emf;
-    private static ThreadLocal tlMap = new ThreadLocal();
-    private static String entityManagerName = "entityManager";
-    private static String datawarehouseName = "datawareHouse";
-    private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
-    public static String nonServletKaartenbaliePU = "nonServletPU";
+    public static final String MAIN_EM = "mainEM";
+    public static final String TRANSACTION_EM = "transactionEM";
+    public static final String LC_EM = "lcEM";
     public static String capabilitiesdtd = "/dtd/capabilities_1_1_1.dtd";
     public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
+    private static EntityManagerFactory emf;
+    private static ThreadLocal tlMap = new ThreadLocal();
+    private static String datawarehouseName = "datawareHouse";
+    private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     private static String cachePath = null;
     private static Random rg = null;
 
-    public static void closeEmf() {
-        if (emf == null) {
-            throw new Error("Cannot close emf as it is not yet initialized.");
-        }
-        if (!emf.isOpen()) {
-            throw new Error("Emf was already closed.");
-        }
-        emf.close();
-    }
-
-    public static EntityManagerFactory getEntityManagerFactory() {
-        if (emf == null) {
-            throw new Error("EntityManagerFactory not yet initialized.");
-        }
-        return emf;
-    }
-
-    public static void openEntityManagerFactory(String persistenceUnit) {
+    public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
         log.info("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
         if (emf != null) {
-            throw new Error("EntityManager already initialized or open.");
+            log.warn("EntityManagerFactory already initialized.");
         }
         if (persistenceUnit == null || persistenceUnit.trim().length() == 0) {
-            throw new Error("PersistenceUnit cannot be left empty.");
+            throw new Exception("PersistenceUnit cannot be left empty.");
         }
         emf = Persistence.createEntityManagerFactory(persistenceUnit);
+    }
+
+    public static EntityManagerFactory getEntityManagerFactory() throws Exception {
+        if (emf == null) {
+            openEntityManagerFactory(defaultKaartenbaliePU);
+            if (emf == null) {
+                throw new Exception("EntityManagerFactory is not initialized.");
+            }
+        }
+        return emf;
     }
 
     /*
@@ -96,25 +89,20 @@ public class MyEMFDatabase extends HttpServlet {
         super.init(config);
         log.info("ManagedPersistence.init(" + config + ")");
 
-        /*
-         * First init the EntityManagerFactory
-         */
-        openEntityManagerFactory(defaultKaartenbaliePU);
-
-        /*
-         * Now check various initialization parameters..
-         */
-        DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
-        DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
-        AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
-        ReportGenerator.startupClear();
         try {
+            openEntityManagerFactory(defaultKaartenbaliePU);
+
+            DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
+            DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
+            AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
+            ReportGenerator.startupClear();
             DataWarehousing.registerClass(User.class, null);
             DataWarehousing.registerClass(Organization.class, null);
             DataWarehousing.registerClass(ServiceProvider.class, null);
             DataWarehousing.registerClass(LayerPricing.class, null);
             DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"});
         } catch (Exception e) {
+            log.warn("Error creating EntityManager: ", e);
             throw new ServletException(e);
         }
 
@@ -142,53 +130,78 @@ public class MyEMFDatabase extends HttpServlet {
         return tmpval.trim();
     }
 
-    /*
-     * Use this function where a ThreadLocal entityManager is not required i.e. in
-     * controller classes and non servlet classes.
+    /**
+     * Gebruik deze methode als er een transactie binnen de hoofdtransactie nodig is 
+     * Zelf ook close methode aanroepen
      */
-    public static EntityManager createEntityManager() {
-        return getEntityManagerFactory().createEntityManager();
-    }
-
-    /*
-     * These functions are used to generate a request save EntityManger by storing it in the local thread. This method is
-     * familiar to the methods used in the SessionContext with the exceptions that we do not register a cleanup after
-     * the transaction has been finalized, transactions are not forced to start if queries are fired and there is no
-     * support for multiple EntityManagers at this time. This last feature can be easily implemented by registering
-     * a hashmap in the ThreadLocal.
-     *
-     * - initEntityManager() will start a new EntityManager
-     * - getEntityManager() is used to retrieve the created EntityManager
-     * - closeEntityManager() is the final step in the proces.
-     */
-    public static void initEntityManager() throws Error {
-        if (getThreadLocal(entityManagerName) != null) {
-            throw new Error("Trying to init a new entityManager without closing the previous first!");
+    public static EntityManager getEntityManager2(String emKey) throws Exception {
+        EntityManager entityManager = getEntityManagerFactory().createEntityManager();
+        if (entityManager == null) {
+            throw new Exception("EntityManager could not be initialized.");
         }
-        EntityManager entityManager = createEntityManager();
-        setThreadLocal(entityManagerName, entityManager);
+        return entityManager;
+    }
+    /** The constants for describing the ownerships **/
+    private static final Owner trueOwner = new Owner(true);
+    private static final Owner fakeOwner = new Owner(false);
+
+    /**
+     * Internal class , for handling the identity. Hidden for the 
+     * developers
+     */
+    private static class Owner {
+
+        public Owner(boolean identity) {
+            this.identity = identity;
+        }
+        boolean identity = false;
     }
 
-    public static EntityManager getEntityManager() throws Error {
-        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
+    /**
+     * get the hibernate session and set it on the thread local. Returns trueOwner if 
+     * it actually opens a session
+     */
+    public static Object createEntityManager(String emKey) throws Exception {
+        EntityManager localEm = (EntityManager) getThreadLocal(emKey);
         if (localEm == null) {
-            throw new Error("EntityManager not yet initialized. Either it's already closed or never initialized.");
+            log.debug("No EntityManager Found - Create and give the identity");
+            localEm = getEntityManagerFactory().createEntityManager();
+            if (localEm == null) {
+                throw new Exception("EntityManager could not be initialized.");
+            }
+            setThreadLocal(emKey, localEm);
+            return trueOwner;
+        }
+        log.debug("EntityManager Found - Give a Fake identity");
+        return fakeOwner;
+    }
+
+    public static EntityManager getEntityManager(String emKey) throws Exception {
+        EntityManager localEm = (EntityManager) getThreadLocal(emKey);
+        if (localEm == null) {
+            throw new Exception("EntityManager could not be initialized.");
         }
         return localEm;
     }
 
     /*
-     * Always close your entitymanager when you're done with it. Else you might stumble into awkward situations where
-     * multiple calls are done on the same entitymanager
+     * The method for closing a session. The close  
+     * will be executed only if the session is actually created
+     * by this owner.  
      */
-    public static void closeEntityManager() throws Error {
-        EntityManager localEm = (EntityManager) getThreadLocal(entityManagerName);
-        if (localEm == null) {
-            throw new Error("EntityManager is missing. Either it's already closed or never initialized.");
+    public static void closeEntityManager(Object ownership, String emKey) {
+        if (((Owner) ownership).identity) {
+            log.debug("Identity is accepted. Now closing the session");
+            EntityManager localEm = (EntityManager) getThreadLocal(emKey);
+            if (localEm == null) {
+                log.warn("EntityManager is missing. Either it's already closed or never initialized.");
+                return;
+            }
+            clearThreadLocal(emKey);
+            localEm.close();
+        } else {
+            log.debug("Identity is rejected. Ignoring the request");
         }
-        localEm.close();
-        clearThreadLocal(entityManagerName);
-
     }
 
     /*
@@ -267,7 +280,6 @@ public class MyEMFDatabase extends HttpServlet {
      *
      * @return a String representing a unique name for these parameters.
      */
-    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension, boolean includePath) method.">
     public static String uniqueName(String prefix, String extension, boolean includePath) {
         // Gebruik tijd in milliseconden om gerekend naar een radix van 36.
         // Hierdoor ontstaat een lekker korte code.
@@ -288,25 +300,6 @@ public class MyEMFDatabase extends HttpServlet {
         }
         return thePath + prefix + val1 + val2 + extension;
     }
-    // </editor-fold>
-    /* Run this to sync your DB using the nonServlet PersistenceUnit*/
-    public static void main(String[] args) throws Exception {
-        MyEMFDatabase.openEntityManagerFactory(MyEMFDatabase.nonServletKaartenbaliePU);
-        EntityManager em = MyEMFDatabase.createEntityManager();
-        em.createQuery("From Layer").getResultList();
-    /* Snippet to make a PNG
-    BufferedImage bi = new BufferedImage(200,200, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g2d = (Graphics2D) bi.getGraphics();
-    Color color = new Color(100,100,100);
-    AlphaComposite myAlpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
-    g2d.setColor(color);
-    g2d.setComposite(myAlpha);
-    g2d.fillRect(0,0,200,200);
-    
-    ImageIO.write(bi, "png", new File("C:\\alphabackground.png"));
-     */
-
-    }
 
     public static String getCapabilitiesdtd() {
         return capabilitiesdtd;
@@ -315,4 +308,18 @@ public class MyEMFDatabase extends HttpServlet {
     public static String getExceptiondtd() {
         return exceptiondtd;
     }
+
+    /*
+    public void businessMethod() throws BusinessException {
+    Object identity = null;
+    try {
+    identity = MyEMFDatabase.createEntityManager();
+    //Execute business 
+    } catch (Exception e) {
+    throw new BusinessException("Business Exception");
+    } finally {
+    MyEMFDatabase.closeEntityManager(identity);
+    }
+    }
+     */
 }
