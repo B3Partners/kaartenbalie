@@ -27,8 +27,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -56,19 +54,15 @@ public class DataUsageReportThread extends ReportThreadTemplate {
 
     public void run() {
 
-        long processStart = System.currentTimeMillis();
-        Object identity = null;
-        EntityTransaction et = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-            et = em.getTransaction();
+            long processStart = System.currentTimeMillis();
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             super.notifyStateChanged(ThreadReportStatus.GENERATING, null, null);
-            et.begin();
 
             DataUsageReport dur = (DataUsageReport) report;
 
             em.persist(report);
+            em.flush();
 
             /*
              * Store all the parameters in the report...
@@ -151,9 +145,6 @@ public class DataUsageReportThread extends ReportThreadTemplate {
             RowValue tdFrequency = new RowValue(frequencyHits.toString());
             tr.addValue(tdFrequency);
             em.persist(tdFrequency);
-
-
-
 
             /*
              * Fill Summary Data
@@ -298,21 +289,17 @@ public class DataUsageReportThread extends ReportThreadTemplate {
                 }
             }
             report.setProcessingTime(new Long(System.currentTimeMillis() - processStart));
-            et.commit();
+            em.flush();
+
             super.notifyStateChanged(ThreadReportStatus.COMPLETED, null, report.getId());
-        } catch (Throwable e) {
-            if (et != null) {
-                et.rollback();
-            }
+        } catch (Exception e) {
             try {
                 super.notifyBreak(e);
                 log.error("", e);
             } catch (Exception ex) {
-                log.error("",ex);
+                log.error("", ex);
             }
-            return;
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+            log.error("", e);
         }
     }
 

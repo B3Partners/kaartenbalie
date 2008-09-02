@@ -77,35 +77,22 @@ public class UniqueIndex {
         }
         indexName = indexName.toUpperCase();
         Integer nextUnique = null;
-        Object identity = null;
-        EntityTransaction et = null;
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        UniqueIndex ui = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-            et = em.getTransaction();
-            et.begin();
-            UniqueIndex ui = null;
-            try {
-                ui = (UniqueIndex) em.createQuery(
-                        "FROM UniqueIndex AS ui " +
-                        "WHERE ui.indexName = :indexName").setParameter("indexName", indexName).getSingleResult();
-                nextUnique = new Integer(ui.getIndexCount().intValue() + 1);
-                ui.setIndexCount(nextUnique);
-            } catch (NoResultException nre) {
-                ui = new UniqueIndex();
-                ui.setIndexName(indexName);
-                nextUnique = new Integer(0);
-                ui.setIndexCount(nextUnique);
-                em.persist(ui);
-            }
-            et.commit();
-        } catch (Exception e) {
-            if (et != null) {
-                et.rollback();
-            }
-            throw e;
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+            ui = (UniqueIndex) em.createQuery(
+                    "FROM UniqueIndex AS ui " +
+                    "WHERE ui.indexName = :indexName").setParameter("indexName", indexName).getSingleResult();
+            em.flush();
+            nextUnique = new Integer(ui.getIndexCount().intValue() + 1);
+            ui.setIndexCount(nextUnique);
+        } catch (NoResultException nre) {
+            ui = new UniqueIndex();
+            ui.setIndexName(indexName);
+            nextUnique = new Integer(0);
+            ui.setIndexCount(nextUnique);
+            em.persist(ui);
+            em.flush();
         }
         if (nextUnique == null) {
             log.error("Unable to generate next unique number!");

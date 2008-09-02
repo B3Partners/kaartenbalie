@@ -39,31 +39,15 @@ import org.apache.commons.logging.LogFactory;
 public class LayerCalculator {
 
     private static final Log log = LogFactory.getLog(LayerCalculator.class);
-    /**
-     * 
-     */
     protected EntityManager em;
     protected Object identity;
-    /**
-     * 
-     */
-    protected boolean externalEm = false;
 
     /**
      * Constructor met eigen Entitymanager
      */
     public LayerCalculator() throws Exception {
-        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.LC_EM);
-        em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.LC_EM);
-    }
-
-    /**
-     * Constructor met entitymanager van buiten
-     * @param em
-     */
-    public LayerCalculator(EntityManager em) {
-        this.em = em;
-        externalEm = true;
+        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+        em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
     /**
@@ -356,10 +340,6 @@ public class LayerCalculator {
      * @throws java.lang.Exception
      */
     public void closeEntityManager() throws Exception {
-        if (externalEm) {
-            log.error("Trying to close an external EntityManager. This is not the place to do it!");
-            throw new Exception("Trying to close an external EntityManager. This is not the place to do it!");
-        }
-        MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.LC_EM);
+        MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
     }
 }

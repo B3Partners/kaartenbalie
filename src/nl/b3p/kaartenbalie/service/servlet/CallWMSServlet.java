@@ -359,6 +359,7 @@ public class CallWMSServlet extends HttpServlet {
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();
         // probeer preemptive basic login
@@ -376,26 +377,18 @@ public class CallWMSServlet extends HttpServlet {
                 } catch (Exception ex) {
                     log.error("error encrypting password: ", ex);
                 }
-                Object identity = null;
                 try {
-                    identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-                    EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-                    EntityTransaction tx = em.getTransaction();
-                    tx.begin();
                     try {
                         user = (User) em.createQuery(
                                 "from User u where " +
                                 "lower(u.username) = lower(:username) " +
                                 "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                        em.flush();
                     } catch (NoResultException nre) {
                         log.debug("No results using encrypted password");
-                    } finally {
-                        tx.commit();
                     }
 
                     if (user == null) {
-                        tx = em.getTransaction();
-                        tx.begin();
                         try {
                             user = (User) em.createQuery(
                                     "from User u where " +
@@ -409,14 +402,10 @@ public class CallWMSServlet extends HttpServlet {
                             log.debug("Cleartext password encrypted!");
                         } catch (NoResultException nre) {
                             log.debug("No results using cleartext password");
-                        } finally {
-                            tx.commit();
                         }
                     }
                 } catch (Exception ex) {
                     throw new AccessDeniedException("Cannot contact login database!");
-                } finally {
-                    MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
                 }
             }
         }
@@ -424,46 +413,38 @@ public class CallWMSServlet extends HttpServlet {
         // probeer personal url
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
-            Object identity = null;
             try {
-                identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-                EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-
-                try {
-                    String url = request.getRequestURL().toString();
-                    user = (User) em.createQuery(
-                            "from User u where " +
-                            "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
-                } catch (NoResultException nre) {
-                    throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
-                }
-
-                java.util.Date date = user.getTimeout();
-
-                if (date.compareTo(new java.util.Date()) <= 0) {
-                    throw new AccessDeniedException("Personal URL key has expired!");
-                }
-
-                String remoteaddress = request.getRemoteAddr();
-                boolean validip = false;
-
-                Set ipaddresses = user.getUserips();
-                Iterator it = ipaddresses.iterator();
-                while (it.hasNext()) {
-                    String ipaddress = (String) it.next();
-                    if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
-                        validip = true;
-                        break;
-                    }
-                }
-
-                if (!validip) {
-                    throw new AccessDeniedException("Personal URL not usuable for this IP address!");
-                }
-            } finally {
-                MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+                String url = request.getRequestURL().toString();
+                user = (User) em.createQuery(
+                        "from User u where " +
+                        "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
+                em.flush();
+            } catch (NoResultException nre) {
+                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
             }
 
+            java.util.Date date = user.getTimeout();
+
+            if (date.compareTo(new java.util.Date()) <= 0) {
+                throw new AccessDeniedException("Personal URL key has expired!");
+            }
+
+            String remoteaddress = request.getRemoteAddr();
+            boolean validip = false;
+
+            Set ipaddresses = user.getUserips();
+            Iterator it = ipaddresses.iterator();
+            while (it.hasNext()) {
+                String ipaddress = (String) it.next();
+                if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
+                    validip = true;
+                    break;
+                }
+            }
+
+            if (!validip) {
+                throw new AccessDeniedException("Personal URL not usuable for this IP address!");
+            }
         }
 
         return user;

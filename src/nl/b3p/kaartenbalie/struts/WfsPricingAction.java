@@ -188,7 +188,7 @@ public class WfsPricingAction extends PricingAction {
         /*
          * Then calculate all the different prices for all requesttypes..
          */
-        ExtLayerCalculator lc = new ExtLayerCalculator(em);
+        ExtLayerCalculator lc = new ExtLayerCalculator();
         Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WFS_REQUESTS.length][3];
         Date now = new Date();
         BigDecimal units = new BigDecimal(1);

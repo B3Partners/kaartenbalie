@@ -57,8 +57,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         }
         Object identity = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -95,7 +95,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
 
         return null;
@@ -104,8 +104,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
     public Principal getAuthenticatedPrincipal(String username) {
         Object identity = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -122,7 +122,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
         return null;
     }

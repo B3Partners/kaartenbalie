@@ -94,52 +94,35 @@ public class DataWarehousing {
         objects.add(doa);
     }
 
-    public void end() {
+    public void end() throws Exception {
         if (!enableWarehousing) {
             return;
         }
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-            EntityTransaction et = em.getTransaction();
-            et.begin();
-            if (safetyMode == DEFAULT) {
-                safetyMode = setSafety;
-            }
-            Iterator i = objects.iterator();
-            try {
-                while (i.hasNext()) {
-                    DwObjectAction doa = (DwObjectAction) i.next();
-                    if (doa != null) {
-                        switch (doa.getObjectAction()) {
-                            case DwObjectAction.PERSIST:
-                                persist(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                                break;
-                            case DwObjectAction.MERGE:
-                                merge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                                break;
-                            case DwObjectAction.REMOVE:
-                                remove(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                                break;
-                            case DwObjectAction.PERSIST_OR_MERGE:
-                                persistOrMerge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
-                                break;
-                        }
-                    }
-                }
-                et.commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (et != null) {
-                    et.rollback();
-                }
-            }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        if (safetyMode == DEFAULT) {
+            safetyMode = setSafety;
         }
+        Iterator i = objects.iterator();
+        while (i.hasNext()) {
+            DwObjectAction doa = (DwObjectAction) i.next();
+            if (doa != null) {
+                switch (doa.getObjectAction()) {
+                    case DwObjectAction.PERSIST:
+                        persist(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                        break;
+                    case DwObjectAction.MERGE:
+                        merge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                        break;
+                    case DwObjectAction.REMOVE:
+                        remove(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                        break;
+                    case DwObjectAction.PERSIST_OR_MERGE:
+                        persistOrMerge(doa.getClazz(), doa.getPrimaryKey(), em, safetyMode);
+                        break;
+                }
+            }
+        }
+        em.flush();
     }
 
     public static void setDefaultSafety(String safety) {
@@ -328,106 +311,92 @@ public class DataWarehousing {
         if (!enableWarehousing) {
             return;
         }
-        Object identity = null;
-        EntityTransaction et = null;
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        EntityClass ec = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-            et = em.getTransaction();
-            et.begin();
-            EntityClass ec = null;
-            try {
-
-                ec = (EntityClass) em.createQuery(
-                        "FROM EntityClass AS ec " +
-                        "WHERE ec.objectClass = :objectClass").setParameter("objectClass", clazz).getSingleResult();
-            } catch (NoResultException nre) {
-                ec = new EntityClass(clazz);
-                em.persist(ec);
+            ec = (EntityClass) em.createQuery(
+                    "FROM EntityClass AS ec " +
+                    "WHERE ec.objectClass = :objectClass").setParameter("objectClass", clazz).getSingleResult();
+        } catch (NoResultException nre) {
+            ec = new EntityClass(clazz);
+            em.persist(ec);
+        }
+        /*
+         * Now add methods to your mapped class..
+         */
+        Method[] methods = null;
+        if (fields == null) {
+            methods = clazz.getDeclaredMethods();
+        } else {
+            methods = new Method[fields.length * 2];
+            for (int i = 0; i < fields.length; i++) {
+                Method getterMethod = clazz.getDeclaredMethod("get" + fields[i], new Class[]{});
+                Method setterMethod = clazz.getDeclaredMethod("set" + fields[i], new Class[]{getterMethod.getReturnType()});
+                methods[i * 2] = getterMethod;
+                methods[(i * 2) + 1] = setterMethod;
             }
-            /*
-             * Now add methods to your mapped class..
-             */
-            Method[] methods = null;
-            if (fields == null) {
-                methods = clazz.getDeclaredMethods();
-            } else {
-                methods = new Method[fields.length * 2];
-                for (int i = 0; i < fields.length; i++) {
-                    Method getterMethod = clazz.getDeclaredMethod("get" + fields[i], new Class[]{});
-                    Method setterMethod = clazz.getDeclaredMethod("set" + fields[i], new Class[]{getterMethod.getReturnType()});
-                    methods[i * 2] = getterMethod;
-                    methods[(i * 2) + 1] = setterMethod;
+        }
+
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            Class[] parameterTypes = method.getParameterTypes();
+            if (parameterTypes.length == 1 && method.getName().startsWith("set")) {
+                Class fieldClass = parameterTypes[0];
+                if (PropertyValue.isAllowed(fieldClass)) {
+                    method.setAccessible(true);
+                    String fieldName = method.getName().substring(3, method.getName().length());
+                    try {
+                        EntityProperty ep = (EntityProperty) em.createQuery(
+                                "FROM EntityProperty AS ep " +
+                                "WHERE ep.fieldName = :fieldName " +
+                                "AND ep.fieldClass = :fieldClass " +
+                                "AND ep.entityClass.id = :entityClassId ").setParameter("fieldName", fieldName).setParameter("fieldClass", fieldClass).setParameter("entityClassId", ec.getId()).getSingleResult();
+
+                        if (ep.getDateDeleted() != null) {
+                            ep.setDateDeleted(null);
+                        }
+                    } catch (NoResultException nre) {
+                        EntityProperty ep = new EntityProperty(ec, fieldClass, fieldName);
+                        em.persist(ep);
+                    }
                 }
             }
-
+        }
+        /*
+         * Now check for methods that are in de DB but not in the method set and delete these..
+         */
+        List entityProperties = em.createQuery(
+                "FROM EntityProperty AS ep " +
+                "WHERE ep.entityClass.id = :entityClassId " +
+                "AND ep.dateDeleted = null ").setParameter("entityClassId", ec.getId()).getResultList();
+        Iterator iterProps = entityProperties.iterator();
+        while (iterProps.hasNext()) {
+            EntityProperty ep = (EntityProperty) iterProps.next();
+            boolean found = false;
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                Class[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length == 1 && method.getName().startsWith("set")) {
-                    Class fieldClass = parameterTypes[0];
-                    if (PropertyValue.isAllowed(fieldClass)) {
-                        method.setAccessible(true);
-                        String fieldName = method.getName().substring(3, method.getName().length());
-                        try {
-                            EntityProperty ep = (EntityProperty) em.createQuery(
-                                    "FROM EntityProperty AS ep " +
-                                    "WHERE ep.fieldName = :fieldName " +
-                                    "AND ep.fieldClass = :fieldClass " +
-                                    "AND ep.entityClass.id = :entityClassId ").setParameter("fieldName", fieldName).setParameter("fieldClass", fieldClass).setParameter("entityClassId", ec.getId()).getSingleResult();
-
-                            if (ep.getDateDeleted() != null) {
-                                ep.setDateDeleted(null);
-                            }
-                        } catch (NoResultException nre) {
-                            EntityProperty ep = new EntityProperty(ec, fieldClass, fieldName);
-                            em.persist(ep);
-                        }
-                    }
+                if (ep.getFieldClass().equals(method.getReturnType()) && method.getName().equals("get" + ep.getFieldName())) {
+                    found = true;
+                    break;
                 }
             }
-            /*
-             * Now check for methods that are in de DB but not in the method set and delete these..
-             */
-            List entityProperties = em.createQuery(
-                    "FROM EntityProperty AS ep " +
-                    "WHERE ep.entityClass.id = :entityClassId " +
-                    "AND ep.dateDeleted = null ").setParameter("entityClassId", ec.getId()).getResultList();
-            Iterator iterProps = entityProperties.iterator();
-            while (iterProps.hasNext()) {
-                EntityProperty ep = (EntityProperty) iterProps.next();
-                boolean found = false;
-                for (int i = 0; i < methods.length; i++) {
-                    Method method = methods[i];
-                    if (ep.getFieldClass().equals(method.getReturnType()) && method.getName().equals("get" + ep.getFieldName())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    ep.setDateDeleted(new Date());
-                }
+            if (!found) {
+                ep.setDateDeleted(new Date());
             }
-            et.commit();
-        } catch (Exception e) {
-            log.error("",e);
-            if (et != null) {
-                et.rollback();
-            }
-            throw e;
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
         }
+        em.flush();
     }
 
     /*
      * Helper function to find a referedobject in the DB or to throw an exception if the object is not managed.
      */
-    private static Object getReferedObject(Class entityClass, Integer primaryKey, EntityManager em) throws Exception {
+    private static Object getReferedObject(
+            Class entityClass, Integer primaryKey, EntityManager em) throws Exception {
         Object refDBObject = em.find(entityClass, primaryKey);
         if (refDBObject == null) {
             throw new NullPointerException("Entity for " + entityClass.getCanonicalName() + " with primarykey '" + primaryKey + "' could not be found.");
         }
+
         return refDBObject;
     }
 
@@ -474,7 +443,6 @@ public class DataWarehousing {
                         throw new Exception("Trying to persist an unsupported property '" + object.getClass().getSimpleName() + "'");
                     }
 
-
                     PropertyValue pv = new PropertyValue(ep, entityMutation);
                     pv.storeValue(object);
                     em.persist(pv);
@@ -485,7 +453,6 @@ public class DataWarehousing {
                             "Use " + DataWarehousing.class.getSimpleName() + ".registerClass(" + objectClass.getSimpleName() + ".class) to fix the problem. \n");
                 }
             }
-
         }
     }
 }

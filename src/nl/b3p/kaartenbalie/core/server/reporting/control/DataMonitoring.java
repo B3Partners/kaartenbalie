@@ -223,43 +223,33 @@ public class DataMonitoring {
         if (!isEnableMonitoring()) {
             return;
         }
-        Object identity = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.TRANSACTION_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.TRANSACTION_EM);
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            try {
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-                tRequestOperationMap.put("Duration", new Long(totalResponseTime));
-                tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
-                this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
-                clientRequest.setService(service);
-                clientRequest.setOperation(operation);
-                clientRequest.setUser(user);
-                clientRequest.setOrganization(organization);
-                //Now Persist...
-                Iterator iterRO = clientRequest.getRequestOperations().iterator();
-                em.persist(clientRequest);
-                while (iterRO.hasNext()) {
-                    em.persist(iterRO.next());
-                }
-                Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
-                while (iterSPR.hasNext()) {
-                    em.persist(iterSPR.next());
-                }
-                tx.commit();
-                clientRequest = null;
-                tRequestOperationMap = null;
-            } catch (Exception e) {
-                log.error("", e);
-                tx.rollback();
+            tRequestOperationMap.put("Duration", new Long(totalResponseTime));
+            tRequestOperationMap.put("BytesSendToUser", new Integer(bytesSendToUser));
+            this.addRequestOperation(RequestOperation.class, tRequestOperationMap);
+            clientRequest.setService(service);
+            clientRequest.setOperation(operation);
+            clientRequest.setUser(user);
+            clientRequest.setOrganization(organization);
+            //Now Persist...
+            Iterator iterRO = clientRequest.getRequestOperations().iterator();
+            em.persist(clientRequest);
+            while (iterRO.hasNext()) {
+                em.persist(iterRO.next());
             }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.TRANSACTION_EM);
+            em.flush();
+            Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
+            while (iterSPR.hasNext()) {
+                em.persist(iterSPR.next());
+            }
+            em.flush();
+        } catch (Exception e) {
+            log.error("", e);
         }
+        clientRequest = null;
+        tRequestOperationMap = null;
     }
 
     public static Element createElement(Document doc, String createElementName, String textContent) {

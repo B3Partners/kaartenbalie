@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -54,17 +53,8 @@ public class ExtLayerCalculator extends LayerCalculator {
      * Constructor met eigen Entitymanager
      */
     public ExtLayerCalculator() throws Exception {
-        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.LC_EM);
-        em = MyEMFDatabase.getEntityManager2(MyEMFDatabase.LC_EM);
-    }
-
-    /**
-     * Constructor met entitymanager van buiten
-     * @param em
-     */
-    public ExtLayerCalculator(EntityManager em)  throws Exception{
-        this.em = em;
-        externalEm = true;
+        identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+        em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
     /**

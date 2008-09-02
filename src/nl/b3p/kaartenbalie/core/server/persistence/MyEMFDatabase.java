@@ -48,11 +48,9 @@ public class MyEMFDatabase extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
     public static final String MAIN_EM = "mainEM";
-    public static final String TRANSACTION_EM = "transactionEM";
-    public static final String LC_EM = "lcEM";
     public static String capabilitiesdtd = "/dtd/capabilities_1_1_1.dtd";
     public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
-    private static EntityManagerFactory emf;
+    private static EntityManagerFactory emf = null;
     private static ThreadLocal tlMap = new ThreadLocal();
     private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
@@ -62,20 +60,27 @@ public class MyEMFDatabase extends HttpServlet {
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
         log.info("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
         if (emf != null) {
-            log.warn("EntityManagerFactory already initialized.");
+            log.warn("EntityManagerFactory already initialized: " + emf.toString());
+            return;
         }
         if (persistenceUnit == null || persistenceUnit.trim().length() == 0) {
             throw new Exception("PersistenceUnit cannot be left empty.");
         }
-        emf = Persistence.createEntityManagerFactory(persistenceUnit);
+        try {
+            emf = Persistence.createEntityManagerFactory(persistenceUnit);
+        } catch (Throwable t) {
+            log.fatal("Error initializing EntityManagerFactory: ",t);
+        }
+        if (emf == null) {
+            log.fatal("Cannot initialize EntityManagerFactory");
+            throw new Exception("Cannot initialized EntityManagerFactory");
+        }
+        log.info("EntityManagerFactory initialized: " + emf.toString());
     }
 
     public static EntityManagerFactory getEntityManagerFactory() throws Exception {
         if (emf == null) {
             openEntityManagerFactory(defaultKaartenbaliePU);
-            if (emf == null) {
-                throw new Exception("EntityManagerFactory is not initialized.");
-            }
         }
         return emf;
     }
@@ -95,6 +100,8 @@ public class MyEMFDatabase extends HttpServlet {
             DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
             DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
             AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
+            
+            //TODO entity manager wordt niet geinitialiseerd!!!
             ReportGenerator.startupClear();
             DataWarehousing.registerClass(User.class, null);
             DataWarehousing.registerClass(Organization.class, null);
@@ -128,18 +135,6 @@ public class MyEMFDatabase extends HttpServlet {
         }
 
         return tmpval.trim();
-    }
-
-    /**
-     * Gebruik deze methode als er een transactie binnen de hoofdtransactie nodig is 
-     * Zelf ook close methode aanroepen
-     */
-    public static EntityManager getEntityManager2(String emKey) throws Exception {
-        EntityManager entityManager = getEntityManagerFactory().createEntityManager();
-        if (entityManager == null) {
-            throw new Exception("EntityManager could not be initialized.");
-        }
-        return entityManager;
     }
     /** The constants for describing the ownerships **/
     private static final Owner trueOwner = new Owner(true);
@@ -190,7 +185,7 @@ public class MyEMFDatabase extends HttpServlet {
      * by this owner.  
      */
     public static void closeEntityManager(Object ownership, String emKey) {
-        if (((Owner) ownership).identity) {
+        if (ownership != null && ((Owner) ownership).identity) {
             log.debug("Identity is accepted. Now closing the session");
             EntityManager localEm = (EntityManager) getThreadLocal(emKey);
             if (localEm == null) {

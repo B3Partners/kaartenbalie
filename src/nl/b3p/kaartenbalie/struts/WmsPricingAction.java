@@ -196,7 +196,7 @@ public class WmsPricingAction extends PricingAction {
         /*
          * Then calculate all the different prices for all requesttypes..
          */
-        LayerCalculator lc = new LayerCalculator(em);
+        LayerCalculator lc = new LayerCalculator();
         Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length /*+ KBConfiguration.ACCOUNTING_WFS_REQUESTS.length*/][3];
         Date now = new Date();
         BigDecimal units = new BigDecimal(1);
