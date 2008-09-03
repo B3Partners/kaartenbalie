@@ -72,7 +72,6 @@ public class ReportGenerator {
     public final static int RESPONSE_XML_XSLT = 1;
     public final static int RESPONSE_HTML = 2;
     private User user;
-    private Organization organization;
     
 
     static {
@@ -91,23 +90,22 @@ public class ReportGenerator {
     private ReportGenerator() {
     }
 
-    public ReportGenerator(User user, Organization organization) {
+    public ReportGenerator(User user) {
         this.user = user;
-        this.organization = organization;
     }
 
     public void createReport(Class reportThreadType, Map parameters) throws Exception {
         try {
             if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
                 ReportThreadTemplate rtt = (ReportThreadTemplate) reportThreadType.newInstance();
-                rtt.init(this, user, organization, parameters);
-//                if (reportStatusMap.size() >= maxSimultaneousReports) {
-//                    rtt.notifyOnQueue();
-//                    reportStack.push(rtt);
-//                } else {
+                rtt.init(this, user, parameters);
+                if (reportStatusMap.size() >= maxSimultaneousReports) {
+                    rtt.notifyOnQueue();
+                    reportStack.push(rtt);
+                } else {
                     reportStatusMap.add(rtt);
                     rtt.start();
-//                }
+                }
 
             }
         } catch (Exception e) {
@@ -142,10 +140,10 @@ public class ReportGenerator {
     public List requestReportStatus() throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        List trsList = em.createQuery("" +
+        List trsList = null;
+        trsList = em.createQuery("" +
                 "FROM ThreadReportStatus AS trs " +
-                "WHERE trs.organization.id = :organizationId " +
-                "ORDER BY trs.state DESC, trs.creationDate DESC").setParameter("organizationId", organization.getId()).getResultList();
+                "ORDER BY trs.state DESC, trs.creationDate DESC").getResultList();
         return trsList;
     }
 

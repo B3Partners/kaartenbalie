@@ -165,7 +165,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             User user = (User) em.find(User.class, ((User) request.getUserPrincipal()).getId());
-            rg = new ReportGenerator(user, user.getOrganization());
+            rg = new ReportGenerator(user);
             session.setAttribute(reportGeneratorName, rg);
         }
         return rg;
