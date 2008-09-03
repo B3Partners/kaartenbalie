@@ -98,6 +98,7 @@ public class DataWarehousing {
         if (!enableWarehousing) {
             return;
         }
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         if (safetyMode == DEFAULT) {
             safetyMode = setSafety;
@@ -145,72 +146,64 @@ public class DataWarehousing {
     }
 
     public static Object find(Class objectClass, Integer primaryKey) throws Exception {
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            //First check if the entity still exists and possible save the trouble of building it again.
-            Object object = em.find(objectClass, primaryKey);
-            if (object == null && enableWarehousing) {
-                /*
-                 * The object is probably deleted,.. Here is where the real work starts..
-                 * First lets see if we have a copy of this object somewhere in our warehouse..
-                 */
-                WarehousedEntity we = null;
-                try {
-                    we = (WarehousedEntity) em.createQuery(
-                            "FROM WarehousedEntity AS we " +
-                            "WHERE we.entityClass.objectClass = :objectClass " +
-                            "AND we.referencedId = :referencedId").setParameter("objectClass", objectClass).setParameter("referencedId", primaryKey).getSingleResult();
-                } catch (NoResultException nre) {
-                    log.error("Entity no longer exists and is not stored in the dataWarehouse.");
-                    throw new Exception("Entity no longer exists and is not stored in the dataWarehouse.");
-                }
-                /*
-                 * At this point we have a WarehousedEntity that matched the find request.
-                 * Now we have to transform it to a matching object of the requested class!
-                 * But first check if there is a mutation on this class.. There always should be one,
-                 * but you never know... Plus we need the latest mutation anyways...
-                 */
-                EntityMutation entityMutation;
-                try {
-                    entityMutation = (EntityMutation) em.createQuery(
-                            "FROM EntityMutation AS ea " +
-                            "WHERE ea.warehousedEntity.id = :warehousedEntityId " +
-                            "ORDER BY ea.mutationDate DESC").setParameter("warehousedEntityId", we.getId()).setMaxResults(1).getSingleResult();
-                } catch (NoResultException nre) {
-                    log.error("No EntityMutation found for WarehousedEntity with id " + we.getId() + ". This should'nt be possible.");
-                    throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() + ". This should'nt be possible.");
-                }
-                object = objectClass.newInstance();
-
-                /*
-                 * Now get the matching properties... (Only valid properties though)..
-                 *
-                 */
-
-                List propertiesList = em.createQuery(
-                        "FROM PropertyValue AS pv " +
-                        "WHERE pv.entityMutation.id = :entityMutationId " +
-                        "AND pv.entityProperty.dateDeleted = null").setParameter("entityMutationId", entityMutation.getId()).getResultList();
-
-                Iterator iterProps = propertiesList.iterator();
-                while (iterProps.hasNext()) {
-                    PropertyValue propertyValue = (PropertyValue) iterProps.next();
-                    EntityProperty ep = propertyValue.getEntityProperty();
-                    Method setMethod = objectClass.getDeclaredMethod("set" + ep.getFieldName(), new Class[]{ep.getFieldClass()});
-                    setMethod.setAccessible(true);
-                    setMethod.invoke(object, new Object[]{propertyValue.requestValue()});
-                }
+        //First check if the entity still exists and possible save the trouble of building it again.
+        Object object = em.find(objectClass, primaryKey);
+        if (object == null && enableWarehousing) {
+            /*
+             * The object is probably deleted,.. Here is where the real work starts..
+             * First lets see if we have a copy of this object somewhere in our warehouse..
+             */
+            WarehousedEntity we = null;
+            try {
+                we = (WarehousedEntity) em.createQuery(
+                        "FROM WarehousedEntity AS we " +
+                        "WHERE we.entityClass.objectClass = :objectClass " +
+                        "AND we.referencedId = :referencedId").setParameter("objectClass", objectClass).setParameter("referencedId", primaryKey).getSingleResult();
+            } catch (NoResultException nre) {
+                log.error("Entity no longer exists and is not stored in the dataWarehouse.");
+                throw new Exception("Entity no longer exists and is not stored in the dataWarehouse.");
             }
-            return object;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
-        }
+            /*
+             * At this point we have a WarehousedEntity that matched the find request.
+             * Now we have to transform it to a matching object of the requested class!
+             * But first check if there is a mutation on this class.. There always should be one,
+             * but you never know... Plus we need the latest mutation anyways...
+             */
+            EntityMutation entityMutation;
+            try {
+                entityMutation = (EntityMutation) em.createQuery(
+                        "FROM EntityMutation AS ea " +
+                        "WHERE ea.warehousedEntity.id = :warehousedEntityId " +
+                        "ORDER BY ea.mutationDate DESC").setParameter("warehousedEntityId", we.getId()).setMaxResults(1).getSingleResult();
+            } catch (NoResultException nre) {
+                log.error("No EntityMutation found for WarehousedEntity with id " + we.getId() + ". This should'nt be possible.");
+                throw new Exception("No EntityMutation found for WarehousedEntity with id " + we.getId() + ". This should'nt be possible.");
+            }
+            object = objectClass.newInstance();
 
+            /*
+             * Now get the matching properties... (Only valid properties though)..
+             *
+             */
+
+            List propertiesList = em.createQuery(
+                    "FROM PropertyValue AS pv " +
+                    "WHERE pv.entityMutation.id = :entityMutationId " +
+                    "AND pv.entityProperty.dateDeleted = null").setParameter("entityMutationId", entityMutation.getId()).getResultList();
+
+            Iterator iterProps = propertiesList.iterator();
+            while (iterProps.hasNext()) {
+                PropertyValue propertyValue = (PropertyValue) iterProps.next();
+                EntityProperty ep = propertyValue.getEntityProperty();
+                Method setMethod = objectClass.getDeclaredMethod("set" + ep.getFieldName(), new Class[]{ep.getFieldClass()});
+                setMethod.setAccessible(true);
+                setMethod.invoke(object, new Object[]{propertyValue.requestValue()});
+            }
+        }
+        return object;
     }
 
     /*
@@ -311,7 +304,8 @@ public class DataWarehousing {
         if (!enableWarehousing) {
             return;
         }
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
         EntityClass ec = null;
         try {
             ec = (EntityClass) em.createQuery(

@@ -177,6 +177,7 @@ public class CallWMSServlet extends HttpServlet {
             log.warn("Error creating EntityManager: ", ex);
             handleRequestException(ex, data);
         } finally {
+            log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
@@ -359,6 +360,7 @@ public class CallWMSServlet extends HttpServlet {
      */
     // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
     public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         // eerst checken of user gewoon ingelogd is
         User user = (User) request.getUserPrincipal();

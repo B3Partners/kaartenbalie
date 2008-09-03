@@ -75,6 +75,7 @@ public class AccountManager {
         if (accountManager == null) {
             accountManager = new AccountManager(organizationId);
             if (enableAccounting) {
+                log.debug("Getting entity manager ......");
                 EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
                 Account account = (Account) em.find(Account.class, organizationId);
                 if (account == null) {
@@ -114,6 +115,7 @@ public class AccountManager {
             throw new Exception("Class transactionClass is not assignable.");
         }
         Transaction transaction = null;
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         Account account = (Account) em.find(
                 Account.class,
@@ -179,6 +181,7 @@ public class AccountManager {
         }
 
         if (accountTransaction.getCreditAlteration().doubleValue() == 0) {
+            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             em.remove(em.find(Transaction.class, accountTransaction.getId()));
             em.flush();
@@ -200,6 +203,7 @@ public class AccountManager {
 
         if (accountTransaction != null) {
             //Create an EntityManager
+            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             //Get the account and set the current balance. Update the class variable at the same time.
             Account account = (Account) em.find(Account.class, organizationId);
@@ -277,10 +281,12 @@ public class AccountManager {
             Object identity = null;
             try {
                 identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+                log.debug("Getting entity manager ......");
                 EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
                 Account account = (Account) em.find(Account.class, organizationId);
                 balance = account.getCreditBalance();
             } finally {
+            log.debug("Closing entity manager .....");
                 MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
             }
 
@@ -316,6 +322,7 @@ public class AccountManager {
         Object identity = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
             List resultList = null;
@@ -339,6 +346,7 @@ public class AccountManager {
             }
             return resultList;
         } finally {
+            log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
 

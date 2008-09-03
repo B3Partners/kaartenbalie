@@ -218,6 +218,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
             }
         } finally {
+            log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
     }

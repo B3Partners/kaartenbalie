@@ -72,6 +72,7 @@ public abstract class PricingAction extends KaartenbalieCrudAction {
     }
 
     public LayerPricing getLayerPricing(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getPricingID(dynaForm);

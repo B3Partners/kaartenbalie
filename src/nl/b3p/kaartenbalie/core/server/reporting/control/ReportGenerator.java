@@ -101,13 +101,13 @@ public class ReportGenerator {
             if (ReportThreadTemplate.class.isAssignableFrom(reportThreadType)) {
                 ReportThreadTemplate rtt = (ReportThreadTemplate) reportThreadType.newInstance();
                 rtt.init(this, user, organization, parameters);
-                if (reportStatusMap.size() >= maxSimultaneousReports) {
-                    rtt.notifyOnQueue();
-                    reportStack.push(rtt);
-                } else {
+//                if (reportStatusMap.size() >= maxSimultaneousReports) {
+//                    rtt.notifyOnQueue();
+//                    reportStack.push(rtt);
+//                } else {
                     reportStatusMap.add(rtt);
                     rtt.start();
-                }
+//                }
 
             }
         } catch (Exception e) {
@@ -140,6 +140,7 @@ public class ReportGenerator {
     }
 
     public List requestReportStatus() throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         List trsList = em.createQuery("" +
                 "FROM ThreadReportStatus AS trs " +
@@ -149,7 +150,8 @@ public class ReportGenerator {
     }
 
     public static void startupClear() throws Exception {
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
         List trsList = em.createQuery(
                 "FROM ThreadReportStatus AS trs " +
                 "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ").setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED)).setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED)).getResultList();
@@ -163,6 +165,7 @@ public class ReportGenerator {
     }
 
     public void removeReport(Integer trsId) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         if (trsId != null) {
             ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
@@ -179,6 +182,7 @@ public class ReportGenerator {
 
     public String reportName(Integer trsId) throws Exception {
         String result = null;
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         if (trsId != null) {
@@ -199,6 +203,7 @@ public class ReportGenerator {
 
     public void fetchReport(Integer trsId, OutputStream outStream, int responseMode, ServletContext servletContext) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         if (trsId != null) {

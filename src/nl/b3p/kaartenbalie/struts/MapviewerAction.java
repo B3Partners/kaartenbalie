@@ -88,6 +88,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         User sesuser = (User) request.getUserPrincipal();

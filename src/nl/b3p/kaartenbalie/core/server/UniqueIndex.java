@@ -77,6 +77,7 @@ public class UniqueIndex {
         }
         indexName = indexName.toUpperCase();
         Integer nextUnique = null;
+        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         UniqueIndex ui = null;
         try {

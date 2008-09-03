@@ -95,6 +95,7 @@ public class WmsServerAction extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         /*
          * Change DataWarehousing mode to performance as this is a very complicated process which will
@@ -252,6 +253,7 @@ public class WmsServerAction extends ServerAction {
     }
     // </editor-fold>
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
         if (null == serviceProvider) {
@@ -351,6 +353,7 @@ public class WmsServerAction extends ServerAction {
      * @throws Exception
      */
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         /*
          * Change DataWarehousing mode to performance as this is a very complicated process which will
@@ -408,6 +411,7 @@ public class WmsServerAction extends ServerAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         // Only shows WMS servers for now
         List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
@@ -428,6 +432,7 @@ public class WmsServerAction extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = null;
         Integer id = getID(dynaForm);

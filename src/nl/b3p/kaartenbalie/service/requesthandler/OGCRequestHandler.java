@@ -173,43 +173,38 @@ public abstract class OGCRequestHandler implements RequestHandler {
         // de queryable voorwaarde is voldaan
         List eventualSPList = new ArrayList();
 
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            Map config = dw.getLayeringParameterMap();
+        Map config = dw.getLayeringParameterMap();
 
-            configB3pLayering(layers, config);
+        configB3pLayering(layers, config);
 
-            //eerst geen b3pLayering meenemen
-            boolean b3pLayering = false;
-            for (int i = 0; i < layers.length; i++) {
-                SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
-                if (layerInfo == null) {
-                    continue;
-                }
-
-                // layer toevoegen aan sp indien queryable voorwaarde ok
-                if (!checkForQueryable || (checkForQueryable && layerInfo.getQueryable().equals("1"))) {
-                    addToServerProviderList(eventualSPList, layerInfo);
-                }
+        //eerst geen b3pLayering meenemen
+        boolean b3pLayering = false;
+        for (int i = 0; i < layers.length; i++) {
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
+            if (layerInfo == null) {
+                continue;
             }
 
-            //als laatste b3pLayering meenemen
-            b3pLayering = true;
-            for (int i = 0; i < layers.length; i++) {
-                SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
-                if (layerInfo == null) {
-                    continue;
-                }
-                if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerInfo.getLayerName())) {
-                    config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, new Boolean(true));
-                }
+            // layer toevoegen aan sp indien queryable voorwaarde ok
+            if (!checkForQueryable || (checkForQueryable && layerInfo.getQueryable().equals("1"))) {
                 addToServerProviderList(eventualSPList, layerInfo);
             }
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
+        }
+
+        //als laatste b3pLayering meenemen
+        b3pLayering = true;
+        for (int i = 0; i < layers.length; i++) {
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
+            if (layerInfo == null) {
+                continue;
+            }
+            if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerInfo.getLayerName())) {
+                config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, new Boolean(true));
+            }
+            addToServerProviderList(eventualSPList, layerInfo);
         }
         return eventualSPList;
     }

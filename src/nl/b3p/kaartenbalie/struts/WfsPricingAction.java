@@ -57,6 +57,7 @@ public class WfsPricingAction extends PricingAction {
     private static final String SCALE_ERROR_KEY = "beheer.pricing.scale.error";
 
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         request.setAttribute("id", request.getParameter("id"));
         if (!isTokenValid(request)) {
@@ -157,6 +158,7 @@ public class WfsPricingAction extends PricingAction {
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         /*
          * Set the allowed projectsion
@@ -209,6 +211,7 @@ public class WfsPricingAction extends PricingAction {
         JSONObject root = new JSONObject();
         root.put("name", "root");
         try {
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
             JSONArray rootArray = new JSONArray();
@@ -259,6 +262,7 @@ public class WfsPricingAction extends PricingAction {
     }
 
     private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         LayerPricing lp = null;
         Integer id = getLayerID(dynaForm);

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -48,6 +49,8 @@ public class MyEMFDatabase extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
     public static final String MAIN_EM = "mainEM";
+    public static final String INIT_EM = "initEM";
+    public static final String REALM_EM = "realmEM";
     public static String capabilitiesdtd = "/dtd/capabilities_1_1_1.dtd";
     public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
     private static EntityManagerFactory emf = null;
@@ -69,7 +72,7 @@ public class MyEMFDatabase extends HttpServlet {
         try {
             emf = Persistence.createEntityManagerFactory(persistenceUnit);
         } catch (Throwable t) {
-            log.fatal("Error initializing EntityManagerFactory: ",t);
+            log.fatal("Error initializing EntityManagerFactory: ", t);
         }
         if (emf == null) {
             log.fatal("Cannot initialize EntityManagerFactory");
@@ -92,27 +95,33 @@ public class MyEMFDatabase extends HttpServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        log.info("ManagedPersistence.init(" + config + ")");
 
+        DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
+        DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
+        AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
+
+        Object identity = null;
         try {
             openEntityManagerFactory(defaultKaartenbaliePU);
-
-            DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
-            DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
-            AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
-            
-            //TODO entity manager wordt niet geinitialiseerd!!!
+            identity = createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = getEntityManager(MyEMFDatabase.INIT_EM);
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
             ReportGenerator.startupClear();
             DataWarehousing.registerClass(User.class, null);
             DataWarehousing.registerClass(Organization.class, null);
             DataWarehousing.registerClass(ServiceProvider.class, null);
             DataWarehousing.registerClass(LayerPricing.class, null);
             DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"});
-        } catch (Exception e) {
+            tx.commit();
+        } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
             throw new ServletException(e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
-
 
         capabilitiesdtd = getConfigValue(config, "dtd", "/dtd/capabilities_1_1_1.dtd");
         exceptiondtd = getConfigValue(config, "dtd", "/dtd/exception_1_1_1.dtd");
@@ -159,22 +168,22 @@ public class MyEMFDatabase extends HttpServlet {
     public static Object createEntityManager(String emKey) throws Exception {
         EntityManager localEm = (EntityManager) getThreadLocal(emKey);
         if (localEm == null) {
-            log.debug("No EntityManager Found - Create and give the identity");
+            log.debug("No EntityManager Found - Create and give the identity for key: " + emKey);
             localEm = getEntityManagerFactory().createEntityManager();
             if (localEm == null) {
-                throw new Exception("EntityManager could not be initialized.");
+                throw new Exception("EntityManager could not be initialized for key: " + emKey);
             }
             setThreadLocal(emKey, localEm);
             return trueOwner;
         }
-        log.debug("EntityManager Found - Give a Fake identity");
+        log.debug("EntityManager Found - Give a Fake identity for key: " + emKey);
         return fakeOwner;
     }
 
     public static EntityManager getEntityManager(String emKey) throws Exception {
         EntityManager localEm = (EntityManager) getThreadLocal(emKey);
         if (localEm == null) {
-            throw new Exception("EntityManager could not be initialized.");
+            throw new Exception("EntityManager could not be initialized for key: " + emKey);
         }
         return localEm;
     }
@@ -186,16 +195,16 @@ public class MyEMFDatabase extends HttpServlet {
      */
     public static void closeEntityManager(Object ownership, String emKey) {
         if (ownership != null && ((Owner) ownership).identity) {
-            log.debug("Identity is accepted. Now closing the session");
+            log.debug("Identity is accepted. Now closing the session for key: " + emKey);
             EntityManager localEm = (EntityManager) getThreadLocal(emKey);
             if (localEm == null) {
-                log.warn("EntityManager is missing. Either it's already closed or never initialized.");
+                log.warn("EntityManager is missing. Either it's already closed or never initialized for key: " + emKey);
                 return;
             }
             clearThreadLocal(emKey);
             localEm.close();
         } else {
-            log.debug("Identity is rejected. Ignoring the request");
+            log.debug("Identity is rejected. Ignoring the request for key: " + emKey);
         }
     }
 

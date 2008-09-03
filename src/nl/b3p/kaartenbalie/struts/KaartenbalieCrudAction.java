@@ -70,7 +70,7 @@ public class KaartenbalieCrudAction extends CrudAction {
         Object identity = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = getEntityManager();
 
             EntityTransaction tx = em.getTransaction();
             tx.begin();
@@ -122,12 +122,14 @@ public class KaartenbalieCrudAction extends CrudAction {
             log.error("Exception occured while getting EntityManager: ", e);
             addAlternateMessage(mapping, request, null, e.toString());
         } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
         return getAlternateForward(mapping, request);
     }
 
     protected static EntityManager getEntityManager() throws Exception {
+        log.debug("Getting entity manager ......");
         return MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
@@ -146,76 +148,64 @@ public class KaartenbalieCrudAction extends CrudAction {
     }
 
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        EntityManager em = getEntityManager();
 
-            // Check of selectedLayers[i] juiste format heeft
-            int pos = uniqueName.indexOf("_");
-            if (pos == -1 || uniqueName.length() <= pos + 1) {
-                log.error("layer not valid: " + uniqueName);
-                throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-            }
-            String spAbbr = uniqueName.substring(0, pos);
-            String layerName = uniqueName.substring(pos + 1);
-            if (spAbbr.length() == 0 || layerName.length() == 0) {
-                log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-                throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-            }
+        // Check of selectedLayers[i] juiste format heeft
+        int pos = uniqueName.indexOf("_");
+        if (pos == -1 || uniqueName.length() <= pos + 1) {
+            log.error("layer not valid: " + uniqueName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
+        }
+        String spAbbr = uniqueName.substring(0, pos);
+        String layerName = uniqueName.substring(pos + 1);
+        if (spAbbr.length() == 0 || layerName.length() == 0) {
+            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+        }
 
-            String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
-            List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+        String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
+        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
 
-            if (ll == null || ll.isEmpty()) {
-                return null;
-            }
-            // Dit is nodig omdat mysql case insensitive selecteert
-            Iterator it = ll.iterator();
-            while (it.hasNext()) {
-                Layer l = (Layer) it.next();
-                String dbLayerName = l.getName();
-                String dbSpAbbr = l.getSpAbbr();
-                if (dbLayerName != null && dbSpAbbr != null) {
-                    if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
-                        return l;
-                    }
+        if (ll == null || ll.isEmpty()) {
+            return null;
+        }
+        // Dit is nodig omdat mysql case insensitive selecteert
+        Iterator it = ll.iterator();
+        while (it.hasNext()) {
+            Layer l = (Layer) it.next();
+            String dbLayerName = l.getName();
+            String dbSpAbbr = l.getSpAbbr();
+            if (dbLayerName != null && dbSpAbbr != null) {
+                if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
+                    return l;
                 }
             }
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
         return null;
     }
 
     public WfsLayer getWfsLayerByUniqueName(String uniqueName) throws Exception {
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        EntityManager em = getEntityManager();
 
-            // Check of selectedLayers[i] juiste format heeft
-            int pos = uniqueName.indexOf("_");
-            if (pos == -1 || uniqueName.length() <= pos + 1) {
-                log.error("layer not valid: " + uniqueName);
-                throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-            }
-            String spAbbr = uniqueName.substring(0, pos);
-            String layerName = uniqueName.substring(pos + 1);
-            if (spAbbr.length() == 0 || layerName.length() == 0) {
-                log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-                throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-            }
-
-            String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
-            List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
-
-            if (ll == null || ll.isEmpty()) {
-                return null;
-            }
-            return (WfsLayer) ll.get(0);
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
+        // Check of selectedLayers[i] juiste format heeft
+        int pos = uniqueName.indexOf("_");
+        if (pos == -1 || uniqueName.length() <= pos + 1) {
+            log.error("layer not valid: " + uniqueName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
         }
+        String spAbbr = uniqueName.substring(0, pos);
+        String layerName = uniqueName.substring(pos + 1);
+        if (spAbbr.length() == 0 || layerName.length() == 0) {
+            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
+            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
+        }
+
+        String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
+        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+        if (ll == null || ll.isEmpty()) {
+            return null;
+        }
+        return (WfsLayer) ll.get(0);
     }
 }

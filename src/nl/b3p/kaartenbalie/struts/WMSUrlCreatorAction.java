@@ -86,6 +86,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws JSONException, Exception {
         super.createLists(form, request);
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         User sesuser = (User) request.getUserPrincipal();
         if (sesuser == null) {
@@ -244,6 +245,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
 
         user.setDefaultGetMap(getMapUrl.toString());
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (user.getId() == null) {
             em.persist(user);

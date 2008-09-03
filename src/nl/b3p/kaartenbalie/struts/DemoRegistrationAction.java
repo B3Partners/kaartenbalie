@@ -36,6 +36,8 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
@@ -44,6 +46,7 @@ import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class DemoRegistrationAction extends UserAction {
 
+    private static final Log log = LogFactory.getLog(DemoRegistrationAction.class);
     protected static final String PREDEFINED_SP_ABBR = "demo.spabbr";
     protected static final String NEXTPAGE = "nextPage";
 
@@ -83,6 +86,7 @@ public class DemoRegistrationAction extends UserAction {
 
         populateRegistrationObject(user, organization, dynaForm, request);
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (organization.getId() == null) {
             em.persist(organization);
@@ -123,6 +127,7 @@ public class DemoRegistrationAction extends UserAction {
      */
     // <editor-fold defaultstate="" desc="getStandardDemoLayerSet(HttpServletRequest request, Session session) method.">
     private Set getStandardDemoLayerSet(HttpServletRequest request) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         /*
@@ -167,6 +172,7 @@ public class DemoRegistrationAction extends UserAction {
             }
         }
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         if (!user.checkRole("demogebruiker")) {

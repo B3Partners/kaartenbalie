@@ -47,6 +47,7 @@ public class LayerCalculator {
      */
     public LayerCalculator() throws Exception {
         identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
         em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
@@ -340,6 +341,7 @@ public class LayerCalculator {
      * @throws java.lang.Exception
      */
     public void closeEntityManager() throws Exception {
+            log.debug("Closing entity manager .....");
         MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
     }
 }

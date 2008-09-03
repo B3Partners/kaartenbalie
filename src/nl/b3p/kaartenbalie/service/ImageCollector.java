@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import nl.b3p.commons.xml.IgnoreEntityResolver;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
@@ -231,6 +232,10 @@ public class ImageCollector extends Thread {
         s.setElementHandler("ServiceException", new ServiceExceptionHandler());
 
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
+
+        IgnoreEntityResolver r = new IgnoreEntityResolver();
+        reader.setEntityResolver(r);
+
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
         is.setEncoding(KBConfiguration.CHARSET);

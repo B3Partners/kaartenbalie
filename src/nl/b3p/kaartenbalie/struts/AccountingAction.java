@@ -34,6 +34,8 @@ import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
@@ -44,6 +46,7 @@ import org.apache.struts.validator.DynaValidatorForm;
  */
 public class AccountingAction extends KaartenbalieCrudAction {
 
+    private static final Log log = LogFactory.getLog(AccountingAction.class);
     protected static final String TRANSACTION = "transaction";
 
     protected Map getActionMethodPropertiesMap() {
@@ -67,6 +70,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
         if (idString != null && idString.length() > 0) {
             Integer transactionId = new Integer(Integer.parseInt(idString));
             Organization organization = getOrganization(dynaForm, request);
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             Transaction transaction = (Transaction) em.createQuery(
                     "FROM Transaction AS ta " +
@@ -103,6 +107,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
         request.setAttribute("layerUsages", am.getTransactions(firstResult, listMax, TransactionLayerUsage.class));
         request.setAttribute("paymentDeposits", am.getTransactions(firstResult, listMax, TransactionPaymentDeposit.class));
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List organizationlist = em.createQuery("from Organization order by name").getResultList();
         request.setAttribute("organizationlist", organizationlist);
@@ -110,6 +115,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);

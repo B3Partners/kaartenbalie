@@ -132,6 +132,7 @@ public class DepositAction extends KaartenbalieCrudAction {
 
     private Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);

@@ -57,8 +57,9 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         }
         Object identity = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.REALM_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.REALM_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -95,7 +96,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
         }
 
         return null;
@@ -104,8 +106,9 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
     public Principal getAuthenticatedPrincipal(String username) {
         Object identity = null;
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.REALM_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.REALM_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             try {
@@ -122,7 +125,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+             log.debug("Closing entity manager .....");
+           MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
         }
         return null;
     }

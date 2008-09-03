@@ -87,17 +87,14 @@ public class ReportingAction extends KaartenbalieCrudAction {
     }
 
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        EntityManager em = getEntityManager();
         return super.edit(mapping, dynaForm, request, response);
     }
 
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        EntityManager em = getEntityManager();
         return getDefaultForward(mapping, request);
     }
 
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        EntityManager em = getEntityManager();
         ReportGenerator rg = getReportGenerator(request);
         String[] deleteList = (String[]) dynaForm.get("deleteReport");
         for (int i = 0; i < deleteList.length; i++) {
@@ -127,9 +124,8 @@ public class ReportingAction extends KaartenbalieCrudAction {
     }
 
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
-
-
 
         Date startDate = reportingDate.parse((String) dynaForm.get("startDate"));
         Date endDate = reportingDate.parse((String) dynaForm.get("endDate"));
@@ -151,6 +147,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         ReportGenerator rg = getReportGenerator(request);
         request.setAttribute("workloadData", rg.getWorkload());
@@ -165,6 +162,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
         if (session.getAttribute(reportGeneratorName) != null) {
             rg = (ReportGenerator) session.getAttribute(reportGeneratorName);
         } else {
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             User user = (User) em.find(User.class, ((User) request.getUserPrincipal()).getId());
             rg = new ReportGenerator(user, user.getOrganization());

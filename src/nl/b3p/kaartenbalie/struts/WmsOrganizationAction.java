@@ -63,6 +63,7 @@ public class WmsOrganizationAction extends OrganizationAction {
      * @throws Exception, HibernateException
      */
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -156,6 +157,7 @@ public class WmsOrganizationAction extends OrganizationAction {
      */
 // <editor-fold defaultstate="" desc="populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization, List layerList, String [] selectedLayers) method.">
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("street")));
@@ -244,6 +246,7 @@ public class WmsOrganizationAction extends OrganizationAction {
         JSONObject root = new JSONObject();
         root.put("name", "root");
         try {
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
             JSONArray rootArray = new JSONArray();

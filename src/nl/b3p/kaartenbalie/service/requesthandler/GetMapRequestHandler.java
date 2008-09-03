@@ -57,152 +57,147 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
 
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-            
-            this.user = user;
-            this.url = user.getPersonalURL();
-            Integer orgId = user.getOrganization().getId();
-            OGCRequest ogc = dw.getOgcrequest();
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            String value = "";
-            if (ogc.containsParameter(OGCConstants.WMS_PARAM_FORMAT)) {
-                value = ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT);
-                if (value != null && value.length() > 0) {
-                    dw.setContentType(value);
-                } else {
-                    dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
-                }
+        this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId();
+        OGCRequest ogc = dw.getOgcrequest();
+
+        String value = "";
+        if (ogc.containsParameter(OGCConstants.WMS_PARAM_FORMAT)) {
+            value = ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT);
+            if (value != null && value.length() > 0) {
+                dw.setContentType(value);
+            } else {
+                dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
             }
-
-            Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
-            dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
-
-            Integer width = null;
-            try {
-                width = new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_WIDTH));
-            } catch (NumberFormatException nfe) {
-                width = new Integer(-1);
-            }
-            dw.setRequestParameter("Width", width);
-
-            Integer height = null;
-            try {
-                height = new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
-            } catch (NumberFormatException nfe) {
-                height = new Integer(-1);
-            }
-            dw.setRequestParameter("Height", height);
-            dw.setRequestParameter("WmsVersion", ogc.getParameter(OGCConstants.WMS_VERSION));
-            dw.setRequestParameter("Srs", null);
-            dw.setRequestParameter("Format", ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
-            dw.setRequestParameter("BoundingBox", ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
-
-            String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
-            Map userdefinedParams = ogc.getNonOGCParameters();
-
-            List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgId, false, dw);
-            if (spUrls == null || spUrls.isEmpty()) {
-                log.error("No urls qualify for request.");
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-            }
-            spUrls = prepareAccounting(orgId, dw, spUrls);
-            if (spUrls == null || spUrls.isEmpty()) {
-                log.error("No urls qualify for request.");
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-            }
-
-            ArrayList urlWrapper = new ArrayList();
-            Iterator it = spUrls.iterator();
-            while (it.hasNext()) {
-
-                SpLayerSummary spInfo = (SpLayerSummary) it.next();
-                WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
-                Integer serviceProviderId = spInfo.getServiceproviderId();
-
-                if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
-                    //Say hello to B3P Layering!!
-                    StringBuffer url = new StringBuffer();
-                    String layersList = spInfo.getLayersAsString();
-                    url.append(spInfo.getSpUrl());
-                    String[] params = ogc.getParametersArray();
-                    for (int i = 0; i < params.length; i++) {
-                        String[] keyValuePair = params[i].split("=");
-                        if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
-                            url.append(OGCConstants.WMS_PARAM_LAYERS);
-                            url.append("=");
-                            url.append(layersList);
-                            url.append("&");
-                        } else {
-                            url.append(params[i]);
-                            url.append("&");
-                        }
-                    }
-                    gmrWrapper.setProviderRequestURI(url.toString());
-                    urlWrapper.add(gmrWrapper);
-
-                } else {
-                    gmrWrapper.setServiceProviderId(serviceProviderId);
-
-                    String layersList = spInfo.getLayersAsString();
-
-                    String query = "select distinct srs.srs from layer, srs " +
-                            "where layer.layerid = srs.layerid and " +
-                            "srs.srs is not null and " +
-                            "layer.layerid = :toplayer";
-
-                    boolean srsFound = false;
-                    List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
-
-                    /* 
-                     * If there isn't a SRS it will try to get the SRS of the parentlayer 
-                     */
-                    if (sqlQuery.size() == 0 || sqlQuery == null) {
-                        sqlQuery = getSRS(spInfo.getLayerId(), em);
-                    }
-
-                    if (sqlQuery != null) {
-                        Iterator sqlIterator = sqlQuery.iterator();
-                        while (sqlIterator.hasNext()) {
-                            String srs = (String) sqlIterator.next();
-                            if (srs.equals(givenSRS)) {
-                                srsFound = true;
-                            }
-                        }
-                    }
-                    if (!srsFound) {
-                        log.error("No suitable srs found.");
-                        throw new Exception(KBConfiguration.SRS_EXCEPTION);
-                    }
-
-                    StringBuffer url = new StringBuffer();
-                    url.append(spInfo.getSpUrl());
-                    String[] params = ogc.getParametersArray();
-                    for (int i = 0; i < params.length; i++) {
-                        String[] keyValuePair = params[i].split("=");
-                        if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
-                            url.append(OGCConstants.WMS_PARAM_LAYERS);
-                            url.append("=");
-                            url.append(layersList);
-                            url.append("&");
-                        } else {
-                            url.append(params[i]);
-                            url.append("&");
-                        }
-                    }
-                    gmrWrapper.setProviderRequestURI(url.toString());
-                    urlWrapper.add(gmrWrapper);
-                }
-            }
-
-            doAccounting(orgId, dw, user);
-
-            getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
+
+        Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
+        dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
+
+        Integer width = null;
+        try {
+            width = new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_WIDTH));
+        } catch (NumberFormatException nfe) {
+            width = new Integer(-1);
+        }
+        dw.setRequestParameter("Width", width);
+
+        Integer height = null;
+        try {
+            height = new Integer(ogc.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
+        } catch (NumberFormatException nfe) {
+            height = new Integer(-1);
+        }
+        dw.setRequestParameter("Height", height);
+        dw.setRequestParameter("WmsVersion", ogc.getParameter(OGCConstants.WMS_VERSION));
+        dw.setRequestParameter("Srs", null);
+        dw.setRequestParameter("Format", ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
+        dw.setRequestParameter("BoundingBox", ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
+
+        String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
+        Map userdefinedParams = ogc.getNonOGCParameters();
+
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgId, false, dw);
+        if (spUrls == null || spUrls.isEmpty()) {
+            log.error("No urls qualify for request.");
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+        }
+        spUrls = prepareAccounting(orgId, dw, spUrls);
+        if (spUrls == null || spUrls.isEmpty()) {
+            log.error("No urls qualify for request.");
+            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+        }
+
+        ArrayList urlWrapper = new ArrayList();
+        Iterator it = spUrls.iterator();
+        while (it.hasNext()) {
+
+            SpLayerSummary spInfo = (SpLayerSummary) it.next();
+            WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
+            Integer serviceProviderId = spInfo.getServiceproviderId();
+
+            if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
+                //Say hello to B3P Layering!!
+                StringBuffer url = new StringBuffer();
+                String layersList = spInfo.getLayersAsString();
+                url.append(spInfo.getSpUrl());
+                String[] params = ogc.getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String[] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
+                }
+                gmrWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(gmrWrapper);
+
+            } else {
+                gmrWrapper.setServiceProviderId(serviceProviderId);
+
+                String layersList = spInfo.getLayersAsString();
+
+                String query = "select distinct srs.srs from layer, srs " +
+                        "where layer.layerid = srs.layerid and " +
+                        "srs.srs is not null and " +
+                        "layer.layerid = :toplayer";
+
+                boolean srsFound = false;
+                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
+
+                /* 
+                 * If there isn't a SRS it will try to get the SRS of the parentlayer 
+                 */
+                if (sqlQuery.size() == 0 || sqlQuery == null) {
+                    sqlQuery = getSRS(spInfo.getLayerId(), em);
+                }
+
+                if (sqlQuery != null) {
+                    Iterator sqlIterator = sqlQuery.iterator();
+                    while (sqlIterator.hasNext()) {
+                        String srs = (String) sqlIterator.next();
+                        if (srs.equals(givenSRS)) {
+                            srsFound = true;
+                        }
+                    }
+                }
+                if (!srsFound) {
+                    log.error("No suitable srs found.");
+                    throw new Exception(KBConfiguration.SRS_EXCEPTION);
+                }
+
+                StringBuffer url = new StringBuffer();
+                url.append(spInfo.getSpUrl());
+                String[] params = ogc.getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String[] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
+                }
+                gmrWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(gmrWrapper);
+            }
+        }
+
+        doAccounting(orgId, dw, user);
+
+        getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
     // </editor-fold>
     /*

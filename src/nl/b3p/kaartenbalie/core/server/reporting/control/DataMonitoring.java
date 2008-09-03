@@ -224,6 +224,7 @@ public class DataMonitoring {
             return;
         }
         try {
+            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
             tRequestOperationMap.put("Duration", new Long(totalResponseTime));

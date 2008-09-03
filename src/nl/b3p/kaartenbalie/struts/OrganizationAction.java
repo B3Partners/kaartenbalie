@@ -106,6 +106,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = getOrganization(dynaForm, request, false);
         if (null == organization) {
@@ -176,6 +177,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
      * @throws Exception, HibernateException
      */
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -227,6 +229,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
 // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     protected void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
@@ -242,6 +245,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
      * @return an Organization object.
      */
     protected Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);

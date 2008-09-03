@@ -23,10 +23,8 @@ package nl.b3p.kaartenbalie.core.server.reporting.control;
 
 import java.util.Map;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus;
 import org.apache.commons.logging.Log;
@@ -39,12 +37,12 @@ import org.apache.commons.logging.LogFactory;
 public abstract class ReportThreadTemplate extends Thread {
 
     private static final Log log = LogFactory.getLog(ReportThreadTemplate.class);    //Owning user & organization..
-    private User user;
-    private Organization organization;
-    private ReportGenerator reportGenerator;
-    private BaseReport reportTemplate;
-    private Integer trsId;
+    protected User user;
+    protected Organization organization;
+    protected ReportGenerator reportGenerator;
+    protected Integer trsId;
     protected BaseReport report;
+    protected EntityManager em = null;
 
     public void init(ReportGenerator reportGenerator, User user, Organization organization, Map parameters) throws Exception {
         /*
@@ -54,73 +52,22 @@ public abstract class ReportThreadTemplate extends Thread {
         this.user = user;
         this.organization = organization;
         setParameters(parameters);
-        /*
-         * Start a new EntityManager and transaction.
-         */
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        /*
-         * Initialize a new report.
-         */
-        report = (BaseReport) getReportClass().newInstance();
-        report.setOwningOrganization(organization);
-        /*
-         * Create a new ThreadReportStatus object and persist it in the DB.
-         */
-        ThreadReportStatus trs = new ThreadReportStatus();
-        trs.setOrganization(organization);
-        trs.setState(ThreadReportStatus.CREATED);
-        em.persist(trs);
-        em.flush();
-        /*
-         * Set the trs to this threadTemplate.
-         */
-        trsId = trs.getId();
     }
 
     public void notifyOnQueue() throws Exception {
-        notifyStateChanged(ThreadReportStatus.ONQUEUE, "The Report Generator is currently busy. Your report is on queue.", null);
+//        notifyStateChanged(ThreadReportStatus.ONQUEUE, "The Report Generator is currently busy. Your report is on queue.", null);
     }
-    /*
-    
-    2008-08-28 22:08:56,108 [Thread-11] WARN  org.hibernate.util.JDBCExceptionReporter - SQL Error: 1452, SQLState: 23000
-    2008-08-28 22:08:56,108 [Thread-11] ERROR org.hibernate.util.JDBCExceptionReporter - Cannot add or update a child row: a foreign key constraint fails (`kaartenbalie_test/rep_tablerow`, CONSTRAINT `FKDB7E1CAEEDED1520` FOREIGN KEY (`tro_tab_id`) REFERENCES `rep_table` (`tab_id`))
-    2008-08-28 22:08:56,111 [Thread-11] ERROR org.hibernate.event.def.AbstractFlushingEventListener - Could not synchronize database state with session
-    org.hibernate.exception.ConstraintViolationException: could not insert: [nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow]
-    at org.hibernate.exception.SQLStateConverter.convert(SQLStateConverter.java:71)
-    at org.hibernate.exception.JDBCExceptionHelper.convert(JDBCExceptionHelper.java:43)
-    at org.hibernate.id.insert.AbstractReturningDelegate.performInsert(AbstractReturningDelegate.java:40)
-    at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2158)
-    at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2638)
-    at org.hibernate.action.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:48)
-    at org.hibernate.engine.ActionQueue.execute(ActionQueue.java:250)
-    at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:234)
-    at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:141)
-    at org.hibernate.event.def.AbstractFlushingEventListener.performExecutions(AbstractFlushingEventListener.java:298)
-    at org.hibernate.event.def.DefaultFlushEventListener.onFlush(DefaultFlushEventListener.java:27)
-    at org.hibernate.impl.SessionImpl.flush(SessionImpl.java:1000)
-    at org.hibernate.impl.SessionImpl.managedFlush(SessionImpl.java:338)
-    at org.hibernate.transaction.JDBCTransaction.commit(JDBCTransaction.java:106)
-    at org.hibernate.ejb.TransactionImpl.commit(TransactionImpl.java:54)
-    at nl.b3p.kaartenbalie.core.server.reporting.control.ReportThreadTemplate.notifyStateChanged(ReportThreadTemplate.java:110)
-    at nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReportThread.run(DataUsageReportThread.java:105)
-    Caused by: java.sql.SQLException: Cannot add or update a child row: a foreign key constraint fails (`kaartenbalie_test/rep_tablerow`, CONSTRAINT `FKDB7E1CAEEDED1520` FOREIGN KEY (`tro_tab_id`) REFERENCES `rep_table` (`tab_id`))
-    at com.mysql.jdbc.MysqlIO.checkErrorPacket(MysqlIO.java:2851)
-    at com.mysql.jdbc.MysqlIO.sendCommand(MysqlIO.java:1531)
-    at com.mysql.jdbc.ServerPreparedStatement.serverExecute(ServerPreparedStatement.java:1366)
-    at com.mysql.jdbc.ServerPreparedStatement.executeInternal(ServerPreparedStatement.java:952)
-    at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:1974)
-    at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:1897)
-    at com.mysql.jdbc.PreparedStatement.executeUpdate(PreparedStatement.java:1758)
-    at org.apache.tomcat.dbcp.dbcp.DelegatingPreparedStatement.executeUpdate(DelegatingPreparedStatement.java:102)
-    at org.hibernate.id.IdentityGenerator$GetGeneratedKeysDelegate.executeAndExtract(IdentityGenerator.java:73)
-    at org.hibernate.id.insert.AbstractReturningDelegate.performInsert(AbstractReturningDelegate.java:33)
-    ... 14 more
-    
-     */
 
     protected void notifyStateChanged(int newState, String message, Integer reportId) throws Exception {
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        if (em == null) {
+            log.error("No entity manager found.");
+            return;
+        }
         ThreadReportStatus trs = (ThreadReportStatus) em.find(ThreadReportStatus.class, trsId);
+        if (trs == null) {
+            log.error("No current report found.");
+            return;
+        }
         trs.setState(newState);
         trs.setStatusMessage(message);
         trs.setReportId(reportId);
@@ -137,4 +84,5 @@ public abstract class ReportThreadTemplate extends Thread {
     public abstract void setParameters(Map parameters) throws Exception;
 
     protected abstract Class getReportClass();
+
 }

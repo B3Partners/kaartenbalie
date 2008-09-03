@@ -54,6 +54,7 @@ public class ExtLayerCalculator extends LayerCalculator {
      */
     public ExtLayerCalculator() throws Exception {
         identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+        log.debug("Getting entity manager ......");
         em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 

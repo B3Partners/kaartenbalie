@@ -145,6 +145,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
         populateUserObject(user, dynaForm, request);
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (user.getId() == null) {
             em.persist(user);
@@ -163,6 +164,7 @@ public class UserAction extends KaartenbalieCrudAction {
     }
     // </editor-fold>
     public ActionForward saveCheck(User user, ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         if (!isTokenValid(request)) {
@@ -222,6 +224,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         User user = getUser(dynaForm, request, false);
         if (user == null) {
@@ -266,6 +269,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         if (!isTokenValid(request)) {
@@ -304,6 +308,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         super.createLists(form, request);
         List userList = em.createQuery("from User order by username").getResultList();
@@ -347,6 +352,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         User sessUser = (User) request.getUserPrincipal();
@@ -382,6 +388,7 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
     private Organization getOrganization(Integer id) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         return (Organization) em.find(Organization.class, id);
     }
@@ -395,6 +402,7 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
     protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         dynaForm.set("id", FormUtils.IntegerToString(user.getId()));
@@ -469,6 +477,7 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
     protected void populateUserObject(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         user.setFirstName(FormUtils.nullIfEmpty(dynaForm.getString("firstname")));
         user.setSurname(FormUtils.nullIfEmpty(dynaForm.getString("surname")));
@@ -549,6 +558,7 @@ public class UserAction extends KaartenbalieCrudAction {
         if (!urlNeedsRefresh) {
             return;
         }
+        log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         String protocolAndVersion = request.getProtocol();

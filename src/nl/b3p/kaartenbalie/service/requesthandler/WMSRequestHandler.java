@@ -39,6 +39,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.commons.xml.IgnoreEntityResolver;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -89,151 +90,145 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     }
 
     public ServiceProvider getServiceProvider() throws Exception {
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-            
-            User dbUser = null;
-            Set userRoles = user.getUserroles();
-            boolean isAdmin = false;
-            Iterator rolIt = userRoles.iterator();
-            while (rolIt.hasNext()) {
-                Roles role = (Roles) rolIt.next();
-                if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
-                    /* de gebruiker is een beheerder */
-                    isAdmin = true;
-                }
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+        User dbUser = null;
+        Set userRoles = user.getUserroles();
+        boolean isAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while (rolIt.hasNext()) {
+            Roles role = (Roles) rolIt.next();
+            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
             }
-
-            try {
-                dbUser = (User) em.createQuery("from User u where " +
-                        "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
-            } catch (NoResultException nre) {
-                log.error("No serviceprovider for user found.");
-                throw new Exception("No serviceprovider for user found.");
-            }
-
-            Set serviceproviders = null;
-            Layer kaartenbalieTopLayer = null;
-
-            Set organizationLayers = new HashSet();
-
-            if (isAdmin == false) {
-                organizationLayers = dbUser.getOrganization().getOrganizationLayer();
-            } else {
-                List layerlist = em.createQuery("from Layer").getResultList();
-                organizationLayers.addAll(layerlist);
-            }
-
-            if (organizationLayers != null && !organizationLayers.isEmpty()) {
-
-                serviceproviders = new HashSet();
-                Set topLayers = new HashSet();
-                Set orgLayerIds = new HashSet();
-                Iterator it = organizationLayers.iterator();
-
-                while (it.hasNext()) {
-                    Layer layer = (Layer) it.next();
-                    orgLayerIds.add(layer.getId());
-                    Layer topLayer = layer.getTopLayer();
-                    if (!topLayers.contains(topLayer)) {
-                        topLayers.add(topLayer);
-                    }
-                    ServiceProvider sp = layer.getServiceProvider();
-                    if (!serviceproviders.contains(sp)) {
-                        serviceproviders.add(sp);
-                    }
-                }
-
-                if (!topLayers.isEmpty()) {
-                    kaartenbalieTopLayer = new Layer();
-                    kaartenbalieTopLayer.setTitle(KBConfiguration.TOPLAYERNAME);
-                    LayerValidator lv = new LayerValidator(organizationLayers);
-                    kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
-
-                    Iterator tlId = topLayers.iterator();
-                    while (tlId.hasNext()) {
-                        Layer layer = (Layer) tlId.next();
-                        Layer layerCloned = (Layer) layer.clone();
-                        Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
-                        // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
-                        boolean layerAuthorized = orgLayerIds.contains(layer.getId());
-                        if (!layerAuthorized && (authSubLayers == null || authSubLayers.isEmpty())) {
-                            continue;
-                        }
-                        layerCloned.setLayers(authSubLayers);
-                        // layer alleen als placeholder indien niet toegankelijk maar wel toegankelijke sublayers heeft
-                        if (!layerAuthorized) {
-                            layerCloned.setName(null);
-                        }
-                        if (authSubLayers == null) {
-                            authSubLayers = new HashSet();
-                        }
-                        kaartenbalieTopLayer.addLayer(layerCloned);
-                    }
-
-                    // Valideer SRS van toplayers
-                    lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
-                    String[] supportedSRS = lv.validateSRS();
-                    for (int i = 0; i < supportedSRS.length; i++) {
-                        SrsBoundingBox srsbb = new SrsBoundingBox();
-                        srsbb.setSrs(supportedSRS[i]);
-                        kaartenbalieTopLayer.addSrsbb(srsbb);
-                    }
-                }
-            }
-
-            //controleer of een organisatie een bepaalde startpostitie heeft voor de BBOX
-            //indien dit het geval is, voeg deze bbox toe aan de toplayer.
-            String orgBbox = dbUser.getOrganization().getBbox();
-            if (orgBbox != null) {
-                String[] values = orgBbox.split(",");
-                SrsBoundingBox srsbb = new SrsBoundingBox();
-                srsbb.setSrs("EPSG:28992");
-                srsbb.setMinx(values[0]);
-                srsbb.setMiny(values[1]);
-                srsbb.setMaxx(values[2]);
-                srsbb.setMaxy(values[3]);
-                kaartenbalieTopLayer.addSrsbb(srsbb);
-            }
-
-            // Creeer geldige service provider
-            ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
-            ServiceProvider validServiceProvider = spv.getValidServiceProvider();
-            validServiceProvider.setTopLayer(kaartenbalieTopLayer);
-
-            /*
-             * B3Partners Configuration Layers..
-             */
-            boolean allowAccountingLayers = dbUser.getOrganization().getAllowAccountingLayers();
-            /*
-             *Only adds AllowTransaction layer and creditInfo layer if the user has the rights to see these layers.
-             */
-            if (allowAccountingLayers == true) {
-                Map configLayers = ConfigLayer.getConfigLayers();
-                Iterator iterLayerKeys = configLayers.keySet().iterator();
-                while (iterLayerKeys.hasNext()) {
-                    Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
-                    configLayer.setServiceProvider(validServiceProvider);
-                    kaartenbalieTopLayer.addLayer(configLayer);
-                }
-            }
-
-
-            Set roles = dbUser.getUserroles();
-            if (roles != null) {
-                Iterator roleIt = roles.iterator();
-                while (roleIt.hasNext()) {
-                    Roles role = (Roles) roleIt.next();
-                    validServiceProvider.addRole(role);
-                }
-            }
-            return validServiceProvider;
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
         }
 
+        try {
+            dbUser = (User) em.createQuery("from User u where " +
+                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
+        } catch (NoResultException nre) {
+            log.error("No serviceprovider for user found.");
+            throw new Exception("No serviceprovider for user found.");
+        }
+
+        Set serviceproviders = null;
+        Layer kaartenbalieTopLayer = null;
+
+        Set organizationLayers = new HashSet();
+
+        if (isAdmin == false) {
+            organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+        } else {
+            List layerlist = em.createQuery("from Layer").getResultList();
+            organizationLayers.addAll(layerlist);
+        }
+
+        if (organizationLayers != null && !organizationLayers.isEmpty()) {
+
+            serviceproviders = new HashSet();
+            Set topLayers = new HashSet();
+            Set orgLayerIds = new HashSet();
+            Iterator it = organizationLayers.iterator();
+
+            while (it.hasNext()) {
+                Layer layer = (Layer) it.next();
+                orgLayerIds.add(layer.getId());
+                Layer topLayer = layer.getTopLayer();
+                if (!topLayers.contains(topLayer)) {
+                    topLayers.add(topLayer);
+                }
+                ServiceProvider sp = layer.getServiceProvider();
+                if (!serviceproviders.contains(sp)) {
+                    serviceproviders.add(sp);
+                }
+            }
+
+            if (!topLayers.isEmpty()) {
+                kaartenbalieTopLayer = new Layer();
+                kaartenbalieTopLayer.setTitle(KBConfiguration.TOPLAYERNAME);
+                LayerValidator lv = new LayerValidator(organizationLayers);
+                kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
+
+                Iterator tlId = topLayers.iterator();
+                while (tlId.hasNext()) {
+                    Layer layer = (Layer) tlId.next();
+                    Layer layerCloned = (Layer) layer.clone();
+                    Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
+                    // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
+                    boolean layerAuthorized = orgLayerIds.contains(layer.getId());
+                    if (!layerAuthorized && (authSubLayers == null || authSubLayers.isEmpty())) {
+                        continue;
+                    }
+                    layerCloned.setLayers(authSubLayers);
+                    // layer alleen als placeholder indien niet toegankelijk maar wel toegankelijke sublayers heeft
+                    if (!layerAuthorized) {
+                        layerCloned.setName(null);
+                    }
+                    if (authSubLayers == null) {
+                        authSubLayers = new HashSet();
+                    }
+                    kaartenbalieTopLayer.addLayer(layerCloned);
+                }
+
+                // Valideer SRS van toplayers
+                lv = new LayerValidator(kaartenbalieTopLayer.getLayers());
+                String[] supportedSRS = lv.validateSRS();
+                for (int i = 0; i < supportedSRS.length; i++) {
+                    SrsBoundingBox srsbb = new SrsBoundingBox();
+                    srsbb.setSrs(supportedSRS[i]);
+                    kaartenbalieTopLayer.addSrsbb(srsbb);
+                }
+            }
+        }
+
+        //controleer of een organisatie een bepaalde startpostitie heeft voor de BBOX
+        //indien dit het geval is, voeg deze bbox toe aan de toplayer.
+        String orgBbox = dbUser.getOrganization().getBbox();
+        if (orgBbox != null) {
+            String[] values = orgBbox.split(",");
+            SrsBoundingBox srsbb = new SrsBoundingBox();
+            srsbb.setSrs("EPSG:28992");
+            srsbb.setMinx(values[0]);
+            srsbb.setMiny(values[1]);
+            srsbb.setMaxx(values[2]);
+            srsbb.setMaxy(values[3]);
+            kaartenbalieTopLayer.addSrsbb(srsbb);
+        }
+
+        // Creeer geldige service provider
+        ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
+        ServiceProvider validServiceProvider = spv.getValidServiceProvider();
+        validServiceProvider.setTopLayer(kaartenbalieTopLayer);
+
+        /*
+         * B3Partners Configuration Layers..
+         */
+        boolean allowAccountingLayers = dbUser.getOrganization().getAllowAccountingLayers();
+        /*
+         *Only adds AllowTransaction layer and creditInfo layer if the user has the rights to see these layers.
+         */
+        if (allowAccountingLayers == true) {
+            Map configLayers = ConfigLayer.getConfigLayers();
+            Iterator iterLayerKeys = configLayers.keySet().iterator();
+            while (iterLayerKeys.hasNext()) {
+                Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
+                configLayer.setServiceProvider(validServiceProvider);
+                kaartenbalieTopLayer.addLayer(configLayer);
+            }
+        }
+
+
+        Set roles = dbUser.getUserroles();
+        if (roles != null) {
+            Iterator roleIt = roles.iterator();
+            while (roleIt.hasNext()) {
+                Roles role = (Roles) roleIt.next();
+                validServiceProvider.addRole(role);
+            }
+        }
+        return validServiceProvider;
     }
 
     /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
@@ -474,6 +469,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         s.setElementHandler("ServiceException", new ServiceExceptionHandler());
 
         XMLReader reader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
+
+        IgnoreEntityResolver r = new IgnoreEntityResolver();
+        reader.setEntityResolver(r);
+
         reader.setContentHandler(s);
         InputSource is = new InputSource(byteStream);
         is.setEncoding(KBConfiguration.CHARSET);

@@ -114,6 +114,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Principal user = request.getUserPrincipal();
         if (user != null) {
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             String layerUniqueName = (String) dynaForm.get("id");
             Layer layer = getLayerByUniqueName(layerUniqueName);
@@ -367,6 +368,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         JSONObject root = new JSONObject();
         root.put("name", "root");
         try {
+            log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
             List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
 

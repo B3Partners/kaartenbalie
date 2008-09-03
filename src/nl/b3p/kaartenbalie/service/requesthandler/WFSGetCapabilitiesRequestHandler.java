@@ -70,96 +70,91 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         List spInfo = null;
         String prefix = null;
 
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-            
-            String version = "";
-            if (ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_100) || ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_110)) {
-                version = ogcrequest.getFinalVersion();
-            } else {
-                version = OGCConstants.WFS_VERSION_110;
-            }
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-            Set userRoles = user.getUserroles();
-            boolean isAdmin = false;
-            Iterator rolIt = userRoles.iterator();
-            while (rolIt.hasNext()) {
-                Roles role = (Roles) rolIt.next();
-                if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
-                    /* de gebruiker is een beheerder */
-                    isAdmin = true;
+        String version = "";
+        if (ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_100) || ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_110)) {
+            version = ogcrequest.getFinalVersion();
+        } else {
+            version = OGCConstants.WFS_VERSION_110;
+        }
+
+        Set userRoles = user.getUserroles();
+        boolean isAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while (rolIt.hasNext()) {
+            Roles role = (Roles) rolIt.next();
+            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
+            }
+        }
+
+        String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin);
+
+        if (isAdmin == false) {
+            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+        } else {
+            spInfo = getSPURLS(layerNames, em);
+        }
+
+        if (spInfo == null || spInfo.isEmpty()) {
+            throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
+        }
+        Iterator iter = spInfo.iterator();
+        List spLayers = new ArrayList();
+        while (iter.hasNext()) {
+            SpLayerSummary sp = (SpLayerSummary) iter.next();
+            HashMap layer = new HashMap();
+            layer.put("spAbbr", sp.getSpAbbr());
+            layer.put("layer", sp.getLayerName());
+            spLayers.add(layer);
+        }
+
+        if (spLayers == null || spLayers.size() == 0) {
+            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
+        }
+        PostMethod method = null;
+        HttpClient client = new HttpClient();
+        OutputStream os = data.getOutputStream();
+        String body = data.getOgcrequest().getXMLBody();
+
+        Iterator it = spInfo.iterator();
+        List servers = new ArrayList();
+        while (it.hasNext()) {
+            SpLayerSummary sp = (SpLayerSummary) it.next();
+
+            if (!servers.contains(sp.getSpAbbr())) {
+                servers.add(sp.getSpAbbr());
+                lurl = sp.getSpUrl();
+                prefix = sp.getSpAbbr();
+
+                String host = lurl;
+                method = new PostMethod(host);
+                method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                int status = client.executeMethod(method);
+                if (status == HttpStatus.SC_OK) {
+                    data.setContentType("text/xml");
+                    InputStream is = method.getResponseBodyAsStream();
+
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = dbf.newDocumentBuilder();
+                    Document doc = builder.parse(is);
+
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                } else {
+                    log.error("Failed to connect with " + lurl + " Using body: " + body);
+                    throw new UnsupportedOperationException("Failed to connect with " + lurl + " Using body: " + body);
                 }
             }
-
-            String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin);
-
-            if (isAdmin == false) {
-                spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
-            } else {
-                spInfo = getSPURLS(layerNames, em);
-            }
-
-            if (spInfo == null || spInfo.isEmpty()) {
-                throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
-            }
-            Iterator iter = spInfo.iterator();
-            List spLayers = new ArrayList();
-            while (iter.hasNext()) {
-                SpLayerSummary sp = (SpLayerSummary) iter.next();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", sp.getSpAbbr());
-                layer.put("layer", sp.getLayerName());
-                spLayers.add(layer);
-            }
-
-            if (spLayers == null || spLayers.size() == 0) {
-                throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-            }
-            PostMethod method = null;
-            HttpClient client = new HttpClient();
-            OutputStream os = data.getOutputStream();
-            String body = data.getOgcrequest().getXMLBody();
-
-            Iterator it = spInfo.iterator();
-            List servers = new ArrayList();
-            while (it.hasNext()) {
-                SpLayerSummary sp = (SpLayerSummary) it.next();
-
-                if (!servers.contains(sp.getSpAbbr())) {
-                    servers.add(sp.getSpAbbr());
-                    lurl = sp.getSpUrl();
-                    prefix = sp.getSpAbbr();
-
-                    String host = lurl;
-                    method = new PostMethod(host);
-                    method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-                    int status = client.executeMethod(method);
-                    if (status == HttpStatus.SC_OK) {
-                        data.setContentType("text/xml");
-                        InputStream is = method.getResponseBodyAsStream();
-
-                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                        DocumentBuilder builder = dbf.newDocumentBuilder();
-                        Document doc = builder.parse(is);
-
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-                    } else {
-                        log.error("Failed to connect with " + lurl + " Using body: " + body);
-                        throw new UnsupportedOperationException("Failed to connect with " + lurl + " Using body: " + body);
-                    }
-                }
-            }
-            String responseBody = ogcresponse.getResponseBody(spLayers);
-            if (responseBody != null && !responseBody.equals("")) {
-                byte[] buffer = responseBody.getBytes();
-                os.write(buffer);
-            } else {
-                throw new UnsupportedOperationException("XMLbody empty!");
-            }
-        } finally {
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
+        }
+        String responseBody = ogcresponse.getResponseBody(spLayers);
+        if (responseBody != null && !responseBody.equals("")) {
+            byte[] buffer = responseBody.getBytes();
+            os.write(buffer);
+        } else {
+            throw new UnsupportedOperationException("XMLbody empty!");
         }
     }
 
