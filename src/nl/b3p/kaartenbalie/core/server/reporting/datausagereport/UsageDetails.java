@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.core.server.reporting.datausagereport;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.XMLElement;
@@ -120,9 +121,9 @@ public class UsageDetails implements XMLElement {
         }
     }
 
-    public User getUser(User user) {
+    public User getUser(User user, EntityManager em) {
         try {
-            return (User) DataWarehousing.find(User.class, userId);
+            return (User) DataWarehousing.find(User.class, userId, em);
         } catch (Exception e) {
             return null;
         }

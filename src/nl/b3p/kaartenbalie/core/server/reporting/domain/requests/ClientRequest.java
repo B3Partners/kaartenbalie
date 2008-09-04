@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
@@ -106,9 +107,9 @@ public class ClientRequest {
         }
     }
 
-    public User getUser() {
+    public User getUser(EntityManager em) {
         try {
-            return (User) DataWarehousing.find(User.class, getUserId());
+            return (User) DataWarehousing.find(User.class, getUserId(), em);
         } catch (Exception e) {
             return null;
         }
@@ -130,9 +131,9 @@ public class ClientRequest {
         }
     }
 
-    public Organization getOrganization() {
+    public Organization getOrganization(EntityManager em) {
         try {
-            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId());
+            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }

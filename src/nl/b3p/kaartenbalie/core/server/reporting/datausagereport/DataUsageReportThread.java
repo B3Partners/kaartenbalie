@@ -392,7 +392,7 @@ public class DataUsageReportThread extends ReportThreadTemplate {
         Integer organizationId = dur.getOrganizationId();
         try {
             tx.begin();
-            Iterator iterUsers = dur.getUsers().iterator();
+            Iterator iterUsers = dur.getUsers(em).iterator();
             while (iterUsers.hasNext()) {
                 User user = (User) iterUsers.next();
                 UsageDetails usageDetails = new UsageDetails(rdd, user);

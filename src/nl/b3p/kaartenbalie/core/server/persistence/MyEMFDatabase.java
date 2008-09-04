@@ -108,12 +108,12 @@ public class MyEMFDatabase extends HttpServlet {
             EntityManager em = getEntityManager(MyEMFDatabase.INIT_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
-            ReportGenerator.startupClear();
-            DataWarehousing.registerClass(User.class, null);
-            DataWarehousing.registerClass(Organization.class, null);
-            DataWarehousing.registerClass(ServiceProvider.class, null);
-            DataWarehousing.registerClass(LayerPricing.class, null);
-            DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"});
+            ReportGenerator.startupClear(em);
+            DataWarehousing.registerClass(User.class, null, em);
+            DataWarehousing.registerClass(Organization.class, null, em);
+            DataWarehousing.registerClass(ServiceProvider.class, null, em);
+            DataWarehousing.registerClass(LayerPricing.class, null, em);
+            DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"}, em);
             tx.commit();
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);

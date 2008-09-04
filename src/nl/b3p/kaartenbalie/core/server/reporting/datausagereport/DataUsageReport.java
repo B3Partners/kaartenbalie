@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
@@ -86,13 +87,13 @@ public class DataUsageReport extends BaseReport {
         this.userIds = userIds;
     }
 
-    public Set getUsers() {
+    public Set getUsers(EntityManager em) {
         Set users = new HashSet();
         Iterator i = getUserIds().iterator();
         while (i.hasNext()) {
             Integer userId = (Integer) i.next();
             try {
-                User user = (User) DataWarehousing.find(User.class, userId);
+                User user = (User) DataWarehousing.find(User.class, userId, em);
                 if (user != null) {
                     users.add(user);
                 }
@@ -126,9 +127,9 @@ public class DataUsageReport extends BaseReport {
         }
     }
 
-    public Organization getOrganization() {
+    public Organization getOrganization(EntityManager em) {
         try {
-            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId());
+            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }
@@ -138,7 +139,7 @@ public class DataUsageReport extends BaseReport {
         this.organizationId = organizationId;
     }
 
-    public Element toElement(Document doc, Element rootElement) {
+    public Element toElement(Document doc, Element rootElement, EntityManager em) {
 
         Element vars = doc.createElement("vars");
         Element period = doc.createElement("period");
@@ -148,7 +149,7 @@ public class DataUsageReport extends BaseReport {
         Element users = doc.createElement("users");
 
 
-        Iterator userIter = getUsers().iterator();
+        Iterator userIter = getUsers(em).iterator();
         while (userIter.hasNext()) {
             User tmpUser = (User) userIter.next();
             Element user = doc.createElement("user");
@@ -160,7 +161,7 @@ public class DataUsageReport extends BaseReport {
 
         Element company = doc.createElement("company");
 
-        Organization org = getOrganization();
+        Organization org = getOrganization(em);
 
         if (org != null) {
             company.setAttribute("id", org.getId().toString());

@@ -81,7 +81,7 @@ public class KaartenbalieCrudAction extends CrudAction {
             try {
                 forward = super.execute(mapping, form, request, response);
                 tx.commit();
-                MyEMFDatabase.getDataWarehouse().end();
+                MyEMFDatabase.getDataWarehouse().end(em);
                 return forward;
             } catch (Exception e) {
                 tx.rollback();

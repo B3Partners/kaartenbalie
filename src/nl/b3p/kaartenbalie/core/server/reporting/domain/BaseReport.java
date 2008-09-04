@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.core.server.reporting.domain;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable;
 import org.w3c.dom.Document;
@@ -85,9 +86,9 @@ public abstract class BaseReport {
         this.dataTables = dataTables;
     }
 
-    protected abstract Element toElement(Document doc, Element rootElement);
+    protected abstract Element toElement(Document doc, Element rootElement, EntityManager em);
 
-    public Element buildElement(Document doc) {
+    public Element buildElement(Document doc, EntityManager em) {
         Element report = doc.createElement("report");
         report.setAttribute("id", getId().toString());
         report.setAttribute("processingTime", getProcessingTime().toString());
@@ -99,6 +100,6 @@ public abstract class BaseReport {
                 report.appendChild(dt.toElement(doc, report));
             }
         }
-        return toElement(doc, report);
+        return toElement(doc, report, em);
     }
 }

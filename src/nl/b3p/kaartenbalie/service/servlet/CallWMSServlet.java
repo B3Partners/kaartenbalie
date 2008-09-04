@@ -115,8 +115,14 @@ public class CallWMSServlet extends HttpServlet {
 
         User user = null;
         Object identity = null;
+        EntityManager em = null;
+        EntityTransaction tx = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            log.debug("Getting entity manager ......");
+            em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            tx = em.getTransaction();
+            tx.begin();
 
             DataMonitoring rr = new DataMonitoring();
             data.setRequestReporting(rr);
@@ -173,7 +179,9 @@ public class CallWMSServlet extends HttpServlet {
             } finally {
                 rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
             }
+            tx.commit();
         } catch (Exception ex) {
+            tx.rollback();
             log.warn("Error creating EntityManager: ", ex);
             handleRequestException(ex, data);
         } finally {

@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 
@@ -137,9 +138,9 @@ public abstract class Transaction {
         }
     }
 
-    public User getUser() {
+    public User getUser(EntityManager em) {
         try {
-            return (User) DataWarehousing.find(User.class, getUserId());
+            return (User) DataWarehousing.find(User.class, getUserId(), em);
         } catch (Exception e) {
             return null;
         }

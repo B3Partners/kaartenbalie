@@ -147,9 +147,7 @@ public class ReportGenerator {
         return trsList;
     }
 
-    public static void startupClear() throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+    public static void startupClear(EntityManager em) throws Exception {
         List trsList = em.createQuery(
                 "FROM ThreadReportStatus AS trs " +
                 "WHERE (trs.state != :stateComplete AND trs.state != :stateFailed) ").setParameter("stateComplete", new Integer(ThreadReportStatus.COMPLETED)).setParameter("stateFailed", new Integer(ThreadReportStatus.FAILED)).getResultList();
@@ -218,7 +216,7 @@ public class ReportGenerator {
                 Document doc = docBuilder.newDocument();
 
                 //get the root element
-                Element reportElement = report.buildElement(doc);
+                Element reportElement = report.buildElement(doc, em);
                 doc.appendChild(reportElement);
                 Source reportSource = new DOMSource(doc);
 

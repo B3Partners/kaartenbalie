@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.ServiceProvider;
 
@@ -63,9 +64,9 @@ public abstract class WMSRequest extends ServiceProviderRequest {
         }
     }
 
-    public ServiceProvider getServiceProvider() {
+    public ServiceProvider getServiceProvider(EntityManager em) {
         try {
-            return (ServiceProvider) DataWarehousing.find(ServiceProvider.class, serviceProviderId);
+            return (ServiceProvider) DataWarehousing.find(ServiceProvider.class, serviceProviderId, em);
         } catch (Exception e) {
             return null;
         }

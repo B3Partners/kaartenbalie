@@ -94,12 +94,10 @@ public class DataWarehousing {
         objects.add(doa);
     }
 
-    public void end() throws Exception {
+    public void end(EntityManager em) throws Exception {
         if (!enableWarehousing) {
             return;
         }
-        log.debug("Getting entity manager ......");
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         if (safetyMode == DEFAULT) {
             safetyMode = setSafety;
         }
@@ -145,10 +143,7 @@ public class DataWarehousing {
         return enableWarehousing;
     }
 
-    public static Object find(Class objectClass, Integer primaryKey) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-
+    public static Object find(Class objectClass, Integer primaryKey, EntityManager em) throws Exception {
         //First check if the entity still exists and possible save the trouble of building it again.
         Object object = em.find(objectClass, primaryKey);
         if (object == null && enableWarehousing) {
@@ -300,12 +295,10 @@ public class DataWarehousing {
 
     }
 
-    public static void registerClass(Class clazz, String[] fields) throws Exception {
+    public static void registerClass(Class clazz, String[] fields, EntityManager em) throws Exception {
         if (!enableWarehousing) {
             return;
         }
-        log.debug("Getting entity manager ......");
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
         EntityClass ec = null;
         try {
             ec = (EntityClass) em.createQuery(
