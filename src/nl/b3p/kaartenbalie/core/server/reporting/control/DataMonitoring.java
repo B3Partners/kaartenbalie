@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.RequestOperation;
@@ -236,15 +235,14 @@ public class DataMonitoring {
             clientRequest.setOrganization(organization);
             //Now Persist...
             Iterator iterRO = clientRequest.getRequestOperations().iterator();
-            em.persist(clientRequest);
             while (iterRO.hasNext()) {
                 em.persist(iterRO.next());
             }
-            em.flush();
             Iterator iterSPR = clientRequest.getServiceProviderRequests().iterator();
             while (iterSPR.hasNext()) {
                 em.persist(iterSPR.next());
             }
+            em.persist(clientRequest);
             em.flush();
         } catch (Exception e) {
             log.error("", e);

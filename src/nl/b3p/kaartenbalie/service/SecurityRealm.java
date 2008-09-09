@@ -120,7 +120,6 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                 return null;
             } finally {
                 tx.commit();
-                em.close();
             }
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);

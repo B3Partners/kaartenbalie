@@ -39,18 +39,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             var layerName = "<c:out value="${metadataForm.map.name}"/>";
             var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
             
-            var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));			
+            // path to root of ISO metadata element MD_Metadata, required for add/delete menu
+            var pathToRoot = null;
             var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
-                
+            if (false) { // switch om ISO met CEN te combineren in een metadata document 
+                pathToRoot ="/metadata";
+                basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;metadata&gt;&lt;/metadata&gt;";
+            }
+               
+            var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));			
+            var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
             var mainXslFullPath = "<html:rewrite page='/js/metadataEditor/metadataEditISO19139.xsl' module='' />";
             var preprocessorXslFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";			
-            var preprocessorTemplatesXslFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessorTemplates.xsl' module='' />";						
-            var addElementsXslFullPath = "<html:rewrite page='/js/metadataEditor/includes/addElements.xsl' module='' />";						
-            var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
-                
-            var PLUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />";
-            var MINUS_IMAGE = "<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />";
-            var MENU_IMAGE = "<html:rewrite page='/js/metadataEditor/images/arrow.gif' module='' />";
             /* ]]> */
         </script>	
         
@@ -68,6 +68,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
+        
+        <script type="text/javascript">
+            /* <![CDATA[ */
+            addLoadEvent(initWithXmlString);
+            /* ]]> */
+        </script>	
         
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
