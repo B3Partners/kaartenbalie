@@ -1,24 +1,3 @@
-/*
- * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
- * for authentication/authorization, pricing and usage reporting.
- *
- * Copyright 2006, 2007, 2008 B3Partners BV
- * 
- * This file is part of B3P Kaartenbalie.
- * 
- * B3P Kaartenbalie is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * B3P Kaartenbalie is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
- */
 // 3/8/07 Erik van de Pol
 
 // Loosely based on "generic_dhtml.vbs" by Eric Compas (2/3/05).
@@ -102,6 +81,7 @@ function trim(value) {
 //   bChange = 'false' changes have been saved (almost never called)
 function changeFlag(changed) {
     var root = document.getElementById("edit-doc-root");
+    root.setAttribute('changed', changed);
     if (changed) {
         var saveButton = document.getElementById("saveButton");
         if (saveButton !== "undefined" && saveButton !== null)
@@ -128,18 +108,18 @@ function changeFlag(changed) {
 function startEdit(event) {
     var element = getTarget(event);
     debug("startEdit");
-	
+    
     // already editing?
     if (element.tagName.toLowerCase() == "input" || element.tagName.toLowerCase() == "textarea" || element.tagName.toLowerCase() == "select" || element.tagName.toLowerCase() == "option")
         return;
-	
+    
     // hides any menu if open
     hideMenu(openedMenuNode);
-	
+    
     // get current value (for checking if changed later)
     preEditText = trim(getElementInnerText(element));
     debug("preEditText: " + preEditText);
-
+    
     // has no picklist?
     if (element.getAttribute("picklist") == "" || element.getAttribute("picklist") == null) {
         // get size from current text
@@ -159,7 +139,7 @@ function startEdit(event) {
             iRow = 1;
         }
         //alert("col=" + iCol + " row=" + iRow + " len(element.innerText) = " + len(element.innerText));
-		
+        
         // alt-clicked? if so, force use of textarea
         var event = getWindowEvent(event);
         if (event.altKey) {
@@ -168,17 +148,17 @@ function startEdit(event) {
             //stopPropagation(event);
             //debug("Alt-clicked.");
         }
-
+        
         // change span into text input or textarea for editing
         var newInnerText = getElementInnerText(element);		
-
+        
         var inputElement;
         if (iRow > 1) {
             // use textarea
             inputElement = document.createElement("textarea");
             inputElement.setAttribute("cols", iCol);
             inputElement.setAttribute("rows", iRow);
-
+            
             var text = document.createTextNode(newInnerText);
             inputElement.appendChild(text);
         }
@@ -190,19 +170,19 @@ function startEdit(event) {
             inputElement.setAttribute("value", newInnerText);
             inputElement.setAttribute("size", iCol);		
         }
-
+        
         inputElement.onkeypress = checkKey;
         if (inputElement.captureEvents) inputElement.captureEvents(Event.KEYPRESS);
         //inputElement.setAttribute("onkeypress", "debug(\"jaja\"); return checkKey(this, event);");
         //inputElement.setAttribute("onclick", "return false;");
         inputElement.onblur = stopEdit;
         //inputElement.setAttribute("onblur", "stopEdit(this);");
-
+        
         element.innerHTML = "";
         element.appendChild(inputElement);
-
+        
         inputElement.focus();
-
+        
         // if default value, select it (makes it easier to replace);
         if (element.className == "default-value") {
             inputElement.select();
@@ -216,7 +196,7 @@ function startEdit(event) {
         }
         else {
             picklist.setAttribute("class", "picklist");
-					
+            
             // check if value exists in picklist and remember selected index
             var exists = false;
             var pick;
@@ -227,7 +207,7 @@ function startEdit(event) {
                     break;
                 }
             }
-			
+            
             debug("exists: " + exists);
             if (exists) {
                 picklist.selectedIndex = selectedIndex;
@@ -236,7 +216,7 @@ function startEdit(event) {
                 // create new option
                 var newOption = document.createElement('option');
                 debug("preEditText: " + preEditText);
-				
+                
                 if (preEditText != GLOBAL_DEFAULT) {
                     newOption.text = preEditText;
                     newOption.value = preEditText;
@@ -245,7 +225,7 @@ function startEdit(event) {
                     newOption.text = DEFAULT_PICKLIST_TEXT;
                     newOption.value = DEFAULT_PICKLIST_TEXT;
                 }
-				
+                
                 // insert value at the top of the picklist
                 try {
                     picklist.add(newOption, picklist.options[0]); // standards compliant; doesn't work in IE
@@ -257,14 +237,14 @@ function startEdit(event) {
                 }
                 picklist.selectedIndex = 0;
             }
-			
+            
             // add picklist to code and display it
             element.innerHTML = "";
             element.appendChild(picklist);
             picklist.focus();
         }
     }
-	
+    
     stopPropagation(event);
 }
 
@@ -275,15 +255,15 @@ function startEdit(event) {
 function stopEdit(event) {
     var element = getTarget(event);
     //debug("stopEdit element: " + element.tagName);
-	
+    
     var parentNode = element.parentNode;
-
+    
     var newValue = trim(element.value);
     // check for changed value (from original)
     if (preEditText != newValue) {
-        saveValueOnClientSide(parentNode, newValue);
+        saveValueOnClientSide(parentNode, newValue, null);
     }
-
+    
     // is blank? user deleted value? to span default (default value)
     if (newValue == "") {
         //alert("Cannot leave value blank - replacing with default value. " + '\r\n' +  "Note: This value will not be saved unless changed or element is mandatory.");
@@ -296,27 +276,29 @@ function stopEdit(event) {
         //class of value to default (won't be saved unless 'mandatory')
         parentNode.className = "default-value";
     }
-	
+    
     // change span value to text alone
     parentNode.innerHTML = "";
     parentNode.appendChild(document.createTextNode(newValue));
-	
+    
     stopPropagation(event);
     
     //debugXmlDoc(xmlDoc);
 }
 
-function saveValueOnClientSide(parentNode, newValue) {
+function saveValueOnClientSide(parentNode, newValue, newText) {
     parentNode.className = "changed-value";
     changeFlag(true);
-    //debug("parentNode.attributes.getNamedItem(\"fullPath\").nodeValue: " + parentNode.attributes.getNamedItem("fullPath").nodeValue);		
-    saveChangesInXMLDom(newValue, parentNode.attributes.getNamedItem("fullPath").nodeValue);
-    debug("in node: " + parentNode.attributes.getNamedItem("fullPath").nodeValue);
-    debug("title: " + "/MD_Metadata[1]/identificationInfo[1]/MD_DataIdentification[1]/citation[1]/CI_Citation[1]/title[1]/gco:CharacterString[1]");
-    if (parentNode.attributes.getNamedItem("fullPath").nodeValue === "/MD_Metadata[1]/identificationInfo[1]/MD_DataIdentification[1]/citation[1]/CI_Citation[1]/title[1]/gco:CharacterString[1]") {
+    
+    var thePath = parentNode.attributes.getNamedItem("fullPath").nodeValue;
+    debug("parentNode.attributes.getNamedItem(\"fullPath\").nodeValue: " + thePath);		
+    saveChangesInXMLDom(newValue, newText, thePath);
+
+		// quick test to see if it is worthwhile to rewrite to refresh title
+    if (thePath!=null && thePath.indexOf("citation")>=0 && thePath.indexOf("title")>=0) {
         // create entirely new xhtml representation of xmlDoc and add it to the current page
         xmlTransformer.transformAndAppend(xmlDoc, "write-root");
-
+        
         // insert the title of the xml doc
         insertTitle();
     }
@@ -337,7 +319,7 @@ function saveValueOnClientSide(parentNode, newValue) {
 function getPicklist(name) {
     // copy picklist source
     var picklist = document.getElementById(name);
-
+    
     if (picklist != null)
         return picklist.cloneNode(true);
     else
@@ -348,7 +330,7 @@ function getPicklist(name) {
 function selectPickListValue(event) {
     var element = getTarget(event);
     //debug("element.tagName=" + element.tagName);
-
+    
     if (element == null) {
         alert("Error locating picklist in stylesheet to remove.");
     }
@@ -357,20 +339,24 @@ function selectPickListValue(event) {
     }
     else {
         var newValue = element.value;
+        var newText = newValue;
+        if (element.selectedIndex)
+            newText =element.options[element.selectedIndex].text;
         debug("newValue: " + newValue);
+        debug("newText: " + newText);
         //element.title? desc
         var parentNode = element.parentNode;
         parentNode.innerHTML = "";
         debug("newValue !== DEFAULT_PICKLIST_TEXT: " + newValue !== DEFAULT_PICKLIST_TEXT);
         if (newValue !== DEFAULT_PICKLIST_TEXT) {
-            parentNode.appendChild(document.createTextNode(newValue));
-            saveValueOnClientSide(parentNode, newValue);
+            parentNode.appendChild(document.createTextNode(newText));
+            saveValueOnClientSide(parentNode, newValue, newText);
         }
         else {
             parentNode.appendChild(document.createTextNode(GLOBAL_DEFAULT));
         }
     }
-	
+    
     stopPropagation(event);
 }
 
@@ -386,7 +372,7 @@ function destroyPickList(event) {
 function pickListKeyPress(element) {
     var iKey = getKeyCode(element);
     //alert("Key pressed = " + iKey);
-
+    
     // was 'tab' or 'escape' pressed?
     if (iKey == 9 || iKey == 27) {
         // cancel default IE tab handler
@@ -405,51 +391,51 @@ function checkKey(event) {
     //debug("checkKey");
     var element = getTarget(event);
     var iKey = getKeyCode(event);
-	
+    
     //debug(element);
-
+    
     // was enter pressed? (don't trigger in textarea)
     if (iKey == 13 && element.tagName.toLowerCase() == "input") {
         stopPropagation(element);
-		
+        
         // trigger onBlur event - stop editing
         element.blur();
         return false;
     }
-
+    
     // was 'tab' or down-arrow pressed?
     // huh? can't use 40 for down-arrow, that's the '(' in ArcCatalog. Why?
     //if (iKey = 9 || iKey = 40) {
     if (iKey == 9) {
         // cancel default IE tab handler
         //window.event.returnValue = false;
-		
+        
         stopPropagation(element);
         // trigger blur event - stop editing
         element.blur();
         return false;
-
+        
         // open editing for next field?
     }
-
+    
     // was 'shift-tab' or up-arrow pressed?
     if (iKey == 38) {
         // cancel default IE tab handler
         //window.event.returnValue = false;
-
+        
         stopPropagation(element);
         // trigger blur event - stop editing
         element.blur();
         return false;
-
+        
         // open editing for previous field?
     }
-
+    
     // was 'escape' pressed?
     if (iKey == 27) {
         //text to original value
         element.value = preEditText;
-
+        
         stopPropagation(element);
         // trigger blur event - stop editing
         element.blur();
@@ -464,17 +450,17 @@ function addElement(element, addName, above) {
         alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
         return;
     }
-	
+    
     // get parent folder div and check for problems
     var folderNode = menuNode.parentNode.parentNode;
     if (folderNode.tagName.toLowerCase() != "div") {
         alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
         return;
     }
-	
+    
     // create new element
     addElementOrSection(addName, above);
-	
+    
     stopPropagation(element);
 }
 
@@ -485,17 +471,17 @@ function addSection(element, addName, above) {
         alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
         return;
     }
-
+    
     // get parent folder div and check for problems
     var folderNode = menuNode.parentNode;
     if (folderNode.tagName.toLowerCase() != "div") {
         alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
         return;
     }
-
+    
     // create new section
     addElementOrSection(addName, above);
-	
+    
     stopPropagation(element);
 }
 
@@ -506,11 +492,14 @@ function addSection(element, addName, above) {
 function addElementOrSection(path, above) {
     debug("add");
     debug("path: " + path);
-	
+    
+    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+			path = trim(pathToRoot) + path;
+    }
     var targetPath = getTargetPath(path);
-	
-    var toBeDuplicatedNode = findNode(targetPath);
-	
+    
+    var toBeDuplicatedNode = findNode(targetPath, true);
+    
     var newNode;
     if ("createNode" in xmlDoc) { // IE
         //debug("IE (createNode exists)");
@@ -520,30 +509,30 @@ function addElementOrSection(path, above) {
         //debug("W3C (createNode doesn't exist)");
         newNode = xmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", toBeDuplicatedNode.nodeName);
     }
-
+    
     if (above)
         toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode);
     else // werkt ook als nextSibling null is (dan valt de DOM terug op appendChild)
         toBeDuplicatedNode.parentNode.insertBefore(newNode, toBeDuplicatedNode.nextSibling);
-	
+    
     //debug("xmldoc na toevoeging nieuwe element: ");
     //debugXmlDoc(xmlDoc);
-	
+    
     // preprocess again to get all the ancestors to appear in the xmlDoc backend
     var xmlDocString = preprocessor.transformToString(xmlDoc);
-	
+    
     // put in backend var again. Compatible with both IE and FF
     xmlDoc.loadXML(xmlDocString);
-	
+    
     //debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
     //debugXmlDoc(xmlDoc);
-	
+    
     // create entirely new xhtml representation of xmlDoc and add it to the current page
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
-	
+    
     // insert the title of the xml doc
     insertTitle();
-	
+    
     // page changed value
     changeFlag(true);
 }
@@ -555,23 +544,16 @@ function deleteElement(element, elementPath) {
         alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
         return;
     }
-
-    // get calling menu and test for problems
-    menuNode = element.parentNode.parentNode.parentNode;
-    if (menuNode.tagName.toLowerCase() != "span") {
-        alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
-        return;
-    }
-
+    
     // get parent folder div and check for problems
     var folderNode = menuNode.parentNode.parentNode;
-    if (folderNode.tagName.toLowerCase() != "p") {
-        alert("Unexpected HTML object encountered. Expected P, found " + folderNode.tagName);
+    if (folderNode.tagName.toLowerCase() != "div") {
+        alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
         return;
     }
-	
+    
     deleteElementOrSection(element, folderNode, elementPath, NOT_ALLOWED_DELETE_ELEMENT_TEXT, CONFIRM_DELETE_ELEMENT_TEXT);
-	
+    
     stopPropagation(element);
 }
 
@@ -588,38 +570,34 @@ function deleteSection(element, sectionPath) {
         alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
         return;
     }
-
-    // get calling menu and test for problems
-    menuNode = element.parentNode.parentNode.parentNode;
-    if (menuNode.tagName.toLowerCase() != "span") {
-        alert("Unexpected HTML object encountered. Expected SPAN, found " + menuNode.tagName);
-        return;
-    }
-
+    
     // get parent folder div and check for problems
     var folderNode = menuNode.parentNode;
     if (folderNode.tagName.toLowerCase() != "div") {
         alert("Unexpected HTML object encountered. Expected DIV, found " + folderNode.tagName);
         return;
     }
-
+    
     deleteElementOrSection(element, folderNode, sectionPath, NOT_ALLOWED_DELETE_SECTION_TEXT, CONFIRM_DELETE_SECTION_TEXT);
-	
+    
     stopPropagation(element);
 }
 
 function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText, confirmDeleteText) {
     debug("delete");
     debug("path: " + path);
-	
+    
+    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+			path = trim(pathToRoot) + path;
+    }
     var targetPath = getTargetPath(path);
-	
+    
     // find section in backend
     var toBeDeletedNode = findNode(targetPath);
-	
+    
     debug("toBeDeletedNode.xml: " + toBeDeletedNode.xml);
     //debugXmlDoc("toBeDeletedNode: " + toBeDeletedNode);
-	
+    
     // get nr of same nodes in backend
     var nrOfSameNodes = 0;
     for (var i = 0; i < toBeDeletedNode.parentNode.childNodes.length; i++) {
@@ -627,27 +605,27 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
         if (sibling.nodeType == Node.ELEMENT_NODE && sibling.nodeName == toBeDeletedNode.nodeName)
             nrOfSameNodes++;
     }
-	
+    
     //debug("nrOfSameSections: " + nrOfSameSections);
-	
+    
     if (nrOfSameNodes < 2) {
         alert(notAllowedDeleteText);
         return;
     }
-	
+    
     // confirm delete
     var returnKey = confirm(confirmDeleteText);
     debug("returnKey: " + returnKey);
     if (returnKey == 7 || returnKey === false) {
         return;
     }
-
+    
     // delete section from xml backend
     toBeDeletedNode.parentNode.removeChild(toBeDeletedNode);
-	
+    
     // create entirely new xhtml representation of xmlDoc and add it to the current page (must be done to get sequence of duplicated nodes right)
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
-
+    
     //page changed value
     changeFlag(true);	
 }
@@ -664,8 +642,8 @@ function getTargetPath(path) {
         targetPath = path.substring(0, path.lastIndexOf("]") + 1);
     else
         targetPath = path.substring(0, path.lastIndexOf("/"));
-	
+    
     debug("targetPath: " + targetPath);
-	
+    
     return targetPath;
 }

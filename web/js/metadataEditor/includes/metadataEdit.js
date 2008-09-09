@@ -1,25 +1,4 @@
-/*
- * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
- * for authentication/authorization, pricing and usage reporting.
- *
- * Copyright 2006, 2007, 2008 B3Partners BV
- * 
- * This file is part of B3P Kaartenbalie.
- * 
- * B3P Kaartenbalie is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * B3P Kaartenbalie is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
- */
-init();
+//init();
 
 function init() {
     addLoadEvent(initWithXmlString);
@@ -42,64 +21,75 @@ function addLoadEvent(func) {
 
 function initWithXmlString() {
     debug("baseURL: " + baseURL);
-    debug("layerId: " + layerId);
-    debug("layerName: " + layerName);
-	
+    if (layerId != undefined) {
+    	debug("layerId: " + layerId);
+    }
+    if (layerName != undefined) {
+    	debug("layerName: " + layerName);
+    }
+    
     // if no metadata is present we start the editor with all elements empty
     if (metadataXML == "undefined" || metadataXML == null || trim(metadataXML) == "") {
         metadataXML = basicMetadataXML;
     }
-		
+    
     metadataXML = metadataXML.unescapeHTML();
     //debug(metadataXML);
-	
+    transformXml();
+}
+
+function transformXml() {
     var rawXmlDoc = jsXML.createDOMDocument();
     rawXmlDoc.async = false;
     rawXmlDoc.loadXML(metadataXML);
-	
+    
     //debug("Raw:");
     //debug(rawXmlDoc.xml);
-
+    
     //var freeThreadedIfPossible = true;
     var ppXslDoc = jsXML.createDOMDocument(true);
     ppXslDoc.async = false;
     ppXslDoc.load(preprocessorXslFullPath);
     //debug("preprocessorXslFullPath: " + preprocessorXslFullPath);
-	
+    
     //debug("Preprocessor:");
     //debug(ppXslDoc.xml);
-	
+    
     //var rawPreprocessedXML = XML.transformToString(rawXmlDoc, ppXslDoc);
     // Global var. Also used by create section.
     preprocessor = new XML.Transformer(ppXslDoc);
     var rawPreprocessedXML = preprocessor.transformToString(rawXmlDoc);
-	
+    
     // Global var. Backend xml-document.
     xmlDoc = jsXML.createDOMDocument();
     xmlDoc.async = false;
     xmlDoc.loadXML(rawPreprocessedXML);
-	
+    
     debug("xmlDoc:");
     debugXmlDoc(xmlDoc);
-
+    
     //var freeThreadedIfPossible = true;
     var xslDoc = jsXML.createDOMDocument(true);
     xslDoc.async = false;
     xslDoc.load(mainXslFullPath);
-	
+    
     //debug("Xsl:");
     //debugXmlDoc(xslDoc);
-	
+    
     // Global var. Also used by create section.
     xmlTransformer = new XML.Transformer(xslDoc);
     xmlTransformer.setParameter("basePath", baseFullPath);
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
-	
+    
     insertTitle();
 }
 
 function insertTitle() {
-    var titleXMLNode = findNode("gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString");
+		var titlePath = "/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString";
+    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+			titlePath = trim(pathToRoot) + titlePath;
+    }
+    var titleXMLNode = findNode(titlePath);
     if (titleXMLNode == null) {
         debug("title not found");
         return;
@@ -116,12 +106,12 @@ function insertTitle() {
         }
     }
     debug("titleString: " + titleString);
-	
+    
     var titleXHTMLElement = document.createElement("h5");
     titleXHTMLElement.innerHTML = "";
     titleXHTMLElement.appendChild(document.createTextNode(titleString));
     debug("titleXHTMLElement.innerHTML: " + titleXHTMLElement.innerHTML);
-	
+    
     var writeRootElement = document.getElementById("write-root");
     debug("writeRootElement.nodeType: " + writeRootElement.nodeType);
     debug("writeRootElement.firstChild.nodeType: " + writeRootElement.firstChild.nodeType);	
@@ -131,21 +121,39 @@ function insertTitle() {
 
 // parameters: 
 //				- path: is a XPath-path represented as a string; must start at the root
-//				- newValue: text value to saved at the node in the path
-function saveChangesInXMLDom(newValue, path) {
+//				- newValue: value to saved at the node in the path
+//				- newText: local text value to saved at the node in the path
+function saveChangesInXMLDom(newValue, newText, path) {
     //debug("saveChangesInXMLDom");
     //debug("root tag: " + xmlDoc.nodeName);
-	
+    
     targetNode = findNode(path);
-
     if (targetNode != null) {
         while (targetNode.hasChildNodes()) {
             targetNode.removeChild(targetNode.firstChild);
         }
-		
-        var textNode = xmlDoc.createTextNode(newValue);
+        
+        // check if value is from picklist
+        var isList = false;
+        for( var x = 0; x < targetNode.attributes.length; x++ ) {
+            if( targetNode.attributes[x].nodeName == 'codeListValue' ) {
+                isList=true;
+            }
+        }
+        
+        var textNode;
+        if (isList) {
+            debug("saveChangesInXMLDom isList true: newText=" + newText + ", newValue=" + newValue);
+            textNode = xmlDoc.createTextNode(newText);
+            // Only add if attribute codeListValue exists
+            targetNode.setAttribute('codeListValue',newValue)
+        } 
+        else {
+            debug("saveChangesInXMLDom isList false: newText=" + newText + ", newValue=" + newValue);
+            textNode = xmlDoc.createTextNode(newValue);
+        }
         targetNode.appendChild(textNode);
-		
+        
         //debug("Saved changes in xml dom succesfully.");
     }
     else {
@@ -157,13 +165,14 @@ function saveChangesInXMLDom(newValue, path) {
 // Parameters: 
 //	- path: is a XPath-path represented as a string; must start at the root of the xmlDoc
 function findNode(path) {
+		debug("findNode path: " + path);
     var pathArray = path.split("/");
-	
+    
     var targetNode = null;
     for (var i = 0; i < pathArray.length; i++) {
         targetNode = findChildNode(targetNode, pathArray[i]);
     }
-	
+    
     return targetNode;
 }
 
@@ -173,28 +182,28 @@ function findChildNode(searchParent, targetRawChildTag) {
         //debug("empty tagName");
         return null;
     }
-	
+    
     if (searchParent == null) {
         searchParent = xmlDoc;
     }
-	
+    
     //debug("searchParent: " + searchParent.nodeName);
     //debug("targetRawChildTag: " + targetRawChildTag);
-	
+    
     var splitQname = xpathQnameToArray(targetRawChildTag);
     if (splitQname == null)
         return null;
-	
+    
     //debug("prefix: " + splitQname[0]);
     //debug("name: " + splitQname[1]);
     //debug("index: " + splitQname[2]);	
-	
+    
     var searchChildren = searchParent.childNodes;
     if (searchChildren == null || searchChildren.length == 0) {
         debug("Childtree empty.");
         return null;
     }
-	
+    
     var searchChildNodeName, searchChildNode;
     var searchChildSplit;
     var correctChildCount = 0;
@@ -221,7 +230,7 @@ function findChildNode(searchParent, targetRawChildTag) {
             }
         }
     }
-	
+    
     debug("goede child niet gevonden bij parent: " + parent.nodeName);
     return null;
 }
@@ -235,19 +244,19 @@ function findChildNode(searchParent, targetRawChildTag) {
 // [2] == indexNr or 1 if not present
 function xpathQnameToArray(qname) {
     var array = [];
-	
+    
     // defaults
     array[0] = "";
     array[1] = "";
     array[2] = 1;
-
+    
     // split qname on '[' and ']'. For example "prefix:tagName[3]"
     var targetChildAndIndexUnfiltered = qname.split(/[\[\]]+/);
     var targetChildAndIndex = removeEmptyStringValuesFromArray(targetChildAndIndexUnfiltered);
-	
+    
     var targetRawPrefixAndChildTag;
     var targetChildIndex;
-	
+    
     if (targetChildAndIndex.length == 2) { // wel indexNr
         targetRawPrefixAndChildTag = targetChildAndIndex[0];
         array[2] = targetChildAndIndex[1];
@@ -260,14 +269,14 @@ function xpathQnameToArray(qname) {
         debug("Incorrect tag name.");
         return null;
     }
-
+    
     // split rawPrefixAndChildTag on ':'. For example "prefix:tagName"
     var targetPrefixAndChildTagUnfiltered = targetRawPrefixAndChildTag.split(/[:]+/);
     var targetPrefixAndChildTag = removeEmptyStringValuesFromArray(targetPrefixAndChildTagUnfiltered);
-
+    
     var targetChildTag;
     var prefix;
-	
+    
     if (targetPrefixAndChildTag.length == 2) { // wel prefix
         array[0] = targetPrefixAndChildTag[0];
         array[1] = targetPrefixAndChildTag[1];
@@ -279,7 +288,7 @@ function xpathQnameToArray(qname) {
         debug("Incorrect tag name.");
         return null;
     }
-	
+    
     return array;
 }
 
@@ -293,22 +302,25 @@ function removeEmptyStringValuesFromArray(array) {
             newIndex++;
         }
     }
-	
-    for (var j = 0; j < newArray.length; j++) {
-        //debug(j + ": " + newArray[j]);
+    
+    for (var i = 0; i < newArray.length; i++) {
+        //debug(i + ": " + newArray[i]);
     }
-	
+    
     return newArray;
 }
 
 function checkForm(source) {
     var form = document.forms[0];
-
+    
+    addDateStampToXMLDom();
+    
     var metadataHiddenInput = document.getElementById("metadata");
     if (metadataHiddenInput) {
         debug("metadataHiddenInput exists");
         metadataHiddenInput.value = xmlDoc.xml.escapeHTML();
-    } else {
+    } 
+    else {
         debug("metadataHiddenInput not exists");
         var xmlHiddenInput = document.createElement("input");
         xmlHiddenInput.setAttribute("type", "hidden");
@@ -316,9 +328,7 @@ function checkForm(source) {
         xmlHiddenInput.setAttribute("name", "metadata");
         form.appendChild(xmlHiddenInput);
     }
-
-    addDateStampToXMLDom();
-
+    
     var sourceName = source.getAttribute("name");
     if (sourceName != null && sourceName == "saveButton") {
         form.save.value = "t";
@@ -329,19 +339,40 @@ function checkForm(source) {
     if (sourceName != null && sourceName == "downloadButton") {
         form.download.value = "t";
     }
-
+    
+    
     form.submit();
     //self.close();
 }
 
 function addDateStampToXMLDom() {
+    
+		var dataPath = "/gmd:MD_Metadata/gmd:dateStamp/gco:Date";
+    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+			dataPath = trim(pathToRoot) + dataPath;
+    }
+    var dateNode = findNode(dataPath);
+    if (dateNode == null) {
+        debug("dateNode not found!");
+        return;
+    }
+    debug("dateNode found!");
+    while (dateNode.hasChildNodes()) {
+        debug("deleting dateNode text: " + dateNode.firstChild.text);
+        dateNode.removeChild(dateNode.firstChild);
+    }
+    
     var currentTime = new Date();
-    var month = currentTime.getMonth() + 1;
-    var day = currentTime.getDate();
-    var year = currentTime.getFullYear();
-	
-    var currentDate = day + "-" + month + "-" + year;
-    var dateStampPath = "/MD_Metadata[1]/gmd:dateStamp[1]/gco:Date[1]";
-	
-    saveChangesInXMLDom(currentDate, dateStampPath);
+    var month = "0" + (currentTime.getMonth() + 1);
+    if (month.length>2)
+        month = month.substring(1);
+    var day = "0" + currentTime.getDate();
+    if (day.length>2)
+        day = day.substring(1);
+    var year = "" + currentTime.getFullYear();
+    var currentDate = year + "-" + month + "-" + day;
+    debug("current date: " + currentDate);
+    
+    var  textNode = xmlDoc.createTextNode(currentDate);
+    dateNode.appendChild(textNode);
 }
