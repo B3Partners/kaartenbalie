@@ -181,8 +181,12 @@ public class CallWMSServlet extends HttpServlet {
             }
             tx.commit();
         } catch (Exception ex) {
-            tx.rollback();
-            log.warn("Error creating EntityManager: ", ex);
+            log.error("Error creating EntityManager: ", ex);
+            try {
+                tx.rollback();
+            } catch (Exception ex2) {
+                log.error("Error trying to rollback: ", ex2);
+            }
             handleRequestException(ex, data);
         } finally {
             log.debug("Closing entity manager .....");
@@ -270,9 +274,13 @@ public class CallWMSServlet extends HttpServlet {
             parameterMap.put("stacktrace", ex.getStackTrace());
             el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));
         } catch (Exception e) {
+            log.error("error handling exception: ", e);
             TextToImage tti = new TextToImage();
-            tti.createImage(message, data);
-            log.error("error: ", e);
+            try {
+                tti.createImage(message, data);
+            } catch (Exception lex) {
+                log.error("error creating error-image: ", lex);
+            }
         }
     }
 

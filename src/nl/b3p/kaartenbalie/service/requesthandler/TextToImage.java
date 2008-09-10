@@ -56,6 +56,13 @@ public class TextToImage {
         int width = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_WIDTH));
         int height = Integer.parseInt(ogcrequest.getParameter(OGCConstants.WMS_PARAM_HEIGHT));
 
+        //Hack: set width and height to something sensible
+        if (width <= 0) {
+            width = 200;
+        }
+        if (height <= 0) {
+            height = 200;        
+        }
         // prepare some output
         buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         g2 = buffer.createGraphics();

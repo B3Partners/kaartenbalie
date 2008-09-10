@@ -298,9 +298,6 @@ public abstract class OGCRequestHandler implements RequestHandler {
             }
         }
 
-
-
-
         Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
         boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
 
