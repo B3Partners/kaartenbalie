@@ -5,7 +5,6 @@
         <data xmlns="http://www.netbeans.org/ns/web-project/3">
             <name>kaartenbalie</name>
             <minimum-ant-version>1.6</minimum-ant-version>
-            <explicit-platform explicit-source-supported="true"/>
             <web-module-libraries>
                 <library files="6">
                     <file>${libs.struts.classpath}</file>
@@ -29,6 +28,10 @@
                 </library>
                 <library files="5">
                     <file>${libs.B3pAxisLib.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library files="3">
+                    <file>${libs.B3pCastorLib.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library files="1">
