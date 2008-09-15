@@ -39,10 +39,10 @@ import org.apache.commons.logging.LogFactory;
 public class GetMapRequestHandler extends WMSRequestHandler {
 
     private static final Log log = LogFactory.getLog(GetMapRequestHandler.class);
-    // <editor-fold defaultstate="" desc="default GetMapRequestHandler() constructor.">
+
     public GetMapRequestHandler() {
     }
-    // </editor-fold>
+
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      *
@@ -54,7 +54,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
      * @throws Exception
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
 
         log.debug("Getting entity manager ......");
@@ -144,23 +143,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             } else {
                 gmrWrapper.setServiceProviderId(serviceProviderId);
 
-                String layersList = spInfo.getLayersAsString();
-
-                String query = "select distinct srs.srs from layer, srs " +
-                        "where layer.layerid = srs.layerid and " +
-                        "srs.srs is not null and " +
-                        "layer.layerid = :toplayer";
-
                 boolean srsFound = false;
-                List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", spInfo.getLayerId()).getResultList();
-
-                /* 
-                 * If there isn't a SRS it will try to get the SRS of the parentlayer 
-                 */
-                if (sqlQuery.size() == 0 || sqlQuery == null) {
-                    sqlQuery = getSRS(spInfo.getLayerId(), em);
-                }
-
+                List sqlQuery = getSRS(spInfo.getLayerId(), em);
                 if (sqlQuery != null) {
                     Iterator sqlIterator = sqlQuery.iterator();
                     while (sqlIterator.hasNext()) {
@@ -175,6 +159,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                     throw new Exception(KBConfiguration.SRS_EXCEPTION);
                 }
 
+                String layersList = spInfo.getLayersAsString();
                 StringBuffer url = new StringBuffer();
                 url.append(spInfo.getSpUrl());
                 String[] params = ogc.getParametersArray();
@@ -199,7 +184,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
-    // </editor-fold>
+
     /*
      * Recursieve functie om de SRS van een parentlayer op te halen.
      * Return null als er geen parentlayers meer zijn en er geen SRS gevonden is
@@ -209,17 +194,23 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         if (parentId == null || parentId.equals("")) {
             return null;
         } else {
+            int parent = Integer.parseInt(parentId);
+            List parentSrsList = getSRS(parent, em);
             String query = "select distinct srs.srs from layer, srs " +
                     "where layer.layerid = srs.layerid and " +
                     "srs.srs is not null and " +
                     "layer.layerid = :toplayer";
-            List sqlQuery = em.createNativeQuery(query).setParameter("toplayer", parentId).getResultList();
-            if (sqlQuery.size() == 0 || sqlQuery == null) {
-                int parent = Integer.parseInt(parentId);
-                return getSRS(parent, em);
-            } else {
-                return sqlQuery;
+            List srsList = em.createNativeQuery(query).setParameter("toplayer", parentId).getResultList();
+            if (parentSrsList == null && srsList == null) {
+                return null;
             }
+            if (parentSrsList == null) {
+                parentSrsList = new ArrayList();
+            }
+            if (srsList == null) {
+                parentSrsList.addAll(srsList);
+            }
+            return parentSrsList;
         }
     }
 }
