@@ -398,9 +398,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     rhValue = method.getResponseHeader("Content-Type").getValue();
 
                     if (rhValue.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
+                        log.error("xml error response for request: " + dw.getOgcrequest().toString());
                         InputStream is = method.getResponseBodyAsStream();
                         String body = getServiceException(is);
-                        log.error("xml error response for request identified by: " + dw.getOgcrequest().getParametersArray().toString());
+                        log.debug("error xml body: " + body);
                         throw new Exception(body);
                     }
 

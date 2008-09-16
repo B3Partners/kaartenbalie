@@ -303,6 +303,8 @@ public class LayerCalculator {
      * @throws LayerNotAvailableException 
      */
     public BigDecimal calculateLayer(String spAbbr, String layerName, Date validationDate, String projection, BigDecimal scale, BigDecimal units, int planType, String service, String operation) throws NoPrizingException, LayerNotAvailableException {
+        log.debug("spAbbr: " + spAbbr  + ", layerName: " + layerName  + ", validationDate: " + validationDate  + ", projection: " + projection + ", scale: " +  scale + ", units: " +  units + ", planType: " +  planType + ", service: " +  service + ", operation: " +  operation);
+
         if (spAbbr == null) {
             log.error("spAbbr is required!");
             throw new LayerNotAvailableException("spAbbr is required!");

@@ -64,8 +64,8 @@ public class KBImageTool {
     public static BufferedImage readImage(GetMethod method, String mime, Map parameterMap) throws Exception {
         String mimeType = getMimeType(mime);
         if (mimeType == null) {
-            log.error("Response from server not understood: " + method.getResponseBodyAsString());
-            throw new Exception("Response from server not understood: " + method.getResponseBodyAsString());
+            log.error("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
+            throw new Exception("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
         }
 
         ImageReader ir = getReader(mimeType);

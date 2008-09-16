@@ -100,6 +100,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
         String[] layerCodeAndName = toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
+        
+        log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
+        
         if (b3pLayering) {
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 SpLayerSummary layerInfo = new SpLayerSummary(new Integer(-1),
