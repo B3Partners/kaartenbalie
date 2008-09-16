@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -190,12 +191,20 @@ public class GetMapRequestHandler extends WMSRequestHandler {
      * Return null als er geen parentlayers meer zijn en er geen SRS gevonden is
      */
     private List getSRS(int layerId, EntityManager em) {
-        String parentId = em.createNativeQuery("select parentid from layer where layer.layerid = :layerid").setParameter("layerid", layerId).getSingleResult().toString();
-        if (parentId == null || parentId.equals("")) {
+        Integer parentId = null;
+        try {
+            Query q = em.createNativeQuery("select parentid from layer where layer.layerid = :layerid").setParameter("layerid", layerId);
+            Object o = q.getSingleResult();
+            if (o != null && o instanceof Integer) {
+                parentId = (Integer)o;
+            }
+        } catch (Exception e) {
+            log.debug("error getting srs from layer and parant: ", e);
+        }
+        if (parentId == null) {
             return null;
         } else {
-            int parent = Integer.parseInt(parentId);
-            List parentSrsList = getSRS(parent, em);
+            List parentSrsList = getSRS(parentId.intValue(), em);
             String query = "select distinct srs.srs from layer, srs " +
                     "where layer.layerid = srs.layerid and " +
                     "srs.srs is not null and " +
@@ -207,7 +216,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             if (parentSrsList == null) {
                 parentSrsList = new ArrayList();
             }
-            if (srsList == null) {
+            if (srsList != null) {
                 parentSrsList.addAll(srsList);
             }
             return parentSrsList;
