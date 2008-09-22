@@ -76,7 +76,7 @@ public class MyEMFDatabase extends HttpServlet {
         }
         if (emf == null) {
             log.fatal("Cannot initialize EntityManagerFactory");
-            throw new Exception("Cannot initialized EntityManagerFactory");
+            throw new Exception("Cannot initialize EntityManagerFactory");
         }
         log.info("EntityManagerFactory initialized: " + emf.toString());
     }
