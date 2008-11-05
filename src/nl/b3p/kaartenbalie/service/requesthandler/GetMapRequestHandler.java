@@ -154,6 +154,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                             srsFound = true;
                         }
                     }
+                }else{
+                    log.error("No srs found");
                 }
                 if (!srsFound) {
                     log.error("No suitable srs found.");
@@ -187,8 +189,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     }
 
     /*
-     * Recursieve functie om de SRS van een parentlayer op te halen.
-     * Return null als er geen parentlayers meer zijn en er geen SRS gevonden is
+     * Recursieve functie om de SRS op te halen.
+     * Return null als er geen SRS gevonden is
      */
     private List getSRS(int layerId, EntityManager em) {
         Integer parentId = null;
@@ -201,25 +203,25 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         } catch (Exception e) {
             log.debug("error getting srs from layer and parant: ", e);
         }
-        if (parentId == null) {
-            return null;
-        } else {
-            List parentSrsList = getSRS(parentId.intValue(), em);
-            String query = "select distinct srs.srs from layer, srs " +
-                    "where layer.layerid = srs.layerid and " +
-                    "srs.srs is not null and " +
-                    "layer.layerid = :toplayer";
-            List srsList = em.createNativeQuery(query).setParameter("toplayer", parentId).getResultList();
-            if (parentSrsList == null && srsList == null) {
-                return null;
-            }
-            if (parentSrsList == null) {
-                parentSrsList = new ArrayList();
-            }
-            if (srsList != null) {
-                parentSrsList.addAll(srsList);
-            }
-            return parentSrsList;
+        List parentSrsList=null;             
+        if (parentId!=null){
+            parentSrsList = getSRS(parentId.intValue(), em);
         }
+        String query = "select distinct srs.srs from layer, srs " +
+                "where layer.layerid = srs.layerid and " +
+                "srs.srs is not null and " +
+                "layer.layerid = :toplayer";
+        List srsList = em.createNativeQuery(query).setParameter("toplayer", layerId).getResultList();
+        if (parentSrsList == null && srsList == null) {
+            return null;
+        }
+        if (parentSrsList == null) {
+            parentSrsList = new ArrayList();
+        }
+        if (srsList != null) {
+            parentSrsList.addAll(srsList);
+        }
+        return parentSrsList;
+        
     }
 }
