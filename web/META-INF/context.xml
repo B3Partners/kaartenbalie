@@ -2,7 +2,7 @@
 <Context path="/kaartenbalie">
 
     <!-- Voor ontwikkeling Tomcat 5.5. Let op: maakt verbinding met productie database!!! -->
-    <Resource driverClassName="com.mysql.jdbc.Driver" maxActive="100" maxIdle="30" maxWait="5000" name="jdbc/kaartenbalie" password="***REMOVED***" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/kaartenbalie?autoReconnect=true&amp;characterEncoding=UTF-8" username="root" validationQuery="select now();"/>--&gt;
+    <Resource driverClassName="com.mysql.jdbc.Driver" maxActive="100" maxIdle="30" maxWait="5000" name="jdbc/kaartenbalie" password="***REMOVED***" type="javax.sql.DataSource" url="jdbc:mysql://localhost:3306/kaartenbalie_test?autoReconnect=true&amp;characterEncoding=UTF-8" username="root" validationQuery="select now();"/>--&gt;
 
     <!-- Config voor MNP productie, Tomcat 5.0
     <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
