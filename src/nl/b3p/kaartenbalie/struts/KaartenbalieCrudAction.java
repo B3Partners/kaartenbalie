@@ -77,11 +77,11 @@ public class KaartenbalieCrudAction extends CrudAction {
             ActionForward forward = null;
             String msg = null;
             setMenuParams(request);
-            MyEMFDatabase.getDataWarehouse().begin();
+// TODO           MyEMFDatabase.getDataWarehouse().begin();
             try {
                 forward = super.execute(mapping, form, request, response);
                 tx.commit();
-                MyEMFDatabase.getDataWarehouse().end(em);
+// TODO                MyEMFDatabase.getDataWarehouse().end(em);
                 return forward;
             } catch (Exception e) {
                 tx.rollback();
@@ -133,9 +133,9 @@ public class KaartenbalieCrudAction extends CrudAction {
         return MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
-    protected static DataWarehousing getDataWarehousing() {
-        return MyEMFDatabase.getDataWarehouse();
-    }
+//TODO    protected static DataWarehousing getDataWarehousing() {
+//        return MyEMFDatabase.getDataWarehouse();
+//    }
 
     private static void setMenuParams(HttpServletRequest request) {
         Map menuParamMap = new HashMap();

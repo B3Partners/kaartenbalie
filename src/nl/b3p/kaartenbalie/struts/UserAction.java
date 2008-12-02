@@ -153,7 +153,7 @@ public class UserAction extends KaartenbalieCrudAction {
             em.merge(user);
         }
         em.flush();
-        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
+//TODO        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.PERSIST_OR_MERGE);
 
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
@@ -294,7 +294,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
         em.remove(user);
         em.flush();
-        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.REMOVE);
+//TODO        getDataWarehousing().enlist(User.class, user.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
     // </editor-fold>

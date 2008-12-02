@@ -202,7 +202,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         }
         em.remove(organization);
         em.flush();
-        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
+//TODO        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
 

@@ -109,7 +109,7 @@ public class WfsServerAction extends ServerAction {
          * Change DataWarehousing mode to performance as this is a very complicated process which will
          * otherwise consume a lot of time.
          */
-        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
+//TODO        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -182,11 +182,11 @@ public class WfsServerAction extends ServerAction {
         Set testSet = newServiceProvider.getWfsLayers();
         em.persist(newServiceProvider);
         em.flush();
-        getDataWarehousing().enlist(WfsServiceProvider.class, newServiceProvider.getId(), DwObjectAction.PERSIST);
+//TODO        getDataWarehousing().enlist(WfsServiceProvider.class, newServiceProvider.getId(), DwObjectAction.PERSIST);
         Iterator dwIter = testSet.iterator();
         while (dwIter.hasNext()) {
             WfsLayer layer = (WfsLayer) dwIter.next();
-            getDataWarehousing().enlist(WfsLayer.class, layer.getId(), DwObjectAction.PERSIST);
+//TODO            getDataWarehousing().enlist(WfsLayer.class, layer.getId(), DwObjectAction.PERSIST);
         }
         /*
          * All tests have been completed succesfully.
@@ -227,11 +227,11 @@ public class WfsServerAction extends ServerAction {
                 Iterator oldLayersIter = oldLayers.iterator();
                 while (oldLayersIter.hasNext()) {
                     WfsLayer oldLayer = (WfsLayer) oldLayersIter.next();
-                    getDataWarehousing().enlist(WfsLayer.class, oldLayer.getId(), DwObjectAction.REMOVE);
+//TODO                    getDataWarehousing().enlist(WfsLayer.class, oldLayer.getId(), DwObjectAction.REMOVE);
                 }
                 em.remove(oldServiceProvider);
                 em.flush();
-                getDataWarehousing().enlist(WfsServiceProvider.class, oldServiceProvider.getId(), DwObjectAction.REMOVE);
+//TODO                getDataWarehousing().enlist(WfsServiceProvider.class, oldServiceProvider.getId(), DwObjectAction.REMOVE);
             } catch (Exception e) {
                 log.error("Error deleting the old serviceprovider", e);
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -374,7 +374,7 @@ public class WfsServerAction extends ServerAction {
          * Change DataWarehousing mode to performance as this is a very complicated process which will
          * otherwise consume a lot of time.
          */
-        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
+//TODO        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -414,7 +414,7 @@ public class WfsServerAction extends ServerAction {
         }
         em.remove(serviceProvider);
         em.flush();
-        getDataWarehousing().enlist(WfsServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
+//TODO        getDataWarehousing().enlist(WfsServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
 

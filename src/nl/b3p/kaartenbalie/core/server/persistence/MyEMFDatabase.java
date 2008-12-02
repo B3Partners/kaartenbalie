@@ -55,7 +55,7 @@ public class MyEMFDatabase extends HttpServlet {
     public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
     private static EntityManagerFactory emf = null;
     private static ThreadLocal tlMap = new ThreadLocal();
-    private static String datawarehouseName = "datawareHouse";
+//TODO    private static String datawarehouseName = "datawareHouse";
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     private static String cachePath = null;
     private static Random rg = null;
@@ -97,7 +97,7 @@ public class MyEMFDatabase extends HttpServlet {
         super.init(config);
 
         DataMonitoring.setEnableMonitoring(getConfigValue(config, "reporting", "disabled").equalsIgnoreCase("enabled"));
-        DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
+//TODO        DataWarehousing.setEnableDatawarehousing(getConfigValue(config, "warehousing", "disabled").equalsIgnoreCase("enabled"));
         AccountManager.setEnableAccounting(getConfigValue(config, "accounting", "disabled").equalsIgnoreCase("enabled"));
 
         Object identity = null;
@@ -109,11 +109,11 @@ public class MyEMFDatabase extends HttpServlet {
             EntityTransaction tx = em.getTransaction();
             tx.begin();
             ReportGenerator.startupClear(em);
-            DataWarehousing.registerClass(User.class, null, em);
-            DataWarehousing.registerClass(Organization.class, null, em);
-            DataWarehousing.registerClass(ServiceProvider.class, null, em);
-            DataWarehousing.registerClass(LayerPricing.class, null, em);
-            DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"}, em);
+// TODO           DataWarehousing.registerClass(User.class, null, em);
+//            DataWarehousing.registerClass(Organization.class, null, em);
+//            DataWarehousing.registerClass(ServiceProvider.class, null, em);
+//            DataWarehousing.registerClass(LayerPricing.class, null, em);
+//            DataWarehousing.registerClass(Layer.class, new String[]{"Id", "Name", "Title"}, em);
             tx.commit();
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
@@ -212,14 +212,14 @@ public class MyEMFDatabase extends HttpServlet {
      * Just as getEntitymanager, this function retrieves an object from the local thread. This time it is the
      * DataWarehousing Object.
      */
-    public static DataWarehousing getDataWarehouse() {
-        DataWarehousing localDw = (DataWarehousing) getThreadLocal(datawarehouseName);
-        if (localDw == null) {
-            localDw = new DataWarehousing();
-            setThreadLocal(datawarehouseName, localDw);
-        }
-        return localDw;
-    }
+//TODO    public static DataWarehousing getDataWarehouse() {
+//        DataWarehousing localDw = (DataWarehousing) getThreadLocal(datawarehouseName);
+//        if (localDw == null) {
+//            localDw = new DataWarehousing();
+//            setThreadLocal(datawarehouseName, localDw);
+//        }
+//        return localDw;
+//    }
 
     /*
      * Thread Local Map Management...

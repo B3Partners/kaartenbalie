@@ -102,7 +102,7 @@ public class WfsOrganizationAction extends OrganizationAction {
             em.merge(organization);
         }
         em.flush();
-        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
+//TODO        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping, dynaForm, request, response);
     }
 //-------------------------------------------------------------------------------------------------------
