@@ -55,7 +55,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <column name="lpr_units" precision="5" scale="2"/>
     </property>
     <property name="scale">
-      <column name="prc_scale" precision="20" scale="10"/>
+      <column name="prc_scale" precision="20" scale="2"/>
     </property>
     <property column="prc_projection" name="projection"/>
     <property column="prc_layerisfree" name="layerIsFree"/>

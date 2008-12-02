@@ -81,11 +81,11 @@ public class WfsTestPricingAction extends TestPricingAction {
         }
         BigDecimal testScale = FormUtils.bdValueNull(dynaForm.getString("testScale"));
         if (testScale == null || testScale.doubleValue() <= 0) {
-            testScale = new BigDecimal(100000.0);
+            testScale = new BigDecimal("100000.0");
         }
         BigDecimal testStepSize = FormUtils.bdValueNull(dynaForm.getString("testStepSize"));
         if (testStepSize == null || testStepSize.doubleValue() <= 0) {
-            testStepSize = new BigDecimal(100000.0);
+            testStepSize = new BigDecimal("100000.0");
         }
         int testSteps = FormUtils.StringToInt(dynaForm.getString("testSteps"));
         if (testSteps > 20 || testSteps <= 0) {

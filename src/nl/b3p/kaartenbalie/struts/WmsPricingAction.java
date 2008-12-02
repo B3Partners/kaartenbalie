@@ -201,7 +201,7 @@ public class WmsPricingAction extends PricingAction {
         LayerCalculator lc = new LayerCalculator();
         Object[][] tableData = new Object[KBConfiguration.ACCOUNTING_WMS_REQUESTS.length /*+ KBConfiguration.ACCOUNTING_WFS_REQUESTS.length*/][3];
         Date now = new Date();
-        BigDecimal units = new BigDecimal(1);
+        BigDecimal units = new BigDecimal("1");
         int totalWMSRequests = KBConfiguration.ACCOUNTING_WMS_REQUESTS.length;
         for (int i = 0; i < totalWMSRequests; i++) {
             tableData[i][0] = "WMS";

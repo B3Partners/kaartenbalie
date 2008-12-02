@@ -81,11 +81,11 @@ public class WmsTestPricingAction extends TestPricingAction {
         }
         BigDecimal testScale = FormUtils.bdValueNull(dynaForm.getString("testScale"));
         if (testScale == null || testScale.doubleValue() <= 0) {
-            testScale = new BigDecimal(100000.0);
+            testScale = new BigDecimal("100000.0");
         }
         BigDecimal testStepSize = FormUtils.bdValueNull(dynaForm.getString("testStepSize"));
         if (testStepSize == null || testStepSize.doubleValue() <= 0) {
-            testStepSize = new BigDecimal(100000.0);
+            testStepSize = new BigDecimal("100000.0");
         }
         int testSteps = FormUtils.StringToInt(dynaForm.getString("testSteps"));
         if (testSteps > 20 || testSteps <= 0) {
@@ -114,7 +114,7 @@ public class WmsTestPricingAction extends TestPricingAction {
                 scaleSet.add(testScale);
                 while (iterDates.hasNext()) {
                     Date testDate = (Date) iterDates.next();
-                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal(1), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
+                    LayerPriceComposition lpc = lc.calculateLayerComplete(spAbbr, layerName, testDate, projection, testScale, new BigDecimal("1"), LayerPricing.PAY_PER_REQUEST, "WMS", "GetMap");
                     subSet.add(lpc);
                 }
                 testScale = testScale.add(testStepSize);

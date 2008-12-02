@@ -399,15 +399,28 @@ public class DataUsageReportThread extends ReportThreadTemplate {
                 em.persist(usageDetails);
 
                 //Complex query to get the hits, date in string format, hour, bytes uploaded and bytes downloaded.
-                List list = em.createQuery(
-                        "SELECT COUNT(DISTINCT cr) AS hits, DATE_FORMAT(cr.timeStamp,'%d-%m-%Y') AS tsDate, HOUR(cr.timeStamp) AS tsHour, SUM(ro.bytesReceivedFromUser), SUM(ro.bytesSendToUser)" +
+//                List list = em.createQuery( //MYSQL versie
+//                        "SELECT COUNT(DISTINCT cr) AS hits, DATE_FORMAT(cr.timeStamp,'%d-%m-%Y') AS tsDate, HOUR(cr.timeStamp) AS tsHour, SUM(ro.bytesReceivedFromUser), SUM(ro.bytesSendToUser)" +
+//                        "FROM ClientRequest AS cr " +
+//                        "LEFT JOIN cr.requestOperations AS ro " +
+//                        "WHERE cr.userId = :userId " +
+//                        "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
+//                        "AND cr.organizationId = :organizationId " +
+//                        "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
+//                        "ORDER BY cr.timeStamp ASC").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("userId", user.getId()).setParameter("organizationId", organizationId).getResultList();
+                List list = em.createQuery( // postgres versie
+                        "SELECT COUNT(cr.timeStamp) AS hits, " +
+                        "to_char(cr.timeStamp, 'DD-MM-YYYY') AS tsDate, " +
+                        "to_char(cr.timeStamp, 'HH24') AS tsHour, " +
+                        "SUM(ro.bytesReceivedFromUser), " +
+                        "SUM(ro.bytesSendToUser) " +
                         "FROM ClientRequest AS cr " +
                         "LEFT JOIN cr.requestOperations AS ro " +
                         "WHERE cr.userId = :userId " +
                         "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
                         "AND cr.organizationId = :organizationId " +
-                        "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
-                        "ORDER BY cr.timeStamp ASC").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("userId", user.getId()).setParameter("organizationId", organizationId).getResultList();
+                        "GROUP BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') " +
+                        "ORDER BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') ASC").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("userId", user.getId()).setParameter("organizationId", organizationId).getResultList();
                 Iterator i = list.iterator();
                 while (i.hasNext()) {
                     Object[] object = (Object[]) i.next();
@@ -418,7 +431,11 @@ public class DataUsageReportThread extends ReportThreadTemplate {
                     } catch (ParseException ex) {
                         log.debug("", ex);
                     }
-                    dailyUsage.setHour((Integer) object[2]);
+                    try {
+                        dailyUsage.setHour(Integer.valueOf((String) object[2]));
+                    } catch (NumberFormatException nfe) {
+                        log.debug("", nfe);
+                    }
                     Long upload = (Long) object[3];
                     Long download = (Long) object[4];
                     if (upload == null) {

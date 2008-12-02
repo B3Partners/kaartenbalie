@@ -55,18 +55,18 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         String projection = dw.getOgcrequest().getParameter(OGCConstants.WFS_PARAM_SRSNAME); // todo klopt dit?
         /* De srs parameter word nu alleen gevult met null. Hier moet misschien nog naar gekeken worden, maar
         nu werk het zo wel. */
-        BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
+        BigDecimal scale = (new BigDecimal(dw.getOgcrequest().calcScale())).setScale(2, BigDecimal.ROUND_HALF_UP);
         int planType = LayerPricing.PAY_PER_REQUEST;
         String service = OGCConstants.WFS_SERVICE_WFS;
 
-        return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
+        return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select 'true', l.wfsserviceproviderid, l.wfslayerid, l.name, sp.url, sp.abbr " +
+        String query = "select 'true', l.wfsserviceproviderid, l.id, l.name, sp.url, sp.abbr " +
                 "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer ol " +
-                "where l.wfslayerid = ol.wfslayerid and " +
-                "l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                "where l.id = ol.wfslayerid and " +
+                "l.wfsserviceproviderid = sp.id and " +
                 "ol.organizationid = :orgId and " +
                 "l.name = :layerName and " +
                 "sp.abbr = :layerCode";
@@ -79,8 +79,8 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         if (isAdmin == false) {
             String query = "select sp.abbr, l.name " +
                     "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
-                    "where o.organizationid = :orgId and l.wfslayerid = o.wfslayerid and " +
-                    "l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                    "where o.organizationid = :orgId and l.id = o.wfslayerid and " +
+                    "l.wfsserviceproviderid = sp.id and " +
                     "sp.wfsversion = :version";
             sqlQuery = em.createNativeQuery(query).
                     setParameter("orgId", orgId).
@@ -89,7 +89,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         } else {
             String query = "select sp.abbr, l.name " +
                     "from wfs_Layer l, Wfs_ServiceProvider sp " +
-                    "where l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
+                    "where l.wfsserviceproviderid = sp.id and " +
                     "sp.wfsversion = :version";
             sqlQuery = em.createNativeQuery(query).
                     setParameter("version", version).

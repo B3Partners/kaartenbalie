@@ -168,7 +168,7 @@ public class ExtLayerCalculator extends LayerCalculator {
             BigDecimal returnValue, BigDecimal addValue) {
         if (addValue != null) {
             if (returnValue == null) {
-                returnValue = new BigDecimal(0);
+                returnValue = new BigDecimal("0");
             }
 
             returnValue = returnValue.add(addValue);
@@ -267,7 +267,7 @@ public class ExtLayerCalculator extends LayerCalculator {
                 log.debug("Pricing gevonden voor layer: " + parentLayer.getName());
             } catch (Exception ex) {
                 //LayerNotAvailableException en NoPrizingException
-                log.debug("Geen pricing gevonden voor layer: " + parentLayer.getName() + " oorzaak: ", ex);
+                log.debug("Geen pricing gevonden voor layer: " + parentLayer.getName() + " oorzaak: " + ex.getLocalizedMessage());
                 layerPrice = calculateParentLayer(parentLayer, validationDate, projection, scale, units, planType, service, operation);
             }
         } else {

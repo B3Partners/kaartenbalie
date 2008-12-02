@@ -66,7 +66,7 @@ public class TransactionLayerUsage extends Transaction {
             log.error("Not allowed to add a null value to registerUsage.");
             throw new Exception("Not allowed to add a null value to registerUsage.");
         }
-        if (lpc.getLayerPrice() == null || lpc.getLayerPrice().compareTo(new BigDecimal(0)) < 0) {
+        if (lpc.getLayerPrice() == null || lpc.getLayerPrice().compareTo(new BigDecimal("0")) < 0) {
             log.error("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
             throw new Exception("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
         }

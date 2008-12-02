@@ -102,12 +102,13 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
                 /* de gebruiker is een beheerder */
                 isAdmin = true;
+                break;
             }
         }
 
         try {
             dbUser = (User) em.createQuery("from User u where " +
-                    "lower(u.id) = lower(:userid)").setParameter("userid", user.getId()).getSingleResult();
+                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
@@ -439,18 +440,18 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             return null;
         }
         String projection = dw.getOgcrequest().getParameter(OGCConstants.WMS_PARAM_SRS);
-        BigDecimal scale = new BigDecimal(dw.getOgcrequest().calcScale());
+        BigDecimal scale = (new BigDecimal(dw.getOgcrequest().calcScale())).setScale(2, BigDecimal.ROUND_HALF_UP);
         int planType = LayerPricing.PAY_PER_REQUEST;
         String service = OGCConstants.WMS_SERVICE_WMS;
 
-        return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal(1), planType, service, operation);
+        return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select l.queryable, l.serviceproviderid, l.layerid, l.name, sp.url, sp.abbr " +
+        String query = "select l.queryable, l.serviceproviderid, l.id, l.name, sp.url, sp.abbr " +
                 "from layer l, organizationlayer ol, serviceprovider sp " +
-                "where ol.layerid = l.layerid and " +
-                "l.serviceproviderid = sp.serviceproviderid and " +
+                "where ol.layerid = l.id and " +
+                "l.serviceproviderid = sp.id and " +
                 "ol.organizationid = :orgId and " +
                 "l.name = :layerName and " +
                 "sp.abbr = :layerCode";

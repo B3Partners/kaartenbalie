@@ -86,7 +86,7 @@ public class LayerCalculator {
         }
         tLC.setLayerIsFree(new Boolean(layerPrice == null));
         if (layerPrice == null) {
-            tLC.setLayerPrice(new BigDecimal(0));
+            tLC.setLayerPrice(new BigDecimal("0"));
         } else {
             tLC.setLayerPrice(layerPrice);
         }
@@ -333,7 +333,7 @@ public class LayerCalculator {
             layerPrice = layerPricing.getUnitPrice().multiply(units);
         }
         if (layerPrice != null && layerPrice.compareTo(new BigDecimal(0)) < 0) {
-            layerPrice = new BigDecimal(0);
+            layerPrice = new BigDecimal("0");
         }
         return layerPrice;
     }

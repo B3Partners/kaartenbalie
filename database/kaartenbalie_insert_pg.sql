@@ -1,13 +1,5 @@
 INSERT 
 INTO 
-    acc_account VALUES 
-    (
-        1,
-        '0.00'
-    )
-    ; 
-INSERT 
-INTO 
     organization VALUES 
     (
         1,
@@ -27,6 +19,17 @@ INTO
         NULL,
         NULL,
         false
+    )
+    ; 
+    
+select setval('organization_id_seq', (select max(id) from organization));
+
+INSERT 
+INTO 
+    acc_account VALUES 
+    (
+        1,
+        '0.00'
     )
     ; 
 INSERT 
@@ -57,6 +60,7 @@ INTO
         'demogebruiker'
     )
     ; 
+select setval('roles_id_seq', (select max(id) from roles));
 INSERT 
 INTO 
     users VALUES 
@@ -72,6 +76,8 @@ INTO
         'http://localhost:8084/kaartenbalie/wms/f9530b2d908a3494950a246ca309c6ba?VERSION=1.1.1&REQUEST=GetMap&LAYERS=demo_bron_nieuwekaart,demo_buurten_2006,demo_plan_lijnen,demo_plan_polygonen,demo_gemeenten_2006,demo_wijken_2006&BBOX=12000,304000,280000,620000&SRS=EPSG:25832&HEIGHT=400&WIDTH=300&FORMAT=image/gif&BGCOLOR=0xF0F0F0&EXCEPTIONS=application/vnd.ogc.se_inimage&STYLES='
     )
     ; 
+select setval('users_id_seq', (select max(id) from users));
+
 INSERT 
 INTO 
     userip VALUES 

@@ -53,7 +53,7 @@ public abstract class Transaction {
         setTransactionDate(new Date());
         setStatus(PENDING);
         setType(WITHDRAW);
-        creditAlteration = new BigDecimal(0);
+        creditAlteration = new BigDecimal("0");
     }
 
     public Date getTransactionDate() {

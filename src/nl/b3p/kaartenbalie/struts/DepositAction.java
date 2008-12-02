@@ -79,7 +79,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         Integer fraction = (Integer) dynaForm.get("fraction");
         String description = dynaForm.getString("description");
         String paymentMethod = dynaForm.getString("paymentMethod");
-        BigDecimal billing = new BigDecimal(integersToDouble(amount, fraction));
+        BigDecimal billing = integersToBD(amount, fraction);
         Integer exchangeRate = TransactionPaymentDeposit.getExchangeRate();
         if (billing.doubleValue() <= 0) {
             log.error("Amount cannot be less then or equal to zero!");
@@ -158,7 +158,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         return FormUtils.StringToInteger(dynaForm.getString("orgId"));
     }
 
-    private static double integersToDouble(Integer amount, Integer fraction) throws Exception {
+    private static BigDecimal integersToBD(Integer amount, Integer fraction) throws Exception {
         if (amount == null && fraction == null) {
             log.error("Amount and fraction cannot both be null");
             throw new Exception("Amount and fraction cannot both be null");
@@ -169,7 +169,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         if (fraction == null) {
             fraction = new Integer(0);
         }
-        String strDouble = amount.toString() + "." + fraction.toString();
-        return Double.parseDouble(strDouble);
+        String strVal = amount.toString() + "." + fraction.toString();
+        return new BigDecimal (strVal);
     }
 }

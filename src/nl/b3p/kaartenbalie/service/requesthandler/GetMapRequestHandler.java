@@ -195,7 +195,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     private List getSRS(int layerId, EntityManager em) {
         Integer parentId = null;
         try {
-            Query q = em.createNativeQuery("select parentid from layer where layer.layerid = :layerid").setParameter("layerid", layerId);
+            Query q = em.createNativeQuery("select parentid from layer where layer.id = :layerid").setParameter("layerid", layerId);
             Object o = q.getSingleResult();
             if (o != null && o instanceof Integer) {
                 parentId = (Integer)o;
@@ -208,9 +208,9 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             parentSrsList = getSRS(parentId.intValue(), em);
         }
         String query = "select distinct srs.srs from layer, srs " +
-                "where layer.layerid = srs.layerid and " +
+                "where layer.id = srs.layerid and " +
                 "srs.srs is not null and " +
-                "layer.layerid = :toplayer";
+                "layer.id = :toplayer";
         List srsList = em.createNativeQuery(query).setParameter("toplayer", layerId).getResultList();
         if (parentSrsList == null && srsList == null) {
             return null;
