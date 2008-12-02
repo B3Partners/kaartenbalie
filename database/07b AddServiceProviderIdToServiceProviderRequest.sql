@@ -1,1 +1,0 @@
-ALTER TABLE `mon_serviceproviderrequest` ADD COLUMN `spr_serviceProviderId` INTEGER AFTER `spr_format`;
