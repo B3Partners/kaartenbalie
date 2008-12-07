@@ -28,8 +28,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
@@ -44,15 +42,10 @@ import org.apache.commons.logging.LogFactory;
 public class DataWrapper {
 
     private static final Log log = LogFactory.getLog(DataWrapper.class);
-    private String contentType;
     private String errorContentType;
-    private String contentEncoding;
-    private String responseMessage;
-    private int responseCode;
     private int contentLength;
     private HttpServletResponse response;
     private OutputStream sos;
-    private String contentDisposition;
     private long startTime;
     private long endTime;    //Use for reporting...
     private DataMonitoring requestReporting;

@@ -102,6 +102,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         }
         PostMethod method = null;
         HttpClient client = new HttpClient();
+        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
 

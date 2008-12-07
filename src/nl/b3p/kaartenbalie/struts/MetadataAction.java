@@ -21,27 +21,33 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.security.Principal;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,8 +59,6 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.*;
@@ -64,6 +68,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private final static Log log = LogFactory.getLog(MetadataAction.class);
     protected static final String SEND = "send";
     protected static final String DOWNLOAD = "download";
+    protected static final String GET = "get";
 
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
@@ -83,6 +88,10 @@ public class MetadataAction extends KaartenbalieCrudAction {
         crudProp.setAlternateForwardName(SUCCESS);
         crudProp.setAlternateMessageKey("beheer.download.problem");
         map.put(DOWNLOAD, crudProp);
+
+        crudProp = new ExtendedMethodProperties(GET);
+        map.put(GET, crudProp);
+
         return map;
     }
 
@@ -94,16 +103,11 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
 
-    private void showLayerTree(HttpServletRequest request) throws Exception {
-        JSONObject root = this.createTree();
-        request.setAttribute("layerList", root);
-    }
-
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Principal user = request.getUserPrincipal();
         if (user != null) {
-            String layerUniqueName = (String) dynaForm.get("id");
-            if (layerUniqueName != null && layerUniqueName.length() > 0) {
+            String layerUniqueName = FormUtils.nullIfEmpty(dynaForm.getString("id"));
+            if (layerUniqueName != null) {
                 Layer layer = getLayerByUniqueName(layerUniqueName);
                 populateMetadataEditorForm(layer, dynaForm, request);
             }
@@ -116,8 +120,11 @@ public class MetadataAction extends KaartenbalieCrudAction {
         if (user != null) {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
-            String layerUniqueName = (String) dynaForm.get("id");
-            Layer layer = getLayerByUniqueName(layerUniqueName);
+            String layerUniqueName = FormUtils.nullIfEmpty(dynaForm.getString("id"));
+            Layer layer = null;
+            if (layerUniqueName != null) {
+                layer = getLayerByUniqueName(layerUniqueName);
+            }
             if (layer == null) {
                 prepareMethod(dynaForm, request, LIST, EDIT);
                 addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
@@ -145,6 +152,45 @@ public class MetadataAction extends KaartenbalieCrudAction {
         return getDefaultForward(mapping, request);
     }
 
+    public ActionForward get(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("Getting entity manager ......");
+        EntityManager em = getEntityManager();
+        User user = (User) request.getUserPrincipal();
+        User dbUser = null;
+        try {
+            dbUser = (User) em.createQuery("from User u where " +
+                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
+        } catch (NoResultException nre) {
+            log.error("No serviceprovider for user found.");
+            throw new Exception("No serviceprovider for user found.");
+        }
+
+
+        String metadata = null;
+        if (dbUser != null) {
+            Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+            String layerUniqueName = (String) dynaForm.get("id");
+            if (layerUniqueName != null && layerUniqueName.length() > 0) {
+                Layer layer = null;
+                try {
+                    layer = getLayerByUniqueName(layerUniqueName);
+                } catch (Exception exception) {
+                    log.error("Can not get layer " + layerUniqueName +
+                            " for metadata, cause: " + exception.getLocalizedMessage());
+                }
+                if (layer != null && hasVisibility(layer, organizationLayers)) {
+                    metadata = layer.getMetaData();
+                }
+            }
+        }
+        String xsl = FormUtils.nullIfEmpty(dynaForm.getString("xsl"));
+        if (xsl == null || metadata == null) {
+            return xmlDownload(metadata, mapping, dynaForm, request, response);
+        }
+        String xslPath = MyEMFDatabase.localPath(xsl);
+        return htmlDownload(metadata, xslPath, mapping, dynaForm, request, response);
+    }
+
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String metadata = null;
         try {
@@ -155,19 +201,51 @@ public class MetadataAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return edit(mapping, dynaForm, request, response);
         }
+        return xmlDownload(metadata, mapping, dynaForm, request, response);
+    }
 
+    public ActionForward xmlDownload(String metadata, ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        if (metadata == null) {
+            String layerUniqueName = (String) dynaForm.get("id");
+            log.error("Metadata not available for " + layerUniqueName);
+            metadata = "<error>Metadata not available for layer '" + layerUniqueName + "'</error>";
+        }
         response.setContentType("text/xml");
         response.setContentLength(metadata.length());
 
         String fileName = "metadata.xml";
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
-        // response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
+//        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
+        response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
 
         try {
             Writer rw = response.getWriter();
             rw.write(metadata);
         } catch (IOException ex) {
             log.error("error parsing metadata xml: ", ex);
+        }
+        return null;
+    }
+
+    public ActionForward htmlDownload(String metadata, String stylesheet, ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        if (metadata == null) {
+            return xmlDownload(metadata, mapping, dynaForm, request, response);
+        }
+        
+        response.setContentType("text/html");
+        response.setContentLength(metadata.length());
+
+        try {
+
+            TransformerFactory tFactory = TransformerFactory.newInstance();
+            Transformer transformer = tFactory.newTransformer(new StreamSource(stylesheet));
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(metadata.getBytes());
+            transformer.transform(new StreamSource(bais),
+                    new StreamResult(response.getWriter()));
+        } catch (Exception e) {
+            log.error("error parsing metadata xml: ", e);
         }
         return null;
     }
@@ -354,135 +432,25 @@ public class MetadataAction extends KaartenbalieCrudAction {
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    /* Creates a JSON tree from a list of serviceproviders from the database.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="createTree() method.">
-    private JSONObject createTree() throws JSONException {
 
-        JSONObject root = new JSONObject();
-        root.put("name", "root");
+    private void showLayerTree(HttpServletRequest request) throws Exception {
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
-
-            JSONArray rootArray = new JSONArray();
-
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                ServiceProvider sp = (ServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-                Layer topLayer = sp.getTopLayer();
-                if (topLayer != null) {
-                    HashSet set = new HashSet();
-                    set.add(topLayer);
-                    parentObj = createTreeList(set, parentObj);
-                    if (parentObj.has("children")) {
-                        rootArray.put(parentObj);
-                    }
-                }
+            User sesuser = (User) request.getUserPrincipal();
+            if (sesuser == null) {
+                return;
             }
-            root.put("children", rootArray);
+            User user = (User) em.find(User.class, sesuser.getId());
+            if (user == null) {
+                return;
+            }
+
+            Set organizationLayers = user.getOrganization().getOrganizationLayer();
+            JSONObject root = this.createTree(organizationLayers);
+            request.setAttribute("layerList", root);
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         }
-        return root;
     }
-    // </editor-fold>
-    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
-     * of which layer is visible and which isn't.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
-    private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
-        /* This method has a recusive function in it. Its function is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure.
-         */
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            /* For each layer in the set we are going to create a JSON object which we will add to de total
-             * list of layer objects.
-             */
-            Layer layer = (Layer) layerIterator.next();
-
-            /* When we have retrieved this array we are able to save our object we are working with
-             * at the moment. This object is our present layer object. This object first needs to be
-             * transformed into a JSONObject, which we do by calling the method to do so.
-             */
-            JSONObject layerObj = this.layerToJSON(layer);
-
-            /* Before we are going to save the present object we can first use our object to recieve and store
-             * any information which there might be for the child layers. First we check if the set of layers
-             * is not empty, because if it is, no effort has to be taken.
-             * If, on the other hand, this layer does have children then the method is called recursivly to
-             * add these childs to the present layer we are working on.
-             */
-            Set childLayers = layer.getLayers();
-            if (childLayers != null && !childLayers.isEmpty()) {
-                layerObj = createTreeList(childLayers, layerObj);
-            }
-
-            /* After creating the JSONObject for this layer and if necessary, filling this
-             * object with her childs, we can add this JSON layer object back into its parent array.
-             */
-            parentArray.put(layerObj);
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-    // </editor-fold>
-    /* Creates a JSON object from the ServiceProvider with its given name and id.
-     *
-     * @param serviceProvider The ServiceProvider object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
-    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-    // </editor-fold>
-    /* Creates a JSON object from the Layer with its given name and id.
-     *
-     * @param layer The Layer object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(Layer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("name", layer.getTitle());
-        String name = layer.getUniqueName();
-        if (name == null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
-            jsonLayer.put("type", "placeholder");
-        } else {
-            jsonLayer.put("id", name);
-            jsonLayer.put("type", "layer");
-        }
-        return jsonLayer;
-    }
-    // </editor-fold>
 }

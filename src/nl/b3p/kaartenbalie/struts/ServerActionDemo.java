@@ -163,16 +163,21 @@ public class ServerActionDemo extends WmsServerAction {
         /*
          * First we need to check if the given url is conform the url standard.
          */
-        String url = dynaForm.getString("url");
+        String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
+        if (url==null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
         try {
-            URL tempurl = new URL(url);
+            URL tempurl = new URL(url.trim());
         } catch (MalformedURLException mue) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
         try {
-            url = checkWmsUrl(url);
+            url = checkWmsUrl(url.trim());
         } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, null, e.getMessage());

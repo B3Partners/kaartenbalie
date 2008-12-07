@@ -41,7 +41,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
@@ -51,7 +50,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.HibernateException;
 
 public class UserAction extends KaartenbalieCrudAction {
 
@@ -104,6 +102,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
         if (user == null) {
@@ -129,6 +128,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         User user = getUser(dynaForm, request, true);
@@ -163,6 +163,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
     public ActionForward saveCheck(User user, ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -204,10 +205,12 @@ public class UserAction extends KaartenbalieCrudAction {
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
 
-        if (password != null && repeatpassword != null && !password.equals(repeatpassword)) {
-            prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, NONMATCHING_PASSWORDS_ERROR_KEY);
-            return getAlternateForward(mapping, request);
+        if (password != null || repeatpassword != null) {
+            if (password == null || !password.equals(repeatpassword)) {
+                prepareMethod(dynaForm, request, EDIT, LIST);
+                addAlternateMessage(mapping, request, NONMATCHING_PASSWORDS_ERROR_KEY);
+                return getAlternateForward(mapping, request);
+            }
         }
 
         Date oldDate = user.getTimeout();
@@ -306,6 +309,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -336,6 +340,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+
     protected Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
@@ -350,6 +355,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a User object.
      */
     // <editor-fold defaultstate="" desc="getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+
     protected User getUser(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -387,6 +393,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a Organization object.
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
+
     private Organization getOrganization(Integer id) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -400,6 +407,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+
     protected void populateUserForm(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -476,6 +484,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateUserObject(DynaValidatorForm dynaForm, User user, HttpServletRequest request) method.">
+
     protected void populateUserObject(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -486,11 +495,14 @@ public class UserAction extends KaartenbalieCrudAction {
 
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
-        if (password != null && repeatpassword != null && password.equals(repeatpassword)) {
-            String encpw = KBCrypter.encryptText(FormUtils.nullIfEmpty(dynaForm.getString("password")));
-            user.setPassword(encpw);
+        if (password != null && repeatpassword != null) {
+            if (password.equals(repeatpassword)) {
+                String encpw = KBCrypter.encryptText(FormUtils.nullIfEmpty(dynaForm.getString("password")));
+                user.setPassword(encpw);
+            } else {
+                throw new Exception("New passwords do not match!");
+            }
         }
-
         Integer orgId = FormUtils.StringToInteger(dynaForm.getString("selectedOrganization"));
         if (orgId != null) {
             user.setOrganization(getOrganization(orgId));
@@ -511,7 +523,6 @@ public class UserAction extends KaartenbalieCrudAction {
                 }
             }
         }
-
         String regip = dynaForm.getString("registeredIP");
         Set newset = new HashSet();
         if (regip.length() > 0) {
@@ -523,12 +534,14 @@ public class UserAction extends KaartenbalieCrudAction {
                 }
             }
         }
+
         user.setUserips(compareSets(user.getUserips(), newset));
 
         setPersonalUrlandTimeout(user, dynaForm, request);
 
     }
     // </editor-fold>
+
     protected void setPersonalUrlandTimeout(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
         Date oldDate = user.getTimeout();
@@ -536,6 +549,7 @@ public class UserAction extends KaartenbalieCrudAction {
         if (newDate == null) {
             newDate = getDefaultTimeOut(3);
         }
+
         boolean urlNeedsRefresh = true;
         String persURL = user.getPersonalURL();
         // check of er uberhaupt een url en timeout zijn
@@ -553,11 +567,13 @@ public class UserAction extends KaartenbalieCrudAction {
                 if (pos == -1 || length == pos + 1) {
                     urlNeedsRefresh = true;
                 }
+
             }
         }
         if (!urlNeedsRefresh) {
             return;
         }
+
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
@@ -585,6 +601,7 @@ public class UserAction extends KaartenbalieCrudAction {
             personalURL.append(":");
             personalURL.append(port);
         }
+
         personalURL.append(contextPath);
         personalURL.append("/");
         personalURL.append("services");
@@ -595,10 +612,12 @@ public class UserAction extends KaartenbalieCrudAction {
         user.setTimeout(newDate);
     }
 
-    public Set compareSets(Set oldset, Set newset) {
+    public Set compareSets(
+            Set oldset, Set newset) {
         if (oldset == null) {
             oldset = new HashSet();
         }
+
         Set tempRemoveSet = new HashSet();
         Iterator it = oldset.iterator();
         while (newset != null && it.hasNext()) {
@@ -606,6 +625,7 @@ public class UserAction extends KaartenbalieCrudAction {
             if (!newset.contains(userip)) {
                 tempRemoveSet.add(userip);
             }
+
         }
 
         Iterator removeIt = tempRemoveSet.iterator();
@@ -620,11 +640,13 @@ public class UserAction extends KaartenbalieCrudAction {
             if (!oldset.contains(userip)) {
                 oldset.add(userip);
             }
+
         }
         return oldset;
     }
 
-    public Date getDefaultTimeOut(int months) {
+    public Date getDefaultTimeOut(
+            int months) {
         Calendar gc = new GregorianCalendar();
         gc.add(Calendar.MONTH, months);
         return gc.getTime();

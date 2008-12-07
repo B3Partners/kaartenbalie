@@ -27,7 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -63,14 +62,19 @@ public class WmsTestPricingAction extends TestPricingAction {
                 return getAlternateForward(mapping, request);
             }
         }
-        Layer layer = getLayer(dynaForm, request);
-        String layerName = layer.getName();
-        String spAbbr = layer.getSpAbbr();
-        if (layer.getName() == null || layer.getName().trim().length() == 0) {
+        Layer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(dynaForm));
+        if (id != null) {
+            layer = getLayerByUniqueName(id);
+        }
+        if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
+
         String projection = dynaForm.getString("testProjection");
         if (projection != null && projection.trim().length() == 0) {
             projection = null;
@@ -134,7 +138,7 @@ public class WmsTestPricingAction extends TestPricingAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
-        Layer layer = getLayer(form, request);
+        Layer layer = getLayerByUniqueName(getLayerID(form));
         if (layer == null || layer.getName() == null) {
             return;
         }
@@ -142,15 +146,5 @@ public class WmsTestPricingAction extends TestPricingAction {
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
     }
-
-    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        LayerPricing lp = null;
-        Integer id = getLayerID(dynaForm);
-        if (id == null) {
-            return null;
-        }
-        return (Layer) em.find(Layer.class, id);
-    }
+    
 }

@@ -54,7 +54,7 @@ import org.xml.sax.XMLReader;
 public class ImageCollector extends Thread {
 
     private static final Log log = LogFactory.getLog(ImageCollector.class);
-    private static final int maxResponseTime = 60000;
+    private static final int maxResponseTime = 10000;
     public static final int NEW = 0;
     public static final int ACTIVE = 1;
     public static final int COMPLETED = 2;

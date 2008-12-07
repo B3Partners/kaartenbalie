@@ -88,9 +88,5 @@ public abstract class PricingAction extends KaartenbalieCrudAction {
         return FormUtils.StringToInteger(dynaForm.getString("pricingid"));
     }
 
-    protected Integer getLayerID(DynaValidatorForm dynaForm) {
-        return FormUtils.StringToInteger(dynaForm.getString("id"));
-    }
 
-    protected abstract JSONObject createTree() throws JSONException;
 }

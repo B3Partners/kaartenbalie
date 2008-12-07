@@ -24,9 +24,6 @@ package nl.b3p.kaartenbalie.struts;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +32,6 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
@@ -43,9 +39,6 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -89,12 +82,18 @@ public class WfsPricingAction extends PricingAction {
         }
         lp.setValidFrom(validFrom);
         lp.setValidUntil(validUntil);
-        WfsLayer layer = getLayer(dynaForm, request);
-        if (layer.getName() == null || layer.getName().trim().length() == 0) {
+
+        WfsLayer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(dynaForm));
+        if (id != null) {
+            layer = getWfsLayerByUniqueName(id);
+        }
+        if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         lp.setServerProviderPrefix(layer.getSpAbbr());
         lp.setLayerName(layer.getName());
         lp.setPlanType(FormUtils.StringToInt(dynaForm.getString("planType")));
@@ -169,12 +168,18 @@ public class WfsPricingAction extends PricingAction {
             form.set("service", new String("WFS"));
             form.set("operationWFS", new String("GetFeature"));
         }
-        WfsLayer layer = getLayer(form, request);
+
+        WfsLayer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(form));
+        if (id != null) {
+            layer = getWfsLayerByUniqueName(id);
+        }
         if (layer == null || layer.getName() == null || layer.getName().trim().length() == 0) {
             return;
         }
         String layerName = layer.getName();
         String spAbbr = layer.getSpAbbr();
+
         WfsServiceProvider sp = layer.getWfsServiceProvider();
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
@@ -207,68 +212,4 @@ public class WfsPricingAction extends PricingAction {
         request.setAttribute("tableData", tableData);
     }
 
-    public JSONObject createTree() throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("name", "root");
-        try {
-            log.debug("Getting entity manager ......");
-            EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.givenName").getResultList();
-            JSONArray rootArray = new JSONArray();
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                WfsServiceProvider sp = (WfsServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-                Set layers = sp.getWfsLayers();
-                parentObj = createTreeList(layers, parentObj);
-                rootArray.put(parentObj);
-            }
-            root.put("children", rootArray);
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        }
-        return root;
-    }
-
-    private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            WfsLayer layer = (WfsLayer) layerIterator.next();
-            JSONObject layerObj = this.layerToJSON(layer);
-            parentArray.put(layerObj);
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-
-    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getId());
-        jsonLayer.put("name", layer.getTitle());
-        jsonLayer.put("layerName", layer.getName());
-        jsonLayer.put("type", "layer");
-        return jsonLayer;
-    }
-
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        LayerPricing lp = null;
-        Integer id = getLayerID(dynaForm);
-        if (id == null) {
-            return null;
-        }
-        return (WfsLayer) em.find(WfsLayer.class, id);
-    }
 }

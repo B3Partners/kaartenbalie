@@ -178,6 +178,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             }
             PostMethod method = null;
             HttpClient client = new HttpClient();
+            client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
             OutputStream os = data.getOutputStream();
             String oldBody = data.getOgcrequest().getXMLBody();
             String body = "";

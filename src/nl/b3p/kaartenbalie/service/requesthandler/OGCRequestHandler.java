@@ -46,7 +46,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
     private static final Log log = LogFactory.getLog(OGCRequestHandler.class);
     protected User user;
     protected String url;
-    protected static long maxResponseTime = 100000;
+    protected static long maxResponseTime = 10000;
 
     public OGCRequestHandler() {
     }

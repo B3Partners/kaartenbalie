@@ -22,7 +22,7 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import java.util.Enumeration;
-import javax.persistence.EntityManagerFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
@@ -60,11 +60,13 @@ import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 public class CallWMSServlet extends HttpServlet {
 
@@ -88,6 +90,7 @@ public class CallWMSServlet extends HttpServlet {
         log.info("Initializing Call WMS Servlet");
     }
     // </editor-fold>
+
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *
      * @param request servlet request
@@ -107,13 +110,8 @@ public class CallWMSServlet extends HttpServlet {
             EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
         }
 
-        String iUrl = completeUrl(baseUrl, request).toString();
-        log.debug("Incoming URL: " + iUrl);
-
-
         DataWrapper data = new DataWrapper(response);
 
-        User user = null;
         Object identity = null;
         EntityManager em = null;
         EntityTransaction tx = null;
@@ -126,52 +124,22 @@ public class CallWMSServlet extends HttpServlet {
 
             DataMonitoring rr = new DataMonitoring();
             data.setRequestReporting(rr);
-            OGCRequest ogcrequest = null;
 
             try {
-                if (request.getMethod().equalsIgnoreCase("GET")) {
-                    ogcrequest = new OGCRequest(iUrl);
-                } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
-                    ogcrequest = new OGCRequest(iUrl);
-                    Enumeration params = request.getParameterNames();
-                    while (params.hasMoreElements()) {
-                        String paramName = (String) params.nextElement();
-                        String paramValue = request.getParameter(paramName);
-                        //Parameters zijn niet UTF8.
-                        if (paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata") || paramName.equalsIgnoreCase("loadmovie") || paramName.equalsIgnoreCase("oldloadmovie")) {
-                            //do nothing
-                        } else {
-                            ogcrequest.addOrReplaceParameter(paramName, paramValue);
-                        }
-                    }
-                    if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY) != null) {
-                        //<Name>demo_gemeenten_2006</Name>
-                        String sld_body = ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
-                        if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
-                            String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
-                            for (int i = 0; i < layersArray.length; i++) {
-                                if (layersArray[i].indexOf("_") > -1 && layersArray[i].indexOf("_") < layersArray[i].length() - 1) {
-                                    String newLayer = layersArray[i].substring(layersArray[i].indexOf("_") + 1);
-                                    sld_body = sld_body.replaceAll("(?i)name>" + layersArray[i] + "<", "Name>" + newLayer + "<");
-                                }
-                            }
-                        }
-                        ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
-                    }
-                } else {
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = dbf.newDocumentBuilder();
-                    Document doc = builder.parse(request.getInputStream());
-                    ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
-                }
+                OGCRequest ogcrequest = calcOGCRequest(request);
                 data.setOgcrequest(ogcrequest);
 
+                String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
-                user = checkLogin(request);
-                data.getOgcrequest().checkRequestURL();
+
+                User user = checkLogin(request);
+                ogcrequest.checkRequestURL();
+
                 rr.setUserAndOrganization(user, user.getOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
+                
                 parseRequestAndData(data, user);
+
             } catch (Exception ex) {
                 log.error("Error while handling request: ", ex);
                 rr.setClientRequestException(ex);
@@ -192,6 +160,62 @@ public class CallWMSServlet extends HttpServlet {
             log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     * @throws java.io.UnsupportedEncodingException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws org.xml.sax.SAXException
+     * @throws java.io.IOException
+     * @throws org.exolab.castor.xml.ValidationException
+     * @throws java.lang.Exception
+     */
+    protected OGCRequest calcOGCRequest(HttpServletRequest request) throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException, ValidationException, Exception {
+        OGCRequest ogcrequest = null;
+
+        StringBuffer baseUrl = createBaseUrl(request);
+        String iUrl = completeUrl(baseUrl, request).toString();
+        log.info("Incoming URL: " + iUrl);
+
+        if (request.getMethod().equalsIgnoreCase("GET")) {
+            ogcrequest = new OGCRequest(iUrl);
+        } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+            ogcrequest = new OGCRequest(iUrl);
+            Enumeration params = request.getParameterNames();
+            while (params.hasMoreElements()) {
+                String paramName = (String) params.nextElement();
+                String paramValue = request.getParameter(paramName);
+                //Parameters zijn niet UTF8.
+                if (paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata") || paramName.equalsIgnoreCase("loadmovie") || paramName.equalsIgnoreCase("oldloadmovie")) {
+                    //do nothing
+                } else {
+                    ogcrequest.addOrReplaceParameter(paramName, paramValue);
+                }
+            }
+            if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY) != null) {
+                //<Name>demo_gemeenten_2006</Name>
+                String sld_body = ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
+                if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
+                    String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
+                    for (int i = 0; i < layersArray.length; i++) {
+                        if (layersArray[i].indexOf("_") > -1 && layersArray[i].indexOf("_") < layersArray[i].length() - 1) {
+                            String newLayer = layersArray[i].substring(layersArray[i].indexOf("_") + 1);
+                            sld_body = sld_body.replaceAll("(?i)name>" + layersArray[i] + "<", "Name>" + newLayer + "<");
+                        }
+                    }
+                }
+                ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
+            }
+        } else {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = dbf.newDocumentBuilder();
+            Document doc = builder.parse(request.getInputStream());
+            ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
+        }
+        return ogcrequest;
     }
 
     private StringBuffer createBaseUrl(HttpServletRequest request) {
@@ -364,6 +388,7 @@ public class CallWMSServlet extends HttpServlet {
         return newParameterMap;
     }
     // </editor-fold>
+
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -373,9 +398,10 @@ public class CallWMSServlet extends HttpServlet {
      *
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException
+     * @throws AccessDeniedException
+     * @throws Exception
      */
-    // <editor-fold defaultstate="" desc="checkLogin(HttpServletRequest request) method.">
-    public User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
+    protected User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         // eerst checken of user gewoon ingelogd is
@@ -467,7 +493,7 @@ public class CallWMSServlet extends HttpServlet {
 
         return user;
     }
-    // </editor-fold>
+
     /** Creates a hash of the IP address, username and the password.
      *
      * @param registeredIP string representing the ip address of this user
@@ -488,6 +514,7 @@ public class CallWMSServlet extends HttpServlet {
         return new String(Hex.encodeHex(md5hash));
     }
     // </editor-fold>
+
     /** Parses any incoming request and redirects this request to the right handler.
      *
      * @param parameters map with the given parameters
@@ -556,6 +583,7 @@ public class CallWMSServlet extends HttpServlet {
     }
     // </editor-fold>
     // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
      * @param response servlet response
@@ -582,6 +610,7 @@ public class CallWMSServlet extends HttpServlet {
         return "CallWMSServlet info";
     }
     // </editor-fold>
+
     /**
      * Parse the username out of the BASIC authorization header string.
      * @param decoded

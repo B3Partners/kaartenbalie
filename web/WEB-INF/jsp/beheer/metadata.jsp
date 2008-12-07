@@ -51,6 +51,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
             div.style.height = '18px';
             if(item.type == "layer") {
+                var downloadLink = document.createElement("a");
+                downloadLink.innerHTML = "# ";
+                downloadLink.href='metadata.do?get=submit&xsl=simple.xsl&id=' + item.id;
+                downloadLink.target='download';
+                div.appendChild(downloadLink);
                 var popupLink = document.createElement("a");
                 popupLink.innerHTML = item.name;
                 popupLink.href='editmetadata.do?edit=submit&id=' + item.id;

@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import org.w3c.dom.Document;
@@ -93,7 +92,8 @@ public class DataUsageReport extends BaseReport {
         while (i.hasNext()) {
             Integer userId = (Integer) i.next();
             try {
-                User user = (User) DataWarehousing.find(User.class, userId, em);
+                User user = (User) em.find(User.class, userId);
+// TODO                User user = (User) DataWarehousing.find(User.class, userId, em);
                 if (user != null) {
                     users.add(user);
                 }
@@ -129,7 +129,8 @@ public class DataUsageReport extends BaseReport {
 
     public Organization getOrganization(EntityManager em) {
         try {
-            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
+            return (Organization) em.find(Organization.class, getOrganizationId());
+// TODO            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }

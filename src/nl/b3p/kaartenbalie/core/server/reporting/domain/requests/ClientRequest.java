@@ -27,7 +27,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 
 public class ClientRequest {
 
@@ -109,7 +108,8 @@ public class ClientRequest {
 
     public User getUser(EntityManager em) {
         try {
-            return (User) DataWarehousing.find(User.class, getUserId(), em);
+            return (User) em.find(User.class, getUserId());
+// TODO            return (User) DataWarehousing.find(User.class, getUserId(), em);
         } catch (Exception e) {
             return null;
         }
@@ -133,7 +133,8 @@ public class ClientRequest {
 
     public Organization getOrganization(EntityManager em) {
         try {
-            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
+            return (Organization) em.find(Organization.class, getOrganizationId());
+// TODO            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }

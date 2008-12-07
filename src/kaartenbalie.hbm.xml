@@ -285,7 +285,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
        </generator>
     </id>
     <many-to-one class="nl.b3p.wms.capabilities.Layer" column="parentid" name="parent"/>
-    <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="name">
+    <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
       <key column="parentid"/>
       <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
     </set>
@@ -714,7 +714,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
        </generator>
     </id>
     <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
-    <set cascade="all" inverse="true" lazy="true" name="layers">
+    <set cascade="all" inverse="true" lazy="true" name="layers" order-by="title">
       <key column="serviceproviderid"/>
       <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
     </set>

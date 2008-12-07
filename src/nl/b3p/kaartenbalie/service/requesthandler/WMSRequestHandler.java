@@ -123,6 +123,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             organizationLayers = dbUser.getOrganization().getOrganizationLayer();
         } else {
             List layerlist = em.createQuery("from Layer").getResultList();
+            Iterator it = layerlist.iterator();
             organizationLayers.addAll(layerlist);
         }
 

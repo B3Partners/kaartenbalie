@@ -34,7 +34,6 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForward;
@@ -105,6 +104,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         return super.edit(mapping, dynaForm, request, response);
     }
     // </editor-fold>
+
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -206,6 +206,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         return super.delete(mapping, dynaForm, request, response);
     }
 
+
     /* Creates a list with the available layers.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -213,20 +214,6 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws HibernateException, JSONException, Exception
      */
-    // <editor-fold defaultstate="" desc="create(DynaValidatorForm form, HttpServletRequest request) method.">
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, JSONException, Exception {
-        request.setAttribute("layerList", createTree());
-        return super.create(mapping, dynaForm, request, response);
-    }
-    // </editor-fold
-    /* Creates a list with the available layers.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     *
-     * @throws HibernateException, JSONException, Exception
-     */
-// <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
     protected void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
         log.debug("Getting entity manager ......");
@@ -234,7 +221,7 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
         List organizationlist = em.createQuery("from Organization").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
-// </editor-fold>
+
     /* Method which returns the organization with a specified id.
      *
      * @param form The DynaValidatorForm bean for this request.
@@ -272,8 +259,6 @@ public abstract class OrganizationAction extends KaartenbalieCrudAction {
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
-
-    protected abstract JSONObject createTree() throws JSONException;
 
     protected abstract void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException;
 }

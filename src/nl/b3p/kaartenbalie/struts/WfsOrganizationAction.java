@@ -33,7 +33,6 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -52,6 +51,8 @@ public class WfsOrganizationAction extends OrganizationAction {
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         ActionForward af = super.create(mapping, dynaForm, request, response);
         dynaForm.set("serverType", "wfs");
+        createLists(dynaForm, request);
+        request.setAttribute("layerList", createWfsTree());
         return af;
     }
 
@@ -105,9 +106,7 @@ public class WfsOrganizationAction extends OrganizationAction {
 //TODO        getDataWarehousing().enlist(Organization.class, organization.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping, dynaForm, request, response);
     }
-//-------------------------------------------------------------------------------------------------------
-// PRIVATE METHODS
-//-------------------------------------------------------------------------------------------------------
+
     /* Method which will fill the JSP form with the data of  a given organization.
      *
      * @param organization Organization object from which the information has to be printed.
@@ -146,7 +145,7 @@ public class WfsOrganizationAction extends OrganizationAction {
                 checkedLayers += ((WfsLayer) organizationLayer[i]).getUniqueName();
             }
         }
-        JSONObject root = this.createTree();
+        JSONObject root = this.createWfsTree();
         request.setAttribute("layerList", root);
         request.setAttribute("checkedLayers", checkedLayers);
     }
@@ -231,120 +230,6 @@ public class WfsOrganizationAction extends OrganizationAction {
          * work properly.
          */
         organization.setWfsOrganizationLayer(layers);
-    }
-// </editor-fold>
-    /* Creates a JSON tree from a list of serviceproviders from the database.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-// <editor-fold defaultstate="" desc="createTree() method.">
-    public JSONObject createTree() throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("name", "root");
-        try {
-            log.debug("Getting entity manager ......");
-            EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
-
-            JSONArray rootArray = new JSONArray();
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                WfsServiceProvider sp = (WfsServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-                HashSet set = new HashSet();
-                Set layers = sp.getWfsLayers();
-                set.addAll(layers);
-                parentObj = createTreeList(set, parentObj);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
-                }
-            }
-            root.put("children", rootArray);
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        }
-        return root;
-    }
-// </editor-fold>
-    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
-     * of which layer is visible and which isn't.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-// <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
-    private JSONObject createTreeList(Set layers, JSONObject parent) throws JSONException {
-        /* This method has a recusive function in it. Its function is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure.
-         */
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            /* For each layer in the set we are going to create a JSON object which we will add to de total
-             * list of layer objects.
-             */
-            WfsLayer layer = (WfsLayer) layerIterator.next();
-            /* When we have retrieved this array we are able to save our object we are working with
-             * at the moment. This object is our present layer object. This object first needs to be
-             * transformed into a JSONObject, which we do by calling the method to do so.
-             */
-            JSONObject layerObj = this.layerToJSON(layer);
-            /* After creating the JSONObject for this layer and if necessary, filling this
-             * object with her childs, we can add this JSON layer object back into its parent array.
-             */
-            parentArray.put(layerObj);
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-// </editor-fold>
-    /* Creates a JSON object from the ServiceProvider with its given name and id.
-     *
-     * @param serviceProvider The ServiceProvider object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-// <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
-    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "wfsserviceprovider");
-        return root;
-    }
-// </editor-fold>
-    /* Creates a JSON object from the Layer with its given name and id.
-     *
-     * @param layer The Layer object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-// <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("name", layer.getTitle());
-        String name = layer.getUniqueName();
-        if (name == null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
-            jsonLayer.put("type", "placeholder");
-        } else {
-            jsonLayer.put("id", name);
-            jsonLayer.put("type", "layer");
-        }
-        return jsonLayer;
     }
 // </editor-fold>
 }

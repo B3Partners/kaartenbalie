@@ -27,7 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -63,14 +62,19 @@ public class WfsTestPricingAction extends TestPricingAction {
                 return getAlternateForward(mapping, request);
             }
         }
-        WfsLayer layer = getLayer(dynaForm, request);
-        String layerName = layer.getName();
-        String spAbbr = layer.getSpAbbr();
-        if (layerName == null || layerName.trim().length() == 0) {
+        WfsLayer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(dynaForm));
+        if (id != null) {
+            layer = getWfsLayerByUniqueName(id);
+        }
+        if (layer==null || layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        String layerName = layer.getName();
+        String spAbbr = layer.getSpAbbr();
+
         String projection = dynaForm.getString("testProjection");
         if (projection != null && projection.trim().length() == 0) {
             projection = null;
@@ -134,7 +138,11 @@ public class WfsTestPricingAction extends TestPricingAction {
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("projections", KBConfiguration.SUPPORTED_PROJECTIONS);
-        WfsLayer layer = getLayer(form, request);
+        WfsLayer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(form));
+        if (id != null) {
+            layer = getWfsLayerByUniqueName(id);
+        }
         if (layer == null || layer.getName() == null) {
             return;
         }
@@ -142,15 +150,5 @@ public class WfsTestPricingAction extends TestPricingAction {
         request.setAttribute("spName", sp.getTitle());
         request.setAttribute("lName", layer.getName());
     }
-
-    private WfsLayer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        LayerPricing lp = null;
-        Integer id = getLayerID(dynaForm);
-        if (id == null) {
-            return null;
-        }
-        return (WfsLayer) em.find(WfsLayer.class, id);
-    }
+    
 }

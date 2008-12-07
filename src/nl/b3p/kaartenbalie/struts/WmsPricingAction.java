@@ -24,10 +24,6 @@ package nl.b3p.kaartenbalie.struts;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +32,6 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -44,9 +39,6 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -94,8 +86,13 @@ public class WmsPricingAction extends PricingAction {
         }
         lp.setValidFrom(validFrom);
         lp.setValidUntil(validUntil);
-        Layer layer = getLayer(dynaForm, request);
-        if (layer.getName() == null || layer.getName().trim().length() == 0) {
+
+        Layer layer = null;
+        String id = FormUtils.nullIfEmpty(getLayerID(dynaForm));
+        if (id != null) {
+            layer = getLayerByUniqueName(id);
+        }
+        if (layer == null || layer.getName() == null || layer.getName().trim().length() == 0) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, LAYER_PLACEHOLDER_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -178,7 +175,11 @@ public class WmsPricingAction extends PricingAction {
             form.set("service", new String("WMS"));
             form.set("operationWMS", new String("GetMap"));
         }
-        Layer layer = getLayer(form, request);
+        String id = FormUtils.nullIfEmpty(getLayerID(form));
+        if (id == null) {
+            return;
+        }
+        Layer layer = getLayerByUniqueName(id);
         if (layer == null || layer.getName() == null || layer.getName().trim().length() == 0) {
             return;
         }
@@ -229,84 +230,5 @@ public class WmsPricingAction extends PricingAction {
         }
         }*/
         request.setAttribute("tableData", tableData);
-    }
-
-    public JSONObject createTree() throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("name", "root");
-        try {
-            log.debug("Getting entity manager ......");
-            EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.givenName").getResultList();
-            JSONArray rootArray = new JSONArray();
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                ServiceProvider sp = (ServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-                Layer topLayer = sp.getTopLayer();
-                if (topLayer != null) {
-                    HashSet set = new HashSet();
-                    set.add(topLayer);
-                    parentObj = createTreeList(set, parentObj);
-                    if (parentObj.has("children")) {
-                        rootArray.put(parentObj);
-                    }
-                }
-            }
-            root.put("children", rootArray);
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        }
-        return root;
-    }
-
-    private JSONObject createTreeList(
-            Set layers, JSONObject parent) throws JSONException {
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            Layer layer = (Layer) layerIterator.next();
-            JSONObject layerObj = this.layerToJSON(layer);
-            Set childLayers = layer.getLayers();
-            if (childLayers != null && !childLayers.isEmpty()) {
-                layerObj = createTreeList(childLayers, layerObj);
-            }
-
-            parentArray.put(layerObj);
-        }
-
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-
-        return parent;
-    }
-
-    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-
-    private JSONObject layerToJSON(Layer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("id", layer.getId());
-        jsonLayer.put("name", layer.getTitle());
-        jsonLayer.put("layerName", layer.getName());
-        jsonLayer.put("type", "layer");
-        return jsonLayer;
-    }
-
-    private Layer getLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        LayerPricing lp = null;
-        Integer id = getLayerID(dynaForm);
-        if (id == null) {
-            return null;
-        }
-        return (Layer) em.find(Layer.class, id);
     }
 }

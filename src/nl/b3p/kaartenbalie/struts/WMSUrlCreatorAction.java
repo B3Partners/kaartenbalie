@@ -110,33 +110,13 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         request.setAttribute("formatList", formats);
 
         Set organizationLayers = user.getOrganization().getOrganizationLayer();
-        List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.name").getResultList();
+        JSONObject root = createTree(organizationLayers);
+        request.setAttribute("layerList", root);
 
         LayerValidator lv = new LayerValidator(organizationLayers);
         String[] alSrsen = lv.validateSRS();
         request.setAttribute("projectieList", alSrsen);
 
-        JSONObject root = new JSONObject();
-        JSONArray rootArray = new JSONArray();
-
-        Iterator it = serviceProviders.iterator();
-        while (it.hasNext()) {
-            ServiceProvider sp = (ServiceProvider) it.next();
-
-            JSONObject parentObj = this.serviceProviderToJSON(sp);
-            Layer topLayer = sp.getTopLayer();
-            if (topLayer != null) {
-                HashSet set = new HashSet();
-                set.add(topLayer);
-                parentObj = createTreeList(set, organizationLayers, parentObj);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
-                }
-            }
-        }
-        root.put("name", "root");
-        root.put("children", rootArray);
-        request.setAttribute("layerList", root);
     }
     // </editor-fold>
     /* Method which calculates the specific GetMap URL for the user given the input from the from.
@@ -200,6 +180,10 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
 
         StringBuffer getMapUrl = new StringBuffer(user.getPersonalURL());
         getMapUrl.append("?");
+        getMapUrl.append(OGCConstants.WMS_SERVICE);
+        getMapUrl.append("=");
+        getMapUrl.append(OGCConstants.WMS_SERVICE_WMS);
+        getMapUrl.append("&");
         getMapUrl.append(OGCConstants.WMS_VERSION);
         getMapUrl.append("=");
         getMapUrl.append(OGCConstants.WMS_VERSION_111);
@@ -314,105 +298,6 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
 
         form.set("defaultGetMap", getMapUrl);
-    }
-    // </editor-fold>
-    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
-     * of which layer is visible and which isn't.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="createTreeList(Set layers, Set organizationLayers, JSONObject parent) method.">
-    private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent) throws JSONException {
-        /* This method has a recusive function in it. Its functionality is to create a list of layers
-         * in a tree like array which can be used to build up a menu structure.
-         */
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            Layer layer = (Layer) layerIterator.next();
-
-            JSONObject layerObj = this.layerToJSON(layer);
-
-            Set childLayers = layer.getLayers();
-            if (childLayers != null && !childLayers.isEmpty()) {
-                layerObj = createTreeList(childLayers, organizationLayers, layerObj);
-            }
-
-            if (hasVisibility(layer, organizationLayers) || layerObj.has("children")) {
-                parentArray.put(layerObj);
-            }
-
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-    // </editor-fold>
-    /* Method which checks if a certain layer is allowed to be shown on the screen.
-     *
-     * @param layer Layer object that has to be checked
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     *
-     * @return boolean
-     */
-    // <editor-fold defaultstate="" desc="hasVisibility(Layer layer, Set orgLayers) method.">
-    private boolean hasVisibility(Layer layer, Set organizationLayers) {
-        if (layer == null || organizationLayers == null) {
-            return false;
-        }
-        Iterator it = organizationLayers.iterator();
-        while (it.hasNext()) {
-            Layer organizationLayer = (Layer) it.next();
-            if (layer.getId().equals(organizationLayer.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-    // </editor-fold>
-    /* Creates a JSON object from the ServiceProvider with its given name and id.
-     *
-     * @param serviceProvider The ServiceProvider object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="serviceProviderToJSON(ServiceProvider serviceProvider) method.">
-    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-    // </editor-fold>
-    /* Creates a JSON object from the Layer with its given name and id.
-     *
-     * @param layer The Layer object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-    // <editor-fold defaultstate="" desc="layerToJSON(Layer layer) method.">
-    private JSONObject layerToJSON(Layer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("name", layer.getTitle());
-        String name = layer.getUniqueName();
-        if (name == null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
-            jsonLayer.put("type", "placeholder");
-        } else {
-            jsonLayer.put("id", name);
-            jsonLayer.put("type", "layer");
-        }
-        return jsonLayer;
     }
     // </editor-fold>
 }

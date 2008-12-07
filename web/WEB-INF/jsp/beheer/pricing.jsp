@@ -48,10 +48,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
          function createLabel(container, item) {
              var div = document.createElement("div");
-             div.className = item.type == "serviceprovider" ? "serviceproviderLabel" : "layerLabel";
+             div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
              div.style.height = '18px';
-             if(item.type != "serviceprovider") {
-                 if (item.layerName != null && item.layerName != '')
+             if(item.type == "layer") {
+                 if (item.name != null && item.name != '')
                  {
                 
                      var popupLink = document.createElement("a");

@@ -325,9 +325,9 @@ margin: 0;
 
 .intellitextLink {
     text-decoration: none;
-    border-bottom: darkgreen 1px solid;
+    border-bottom: green 1px solid;
     padding-bottom: 0px;
-    color: darkgreen;
+    color: green;
     background-color: transparent;
     float: inherit;
     clear: none;

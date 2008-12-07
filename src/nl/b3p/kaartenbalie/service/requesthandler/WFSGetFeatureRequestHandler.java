@@ -121,6 +121,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         }
         PostMethod method = null;
         HttpClient client = new HttpClient();
+        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
 
         Iterator spIt = spUrls.iterator();

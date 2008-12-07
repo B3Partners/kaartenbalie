@@ -85,10 +85,6 @@ public abstract class TestPricingAction extends KaartenbalieCrudAction {
         redirect.addParameter("edit", "t");
         return redirect;
     }
-
-    protected Integer getLayerID(DynaValidatorForm dynaForm) {
-        return FormUtils.StringToInteger(dynaForm.getString("id"));
-    }
-
+    
     protected abstract ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

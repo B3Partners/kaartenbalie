@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,16 +33,10 @@ import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
 import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -137,12 +132,11 @@ public class MyEMFDatabase extends HttpServlet {
     }
 
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
-        log.info("ManagedPersistence.getConfigValue(config, " + parameter + ", " + defaultValue + ")");
         String tmpval = config.getInitParameter(parameter);
         if (tmpval == null || tmpval.trim().length() == 0) {
-            return defaultValue;
+            tmpval = defaultValue;
         }
-
+        log.info("ManagedPersistence.getConfigValue(config, " + parameter + ", " + tmpval + ")");
         return tmpval.trim();
     }
     /** The constants for describing the ownerships **/
@@ -256,14 +250,16 @@ public class MyEMFDatabase extends HttpServlet {
      *
      * @return string containing the local path
      */
-    // <editor-fold defaultstate="" desc="localPath(String fileName) method.">
     public static String localPath(String fileName) {
         if (fileName == null) {
             return "";
         }
+        if (!fileName.startsWith(File.separator)) {
+            fileName = File.separator + fileName;
+        }
         return cachePath + fileName;
     }
-    // </editor-fold>
+
     /** Returns a unique name created with given parameters without taking the path into account.
      *
      * @param prefix String containing the prefix.
@@ -271,11 +267,10 @@ public class MyEMFDatabase extends HttpServlet {
      *
      * @return a String representing a unique name for these parameters.
      */
-    // <editor-fold defaultstate="" desc="uniqueName(String prefix, String extension) method.">
     public static String uniqueName(String prefix, String extension) {
         return uniqueName(prefix, extension, false);
     }
-    // </editor-fold>
+
     /** Returns a unique name created with given parameters.
      *
      * @param prefix String containing the prefix.
@@ -312,18 +307,4 @@ public class MyEMFDatabase extends HttpServlet {
     public static String getExceptiondtd() {
         return exceptiondtd;
     }
-
-    /*
-    public void businessMethod() throws BusinessException {
-    Object identity = null;
-    try {
-    identity = MyEMFDatabase.createEntityManager();
-    //Execute business 
-    } catch (Exception e) {
-    throw new BusinessException("Business Exception");
-    } finally {
-    MyEMFDatabase.closeEntityManager(identity);
-    }
-    }
-     */
 }

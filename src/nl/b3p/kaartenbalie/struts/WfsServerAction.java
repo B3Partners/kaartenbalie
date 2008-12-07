@@ -43,8 +43,6 @@ import nl.b3p.ogc.wfs.v110.WfsCapabilitiesReader;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DwObjectAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -122,12 +120,17 @@ public class WfsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        String url = dynaForm.getString("url");
+        String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
+        if (url==null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
         /*
          * First we need to check if the given url is realy an url.
          */
         try {
-            URL tempurl = new URL(url);
+            URL tempurl = new URL(url.trim());
         } catch (MalformedURLException mue) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);

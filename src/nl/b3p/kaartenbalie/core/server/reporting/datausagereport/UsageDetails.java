@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -123,7 +122,8 @@ public class UsageDetails implements XMLElement {
 
     public User getUser(User user, EntityManager em) {
         try {
-            return (User) DataWarehousing.find(User.class, userId, em);
+            return (User) em.find(User.class, userId);
+//TODO            return (User) DataWarehousing.find(User.class, userId, em);
         } catch (Exception e) {
             return null;
         }

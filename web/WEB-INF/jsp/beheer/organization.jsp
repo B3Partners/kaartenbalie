@@ -234,7 +234,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     </div>
     
     <script type="text/javascript">
-    <c:if test = "${not empty layerList}">
+    <c:if test = "${not empty layerList && action != 'list'}">
         
         var root = ${layerList};
         function itemClick(item) {

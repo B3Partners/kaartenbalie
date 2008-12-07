@@ -23,27 +23,35 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.CrudAction;
+import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.datawarehousing.DataWarehousing;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class KaartenbalieCrudAction extends CrudAction {
 
@@ -136,13 +144,12 @@ public class KaartenbalieCrudAction extends CrudAction {
 //TODO    protected static DataWarehousing getDataWarehousing() {
 //        return MyEMFDatabase.getDataWarehouse();
 //    }
-
     private static void setMenuParams(HttpServletRequest request) {
         Map menuParamMap = new HashMap();
         menuParamMap.put("pricing", new Boolean(AccountManager.isEnableAccounting()));
         menuParamMap.put("reporting", new Boolean(DataMonitoring.isEnableMonitoring()));
         menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
-        menuParamMap.put("warehousing", new Boolean(DataWarehousing.isEnableWarehousing()));
+//TODO        menuParamMap.put("warehousing", new Boolean(DataWarehousing.isEnableWarehousing()));
         menuParamMap.put("metadata", new Boolean(KBConfiguration.METADATA_ENABLED));
         request.setAttribute("menuParameters", menuParamMap);
     }
@@ -207,5 +214,221 @@ public class KaartenbalieCrudAction extends CrudAction {
             return null;
         }
         return (WfsLayer) ll.get(0);
+    }
+
+    protected String getLayerID(DynaValidatorForm dynaForm) {
+        return dynaForm.getString("id");
+    }
+
+//    protected WfsLayer getWfsLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
+//        log.debug("Getting entity manager ......");
+//        EntityManager em = getEntityManager();
+//        Integer id = getLayerID(dynaForm);
+//        if (id == null) {
+//            return null;
+//        }
+//        return (WfsLayer) em.find(WfsLayer.class, id);
+//    }
+//
+//    protected Layer getWmsLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
+//        log.debug("Getting entity manager ......");
+//        EntityManager em = getEntityManager();
+//        Integer id = getLayerID(dynaForm);
+//        if (id == null) {
+//            return null;
+//        }
+//        return (Layer) em.find(Layer.class, id);
+//    }
+
+    /* Method which checks if a certain layer is allowed to be shown on the screen.
+     *
+     * @param layer Layer object that has to be checked
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     *
+     * @return boolean
+     */
+    protected boolean hasVisibility(Layer layer, Set organizationLayers) {
+        if (layer == null || organizationLayers == null) {
+            return false;
+        }
+        Iterator it = organizationLayers.iterator();
+        while (it.hasNext()) {
+            Layer organizationLayer = (Layer) it.next();
+            if (layer.getId().equals(organizationLayer.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected JSONObject createTree() throws JSONException {
+        return createTree(null, false);
+    }
+
+    protected JSONObject createTree(Set organizationLayers) throws JSONException {
+        return createTree(organizationLayers, true);
+    }
+
+    private JSONObject createTree(Set organizationLayers, boolean checkLayers) throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("name", "root");
+        try {
+            log.debug("Getting entity manager ......");
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                ServiceProvider sp = (ServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+
+                HashSet set = new HashSet();
+                Layer topLayer = sp.getTopLayer();
+                if (topLayer != null) {
+                    set.add(topLayer);
+                    parentObj = createTreeList(set, organizationLayers, parentObj, checkLayers);
+                    if (parentObj.has("children")) {
+                        rootArray.put(parentObj);
+                    }
+                } else {
+                    String name = sp.getGivenName();
+                    if (name == null) {
+                        name = "onbekend";
+                    }
+                    log.debug("Toplayer is null voor serviceprovider: " + name);
+                }
+            }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        }
+
+        return root;
+    }
+
+    protected JSONObject createWfsTree() throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("name", "root");
+        try {
+            log.debug("Getting entity manager ......");
+            EntityManager em = getEntityManager();
+            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
+
+            JSONArray rootArray = new JSONArray();
+            Iterator it = serviceProviders.iterator();
+            while (it.hasNext()) {
+                WfsServiceProvider sp = (WfsServiceProvider) it.next();
+                JSONObject parentObj = this.serviceProviderToJSON(sp);
+                HashSet set = new HashSet();
+                Set layers = sp.getWfsLayers();
+                set.addAll(layers);
+                parentObj = createWfsTreeList(set, parentObj);
+                if (parentObj.has("children")) {
+                    rootArray.put(parentObj);
+                }
+            }
+            root.put("children", rootArray);
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        }
+        return root;
+    }
+
+    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
+     * of which layer is visible and which isn't.
+     *
+     * @param layers Set of layers from which the part of the tree ahs to be build
+     * @param organizationLayers Set of restrictions which define the visible and non visible layers
+     * @param parent JSONObject which represents the parent object to which this set of layers should be added
+     *
+     * @throws JSONException
+     */
+    private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent, boolean checkLayers) throws JSONException {
+        Iterator layerIterator = layers.iterator();
+        JSONArray parentArray = new JSONArray();
+        while (layerIterator.hasNext()) {
+            Layer layer = (Layer) layerIterator.next();
+            JSONObject layerObj = this.layerToJSON(layer);
+
+            Set childLayers = layer.getLayers();
+            if (childLayers != null && !childLayers.isEmpty()) {
+                layerObj = createTreeList(childLayers, organizationLayers, layerObj, checkLayers);
+            }
+
+            if (!checkLayers || hasVisibility(layer, organizationLayers) || layerObj.has("children")) {
+                parentArray.put(layerObj);
+            }
+
+        }
+        if (parentArray.length() > 0) {
+            parent.put("children", parentArray);
+        }
+        return parent;
+    }
+
+    private JSONObject createWfsTreeList(Set layers, JSONObject parent) throws JSONException {
+        Iterator layerIterator = layers.iterator();
+        JSONArray parentArray = new JSONArray();
+        while (layerIterator.hasNext()) {
+            WfsLayer layer = (WfsLayer) layerIterator.next();
+            JSONObject layerObj = this.layerToJSON(layer);
+            parentArray.put(layerObj);
+        }
+        if (parentArray.length() > 0) {
+            parent.put("children", parentArray);
+        }
+        return parent;
+    }
+
+    /* Creates a JSON object from the ServiceProvider with its given name and id.
+     *
+     * @param serviceProvider The ServiceProvider object which has to be converted
+     *
+     * @return JSONObject
+     *
+     * @throws JSONException
+     */
+    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("id", serviceProvider.getId());
+        root.put("name", serviceProvider.getGivenName());
+        root.put("type", "serviceprovider");
+        return root;
+    }
+
+    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("id", serviceProvider.getId());
+        root.put("name", serviceProvider.getGivenName());
+        root.put("type", "serviceprovider");
+        return root;
+    }
+
+    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
+        JSONObject jsonLayer = new JSONObject();
+        jsonLayer.put("name", layer.getTitle());
+        String name = layer.getUniqueName();
+        if (name == null) {
+            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
+            jsonLayer.put("type", "placeholder");
+        } else {
+            jsonLayer.put("id", name);
+            jsonLayer.put("type", "layer");
+        }
+        return jsonLayer;
+    }
+
+    private JSONObject layerToJSON(Layer layer) throws JSONException {
+        JSONObject jsonLayer = new JSONObject();
+        jsonLayer.put("name", layer.getTitle());
+        String name = layer.getUniqueName();
+        if (name == null) {
+            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
+            jsonLayer.put("type", "placeholder");
+        } else {
+            jsonLayer.put("id", name);
+            jsonLayer.put("type", "layer");
+        }
+        return jsonLayer;
     }
 }
