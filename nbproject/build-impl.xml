@@ -367,6 +367,7 @@ exists or setup the property manually. For example like this:
         <ant antfile="${project.b3p-commons-hibernate}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.commons-mail-b3p}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.jump-b3p}/build.xml" inheritall="false" target="jar"/>
+        <ant antfile="${project.milton-b3p}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.securityfilter-b3p}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
@@ -375,6 +376,7 @@ exists or setup the property manually. For example like this:
         <ant antfile="${project.b3p-commons-hibernate}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.commons-mail-b3p}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.jump-b3p}/build.xml" inheritall="false" target="jar"/>
+        <ant antfile="${project.milton-b3p}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.securityfilter-b3p}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init, deps-module-jar, deps-ear-jar" name="deps-jar" unless="no.deps"/>
@@ -533,9 +535,10 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${libs.restapi.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restapi.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.restlib.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restlib.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${file.reference.postgresql.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.postgresql.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${reference.milton-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.milton-b3p.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pSpatialLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pDwrLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.libs.jstl11.classpath} ${manifest.libs.restapi.classpath} ${manifest.libs.restlib.classpath} ${manifest.file.reference.postgresql.jar} "/>
+            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pSpatialLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pDwrLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.libs.jstl11.classpath} ${manifest.libs.restapi.classpath} ${manifest.libs.restlib.classpath} ${manifest.file.reference.postgresql.jar} ${manifest.reference.milton-b3p.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -559,6 +562,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${libs.restapi.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.restlib.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.postgresql.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.milton-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
@@ -841,6 +845,7 @@ exists or setup the property manually. For example like this:
         <ant antfile="${project.b3p-commons-hibernate}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.commons-mail-b3p}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.jump-b3p}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.milton-b3p}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.securityfilter-b3p}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">

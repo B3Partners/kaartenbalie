@@ -109,6 +109,14 @@
         </init-param>
         <load-on-startup>3</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>MiltonServlet</servlet-name>
+        <servlet-class>com.bradmcevoy.http.MiltonServlet</servlet-class>
+        <init-param>
+            <param-name>resource.factory.class</param-name>
+            <param-value>nl.b3p.kaartenbalie.core.webdav.MetadataResourceFactory</param-value>
+        </init-param>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SelectCSS</servlet-name>
         <url-pattern>/styles/selectcss</url-pattern>
@@ -135,8 +143,8 @@
         <url-pattern>/flamingo/servlet/FlamingoConfigServlet/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ServletAdaptor</servlet-name>
-        <url-pattern>/resources/*</url-pattern>
+        <servlet-name>MiltonServlet</servlet-name>
+        <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

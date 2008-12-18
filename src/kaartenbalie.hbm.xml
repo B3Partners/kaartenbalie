@@ -39,10 +39,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition" table="acc_pricecomp">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">acc_pricecomp_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">acc_pricecomp_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="prc_tra_id" name="transactionLayerUsage"/>
     <property column="prc_serverproviderprefix" name="serverProviderPrefix"/>
@@ -67,10 +67,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing" table="acc_layerpricing">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">acc_layerpricing_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">acc_layerpricing_id_seq</param>
+      </generator>
     </id>
     <!-- Losely Relational -->
     <property name="layerName">
@@ -121,10 +121,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class discriminator-value="Transaction" name="nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction" table="acc_transaction">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">acc_transaction_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">acc_transaction_id_seq</param>
+      </generator>
     </id>
     <discriminator column="tra_discriminator" type="string"/>
     <property name="creditAlteration">
@@ -231,10 +231,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.Dimensions" table="dimensions">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">dimensions_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">dimensions_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="layerid" name="layer" not-null="true"/>
     <property name="dimensionsName">
@@ -264,10 +264,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.Identifier" table="identifier">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">identifier_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">identifier_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="LAYERID" name="layer" not-null="true"/>
     <property name="authorityName">
@@ -279,10 +279,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.Layer" table="layer">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">layer_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">layer_id_seq</param>
+      </generator>
     </id>
     <many-to-one class="nl.b3p.wms.capabilities.Layer" column="parentid" name="parent"/>
     <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
@@ -355,10 +355,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.LayerDomainResource" table="layerdomainresource">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">layerdomainresource_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">layerdomainresource_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="layerid" name="layer" not-null="true"/>
     <set lazy="true" name="formats" table="layerdomainformat">
@@ -374,10 +374,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest" table="mon_clientrequest">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">mon_clientrequest_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">mon_clientrequest_id_seq</param>
+      </generator>
     </id>
     <set name="serviceProviderRequests">
       <key column="spr_clr_id" not-null="false" update="true"/>
@@ -400,10 +400,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class discriminator-value="Operation" name="nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation" table="mon_requestoperation">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">mon_requestoperation_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">mon_requestoperation_id_seq</param>
+      </generator>
     </id>
     <discriminator column="rqo_discriminator" type="string"/>
     <many-to-one column="rqo_clr_id" name="clientRequest" not-null="false" update="true"/>
@@ -424,10 +424,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class discriminator-value="ServerProviderRequest" name="nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest" table="mon_serviceproviderrequest">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">mon_serviceproviderrequest_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">mon_serviceproviderrequest_id_seq</param>
+      </generator>
     </id>
     <discriminator column="spr_discriminator" type="string"/>
     <many-to-one column="spr_clr_id" name="clientRequest" not-null="false" update="true"/>
@@ -458,10 +458,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.Organization" table="organization">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">organization_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">organization_id_seq</param>
+      </generator>
     </id>
     <set lazy="false" name="organizationLayer" order-by="layerid ASC" table="organizationlayer">
       <key column="organizationid"/>
@@ -535,10 +535,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DailyUsage" table="rep_dailyusage">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_dailyusage_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_dailyusage_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="dyu_usd_id" name="usageDetails" not-null="false"/>
     <property column="dyu_date" name="date"/>
@@ -548,10 +548,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class discriminator-value="ReportTemplate" name="nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport" table="rep_report">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_report_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_report_id_seq</param>
+      </generator>
     </id>
     <discriminator column="rep_discriminator" type="string"/>
     <many-to-one column="rpd_org_id" name="owningOrganization" not-null="false"/>
@@ -577,10 +577,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class discriminator-value="ReportData" name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData" table="rep_reportdata">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_reportdata_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_reportdata_id_seq</param>
+      </generator>
     </id>
     <discriminator column="rpd_discriminator" type="string"/>
     <many-to-one column="rpd_rep_id" name="report"/>
@@ -608,10 +608,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue" table="rep_rowvalue">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_rowvalue_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_rowvalue_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="rva_tro_id" name="tableRow"/>
     <property column="rva_rowvalue" name="rowValue"/>
@@ -619,10 +619,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.ThreadReportStatus" table="rep_status">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_status_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_status_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="sta_org_id" name="organization" not-null="false" update="true"/>
     <property column="sta_reportid" name="reportId"/>
@@ -632,10 +632,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable" table="rep_table">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_table_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_table_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="tab_rep_id" name="baseReport"/>
     <set cascade="all, delete-orphan" inverse="true" name="tableRows" order-by="tro_rowOrder ASC">
@@ -646,12 +646,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.TableRow" table="rep_tablerow">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_tablerow_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_tablerow_id_seq</param>
+      </generator>
     </id>
-     <many-to-one column="tro_tab_id" name="dataTable"/>
+    <many-to-one column="tro_tab_id" name="dataTable"/>
     <set cascade="all, delete-orphan" inverse="true" name="rowValues" order-by="rva_valueOrder ASC">
       <key column="rva_tro_id"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.reporting.domain.tables.RowValue"/>
@@ -661,10 +661,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.UsageDetails" table="rep_usagedetails">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">rep_usagedetails_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">rep_usagedetails_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="usd_rpd_id" name="reportDataDetails" not-null="false"/>
     <set cascade="all, delete-orphan" inverse="true" name="dailyUsages" order-by="dyu_date ASC">
@@ -675,10 +675,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.Roles" table="roles">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">roles_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">roles_id_seq</param>
+      </generator>
     </id>
     <property name="role">
       <column length="45" name="role" not-null="true"/>
@@ -686,10 +686,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.ServiceDomainResource" table="servicedomainresource">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">servicedomainresource_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">servicedomainresource_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="SERVICEPROVIDERID" name="serviceProvider" not-null="true"/>
     <set lazy="false" name="formats" table="servicedomainformat">
@@ -706,12 +706,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <column length="4000" name="posturl"/>
     </property>
   </class>
-   <class name="nl.b3p.wms.capabilities.ServiceProvider" table="serviceprovider">
+  <class name="nl.b3p.wms.capabilities.ServiceProvider" table="serviceprovider">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">serviceprovider_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">serviceprovider_id_seq</param>
+      </generator>
     </id>
     <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
     <set cascade="all" inverse="true" lazy="true" name="layers" order-by="title">
@@ -761,12 +761,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <column default="0" length="50" name="wmsversion" not-null="true"/>
     </property>
   </class>
- <class name="nl.b3p.wms.capabilities.SrsBoundingBox" table="srs">
+  <class name="nl.b3p.wms.capabilities.SrsBoundingBox" table="srs">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">srs_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">srs_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="layerid" name="layer" not-null="true"/>
     <property name="srs">
@@ -793,10 +793,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.Style" table="style">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">style_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">style_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="layerid" name="layer" not-null="true"/>
     <set cascade="all" inverse="true" lazy="true" name="domainResource">
@@ -815,10 +815,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="styledomainresource">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">styledomainresource_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">styledomainresource_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="styleid" name="style" not-null="true"/>
     <set lazy="true" name="formats" table="styledomainformat">
@@ -840,20 +840,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.UniqueIndex" table="kb_uniquenumber">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">kb_uniquenumber_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">kb_uniquenumber_id_seq</param>
+      </generator>
     </id>
     <property column="unn_indexname" name="indexName"/>
     <property column="unn_indexcount" name="indexCount"/>
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">users_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">users_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="organizationid" lazy="false" name="organization" not-null="true"/>
     <set lazy="false" name="userroles" table="userroles">
@@ -891,10 +891,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.ogc.wfs.v110.WfsLayer" table="wfs_layer">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">wfs_layer_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">wfs_layer_id_seq</param>
+      </generator>
     </id>
     <many-to-one column="wfsserviceproviderid" name="wfsServiceProvider" not-null="true"/>
     <!--   /-->
@@ -910,10 +910,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider" table="wfs_serviceprovider">
     <id name="id">
-       <column name="id" sql-type="serial"/>
-       <generator class="native">
-       		<param name="sequence">wfs_serviceprovider_seq</param>
-       </generator>
+      <column name="id" sql-type="serial"/>
+      <generator class="native">
+        <param name="sequence">wfs_serviceprovider_id_seq</param>
+      </generator>
     </id>
     <set cascade="all" inverse="true" lazy="true" name="wfsLayers">
       <key column="wfsserviceproviderid"/>

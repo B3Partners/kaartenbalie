@@ -49,7 +49,7 @@ public class WmsOrganizationAction extends OrganizationAction {
 
     public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         ActionForward af = super.create(mapping, dynaForm, request, response);
-        dynaForm.set("serverType", "wms");
+        dynaForm.set("serverType", "");
         createLists(dynaForm, request);
         request.setAttribute("layerList", createTree());
         return af;
