@@ -31,12 +31,13 @@
 	</xsl:template>
 	<xsl:template name="elements">
 		<xsl:for-each select="//gmd:MD_Metadata">
-			<!-- ISO 2 Metadata ID MD_Metadata.fileIdentifier -->
 			<div class="section">
 				<xsl:call-template name="section-title">
-					<xsl:with-param name="title">Metadata: taal, karakterset en hierarchie</xsl:with-param>
+					<xsl:with-param name="title">Metadata: ID, taal, karakterset en hierarchie</xsl:with-param>
 				</xsl:call-template>
 				<div class="section-content">
+                    <!-- ISO 2 Metadata ID MD_Metadata.fileIdentifier -->
+                    <xsl:apply-templates select="gmd:fileIdentifier"/>
 					<!-- ISO 3 Metadata taal MD_Metadata.language -->
 					<xsl:apply-templates select="gmd:language"/>
 					<!-- ISO 4 Metadata karakterset MD_Metadata.characterSet Codelijst: MD_CharacterSetCode (B.5.10)-->
@@ -50,7 +51,7 @@
 			<!-- ISO 376 Naam organisatie metadata MD_Metadata.contact>CI_ResponsibleParty.organisationName -->
 			<!-- ISO 397 URL metadata organisatie MD_Metadata.contact>CI_ResponsibleParty.contactInfo>CI_Contact.onlineResource>CI_OnlineResource.linkage-->
 			<!-- ISO 379 Rol organisatie metadata MD_Metadata.contact>CI_ResponsibleParty.role Codelijst: CI_RoleCode (B.5.5) -->
-			<xsl:apply-templates select="/*/*/gmd:contact"/>
+			<xsl:apply-templates select="gmd:contact"/>
 			<div class="section">
 				<xsl:call-template name="section-title">
 					<xsl:with-param name="title">Metadata: datum, standaard en referentie</xsl:with-param>

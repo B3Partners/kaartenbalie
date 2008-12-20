@@ -28,6 +28,11 @@
 	-->
     
     <!-- ISO 2 Metadata ID MD_Metadata.fileIdentifier -->
+    <xsl:template match="gmd:MD_Metadata/gmd:fileIdentifier/gco:CharacterString">
+        <xsl:call-template name="element">
+            <xsl:with-param name="title">Metadata ID</xsl:with-param>
+        </xsl:call-template>
+    </xsl:template>
     <!-- ISO 3 Metadata taal MD_Metadata.language -->
     <xsl:template match="gmd:MD_Metadata/gmd:language/gco:CharacterString">
         <xsl:call-template name="element">

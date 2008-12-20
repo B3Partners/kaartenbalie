@@ -16,6 +16,7 @@
 	<xsl:template name="add-MD_Metadata">
 		<xsl:element name="gmd:MD_Metadata">
 			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-fileIdentifier"/>
 			<xsl:call-template name="add-language"/>
 			<xsl:call-template name="add-contact"/>
 			<xsl:call-template name="add-characterSet"/>
@@ -28,6 +29,12 @@
 			<xsl:call-template name="add-identificationInfo"/>
 			<xsl:call-template name="add-distributionInfo"/>
 			<xsl:call-template name="add-dataQualityInfo"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-fileIdentifier">
+		<xsl:element name="gmd:fileIdentifier">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-language">
@@ -611,7 +618,7 @@
 	<xsl:template name="add-MD_ProgressCode">
 		<xsl:element name="gmd:MD_ProgressCode">
 			<xsl:attribute name="codeList">#MD_ProgressCode</xsl:attribute>
-			<xsl:attribute name="codeListValue"><xsl:if test="$FILL_DEFAULTS"><xsl:value-of select="'complete'"/></xsl:if></xsl:attribute>
+			<xsl:attribute name="codeListValue"><xsl:if test="$FILL_DEFAULTS"><xsl:value-of select="'completed'"/></xsl:if></xsl:attribute>
 			<xsl:if test="$FILL_DEFAULTS">
 				<xsl:value-of select="'compleet'"/>
 			</xsl:if>

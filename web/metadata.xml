@@ -85,7 +85,7 @@
 					<gco:CharacterString/>
 				</gmd:abstract>
 				<gmd:status>
-					<gmd:MD_ProgressCode codeList="#MD_ProgressCode" codeListValue="complete">compleet</gmd:MD_ProgressCode>
+					<gmd:MD_ProgressCode codeList="#MD_ProgressCode" codeListValue="completed">compleet</gmd:MD_ProgressCode>
 				</gmd:status>
 				<gmd:pointOfContact>
 					<gmd:CI_ResponsibleParty>

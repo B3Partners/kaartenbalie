@@ -41,6 +41,16 @@
 	<xsl:template match="gmd:MD_Metadata">
 		<xsl:copy>
 			<!-- ISO 2 Metadata ID MD_Metadata.fileIdentifier -->
+			<xsl:choose>
+				<xsl:when test="not(gmd:fileIdentifier)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-fileIdentifier"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:fileIdentifier"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!-- ISO 3 Metadata taal MD_Metadata.language -->
 			<xsl:choose>
 				<xsl:when test="not(gmd:language)">
@@ -170,7 +180,8 @@
 			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
-                                 not(self::gmd:language) 
+                                 not(self::gmd:fileIdentifier)
+                                 and not(self::gmd:language)
                                  and not(self::gmd:contact) 
                                  and not(self::gmd:characterSet) 
                                  and not(self::gmd:hierarchyLevelName) 
@@ -182,6 +193,24 @@
                                  and not(self::gmd:identificationInfo)
                                  and not(self::gmd:distributionInfo)
                                  and not(self::gmd:dataQualityInfo)
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:fileIdentifier">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString)
             ]"/>
 		</xsl:copy>
 	</xsl:template>
