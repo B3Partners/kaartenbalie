@@ -29,12 +29,12 @@ public abstract class MetadataResource implements PropFindableResource {
     protected User user = null;
 
     protected MetadataResource() {
-        init("metadata", new Date());
+        init("metadata", new Date(), new Date());
     }
 
-    protected void init(String uid, Date creationDate) {
+    protected void init(String uid, Date creationDate, Date modificationDate) {
         this.creationDate = creationDate;
-        this.modificationDate = creationDate;
+        this.modificationDate = modificationDate;
         this.uniqueId = uid;
         this.name = uid;
     }

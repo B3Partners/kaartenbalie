@@ -45,7 +45,7 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
         layer = l;
         String uid = MetadataResourceFactory.createName(l);
         Date date = layer.getServiceProvider().getUpdatedDate();
-        super.init(uid, date);
+        super.init(uid, date, new Date());
     }
 
     public void sendContent(OutputStream out, Range arg1, Map<String, String> arg2) throws IOException {
