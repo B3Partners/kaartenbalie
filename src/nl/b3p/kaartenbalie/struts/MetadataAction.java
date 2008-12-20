@@ -22,7 +22,6 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -30,19 +29,26 @@ import java.io.Writer;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.*;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -61,6 +67,9 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.*;
 
 public class MetadataAction extends KaartenbalieCrudAction {
@@ -69,6 +78,38 @@ public class MetadataAction extends KaartenbalieCrudAction {
     protected static final String SEND = "send";
     protected static final String DOWNLOAD = "download";
     protected static final String GET = "get";
+
+    // We map the prefixes to URIs
+    protected static final NamespaceContext ctx = new NamespaceContext() {
+
+        public String getNamespaceURI(String prefix) {
+            String uri;
+            if (prefix.equals("gmd")) {
+                uri = "http://www.isotc211.org/2005/gmd";
+            } else if (prefix.equals("xsi")) {
+                uri = "http://www.w3.org/2001/XMLSchema-instance";
+            } else if (prefix.equals("gml")) {
+                uri = "http://www.opengis.net/gml";
+            } else if (prefix.equals("gts")) {
+                uri = "http://www.isotc211.org/2005/gts";
+            } else if (prefix.equals("gco")) {
+                uri = "http://www.isotc211.org/2005/gco";
+            } else {
+                uri = null;
+            }
+            return uri;
+        }
+
+        // Dummy implementation - not used!
+        public Iterator getPrefixes(String val) {
+            return null;
+        }
+
+        // Dummy implemenation - not used!
+        public String getPrefix(String uri) {
+            return null;
+        }
+    };
 
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
@@ -133,7 +174,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
 
             String metadata = null;
             try {
-                metadata = getMetadata(dynaForm);
+                metadata = getMetadata(dynaForm, layer);
             } catch (Exception e) {
                 log.error("error parsing metadata xml: ", e);
                 prepareMethod(dynaForm, request, LIST, EDIT);
@@ -215,8 +256,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
         response.setContentLength(metadata.length());
 
         String fileName = "metadata.xml";
-//        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
-        response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
+//        response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\";");
 
         try {
             Writer rw = response.getWriter();
@@ -232,7 +273,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         if (metadata == null) {
             return xmlDownload(metadata, mapping, dynaForm, request, response);
         }
-        
+
         response.setContentType("text/html");
         response.setContentLength(metadata.length());
 
@@ -389,27 +430,82 @@ public class MetadataAction extends KaartenbalieCrudAction {
      * Reparsen van IE output lijkt zaak te verbeteren, maar een eenmale fout
      * xml (in de ogen van FF, want is wel valid) wordt hiermee niet hersteld.
      */
-    private String reparseXML(String metadata) throws Exception {
+    private String reparseXML(String metadata, Layer l) throws Exception {
         StringReader sr = new StringReader(metadata);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
         DocumentBuilder db = dbf.newDocumentBuilder();
-        Document dom = db.parse(new InputSource(sr));
+        Document doc = db.parse(new InputSource(sr));
+
+        String uuid = null;
+        Node uuidNode = null;
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        xpath.setNamespaceContext(ctx);
+//        uuid = xpath.evaluate("//gmd:fileIdentifier/gco:CharacterString", doc);
+        NodeList nl = (NodeList) xpath.evaluate("//gmd:fileIdentifier/gco:CharacterString",
+                doc, XPathConstants.NODESET);
+        if (nl.getLength() > 0) {
+            uuidNode = nl.item(0);
+            uuid = getTextContents(uuidNode);
+        }
+        if (uuid == null || uuid.trim().length() == 0) {
+            uuid = UUID.randomUUID().toString();
+            uuidNode.setTextContent(uuid);
+        }
+
+        if (l != null) {
+            String title = null;
+            Node titleNode = null;
+            nl = (NodeList) xpath.evaluate("//gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString",
+                    doc, XPathConstants.NODESET);
+            if (nl.getLength() > 0) {
+                titleNode = nl.item(0);
+                title = getTextContents(titleNode);
+            }
+            if (title == null || title.trim().length() == 0) {
+                title = l.getTitle();
+                titleNode.setTextContent(title);
+            }
+
+            //TODO andere waarden uit capabilities overbrengen
+        }
 
         StringWriter sw = new StringWriter();
-        OutputFormat format = new OutputFormat(dom);
+        OutputFormat format = new OutputFormat(doc);
         format.setIndenting(true);
         XMLSerializer serializer = new XMLSerializer(sw, format);
-        serializer.serialize(dom);
+        serializer.serialize(doc);
 
         return sw.toString();
     }
 
+    private String getTextContents(Node node) {
+        if (node == null) {
+            return null;
+        }
+
+        NodeList childNodes;
+        StringBuffer contents = new StringBuffer();
+
+        childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            if (childNodes.item(i).getNodeType() == Node.TEXT_NODE) {
+                contents.append(childNodes.item(i).getNodeValue());
+            }
+        }
+        return contents.toString();
+    }
+
     private String getMetadata(DynaValidatorForm dynaForm) throws Exception {
+        return getMetadata(dynaForm, null);
+    }
+
+    private String getMetadata(DynaValidatorForm dynaForm, Layer l) throws Exception {
         String metadata = StringEscapeUtils.unescapeXml((String) dynaForm.get("metadata"));
         if (metadata == null || metadata.length() == 0) {
             throw new Exception("No metadata found!");
         }
-        String newMetadata = reparseXML(metadata);
+        String newMetadata = reparseXML(metadata, l);
         if (newMetadata == null || newMetadata.length() == 0) {
             throw new Exception("No metadata found!");
         }
