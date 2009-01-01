@@ -32,7 +32,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <html:javascript formName="organizationForm" staticJavascript="false"/>
-<html:form action="/${form.serverType}organization" onsubmit="return validateOrganizationForm(this)" focus="name">
+<html:form action="/organization" onsubmit="return validateOrganizationForm(this)" focus="name">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -40,13 +40,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     
     <div class="containerdiv" style="float: left; clear: none;">
         <c:choose>
-            <c:when test="${form.serverType == 'wfs'}">
-                <H1>Beheer WFS Organisaties</H1>
-                <a href="organization.do">WMS Organisaties</a><p>
+            <c:when test="${form.serverType == 'WFS'}">
+                <H1>Beheer Organisaties met WFS kaartlagen</H1>
+                <html:link page="/organization.do?serverType=WMS">WMS kaartlagen</html:link>
+                <p/>
             </c:when>
             <c:otherwise>
-                <H1>Beheer Organisaties</H1>
-                <a href="wfsorganization.do?serverType=wfs">WFS Organisaties</a><p>
+                <H1>Beheer Organisaties met WMS kaartlagen</H1>
+                <html:link page="/organization.do?serverType=WFS">WFS kaartlagen</html:link>
+                <p/>
             </c:otherwise>
         </c:choose>
         
@@ -74,7 +76,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
                             <td width="200">
                                 <div style="width: 190px; overflow: hidden;">
-                                    <html:link page="/${form.serverType}organization.do?edit=submit&id=${nOrganization.id}&serverType=${form.serverType}">
+                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}&serverType=${form.serverType}">
                                         <c:out value="${nOrganization.name}"/>
                                     </html:link>
                                 </div>

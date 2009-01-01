@@ -197,11 +197,7 @@
             <forward name="success" path="base.beheer.server"/>
             <forward name="failure" path="base.beheer.server"/>
         </action>
-        <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.WmsOrganizationAction" scope="request" validate="false">  
-            <forward name="success" path="base.beheer.organization"/>
-            <forward name="failure" path="base.beheer.organization"/>
-        </action>
-        <action path="/wfsorganization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.WfsOrganizationAction" scope="request" validate="false">  
+        <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">  
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
         </action>
