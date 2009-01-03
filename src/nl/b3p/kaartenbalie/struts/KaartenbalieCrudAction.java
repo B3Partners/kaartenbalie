@@ -37,7 +37,7 @@ import nl.b3p.commons.struts.CrudAction;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;

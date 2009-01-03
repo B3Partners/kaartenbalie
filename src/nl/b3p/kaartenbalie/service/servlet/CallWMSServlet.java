@@ -52,7 +52,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;

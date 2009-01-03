@@ -30,7 +30,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.domain.BaseReport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

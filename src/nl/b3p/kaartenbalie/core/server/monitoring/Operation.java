@@ -19,9 +19,9 @@
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.b3p.kaartenbalie.core.server.reporting.domain.operations;
+package nl.b3p.kaartenbalie.core.server.monitoring;
 
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
+import nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest;
 
 /**
  *

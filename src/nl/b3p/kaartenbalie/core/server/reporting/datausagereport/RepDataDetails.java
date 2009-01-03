@@ -24,7 +24,7 @@ package nl.b3p.kaartenbalie.core.server.reporting.datausagereport;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Set;
-import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.wms.capabilities.XMLElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

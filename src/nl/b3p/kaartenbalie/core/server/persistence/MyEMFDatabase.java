@@ -34,7 +34,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.logging.Log;

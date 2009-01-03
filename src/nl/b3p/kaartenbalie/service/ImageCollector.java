@@ -31,7 +31,7 @@ import java.util.Stack;
 import nl.b3p.commons.xml.IgnoreEntityResolver;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ElementHandler;

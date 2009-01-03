@@ -19,16 +19,15 @@
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.b3p.kaartenbalie.core.server.reporting.control;
+package nl.b3p.kaartenbalie.core.server.monitoring;
 
 import java.util.Iterator;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
+import nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
