@@ -30,7 +30,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.AllowTransactionsLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
@@ -100,9 +100,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
         String[] layerCodeAndName = toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
-        
+
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
-        
+
         if (b3pLayering) {
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 SpLayerSummary layerInfo = new SpLayerSummary(new Integer(-1),
@@ -245,20 +245,18 @@ public abstract class OGCRequestHandler implements RequestHandler {
         List cleanedSpList = new ArrayList();
 
         AccountManager am = AccountManager.getAccountManager(orgId);
-        TransactionLayerUsage tlu = am.beginTLU();
+        Transaction tlu = am.beginTLU();
 
         Map config = dw.getLayeringParameterMap();
-        Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
-        boolean bAllowTransactions = bat == null ? false : bat.booleanValue();
 
-        /* 
-         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
+        /*
+         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false
          * if a WFS layer has a price and never show it.
          */
+        boolean bAllowTransactions = true;
+        Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
         if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
             bAllowTransactions = bat == null ? false : bat.booleanValue();
-        } else {
-            bAllowTransactions = true;
         }
 
         ExtLayerCalculator lc = new ExtLayerCalculator();
@@ -278,17 +276,16 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 while (it2.hasNext()) {
                     String layerName = (String) it2.next();
                     LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, spAbbr, layerName);
+                    boolean bIsFree = true;
                     if (lpc != null) {
-                        // Only add layer when free or when transactions allowed
-                        Boolean isFree = lpc.getLayerIsFree();
-                        boolean bIsFree = isFree == null ? false : isFree.booleanValue();
-                        if (!bIsFree && !bAllowTransactions) {
-                            tlu.registerUsage(lpc);
-                            continue;
-                        }
                         tlu.registerUsage(lpc);
+                        Boolean isFree = lpc.getLayerIsFree();
+                        bIsFree = isFree == null ? false : isFree.booleanValue();
                     }
-                    checkedLayers.add(layerName);
+                    // Only add layer when free or when transactions allowed
+                    if (bIsFree || bAllowTransactions) {
+                        checkedLayers.add(layerName);
+                    }
                 }
                 if (checkedLayers.size() > 0) {
                     spInfo.setLayers(checkedLayers);
@@ -301,17 +298,14 @@ public abstract class OGCRequestHandler implements RequestHandler {
             }
         }
 
-        Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
-        boolean bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
-
         /* 
          * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
          * if a WFS layer has a price and never show it.
          */
+        boolean bFoundAllowTransactionsLayer = true;
+        Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
         if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
             bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
-        } else {
-            bFoundAllowTransactionsLayer = true;
         }
 
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
@@ -346,7 +340,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      */
     public void doAccounting(Integer orgId, DataWrapper data, User user) throws Exception {
         AccountManager am = AccountManager.getAccountManager(orgId);
-        TransactionLayerUsage transaction = am.getTLU();
+        Transaction transaction = am.getTLU();
         am.commitTransaction(transaction, user);
         am.endTLU();
         data.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));

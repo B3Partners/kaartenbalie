@@ -32,8 +32,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionLayerUsage;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForward;
@@ -104,8 +102,8 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
         AccountManager am = AccountManager.getAccountManager(organization.getId());
         request.setAttribute("balance", new Double(am.getBalance()));
-        request.setAttribute("layerUsages", am.getTransactions(firstResult, listMax, TransactionLayerUsage.class));
-        request.setAttribute("paymentDeposits", am.getTransactions(firstResult, listMax, TransactionPaymentDeposit.class));
+        request.setAttribute("layerUsages", am.getTransactions(firstResult, listMax, Transaction.WITHDRAW));
+        request.setAttribute("paymentDeposits", am.getTransactions(firstResult, listMax, Transaction.DEPOSIT));
 
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();

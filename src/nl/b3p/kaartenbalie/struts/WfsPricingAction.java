@@ -151,7 +151,6 @@ public class WfsPricingAction extends PricingAction {
         }
         lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
         em.persist(lp);
-//TODO        getDataWarehousing().enlist(LayerPricing.class, lp.getId(), DwObjectAction.PERSIST_OR_MERGE);
         return super.save(mapping, dynaForm, request, response);
     }
 

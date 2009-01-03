@@ -21,13 +21,16 @@
  */
 package nl.b3p.kaartenbalie.core.server.reporting.domain.requests;
 
+import javax.persistence.EntityManager;
+import nl.b3p.wms.capabilities.ServiceProvider;
+
 /**
  *
- * @author Chris Kramer
+ * @author Chris van Lith
  */
-public abstract class ServiceProviderRequest {
+public class ServiceProviderRequest {
 
-    private Integer id;    //Data fields
+    private Integer id;
     private Long bytesSend;
     private Long bytesReceived;
     private Integer responseStatus;
@@ -35,8 +38,17 @@ public abstract class ServiceProviderRequest {
     private String providerRequestURI;
     private Long msSinceRequestStart;
     private Class exceptionClass;
-    private String exceptionMessage;    //Relational Mappings
+    private String exceptionMessage;
+
     private ClientRequest clientRequest;
+
+    private String wmsVersion;
+    private Integer serviceProviderId;
+    private String srs;
+    private Integer width;
+    private Integer height;
+    private String format;
+    private String boundingBox;
 
     public ServiceProviderRequest() {
     }
@@ -125,4 +137,77 @@ public abstract class ServiceProviderRequest {
     public void setExceptionMessage(String exceptionMessage) {
         this.exceptionMessage = exceptionMessage;
     }
+
+    public String getWmsVersion() {
+        return wmsVersion;
+    }
+
+    public void setWmsVersion(String wmsVersion) {
+        this.wmsVersion = wmsVersion;
+    }
+
+    public Integer getServiceProviderId() {
+        return serviceProviderId;
+    }
+
+    public void setServiceProviderId(Integer serviceProviderId) {
+        this.serviceProviderId = serviceProviderId;
+    }
+
+    public void setServiceProvider(ServiceProvider serviceProvider) {
+        if (serviceProvider == null) {
+            serviceProviderId = null;
+        } else {
+            this.serviceProviderId = serviceProvider.getId();
+        }
+    }
+
+    public ServiceProvider getServiceProvider(EntityManager em) {
+        try {
+            return (ServiceProvider) em.find(ServiceProvider.class, serviceProviderId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public String getSrs() {
+        return srs;
+    }
+
+    public void setSrs(String srs) {
+        this.srs = srs;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public String getBoundingBox() {
+        return boundingBox;
+    }
+
+    public void setBoundingBox(String boundingBox) {
+        this.boundingBox = boundingBox;
+    }
+
 }

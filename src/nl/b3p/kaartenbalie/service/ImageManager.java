@@ -25,7 +25,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,7 +45,7 @@ public class ImageManager {
         }
         Iterator it = urlWrapper.iterator();
         while (it.hasNext()) {
-            WMSRequest wmsRequest = (WMSRequest) it.next();
+            ServiceProviderRequest wmsRequest = (ServiceProviderRequest) it.next();
             //String url = wmsRequest.getProviderRequestURI();
             ImageCollector ic = new ImageCollector(wmsRequest, dw);
             ics.add(ic);
@@ -82,7 +82,6 @@ public class ImageManager {
         ImageCollector ic = null;
         Iterator it = ics.iterator();
 
-        Class requestClassType = dw.getRequestClassType();
         DataMonitoring rr = dw.getRequestReporting();
 
         while (it.hasNext()) {
@@ -97,7 +96,8 @@ public class ImageManager {
                 log.error(ic.getMessage() + " (Status: " + status + ")");
             }
             /* Do some reporting! */
-            rr.addServiceProviderRequest(requestClassType, ic.getLocalParameterMap());
+            ServiceProviderRequest s = ic.getWmsRequest();
+            rr.addServiceProviderRequest(s);
 
         }
 

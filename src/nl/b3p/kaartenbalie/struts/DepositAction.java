@@ -29,7 +29,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.TransactionPaymentDeposit;
+import nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -80,7 +80,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         String description = dynaForm.getString("description");
         String paymentMethod = dynaForm.getString("paymentMethod");
         BigDecimal billing = integersToBD(amount, fraction);
-        Integer exchangeRate = TransactionPaymentDeposit.getExchangeRate();
+        Integer exchangeRate = Transaction.getExchangeRate();
         if (billing.doubleValue() <= 0) {
             log.error("Amount cannot be less then or equal to zero!");
             throw new Exception("Amount cannot be less then or equal to zero!");
@@ -106,8 +106,7 @@ public class DepositAction extends KaartenbalieCrudAction {
         }
         Organization organization = getOrganization(dynaForm, request);
         AccountManager am = AccountManager.getAccountManager(organization.getId());
-        TransactionPaymentDeposit tpd = (TransactionPaymentDeposit) am.prepareTransaction(
-                TransactionPaymentDeposit.class, tdesc.toString());
+        Transaction tpd =  am.prepareTransaction(Transaction.DEPOSIT, tdesc.toString());
         /*
          * Prijs, koers, conversie.
          */
@@ -124,7 +123,7 @@ public class DepositAction extends KaartenbalieCrudAction {
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
-        request.setAttribute("exchangeRate", TransactionPaymentDeposit.getExchangeRate());
+        request.setAttribute("exchangeRate", Transaction.getExchangeRate());
 
         Organization organization = getOrganization(form, request);
         form.set("orgName", organization.getName());

@@ -85,11 +85,9 @@ public class KaartenbalieCrudAction extends CrudAction {
             ActionForward forward = null;
             String msg = null;
             setMenuParams(request);
-// TODO           MyEMFDatabase.getDataWarehouse().begin();
             try {
                 forward = super.execute(mapping, form, request, response);
                 tx.commit();
-// TODO                MyEMFDatabase.getDataWarehouse().end(em);
                 return forward;
             } catch (Exception e) {
                 tx.rollback();
@@ -141,15 +139,11 @@ public class KaartenbalieCrudAction extends CrudAction {
         return MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
     }
 
-//TODO    protected static DataWarehousing getDataWarehousing() {
-//        return MyEMFDatabase.getDataWarehouse();
-//    }
     private static void setMenuParams(HttpServletRequest request) {
         Map menuParamMap = new HashMap();
         menuParamMap.put("pricing", new Boolean(AccountManager.isEnableAccounting()));
         menuParamMap.put("reporting", new Boolean(DataMonitoring.isEnableMonitoring()));
         menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
-//TODO        menuParamMap.put("warehousing", new Boolean(DataWarehousing.isEnableWarehousing()));
         menuParamMap.put("metadata", new Boolean(KBConfiguration.METADATA_ENABLED));
         request.setAttribute("menuParameters", menuParamMap);
     }

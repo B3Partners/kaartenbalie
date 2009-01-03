@@ -52,8 +52,8 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ServerTransferOperation;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.wms.capabilities.ElementHandler;
@@ -245,7 +245,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-// <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, ArrayList urls, boolean overlay, String REQUEST_TYPE) method.">
     protected static void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage[] bi = null;
@@ -264,14 +263,16 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          * and recode the image.
          */
         long startprocestime = System.currentTimeMillis();
-        Map parameterMap = new HashMap();
+
         DataMonitoring rr = dw.getRequestReporting();
-        parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
         if (urlWrapper.size() > 1) {
             if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
                 /*
                  * Log the time in ms from the start of the clientrequest.. (Reporting)
                  */
+                Operation o = new Operation();
+                o.setType(Operation.SERVER_TRANSFER);
+                o.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
 
                 ImageManager imagemanager = new ImageManager(urlWrapper, dw);
                 imagemanager.process();
@@ -279,14 +280,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Long time = new Long(endprocestime - startprocestime);
                 dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", time.toString());
 
-
-                parameterMap.put("Duration", time);
-                rr.addRequestOperation(ServerTransferOperation.class, parameterMap);
+                o.setDuration(time);
+                rr.addRequestOperation(o);
 
                 imagemanager.sendCombinedImages(dw);
             } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
 
-                int totalDataSend = 0;
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo
                  * responses into one document. This document has the same layout as the recieved
@@ -306,20 +305,18 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
                 rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
                 Document source = null;
-                HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
                 for (int i = 0; i < urlWrapper.size(); i++) {
-                    WMSRequest wmsRequest = (WMSRequest) urlWrapper.get(i);
+                    ServiceProviderRequest wmsRequest = (ServiceProviderRequest) urlWrapper.get(i);
                     String url = wmsRequest.getProviderRequestURI();
                     source = builder.parse(url);
                     copyElements(source, destination);
-                    localParameterMap.put("BytesSend", new Long(url.getBytes().length));
-                    localParameterMap.put("ProviderRequestURI", url);
-                    localParameterMap.put("ServiceProviderId", wmsRequest.getServiceProviderId());
-                    localParameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
-                    //TODO Make smarter and more complete!
-                    localParameterMap.put("BytesReceived", new Long(-1));
-                    localParameterMap.put("ResponseStatus", new Integer(-1));
-                    rr.addServiceProviderRequest(dw.getRequestClassType(), localParameterMap);
+
+                    wmsRequest.setBytesSend(new Long(url.getBytes().length));
+                    wmsRequest.setProviderRequestURI(url);
+                    wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
+                    wmsRequest.setBytesReceived(new Long(-1));
+                    wmsRequest.setResponseStatus(new Integer(-1));
+                    rr.addServiceProviderRequest(wmsRequest);
                 }
 
                 OutputFormat format = new OutputFormat(destination);
@@ -330,7 +327,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             }
         } else {
             if (!urlWrapper.isEmpty()) {
-                getOnlineData(dw, (WMSRequest) urlWrapper.get(0), REQUEST_TYPE);
+                getOnlineData(dw, (ServiceProviderRequest) urlWrapper.get(0), REQUEST_TYPE);
             } else {
                 if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
                     log.error(KBConfiguration.FEATUREINFO_EXCEPTION);
@@ -342,7 +339,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             }
         }
     }
-// </editor-fold>
+
     /** Private method getOnlineData which handels the throughput of information when it is only
      *  about one URL. This is a slightly different method, because no checks have to be done or
      *  information has to be stored. Everything can be directly send through the open connection.
@@ -352,18 +349,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-// <editor-fold defaultstate="" desc="getOnlineData(DataWrapper dw, String url)">
-    private static void getOnlineData(DataWrapper dw, WMSRequest wmsRequest, String REQUEST_TYPE) throws Exception {
+    private static void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data recieved from the url can be directly transported to the client.
          */
         String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
-        HashMap localParameterMap = new HashMap(dw.getRequestParameterMap());
-        localParameterMap.put("ServiceProviderId", wmsRequest.getServiceProviderId());
-        localParameterMap.put("ProviderRequestURI", url);
-        localParameterMap.put("BytesSend", new Long(url.getBytes().length));
+        wmsRequest.setBytesSend(new Long(url.getBytes().length));
         long startTime = System.currentTimeMillis();
         try {
             if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) &&
@@ -373,13 +366,13 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 try {
                     BufferedImage[] bi = new BufferedImage[]{ConfigLayer.handleRequest(url, dw.getLayeringParameterMap())};
                     KBImageTool.writeImage(bi, "image/png", dw);
-                    localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
-                    localParameterMap.put("ResponseStatus", new Integer(200));
+                    wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
+                    wmsRequest.setResponseStatus(new Integer(200));
                 } catch (Exception e) {
-                    localParameterMap.put("ResponseStatus", new Integer(404));
+                    wmsRequest.setResponseStatus(new Integer(404));
                     throw e;
                 }
-                localParameterMap.put("RequestResponseTime", new Long(time));
+                wmsRequest.setRequestResponseTime(new Long(time));
             } else {
                 HttpClient client = new HttpClient();
                 GetMethod method = new GetMethod(url);
@@ -390,8 +383,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     int statusCode = client.executeMethod(method);
                     long time = System.currentTimeMillis() - startTime;
                     dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
-                    localParameterMap.put("ResponseStatus", new Integer(statusCode));
-                    localParameterMap.put("RequestResponseTime", new Long(time));
+                    wmsRequest.setResponseStatus(new Integer(statusCode));
+                    wmsRequest.setRequestResponseTime(new Long(time));
                     if (statusCode != HttpStatus.SC_OK) {
                         log.error("Error connecting to server. Status code: " + statusCode);
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
@@ -409,7 +402,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                     dw.setContentType(rhValue);
                     dw.write(method.getResponseBodyAsStream());
-                    localParameterMap.put("BytesReceived", new Long(dw.getContentLength()));
+                    wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                 } catch (HttpException e) {
                     log.error("Fatal protocol violation: " + e.getMessage());
                     throw new HttpException("Fatal protocol violation: " + e.getMessage());
@@ -423,11 +416,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
             }
         } catch (Exception e) {
-            localParameterMap.put("ExceptionMessage", e.getMessage());
-            localParameterMap.put("ExceptionClass", e.getClass());
+            wmsRequest.setExceptionMessage(e.getMessage());
+            wmsRequest.setExceptionClass(e.getClass());
             throw e;
         } finally {
-            rr.addServiceProviderRequest(dw.getRequestClassType(), localParameterMap);
+            rr.addServiceProviderRequest(wmsRequest);
         }
     }
 

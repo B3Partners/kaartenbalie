@@ -99,7 +99,6 @@ public class WmsServerAction extends ServerAction {
          * Change DataWarehousing mode to performance as this is a very complicated process which will
          * otherwise consume a lot of time.
          */
-//TODO        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -192,11 +191,9 @@ public class WmsServerAction extends ServerAction {
         Set testSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
         em.flush();
-//TODO        getDataWarehousing().enlist(ServiceProvider.class, newServiceProvider.getId(), DwObjectAction.PERSIST);
         Iterator dwIter = testSet.iterator();
         while (dwIter.hasNext()) {
             Layer layer = (Layer) dwIter.next();
-//TODO            getDataWarehousing().enlist(Layer.class, layer.getId(), DwObjectAction.PERSIST);
         }
         /*
          * All tests have been completed succesfully.
@@ -240,11 +237,9 @@ public class WmsServerAction extends ServerAction {
                 Iterator oldLayersIter = oldLayers.iterator();
                 while (oldLayersIter.hasNext()) {
                     Layer oldLayer = (Layer) oldLayersIter.next();
-//TODO                    getDataWarehousing().enlist(Layer.class, oldLayer.getId(), DwObjectAction.REMOVE);
                 }
                 em.remove(oldServiceProvider);
                 em.flush();
-//TODO                getDataWarehousing().enlist(ServiceProvider.class, oldServiceProvider.getId(), DwObjectAction.REMOVE);
             } catch (Exception e) {
                 log.error("Error deleting the old serviceprovider", e);
                 prepareMethod(dynaForm, request, EDIT, LIST);
@@ -363,7 +358,6 @@ public class WmsServerAction extends ServerAction {
          * Change DataWarehousing mode to performance as this is a very complicated process which will
          * otherwise consume a lot of time.
          */
-//TODO        getDataWarehousing().changeProcessSafetymode(DataWarehousing.PERFORMANCE);
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
@@ -401,7 +395,6 @@ public class WmsServerAction extends ServerAction {
         }
         em.remove(serviceProvider);
         em.flush();
-//TODO        getDataWarehousing().enlist(ServiceProvider.class, serviceProvider.getId(), DwObjectAction.REMOVE);
         return super.delete(mapping, dynaForm, request, response);
     }
 

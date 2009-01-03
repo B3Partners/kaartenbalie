@@ -23,11 +23,6 @@ package nl.b3p.kaartenbalie.service.servlet;
 
 import java.util.Enumeration;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetCapabilitiesRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetLegendGraphicRequest;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
@@ -48,11 +43,9 @@ import java.util.Map;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import nl.b3p.kaartenbalie.core.server.User;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -137,7 +130,7 @@ public class CallWMSServlet extends HttpServlet {
 
                 rr.setUserAndOrganization(user, user.getOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
-                
+
                 parseRequestAndData(data, user);
 
             } catch (Exception ex) {
@@ -494,27 +487,6 @@ public class CallWMSServlet extends HttpServlet {
         return user;
     }
 
-    /** Creates a hash of the IP address, username and the password.
-     *
-     * @param registeredIP string representing the ip address of this user
-     * @param username string representing the username of this user
-     * @param password string representing the password of this user
-     *
-     * @return hashed string which is unique for the user
-     *
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
-     */
-    // <editor-fold defaultstate="" desc="calcToken(String registeredIP, String username, String password) method.">
-    private String calcToken(String registeredIP, String username, String password, String personalDate) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        String toBeHashedString = username + password + personalDate;
-        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
-        md.update(toBeHashedString.getBytes(KBConfiguration.CHARSET));
-        byte[] md5hash = md.digest();
-        return new String(Hex.encodeHex(md5hash));
-    }
-    // </editor-fold>
-
     /** Parses any incoming request and redirects this request to the right handler.
      *
      * @param parameters map with the given parameters
@@ -525,49 +497,39 @@ public class CallWMSServlet extends HttpServlet {
      * @throws UnsupportedOperationException
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="parseRequestAndData(Map parameters) method.">
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
+        data.setOperation(request);
+        data.setService(service);
 
         if (request == null || request.length() == 0) {
             // niet bekend, dus moet proxy zijn
-            data.setRequestClassType(ProxyRequest.class);
             requestHandler = new ProxyRequestHandler();
-            requestHandler.getRequest(data, user);
-        }
-        data.setOperation(request);
-
-        if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+        } else if (service == null || service.length() == 0) {
+            // niet bekend, dus moet proxy zijn
+            requestHandler = new ProxyRequestHandler();
+        } else if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
-                data.setRequestClassType(WMSGetCapabilitiesRequest.class);
                 requestHandler = new GetCapabilitiesRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
-                data.setRequestClassType(WMSGetMapRequest.class);
                 requestHandler = new GetMapRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
-                data.setRequestClassType(WMSGetFeatureInfoRequest.class);
                 requestHandler = new GetFeatureInfoRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
-                data.setRequestClassType(WMSGetLegendGraphicRequest.class);
                 requestHandler = new GetLegendGraphicRequestHandler();
             } else {
                 throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
-            requestHandler.getRequest(data, user);
         } else if (service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)) {
             if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)) {
-                data.setRequestClassType(WFSGetCapabilitiesRequestHandler.class);
                 requestHandler = new WFSGetCapabilitiesRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)) {
-                data.setRequestClassType(WFSDescribeFeatureTypeRequestHandler.class);
                 requestHandler = new WFSDescribeFeatureTypeRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)) {
-                data.setRequestClassType(WFSGetFeatureRequestHandler.class);
                 requestHandler = new WFSGetFeatureRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)) {
-                data.setRequestClassType(WFSTransactionRequestHandler.class);
                 requestHandler = new WFSTransactionRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)) {
                 throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
@@ -576,13 +538,12 @@ public class CallWMSServlet extends HttpServlet {
             } else {
                 throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
-            requestHandler.getRequest(data, user);
         } else {
             throw new UnsupportedOperationException("Service " + service + " is not suported!");
         }
+
+        requestHandler.getRequest(data, user);
     }
-    // </editor-fold>
-    // <editor-fold defaultstate="" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
 
     /** Handles the HTTP <code>GET</code> method.
      * @param request servlet request
@@ -590,7 +551,6 @@ public class CallWMSServlet extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
 
@@ -600,7 +560,6 @@ public class CallWMSServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String remote = request.getRemoteAddr();
         processRequest(request, response);
     }
 
@@ -609,7 +568,6 @@ public class CallWMSServlet extends HttpServlet {
     public String getServletInfo() {
         return "CallWMSServlet info";
     }
-    // </editor-fold>
 
     /**
      * Parse the username out of the BASIC authorization header string.
@@ -662,16 +620,4 @@ public class CallWMSServlet extends HttpServlet {
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
     }
-    /*public void persist(Object object) {
-    try {
-    em.getTransaction().begin();
-    // TODO:
-    // em.persist(object);    em.getTransaction().commit();
-    } catch (Exception e) {
-    java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", e);
-    em.getTransaction().rollback();
-    } finally {
-    //    MyEMFDatabase.closeEntityManager();
-    }
-    }*/
 }

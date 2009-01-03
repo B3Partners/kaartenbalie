@@ -31,7 +31,7 @@ import javax.persistence.Query;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetMapRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -76,7 +76,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         }
 
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
-        dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
 
         Integer width = null;
         try {
@@ -84,7 +83,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         } catch (NumberFormatException nfe) {
             width = new Integer(-1);
         }
-        dw.setRequestParameter("Width", width);
 
         Integer height = null;
         try {
@@ -92,14 +90,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         } catch (NumberFormatException nfe) {
             height = new Integer(-1);
         }
-        dw.setRequestParameter("Height", height);
-        dw.setRequestParameter("WmsVersion", ogc.getParameter(OGCConstants.WMS_VERSION));
-        dw.setRequestParameter("Srs", null);
-        dw.setRequestParameter("Format", ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
-        dw.setRequestParameter("BoundingBox", ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
 
         String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
-        Map userdefinedParams = ogc.getNonOGCParameters();
 
         List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgId, false, dw);
         if (spUrls == null || spUrls.isEmpty()) {
@@ -117,7 +109,16 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         while (it.hasNext()) {
 
             SpLayerSummary spInfo = (SpLayerSummary) it.next();
-            WMSGetMapRequest gmrWrapper = new WMSGetMapRequest();
+
+            ServiceProviderRequest gmrWrapper = new ServiceProviderRequest();
+            gmrWrapper.setMsSinceRequestStart(timeFromStart);
+            gmrWrapper.setWidth(width);
+            gmrWrapper.setHeight(height);
+            gmrWrapper.setWmsVersion(ogc.getParameter(OGCConstants.WMS_VERSION));
+            gmrWrapper.setSrs(null);
+            gmrWrapper.setFormat(ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
+            gmrWrapper.setBoundingBox(ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
+
             Integer serviceProviderId = spInfo.getServiceproviderId();
 
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
@@ -154,7 +155,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                             srsFound = true;
                         }
                     }
-                }else{
+                } else {
                     log.error("No srs found");
                 }
                 if (!srsFound) {
@@ -198,13 +199,13 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             Query q = em.createNativeQuery("select parentid from layer where layer.id = :layerid").setParameter("layerid", layerId);
             Object o = q.getSingleResult();
             if (o != null && o instanceof Integer) {
-                parentId = (Integer)o;
+                parentId = (Integer) o;
             }
         } catch (Exception e) {
             log.debug("error getting srs from layer and parant: ", e);
         }
-        List parentSrsList=null;             
-        if (parentId!=null){
+        List parentSrsList = null;
+        if (parentId != null) {
             parentSrsList = getSRS(parentId.intValue(), em);
         }
         String query = "select distinct srs.srs from layer, srs " +
@@ -222,6 +223,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             parentSrsList.addAll(srsList);
         }
         return parentSrsList;
-        
+
     }
 }

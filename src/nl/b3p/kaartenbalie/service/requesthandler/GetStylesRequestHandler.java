@@ -25,11 +25,8 @@ import java.io.IOException;
 import nl.b3p.kaartenbalie.core.server.User;
 
 public class GetStylesRequestHandler extends WMSRequestHandler {
-    // <editor-fold defaultstate="" desc="default GetStylesRequestHandler() constructor.">
     public GetStylesRequestHandler() {
     }
-    // </editor-fold>
-    // TODO: onderstaande getRequest methode heeft nog geen implementatie. Deze moet nog uitgebreid worden.
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      * 

@@ -109,7 +109,6 @@ public class ClientRequest {
     public User getUser(EntityManager em) {
         try {
             return (User) em.find(User.class, getUserId());
-// TODO            return (User) DataWarehousing.find(User.class, getUserId(), em);
         } catch (Exception e) {
             return null;
         }
@@ -134,7 +133,6 @@ public class ClientRequest {
     public Organization getOrganization(EntityManager em) {
         try {
             return (Organization) em.find(Organization.class, getOrganizationId());
-// TODO            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }

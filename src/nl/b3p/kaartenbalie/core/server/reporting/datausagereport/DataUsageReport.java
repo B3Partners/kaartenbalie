@@ -93,7 +93,6 @@ public class DataUsageReport extends BaseReport {
             Integer userId = (Integer) i.next();
             try {
                 User user = (User) em.find(User.class, userId);
-// TODO                User user = (User) DataWarehousing.find(User.class, userId, em);
                 if (user != null) {
                     users.add(user);
                 }
@@ -130,7 +129,6 @@ public class DataUsageReport extends BaseReport {
     public Organization getOrganization(EntityManager em) {
         try {
             return (Organization) em.find(Organization.class, getOrganizationId());
-// TODO            return (Organization) DataWarehousing.find(Organization.class, getOrganizationId(), em);
         } catch (Exception e) {
             return null;
         }

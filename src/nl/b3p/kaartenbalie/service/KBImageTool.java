@@ -36,7 +36,8 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.CombineImagesOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
@@ -61,7 +62,7 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
-    public static BufferedImage readImage(GetMethod method, String mime, Map parameterMap) throws Exception {
+    public static BufferedImage readImage(GetMethod method, String mime, ServiceProviderRequest wmsRequest) throws Exception {
         String mimeType = getMimeType(mime);
         if (mimeType == null) {
             log.error("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
@@ -80,7 +81,7 @@ public class KBImageTool {
         while ((bytesRead = is.read()) != -1) {
             baos.write(bytesRead);
         }
-        parameterMap.put("BytesReceived", new Long(baos.size()));
+        wmsRequest.setBytesReceived(new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);
 
@@ -89,6 +90,7 @@ public class KBImageTool {
 
     }
     // </editor-fold>
+
     /** First combines the given images to one image and then sends this image back to the client.
      *
      * @param images BufferedImage array with the images tha have to be combined and sent to the client.
@@ -107,14 +109,16 @@ public class KBImageTool {
         }
         //Logging the combine operation speed...
         DataMonitoring rr = dw.getRequestReporting();
-        Map parameterMap = new HashMap();
 
+        Operation o = new Operation();
+        o.setType(Operation.COMBINE_IMAGES);
         if (images != null) {
-            parameterMap.put("NumberOfImages", new Integer(images.length));
+            o.setNumberOfImages(new Integer(images.length));
         } else {
-            parameterMap.put("NumberOfImages", new Integer(-1));
+            o.setNumberOfImages(new Integer(-1));
         }
-        parameterMap.put("MsSinceRequestStart", new Long(rr.getMSSinceStart()));
+        o.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
+
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
         BufferedImage bufferedImage = combineImages(images, mime);
@@ -122,8 +126,8 @@ public class KBImageTool {
 
         // Operation done.. now write the log and for the time being also to requestHeader...
         dw.setHeader("X-Kaartenbalie-CombineImageTime", time.toString());
-        parameterMap.put("Duration", time);
-        rr.addRequestOperation(CombineImagesOperation.class, parameterMap);
+        o.setDuration(time);
+        rr.addRequestOperation(o);
 
         if (mime.equals(TIFF)) {
             writeTIFFImage(bufferedImage, dw);
@@ -132,6 +136,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
+
     /** Writes a TIFF image to the outputstream.
      *
      * @param bufferedImage BufferedImage created from the given images.
@@ -147,6 +152,7 @@ public class KBImageTool {
         dw.write(baos);
     }
     // </editor-fold>
+
     /** Writes a JPEG, GIF or PNG image to the outputstream.
      *
      * @param bufferedImage BufferedImage created from the given images.
@@ -166,6 +172,7 @@ public class KBImageTool {
         ios.close();
     }
     // </editor-fold>
+
     /** Method which handles the combining of the images. This method redirects to the right method
      * for the different images, since not every image can be combined in the same way.
      *
@@ -183,6 +190,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
+
     /** Combines JPG images. Combining JPG images is different from the other image types since JPG
      * has to use an other imageType: BufferedImage.TYPE_INT_RGB.
      *
@@ -205,6 +213,7 @@ public class KBImageTool {
         return newBufIm;
     }
     // </editor-fold>
+
     /** Combines GIF, TIFF or PNG images. Combining these images is different from the JPG image types since these
      * has to use an other imageType: BufferedImage.TYPE_INT_ARGB_PRE.
      *
@@ -229,6 +238,7 @@ public class KBImageTool {
         return newBufIm;
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported MIME types to check if
      * a certain MIME is supported.
      *
@@ -247,6 +257,7 @@ public class KBImageTool {
         return null;
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME.
      *
@@ -263,6 +274,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME. This method checks spe-
      * cifically for JPG or PNG images because Sun's Java supports two kind of readers
@@ -290,6 +302,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image readers to check if
      * a there is a reader which handles the specified MIME. This method checks spe-
      * cifically for GIF or TIFF images.
@@ -311,6 +324,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME.
      *
@@ -327,6 +341,7 @@ public class KBImageTool {
         }
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME. This method checks spe-
      * cifically for JPG or PNG images because Sun's Java supports two kind of writers
@@ -352,6 +367,7 @@ public class KBImageTool {
         return imTest;
     }
     // </editor-fold>
+
     /** Private method which seeks through the supported image writers to check if
      * a there is a writers which handles the specified MIME. This method checks spe-
      * cifically for GIF or TIFF images.

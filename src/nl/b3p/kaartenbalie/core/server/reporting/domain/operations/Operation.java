@@ -25,14 +25,25 @@ import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ClientRequest;
 
 /**
  *
- * @author Chris Kramer
+ * @author Chris van Lith
  */
-public abstract class Operation {
+public class Operation {
+
+    public static final int ACCOUNTING = 2;
+    public static final int CLIENT_TRANSFER = 3;
+    public static final int COMBINE_IMAGES = 4;
+    public static final int REQUEST = 5;
+    public static final int SERVER_TRANSFER = 6;
 
     private Integer id;
     private Long msSinceRequestStart;
     private Long duration;
     private ClientRequest clientRequest;
+    private int type;
+    private Integer numberOfImages;
+    private Integer bytesReceivedFromUser;
+    private Integer bytesSendToUser;
+    private Long dataSize;
 
     public Operation() {
     }
@@ -72,5 +83,75 @@ public abstract class Operation {
 
     public void setMsSinceRequestStart(Long msSinceRequestStart) {
         this.msSinceRequestStart = msSinceRequestStart;
+    }
+
+    /**
+     * @return the type
+     */
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    /**
+     * @return the numberOfImages
+     */
+    public Integer getNumberOfImages() {
+        return numberOfImages;
+    }
+
+    /**
+     * @param numberOfImages the numberOfImages to set
+     */
+    public void setNumberOfImages(Integer numberOfImages) {
+        this.numberOfImages = numberOfImages;
+    }
+
+    /**
+     * @return the bytesReceivedFromUser
+     */
+    public Integer getBytesReceivedFromUser() {
+        return bytesReceivedFromUser;
+    }
+
+    /**
+     * @param bytesReceivedFromUser the bytesReceivedFromUser to set
+     */
+    public void setBytesReceivedFromUser(Integer bytesReceivedFromUser) {
+        this.bytesReceivedFromUser = bytesReceivedFromUser;
+    }
+
+    /**
+     * @return the bytesSendToUser
+     */
+    public Integer getBytesSendToUser() {
+        return bytesSendToUser;
+    }
+
+    /**
+     * @param bytesSendToUser the bytesSendToUser to set
+     */
+    public void setBytesSendToUser(Integer bytesSendToUser) {
+        this.bytesSendToUser = bytesSendToUser;
+    }
+
+    /**
+     * @return the dataSize
+     */
+    public Long getDataSize() {
+        return dataSize;
+    }
+
+    /**
+     * @param dataSize the dataSize to set
+     */
+    public void setDataSize(Long dataSize) {
+        this.dataSize = dataSize;
     }
 }

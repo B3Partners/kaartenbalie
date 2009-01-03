@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.WMSGetFeatureInfoRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -67,7 +67,6 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         }
 
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
-        dw.setRequestParameter("MsSinceRequestStart", timeFromStart);
 
         this.user = user;
         this.url = user.getPersonalURL();
@@ -85,7 +84,10 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         while (it.hasNext()) {
 
             SpLayerSummary spInfo = (SpLayerSummary) it.next();
-            WMSGetFeatureInfoRequest firWrapper = new WMSGetFeatureInfoRequest();
+
+            ServiceProviderRequest firWrapper = new ServiceProviderRequest();
+            firWrapper.setMsSinceRequestStart(timeFromStart);
+
             Integer serviceProviderId = spInfo.getServiceproviderId();
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!

@@ -23,15 +23,22 @@ package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.accounting.TransactionDeniedException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
  * @author Chris Kramer
  */
-public abstract class Transaction {
+public class Transaction {
 
+    private static final Log log = LogFactory.getLog(Transaction.class);
     private Integer id;
     private Date transactionDate;
     private Date mutationDate;
@@ -47,6 +54,14 @@ public abstract class Transaction {
     public static int REFUSED = 2;
     public static int WITHDRAW = 1;
     public static int DEPOSIT = 2;
+
+    //TransactionPaymentDeposit
+    private static Integer ExchangeRate = new Integer(100);
+    private BigDecimal billingAmount;
+    private Integer txExchangeRate;
+    //TransactionLayerUsage
+    private Set layerPriceCompositions = new HashSet();
+    private Set pricedLayerNames = new HashSet();
 
     public Transaction() {
         setTransactionDate(new Date());
@@ -119,7 +134,22 @@ public abstract class Transaction {
         this.errorMessage = errorMessage;
     }
 
-    public abstract void validate() throws Exception;
+    public void validate() throws TransactionDeniedException {
+        if (getCreditAlteration().doubleValue() < 0) {
+            throw new TransactionDeniedException("Transaction creditalteration cannot be less then zero.");
+        }
+        //Scale the creditAlteration...
+        setCreditAlteration(getCreditAlteration().setScale(2, BigDecimal.ROUND_HALF_UP));
+
+        if (billingAmount != null && billingAmount.doubleValue() > 9999) {
+            log.error("Billingamount larger then 9999.");
+            throw new TransactionDeniedException("Billingamount larger then 9999.");
+        }
+        if (getType() != WITHDRAW && getType() != DEPOSIT) {
+            log.error("Only DEPOSIT or WITHDRAW is allowed for this transaction.");
+            throw new TransactionDeniedException("Only DEPOSIT or WITHDRAW is allowed for this transaction.");
+        }
+    }
 
     private Integer getUserId() {
         return userId;
@@ -140,7 +170,6 @@ public abstract class Transaction {
     public User getUser(EntityManager em) {
         try {
             return (User) em.find(User.class, getUserId());
-//TODO            return (User) DataWarehousing.find(User.class, getUserId(), em);
         } catch (Exception e) {
             return null;
         }
@@ -152,5 +181,69 @@ public abstract class Transaction {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public static Integer getExchangeRate() {
+        return ExchangeRate;
+    }
+
+    public static void setExchangeRate(Integer aExchangeRate) {
+        ExchangeRate = aExchangeRate;
+    }
+
+    public BigDecimal getBillingAmount() {
+        return billingAmount;
+    }
+
+    public void setBillingAmount(BigDecimal billingAmount) {
+        this.billingAmount = billingAmount;
+    }
+
+    public Integer getTxExchangeRate() {
+        return txExchangeRate;
+    }
+
+    public void setTxExchangeRate(Integer txExchangeRate) {
+        this.txExchangeRate = txExchangeRate;
+    }
+
+    public Set getLayerPriceCompositions() {
+        return layerPriceCompositions;
+    }
+
+    public void setLayerPriceCompositions(Set layerPriceCompositions) {
+        this.layerPriceCompositions = layerPriceCompositions;
+    }
+
+    public void registerUsage(LayerPriceComposition lpc) throws Exception {
+        if (lpc == null) {
+            log.error("Not allowed to add a null value to registerUsage.");
+            throw new Exception("Not allowed to add a null value to registerUsage.");
+        }
+        if (lpc.getLayerPrice() == null || lpc.getLayerPrice().compareTo(new BigDecimal("0")) < 0) {
+            log.error("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
+            throw new Exception("Invalid value for lpc.layerPrice: " + lpc.getLayerPrice());
+        }
+        if (lpc.getLayerIsFree() == null || (lpc.getLayerIsFree() != null && !lpc.getLayerIsFree().booleanValue())) {
+            creditAlteration = creditAlteration.add(lpc.getLayerPrice());
+            pricedLayerNames.add(lpc.getLayerName());
+        }
+        lpc.setTransactionLayerUsage(this);
+        layerPriceCompositions.add(lpc);
+    }
+
+    public String getPricedLayerNames() {
+        if (pricedLayerNames == null || pricedLayerNames.isEmpty()) {
+            return null;
+        }
+        StringBuffer pln = new StringBuffer();
+        Iterator it = pricedLayerNames.iterator();
+        while (it.hasNext()) {
+            if (pln.length() > 0) {
+                pln.append(", ");
+            }
+            pln.append((String) it.next());
+        }
+        return pln.toString();
     }
 }

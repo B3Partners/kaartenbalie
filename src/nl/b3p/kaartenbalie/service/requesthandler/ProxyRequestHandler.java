@@ -24,7 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ProxyRequest;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.requests.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -59,7 +59,7 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         }
 
         String purl = KBCrypter.decryptText(encodedUrl);
-        ProxyRequest proxyWrapper = new ProxyRequest();
+        ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
         proxyWrapper.setProviderRequestURI(purl);
 
         ArrayList urlWrapper = new ArrayList();

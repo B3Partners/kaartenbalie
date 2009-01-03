@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.reporting.control.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.ClientXFerOperation;
+import nl.b3p.kaartenbalie.core.server.reporting.domain.operations.Operation;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,22 +46,17 @@ public class DataWrapper {
     private int contentLength;
     private HttpServletResponse response;
     private OutputStream sos;
-    private long startTime;
-    private long endTime;    //Use for reporting...
-    private DataMonitoring requestReporting;
-    private Map requestParameterMap;
-    private Class requestClassType;
     private String operation;
-    //end
-    //Used for layering
+    private String service;
+
+    private DataMonitoring requestReporting;
     private Map layeringParameterMap;
-    //end
+
     private OGCRequest ogcrequest;
 
     public DataWrapper(HttpServletResponse response) throws IOException {
         this.response = response;
         this.sos = response.getOutputStream();
-        this.requestParameterMap = new HashMap();
         layeringParameterMap = new HashMap();
     }
 
@@ -146,10 +141,11 @@ public class DataWrapper {
 
     public void write(ByteArrayOutputStream baos) throws IOException {
         //Logging the dataspeed...
-        Map parameterMap = new HashMap();
+        Operation o = new Operation();
+        o.setType(Operation.CLIENT_TRANSFER);
         if (requestReporting != null) {
-            parameterMap.put("DataSize", new Long(baos.size()));
-            parameterMap.put("MsSinceRequestStart", new Long(requestReporting.getMSSinceStart()));
+            o.setDataSize(new Long(baos.size()));
+            o.setMsSinceRequestStart(new Long(requestReporting.getMSSinceStart()));
         }
         long startTime = System.currentTimeMillis();
         // Log initialized, now start the operation...
@@ -164,9 +160,9 @@ public class DataWrapper {
         }
         // Operation done.. now write the log...
         if (requestReporting != null) {
-            parameterMap.put("Duration", new Long(System.currentTimeMillis() - startTime));
+            o.setDuration(new Long(System.currentTimeMillis() - startTime));
             try {
-                requestReporting.addRequestOperation(ClientXFerOperation.class, parameterMap);
+                requestReporting.addRequestOperation(o);
             } catch (Throwable t) {
                 log.warn("", t);
             }
@@ -174,58 +170,16 @@ public class DataWrapper {
 
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public long getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
-
-    /*
-     *Used for layering
-     */
     public Map getLayeringParameterMap() {
         return layeringParameterMap;
     }
 
-    public void setLayeringParameterMap(Map layeringParameterMap) {
-        this.layeringParameterMap = layeringParameterMap;
-    }
-
-    /*
-     *Used for reporting...
-     */
     public DataMonitoring getRequestReporting() {
         return requestReporting;
     }
 
     public void setRequestReporting(DataMonitoring requestReporting) {
         this.requestReporting = requestReporting;
-    }
-
-    public Class getRequestClassType() {
-        return requestClassType;
-    }
-
-    public void setRequestClassType(Class requestClassType) {
-        this.requestClassType = requestClassType;
-    }
-
-    public Map getRequestParameterMap() {
-        return requestParameterMap;
-    }
-
-    public void setRequestParameter(String key, Object object) {
-        this.requestParameterMap.put(key, object);
     }
 
     public String getOperation() {
@@ -235,9 +189,6 @@ public class DataWrapper {
     public void setOperation(String operation) {
         this.operation = operation;
     }
-    /*
-     * End of used for reporting...
-     */
 
     public OGCRequest getOgcrequest() {
         return ogcrequest;
@@ -246,4 +197,19 @@ public class DataWrapper {
     public void setOgcrequest(OGCRequest ogcrequest) {
         this.ogcrequest = ogcrequest;
     }
+
+    /**
+     * @return the service
+     */
+    public String getService() {
+        return service;
+    }
+
+    /**
+     * @param service the service to set
+     */
+    public void setService(String service) {
+        this.service = service;
+    }
+
 }
