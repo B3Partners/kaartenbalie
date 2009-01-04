@@ -35,7 +35,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
+import nl.b3p.kaartenbalie.reporting.ReportGenerator;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +101,7 @@ public class MyEMFDatabase extends HttpServlet {
             EntityManager em = getEntityManager(MyEMFDatabase.INIT_EM);
             EntityTransaction tx = em.getTransaction();
             tx.begin();
-            ReportGenerator.startupClear(em);
+//            ReportGenerator.startupClear(em);
             tx.commit();
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);

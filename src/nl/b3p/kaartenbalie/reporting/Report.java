@@ -19,30 +19,24 @@
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
-package nl.b3p.kaartenbalie.core.server.reporting.domain;
+package nl.b3p.kaartenbalie.reporting;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
-import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.reporting.domain.tables.DataTable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  *
- * @author Chris Kramer
+ * @author Chris van Lith
  */
-public abstract class BaseReport {
+public abstract class Report {
 
     private Integer id;
     private Date reportDate;
     private Long processingTime;
     private Organization owningOrganization;
-    private Set dataTables;
+    private String reportXML;
 
-    public BaseReport() {
+    public Report() {
         setReportDate(new Date());
     }
 
@@ -78,28 +72,18 @@ public abstract class BaseReport {
         this.owningOrganization = owningOrganization;
     }
 
-    public Set getDataTables() {
-        return dataTables;
+    /**
+     * @return the reportXML
+     */
+    public String getReportXML() {
+        return reportXML;
     }
 
-    public void setDataTables(Set dataTables) {
-        this.dataTables = dataTables;
+    /**
+     * @param reportXML the reportXML to set
+     */
+    public void setReportXML(String reportXML) {
+        this.reportXML = reportXML;
     }
 
-    protected abstract Element toElement(Document doc, Element rootElement, EntityManager em);
-
-    public Element buildElement(Document doc, EntityManager em) {
-        Element report = doc.createElement("report");
-        report.setAttribute("id", getId().toString());
-        report.setAttribute("processingTime", getProcessingTime().toString());
-        report.setAttribute("date", getReportDate().toString());
-        if (dataTables != null) {
-            Iterator iterTable = dataTables.iterator();
-            while (iterTable.hasNext()) {
-                DataTable dt = (DataTable) iterTable.next();
-                report.appendChild(dt.toElement(doc, report));
-            }
-        }
-        return toElement(doc, report, em);
-    }
 }

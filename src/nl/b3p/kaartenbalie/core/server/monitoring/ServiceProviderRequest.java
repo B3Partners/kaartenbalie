@@ -21,7 +21,6 @@
  */
 package nl.b3p.kaartenbalie.core.server.monitoring;
 
-import nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest;
 import javax.persistence.EntityManager;
 import nl.b3p.wms.capabilities.ServiceProvider;
 

@@ -21,8 +21,6 @@
  */
 package nl.b3p.kaartenbalie.core.server.monitoring;
 
-import nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest;
-
 /**
  *
  * @author Chris van Lith

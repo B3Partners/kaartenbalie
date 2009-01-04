@@ -31,8 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.reporting.control.ReportGenerator;
-import nl.b3p.kaartenbalie.core.server.reporting.datausagereport.DataUsageReportThread;
+import nl.b3p.kaartenbalie.reporting.ReportGenerator;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
@@ -99,7 +98,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
         String[] deleteList = (String[]) dynaForm.get("deleteReport");
         for (int i = 0; i < deleteList.length; i++) {
             Integer id = FormUtils.StringToInteger(deleteList[i]);
-            rg.removeReport(id);
+//            rg.removeReport(id);
         }
         return super.delete(mapping, dynaForm, request, response);
     }
@@ -117,9 +116,9 @@ public class ReportingAction extends KaartenbalieCrudAction {
         }
         response.setContentType(resultInfo[0]);
         ReportGenerator rg = getReportGenerator(request);
-        String fileName = rg.reportName(id) + "." + resultInfo[1];
+        String fileName = ""; //rg.reportName(id) + "." + resultInfo[1];
         response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-        rg.fetchReport(id, response.getOutputStream(), type.intValue(), getServlet().getServletContext());
+//        rg.fetchReport(id, response.getOutputStream(), type.intValue(), getServlet().getServletContext());
         return null;
     }
 
@@ -140,7 +139,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
                 "FROM User AS u " +
                 "WHERE u.organization.id = :organizationId").setParameter("organizationId", organization.getId()).getResultList());
         ReportGenerator rg = getReportGenerator(request);
-        rg.createReport(DataUsageReportThread.class, parameterMap);
+//        rg.createReport(DataUsageReportThread.class, parameterMap);
         checkDateFields(dynaForm);
         return super.create(mapping, dynaForm, request, response);
     }
@@ -150,8 +149,6 @@ public class ReportingAction extends KaartenbalieCrudAction {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         ReportGenerator rg = getReportGenerator(request);
-        request.setAttribute("workloadData", rg.getWorkload());
-        request.setAttribute("reportStatus", rg.requestReportStatus());
         request.setAttribute("organizations", em.createQuery("FROM Organization AS org ORDER BY org.name ASC").getResultList());
 
     }

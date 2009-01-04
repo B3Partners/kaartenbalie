@@ -29,7 +29,6 @@ import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.kaartenbalie.core.server.UniqueIndex;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -149,7 +148,6 @@ public class WfsPricingAction extends PricingAction {
         } else {
             lp.setLayerIsFree(Boolean.TRUE);
         }
-        lp.setIndexCount(UniqueIndex.createNextUnique(UniqueIndex.INDEX_LAYER_PRICING));
         em.persist(lp);
         return super.save(mapping, dynaForm, request, response);
     }

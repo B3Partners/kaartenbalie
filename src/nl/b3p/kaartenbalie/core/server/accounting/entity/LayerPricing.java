@@ -47,8 +47,6 @@ public class LayerPricing {
     /*Relation*/
     private String layerName;
     private String serverProviderPrefix;
-    /*Uniqueness*/
-    private Integer indexCount;
 
     public LayerPricing() {
         setPlanType(PAY_PER_REQUEST);
@@ -133,14 +131,6 @@ public class LayerPricing {
 
     public void setDeletionDate(Date deletionDate) {
         this.deletionDate = deletionDate;
-    }
-
-    public Integer getIndexCount() {
-        return indexCount;
-    }
-
-    public void setIndexCount(Integer indexCount) {
-        this.indexCount = indexCount;
     }
 
     public String getService() {

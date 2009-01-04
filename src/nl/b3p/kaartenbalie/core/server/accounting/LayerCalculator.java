@@ -137,7 +137,7 @@ public class LayerCalculator {
                 "AND (lp.validFrom <= :validationDate OR lp.validFrom IS null) " +
                 "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
                 "AND (lp.service = :service) " +
-                "ORDER BY lp.indexCount DESC").
+                "ORDER BY lp.creationDate DESC").
                 setParameter("serverProviderPrefix", spabbr).
                 setParameter("validationDate", validationDate).
                 setParameter("service", service).
@@ -169,7 +169,7 @@ public class LayerCalculator {
                 "AND (lp.validUntil >= :validationDate OR lp.validUntil IS null) " +
                 "AND (lp.service = :service) " +
                 "AND (lp.operation = :operation OR lp.operation IS null) " +
-                "ORDER BY lp.indexCount DESC").
+                "ORDER BY lp.creationDate DESC").
                 setParameter("layerName", layerName).
                 setParameter("serverProviderPrefix", spAbbr).
                 setParameter("validationDate", validationDate).
