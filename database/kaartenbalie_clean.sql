@@ -1,1207 +1,761 @@
--- MySQL dump 10.10
---
--- Host: localhost    Database: kaartenbalie_ev
--- ------------------------------------------------------
--- Server version	5.0.21-Debian_2.dotdeb.1-log
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `acc_account`
---
-
-DROP TABLE IF EXISTS `acc_account`;
-CREATE TABLE `acc_account` (
-  `acc_id` int(11) NOT NULL,
-  `acc_creditBalance` decimal(15,2) default NULL,
-  PRIMARY KEY  (`acc_id`),
-  KEY `FK7FE8986FEE7C9324` (`acc_id`),
-  CONSTRAINT `FK7FE8986FEE7C9324` FOREIGN KEY (`acc_id`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `acc_account`
---
-
-
-/*!40000 ALTER TABLE `acc_account` DISABLE KEYS */;
-LOCK TABLES `acc_account` WRITE;
-INSERT INTO `acc_account` VALUES (1,'0.00');
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `acc_account` ENABLE KEYS */;
-
---
--- Table structure for table `acc_layerpricing`
---
-
-DROP TABLE IF EXISTS `acc_layerpricing`;
-CREATE TABLE `acc_layerpricing` (
-  `lpr_id` int(11) NOT NULL auto_increment,
-  `lpr_layerName` varchar(255) default NULL,
-  `lpr_serverProviderPrefix` varchar(255) default NULL,
-  `lpr_planType` int(11) default NULL,
-  `lpr_validFrom` datetime default NULL,
-  `lpr_validUntil` datetime default NULL,
-  `lpr_creationDate` datetime default NULL,
-  `lpr_layerIsFree` bit(1) default NULL,
-  `lpr_unitPrice` decimal(9,2) default NULL,
-  `lpr_deletionDate` datetime default NULL,
-  `lpr_indexCount` int(11) default NULL,
-  `lpr_service` varchar(255) default NULL,
-  `lpr_operation` varchar(255) default NULL,
-  `lpr_minScale` decimal(20,10) default NULL,
-  `lpr_maxScale` decimal(20,10) default NULL,
-  `lpr_projection` varchar(255) default NULL,
-  PRIMARY KEY  (`lpr_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `acc_layerpricing`
---
-
-
-/*!40000 ALTER TABLE `acc_layerpricing` DISABLE KEYS */;
-LOCK TABLES `acc_layerpricing` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `acc_layerpricing` ENABLE KEYS */;
-
---
--- Table structure for table `acc_pricecomp`
---
-
-DROP TABLE IF EXISTS `acc_pricecomp`;
-CREATE TABLE `acc_pricecomp` (
-  `prc_id` int(11) NOT NULL auto_increment,
-  `prc_tra_id` int(11) default NULL,
-  `prc_serverProviderPrefix` varchar(255) default NULL,
-  `prc_layerName` varchar(255) default NULL,
-  `prc_calculationDate` datetime default NULL,
-  `prc_planType` int(11) default NULL,
-  `lpr_units` decimal(5,2) default NULL,
-  `prc_layerIsFree` bit(1) default NULL,
-  `prc_method` int(11) default NULL,
-  `prc_calculationTime` bigint(20) default NULL,
-  `lpr_layerPrice` decimal(12,2) default NULL,
-  `prc_service` varchar(255) default NULL,
-  `prc_operation` varchar(255) default NULL,
-  `prc_scale` decimal(40,10) default NULL,
-  `prc_projection` varchar(255) default NULL,
-  PRIMARY KEY  (`prc_id`),
-  KEY `FK165D199A1C0BBA79` (`prc_tra_id`),
-  CONSTRAINT `FK165D199A1C0BBA79` FOREIGN KEY (`prc_tra_id`) REFERENCES `acc_transaction` (`tra_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `acc_pricecomp`
---
-
-
-/*!40000 ALTER TABLE `acc_pricecomp` DISABLE KEYS */;
-LOCK TABLES `acc_pricecomp` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `acc_pricecomp` ENABLE KEYS */;
-
---
--- Table structure for table `acc_transaction`
---
-
-DROP TABLE IF EXISTS `acc_transaction`;
-CREATE TABLE `acc_transaction` (
-  `tra_id` int(11) NOT NULL auto_increment,
-  `tra_discriminator` varchar(255) NOT NULL,
-  `tra_creditAlteration` decimal(12,2) default NULL,
-  `tra_transactionDate` datetime default NULL,
-  `tra_mutationDate` datetime default NULL,
-  `tra_status` int(11) default NULL,
-  `tra_type` int(11) default NULL,
-  `tra_errorMessage` varchar(255) default NULL,
-  `tra_userId` int(11) default NULL,
-  `tra_description` varchar(32) default NULL,
-  `tra_acc_id` int(11) default NULL,
-  `tra_billingAmount` decimal(10,2) default NULL,
-  `tra_txExchangeRate` int(11) default NULL,
-  PRIMARY KEY  (`tra_id`),
-  KEY `FKFC20F02025126DF8` (`tra_acc_id`),
-  CONSTRAINT `FKFC20F02025126DF8` FOREIGN KEY (`tra_acc_id`) REFERENCES `acc_account` (`acc_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `acc_transaction`
---
-
-
-/*!40000 ALTER TABLE `acc_transaction` DISABLE KEYS */;
-LOCK TABLES `acc_transaction` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `acc_transaction` ENABLE KEYS */;
-
---
--- Table structure for table `attribution`
---
-
-DROP TABLE IF EXISTS `attribution`;
-CREATE TABLE `attribution` (
-  `LAYERID` int(11) NOT NULL,
-  `TITLE` varchar(50) default NULL,
-  `ATTRIBUTIONURL` varchar(4000) default NULL,
-  `LOGOURL` varchar(4000) default NULL,
-  `LOGOWIDTH` varchar(50) default NULL,
-  `LOGOHEIGHT` varchar(50) default NULL,
-  PRIMARY KEY  (`LAYERID`),
-  CONSTRAINT `FK_Attribution_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `attribution`
---
-
-
-/*!40000 ALTER TABLE `attribution` DISABLE KEYS */;
-LOCK TABLES `attribution` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `attribution` ENABLE KEYS */;
-
---
--- Table structure for table `contactinformation`
---
-
-DROP TABLE IF EXISTS `contactinformation`;
-CREATE TABLE `contactinformation` (
-  `SERVICEPROVIDERID` int(11) NOT NULL,
-  `CONTACTPERSON` varchar(50) default NULL,
-  `CONTACTPOSITION` varchar(50) default NULL,
-  `ADDRESS` varchar(50) default NULL,
-  `ADDRESSTYPE` varchar(50) default NULL,
-  `POSTCODE` varchar(50) default NULL,
-  `CITY` varchar(50) default NULL,
-  `STATEORPROVINCE` varchar(50) default NULL,
-  `COUNTRY` varchar(50) default NULL,
-  `VOICETELEPHONE` varchar(50) default NULL,
-  `FASCIMILETELEPHONE` varchar(50) default NULL,
-  `EMAILADDRESS` varchar(50) default NULL,
-  PRIMARY KEY  (`SERVICEPROVIDERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `contactinformation`
---
-
-
-/*!40000 ALTER TABLE `contactinformation` DISABLE KEYS */;
-LOCK TABLES `contactinformation` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `contactinformation` ENABLE KEYS */;
-
---
--- Table structure for table `dimensions`
---
-
-DROP TABLE IF EXISTS `dimensions`;
-CREATE TABLE `dimensions` (
-  `DIMENSIONSID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `DIMENSIONSNAME` varchar(50) default NULL,
-  `DIMENSIONSUNIT` varchar(50) default NULL,
-  `DIMENSIONSUNITSYMBOL` varchar(50) default NULL,
-  `EXTENTNAME` varchar(50) default NULL,
-  `EXTENTDEFAULTS` varchar(50) default NULL,
-  `EXTENTNEARESTVALUE` varchar(50) default NULL,
-  `EXTENTMULTIPLEVALUES` varchar(50) default NULL,
-  `EXTENTCURRENT` varchar(50) default NULL,
-  PRIMARY KEY  (`DIMENSIONSID`),
-  KEY `FK_Dimensions_1` (`LAYERID`),
-  CONSTRAINT `FK_Dimensions_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `dimensions`
---
-
-
-/*!40000 ALTER TABLE `dimensions` DISABLE KEYS */;
-LOCK TABLES `dimensions` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `dimensions` ENABLE KEYS */;
-
---
--- Table structure for table `exceptions`
---
-
-DROP TABLE IF EXISTS `exceptions`;
-CREATE TABLE `exceptions` (
-  `SERVICEPROVIDERID` int(11) NOT NULL,
-  `FORMAT` varchar(50) NOT NULL,
-  PRIMARY KEY  (`SERVICEPROVIDERID`,`FORMAT`),
-  CONSTRAINT `FK_Exceptions_1` FOREIGN KEY (`SERVICEPROVIDERID`) REFERENCES `serviceprovider` (`SERVICEPROVIDERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `exceptions`
---
-
-
-/*!40000 ALTER TABLE `exceptions` DISABLE KEYS */;
-LOCK TABLES `exceptions` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `exceptions` ENABLE KEYS */;
-
---
--- Table structure for table `identifier`
---
-
-DROP TABLE IF EXISTS `identifier`;
-CREATE TABLE `identifier` (
-  `IDENTIFIERID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `AUTHORITYNAME` varchar(50) NOT NULL,
-  `AUTHORITYURL` varchar(4000) NOT NULL,
-  PRIMARY KEY  (`IDENTIFIERID`),
-  KEY `FK_Identifier_1` (`LAYERID`),
-  CONSTRAINT `FK_Identifier_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `identifier`
---
-
-
-/*!40000 ALTER TABLE `identifier` DISABLE KEYS */;
-LOCK TABLES `identifier` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `identifier` ENABLE KEYS */;
-
---
--- Table structure for table `kb_uniquenumber`
---
-
-DROP TABLE IF EXISTS `kb_uniquenumber`;
-CREATE TABLE `kb_uniquenumber` (
-  `unn_id` int(11) NOT NULL auto_increment,
-  `unn_indexName` varchar(255) default NULL,
-  `unn_indexCount` int(11) default NULL,
-  PRIMARY KEY  (`unn_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `kb_uniquenumber`
---
-
-
-/*!40000 ALTER TABLE `kb_uniquenumber` DISABLE KEYS */;
-LOCK TABLES `kb_uniquenumber` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `kb_uniquenumber` ENABLE KEYS */;
-
---
--- Table structure for table `layer`
---
-
-DROP TABLE IF EXISTS `layer`;
-CREATE TABLE `layer` (
-  `LAYERID` int(11) NOT NULL auto_increment,
-  `SERVICEPROVIDERID` int(11) default NULL,
-  `NAME` varchar(50) default NULL,
-  `TITLE` varchar(200) NOT NULL,
-  `ABSTRACTS` text,
-  `QUERYABLE` varchar(50) default NULL,
-  `CASCADED` varchar(50) default NULL,
-  `OPAQUE` varchar(50) default NULL,
-  `NOSUBSETS` varchar(50) default NULL,
-  `FIXEDWIDTH` varchar(50) default NULL,
-  `FIXEDHEIGHT` varchar(50) default NULL,
-  `SCALEHINTMIN` varchar(50) default NULL,
-  `SCALEHINTMAX` varchar(50) default NULL,
-  `PARENTID` int(11) default NULL,
-  `METADATA` text,
-  PRIMARY KEY  (`LAYERID`),
-  KEY `FK_Layer_1` (`SERVICEPROVIDERID`),
-  KEY `FK_Layer_2` (`PARENTID`),
-  CONSTRAINT `FK_Layer_1` FOREIGN KEY (`SERVICEPROVIDERID`) REFERENCES `serviceprovider` (`SERVICEPROVIDERID`),
-  CONSTRAINT `FK_Layer_2` FOREIGN KEY (`PARENTID`) REFERENCES `layer` (`LAYERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `layer`
---
-
-
-/*!40000 ALTER TABLE `layer` DISABLE KEYS */;
-LOCK TABLES `layer` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `layer` ENABLE KEYS */;
-
---
--- Table structure for table `layerdomainformat`
---
-
-DROP TABLE IF EXISTS `layerdomainformat`;
-CREATE TABLE `layerdomainformat` (
-  `LDRID` int(11) NOT NULL,
-  `FORMAT` varchar(100) NOT NULL,
-  PRIMARY KEY  (`LDRID`,`FORMAT`),
-  CONSTRAINT `FK_LayerDomainFormat_1` FOREIGN KEY (`LDRID`) REFERENCES `layerdomainresource` (`LDRID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `layerdomainformat`
---
-
-
-/*!40000 ALTER TABLE `layerdomainformat` DISABLE KEYS */;
-LOCK TABLES `layerdomainformat` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `layerdomainformat` ENABLE KEYS */;
-
---
--- Table structure for table `layerdomainresource`
---
-
-DROP TABLE IF EXISTS `layerdomainresource`;
-CREATE TABLE `layerdomainresource` (
-  `LDRID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `DOMAIN` varchar(50) NOT NULL,
-  `URL` varchar(4000) NOT NULL,
-  PRIMARY KEY  (`LDRID`),
-  KEY `FK_LayerDomainResource_1` (`LAYERID`),
-  CONSTRAINT `FK_LayerDomainResource_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `layerdomainresource`
---
-
-
-/*!40000 ALTER TABLE `layerdomainresource` DISABLE KEYS */;
-LOCK TABLES `layerdomainresource` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `layerdomainresource` ENABLE KEYS */;
-
---
--- Table structure for table `layerkeywordlist`
---
-
-DROP TABLE IF EXISTS `layerkeywordlist`;
-CREATE TABLE `layerkeywordlist` (
-  `KEYWORDLISTID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `KEYWORD` varchar(50) NOT NULL,
-  PRIMARY KEY  (`KEYWORDLISTID`),
-  KEY `FK_LayerKeywordList_1` (`LAYERID`),
-  CONSTRAINT `FK_LayerKeywordList_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `layerkeywordlist`
---
-
-
-/*!40000 ALTER TABLE `layerkeywordlist` DISABLE KEYS */;
-LOCK TABLES `layerkeywordlist` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `layerkeywordlist` ENABLE KEYS */;
-
---
--- Table structure for table `mon_clientrequest`
---
-
-DROP TABLE IF EXISTS `mon_clientrequest`;
-CREATE TABLE `mon_clientrequest` (
-  `clr_id` int(11) NOT NULL auto_increment,
-  `clr_clientRequestURI` varchar(4000) default NULL,
-  `clr_timeStamp` datetime default NULL,
-  `clr_userId` int(11) default NULL,
-  `clr_organizationId` int(11) default NULL,
-  `clr_method` varchar(255) NOT NULL,
-  `clr_clientIp` varchar(255) NOT NULL,
-  `clr_service` varchar(10) default NULL,
-  `clr_operation` varchar(50) default NULL,
-  `clr_exceptionClass` varchar(255) default NULL,
-  `clr_exceptionMessage` varchar(4000) default NULL,
-  PRIMARY KEY  (`clr_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `mon_clientrequest`
---
-
-
-/*!40000 ALTER TABLE `mon_clientrequest` DISABLE KEYS */;
-LOCK TABLES `mon_clientrequest` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `mon_clientrequest` ENABLE KEYS */;
-
---
--- Table structure for table `mon_requestoperation`
---
-
-DROP TABLE IF EXISTS `mon_requestoperation`;
-CREATE TABLE `mon_requestoperation` (
-  `rqo_id` int(11) NOT NULL auto_increment,
-  `rqo_discriminator` varchar(255) NOT NULL,
-  `rqo_clr_id` int(11) default NULL,
-  `rqo_duration` bigint(20) default NULL,
-  `rqo_msSinceRequestStart` bigint(20) default NULL,
-  `rqo_numberOfImages` int(11) default NULL,
-  `rqo_dataSize` bigint(20) default NULL,
-  `rqo_bytesReceivedFromUser` int(11) default NULL,
-  `rqo_bytesSendToUser` int(11) default NULL,
-  PRIMARY KEY  (`rqo_id`),
-  KEY `FKCE03888B8A8C8DEC` (`rqo_clr_id`),
-  CONSTRAINT `FKCE03888B8A8C8DEC` FOREIGN KEY (`rqo_clr_id`) REFERENCES `mon_clientrequest` (`clr_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `mon_requestoperation`
---
-
-
-/*!40000 ALTER TABLE `mon_requestoperation` DISABLE KEYS */;
-LOCK TABLES `mon_requestoperation` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `mon_requestoperation` ENABLE KEYS */;
-
---
--- Table structure for table `mon_serviceproviderrequest`
---
-
-DROP TABLE IF EXISTS `mon_serviceproviderrequest`;
-CREATE TABLE `mon_serviceproviderrequest` (
-  `spr_id` int(11) NOT NULL auto_increment,
-  `spr_discriminator` varchar(255) NOT NULL,
-  `spr_clr_id` int(11) default NULL,
-  `spr_bytesSend` bigint(20) default NULL,
-  `spr_bytesReceived` bigint(20) default NULL,
-  `spr_responseStatus` int(11) default NULL,
-  `spr_providerRequestURI` varchar(4000) default NULL,
-  `spr_requestResponseTime` bigint(20) default NULL,
-  `spr_msSinceRequestStart` bigint(20) default NULL,
-  `spr_wmsVersion` varchar(255) default NULL,
-  `spr_srs` varchar(255) default NULL,
-  `spr_width` int(11) default NULL,
-  `spr_height` int(11) default NULL,
-  `spr_format` varchar(255) default NULL,
-  `spr_serviceProviderId` int(11) default NULL,
-  `spr_exceptionClass` varchar(255) default NULL,
-  `spr_exceptionMessage` varchar(4000) default NULL,
-  PRIMARY KEY  (`spr_id`),
-  KEY `FK712CEEBC223516A7` (`spr_clr_id`),
-  CONSTRAINT `FK712CEEBC223516A7` FOREIGN KEY (`spr_clr_id`) REFERENCES `mon_clientrequest` (`clr_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `mon_serviceproviderrequest`
---
-
-
-/*!40000 ALTER TABLE `mon_serviceproviderrequest` DISABLE KEYS */;
-LOCK TABLES `mon_serviceproviderrequest` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `mon_serviceproviderrequest` ENABLE KEYS */;
-
---
--- Table structure for table `organization`
---
-
-DROP TABLE IF EXISTS `organization`;
-CREATE TABLE `organization` (
-  `ORGANIZATIONID` int(11) NOT NULL auto_increment,
-  `NAME` varchar(50) NOT NULL,
-  `STREET` varchar(50) default NULL,
-  `NUMBER` varchar(10) default NULL,
-  `ADDITION` varchar(10) default NULL,
-  `PROVINCE` varchar(50) default NULL,
-  `COUNTRY` varchar(50) default NULL,
-  `POSTBOX` varchar(50) default NULL,
-  `BILLINGADDRESS` varchar(50) default NULL,
-  `VISITORSADDRESS` varchar(50) default NULL,
-  `TELEPHONE` varchar(50) NOT NULL,
-  `FAX` varchar(50) default NULL,
-  `POSTALCODE` varchar(45) default NULL,
-  `HASVALIDGETCAPABILITIES` tinyint(1) NOT NULL,
-  `BBOX` varchar(50) default NULL,
-  `CODE` varchar(50) default NULL,
-  `ALLOWACCOUNTINGLAYERS` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `organization`
---
-
-
-/*!40000 ALTER TABLE `organization` DISABLE KEYS */;
-LOCK TABLES `organization` WRITE;
-INSERT INTO `organization` VALUES (1,'Beheerders',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1234567890',NULL,NULL,1,NULL,NULL,0);
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `organization` ENABLE KEYS */;
-
---
--- Table structure for table `organizationlayer`
---
-
-DROP TABLE IF EXISTS `organizationlayer`;
-CREATE TABLE `organizationlayer` (
-  `ORGANIZATIONID` int(11) NOT NULL,
-  `LAYERID` int(11) NOT NULL,
-  PRIMARY KEY  (`ORGANIZATIONID`,`LAYERID`),
-  KEY `FK_OrganizationLayer_2` (`LAYERID`),
-  CONSTRAINT `FK_OrganizationLayer_1` FOREIGN KEY (`ORGANIZATIONID`) REFERENCES `organization` (`ORGANIZATIONID`),
-  CONSTRAINT `FK_OrganizationLayer_2` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `organizationlayer`
---
-
-
-/*!40000 ALTER TABLE `organizationlayer` DISABLE KEYS */;
-LOCK TABLES `organizationlayer` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `organizationlayer` ENABLE KEYS */;
-
---
--- Table structure for table `rep_dailyusage`
---
-
-DROP TABLE IF EXISTS `rep_dailyusage`;
-CREATE TABLE `rep_dailyusage` (
-  `dyu_id` int(11) NOT NULL auto_increment,
-  `dyu_usd_id` int(11) default NULL,
-  `dyu_date` datetime default NULL,
-  `dyu_hour` int(11) default NULL,
-  `dyu_dataUsage` bigint(20) default NULL,
-  `dyu_hits` bigint(20) default NULL,
-  PRIMARY KEY  (`dyu_id`),
-  KEY `FKA947900A6971056F` (`dyu_usd_id`),
-  CONSTRAINT `FKA947900A6971056F` FOREIGN KEY (`dyu_usd_id`) REFERENCES `rep_usagedetails` (`usd_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_dailyusage`
---
-
-
-/*!40000 ALTER TABLE `rep_dailyusage` DISABLE KEYS */;
-LOCK TABLES `rep_dailyusage` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_dailyusage` ENABLE KEYS */;
-
---
--- Table structure for table `rep_report`
---
-
-DROP TABLE IF EXISTS `rep_report`;
-CREATE TABLE `rep_report` (
-  `rep_id` int(11) NOT NULL auto_increment,
-  `rep_discriminator` varchar(255) NOT NULL,
-  `rep_reportDate` datetime default NULL,
-  `rep_processingTime` bigint(20) default NULL,
-  `rep_startDate` datetime default NULL,
-  `rep_endDate` datetime default NULL,
-  `rpd_org_id` int(11) default NULL,
-  `rep_organizationId` int(11) default NULL,
-  PRIMARY KEY  (`rep_id`),
-  KEY `FK23F41F16E340125A` (`rpd_org_id`),
-  CONSTRAINT `FK23F41F16E340125A` FOREIGN KEY (`rpd_org_id`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_report`
---
-
-
-/*!40000 ALTER TABLE `rep_report` DISABLE KEYS */;
-LOCK TABLES `rep_report` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_report` ENABLE KEYS */;
-
---
--- Table structure for table `rep_reportdata`
---
-
-DROP TABLE IF EXISTS `rep_reportdata`;
-CREATE TABLE `rep_reportdata` (
-  `rpd_id` int(11) NOT NULL auto_increment,
-  `rpd_discriminator` varchar(255) NOT NULL,
-  `rpd_rep_id` int(11) default NULL,
-  `rpd_minHour` int(11) default NULL,
-  `rpd_maxHour` int(11) default NULL,
-  `rpd_ctoHits` bigint(20) default NULL,
-  `rpd_ctoAverageResponse` double default NULL,
-  `rpd_cioHits` bigint(20) default NULL,
-  `rpd_cioAverageResponse` double default NULL,
-  `rpd_cxoHits` bigint(20) default NULL,
-  `rpd_cxoData` bigint(20) default NULL,
-  `rpd_cxoAverageResponse` double default NULL,
-  `rpd_roHits` bigint(20) default NULL,
-  `rpd_roUpload` bigint(20) default NULL,
-  `rpd_roDownload` bigint(20) default NULL,
-  `rpd_roAverageResponse` double default NULL,
-  PRIMARY KEY  (`rpd_id`),
-  KEY `FKC03193C066F0FC6` (`rpd_rep_id`),
-  CONSTRAINT `FKC03193C066F0FC6` FOREIGN KEY (`rpd_rep_id`) REFERENCES `rep_report` (`rep_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_reportdata`
---
-
-
-/*!40000 ALTER TABLE `rep_reportdata` DISABLE KEYS */;
-LOCK TABLES `rep_reportdata` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_reportdata` ENABLE KEYS */;
-
---
--- Table structure for table `rep_rowvalue`
---
-
-DROP TABLE IF EXISTS `rep_rowvalue`;
-CREATE TABLE `rep_rowvalue` (
-  `rva_id` int(11) NOT NULL auto_increment,
-  `rva_tro_id` int(11) default NULL,
-  `rva_rowValue` varchar(255) default NULL,
-  `rva_valueOrder` int(11) default NULL,
-  PRIMARY KEY  (`rva_id`),
-  KEY `FK14B3C939A32715CE` (`rva_tro_id`),
-  CONSTRAINT `FK14B3C939A32715CE` FOREIGN KEY (`rva_tro_id`) REFERENCES `rep_tablerow` (`tro_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_rowvalue`
---
-
-
-/*!40000 ALTER TABLE `rep_rowvalue` DISABLE KEYS */;
-LOCK TABLES `rep_rowvalue` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_rowvalue` ENABLE KEYS */;
-
---
--- Table structure for table `rep_status`
---
-
-DROP TABLE IF EXISTS `rep_status`;
-CREATE TABLE `rep_status` (
-  `sta_id` int(11) NOT NULL auto_increment,
-  `sta_reportId` int(11) default NULL,
-  `sta_creationDate` datetime default NULL,
-  `sta_state` int(11) default NULL,
-  `sta_statusMessage` varchar(4000) default NULL,
-  `sta_org_id` int(11) default NULL,
-  PRIMARY KEY  (`sta_id`),
-  KEY `FK267599D4F0F7B8E0` (`sta_org_id`),
-  CONSTRAINT `FK267599D4F0F7B8E0` FOREIGN KEY (`sta_org_id`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_status`
---
-
-
-/*!40000 ALTER TABLE `rep_status` DISABLE KEYS */;
-LOCK TABLES `rep_status` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_status` ENABLE KEYS */;
-
---
--- Table structure for table `rep_table`
---
-
-DROP TABLE IF EXISTS `rep_table`;
-CREATE TABLE `rep_table` (
-  `tab_id` int(11) NOT NULL auto_increment,
-  `tab_rep_id` int(11) default NULL,
-  `rep_tableName` varchar(255) default NULL,
-  PRIMARY KEY  (`tab_id`),
-  KEY `FKCFB6ADACFD6ECBDE` (`tab_rep_id`),
-  CONSTRAINT `FKCFB6ADACFD6ECBDE` FOREIGN KEY (`tab_rep_id`) REFERENCES `rep_report` (`rep_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_table`
---
-
-
-/*!40000 ALTER TABLE `rep_table` DISABLE KEYS */;
-LOCK TABLES `rep_table` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_table` ENABLE KEYS */;
-
---
--- Table structure for table `rep_tablerow`
---
-
-DROP TABLE IF EXISTS `rep_tablerow`;
-CREATE TABLE `rep_tablerow` (
-  `tro_id` int(11) NOT NULL auto_increment,
-  `tro_tab_id` int(11) default NULL,
-  `tro_header` bit(1) default NULL,
-  `tro_rowOrder` int(11) default NULL,
-  PRIMARY KEY  (`tro_id`),
-  KEY `FKDB7E1CAEEDED1520` (`tro_tab_id`),
-  CONSTRAINT `FKDB7E1CAEEDED1520` FOREIGN KEY (`tro_tab_id`) REFERENCES `rep_table` (`tab_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_tablerow`
---
-
-
-/*!40000 ALTER TABLE `rep_tablerow` DISABLE KEYS */;
-LOCK TABLES `rep_tablerow` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_tablerow` ENABLE KEYS */;
-
---
--- Table structure for table `rep_usagedetails`
---
-
-DROP TABLE IF EXISTS `rep_usagedetails`;
-CREATE TABLE `rep_usagedetails` (
-  `usd_id` int(11) NOT NULL auto_increment,
-  `usd_rpd_id` int(11) default NULL,
-  `usd_userId` int(11) default NULL,
-  PRIMARY KEY  (`usd_id`),
-  KEY `FK312665E3F5CA8D83` (`usd_rpd_id`),
-  CONSTRAINT `FK312665E3F5CA8D83` FOREIGN KEY (`usd_rpd_id`) REFERENCES `rep_reportdata` (`rpd_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_usagedetails`
---
-
-
-/*!40000 ALTER TABLE `rep_usagedetails` DISABLE KEYS */;
-LOCK TABLES `rep_usagedetails` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_usagedetails` ENABLE KEYS */;
-
---
--- Table structure for table `rep_users`
---
-
-DROP TABLE IF EXISTS `rep_users`;
-CREATE TABLE `rep_users` (
-  `rpd_usr_id` int(11) NOT NULL,
-  `usr_id` int(11) NOT NULL,
-  PRIMARY KEY  (`rpd_usr_id`,`usr_id`),
-  KEY `FKCFCCFFE6C53CB6F` (`rpd_usr_id`),
-  CONSTRAINT `FKCFCCFFE6C53CB6F` FOREIGN KEY (`rpd_usr_id`) REFERENCES `rep_report` (`rep_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `rep_users`
---
-
-
-/*!40000 ALTER TABLE `rep_users` DISABLE KEYS */;
-LOCK TABLES `rep_users` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `rep_users` ENABLE KEYS */;
-
---
--- Table structure for table `roles`
---
-
-DROP TABLE IF EXISTS `roles`;
-CREATE TABLE `roles` (
-  `ROLEID` int(11) NOT NULL auto_increment,
-  `ROLE` varchar(45) NOT NULL,
-  PRIMARY KEY  (`ROLEID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `roles`
---
-
-
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-LOCK TABLES `roles` WRITE;
-INSERT INTO `roles` VALUES (1,'beheerder'),(2,'organisatiebeheerder'),(3,'themabeheerder'),(4,'gebruiker'),(5,'demogebruiker');
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
-
---
--- Table structure for table `servicedomainformat`
---
-
-DROP TABLE IF EXISTS `servicedomainformat`;
-CREATE TABLE `servicedomainformat` (
-  `SDRID` int(11) NOT NULL,
-  `FORMAT` varchar(100) NOT NULL,
-  PRIMARY KEY  (`SDRID`,`FORMAT`),
-  CONSTRAINT `FK_ServiceDomainFormat_1` FOREIGN KEY (`SDRID`) REFERENCES `servicedomainresource` (`SDRID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `servicedomainformat`
---
-
-
-/*!40000 ALTER TABLE `servicedomainformat` DISABLE KEYS */;
-LOCK TABLES `servicedomainformat` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `servicedomainformat` ENABLE KEYS */;
-
---
--- Table structure for table `servicedomainresource`
---
-
-DROP TABLE IF EXISTS `servicedomainresource`;
-CREATE TABLE `servicedomainresource` (
-  `SDRID` int(11) NOT NULL auto_increment,
-  `SERVICEPROVIDERID` int(11) NOT NULL,
-  `DOMAIN` varchar(50) NOT NULL,
-  `GETURL` varchar(4000) default NULL,
-  `POSTURL` varchar(4000) default NULL,
-  PRIMARY KEY  (`SDRID`),
-  KEY `FK_RequestDomainResource_1` (`SERVICEPROVIDERID`),
-  CONSTRAINT `FK_RequestDomainResource_1` FOREIGN KEY (`SERVICEPROVIDERID`) REFERENCES `serviceprovider` (`SERVICEPROVIDERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `servicedomainresource`
---
-
-
-/*!40000 ALTER TABLE `servicedomainresource` DISABLE KEYS */;
-LOCK TABLES `servicedomainresource` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `servicedomainresource` ENABLE KEYS */;
-
---
--- Table structure for table `serviceprovider`
---
-
-DROP TABLE IF EXISTS `serviceprovider`;
-CREATE TABLE `serviceprovider` (
-  `SERVICEPROVIDERID` int(11) NOT NULL auto_increment,
-  `NAME` varchar(60) NOT NULL,
-  `TITLE` varchar(50) NOT NULL,
-  `ABSTRACTS` text,
-  `FEES` text,
-  `ACCESSCONSTRAINTS` text,
-  `GIVENNAME` varchar(50) NOT NULL,
-  `URL` varchar(4000) default NULL,
-  `UPDATEDDATE` datetime NOT NULL,
-  `WMSVERSION` varchar(50) NOT NULL,
-  `ABBR` varchar(60) NOT NULL,
-  PRIMARY KEY  (`SERVICEPROVIDERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `serviceprovider`
---
-
-
-/*!40000 ALTER TABLE `serviceprovider` DISABLE KEYS */;
-LOCK TABLES `serviceprovider` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `serviceprovider` ENABLE KEYS */;
-
---
--- Table structure for table `serviceproviderkeywordlist`
---
-
-DROP TABLE IF EXISTS `serviceproviderkeywordlist`;
-CREATE TABLE `serviceproviderkeywordlist` (
-  `SERVICEPROVIDERID` int(11) NOT NULL,
-  `KEYWORD` varchar(50) NOT NULL,
-  PRIMARY KEY  (`SERVICEPROVIDERID`,`KEYWORD`),
-  CONSTRAINT `FK_ServiceProviderKeywordList_1` FOREIGN KEY (`SERVICEPROVIDERID`) REFERENCES `serviceprovider` (`SERVICEPROVIDERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `serviceproviderkeywordlist`
---
-
-
-/*!40000 ALTER TABLE `serviceproviderkeywordlist` DISABLE KEYS */;
-LOCK TABLES `serviceproviderkeywordlist` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `serviceproviderkeywordlist` ENABLE KEYS */;
-
---
--- Table structure for table `srs`
---
-
-DROP TABLE IF EXISTS `srs`;
-CREATE TABLE `srs` (
-  `SRSID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `SRS` varchar(150) default NULL,
-  `MINX` varchar(50) default NULL,
-  `MAXX` varchar(50) default NULL,
-  `MINY` varchar(50) default NULL,
-  `MAXY` varchar(50) default NULL,
-  `RESX` varchar(50) default NULL,
-  `RESY` varchar(50) default NULL,
-  PRIMARY KEY  (`SRSID`),
-  KEY `FK_SRS_1` (`LAYERID`),
-  CONSTRAINT `FK_SRS_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `srs`
---
-
-
-/*!40000 ALTER TABLE `srs` DISABLE KEYS */;
-LOCK TABLES `srs` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `srs` ENABLE KEYS */;
-
---
--- Table structure for table `style`
---
-
-DROP TABLE IF EXISTS `style`;
-CREATE TABLE `style` (
-  `STYLEID` int(11) NOT NULL auto_increment,
-  `LAYERID` int(11) NOT NULL,
-  `NAME` varchar(50) NOT NULL,
-  `TITLE` varchar(50) NOT NULL,
-  `ABSTRACTS` text,
-  PRIMARY KEY  (`STYLEID`),
-  KEY `FK_Style_1` (`LAYERID`),
-  CONSTRAINT `FK_Style_1` FOREIGN KEY (`LAYERID`) REFERENCES `layer` (`LAYERID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `style`
---
-
-
-/*!40000 ALTER TABLE `style` DISABLE KEYS */;
-LOCK TABLES `style` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `style` ENABLE KEYS */;
-
---
--- Table structure for table `styledomainformat`
---
-
-DROP TABLE IF EXISTS `styledomainformat`;
-CREATE TABLE `styledomainformat` (
-  `SDRID` int(11) NOT NULL auto_increment,
-  `FORMAT` varchar(45) NOT NULL,
-  PRIMARY KEY  (`SDRID`,`FORMAT`),
-  CONSTRAINT `FK_StyleDomainFormat_1` FOREIGN KEY (`SDRID`) REFERENCES `styledomainresource` (`SDRID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `styledomainformat`
---
-
-
-/*!40000 ALTER TABLE `styledomainformat` DISABLE KEYS */;
-LOCK TABLES `styledomainformat` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `styledomainformat` ENABLE KEYS */;
-
---
--- Table structure for table `styledomainresource`
---
-
-DROP TABLE IF EXISTS `styledomainresource`;
-CREATE TABLE `styledomainresource` (
-  `SDRID` int(11) NOT NULL auto_increment,
-  `STYLEID` int(11) NOT NULL,
-  `DOMAIN` varchar(45) NOT NULL,
-  `URL` varchar(4000) default NULL,
-  `WIDTH` varchar(45) default NULL,
-  `HEIGHT` varchar(45) default NULL,
-  PRIMARY KEY  (`SDRID`),
-  KEY `FK_StyleDomainResource_1` (`STYLEID`),
-  CONSTRAINT `FK_StyleDomainResource_1` FOREIGN KEY (`STYLEID`) REFERENCES `style` (`STYLEID`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `styledomainresource`
---
-
-
-/*!40000 ALTER TABLE `styledomainresource` DISABLE KEYS */;
-LOCK TABLES `styledomainresource` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `styledomainresource` ENABLE KEYS */;
-
---
--- Table structure for table `user`
---
-
-DROP TABLE IF EXISTS `user`;
-CREATE TABLE `user` (
-  `USERID` int(11) NOT NULL auto_increment,
-  `ORGANIZATIONID` int(11) NOT NULL,
-  `FIRSTNAME` varchar(50) NOT NULL,
-  `LASTNAME` varchar(50) NOT NULL,
-  `EMAILADDRESS` varchar(50) NOT NULL,
-  `USERNAME` varchar(50) NOT NULL,
-  `PASSWORD` varchar(50) NOT NULL,
-  `PERSONALURL` varchar(4000) default NULL,
-  `TIMEOUT` datetime default NULL,
-  `DEFAULTGETMAP` varchar(4000) default NULL,
-  PRIMARY KEY  (`USERID`),
-  KEY `FK_User_1` (`ORGANIZATIONID`),
-  CONSTRAINT `FK_User_1` FOREIGN KEY (`ORGANIZATIONID`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `user`
---
-
-
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-LOCK TABLES `user` WRITE;
-INSERT INTO `user` VALUES (1,1,'beheerder','beheerder','info@b3partners.nl','beheerder','JMzUf6QkCdc%3D','http://dev.b3p.nl/kaartenbalie_ev/services/a0b3d6ef13be91ff42b89b33f116b823','2009-01-01 00:00:00','http://localhost:8084/kaartenbalie/wms/f9530b2d908a3494950a246ca309c6ba?VERSION=1.1.1&REQUEST=GetMap&LAYERS=demo_bron_nieuwekaart,demo_buurten_2006,demo_plan_lijnen,demo_plan_polygonen,demo_gemeenten_2006,demo_wijken_2006&BBOX=12000,304000,280000,620000&SRS=EPSG:25832&HEIGHT=400&WIDTH=300&FORMAT=image/gif&BGCOLOR=0xF0F0F0&EXCEPTIONS=application/vnd.ogc.se_inimage&STYLES=');
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-
---
--- Table structure for table `userip`
---
-
-DROP TABLE IF EXISTS `userip`;
-CREATE TABLE `userip` (
-  `USERIPID` int(11) NOT NULL auto_increment,
-  `USERID` int(11) NOT NULL,
-  `IPADDRESS` varchar(45) NOT NULL,
-  PRIMARY KEY  (`USERIPID`),
-  KEY `FK_userip_1` (`USERID`),
-  CONSTRAINT `FK_userip_1` FOREIGN KEY (`USERID`) REFERENCES `user` (`USERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `userip`
---
-
-
-/*!40000 ALTER TABLE `userip` DISABLE KEYS */;
-LOCK TABLES `userip` WRITE;
-INSERT INTO `userip` VALUES (76,1,'213.84.161.200');
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `userip` ENABLE KEYS */;
-
---
--- Table structure for table `userroles`
---
-
-DROP TABLE IF EXISTS `userroles`;
-CREATE TABLE `userroles` (
-  `USERID` int(11) NOT NULL auto_increment,
-  `ROLEID` int(11) NOT NULL,
-  PRIMARY KEY  (`USERID`,`ROLEID`),
-  KEY `FK_userroles_2` (`ROLEID`),
-  CONSTRAINT `FK_userroles_1` FOREIGN KEY (`USERID`) REFERENCES `user` (`USERID`),
-  CONSTRAINT `FK_userroles_2` FOREIGN KEY (`ROLEID`) REFERENCES `roles` (`ROLEID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `userroles`
---
-
-
-/*!40000 ALTER TABLE `userroles` DISABLE KEYS */;
-LOCK TABLES `userroles` WRITE;
-INSERT INTO `userroles` VALUES (1,1),(1,2),(1,3),(1,4);
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `userroles` ENABLE KEYS */;
-
---
--- Table structure for table `wfs_layer`
---
-
-DROP TABLE IF EXISTS `wfs_layer`;
-CREATE TABLE `wfs_layer` (
-  `WFSLAYERID` int(11) NOT NULL auto_increment,
-  `WFSSERVICEPROVIDERID` int(11) default NULL,
-  `NAME` varchar(50) default NULL,
-  `TITLE` varchar(200) NOT NULL,
-  `METADATA` text,
-  PRIMARY KEY  (`WFSLAYERID`),
-  KEY `FK_wfs_layer_1` (`WFSSERVICEPROVIDERID`),
-  CONSTRAINT `FK_wfs_layer_1` FOREIGN KEY (`WFSSERVICEPROVIDERID`) REFERENCES `wfs_serviceprovider` (`WFSSERVICEPROVIDERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `wfs_layer`
---
-
-
-/*!40000 ALTER TABLE `wfs_layer` DISABLE KEYS */;
-LOCK TABLES `wfs_layer` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `wfs_layer` ENABLE KEYS */;
-
---
--- Table structure for table `wfs_organizationlayer`
---
-
-DROP TABLE IF EXISTS `wfs_organizationlayer`;
-CREATE TABLE `wfs_organizationlayer` (
-  `ORGANIZATIONID` int(11) NOT NULL,
-  `WFSLAYERID` int(11) NOT NULL,
-  PRIMARY KEY  (`ORGANIZATIONID`,`WFSLAYERID`),
-  KEY `FK_wfs_organisationlayer_1` (`WFSLAYERID`),
-  CONSTRAINT `FK_wfs_organisationlayer_1` FOREIGN KEY (`WFSLAYERID`) REFERENCES `wfs_layer` (`WFSLAYERID`),
-  CONSTRAINT `FK_wfs_organisationlayer_2` FOREIGN KEY (`ORGANIZATIONID`) REFERENCES `organization` (`ORGANIZATIONID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `wfs_organizationlayer`
---
-
-
-/*!40000 ALTER TABLE `wfs_organizationlayer` DISABLE KEYS */;
-LOCK TABLES `wfs_organizationlayer` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `wfs_organizationlayer` ENABLE KEYS */;
-
---
--- Table structure for table `wfs_serviceprovider`
---
-
-DROP TABLE IF EXISTS `wfs_serviceprovider`;
-CREATE TABLE `wfs_serviceprovider` (
-  `WFSSERVICEPROVIDERID` int(11) NOT NULL auto_increment,
-  `NAME` varchar(60) NOT NULL,
-  `TITLE` varchar(50) NOT NULL,
-  `GIVENNAME` varchar(50) default NULL,
-  `URL` varchar(4000) default NULL,
-  `UPDATEDDATE` datetime default NULL,
-  `WFSVERSION` varchar(50) default NULL,
-  `ABBR` varchar(60) default NULL,
-  PRIMARY KEY  (`WFSSERVICEPROVIDERID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `wfs_serviceprovider`
---
-
-
-/*!40000 ALTER TABLE `wfs_serviceprovider` DISABLE KEYS */;
-LOCK TABLES `wfs_serviceprovider` WRITE;
-UNLOCK TABLES;
-/*!40000 ALTER TABLE `wfs_serviceprovider` ENABLE KEYS */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
+DROP TABLE
+    acc_account;
+CREATE
+    TABLE acc_account
+    (
+        id INTEGER NOT NULL,
+        acc_creditbalance NUMERIC(15,2),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    acc_layerpricing;
+CREATE
+    TABLE acc_layerpricing
+    (
+        id INTEGER DEFAULT nextval('acc_layerpricing_id_seq'::regclass) NOT NULL,
+        lpr_layername CHARACTER VARYING(255),
+        lpr_serverproviderprefix CHARACTER VARYING(255),
+        lpr_plantype INTEGER,
+        lpr_validfrom TIMESTAMP WITHOUT TIME ZONE,
+        lpr_validuntil TIMESTAMP WITHOUT TIME ZONE,
+        lpr_creationdate TIMESTAMP WITHOUT TIME ZONE,
+        lpr_deletiondate TIMESTAMP WITHOUT TIME ZONE,
+        lpr_layerisfree BOOLEAN,
+        lpr_unitprice NUMERIC(9,2),
+        lpr_service CHARACTER VARYING(255),
+        lpr_operation CHARACTER VARYING(255),
+        lpr_minscale NUMERIC(20,10),
+        lpr_maxscale NUMERIC(20,10),
+        lpr_projection CHARACTER VARYING(255),
+        PRIMARY KEY (id),
+        UNIQUE (lpr_creationdate)
+    );
+DROP TABLE
+    acc_pricecomp;
+CREATE
+    TABLE acc_pricecomp
+    (
+        id INTEGER DEFAULT nextval('acc_pricecomp_id_seq'::regclass) NOT NULL,
+        prc_tra_id INTEGER,
+        prc_serverproviderprefix CHARACTER VARYING(255),
+        prc_layername CHARACTER VARYING(255),
+        prc_calculationdate TIMESTAMP WITHOUT TIME ZONE,
+        prc_plantype INTEGER,
+        prc_service CHARACTER VARYING(255),
+        prc_operation CHARACTER VARYING(255),
+        lpr_units NUMERIC(5,2),
+        prc_projection CHARACTER VARYING(255),
+        prc_layerisfree BOOLEAN,
+        prc_method INTEGER,
+        prc_calculationtime BIGINT,
+        lpr_layerprice NUMERIC(12,2),
+        prc_scale NUMERIC(20,2),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    acc_transaction;
+CREATE
+    TABLE acc_transaction
+    (
+        id INTEGER DEFAULT nextval('acc_transaction_id_seq'::regclass) NOT NULL,
+        tra_creditalteration NUMERIC(12,2),
+        tra_transactiondate TIMESTAMP WITHOUT TIME ZONE,
+        tra_mutationdate TIMESTAMP WITHOUT TIME ZONE,
+        tra_status INTEGER,
+        tra_type INTEGER,
+        tra_errormessage CHARACTER VARYING(255),
+        tra_userid INTEGER,
+        tra_description CHARACTER VARYING(32),
+        tra_acc_id INTEGER,
+        tra_billingamount NUMERIC(10,2),
+        tra_txexchangerate INTEGER,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    attribution;
+CREATE
+    TABLE attribution
+    (
+        id INTEGER NOT NULL,
+        title CHARACTER VARYING(50) DEFAULT '0',
+        attributionurl CHARACTER VARYING(4000) DEFAULT '0',
+        logourl CHARACTER VARYING(4000),
+        logowidth CHARACTER VARYING(50),
+        logoheight CHARACTER VARYING(50),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    contactinformation;
+CREATE
+    TABLE contactinformation
+    (
+        id INTEGER NOT NULL,
+        contactperson CHARACTER VARYING(50),
+        contactposition CHARACTER VARYING(50),
+        address CHARACTER VARYING(50),
+        addresstype CHARACTER VARYING(50),
+        postcode CHARACTER VARYING(50),
+        city CHARACTER VARYING(50),
+        stateorprovince CHARACTER VARYING(50),
+        country CHARACTER VARYING(50),
+        voicetelephone CHARACTER VARYING(50),
+        fascimiletelephone CHARACTER VARYING(50),
+        emailaddress CHARACTER VARYING(50),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    dimensions;
+CREATE
+    TABLE dimensions
+    (
+        id INTEGER DEFAULT nextval('dimensions_id_seq'::regclass) NOT NULL,
+        layerid INTEGER NOT NULL,
+        dimensionsname CHARACTER VARYING(50),
+        dimensionsunit CHARACTER VARYING(50),
+        dimensionsunitsymbol CHARACTER VARYING(50),
+        extentname CHARACTER VARYING(50),
+        extentdefaults CHARACTER VARYING(50),
+        extentnearestvalue CHARACTER VARYING(50),
+        extentmultiplevalues CHARACTER VARYING(50),
+        extentcurrent CHARACTER VARYING(50),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    exceptions;
+CREATE
+    TABLE exceptions
+    (
+        serviceproviderid INTEGER NOT NULL,
+        format CHARACTER VARYING(50) NOT NULL,
+        PRIMARY KEY (serviceproviderid, format)
+    );
+DROP TABLE
+    geometry_columns;
+CREATE
+    TABLE geometry_columns
+    (
+        f_table_catalog CHARACTER VARYING(256) NOT NULL,
+        f_table_schema CHARACTER VARYING(256) NOT NULL,
+        f_table_name CHARACTER VARYING(256) NOT NULL,
+        f_geometry_column CHARACTER VARYING(256) NOT NULL,
+        coord_dimension INTEGER NOT NULL,
+        srid INTEGER NOT NULL,
+        type CHARACTER VARYING(30) NOT NULL,
+        CONSTRAINT geometry_columns_pk PRIMARY KEY (f_table_catalog, f_table_schema, f_table_name, f_geometry_column)
+    );
+DROP TABLE
+    identifier;
+CREATE
+    TABLE identifier
+    (
+        id INTEGER DEFAULT nextval('identifier_id_seq'::regclass) NOT NULL,
+        layerid INTEGER NOT NULL,
+        authorityname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        authorityurl CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    layer;
+CREATE
+    TABLE layer
+    (
+        id INTEGER DEFAULT nextval('layer_id_seq'::regclass) NOT NULL,
+        parentid INTEGER,
+        serviceproviderid INTEGER NOT NULL,
+        name CHARACTER VARYING(200),
+        title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
+        abstracts TEXT,
+        queryable CHARACTER VARYING(50) DEFAULT '0',
+        cascaded CHARACTER VARYING(50) DEFAULT '0',
+        opaque CHARACTER VARYING(50) DEFAULT '0',
+        nosubsets CHARACTER VARYING(50) DEFAULT '0',
+        fixedwidth CHARACTER VARYING(50) DEFAULT '0',
+        fixedheight CHARACTER VARYING(50) DEFAULT '0',
+        scalehintmin CHARACTER VARYING(50) DEFAULT '0',
+        scalehintmax CHARACTER VARYING(50) DEFAULT '0',
+        metadata TEXT,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    layerdomainformat;
+CREATE
+    TABLE layerdomainformat
+    (
+        ldrid INTEGER NOT NULL,
+        format CHARACTER VARYING(100) NOT NULL,
+        PRIMARY KEY (ldrid, format)
+    );
+DROP TABLE
+    layerdomainresource;
+CREATE
+    TABLE layerdomainresource
+    (
+        id INTEGER DEFAULT nextval('layerdomainresource_id_seq'::regclass) NOT NULL,
+        layerid INTEGER NOT NULL,
+        domain CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        url CHARACTER VARYING(4000) NOT NULL,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    layerkeywordlist;
+CREATE
+    TABLE layerkeywordlist
+    (
+        layerid INTEGER NOT NULL,
+        keyword CHARACTER VARYING(50) NOT NULL,
+        PRIMARY KEY (layerid, keyword)
+    );
+DROP TABLE
+    mon_clientrequest;
+CREATE
+    TABLE mon_clientrequest
+    (
+        id INTEGER DEFAULT nextval('mon_clientrequest_id_seq'::regclass) NOT NULL,
+        clr_clientrequesturi CHARACTER VARYING(4000),
+        clr_timestamp TIMESTAMP WITHOUT TIME ZONE,
+        clr_userid INTEGER,
+        clr_method CHARACTER VARYING(255),
+        clr_clientip CHARACTER VARYING(255),
+        clr_service CHARACTER VARYING(255),
+        clr_operation CHARACTER VARYING(255),
+        clr_organizationid INTEGER,
+        clr_exceptionclass CHARACTER VARYING(255),
+        clr_exceptionmessage CHARACTER VARYING(4000),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    mon_requestoperation;
+CREATE
+    TABLE mon_requestoperation
+    (
+        id INTEGER DEFAULT nextval('mon_requestoperation_id_seq'::regclass) NOT NULL,
+        rqo_clr_id INTEGER,
+        rqo_duration BIGINT,
+        rqo_mssincerequeststart BIGINT,
+        rqo_numberofimages INTEGER,
+        rqo_datasize BIGINT,
+        rqo_bytesreceivedfromuser INTEGER,
+        rqo_bytessendtouser INTEGER,
+        rqo_type INTEGER,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    mon_serviceproviderrequest;
+CREATE
+    TABLE mon_serviceproviderrequest
+    (
+        id INTEGER DEFAULT nextval('mon_serviceproviderrequest_id_seq'::regclass) NOT NULL,
+        spr_clr_id INTEGER,
+        spr_bytessend BIGINT,
+        spr_bytesreceived BIGINT,
+        spr_responsestatus INTEGER,
+        spr_providerrequesturi CHARACTER VARYING(4000),
+        spr_requestresponsetime BIGINT,
+        spr_mssincerequeststart BIGINT,
+        spr_exceptionclass CHARACTER VARYING(255),
+        spr_exceptionmessage CHARACTER VARYING(4000),
+        spr_wmsversion CHARACTER VARYING(255),
+        spr_serviceproviderid INTEGER,
+        spr_srs CHARACTER VARYING(255),
+        spr_width INTEGER,
+        spr_height INTEGER,
+        spr_format CHARACTER VARYING(255),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    organization;
+CREATE
+    TABLE organization
+    (
+        id INTEGER DEFAULT nextval('organization_id_seq'::regclass) NOT NULL,
+        name CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        street CHARACTER VARYING(50) DEFAULT '0',
+        NUMBER CHARACTER VARYING(5) DEFAULT '0',
+        addition CHARACTER VARYING(10),
+        postalcode CHARACTER VARYING(45),
+        province CHARACTER VARYING(50) DEFAULT '0',
+        country CHARACTER VARYING(50) DEFAULT '0',
+        postbox CHARACTER VARYING(50),
+        billingaddress CHARACTER VARYING(50),
+        visitorsaddress CHARACTER VARYING(50),
+        telephone CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        fax CHARACTER VARYING(50),
+        hasvalidgetcapabilities BOOLEAN NOT NULL,
+        bbox CHARACTER VARYING(50),
+        code CHARACTER VARYING(50),
+        allowaccountinglayers BOOLEAN,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    organizationlayer;
+CREATE
+    TABLE organizationlayer
+    (
+        organizationid INTEGER NOT NULL,
+        layerid INTEGER NOT NULL,
+        PRIMARY KEY (organizationid, layerid)
+    );
+DROP TABLE
+    rep_report;
+CREATE
+    TABLE rep_report
+    (
+        id INTEGER DEFAULT nextval('rep_report_id_seq'::regclass) NOT NULL,
+        rpd_org_id INTEGER,
+        rep_reportdate TIMESTAMP WITHOUT TIME ZONE,
+        rep_processingtime BIGINT,
+        rep_startdate TIMESTAMP WITHOUT TIME ZONE,
+        rep_enddate TIMESTAMP WITHOUT TIME ZONE,
+        rep_organizationid INTEGER,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    roles;
+CREATE
+    TABLE roles
+    (
+        id INTEGER DEFAULT nextval('roles_id_seq'::regclass) NOT NULL,
+        role CHARACTER VARYING(45) NOT NULL,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    servicedomainformat;
+CREATE
+    TABLE servicedomainformat
+    (
+        sdrid INTEGER NOT NULL,
+        format CHARACTER VARYING(100) NOT NULL,
+        PRIMARY KEY (sdrid, format)
+    );
+DROP TABLE
+    servicedomainresource;
+CREATE
+    TABLE servicedomainresource
+    (
+        id INTEGER DEFAULT nextval('servicedomainresource_id_seq'::regclass) NOT NULL,
+        serviceproviderid INTEGER NOT NULL,
+        domain CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        geturl CHARACTER VARYING(4000) DEFAULT '0',
+        posturl CHARACTER VARYING(4000),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    serviceprovider;
+CREATE
+    TABLE serviceprovider
+    (
+        id INTEGER DEFAULT nextval('serviceprovider_id_seq'::regclass) NOT NULL,
+        name CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
+        abbr CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
+        title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
+        abstracts TEXT,
+        fees TEXT,
+        accessconstraints TEXT,
+        givenname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        url CHARACTER VARYING(4000) DEFAULT '0' NOT NULL,
+        updateddate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+        wmsversion CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    serviceproviderkeywordlist;
+CREATE
+    TABLE serviceproviderkeywordlist
+    (
+        serviceproviderid INTEGER NOT NULL,
+        keyword CHARACTER VARYING(50) NOT NULL,
+        PRIMARY KEY (serviceproviderid, keyword)
+    );
+DROP TABLE
+    spatial_ref_sys;
+CREATE
+    TABLE spatial_ref_sys
+    (
+        srid INTEGER NOT NULL,
+        auth_name CHARACTER VARYING(256),
+        auth_srid INTEGER,
+        srtext CHARACTER VARYING(2048),
+        proj4text CHARACTER VARYING(2048),
+        PRIMARY KEY (srid)
+    );
+DROP TABLE
+    srs;
+CREATE
+    TABLE srs
+    (
+        id INTEGER DEFAULT nextval('srs_id_seq'::regclass) NOT NULL,
+        layerid INTEGER NOT NULL,
+        srs CHARACTER VARYING(150),
+        minx CHARACTER VARYING(50),
+        maxx CHARACTER VARYING(50),
+        miny CHARACTER VARYING(50),
+        maxy CHARACTER VARYING(50),
+        resx CHARACTER VARYING(50),
+        resy CHARACTER VARYING(50),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    style;
+CREATE
+    TABLE style
+    (
+        id INTEGER DEFAULT nextval('style_id_seq'::regclass) NOT NULL,
+        layerid INTEGER NOT NULL,
+        name CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
+        abstracts TEXT,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    styledomainformat;
+CREATE
+    TABLE styledomainformat
+    (
+        sdrid INTEGER NOT NULL,
+        format CHARACTER VARYING(45) NOT NULL,
+        PRIMARY KEY (sdrid, format)
+    );
+DROP TABLE
+    styledomainresource;
+CREATE
+    TABLE styledomainresource
+    (
+        id INTEGER DEFAULT nextval('styledomainresource_id_seq'::regclass) NOT NULL,
+        styleid INTEGER NOT NULL,
+        domain CHARACTER VARYING(45) NOT NULL,
+        url CHARACTER VARYING(4000) NOT NULL,
+        width CHARACTER VARYING(45),
+        height CHARACTER VARYING(45),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    userip;
+CREATE
+    TABLE userip
+    (
+        userid INTEGER NOT NULL,
+        ipaddress CHARACTER VARYING(45) NOT NULL,
+        PRIMARY KEY (userid, ipaddress)
+    );
+DROP TABLE
+    userroles;
+CREATE
+    TABLE userroles
+    (
+        userid INTEGER NOT NULL,
+        roleid INTEGER NOT NULL,
+        PRIMARY KEY (userid, roleid)
+    );
+DROP TABLE
+    users;
+CREATE
+    TABLE users
+    (
+        id INTEGER DEFAULT nextval('users_id_seq'::regclass) NOT NULL,
+        organizationid INTEGER NOT NULL,
+        firstname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        lastname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        emailaddress CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        username CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        password CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        personalurl CHARACTER VARYING(4000),
+        timeout TIMESTAMP WITHOUT TIME ZONE,
+        defaultgetmap CHARACTER VARYING(4000),
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    wfs_layer;
+CREATE
+    TABLE wfs_layer
+    (
+        id INTEGER DEFAULT nextval('wfs_layer_id_seq'::regclass) NOT NULL,
+        wfsserviceproviderid INTEGER NOT NULL,
+        name CHARACTER VARYING(200),
+        title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
+        metadata TEXT,
+        PRIMARY KEY (id)
+    );
+DROP TABLE
+    wfs_organizationlayer;
+CREATE
+    TABLE wfs_organizationlayer
+    (
+        organizationid INTEGER NOT NULL,
+        wfslayerid INTEGER NOT NULL,
+        PRIMARY KEY (organizationid, wfslayerid)
+    );
+DROP TABLE
+    wfs_serviceprovider;
+CREATE
+    TABLE wfs_serviceprovider
+    (
+        id INTEGER DEFAULT nextval('wfs_serviceprovider_id_seq'::regclass) NOT NULL,
+        name CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
+        abbr CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
+        title CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        givenname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        url CHARACTER VARYING(4000) DEFAULT '0' NOT NULL,
+        updateddate TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+        wfsversion CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
+        PRIMARY KEY (id)
+    );
+    
+    
+    
+    
+ALTER TABLE
+    acc_account ADD CONSTRAINT fk7fe8986f435502a6 FOREIGN KEY (id) REFERENCES organization (id);
+ALTER TABLE
+    acc_account ADD CONSTRAINT 2200_17208_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    acc_layerpricing ADD CONSTRAINT 2200_17211_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    acc_pricecomp ADD CONSTRAINT fk165d199a1c0bba79 FOREIGN KEY (prc_tra_id) REFERENCES acc_transaction (id);
+ALTER TABLE
+    acc_pricecomp ADD CONSTRAINT 2200_17217_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    acc_transaction ADD CONSTRAINT fkfc20f02025126df8 FOREIGN KEY (tra_acc_id) REFERENCES acc_account (id);
+ALTER TABLE
+    acc_transaction ADD CONSTRAINT 2200_17223_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    attribution ADD CONSTRAINT fked87907facb075c4 FOREIGN KEY (id) REFERENCES layer (id);
+ALTER TABLE
+    attribution ADD CONSTRAINT 2200_17229_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    contactinformation ADD CONSTRAINT fk65b57d0c4250fe39 FOREIGN KEY (id) REFERENCES serviceprovider (id);
+ALTER TABLE
+    contactinformation ADD CONSTRAINT 2200_17240_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    dimensions ADD CONSTRAINT fk18b23fcdaa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    dimensions ADD CONSTRAINT 2200_17246_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    dimensions ADD CONSTRAINT 2200_17246_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    exceptions ADD CONSTRAINT fkb1aa3a043501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
+ALTER TABLE
+    exceptions ADD CONSTRAINT 2200_17249_1_not_null CHECK (serviceproviderid IS NOT NULL);
+ALTER TABLE
+    exceptions ADD CONSTRAINT 2200_17249_2_not_null CHECK (format IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_1_not_null CHECK (f_table_catalog IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_2_not_null CHECK (f_table_schema IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_3_not_null CHECK (f_table_name IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_4_not_null CHECK (f_geometry_column IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_5_not_null CHECK (coord_dimension IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_6_not_null CHECK (srid IS NOT NULL);
+ALTER TABLE
+    geometry_columns ADD CONSTRAINT 2200_16802_7_not_null CHECK (type IS NOT NULL);
+ALTER TABLE
+    identifier ADD CONSTRAINT fk9f88aca9aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    identifier ADD CONSTRAINT 2200_17254_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    identifier ADD CONSTRAINT 2200_17254_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    identifier ADD CONSTRAINT 2200_17254_3_not_null CHECK (authorityname IS NOT NULL);
+ALTER TABLE
+    identifier ADD CONSTRAINT 2200_17254_4_not_null CHECK (authorityurl IS NOT NULL);
+ALTER TABLE
+    layer ADD CONSTRAINT fk61fd5513501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
+ALTER TABLE
+    layer ADD CONSTRAINT fk61fd551f2bbfbee FOREIGN KEY (parentid) REFERENCES layer (id);
+ALTER TABLE
+    layer ADD CONSTRAINT 2200_17262_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    layer ADD CONSTRAINT 2200_17262_3_not_null CHECK (serviceproviderid IS NOT NULL);
+ALTER TABLE
+    layer ADD CONSTRAINT 2200_17262_5_not_null CHECK (title IS NOT NULL);
+ALTER TABLE
+    layerdomainformat ADD CONSTRAINT fk17e78d8c25e66a90 FOREIGN KEY (ldrid) REFERENCES layerdomainresource (id);
+ALTER TABLE
+    layerdomainformat ADD CONSTRAINT 2200_17277_1_not_null CHECK (ldrid IS NOT NULL);
+ALTER TABLE
+    layerdomainformat ADD CONSTRAINT 2200_17277_2_not_null CHECK (format IS NOT NULL);
+ALTER TABLE
+    layerdomainresource ADD CONSTRAINT fk8ba44863aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    layerdomainresource ADD CONSTRAINT 2200_17280_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    layerdomainresource ADD CONSTRAINT 2200_17280_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    layerdomainresource ADD CONSTRAINT 2200_17280_3_not_null CHECK (domain IS NOT NULL);
+ALTER TABLE
+    layerdomainresource ADD CONSTRAINT 2200_17280_4_not_null CHECK (url IS NOT NULL);
+ALTER TABLE
+    layerkeywordlist ADD CONSTRAINT fk30f31016aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    layerkeywordlist ADD CONSTRAINT 2200_17287_1_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    layerkeywordlist ADD CONSTRAINT 2200_17287_2_not_null CHECK (keyword IS NOT NULL);
+ALTER TABLE
+    mon_clientrequest ADD CONSTRAINT 2200_17290_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    mon_requestoperation ADD CONSTRAINT fkce03888b8a8c8dec FOREIGN KEY (rqo_clr_id) REFERENCES mon_clientrequest (id);
+ALTER TABLE
+    mon_requestoperation ADD CONSTRAINT 2200_17296_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    mon_serviceproviderrequest ADD CONSTRAINT fk712ceebc223516a7 FOREIGN KEY (spr_clr_id) REFERENCES mon_clientrequest (id);
+ALTER TABLE
+    mon_serviceproviderrequest ADD CONSTRAINT 2200_17299_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    organization ADD CONSTRAINT 2200_17305_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    organization ADD CONSTRAINT 2200_17305_12_not_null CHECK (telephone IS NOT NULL);
+ALTER TABLE
+    organization ADD CONSTRAINT 2200_17305_14_not_null CHECK (hasvalidgetcapabilities IS NOT NULL);
+ALTER TABLE
+    organization ADD CONSTRAINT 2200_17305_2_not_null CHECK (name IS NOT NULL);
+ALTER TABLE
+    organizationlayer ADD CONSTRAINT fkcdee2ffeaa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    organizationlayer ADD CONSTRAINT fkcdee2ffec136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
+ALTER TABLE
+    organizationlayer ADD CONSTRAINT 2200_17317_1_not_null CHECK (organizationid IS NOT NULL);
+ALTER TABLE
+    organizationlayer ADD CONSTRAINT 2200_17317_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    rep_report ADD CONSTRAINT fk23f41f16e340125a FOREIGN KEY (rpd_org_id) REFERENCES organization (id);
+ALTER TABLE
+    rep_report ADD CONSTRAINT 2200_17323_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    roles ADD CONSTRAINT 2200_17350_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    roles ADD CONSTRAINT 2200_17350_2_not_null CHECK (role IS NOT NULL);
+ALTER TABLE
+    servicedomainformat ADD CONSTRAINT fkefd888f0c557cb7b FOREIGN KEY (sdrid) REFERENCES servicedomainresource (id);
+ALTER TABLE
+    servicedomainformat ADD CONSTRAINT 2200_17353_1_not_null CHECK (sdrid IS NOT NULL);
+ALTER TABLE
+    servicedomainformat ADD CONSTRAINT 2200_17353_2_not_null CHECK (format IS NOT NULL);
+ALTER TABLE
+    servicedomainresource ADD CONSTRAINT fk2b43fac73501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
+ALTER TABLE
+    servicedomainresource ADD CONSTRAINT 2200_17356_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    servicedomainresource ADD CONSTRAINT 2200_17356_2_not_null CHECK (serviceproviderid IS NOT NULL);
+ALTER TABLE
+    servicedomainresource ADD CONSTRAINT 2200_17356_3_not_null CHECK (domain IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_10_not_null CHECK (updateddate IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_11_not_null CHECK (wmsversion IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_2_not_null CHECK (name IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_3_not_null CHECK (abbr IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_4_not_null CHECK (title IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_8_not_null CHECK (givenname IS NOT NULL);
+ALTER TABLE
+    serviceprovider ADD CONSTRAINT 2200_17364_9_not_null CHECK (url IS NOT NULL);
+ALTER TABLE
+    serviceproviderkeywordlist ADD CONSTRAINT fk9b8f46a13501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
+ALTER TABLE
+    serviceproviderkeywordlist ADD CONSTRAINT 2200_17376_1_not_null CHECK (serviceproviderid IS NOT NULL);
+ALTER TABLE
+    serviceproviderkeywordlist ADD CONSTRAINT 2200_17376_2_not_null CHECK (keyword IS NOT NULL);
+ALTER TABLE
+    spatial_ref_sys ADD CONSTRAINT 2200_16794_1_not_null CHECK (srid IS NOT NULL);
+ALTER TABLE
+    srs ADD CONSTRAINT fk1bdf4aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    srs ADD CONSTRAINT 2200_17380_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    srs ADD CONSTRAINT 2200_17380_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    style ADD CONSTRAINT fk68b1db1aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
+ALTER TABLE
+    style ADD CONSTRAINT 2200_17383_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    style ADD CONSTRAINT 2200_17383_2_not_null CHECK (layerid IS NOT NULL);
+ALTER TABLE
+    style ADD CONSTRAINT 2200_17383_3_not_null CHECK (name IS NOT NULL);
+ALTER TABLE
+    style ADD CONSTRAINT 2200_17383_4_not_null CHECK (title IS NOT NULL);
+ALTER TABLE
+    styledomainformat ADD CONSTRAINT fk1ac945ecf79e2f77 FOREIGN KEY (sdrid) REFERENCES styledomainresource (id);
+ALTER TABLE
+    styledomainformat ADD CONSTRAINT 2200_17391_1_not_null CHECK (sdrid IS NOT NULL);
+ALTER TABLE
+    styledomainformat ADD CONSTRAINT 2200_17391_2_not_null CHECK (format IS NOT NULL);
+ALTER TABLE
+    styledomainresource ADD CONSTRAINT fk5cf968c33d563395 FOREIGN KEY (styleid) REFERENCES style (id);
+ALTER TABLE
+    styledomainresource ADD CONSTRAINT 2200_17394_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    styledomainresource ADD CONSTRAINT 2200_17394_2_not_null CHECK (styleid IS NOT NULL);
+ALTER TABLE
+    styledomainresource ADD CONSTRAINT 2200_17394_3_not_null CHECK (domain IS NOT NULL);
+ALTER TABLE
+    styledomainresource ADD CONSTRAINT 2200_17394_4_not_null CHECK (url IS NOT NULL);
+ALTER TABLE
+    userip ADD CONSTRAINT fkce2b32326bcbfe49 FOREIGN KEY (userid) REFERENCES users (id);
+ALTER TABLE
+    userip ADD CONSTRAINT 2200_17400_1_not_null CHECK (userid IS NOT NULL);
+ALTER TABLE
+    userip ADD CONSTRAINT 2200_17400_2_not_null CHECK (ipaddress IS NOT NULL);
+ALTER TABLE
+    userroles ADD CONSTRAINT fk154649d26bcbfe49 FOREIGN KEY (userid) REFERENCES users (id);
+ALTER TABLE
+    userroles ADD CONSTRAINT fk154649d275e26a26 FOREIGN KEY (roleid) REFERENCES roles (id);
+ALTER TABLE
+    userroles ADD CONSTRAINT 2200_17403_1_not_null CHECK (userid IS NOT NULL);
+ALTER TABLE
+    userroles ADD CONSTRAINT 2200_17403_2_not_null CHECK (roleid IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT fk6a68e08c136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_2_not_null CHECK (organizationid IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_3_not_null CHECK (firstname IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_4_not_null CHECK (lastname IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_5_not_null CHECK (emailaddress IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_6_not_null CHECK (username IS NOT NULL);
+ALTER TABLE
+    users ADD CONSTRAINT 2200_17406_7_not_null CHECK (password IS NOT NULL);
+ALTER TABLE
+    wfs_layer ADD CONSTRAINT fkbb3050d66a0442a7 FOREIGN KEY (wfsserviceproviderid) REFERENCES wfs_serviceprovider (id);
+ALTER TABLE
+    wfs_layer ADD CONSTRAINT 2200_17417_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    wfs_layer ADD CONSTRAINT 2200_17417_2_not_null CHECK (wfsserviceproviderid IS NOT NULL);
+ALTER TABLE
+    wfs_layer ADD CONSTRAINT 2200_17417_4_not_null CHECK (title IS NOT NULL);
+ALTER TABLE
+    wfs_organizationlayer ADD CONSTRAINT fk49308c0311ca431d FOREIGN KEY (wfslayerid) REFERENCES wfs_layer (id);
+ALTER TABLE
+    wfs_organizationlayer ADD CONSTRAINT fk49308c03c136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
+ALTER TABLE
+    wfs_organizationlayer ADD CONSTRAINT 2200_17424_1_not_null CHECK (organizationid IS NOT NULL);
+ALTER TABLE
+    wfs_organizationlayer ADD CONSTRAINT 2200_17424_2_not_null CHECK (wfslayerid IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_2_not_null CHECK (name IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_3_not_null CHECK (abbr IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_4_not_null CHECK (title IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_5_not_null CHECK (givenname IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_6_not_null CHECK (url IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_7_not_null CHECK (updateddate IS NOT NULL);
+ALTER TABLE
+    wfs_serviceprovider ADD CONSTRAINT 2200_17427_8_not_null CHECK (wfsversion IS NOT NULL);
