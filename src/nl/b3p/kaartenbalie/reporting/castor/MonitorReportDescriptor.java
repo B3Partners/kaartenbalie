@@ -102,143 +102,135 @@ public class MonitorReportDescriptor extends org.exolab.castor.xml.util.XMLClass
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
-        //-- _responseTime
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ResponseTime.class, "_responseTime", "response-time", org.exolab.castor.xml.NodeType.Element);
+        //-- _requestSummary
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.RequestSummary.class, "_requestSummary", "request-summary", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MonitorReport target = (MonitorReport) object;
-                return target.getResponseTime();
+                return target.getRequestSummary();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
                     MonitorReport target = (MonitorReport) object;
-                    target.setResponseTime( (nl.b3p.kaartenbalie.reporting.castor.ResponseTime) value);
+                    target.setRequestSummary( (nl.b3p.kaartenbalie.reporting.castor.RequestSummary) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new nl.b3p.kaartenbalie.reporting.castor.ResponseTime();
+                return new nl.b3p.kaartenbalie.reporting.castor.RequestSummary();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _responseTime
+        //-- validation code for: _requestSummary
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
-        //-- _clientSummary
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ClientSummary.class, "_clientSummary", "client-summary", org.exolab.castor.xml.NodeType.Element);
+        //-- _responseFrequency
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency.class, "_responseFrequency", "response-frequency", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MonitorReport target = (MonitorReport) object;
-                return target.getClientSummary();
+                return target.getResponseFrequency();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
                     MonitorReport target = (MonitorReport) object;
-                    target.setClientSummary( (nl.b3p.kaartenbalie.reporting.castor.ClientSummary) value);
+                    target.setResponseFrequency( (nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new nl.b3p.kaartenbalie.reporting.castor.ClientSummary();
+                return new nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _clientSummary
+        //-- validation code for: _responseFrequency
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
-        //-- _serviceProviderSummary
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary.class, "_serviceProviderSummary", "service-provider-summary", org.exolab.castor.xml.NodeType.Element);
+        //-- _serviceProviders
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders.class, "_serviceProviders", "service-providers", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MonitorReport target = (MonitorReport) object;
-                return target.getServiceProviderSummary();
+                return target.getServiceProviders();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
                     MonitorReport target = (MonitorReport) object;
-                    target.setServiceProviderSummary( (nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary) value);
+                    target.setServiceProviders( (nl.b3p.kaartenbalie.reporting.castor.ServiceProviders) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary();
+                return new nl.b3p.kaartenbalie.reporting.castor.ServiceProviders();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _serviceProviderSummary
+        //-- validation code for: _serviceProviders
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
-        //-- _hits
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.Hits.class, "_hits", "hits", org.exolab.castor.xml.NodeType.Element);
+        //-- _requestLoad
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.RequestLoad.class, "_requestLoad", "request-load", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 MonitorReport target = (MonitorReport) object;
-                return target.getHits();
+                return target.getRequestLoad();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
                     MonitorReport target = (MonitorReport) object;
-                    target.setHits( (nl.b3p.kaartenbalie.reporting.castor.Hits) value);
+                    target.setRequestLoad( (nl.b3p.kaartenbalie.reporting.castor.RequestLoad) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return new nl.b3p.kaartenbalie.reporting.castor.Hits();
+                return new nl.b3p.kaartenbalie.reporting.castor.RequestLoad();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _hits
+        //-- validation code for: _requestLoad
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
         }
         desc.setValidator(fieldValidator);

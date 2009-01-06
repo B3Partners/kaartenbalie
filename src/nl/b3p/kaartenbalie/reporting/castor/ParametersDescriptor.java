@@ -183,7 +183,7 @@ public class ParametersDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         }
         desc.setValidator(fieldValidator);
         //-- _processingTime
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_processingTime", "processing-time", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_processingTime", "processing-time", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
@@ -191,7 +191,7 @@ public class ParametersDescriptor extends org.exolab.castor.xml.util.XMLClassDes
                 Parameters target = (Parameters) object;
                 if(!target.hasProcessingTime())
                     return null;
-                return new java.lang.Integer(target.getProcessingTime());
+                return new java.lang.Long(target.getProcessingTime());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
@@ -201,7 +201,7 @@ public class ParametersDescriptor extends org.exolab.castor.xml.util.XMLClassDes
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setProcessingTime( ((java.lang.Integer)value).intValue());
+                    target.setProcessingTime( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -220,7 +220,7 @@ public class ParametersDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);

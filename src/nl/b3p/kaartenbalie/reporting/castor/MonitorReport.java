@@ -39,24 +39,24 @@ public class MonitorReport implements java.io.Serializable {
     private nl.b3p.kaartenbalie.reporting.castor.Parameters _parameters;
 
     /**
-     * Field _responseTime
+     * Field _requestSummary
      */
-    private nl.b3p.kaartenbalie.reporting.castor.ResponseTime _responseTime;
+    private nl.b3p.kaartenbalie.reporting.castor.RequestSummary _requestSummary;
 
     /**
-     * Field _clientSummary
+     * Field _responseFrequency
      */
-    private nl.b3p.kaartenbalie.reporting.castor.ClientSummary _clientSummary;
+    private nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency _responseFrequency;
 
     /**
-     * Field _serviceProviderSummary
+     * Field _serviceProviders
      */
-    private nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary _serviceProviderSummary;
+    private nl.b3p.kaartenbalie.reporting.castor.ServiceProviders _serviceProviders;
 
     /**
-     * Field _hits
+     * Field _requestLoad
      */
-    private nl.b3p.kaartenbalie.reporting.castor.Hits _hits;
+    private nl.b3p.kaartenbalie.reporting.castor.RequestLoad _requestLoad;
 
 
       //----------------/
@@ -74,28 +74,6 @@ public class MonitorReport implements java.io.Serializable {
     //-----------/
 
     /**
-     * Returns the value of field 'clientSummary'.
-     * 
-     * @return ClientSummary
-     * @return the value of field 'clientSummary'.
-     */
-    public nl.b3p.kaartenbalie.reporting.castor.ClientSummary getClientSummary()
-    {
-        return this._clientSummary;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ClientSummary getClientSummary() 
-
-    /**
-     * Returns the value of field 'hits'.
-     * 
-     * @return Hits
-     * @return the value of field 'hits'.
-     */
-    public nl.b3p.kaartenbalie.reporting.castor.Hits getHits()
-    {
-        return this._hits;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.Hits getHits() 
-
-    /**
      * Returns the value of field 'parameters'.
      * 
      * @return Parameters
@@ -107,26 +85,48 @@ public class MonitorReport implements java.io.Serializable {
     } //-- nl.b3p.kaartenbalie.reporting.castor.Parameters getParameters() 
 
     /**
-     * Returns the value of field 'responseTime'.
+     * Returns the value of field 'requestLoad'.
      * 
-     * @return ResponseTime
-     * @return the value of field 'responseTime'.
+     * @return RequestLoad
+     * @return the value of field 'requestLoad'.
      */
-    public nl.b3p.kaartenbalie.reporting.castor.ResponseTime getResponseTime()
+    public nl.b3p.kaartenbalie.reporting.castor.RequestLoad getRequestLoad()
     {
-        return this._responseTime;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ResponseTime getResponseTime() 
+        return this._requestLoad;
+    } //-- nl.b3p.kaartenbalie.reporting.castor.RequestLoad getRequestLoad() 
 
     /**
-     * Returns the value of field 'serviceProviderSummary'.
+     * Returns the value of field 'requestSummary'.
      * 
-     * @return ServiceProviderSummary
-     * @return the value of field 'serviceProviderSummary'.
+     * @return RequestSummary
+     * @return the value of field 'requestSummary'.
      */
-    public nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary getServiceProviderSummary()
+    public nl.b3p.kaartenbalie.reporting.castor.RequestSummary getRequestSummary()
     {
-        return this._serviceProviderSummary;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary getServiceProviderSummary() 
+        return this._requestSummary;
+    } //-- nl.b3p.kaartenbalie.reporting.castor.RequestSummary getRequestSummary() 
+
+    /**
+     * Returns the value of field 'responseFrequency'.
+     * 
+     * @return ResponseFrequency
+     * @return the value of field 'responseFrequency'.
+     */
+    public nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency getResponseFrequency()
+    {
+        return this._responseFrequency;
+    } //-- nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency getResponseFrequency() 
+
+    /**
+     * Returns the value of field 'serviceProviders'.
+     * 
+     * @return ServiceProviders
+     * @return the value of field 'serviceProviders'.
+     */
+    public nl.b3p.kaartenbalie.reporting.castor.ServiceProviders getServiceProviders()
+    {
+        return this._serviceProviders;
+    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviders getServiceProviders() 
 
     /**
      * Method isValid
@@ -175,26 +175,6 @@ public class MonitorReport implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
-     * Sets the value of field 'clientSummary'.
-     * 
-     * @param clientSummary the value of field 'clientSummary'.
-     */
-    public void setClientSummary(nl.b3p.kaartenbalie.reporting.castor.ClientSummary clientSummary)
-    {
-        this._clientSummary = clientSummary;
-    } //-- void setClientSummary(nl.b3p.kaartenbalie.reporting.castor.ClientSummary) 
-
-    /**
-     * Sets the value of field 'hits'.
-     * 
-     * @param hits the value of field 'hits'.
-     */
-    public void setHits(nl.b3p.kaartenbalie.reporting.castor.Hits hits)
-    {
-        this._hits = hits;
-    } //-- void setHits(nl.b3p.kaartenbalie.reporting.castor.Hits) 
-
-    /**
      * Sets the value of field 'parameters'.
      * 
      * @param parameters the value of field 'parameters'.
@@ -205,25 +185,45 @@ public class MonitorReport implements java.io.Serializable {
     } //-- void setParameters(nl.b3p.kaartenbalie.reporting.castor.Parameters) 
 
     /**
-     * Sets the value of field 'responseTime'.
+     * Sets the value of field 'requestLoad'.
      * 
-     * @param responseTime the value of field 'responseTime'.
+     * @param requestLoad the value of field 'requestLoad'.
      */
-    public void setResponseTime(nl.b3p.kaartenbalie.reporting.castor.ResponseTime responseTime)
+    public void setRequestLoad(nl.b3p.kaartenbalie.reporting.castor.RequestLoad requestLoad)
     {
-        this._responseTime = responseTime;
-    } //-- void setResponseTime(nl.b3p.kaartenbalie.reporting.castor.ResponseTime) 
+        this._requestLoad = requestLoad;
+    } //-- void setRequestLoad(nl.b3p.kaartenbalie.reporting.castor.RequestLoad) 
 
     /**
-     * Sets the value of field 'serviceProviderSummary'.
+     * Sets the value of field 'requestSummary'.
      * 
-     * @param serviceProviderSummary the value of field
-     * 'serviceProviderSummary'.
+     * @param requestSummary the value of field 'requestSummary'.
      */
-    public void setServiceProviderSummary(nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary serviceProviderSummary)
+    public void setRequestSummary(nl.b3p.kaartenbalie.reporting.castor.RequestSummary requestSummary)
     {
-        this._serviceProviderSummary = serviceProviderSummary;
-    } //-- void setServiceProviderSummary(nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary) 
+        this._requestSummary = requestSummary;
+    } //-- void setRequestSummary(nl.b3p.kaartenbalie.reporting.castor.RequestSummary) 
+
+    /**
+     * Sets the value of field 'responseFrequency'.
+     * 
+     * @param responseFrequency the value of field
+     * 'responseFrequency'.
+     */
+    public void setResponseFrequency(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency responseFrequency)
+    {
+        this._responseFrequency = responseFrequency;
+    } //-- void setResponseFrequency(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency) 
+
+    /**
+     * Sets the value of field 'serviceProviders'.
+     * 
+     * @param serviceProviders the value of field 'serviceProviders'
+     */
+    public void setServiceProviders(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders serviceProviders)
+    {
+        this._serviceProviders = serviceProviders;
+    } //-- void setServiceProviders(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders) 
 
     /**
      * Method unmarshal

@@ -36,7 +36,7 @@ public class ResponseTime implements java.io.Serializable {
     /**
      * Field _durationLow
      */
-    private int _durationLow;
+    private long _durationLow;
 
     /**
      * keeps track of state for field: _durationLow
@@ -46,7 +46,7 @@ public class ResponseTime implements java.io.Serializable {
     /**
      * Field _durationHigh
      */
-    private int _durationHigh;
+    private long _durationHigh;
 
     /**
      * keeps track of state for field: _durationHigh
@@ -124,24 +124,24 @@ public class ResponseTime implements java.io.Serializable {
     /**
      * Returns the value of field 'durationHigh'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'durationHigh'.
      */
-    public int getDurationHigh()
+    public long getDurationHigh()
     {
         return this._durationHigh;
-    } //-- int getDurationHigh() 
+    } //-- long getDurationHigh() 
 
     /**
      * Returns the value of field 'durationLow'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'durationLow'.
      */
-    public int getDurationLow()
+    public long getDurationLow()
     {
         return this._durationLow;
-    } //-- int getDurationLow() 
+    } //-- long getDurationLow() 
 
     /**
      * Returns the value of field 'type'.
@@ -252,22 +252,22 @@ public class ResponseTime implements java.io.Serializable {
      * 
      * @param durationHigh the value of field 'durationHigh'.
      */
-    public void setDurationHigh(int durationHigh)
+    public void setDurationHigh(long durationHigh)
     {
         this._durationHigh = durationHigh;
         this._has_durationHigh = true;
-    } //-- void setDurationHigh(int) 
+    } //-- void setDurationHigh(long) 
 
     /**
      * Sets the value of field 'durationLow'.
      * 
      * @param durationLow the value of field 'durationLow'.
      */
-    public void setDurationLow(int durationLow)
+    public void setDurationLow(long durationLow)
     {
         this._durationLow = durationLow;
         this._has_durationLow = true;
-    } //-- void setDurationLow(int) 
+    } //-- void setDurationLow(long) 
 
     /**
      * Sets the value of field 'type'.

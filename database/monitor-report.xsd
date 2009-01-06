@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) by chris van lith (B3partners BV) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="monitor-report">
 		<xs:annotation>
@@ -12,57 +13,81 @@
 							<xs:element name="id" type="xs:string"/>
 							<xs:element name="organization" type="xs:string"/>
 							<xs:element name="time-stamp" type="xs:dateTime"/>
-							<xs:element name="processing-time" type="xs:integer"/>
+							<xs:element name="processing-time" type="xs:long"/>
 							<xs:element name="date-start" type="xs:date"/>
 							<xs:element name="date-end" type="xs:date"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="response-time">
+				<xs:element name="request-summary" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="duration-low" type="xs:integer"/>
-							<xs:element name="duration-high" type="xs:integer"/>
-							<xs:element name="count" type="xs:integer"/>
-							<xs:element name="type" type="xs:string"/>
+							<xs:element name="type-summary" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="count" type="xs:integer"/>
+										<xs:element name="type" type="xs:string"/>
+										<xs:element name="duration-avg" type="xs:long"/>
+										<xs:element name="duration-max" type="xs:long"/>
+										<xs:element name="data-size-sum" type="xs:integer"/>
+										<xs:element name="bytes-received-sum" type="xs:integer"/>
+										<xs:element name="bytes-sent-sum" type="xs:integer"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="client-summary">
+				<xs:element name="response-frequency" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="count" type="xs:integer"/>
-							<xs:element name="type" type="xs:string"/>
-							<xs:element name="duration-avg" type="xs:integer"/>
-							<xs:element name="duration-max" type="xs:integer"/>
-							<xs:element name="data-size-sum" type="xs:integer"/>
-							<xs:element name="bytes-received-sum" type="xs:integer"/>
-							<xs:element name="bytes-sent-sum" type="xs:integer"/>
+							<xs:element name="response-time" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="duration-low" type="xs:long"/>
+										<xs:element name="duration-high" type="xs:long"/>
+										<xs:element name="count" type="xs:integer"/>
+										<xs:element name="type" type="xs:string"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="service-provider-summary">
+				<xs:element name="service-providers" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="count" type="xs:integer"/>
-							<xs:element name="service-provider" type="xs:string"/>
-							<xs:element name="duration-avg" type="xs:integer"/>
-							<xs:element name="duration-max" type="xs:integer"/>
-							<xs:element name="bytes-received-sum" type="xs:integer"/>
-							<xs:element name="bytes-sent-sum" type="xs:integer"/>
+							<xs:element name="service-provider" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="name" type="xs:string"/>
+										<xs:element name="count" type="xs:integer"/>
+										<xs:element name="duration-avg" type="xs:long"/>
+										<xs:element name="duration-max" type="xs:long"/>
+										<xs:element name="bytes-received-sum" type="xs:integer"/>
+										<xs:element name="bytes-sent-sum" type="xs:integer"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="hits">
+				<xs:element name="request-load" minOccurs="0">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="count" type="xs:integer"/>
-							<xs:element name="date" type="xs:date"/>
-							<xs:element name="hour" type="xs:integer"/>
-							<xs:element name="duration-avg" type="xs:integer"/>
-							<xs:element name="duration-max" type="xs:integer"/>
-							<xs:element name="bytes-received-sum" type="xs:integer"/>
-							<xs:element name="bytes-sent-sum" type="xs:integer"/>
+							<xs:element name="hourly-load" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="date" type="xs:date"/>
+										<xs:element name="hour" type="xs:integer"/>
+										<xs:element name="count" type="xs:integer"/>
+										<xs:element name="duration-avg" type="xs:long"/>
+										<xs:element name="duration-max" type="xs:long"/>
+										<xs:element name="bytes-received-sum" type="xs:integer"/>
+										<xs:element name="bytes-sent-sum" type="xs:integer"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

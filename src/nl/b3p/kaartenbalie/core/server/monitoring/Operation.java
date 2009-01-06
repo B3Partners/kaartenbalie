@@ -32,7 +32,14 @@ public class Operation {
     public static final int COMBINE_IMAGES = 4;
     public static final int REQUEST = 5;
     public static final int SERVER_TRANSFER = 6;
-
+    public static final String[] NAME = new String[]{
+        "UNKNOWN",
+        "ACCOUNTING",
+        "CLIENT_TRANSFER",
+        "COMBINE_IMAGES",
+        "REQUEST",
+        "SERVER_TRANSFER"
+    };
     private Integer id;
     private Long msSinceRequestStart;
     private Long duration;

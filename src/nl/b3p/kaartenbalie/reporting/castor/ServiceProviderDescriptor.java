@@ -17,11 +17,11 @@ import org.exolab.castor.xml.XMLFieldDescriptor;
 import org.exolab.castor.xml.validators.*;
 
 /**
- * Class ServiceProviderSummaryDescriptor.
+ * Class ServiceProviderDescriptor.
  * 
  * @version $Revision$ $Date$
  */
-public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
+public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
       //--------------------------/
@@ -53,10 +53,10 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
      //- Constructors -/
     //----------------/
 
-    public ServiceProviderSummaryDescriptor() 
+    public ServiceProviderDescriptor() 
      {
         super();
-        xmlName = "service-provider-summary";
+        xmlName = "service-provider";
         
         //-- set grouping compositor
         setCompositorAsSequence();
@@ -67,13 +67,52 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
         
         //-- initialize element descriptors
         
+        //-- _name
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "_name", "name", org.exolab.castor.xml.NodeType.Element);
+        desc.setImmutable(true);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ServiceProvider target = (ServiceProvider) object;
+                return target.getName();
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ServiceProvider target = (ServiceProvider) object;
+                    target.setName( (java.lang.String) value);
+                }
+                catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return null;
+            }
+        };
+        desc.setHandler(handler);
+        desc.setRequired(true);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _name
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
+        { //-- local scope
+            StringValidator typeValidator = new StringValidator();
+            typeValidator.setWhiteSpace("preserve");
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
         //-- _count
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_count", "count", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
+                ServiceProvider target = (ServiceProvider) object;
                 if(!target.hasCount())
                     return null;
                 return new java.lang.Integer(target.getCount());
@@ -82,7 +121,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
+                    ServiceProvider target = (ServiceProvider) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -109,65 +148,26 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _serviceProvider
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "_serviceProvider", "service-provider", org.exolab.castor.xml.NodeType.Element);
-        desc.setImmutable(true);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
-                return target.getServiceProvider();
-            }
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
-                    target.setServiceProvider( (java.lang.String) value);
-                }
-                catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
-            }
-        };
-        desc.setHandler(handler);
-        desc.setRequired(true);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-        
-        //-- validation code for: _serviceProvider
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
-        { //-- local scope
-            StringValidator typeValidator = new StringValidator();
-            typeValidator.setWhiteSpace("preserve");
-            fieldValidator.setValidator(typeValidator);
-        }
-        desc.setValidator(fieldValidator);
         //-- _durationAvg
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
+                ServiceProvider target = (ServiceProvider) object;
                 if(!target.hasDurationAvg())
                     return null;
-                return new java.lang.Integer(target.getDurationAvg());
+                return new java.lang.Long(target.getDurationAvg());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
+                    ServiceProvider target = (ServiceProvider) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationAvg( ((java.lang.Integer)value).intValue());
+                    target.setDurationAvg( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -186,30 +186,30 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
         //-- _durationMax
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
+                ServiceProvider target = (ServiceProvider) object;
                 if(!target.hasDurationMax())
                     return null;
-                return new java.lang.Integer(target.getDurationMax());
+                return new java.lang.Long(target.getDurationMax());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
+                    ServiceProvider target = (ServiceProvider) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationMax( ((java.lang.Integer)value).intValue());
+                    target.setDurationMax( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -228,7 +228,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
@@ -238,7 +238,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
+                ServiceProvider target = (ServiceProvider) object;
                 if(!target.hasBytesReceivedSum())
                     return null;
                 return new java.lang.Integer(target.getBytesReceivedSum());
@@ -247,7 +247,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
+                    ServiceProvider target = (ServiceProvider) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -280,7 +280,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProviderSummary target = (ServiceProviderSummary) object;
+                ServiceProvider target = (ServiceProvider) object;
                 if(!target.hasBytesSentSum())
                     return null;
                 return new java.lang.Integer(target.getBytesSentSum());
@@ -289,7 +289,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProviderSummary target = (ServiceProviderSummary) object;
+                    ServiceProvider target = (ServiceProvider) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -316,7 +316,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummaryDescriptor()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderDescriptor()
 
 
       //-----------/
@@ -368,7 +368,7 @@ public class ServiceProviderSummaryDescriptor extends org.exolab.castor.xml.util
      */
     public java.lang.Class getJavaClass()
     {
-        return nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary.class;
+        return nl.b3p.kaartenbalie.reporting.castor.ServiceProvider.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**

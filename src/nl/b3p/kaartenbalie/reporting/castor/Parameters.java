@@ -52,7 +52,7 @@ public class Parameters implements java.io.Serializable {
     /**
      * Field _processingTime
      */
-    private int _processingTime;
+    private long _processingTime;
 
     /**
      * keeps track of state for field: _processingTime
@@ -140,13 +140,13 @@ public class Parameters implements java.io.Serializable {
     /**
      * Returns the value of field 'processingTime'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'processingTime'.
      */
-    public int getProcessingTime()
+    public long getProcessingTime()
     {
         return this._processingTime;
-    } //-- int getProcessingTime() 
+    } //-- long getProcessingTime() 
 
     /**
      * Returns the value of field 'timeStamp'.
@@ -262,11 +262,11 @@ public class Parameters implements java.io.Serializable {
      * 
      * @param processingTime the value of field 'processingTime'.
      */
-    public void setProcessingTime(int processingTime)
+    public void setProcessingTime(long processingTime)
     {
         this._processingTime = processingTime;
         this._has_processingTime = true;
-    } //-- void setProcessingTime(int) 
+    } //-- void setProcessingTime(long) 
 
     /**
      * Sets the value of field 'timeStamp'.

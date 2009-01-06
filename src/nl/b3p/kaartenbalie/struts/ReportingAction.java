@@ -139,7 +139,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
                 "FROM User AS u " +
                 "WHERE u.organization.id = :organizationId").setParameter("organizationId", organization.getId()).getResultList());
         ReportGenerator rg = getReportGenerator(request);
-//        rg.createReport(DataUsageReportThread.class, parameterMap);
+        rg.createReport(parameterMap);
         checkDateFields(dynaForm);
         return super.create(mapping, dynaForm, request, response);
     }

@@ -80,9 +80,10 @@ public class ReportGenerator {
         this.user = user;
     }
 
-    public void createReport(Class reportThreadType, Map parameters) throws Exception {
+    public void createReport(Map parameters) throws Exception {
         ReportThread rtt = new ReportThread();
         rtt.init(this, user, parameters);
+        rtt.start();
     }
 
     public void removeReport(Integer trsId) throws Exception {

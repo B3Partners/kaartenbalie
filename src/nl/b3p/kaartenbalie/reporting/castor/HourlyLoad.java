@@ -22,26 +22,16 @@ import org.exolab.castor.xml.ValidationException;
 import org.xml.sax.ContentHandler;
 
 /**
- * Class Hits.
+ * Class HourlyLoad.
  * 
  * @version $Revision$ $Date$
  */
-public class Hits implements java.io.Serializable {
+public class HourlyLoad implements java.io.Serializable {
 
 
       //--------------------------/
      //- Class/Member Variables -/
     //--------------------------/
-
-    /**
-     * Field _count
-     */
-    private int _count;
-
-    /**
-     * keeps track of state for field: _count
-     */
-    private boolean _has_count;
 
     /**
      * Field _date
@@ -59,9 +49,19 @@ public class Hits implements java.io.Serializable {
     private boolean _has_hour;
 
     /**
+     * Field _count
+     */
+    private int _count;
+
+    /**
+     * keeps track of state for field: _count
+     */
+    private boolean _has_count;
+
+    /**
      * Field _durationAvg
      */
-    private int _durationAvg;
+    private long _durationAvg;
 
     /**
      * keeps track of state for field: _durationAvg
@@ -71,7 +71,7 @@ public class Hits implements java.io.Serializable {
     /**
      * Field _durationMax
      */
-    private int _durationMax;
+    private long _durationMax;
 
     /**
      * keeps track of state for field: _durationMax
@@ -103,10 +103,10 @@ public class Hits implements java.io.Serializable {
      //- Constructors -/
     //----------------/
 
-    public Hits() 
+    public HourlyLoad() 
      {
         super();
-    } //-- nl.b3p.kaartenbalie.reporting.castor.Hits()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.HourlyLoad()
 
 
       //-----------/
@@ -214,24 +214,24 @@ public class Hits implements java.io.Serializable {
     /**
      * Returns the value of field 'durationAvg'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'durationAvg'.
      */
-    public int getDurationAvg()
+    public long getDurationAvg()
     {
         return this._durationAvg;
-    } //-- int getDurationAvg() 
+    } //-- long getDurationAvg() 
 
     /**
      * Returns the value of field 'durationMax'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'durationMax'.
      */
-    public int getDurationMax()
+    public long getDurationMax()
     {
         return this._durationMax;
-    } //-- int getDurationMax() 
+    } //-- long getDurationMax() 
 
     /**
      * Returns the value of field 'hour'.
@@ -410,22 +410,22 @@ public class Hits implements java.io.Serializable {
      * 
      * @param durationAvg the value of field 'durationAvg'.
      */
-    public void setDurationAvg(int durationAvg)
+    public void setDurationAvg(long durationAvg)
     {
         this._durationAvg = durationAvg;
         this._has_durationAvg = true;
-    } //-- void setDurationAvg(int) 
+    } //-- void setDurationAvg(long) 
 
     /**
      * Sets the value of field 'durationMax'.
      * 
      * @param durationMax the value of field 'durationMax'.
      */
-    public void setDurationMax(int durationMax)
+    public void setDurationMax(long durationMax)
     {
         this._durationMax = durationMax;
         this._has_durationMax = true;
-    } //-- void setDurationMax(int) 
+    } //-- void setDurationMax(long) 
 
     /**
      * Sets the value of field 'hour'.
@@ -444,13 +444,13 @@ public class Hits implements java.io.Serializable {
      * 
      * 
      * @param reader
-     * @return Hits
+     * @return HourlyLoad
      */
-    public static nl.b3p.kaartenbalie.reporting.castor.Hits unmarshal(java.io.Reader reader)
+    public static nl.b3p.kaartenbalie.reporting.castor.HourlyLoad unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
-        return (nl.b3p.kaartenbalie.reporting.castor.Hits) Unmarshaller.unmarshal(nl.b3p.kaartenbalie.reporting.castor.Hits.class, reader);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.Hits unmarshal(java.io.Reader) 
+        return (nl.b3p.kaartenbalie.reporting.castor.HourlyLoad) Unmarshaller.unmarshal(nl.b3p.kaartenbalie.reporting.castor.HourlyLoad.class, reader);
+    } //-- nl.b3p.kaartenbalie.reporting.castor.HourlyLoad unmarshal(java.io.Reader) 
 
     /**
      * Method validate

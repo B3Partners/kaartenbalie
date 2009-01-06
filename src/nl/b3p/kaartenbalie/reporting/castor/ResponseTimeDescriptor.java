@@ -68,7 +68,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
         //-- initialize element descriptors
         
         //-- _durationLow
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationLow", "duration-low", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationLow", "duration-low", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
@@ -76,7 +76,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
                 ResponseTime target = (ResponseTime) object;
                 if(!target.hasDurationLow())
                     return null;
-                return new java.lang.Integer(target.getDurationLow());
+                return new java.lang.Long(target.getDurationLow());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
@@ -86,7 +86,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationLow( ((java.lang.Integer)value).intValue());
+                    target.setDurationLow( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -105,12 +105,12 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
         //-- _durationHigh
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationHigh", "duration-high", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationHigh", "duration-high", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
@@ -118,7 +118,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
                 ResponseTime target = (ResponseTime) object;
                 if(!target.hasDurationHigh())
                     return null;
-                return new java.lang.Integer(target.getDurationHigh());
+                return new java.lang.Long(target.getDurationHigh());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
@@ -128,7 +128,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationHigh( ((java.lang.Integer)value).intValue());
+                    target.setDurationHigh( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -147,7 +147,7 @@ public class ResponseTimeDescriptor extends org.exolab.castor.xml.util.XMLClassD
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);

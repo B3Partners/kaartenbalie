@@ -17,11 +17,11 @@ import org.exolab.castor.xml.XMLFieldDescriptor;
 import org.exolab.castor.xml.validators.*;
 
 /**
- * Class HitsDescriptor.
+ * Class HourlyLoadDescriptor.
  * 
  * @version $Revision$ $Date$
  */
-public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
+public class HourlyLoadDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
       //--------------------------/
@@ -53,10 +53,10 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
      //- Constructors -/
     //----------------/
 
-    public HitsDescriptor() 
+    public HourlyLoadDescriptor() 
      {
         super();
-        xmlName = "hits";
+        xmlName = "hourly-load";
         
         //-- set grouping compositor
         setCompositorAsSequence();
@@ -67,62 +67,20 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
         
         //-- initialize element descriptors
         
-        //-- _count
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_count", "count", org.exolab.castor.xml.NodeType.Element);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                Hits target = (Hits) object;
-                if(!target.hasCount())
-                    return null;
-                return new java.lang.Integer(target.getCount());
-            }
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    Hits target = (Hits) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setCount( ((java.lang.Integer)value).intValue());
-                }
-                catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
-            }
-        };
-        desc.setHandler(handler);
-        desc.setRequired(true);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-        
-        //-- validation code for: _count
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
-        { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
-            fieldValidator.setValidator(typeValidator);
-        }
-        desc.setValidator(fieldValidator);
         //-- _date
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(org.exolab.castor.types.Date.class, "_date", "date", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
+                HourlyLoad target = (HourlyLoad) object;
                 return target.getDate();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     target.setDate( (org.exolab.castor.types.Date) value);
                 }
                 catch (java.lang.Exception ex) {
@@ -152,7 +110,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
+                HourlyLoad target = (HourlyLoad) object;
                 if(!target.hasHour())
                     return null;
                 return new java.lang.Integer(target.getHour());
@@ -161,7 +119,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -188,26 +146,68 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _durationAvg
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
+        //-- _count
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_count", "count", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
-                if(!target.hasDurationAvg())
+                HourlyLoad target = (HourlyLoad) object;
+                if(!target.hasCount())
                     return null;
-                return new java.lang.Integer(target.getDurationAvg());
+                return new java.lang.Integer(target.getCount());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationAvg( ((java.lang.Integer)value).intValue());
+                    target.setCount( ((java.lang.Integer)value).intValue());
+                }
+                catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public java.lang.Object newInstance( java.lang.Object parent ) {
+                return null;
+            }
+        };
+        desc.setHandler(handler);
+        desc.setRequired(true);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        
+        //-- validation code for: _count
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
+        { //-- local scope
+            IntegerValidator typeValidator = new IntegerValidator();
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
+        //-- _durationAvg
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                HourlyLoad target = (HourlyLoad) object;
+                if(!target.hasDurationAvg())
+                    return null;
+                return new java.lang.Long(target.getDurationAvg());
+            }
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    HourlyLoad target = (HourlyLoad) object;
+                    // ignore null values for non optional primitives
+                    if (value == null) return;
+                    
+                    target.setDurationAvg( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -226,30 +226,30 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
         //-- _durationMax
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
+                HourlyLoad target = (HourlyLoad) object;
                 if(!target.hasDurationMax())
                     return null;
-                return new java.lang.Integer(target.getDurationMax());
+                return new java.lang.Long(target.getDurationMax());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationMax( ((java.lang.Integer)value).intValue());
+                    target.setDurationMax( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -268,7 +268,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
@@ -278,7 +278,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
+                HourlyLoad target = (HourlyLoad) object;
                 if(!target.hasBytesReceivedSum())
                     return null;
                 return new java.lang.Integer(target.getBytesReceivedSum());
@@ -287,7 +287,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -320,7 +320,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                Hits target = (Hits) object;
+                HourlyLoad target = (HourlyLoad) object;
                 if(!target.hasBytesSentSum())
                     return null;
                 return new java.lang.Integer(target.getBytesSentSum());
@@ -329,7 +329,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    Hits target = (Hits) object;
+                    HourlyLoad target = (HourlyLoad) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -356,7 +356,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.HitsDescriptor()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.HourlyLoadDescriptor()
 
 
       //-----------/
@@ -408,7 +408,7 @@ public class HitsDescriptor extends org.exolab.castor.xml.util.XMLClassDescripto
      */
     public java.lang.Class getJavaClass()
     {
-        return nl.b3p.kaartenbalie.reporting.castor.Hits.class;
+        return nl.b3p.kaartenbalie.reporting.castor.HourlyLoad.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**

@@ -513,263 +513,262 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property column="rep_organizationid" name="organizationId"/>
         <property column="rep_xml" name="reportXML"/>
     </class>
-    <class discriminator-value="ReportData" name="nl.b3p.kaartenbalie.core.server.reporting.datausagereport.RepData" table="rep_reportdata">
-        <class name="nl.b3p.wms.capabilities.Roles" table="roles">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">roles_id_seq</param>
-                </generator>
-            </id>
-            <property name="role">
-                <column length="45" name="role" not-null="true"/>
-            </property>
-        </class>
-        <class name="nl.b3p.wms.capabilities.ServiceDomainResource" table="servicedomainresource">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">servicedomainresource_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="SERVICEPROVIDERID" name="serviceProvider" not-null="true"/>
-            <set lazy="false" name="formats" table="servicedomainformat">
-                <key column="sdrid" not-null="true"/>
-                <element column="format" length="100" not-null="true" type="string"/>
-            </set>
-            <property name="domain">
-                <column default="0" length="50" name="domain" not-null="true"/>
-            </property>
-            <property name="getUrl">
-                <column default="0" length="4000" name="geturl"/>
-            </property>
-            <property name="postUrl">
-                <column length="4000" name="posturl"/>
-            </property>
-        </class>
-        <class name="nl.b3p.wms.capabilities.ServiceProvider" table="serviceprovider">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">serviceprovider_id_seq</param>
-                </generator>
-            </id>
-            <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
-            <set cascade="all" inverse="true" lazy="true" name="layers" order-by="title">
-                <key column="serviceproviderid"/>
-                <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
-            </set>
-            <set cascade="all" lazy="true" name="serviceProviderKeywordList" table="serviceproviderkeywordlist">
-                <key column="serviceproviderid"/>
-                <element column="keyword" length="50" not-null="true" type="string"/>
-            </set>
-            <set cascade="all" inverse="true" lazy="true" name="domainResource" table="servicedomainresource">
-                <key column="serviceproviderid"/>
-                <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
-            </set>
-            <set cascade="all" lazy="true" name="exceptions" table="exceptions">
-                <key column="serviceproviderid"/>
-                <element column="format" length="50" not-null="true" type="string"/>
-            </set>
-            <property name="name">
-                <column default="0" length="60" name="name" not-null="true"/>
-            </property>
-            <property name="abbr">
-                <column default="0" length="60" name="abbr" not-null="true"/>
-            </property>
-            <property name="title">
-                <column default="0" length="255" name="title" not-null="true"/>
-            </property>
-            <property name="abstracts" type="text">
-                <column length="65530" name="abstracts"/>
-            </property>
-            <property name="fees" type="text">
-                <column length="65530" name="fees"/>
-            </property>
-            <property name="accessConstraints" type="text">
-                <column length="65530" name="accessconstraints"/>
-            </property>
-            <property name="givenName">
-                <column default="0" length="50" name="givenname" not-null="true"/>
-            </property>
-            <property name="url">
-                <column default="0" length="4000" name="url" not-null="true"/>
-            </property>
-            <property name="updatedDate">
-                <column name="updateddate" not-null="true"/>
-            </property>
-            <property name="wmsVersion">
-                <column default="0" length="50" name="wmsversion" not-null="true"/>
-            </property>
-        </class>
-        <class name="nl.b3p.wms.capabilities.SrsBoundingBox" table="srs">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">srs_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="layerid" name="layer" not-null="true"/>
-            <property name="srs">
-                <column length="150" name="srs"/>
-            </property>
-            <property name="minx">
-                <column length="50" name="minx"/>
-            </property>
-            <property name="maxx">
-                <column length="50" name="maxx"/>
-            </property>
-            <property name="miny">
-                <column length="50" name="miny"/>
-            </property>
-            <property name="maxy">
-                <column length="50" name="maxy"/>
-            </property>
-            <property name="resx">
-                <column length="50" name="resx"/>
-            </property>
-            <property name="resy">
-                <column length="50" name="resy"/>
-            </property>
-        </class>
-        <class name="nl.b3p.wms.capabilities.Style" table="style">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">style_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="layerid" name="layer" not-null="true"/>
-            <set cascade="all" inverse="true" lazy="true" name="domainResource">
-                <key column="styleid"/>
-                <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
-            </set>
-            <property name="name">
-                <column default="0" length="50" name="name" not-null="true"/>
-            </property>
-            <property name="title">
-                <column default="0" length="255" name="title" not-null="true"/>
-            </property>
-            <property name="abstracts" type="text">
-                <column length="65530" name="abstracts"/>
-            </property>
-        </class>
-        <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="styledomainresource">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">styledomainresource_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="styleid" name="style" not-null="true"/>
-            <set lazy="true" name="formats" table="styledomainformat">
-                <key column="sdrid" not-null="true"/>
-                <element column="format" length="45" not-null="true" type="string"/>
-            </set>
-            <property name="domain">
-                <column length="45" name="domain" not-null="true"/>
-            </property>
-            <property name="url">
-                <column length="4000" name="url" not-null="true"/>
-            </property>
-            <property name="width">
-                <column length="45" name="width"/>
-            </property>
-            <property name="height">
-                <column length="45" name="height"/>
-            </property>
-        </class>
-        <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">users_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="organizationid" lazy="false" name="organization" not-null="true"/>
-            <set lazy="false" name="userroles" table="userroles">
-                <key column="userid"/>
-                <many-to-many class="nl.b3p.wms.capabilities.Roles" column="roleid" lazy="false"/>
-            </set>
-            <set cascade="all" lazy="false" name="userips" table="userip">
-                <key column="userid"/>
-                <element column="ipaddress" length="45" not-null="true" type="string"/>
-            </set>
-            <property name="firstName">
-                <column default="0" length="50" name="firstname" not-null="true"/>
-            </property>
-            <property name="surname">
-                <column default="0" length="50" name="lastname" not-null="true"/>
-            </property>
-            <property name="emailAddress">
-                <column default="0" length="50" name="emailaddress" not-null="true"/>
-            </property>
-            <property name="username">
-                <column default="0" length="50" name="username" not-null="true"/>
-            </property>
-            <property name="password">
-                <column default="0" length="50" name="password" not-null="true"/>
-            </property>
-            <property name="personalURL">
-                <column length="4000" name="personalurl"/>
-            </property>
-            <property name="timeout">
-                <column name="timeout"/>
-            </property>
-            <property name="defaultGetMap">
-                <column length="4000" name="defaultgetmap"/>
-            </property>
-        </class>
-        <class name="nl.b3p.ogc.wfs.v110.WfsLayer" table="wfs_layer">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">wfs_layer_id_seq</param>
-                </generator>
-            </id>
-            <many-to-one column="wfsserviceproviderid" name="wfsServiceProvider" not-null="true"/>
+    <class name="nl.b3p.wms.capabilities.Roles" table="roles">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">roles_id_seq</param>
+            </generator>
+        </id>
+        <property name="role">
+            <column length="45" name="role" not-null="true"/>
+        </property>
+    </class>
+    <class name="nl.b3p.wms.capabilities.ServiceDomainResource" table="servicedomainresource">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">servicedomainresource_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="SERVICEPROVIDERID" name="serviceProvider" not-null="true"/>
+        <set lazy="false" name="formats" table="servicedomainformat">
+            <key column="sdrid" not-null="true"/>
+            <element column="format" length="100" not-null="true" type="string"/>
+        </set>
+        <property name="domain">
+            <column default="0" length="50" name="domain" not-null="true"/>
+        </property>
+        <property name="getUrl">
+            <column default="0" length="4000" name="geturl"/>
+        </property>
+        <property name="postUrl">
+            <column length="4000" name="posturl"/>
+        </property>
+    </class>
+    <class name="nl.b3p.wms.capabilities.ServiceProvider" table="serviceprovider">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">serviceprovider_id_seq</param>
+            </generator>
+        </id>
+        <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
+        <set cascade="all" inverse="true" lazy="true" name="layers" order-by="title">
+            <key column="serviceproviderid"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
+        </set>
+        <set cascade="all" lazy="true" name="serviceProviderKeywordList" table="serviceproviderkeywordlist">
+            <key column="serviceproviderid"/>
+            <element column="keyword" length="50" not-null="true" type="string"/>
+        </set>
+        <set cascade="all" inverse="true" lazy="true" name="domainResource" table="servicedomainresource">
+            <key column="serviceproviderid"/>
+            <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
+        </set>
+        <set cascade="all" lazy="true" name="exceptions" table="exceptions">
+            <key column="serviceproviderid"/>
+            <element column="format" length="50" not-null="true" type="string"/>
+        </set>
+        <property name="name">
+            <column default="0" length="60" name="name" not-null="true"/>
+        </property>
+        <property name="abbr">
+            <column default="0" length="60" name="abbr" not-null="true"/>
+        </property>
+        <property name="title">
+            <column default="0" length="255" name="title" not-null="true"/>
+        </property>
+        <property name="abstracts" type="text">
+            <column length="65530" name="abstracts"/>
+        </property>
+        <property name="fees" type="text">
+            <column length="65530" name="fees"/>
+        </property>
+        <property name="accessConstraints" type="text">
+            <column length="65530" name="accessconstraints"/>
+        </property>
+        <property name="givenName">
+            <column default="0" length="50" name="givenname" not-null="true"/>
+        </property>
+        <property name="url">
+            <column default="0" length="4000" name="url" not-null="true"/>
+        </property>
+        <property name="updatedDate">
+            <column name="updateddate" not-null="true"/>
+        </property>
+        <property name="wmsVersion">
+            <column default="0" length="50" name="wmsversion" not-null="true"/>
+        </property>
+    </class>
+    <class name="nl.b3p.wms.capabilities.SrsBoundingBox" table="srs">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">srs_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="layerid" name="layer" not-null="true"/>
+        <property name="srs">
+            <column length="150" name="srs"/>
+        </property>
+        <property name="minx">
+            <column length="50" name="minx"/>
+        </property>
+        <property name="maxx">
+            <column length="50" name="maxx"/>
+        </property>
+        <property name="miny">
+            <column length="50" name="miny"/>
+        </property>
+        <property name="maxy">
+            <column length="50" name="maxy"/>
+        </property>
+        <property name="resx">
+            <column length="50" name="resx"/>
+        </property>
+        <property name="resy">
+            <column length="50" name="resy"/>
+        </property>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Style" table="style">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">style_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="layerid" name="layer" not-null="true"/>
+        <set cascade="all" inverse="true" lazy="true" name="domainResource">
+            <key column="styleid"/>
+            <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
+        </set>
+        <property name="name">
+            <column default="0" length="50" name="name" not-null="true"/>
+        </property>
+        <property name="title">
+            <column default="0" length="255" name="title" not-null="true"/>
+        </property>
+        <property name="abstracts" type="text">
+            <column length="65530" name="abstracts"/>
+        </property>
+    </class>
+    <class name="nl.b3p.wms.capabilities.StyleDomainResource" table="styledomainresource">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">styledomainresource_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="styleid" name="style" not-null="true"/>
+        <set lazy="true" name="formats" table="styledomainformat">
+            <key column="sdrid" not-null="true"/>
+            <element column="format" length="45" not-null="true" type="string"/>
+        </set>
+        <property name="domain">
+            <column length="45" name="domain" not-null="true"/>
+        </property>
+        <property name="url">
+            <column length="4000" name="url" not-null="true"/>
+        </property>
+        <property name="width">
+            <column length="45" name="width"/>
+        </property>
+        <property name="height">
+            <column length="45" name="height"/>
+        </property>
+    </class>
+    <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">users_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="organizationid" lazy="false" name="organization" not-null="true"/>
+        <set lazy="false" name="userroles" table="userroles">
+            <key column="userid"/>
+            <many-to-many class="nl.b3p.wms.capabilities.Roles" column="roleid" lazy="false"/>
+        </set>
+        <set cascade="all" lazy="false" name="userips" table="userip">
+            <key column="userid"/>
+            <element column="ipaddress" length="45" not-null="true" type="string"/>
+        </set>
+        <property name="firstName">
+            <column default="0" length="50" name="firstname" not-null="true"/>
+        </property>
+        <property name="surname">
+            <column default="0" length="50" name="lastname" not-null="true"/>
+        </property>
+        <property name="emailAddress">
+            <column default="0" length="50" name="emailaddress" not-null="true"/>
+        </property>
+        <property name="username">
+            <column default="0" length="50" name="username" not-null="true"/>
+        </property>
+        <property name="password">
+            <column default="0" length="50" name="password" not-null="true"/>
+        </property>
+        <property name="personalURL">
+            <column length="4000" name="personalurl"/>
+        </property>
+        <property name="timeout">
+            <column name="timeout"/>
+        </property>
+        <property name="defaultGetMap">
+            <column length="4000" name="defaultgetmap"/>
+        </property>
+    </class>
+    <class name="nl.b3p.ogc.wfs.v110.WfsLayer" table="wfs_layer">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">wfs_layer_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one column="wfsserviceproviderid" name="wfsServiceProvider" not-null="true"/>
     <!--   /-->
-            <property name="name">
-                <column length="200" name="name"/>
-            </property>
-            <property name="title">
-                <column default="0" length="255" name="title" not-null="true"/>
-            </property>
-            <property name="metaData" type="text">
-                <column length="65530" name="metadata"/>
-            </property>
-        </class>
-        <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider" table="wfs_serviceprovider">
-            <id name="id">
-                <column name="id" sql-type="serial"/>
-                <generator class="native">
-                    <param name="sequence">wfs_serviceprovider_id_seq</param>
-                </generator>
-            </id>
-            <set cascade="all" inverse="true" lazy="true" name="wfsLayers">
-                <key column="wfsserviceproviderid"/>
-                <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
-            </set>
-            <property name="name">
-                <column default="0" length="60" name="name" not-null="true"/>
-            </property>
-            <property name="abbr">
-                <column default="0" length="60" name="abbr" not-null="true"/>
-            </property>
-            <property name="title">
-                <column default="0" length="50" name="title" not-null="true"/>
-            </property>
-            <property name="givenName">
-                <column default="0" length="50" name="givenname" not-null="true"/>
-            </property>
-            <property name="url">
-                <column default="0" length="4000" name="url" not-null="true"/>
-            </property>
-            <property name="updatedDate">
-                <column name="updateddate" not-null="true"/>
-            </property>
-            <property name="wfsVersion">
-                <column default="0" length="50" name="wfsversion" not-null="true"/>
-            </property>
-        </class>
-    </hibernate-mapping>
+        <property name="name">
+            <column length="200" name="name"/>
+        </property>
+        <property name="title">
+            <column default="0" length="255" name="title" not-null="true"/>
+        </property>
+        <property name="metaData" type="text">
+            <column length="65530" name="metadata"/>
+        </property>
+    </class>
+    <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider" table="wfs_serviceprovider">
+        <id name="id">
+            <column name="id" sql-type="serial"/>
+            <generator class="native">
+                <param name="sequence">wfs_serviceprovider_id_seq</param>
+            </generator>
+        </id>
+        <set cascade="all" inverse="true" lazy="true" name="wfsLayers">
+            <key column="wfsserviceproviderid"/>
+            <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
+        </set>
+        <property name="name">
+            <column default="0" length="60" name="name" not-null="true"/>
+        </property>
+        <property name="abbr">
+            <column default="0" length="60" name="abbr" not-null="true"/>
+        </property>
+        <property name="title">
+            <column default="0" length="50" name="title" not-null="true"/>
+        </property>
+        <property name="givenName">
+            <column default="0" length="50" name="givenname" not-null="true"/>
+        </property>
+        <property name="url">
+            <column default="0" length="4000" name="url" not-null="true"/>
+        </property>
+        <property name="updatedDate">
+            <column name="updateddate" not-null="true"/>
+        </property>
+        <property name="wfsVersion">
+            <column default="0" length="50" name="wfsversion" not-null="true"/>
+        </property>
+    </class>
+</hibernate-mapping>

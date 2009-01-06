@@ -28,13 +28,16 @@ import nl.b3p.kaartenbalie.core.server.Organization;
  *
  * @author Chris van Lith
  */
-public abstract class Report {
+public class Report {
 
     private Integer id;
     private Date reportDate;
     private Long processingTime;
     private Organization owningOrganization;
     private String reportXML;
+    private Date startDate;
+    private Date endDate;
+    private int organizationId;
 
     public Report() {
         setReportDate(new Date());
@@ -84,6 +87,48 @@ public abstract class Report {
      */
     public void setReportXML(String reportXML) {
         this.reportXML = reportXML;
+    }
+
+    /**
+     * @return the startDate
+     */
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    /**
+     * @param startDate the startDate to set
+     */
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    /**
+     * @return the endDate
+     */
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * @param endDate the endDate to set
+     */
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    /**
+     * @return the organizationId
+     */
+    public int getOrganizationId() {
+        return organizationId;
+    }
+
+    /**
+     * @param organizationId the organizationId to set
+     */
+    public void setOrganizationId(int organizationId) {
+        this.organizationId = organizationId;
     }
 
 }

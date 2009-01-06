@@ -22,11 +22,11 @@ import org.exolab.castor.xml.ValidationException;
 import org.xml.sax.ContentHandler;
 
 /**
- * Class ServiceProviderSummary.
+ * Class TypeSummary.
  * 
  * @version $Revision$ $Date$
  */
-public class ServiceProviderSummary implements java.io.Serializable {
+public class TypeSummary implements java.io.Serializable {
 
 
       //--------------------------/
@@ -44,14 +44,14 @@ public class ServiceProviderSummary implements java.io.Serializable {
     private boolean _has_count;
 
     /**
-     * Field _serviceProvider
+     * Field _type
      */
-    private java.lang.String _serviceProvider;
+    private java.lang.String _type;
 
     /**
      * Field _durationAvg
      */
-    private int _durationAvg;
+    private long _durationAvg;
 
     /**
      * keeps track of state for field: _durationAvg
@@ -61,12 +61,22 @@ public class ServiceProviderSummary implements java.io.Serializable {
     /**
      * Field _durationMax
      */
-    private int _durationMax;
+    private long _durationMax;
 
     /**
      * keeps track of state for field: _durationMax
      */
     private boolean _has_durationMax;
+
+    /**
+     * Field _dataSizeSum
+     */
+    private int _dataSizeSum;
+
+    /**
+     * keeps track of state for field: _dataSizeSum
+     */
+    private boolean _has_dataSizeSum;
 
     /**
      * Field _bytesReceivedSum
@@ -93,10 +103,10 @@ public class ServiceProviderSummary implements java.io.Serializable {
      //- Constructors -/
     //----------------/
 
-    public ServiceProviderSummary() 
+    public TypeSummary() 
      {
         super();
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.TypeSummary()
 
 
       //-----------/
@@ -129,6 +139,15 @@ public class ServiceProviderSummary implements java.io.Serializable {
     {
         this._has_count= false;
     } //-- void deleteCount() 
+
+    /**
+     * Method deleteDataSizeSum
+     * 
+     */
+    public void deleteDataSizeSum()
+    {
+        this._has_dataSizeSum= false;
+    } //-- void deleteDataSizeSum() 
 
     /**
      * Method deleteDurationAvg
@@ -182,37 +201,48 @@ public class ServiceProviderSummary implements java.io.Serializable {
     } //-- int getCount() 
 
     /**
-     * Returns the value of field 'durationAvg'.
+     * Returns the value of field 'dataSizeSum'.
      * 
      * @return int
+     * @return the value of field 'dataSizeSum'.
+     */
+    public int getDataSizeSum()
+    {
+        return this._dataSizeSum;
+    } //-- int getDataSizeSum() 
+
+    /**
+     * Returns the value of field 'durationAvg'.
+     * 
+     * @return long
      * @return the value of field 'durationAvg'.
      */
-    public int getDurationAvg()
+    public long getDurationAvg()
     {
         return this._durationAvg;
-    } //-- int getDurationAvg() 
+    } //-- long getDurationAvg() 
 
     /**
      * Returns the value of field 'durationMax'.
      * 
-     * @return int
+     * @return long
      * @return the value of field 'durationMax'.
      */
-    public int getDurationMax()
+    public long getDurationMax()
     {
         return this._durationMax;
-    } //-- int getDurationMax() 
+    } //-- long getDurationMax() 
 
     /**
-     * Returns the value of field 'serviceProvider'.
+     * Returns the value of field 'type'.
      * 
      * @return String
-     * @return the value of field 'serviceProvider'.
+     * @return the value of field 'type'.
      */
-    public java.lang.String getServiceProvider()
+    public java.lang.String getType()
     {
-        return this._serviceProvider;
-    } //-- java.lang.String getServiceProvider() 
+        return this._type;
+    } //-- java.lang.String getType() 
 
     /**
      * Method hasBytesReceivedSum
@@ -249,6 +279,18 @@ public class ServiceProviderSummary implements java.io.Serializable {
     {
         return this._has_count;
     } //-- boolean hasCount() 
+
+    /**
+     * Method hasDataSizeSum
+     * 
+     * 
+     * 
+     * @return boolean
+     */
+    public boolean hasDataSizeSum()
+    {
+        return this._has_dataSizeSum;
+    } //-- boolean hasDataSizeSum() 
 
     /**
      * Method hasDurationAvg
@@ -354,36 +396,47 @@ public class ServiceProviderSummary implements java.io.Serializable {
     } //-- void setCount(int) 
 
     /**
+     * Sets the value of field 'dataSizeSum'.
+     * 
+     * @param dataSizeSum the value of field 'dataSizeSum'.
+     */
+    public void setDataSizeSum(int dataSizeSum)
+    {
+        this._dataSizeSum = dataSizeSum;
+        this._has_dataSizeSum = true;
+    } //-- void setDataSizeSum(int) 
+
+    /**
      * Sets the value of field 'durationAvg'.
      * 
      * @param durationAvg the value of field 'durationAvg'.
      */
-    public void setDurationAvg(int durationAvg)
+    public void setDurationAvg(long durationAvg)
     {
         this._durationAvg = durationAvg;
         this._has_durationAvg = true;
-    } //-- void setDurationAvg(int) 
+    } //-- void setDurationAvg(long) 
 
     /**
      * Sets the value of field 'durationMax'.
      * 
      * @param durationMax the value of field 'durationMax'.
      */
-    public void setDurationMax(int durationMax)
+    public void setDurationMax(long durationMax)
     {
         this._durationMax = durationMax;
         this._has_durationMax = true;
-    } //-- void setDurationMax(int) 
+    } //-- void setDurationMax(long) 
 
     /**
-     * Sets the value of field 'serviceProvider'.
+     * Sets the value of field 'type'.
      * 
-     * @param serviceProvider the value of field 'serviceProvider'.
+     * @param type the value of field 'type'.
      */
-    public void setServiceProvider(java.lang.String serviceProvider)
+    public void setType(java.lang.String type)
     {
-        this._serviceProvider = serviceProvider;
-    } //-- void setServiceProvider(java.lang.String) 
+        this._type = type;
+    } //-- void setType(java.lang.String) 
 
     /**
      * Method unmarshal
@@ -391,13 +444,13 @@ public class ServiceProviderSummary implements java.io.Serializable {
      * 
      * 
      * @param reader
-     * @return ServiceProviderSummary
+     * @return TypeSummary
      */
-    public static nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary unmarshal(java.io.Reader reader)
+    public static nl.b3p.kaartenbalie.reporting.castor.TypeSummary unmarshal(java.io.Reader reader)
         throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException
     {
-        return (nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary) Unmarshaller.unmarshal(nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary.class, reader);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderSummary unmarshal(java.io.Reader) 
+        return (nl.b3p.kaartenbalie.reporting.castor.TypeSummary) Unmarshaller.unmarshal(nl.b3p.kaartenbalie.reporting.castor.TypeSummary.class, reader);
+    } //-- nl.b3p.kaartenbalie.reporting.castor.TypeSummary unmarshal(java.io.Reader) 
 
     /**
      * Method validate

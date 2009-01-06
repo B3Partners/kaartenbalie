@@ -17,11 +17,11 @@ import org.exolab.castor.xml.XMLFieldDescriptor;
 import org.exolab.castor.xml.validators.*;
 
 /**
- * Class ClientSummaryDescriptor.
+ * Class TypeSummaryDescriptor.
  * 
  * @version $Revision$ $Date$
  */
-public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
+public class TypeSummaryDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
       //--------------------------/
@@ -53,10 +53,10 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
      //- Constructors -/
     //----------------/
 
-    public ClientSummaryDescriptor() 
+    public TypeSummaryDescriptor() 
      {
         super();
-        xmlName = "client-summary";
+        xmlName = "type-summary";
         
         //-- set grouping compositor
         setCompositorAsSequence();
@@ -73,7 +73,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasCount())
                     return null;
                 return new java.lang.Integer(target.getCount());
@@ -82,7 +82,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -116,14 +116,14 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 return target.getType();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     target.setType( (java.lang.String) value);
                 }
                 catch (java.lang.Exception ex) {
@@ -149,25 +149,25 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
         }
         desc.setValidator(fieldValidator);
         //-- _durationAvg
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasDurationAvg())
                     return null;
-                return new java.lang.Integer(target.getDurationAvg());
+                return new java.lang.Long(target.getDurationAvg());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationAvg( ((java.lang.Integer)value).intValue());
+                    target.setDurationAvg( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -186,30 +186,30 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
         //-- _durationMax
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasDurationMax())
                     return null;
-                return new java.lang.Integer(target.getDurationMax());
+                return new java.lang.Long(target.getDurationMax());
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
-                    target.setDurationMax( ((java.lang.Integer)value).intValue());
+                    target.setDurationMax( ((java.lang.Long)value).longValue());
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -228,7 +228,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
-            IntegerValidator typeValidator = new IntegerValidator();
+            LongValidator typeValidator = new LongValidator();
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
@@ -238,7 +238,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasDataSizeSum())
                     return null;
                 return new java.lang.Integer(target.getDataSizeSum());
@@ -247,7 +247,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -280,7 +280,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasBytesReceivedSum())
                     return null;
                 return new java.lang.Integer(target.getBytesReceivedSum());
@@ -289,7 +289,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -322,7 +322,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ClientSummary target = (ClientSummary) object;
+                TypeSummary target = (TypeSummary) object;
                 if(!target.hasBytesSentSum())
                     return null;
                 return new java.lang.Integer(target.getBytesSentSum());
@@ -331,7 +331,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ClientSummary target = (ClientSummary) object;
+                    TypeSummary target = (TypeSummary) object;
                     // ignore null values for non optional primitives
                     if (value == null) return;
                     
@@ -358,7 +358,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ClientSummaryDescriptor()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.TypeSummaryDescriptor()
 
 
       //-----------/
@@ -410,7 +410,7 @@ public class ClientSummaryDescriptor extends org.exolab.castor.xml.util.XMLClass
      */
     public java.lang.Class getJavaClass()
     {
-        return nl.b3p.kaartenbalie.reporting.castor.ClientSummary.class;
+        return nl.b3p.kaartenbalie.reporting.castor.TypeSummary.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**
