@@ -23,10 +23,13 @@ package nl.b3p.kaartenbalie.reporting;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.Operation;
@@ -123,8 +126,9 @@ public class ReportThread extends Thread {
             Long procTime = new Long(System.currentTimeMillis() - processStart);
             parameters.setProcessingTime(procTime.longValue());
             mr.setParameters(parameters);
-            // TODO
-            report.setReportXML("xml uit MonitorReport mr");
+
+            CastorXmlTransformer cxt = new CastorXmlTransformer();
+            report.setReportXML(cxt.createXml(mr));
             report.setProcessingTime(procTime);
 
             tx = em.getTransaction();
@@ -165,15 +169,62 @@ public class ReportThread extends Thread {
 
     protected RequestLoad createRequestLoad() {
         RequestLoad requestLoad = new RequestLoad();
-        HourlyLoad hourlyLoad = new HourlyLoad();
-        hourlyLoad.setBytesReceivedSum(new Integer(0));
-        hourlyLoad.setBytesSentSum(new Integer(0));
-        hourlyLoad.setCount(new Integer(0));
-        hourlyLoad.setDate(new org.exolab.castor.types.Date(new Date()));
-        hourlyLoad.setDurationAvg(new Long(0));
-        hourlyLoad.setDurationMax(new Long(0));
-        hourlyLoad.setHour(new Integer(0));
-        requestLoad.addHourlyLoad(hourlyLoad);
+
+        List resultList = null;
+        try {
+            resultList = (List) em.createQuery(
+                    "SELECT count(cr.timeStamp), " +
+                    "to_char(cr.timeStamp, 'DD-MM-YYYY'), " +
+                    "to_char(cr.timeStamp, 'HH24'), " +
+                    "sum(ro.bytesReceivedFromUser), " +
+                    "sum(ro.bytesSendToUser), " +
+                    "avg(ro.duration), " +
+                    "max(ro.duration) " +
+                    "FROM ClientRequest AS cr " +
+                    "LEFT JOIN cr.requestOperations AS ro " +
+                    "WHERE cr.organizationId = :organizationId " +
+                    "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
+                    "AND ro.type = :type " +
+                    "GROUP BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') " +
+                    "ORDER BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') ASC").
+                    setParameter("type", new Integer(Operation.REQUEST)).
+                    setParameter("startDate", startDate).
+                    setParameter("endDate", endDate).
+                    setParameter("organizationId", organization.getId()).
+                    getResultList();
+        } catch (NoResultException nre) {
+            // nothing to do
+        }
+        if (resultList != null && resultList.size() > 0) {
+            Iterator it = resultList.iterator();
+            while (it.hasNext()) {
+                Object[] result = (Object[]) it.next();
+                if (result != null && result.length == 7) {
+
+
+                    HourlyLoad hourlyLoad = new HourlyLoad();
+
+                    Long count = (Long) result[0];
+                    hourlyLoad.setCount(count == null ? new Integer(0) : new Integer(count.intValue()));
+
+                    Date datum = FormUtils.StringToDate((String) result[1], null);
+                    hourlyLoad.setDate(new org.exolab.castor.types.Date(datum == null ? new Date() : datum));
+                    String hour = (String) result[2];
+                    hourlyLoad.setHour(new Integer(hour));
+
+                    Long bytesReceived = (Long) result[3];
+                    hourlyLoad.setBytesReceivedSum(bytesReceived == null ? new Integer(0) : new Integer(bytesReceived.intValue()));
+                    Long bytesSent = (Long) result[4];
+                    hourlyLoad.setBytesSentSum(bytesSent == null ? new Integer(0) : new Integer(bytesSent.intValue()));
+                    Double durationAvg = (Double) result[5];
+                    hourlyLoad.setDurationAvg(durationAvg == null ? new Integer(0) : new Integer(durationAvg.intValue()));
+                    Long durationMax = (Long) result[6];
+                    hourlyLoad.setDurationMax(durationMax == null ? new Integer(0) : new Integer(durationMax.intValue()));
+
+                    requestLoad.addHourlyLoad(hourlyLoad);
+                }
+            }
+        }
         return requestLoad;
     }
 
@@ -205,7 +256,7 @@ public class ReportThread extends Thread {
                 // nothing to do
             }
 
-            if (result != null && result.length > 0) {
+            if (result != null && result.length == 6) {
                 TypeSummary typeSummary = new TypeSummary();
 
                 Long count = (Long) result[0];
@@ -260,13 +311,14 @@ public class ReportThread extends Thread {
                                 "WHERE ro.clientRequest.organizationId = :organizationId " +
                                 "AND ro.type = :type " +
                                 "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
-                                "AND ro.duration > :msHigh ").
+                                "AND ro.duration > :msLow ").
                                 setParameter("type", new Integer(operation)).
                                 setParameter("startDate", startDate).
                                 setParameter("endDate", endDate).
                                 setParameter("organizationId", organization.getId()).
-                                setParameter("msHigh", msHigh).
+                                setParameter("msLow", msLow).
                                 getSingleResult();
+                        msHigh = new Long(-1);
                     }
                 } catch (NoResultException nre) {
                     // nothing to do
@@ -289,40 +341,49 @@ public class ReportThread extends Thread {
     protected ServiceProviders createServiceProviders() {
         ServiceProviders serviceProviders = new ServiceProviders();
 
-        // TODO eerst sp's ophalen met naam en dan statistieken ophalen hier
-        Object[] result = null;
+        List resultList = null;
         try {
-            result = (Object[]) em.createQuery(
-                    "SELECT count(*), " +
+            resultList = (List) em.createQuery(
+                    "SELECT ro.serviceProviderId, " +
+                    "count(ro.serviceProviderId), " +
                     "sum(ro.bytesReceived), " +
                     "sum(ro.bytesSend), " +
                     "avg(ro.requestResponseTime), " +
                     "max(ro.requestResponseTime) " +
                     "FROM ServiceProviderRequest AS ro " +
                     "WHERE ro.clientRequest.organizationId = :organizationId " +
-                    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate ").
+                    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                    "GROUP BY ro.serviceProviderId ").
                     setParameter("startDate", startDate).
                     setParameter("endDate", endDate).
                     setParameter("organizationId", organization.getId()).
-                    getSingleResult();
+                    getResultList();
         } catch (NoResultException nre) {
             // nothing to do
         }
-        if (result != null && result.length > 0) {
-            ServiceProvider serviceProvider = new ServiceProvider();
+        if (resultList != null && resultList.size() > 0) {
+            Iterator it = resultList.iterator();
+            while (it.hasNext()) {
+                Object[] result = (Object[]) it.next();
+                if (result != null && result.length == 6) {
+                    ServiceProvider serviceProvider = new ServiceProvider();
 
-            Long count = (Long) result[0];
-            serviceProvider.setCount(count == null ? new Integer(0) : new Integer(count.intValue()));
-            Long bytesReceived = (Long) result[1];
-            serviceProvider.setBytesReceivedSum(bytesReceived == null ? new Integer(0) : new Integer(bytesReceived.intValue()));
-            Long bytesSent = (Long) result[2];
-            serviceProvider.setBytesSentSum(bytesSent == null ? new Integer(0) : new Integer(bytesSent.intValue()));
-            Double durationAvg = (Double) result[3];
-            serviceProvider.setDurationAvg(durationAvg == null ? new Integer(0) : new Integer(durationAvg.intValue()));
-            Long durationMax = (Long) result[4];
-            serviceProvider.setDurationMax(durationMax == null ? new Integer(0) : new Integer(durationMax.intValue()));
+                    Object name = result[0];
+                    serviceProvider.setName(name == null ? "onbekend" : name.toString());
+                    Long count = (Long) result[1];
+                    serviceProvider.setCount(count == null ? new Integer(0) : new Integer(count.intValue()));
+                    Long bytesReceived = (Long) result[2];
+                    serviceProvider.setBytesReceivedSum(bytesReceived == null ? new Integer(0) : new Integer(bytesReceived.intValue()));
+                    Long bytesSent = (Long) result[3];
+                    serviceProvider.setBytesSentSum(bytesSent == null ? new Integer(0) : new Integer(bytesSent.intValue()));
+                    Double durationAvg = (Double) result[4];
+                    serviceProvider.setDurationAvg(durationAvg == null ? new Integer(0) : new Integer(durationAvg.intValue()));
+                    Long durationMax = (Long) result[5];
+                    serviceProvider.setDurationMax(durationMax == null ? new Integer(0) : new Integer(durationMax.intValue()));
 
-            serviceProviders.addServiceProvider(serviceProvider);
+                    serviceProviders.addServiceProvider(serviceProvider);
+                }
+            }
         }
         return serviceProviders;
     }
