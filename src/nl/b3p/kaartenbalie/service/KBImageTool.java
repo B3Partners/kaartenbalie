@@ -63,6 +63,9 @@ public class KBImageTool {
      */
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
     public static BufferedImage readImage(GetMethod method, String mime, ServiceProviderRequest wmsRequest) throws Exception {
+        if (mime.indexOf(";")!=-1){
+            mime=mime.substring(0,mime.indexOf(";"));
+        }
         String mimeType = getMimeType(mime);
         if (mimeType == null) {
             log.error("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
