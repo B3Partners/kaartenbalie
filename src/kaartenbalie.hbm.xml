@@ -505,13 +505,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">rep_report_id_seq</param>
       </generator>
     </id>
-    <many-to-one column="rpd_org_id" name="owningOrganization" not-null="false"/>
+    <many-to-one column="rpd_org_id" name="organization" not-null="false"/>
     <property column="rep_reportdate" name="reportDate"/>
     <property column="rep_processingtime" name="processingTime"/>
     <property column="rep_startdate" name="startDate"/>
     <property column="rep_enddate" name="endDate"/>
-    <property column="rep_organizationid" name="organizationId"/>
     <property column="rep_xml" name="reportXML"/>
+    <property column="rep_name" name="name"/>
+    <property column="rep_mime" name="reportMime"/>
   </class>
   <class name="nl.b3p.wms.capabilities.Roles" table="roles">
     <id name="id">

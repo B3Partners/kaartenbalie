@@ -35,7 +35,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.kaartenbalie.reporting.ReportGenerator;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -230,9 +229,12 @@ public class MyEMFDatabase extends HttpServlet {
      *
      * @return string containing the local path
      */
+    public static String localPath() {
+        return localPath(null);
+    }
     public static String localPath(String fileName) {
         if (fileName == null) {
-            return "";
+            fileName="";
         }
         if (!fileName.startsWith(File.separator)) {
             fileName = File.separator + fileName;

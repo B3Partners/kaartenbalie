@@ -307,8 +307,10 @@ CREATE
         rep_startdate TIMESTAMP WITHOUT TIME ZONE,
         rep_enddate TIMESTAMP WITHOUT TIME ZONE,
         rep_organizationid INTEGER,
+        rep_xml CHARACTER VARYING(8000),
+        rep_mime CHARACTER VARYING(100),
         PRIMARY KEY (id)
-    );
+    )    
 DROP TABLE
     roles;
 CREATE
@@ -623,6 +625,8 @@ ALTER TABLE
     rep_report ADD CONSTRAINT fk23f41f16e340125a FOREIGN KEY (rpd_org_id) REFERENCES organization (id);
 ALTER TABLE
     rep_report ADD CONSTRAINT 2200_17323_1_not_null CHECK (id IS NOT NULL);
+ALTER TABLE
+    rep_report ADD CONSTRAINT fk23f41f16e340125a FOREIGN KEY (rpd_org_id) REFERENCES organization (id),
 ALTER TABLE
     roles ADD CONSTRAINT 2200_17350_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE

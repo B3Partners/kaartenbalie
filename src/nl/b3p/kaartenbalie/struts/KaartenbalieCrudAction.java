@@ -22,23 +22,16 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.CrudAction;
-import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
@@ -84,7 +77,6 @@ public class KaartenbalieCrudAction extends CrudAction {
             tx.begin();
             ActionForward forward = null;
             String msg = null;
-            setMenuParams(request);
             try {
                 forward = super.execute(mapping, form, request, response);
                 tx.commit();
@@ -137,15 +129,6 @@ public class KaartenbalieCrudAction extends CrudAction {
     protected static EntityManager getEntityManager() throws Exception {
         log.debug("Getting entity manager ......");
         return MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-    }
-
-    private static void setMenuParams(HttpServletRequest request) {
-        Map menuParamMap = new HashMap();
-        menuParamMap.put("pricing", new Boolean(AccountManager.isEnableAccounting()));
-        menuParamMap.put("reporting", new Boolean(DataMonitoring.isEnableMonitoring()));
-        menuParamMap.put("accounting", new Boolean(AccountManager.isEnableAccounting()));
-        menuParamMap.put("metadata", new Boolean(KBConfiguration.METADATA_ENABLED));
-        request.setAttribute("menuParameters", menuParamMap);
     }
 
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
@@ -213,26 +196,6 @@ public class KaartenbalieCrudAction extends CrudAction {
     protected String getLayerID(DynaValidatorForm dynaForm) {
         return dynaForm.getString("id");
     }
-
-//    protected WfsLayer getWfsLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-//        log.debug("Getting entity manager ......");
-//        EntityManager em = getEntityManager();
-//        Integer id = getLayerID(dynaForm);
-//        if (id == null) {
-//            return null;
-//        }
-//        return (WfsLayer) em.find(WfsLayer.class, id);
-//    }
-//
-//    protected Layer getWmsLayer(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-//        log.debug("Getting entity manager ......");
-//        EntityManager em = getEntityManager();
-//        Integer id = getLayerID(dynaForm);
-//        if (id == null) {
-//            return null;
-//        }
-//        return (Layer) em.find(Layer.class, id);
-//    }
 
     /* Method which checks if a certain layer is allowed to be shown on the screen.
      *

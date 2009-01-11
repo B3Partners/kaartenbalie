@@ -31,7 +31,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.Operation;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.reporting.castor.HourlyLoad;
@@ -54,28 +53,23 @@ import org.apache.commons.logging.LogFactory;
 public class ReportThread extends Thread {
 
     private static final Log log = LogFactory.getLog(ReportThread.class);
-
-    //Owning user & organization..
-    protected User user;
     protected Organization organization;
-    protected ReportGenerator reportGenerator;
     /* entity manager alleen voor deze class onafhankelijk van thread */
     protected EntityManager em = null;
-    Report report;
     private Date startDate;
     private Date endDate;
+    private String xsl;
+    private String name;
+    private String type;
 
-    public void init(ReportGenerator reportGenerator, User user, Map parameters) throws Exception {
-        /*
-         * Set all the values...
-         */
-        this.reportGenerator = reportGenerator;
-        this.user = user;
-        if (user != null) {
-            this.organization = user.getOrganization();
-        }
+    public void init(Map parameters) throws Exception {
         setParameters(parameters);
-
+        if (type == null || type.length() == 0) {
+            type = CastorXmlTransformer.XML;
+        }
+        if (name == null || name.length() == 0) {
+            name = type;
+        }
         /* entity manager moet gesloten worden aan einde van de run methode */
         try {
             log.debug("Creating local entity manager ......");
@@ -103,9 +97,13 @@ public class ReportThread extends Thread {
                 /*
                  * Store all the parameters in the report...
                  */
-                report.setOwningOrganization(organization);
+                report.setOrganization(organization);
                 report.setStartDate(startDate);
                 report.setEndDate(endDate);
+                report.setName(name);
+                String mime = (String) CastorXmlTransformer.getContentTypes().get(type);
+                report.setReportMime(mime);
+
                 em.persist(report);
                 em.flush();
                 tx.commit();
@@ -114,22 +112,41 @@ public class ReportThread extends Thread {
                 throw ex;
             }
 
-            Parameters parameters = new Parameters();
-            parameters.setDateEnd(new org.exolab.castor.types.Date(endDate));
-            parameters.setDateStart(new org.exolab.castor.types.Date(startDate));
-            parameters.setId(Integer.toString(report.getId().intValue()));
-            parameters.setOrganization(organization.getName());
-            parameters.setTimeStamp(new Date());
+            try {
+                Parameters parameters = new Parameters();
+                parameters.setDateEnd(new org.exolab.castor.types.Date(endDate));
+                parameters.setDateStart(new org.exolab.castor.types.Date(startDate));
+                parameters.setId(Integer.toString(report.getId().intValue()));
+                parameters.setOrganization(organization.getName());
+                parameters.setTimeStamp(new Date());
 
-            MonitorReport mr = createMonitorReport();
+                MonitorReport mr = createMonitorReport();
 
-            Long procTime = new Long(System.currentTimeMillis() - processStart);
-            parameters.setProcessingTime(procTime.longValue());
-            mr.setParameters(parameters);
+                Long procTime = new Long(System.currentTimeMillis() - processStart);
+                parameters.setProcessingTime(procTime.longValue());
+                mr.setParameters(parameters);
+                report.setProcessingTime(procTime);
 
-            CastorXmlTransformer cxt = new CastorXmlTransformer();
-            report.setReportXML(cxt.createXml(mr));
-            report.setProcessingTime(procTime);
+                if (type.equalsIgnoreCase(CastorXmlTransformer.HTML)) {
+                    CastorXmlTransformer cxt = new CastorXmlTransformer(xsl, MyEMFDatabase.localPath());
+                    report.setReportXML(cxt.createHtml(mr));
+                } else {
+                    CastorXmlTransformer cxt = new CastorXmlTransformer();
+                    report.setReportXML(cxt.createXml(mr));
+                }
+            } catch (Exception e) {
+                StringBuffer rerror = new StringBuffer();
+                rerror.append("<error>");
+                rerror.append(e.getLocalizedMessage());
+
+                StackTraceElement[] ste = e.getStackTrace();
+                if (ste.length > 0) {
+                    rerror.append(" at ");
+                    rerror.append(ste[0].toString());
+                }
+                rerror.append("</error>");
+                report.setReportXML(rerror.toString());
+            }
 
             tx = em.getTransaction();
             tx.begin();
@@ -156,19 +173,27 @@ public class ReportThread extends Thread {
         MonitorReport mr = new MonitorReport();
 
         RequestLoad requestLoad = createRequestLoad();
-        mr.setRequestLoad(requestLoad);
+        if (requestLoad != null) {
+            mr.setRequestLoad(requestLoad);
+        }
         RequestSummary requestSummary = createRequestSummary();
-        mr.setRequestSummary(requestSummary);
+        if (requestSummary != null) {
+            mr.setRequestSummary(requestSummary);
+        }
         ResponseFrequency responseFrequency = createResponseFrequency();
-        mr.setResponseFrequency(responseFrequency);
+        if (responseFrequency != null) {
+            mr.setResponseFrequency(responseFrequency);
+        }
         ServiceProviders serviceProviders = createServiceProviders();
-        mr.setServiceProviders(serviceProviders);
+        if (serviceProviders != null) {
+            mr.setServiceProviders(serviceProviders);
+        }
 
         return mr;
     }
 
     protected RequestLoad createRequestLoad() {
-        RequestLoad requestLoad = new RequestLoad();
+        RequestLoad requestLoad = null;
 
         List resultList = null;
         try {
@@ -196,6 +221,7 @@ public class ReportThread extends Thread {
             // nothing to do
         }
         if (resultList != null && resultList.size() > 0) {
+            requestLoad = new RequestLoad();
             Iterator it = resultList.iterator();
             while (it.hasNext()) {
                 Object[] result = (Object[]) it.next();
@@ -229,7 +255,7 @@ public class ReportThread extends Thread {
     }
 
     protected RequestSummary createRequestSummary() {
-        RequestSummary requestSummary = new RequestSummary();
+        RequestSummary requestSummary = null;
 
         for (int operation = 2; operation <= 5; operation++) {
 
@@ -257,6 +283,7 @@ public class ReportThread extends Thread {
             }
 
             if (result != null && result.length == 6) {
+                requestSummary = new RequestSummary();
                 TypeSummary typeSummary = new TypeSummary();
 
                 Long count = (Long) result[0];
@@ -271,7 +298,7 @@ public class ReportThread extends Thread {
                 typeSummary.setDurationAvg(durationAvg == null ? new Integer(0) : new Integer(durationAvg.intValue()));
                 Long durationMax = (Long) result[5];
                 typeSummary.setDurationMax(durationMax == null ? new Integer(0) : new Integer(durationMax.intValue()));
-                typeSummary.setType(Operation.NAME[operation]);
+                typeSummary.setType(Operation.NAME[operation - 1]);
 
                 requestSummary.addTypeSummary(typeSummary);
             }
@@ -285,13 +312,13 @@ public class ReportThread extends Thread {
         for (int operation = 2; operation <= 6; operation++) {
             int stepSize = 1000;
             int start = 0;
-            for (int i = 1; i <= 23; i++) {
+            for (int i = 1; i <= 21; i++) {
 
                 Long msLow = new Long((i - 1) * stepSize + start);
                 Long msHigh = new Long(i * stepSize + start);
                 Long frequencyHits = null;
                 try {
-                    if (i <= 22) {
+                    if (i <= 20) {
                         frequencyHits = (Long) em.createQuery(
                                 "SELECT count(*) FROM Operation AS ro " +
                                 "WHERE ro.clientRequest.organizationId = :organizationId " +
@@ -328,18 +355,21 @@ public class ReportThread extends Thread {
                     responseTime.setCount(frequencyHits == null ? 0 : frequencyHits.intValue());
                     responseTime.setDurationHigh(msHigh == null ? new Integer(0) : new Integer(msHigh.intValue()));
                     responseTime.setDurationLow(msLow == null ? new Integer(0) : new Integer(msLow.intValue()));
-                    responseTime.setType(Operation.NAME[operation]);
+                    responseTime.setType(Operation.NAME[operation - 1]);
 
                     responseFrequency.addResponseTime(responseTime);
                 }
 
             }
         }
+        if (responseFrequency.getResponseTimeCount() == 0) {
+            return null;
+        }
         return responseFrequency;
     }
 
     protected ServiceProviders createServiceProviders() {
-        ServiceProviders serviceProviders = new ServiceProviders();
+        ServiceProviders serviceProviders = null;
 
         List resultList = null;
         try {
@@ -362,14 +392,14 @@ public class ReportThread extends Thread {
             // nothing to do
         }
         if (resultList != null && resultList.size() > 0) {
+            serviceProviders = new ServiceProviders();
             Iterator it = resultList.iterator();
             while (it.hasNext()) {
                 Object[] result = (Object[]) it.next();
                 if (result != null && result.length == 6) {
                     ServiceProvider serviceProvider = new ServiceProvider();
 
-                    Object name = result[0];
-                    serviceProvider.setName(name == null ? "onbekend" : name.toString());
+                    serviceProvider.setName(getSpName((Integer) result[0]));
                     Long count = (Long) result[1];
                     serviceProvider.setCount(count == null ? new Integer(0) : new Integer(count.intValue()));
                     Long bytesReceived = (Long) result[2];
@@ -388,219 +418,42 @@ public class ReportThread extends Thread {
         return serviceProviders;
     }
 
-
-    /*
-
-
-    protected void reportSummaryData(RepDataSummary rds, DataUsageReport dur) throws Exception {
-    if (dur == null || rds == null) {
-    return;
-    }
-    Integer organizationId = dur.getOrganizationId();
-    EntityTransaction tx = em.getTransaction();
-    try {
-    tx.begin();
-    //CombineImagesOperation
-    Long cioHits = (Long) em.createQuery(
-    "SELECT COUNT(*) " +
-    "FROM CombineImagesOperation AS cio " +
-    "WHERE cio.clientRequest.organizationId = :organizationId " +
-    "AND cio.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult();
-    rds.setCioHits(cioHits);
-    if (cioHits != null) {
-    rds.setCioAverageResponse((Double) em.createQuery(
-    "SELECT AVG(duration) " +
-    "FROM CombineImagesOperation AS cio " +
-    "WHERE cio.clientRequest.organizationId = :organizationId " +
-    "AND cio.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    }
-    //ServerTransferOperation
-    Long ctoHits = (Long) em.createQuery("" +
-    "SELECT COUNT(*) " +
-    "FROM ServerTransferOperation AS sto " +
-    "WHERE sto.clientRequest.organizationId = :organizationId " +
-    "AND sto.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult();
-    rds.setCtoHits(ctoHits);
-    if (ctoHits != null) {
-    rds.setCtoAverageResponse((Double) em.createQuery(
-    "SELECT AVG(duration) " +
-    "FROM ServerTransferOperation AS sto " +
-    "WHERE sto.clientRequest.organizationId = :organizationId " +
-    "AND sto.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    }
-
-    //ClientXFerOperation
-    Long cxoHits = (Long) em.createQuery(
-    "SELECT COUNT(*) " +
-    "FROM ClientXFerOperation AS cxo " +
-    "WHERE cxo.clientRequest.organizationId = :organizationId " +
-    "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult();
-    rds.setCxoHits(cxoHits);
-    if (cxoHits != null) {
-    rds.setCxoAverageResponse((Double) em.createQuery(
-    "SELECT AVG(duration) " +
-    "FROM ClientXFerOperation AS cxo " +
-    "WHERE cxo.clientRequest.organizationId = :organizationId " +
-    "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    rds.setCxoData((Long) em.createQuery(
-    "SELECT SUM(dataSize) " +
-    "FROM ClientXFerOperation AS cxo " +
-    "WHERE cxo.clientRequest.organizationId = :organizationId " +
-    "AND cxo.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    }
-
-    //RequestOperation
-    Long roHits = (Long) em.createQuery(
-    "SELECT COUNT(*) " +
-    "FROM RequestOperation AS ro " +
-    "WHERE ro.clientRequest.organizationId = :organizationId " +
-    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult();
-    rds.setRoHits(roHits);
-    if (roHits != null) {
-    rds.setRoAverageResponse((Double) em.createQuery(
-    "SELECT AVG(duration) " +
-    "FROM RequestOperation AS ro " +
-    "WHERE ro.clientRequest.organizationId = :organizationId " +
-    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    rds.setRoUpload((Long) em.createQuery(
-    "SELECT SUM(bytesReceivedFromUser) " +
-    "FROM RequestOperation AS ro " +
-    "WHERE ro.clientRequest.organizationId = :organizationId " +
-    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    rds.setRoDownload((Long) em.createQuery(
-    "SELECT SUM(bytesSendToUser) " +
-    "FROM RequestOperation AS ro " +
-    "WHERE ro.clientRequest.organizationId = :organizationId " +
-    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    }
-    em.persist(rds);
-    em.flush();
-    tx.commit();
-    } catch (Exception e) {
-    tx.rollback();
-    throw e;
-    }
-    }
-
-    protected void reportDetailData(RepDataDetails rdd, DataUsageReport dur) throws Exception {
-    if (dur == null) {
-    return;
-    }
-    EntityTransaction tx = em.getTransaction();
-    Integer organizationId = dur.getOrganizationId();
-    try {
-    tx.begin();
-    rdd.setMaxHour((Integer) em.createQuery(
-    "SELECT MAX(HOUR(timeStamp)) " +
-    "FROM ClientRequest AS cr " +
-    "WHERE cr.organizationId = :organizationId " +
-    "AND cr.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    rdd.setMinHour((Integer) em.createQuery(
-    "SELECT MIN(HOUR(timeStamp)) " +
-    "FROM ClientRequest AS cr " +
-    "WHERE cr.organizationId = :organizationId " +
-    "AND cr.timeStamp BETWEEN :startDate AND :endDate").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("organizationId", organizationId).getSingleResult());
-    em.persist(rdd);
-    em.flush();
-    tx.commit();
-    } catch (Exception e) {
-    tx.rollback();
-    throw e;
-    }
-    }
-
-    protected void reportHits(RepDataDetails rdd, DataUsageReport dur) throws Exception {
-    if (dur == null) {
-    return;
-    }
-    EntityTransaction tx = em.getTransaction();
-    Integer organizationId = dur.getOrganizationId();
-    try {
-    tx.begin();
-    Iterator iterUsers = dur.getUsers(em).iterator();
-    while (iterUsers.hasNext()) {
-    User user = (User) iterUsers.next();
-    UsageDetails usageDetails = new UsageDetails(rdd, user);
-    em.persist(usageDetails);
-
-    //Complex query to get the hits, date in string format, hour, bytes uploaded and bytes downloaded.
-    //                List list = em.createQuery( //MYSQL versie
-    //                        "SELECT COUNT(DISTINCT cr) AS hits, DATE_FORMAT(cr.timeStamp,'%d-%m-%Y') AS tsDate, HOUR(cr.timeStamp) AS tsHour, SUM(ro.bytesReceivedFromUser), SUM(ro.bytesSendToUser)" +
-    //                        "FROM ClientRequest AS cr " +
-    //                        "LEFT JOIN cr.requestOperations AS ro " +
-    //                        "WHERE cr.userId = :userId " +
-    //                        "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
-    //                        "AND cr.organizationId = :organizationId " +
-    //                        "GROUP BY DATE_FORMAT(cr.timeStamp,'%d-%m-%Y'), HOUR(cr.timeStamp) " +
-    //                        "ORDER BY cr.timeStamp ASC").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("userId", user.getId()).setParameter("organizationId", organizationId).getResultList();
-    List list = em.createQuery( // postgres versie
-    "SELECT COUNT(cr.timeStamp) AS hits, " +
-    "to_char(cr.timeStamp, 'DD-MM-YYYY') AS tsDate, " +
-    "to_char(cr.timeStamp, 'HH24') AS tsHour, " +
-    "SUM(ro.bytesReceivedFromUser), " +
-    "SUM(ro.bytesSendToUser) " +
-    "FROM ClientRequest AS cr " +
-    "LEFT JOIN cr.requestOperations AS ro " +
-    "WHERE cr.userId = :userId " +
-    "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
-    "AND cr.organizationId = :organizationId " +
-    "GROUP BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') " +
-    "ORDER BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') ASC").setParameter("startDate", startDate).setParameter("endDate", endDate).setParameter("userId", user.getId()).setParameter("organizationId", organizationId).getResultList();
-    Iterator i = list.iterator();
-    while (i.hasNext()) {
-    Object[] object = (Object[]) i.next();
-    DailyUsage dailyUsage = new DailyUsage(usageDetails);
-    dailyUsage.setHits((Long) object[0]);
-    try {
-    dailyUsage.setDate(DataUsageReport.periodFormat.parse((String) object[1]));
-    } catch (ParseException ex) {
-    log.debug("", ex);
-    }
-    try {
-    dailyUsage.setHour(Integer.valueOf((String) object[2]));
-    } catch (NumberFormatException nfe) {
-    log.debug("", nfe);
-    }
-    Long upload = (Long) object[3];
-    Long download = (Long) object[4];
-    if (upload == null) {
-    upload = new Long(0);
-    }
-    if (download == null) {
-    download = new Long(0);
-    }
-    Long data = new Long(upload.intValue() + download.intValue());
-    dailyUsage.setDataUsage(data);
-    em.persist(dailyUsage);
-    }
-    }
-    em.flush();
-    tx.commit();
-    } catch (Exception e) {
-    tx.rollback();
-    throw e;
-    }
-    }
-     */
-    public void setParameters(Map parameters) throws Exception {
-        if (parameters != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime((Date) parameters.get("startDate"));
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            startDate =
-                    cal.getTime();
-            cal.setTime((Date) parameters.get("endDate"));
-            cal.set(Calendar.HOUR_OF_DAY, 23);
-            cal.set(Calendar.MINUTE, 59);
-            cal.set(Calendar.SECOND, 59);
-            cal.set(Calendar.MILLISECOND, 99);
-            endDate =
-                    cal.getTime();
-            organization =
-                    (Organization) parameters.get("organization");
+    private String getSpName(Integer id) {
+        nl.b3p.wms.capabilities.ServiceProvider sp =
+                (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
+        String spName = "onbekend";
+        if (sp != null) {
+            spName = sp.getAbbr();
         }
+        return spName;
+    }
+
+    public void setParameters(Map parameters) throws Exception {
+        if (parameters == null) {
+            return;
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTime((Date) parameters.get("startDate"));
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        startDate =
+                cal.getTime();
+        cal.setTime((Date) parameters.get("endDate"));
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 59);
+        cal.set(Calendar.SECOND, 59);
+        cal.set(Calendar.MILLISECOND, 99);
+        endDate =
+                cal.getTime();
+        organization =
+                (Organization) parameters.get("organization");
+        xsl =
+                (String) parameters.get("xsl");
+        name =
+                (String) parameters.get("name");
+        type =
+                (String) parameters.get("type");
     }
 }

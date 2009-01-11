@@ -33,11 +33,12 @@ public class Report {
     private Integer id;
     private Date reportDate;
     private Long processingTime;
-    private Organization owningOrganization;
+    private Organization organization;
     private String reportXML;
+    private String reportMime;
+    private String name;
     private Date startDate;
     private Date endDate;
-    private int organizationId;
 
     public Report() {
         setReportDate(new Date());
@@ -67,12 +68,12 @@ public class Report {
         this.processingTime = processingTime;
     }
 
-    public Organization getOwningOrganization() {
-        return owningOrganization;
+    public Organization getOrganization() {
+        return organization;
     }
 
-    public void setOwningOrganization(Organization owningOrganization) {
-        this.owningOrganization = owningOrganization;
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     /**
@@ -118,17 +119,31 @@ public class Report {
     }
 
     /**
-     * @return the organizationId
+     * @return the reportMime
      */
-    public int getOrganizationId() {
-        return organizationId;
+    public String getReportMime() {
+        return reportMime;
     }
 
     /**
-     * @param organizationId the organizationId to set
+     * @param reportMime the reportMime to set
      */
-    public void setOrganizationId(int organizationId) {
-        this.organizationId = organizationId;
+    public void setReportMime(String reportMime) {
+        this.reportMime = reportMime;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
 }
