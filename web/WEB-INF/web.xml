@@ -84,10 +84,6 @@
         <servlet-name>SelectCSS</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.SelectCSS</servlet-class>
         <init-param>
-            <param-name>server_default</param-name>
-            <param-value>www.kaartenbalie.nl</param-value>
-        </init-param>
-        <init-param>
             <param-name>csspath_default</param-name>
             <param-value>styles/b3p.css</param-value>
         </init-param>
@@ -101,7 +97,7 @@
         </init-param>
         <init-param>
             <param-name>server2</param-name>
-            <param-value>localhost</param-value>
+            <param-value>www.kaartenbalie.nl</param-value>
         </init-param>
         <init-param>
             <param-name>csspath2</param-name>
@@ -122,14 +118,6 @@
         <url-pattern>/styles/selectcss</url-pattern>
     </servlet-mapping>
     <!-- EINDE Select CSS Servlet -->
-    <servlet>
-        <servlet-name>FlamingoConfigServlet</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.servlet.FlamingoConfigServlet</servlet-class>
-        <init-param>
-            <param-name>defaultConfigLocation</param-name>
-            <param-value>flamingo/config.xml</param-value>
-        </init-param>
-    </servlet>
     <servlet-mapping>
         <servlet-name>action</servlet-name>
         <url-pattern>*.do</url-pattern>
@@ -137,10 +125,6 @@
     <servlet-mapping>
         <servlet-name>CallWMSServlet</servlet-name>
         <url-pattern>/services/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>FlamingoConfigServlet</servlet-name>
-        <url-pattern>/flamingo/servlet/FlamingoConfigServlet/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>MiltonServlet</servlet-name>

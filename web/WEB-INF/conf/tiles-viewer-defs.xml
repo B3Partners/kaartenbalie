@@ -15,9 +15,6 @@
     <definition name="base.viewer.index" extends="base.viewer">
         <put name="content" value="/WEB-INF/jsp/viewer/index.jsp"/>
     </definition>
-    <definition name="base.viewer.mapviewer" extends="base.viewer">
-        <put name="content" value="/WEB-INF/jsp/viewer/mapviewer.jsp"/>
-    </definition>
     <definition name="base.viewer.changeprofile" extends="base.viewer">
         <put name="content" value="/WEB-INF/jsp/viewer/profile.jsp"/>
     </definition>

@@ -12,7 +12,7 @@ DROP TABLE
 CREATE
     TABLE acc_layerpricing
     (
-        id INTEGER DEFAULT nextval('acc_layerpricing_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         lpr_layername CHARACTER VARYING(255),
         lpr_serverproviderprefix CHARACTER VARYING(255),
         lpr_plantype INTEGER,
@@ -35,7 +35,7 @@ DROP TABLE
 CREATE
     TABLE acc_pricecomp
     (
-        id INTEGER DEFAULT nextval('acc_pricecomp_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         prc_tra_id INTEGER,
         prc_serverproviderprefix CHARACTER VARYING(255),
         prc_layername CHARACTER VARYING(255),
@@ -57,7 +57,7 @@ DROP TABLE
 CREATE
     TABLE acc_transaction
     (
-        id INTEGER DEFAULT nextval('acc_transaction_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         tra_creditalteration NUMERIC(12,2),
         tra_transactiondate TIMESTAMP WITHOUT TIME ZONE,
         tra_mutationdate TIMESTAMP WITHOUT TIME ZONE,
@@ -108,7 +108,7 @@ DROP TABLE
 CREATE
     TABLE dimensions
     (
-        id INTEGER DEFAULT nextval('dimensions_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         layerid INTEGER NOT NULL,
         dimensionsname CHARACTER VARYING(50),
         dimensionsunit CHARACTER VARYING(50),
@@ -130,25 +130,11 @@ CREATE
         PRIMARY KEY (serviceproviderid, format)
     );
 DROP TABLE
-    geometry_columns;
-CREATE
-    TABLE geometry_columns
-    (
-        f_table_catalog CHARACTER VARYING(256) NOT NULL,
-        f_table_schema CHARACTER VARYING(256) NOT NULL,
-        f_table_name CHARACTER VARYING(256) NOT NULL,
-        f_geometry_column CHARACTER VARYING(256) NOT NULL,
-        coord_dimension INTEGER NOT NULL,
-        srid INTEGER NOT NULL,
-        type CHARACTER VARYING(30) NOT NULL,
-        CONSTRAINT geometry_columns_pk PRIMARY KEY (f_table_catalog, f_table_schema, f_table_name, f_geometry_column)
-    );
-DROP TABLE
     identifier;
 CREATE
     TABLE identifier
     (
-        id INTEGER DEFAULT nextval('identifier_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         layerid INTEGER NOT NULL,
         authorityname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         authorityurl CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
@@ -159,7 +145,7 @@ DROP TABLE
 CREATE
     TABLE layer
     (
-        id INTEGER DEFAULT nextval('layer_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         parentid INTEGER,
         serviceproviderid INTEGER NOT NULL,
         name CHARACTER VARYING(200),
@@ -190,7 +176,7 @@ DROP TABLE
 CREATE
     TABLE layerdomainresource
     (
-        id INTEGER DEFAULT nextval('layerdomainresource_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         layerid INTEGER NOT NULL,
         domain CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         url CHARACTER VARYING(4000) NOT NULL,
@@ -210,7 +196,7 @@ DROP TABLE
 CREATE
     TABLE mon_clientrequest
     (
-        id INTEGER DEFAULT nextval('mon_clientrequest_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         clr_clientrequesturi CHARACTER VARYING(4000),
         clr_timestamp TIMESTAMP WITHOUT TIME ZONE,
         clr_userid INTEGER,
@@ -228,7 +214,7 @@ DROP TABLE
 CREATE
     TABLE mon_requestoperation
     (
-        id INTEGER DEFAULT nextval('mon_requestoperation_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         rqo_clr_id INTEGER,
         rqo_duration BIGINT,
         rqo_mssincerequeststart BIGINT,
@@ -244,7 +230,7 @@ DROP TABLE
 CREATE
     TABLE mon_serviceproviderrequest
     (
-        id INTEGER DEFAULT nextval('mon_serviceproviderrequest_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         spr_clr_id INTEGER,
         spr_bytessend BIGINT,
         spr_bytesreceived BIGINT,
@@ -267,7 +253,7 @@ DROP TABLE
 CREATE
     TABLE organization
     (
-        id INTEGER DEFAULT nextval('organization_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         name CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         street CHARACTER VARYING(50) DEFAULT '0',
         NUMBER CHARACTER VARYING(5) DEFAULT '0',
@@ -300,7 +286,7 @@ DROP TABLE
 CREATE
     TABLE rep_report
     (
-        id INTEGER DEFAULT nextval('rep_report_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         rpd_org_id INTEGER,
         rep_reportdate TIMESTAMP WITHOUT TIME ZONE,
         rep_processingtime BIGINT,
@@ -317,7 +303,7 @@ DROP TABLE
 CREATE
     TABLE roles
     (
-        id INTEGER DEFAULT nextval('roles_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         role CHARACTER VARYING(45) NOT NULL,
         PRIMARY KEY (id)
     );
@@ -335,7 +321,7 @@ DROP TABLE
 CREATE
     TABLE servicedomainresource
     (
-        id INTEGER DEFAULT nextval('servicedomainresource_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         serviceproviderid INTEGER NOT NULL,
         domain CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         geturl CHARACTER VARYING(4000) DEFAULT '0',
@@ -347,7 +333,7 @@ DROP TABLE
 CREATE
     TABLE serviceprovider
     (
-        id INTEGER DEFAULT nextval('serviceprovider_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         name CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
         abbr CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
         title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
@@ -370,23 +356,11 @@ CREATE
         PRIMARY KEY (serviceproviderid, keyword)
     );
 DROP TABLE
-    spatial_ref_sys;
-CREATE
-    TABLE spatial_ref_sys
-    (
-        srid INTEGER NOT NULL,
-        auth_name CHARACTER VARYING(256),
-        auth_srid INTEGER,
-        srtext CHARACTER VARYING(2048),
-        proj4text CHARACTER VARYING(2048),
-        PRIMARY KEY (srid)
-    );
-DROP TABLE
     srs;
 CREATE
     TABLE srs
     (
-        id INTEGER DEFAULT nextval('srs_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         layerid INTEGER NOT NULL,
         srs CHARACTER VARYING(150),
         minx CHARACTER VARYING(50),
@@ -402,7 +376,7 @@ DROP TABLE
 CREATE
     TABLE style
     (
-        id INTEGER DEFAULT nextval('style_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         layerid INTEGER NOT NULL,
         name CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
@@ -423,7 +397,7 @@ DROP TABLE
 CREATE
     TABLE styledomainresource
     (
-        id INTEGER DEFAULT nextval('styledomainresource_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         styleid INTEGER NOT NULL,
         domain CHARACTER VARYING(45) NOT NULL,
         url CHARACTER VARYING(4000) NOT NULL,
@@ -454,7 +428,7 @@ DROP TABLE
 CREATE
     TABLE users
     (
-        id INTEGER DEFAULT nextval('users_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         organizationid INTEGER NOT NULL,
         firstname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
         lastname CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
@@ -471,7 +445,7 @@ DROP TABLE
 CREATE
     TABLE wfs_layer
     (
-        id INTEGER DEFAULT nextval('wfs_layer_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         wfsserviceproviderid INTEGER NOT NULL,
         name CHARACTER VARYING(200),
         title CHARACTER VARYING(255) DEFAULT '0' NOT NULL,
@@ -492,7 +466,7 @@ DROP TABLE
 CREATE
     TABLE wfs_serviceprovider
     (
-        id INTEGER DEFAULT nextval('wfs_serviceprovider_id_seq'::regclass) NOT NULL,
+        id SERIAL,
         name CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
         abbr CHARACTER VARYING(60) DEFAULT '0' NOT NULL,
         title CHARACTER VARYING(50) DEFAULT '0' NOT NULL,
@@ -505,256 +479,242 @@ CREATE
 ALTER TABLE
     acc_account ADD CONSTRAINT fk7fe8986f435502a6 FOREIGN KEY (id) REFERENCES organization (id);
 ALTER TABLE
-    acc_account ADD CONSTRAINT 2200_17208_1_not_null CHECK (id IS NOT NULL);
+    acc_account ADD CONSTRAINT nnc_17208_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    acc_layerpricing ADD CONSTRAINT 2200_17211_1_not_null CHECK (id IS NOT NULL);
+    acc_layerpricing ADD CONSTRAINT nnc_17211_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     acc_pricecomp ADD CONSTRAINT fk165d199a1c0bba79 FOREIGN KEY (prc_tra_id) REFERENCES acc_transaction (id);
 ALTER TABLE
-    acc_pricecomp ADD CONSTRAINT 2200_17217_1_not_null CHECK (id IS NOT NULL);
+    acc_pricecomp ADD CONSTRAINT nnc_17217_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     acc_transaction ADD CONSTRAINT fkfc20f02025126df8 FOREIGN KEY (tra_acc_id) REFERENCES acc_account (id);
 ALTER TABLE
-    acc_transaction ADD CONSTRAINT 2200_17223_1_not_null CHECK (id IS NOT NULL);
+    acc_transaction ADD CONSTRAINT nnc_17223_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     attribution ADD CONSTRAINT fked87907facb075c4 FOREIGN KEY (id) REFERENCES layer (id);
 ALTER TABLE
-    attribution ADD CONSTRAINT 2200_17229_1_not_null CHECK (id IS NOT NULL);
+    attribution ADD CONSTRAINT nnc_17229_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     contactinformation ADD CONSTRAINT fk65b57d0c4250fe39 FOREIGN KEY (id) REFERENCES serviceprovider (id);
 ALTER TABLE
-    contactinformation ADD CONSTRAINT 2200_17240_1_not_null CHECK (id IS NOT NULL);
+    contactinformation ADD CONSTRAINT nnc_17240_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     dimensions ADD CONSTRAINT fk18b23fcdaa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    dimensions ADD CONSTRAINT 2200_17246_1_not_null CHECK (id IS NOT NULL);
+    dimensions ADD CONSTRAINT nnc_17246_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    dimensions ADD CONSTRAINT 2200_17246_2_not_null CHECK (layerid IS NOT NULL);
+    dimensions ADD CONSTRAINT nnc_17246_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
     exceptions ADD CONSTRAINT fkb1aa3a043501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
 ALTER TABLE
-    exceptions ADD CONSTRAINT 2200_17249_1_not_null CHECK (serviceproviderid IS NOT NULL);
+    exceptions ADD CONSTRAINT nnc_17249_1_not_null CHECK (serviceproviderid IS NOT NULL);
 ALTER TABLE
-    exceptions ADD CONSTRAINT 2200_17249_2_not_null CHECK (format IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_1_not_null CHECK (f_table_catalog IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_2_not_null CHECK (f_table_schema IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_3_not_null CHECK (f_table_name IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_4_not_null CHECK (f_geometry_column IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_5_not_null CHECK (coord_dimension IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_6_not_null CHECK (srid IS NOT NULL);
-ALTER TABLE
-    geometry_columns ADD CONSTRAINT 2200_16802_7_not_null CHECK (type IS NOT NULL);
+    exceptions ADD CONSTRAINT nnc_17249_2_not_null CHECK (format IS NOT NULL);
 ALTER TABLE
     identifier ADD CONSTRAINT fk9f88aca9aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    identifier ADD CONSTRAINT 2200_17254_1_not_null CHECK (id IS NOT NULL);
+    identifier ADD CONSTRAINT nnc_17254_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    identifier ADD CONSTRAINT 2200_17254_2_not_null CHECK (layerid IS NOT NULL);
+    identifier ADD CONSTRAINT nnc_17254_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
-    identifier ADD CONSTRAINT 2200_17254_3_not_null CHECK (authorityname IS NOT NULL);
+    identifier ADD CONSTRAINT nnc_17254_3_not_null CHECK (authorityname IS NOT NULL);
 ALTER TABLE
-    identifier ADD CONSTRAINT 2200_17254_4_not_null CHECK (authorityurl IS NOT NULL);
+    identifier ADD CONSTRAINT nnc_17254_4_not_null CHECK (authorityurl IS NOT NULL);
 ALTER TABLE
     layer ADD CONSTRAINT fk61fd5513501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
 ALTER TABLE
     layer ADD CONSTRAINT fk61fd551f2bbfbee FOREIGN KEY (parentid) REFERENCES layer (id);
 ALTER TABLE
-    layer ADD CONSTRAINT 2200_17262_1_not_null CHECK (id IS NOT NULL);
+    layer ADD CONSTRAINT nnc_17262_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    layer ADD CONSTRAINT 2200_17262_3_not_null CHECK (serviceproviderid IS NOT NULL);
+    layer ADD CONSTRAINT nnc_17262_3_not_null CHECK (serviceproviderid IS NOT NULL);
 ALTER TABLE
-    layer ADD CONSTRAINT 2200_17262_5_not_null CHECK (title IS NOT NULL);
+    layer ADD CONSTRAINT nnc_17262_5_not_null CHECK (title IS NOT NULL);
 ALTER TABLE
     layerdomainformat ADD CONSTRAINT fk17e78d8c25e66a90 FOREIGN KEY (ldrid) REFERENCES layerdomainresource (id);
 ALTER TABLE
-    layerdomainformat ADD CONSTRAINT 2200_17277_1_not_null CHECK (ldrid IS NOT NULL);
+    layerdomainformat ADD CONSTRAINT nnc_17277_1_not_null CHECK (ldrid IS NOT NULL);
 ALTER TABLE
-    layerdomainformat ADD CONSTRAINT 2200_17277_2_not_null CHECK (format IS NOT NULL);
+    layerdomainformat ADD CONSTRAINT nnc_17277_2_not_null CHECK (format IS NOT NULL);
 ALTER TABLE
     layerdomainresource ADD CONSTRAINT fk8ba44863aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    layerdomainresource ADD CONSTRAINT 2200_17280_1_not_null CHECK (id IS NOT NULL);
+    layerdomainresource ADD CONSTRAINT nnc_17280_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    layerdomainresource ADD CONSTRAINT 2200_17280_2_not_null CHECK (layerid IS NOT NULL);
+    layerdomainresource ADD CONSTRAINT nnc_17280_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
-    layerdomainresource ADD CONSTRAINT 2200_17280_3_not_null CHECK (domain IS NOT NULL);
+    layerdomainresource ADD CONSTRAINT nnc_17280_3_not_null CHECK (domain IS NOT NULL);
 ALTER TABLE
-    layerdomainresource ADD CONSTRAINT 2200_17280_4_not_null CHECK (url IS NOT NULL);
+    layerdomainresource ADD CONSTRAINT nnc_17280_4_not_null CHECK (url IS NOT NULL);
 ALTER TABLE
     layerkeywordlist ADD CONSTRAINT fk30f31016aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    layerkeywordlist ADD CONSTRAINT 2200_17287_1_not_null CHECK (layerid IS NOT NULL);
+    layerkeywordlist ADD CONSTRAINT nnc_17287_1_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
-    layerkeywordlist ADD CONSTRAINT 2200_17287_2_not_null CHECK (keyword IS NOT NULL);
+    layerkeywordlist ADD CONSTRAINT nnc_17287_2_not_null CHECK (keyword IS NOT NULL);
 ALTER TABLE
-    mon_clientrequest ADD CONSTRAINT 2200_17290_1_not_null CHECK (id IS NOT NULL);
+    mon_clientrequest ADD CONSTRAINT nnc_17290_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     mon_requestoperation ADD CONSTRAINT fkce03888b8a8c8dec FOREIGN KEY (rqo_clr_id) REFERENCES mon_clientrequest (id);
 ALTER TABLE
-    mon_requestoperation ADD CONSTRAINT 2200_17296_1_not_null CHECK (id IS NOT NULL);
+    mon_requestoperation ADD CONSTRAINT nnc_17296_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
     mon_serviceproviderrequest ADD CONSTRAINT fk712ceebc223516a7 FOREIGN KEY (spr_clr_id) REFERENCES mon_clientrequest (id);
 ALTER TABLE
-    mon_serviceproviderrequest ADD CONSTRAINT 2200_17299_1_not_null CHECK (id IS NOT NULL);
+    mon_serviceproviderrequest ADD CONSTRAINT nnc_17299_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    organization ADD CONSTRAINT 2200_17305_1_not_null CHECK (id IS NOT NULL);
+    organization ADD CONSTRAINT nnc_17305_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    organization ADD CONSTRAINT 2200_17305_12_not_null CHECK (telephone IS NOT NULL);
+    organization ADD CONSTRAINT nnc_17305_12_not_null CHECK (telephone IS NOT NULL);
 ALTER TABLE
-    organization ADD CONSTRAINT 2200_17305_14_not_null CHECK (hasvalidgetcapabilities IS NOT NULL);
+    organization ADD CONSTRAINT nnc_17305_14_not_null CHECK (hasvalidgetcapabilities IS NOT NULL);
 ALTER TABLE
-    organization ADD CONSTRAINT 2200_17305_2_not_null CHECK (name IS NOT NULL);
+    organization ADD CONSTRAINT nnc_17305_2_not_null CHECK (name IS NOT NULL);
 ALTER TABLE
     organizationlayer ADD CONSTRAINT fkcdee2ffeaa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
     organizationlayer ADD CONSTRAINT fkcdee2ffec136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
 ALTER TABLE
-    organizationlayer ADD CONSTRAINT 2200_17317_1_not_null CHECK (organizationid IS NOT NULL);
+    organizationlayer ADD CONSTRAINT nnc_17317_1_not_null CHECK (organizationid IS NOT NULL);
 ALTER TABLE
-    organizationlayer ADD CONSTRAINT 2200_17317_2_not_null CHECK (layerid IS NOT NULL);
+    organizationlayer ADD CONSTRAINT nnc_17317_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
     rep_report ADD CONSTRAINT fk23f41f16e340125a FOREIGN KEY (rpd_org_id) REFERENCES organization (id);
 ALTER TABLE
-    rep_report ADD CONSTRAINT 2200_17323_1_not_null CHECK (id IS NOT NULL);
+    rep_report ADD CONSTRAINT nnc_17323_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    roles ADD CONSTRAINT 2200_17350_1_not_null CHECK (id IS NOT NULL);
+    roles ADD CONSTRAINT nnc_17350_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    roles ADD CONSTRAINT 2200_17350_2_not_null CHECK (role IS NOT NULL);
+    roles ADD CONSTRAINT nnc_17350_2_not_null CHECK (role IS NOT NULL);
 ALTER TABLE
     servicedomainformat ADD CONSTRAINT fkefd888f0c557cb7b FOREIGN KEY (sdrid) REFERENCES servicedomainresource (id);
 ALTER TABLE
-    servicedomainformat ADD CONSTRAINT 2200_17353_1_not_null CHECK (sdrid IS NOT NULL);
+    servicedomainformat ADD CONSTRAINT nnc_17353_1_not_null CHECK (sdrid IS NOT NULL);
 ALTER TABLE
-    servicedomainformat ADD CONSTRAINT 2200_17353_2_not_null CHECK (format IS NOT NULL);
+    servicedomainformat ADD CONSTRAINT nnc_17353_2_not_null CHECK (format IS NOT NULL);
 ALTER TABLE
     servicedomainresource ADD CONSTRAINT fk2b43fac73501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
 ALTER TABLE
-    servicedomainresource ADD CONSTRAINT 2200_17356_1_not_null CHECK (id IS NOT NULL);
+    servicedomainresource ADD CONSTRAINT nnc_17356_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    servicedomainresource ADD CONSTRAINT 2200_17356_2_not_null CHECK (serviceproviderid IS NOT NULL);
+    servicedomainresource ADD CONSTRAINT nnc_17356_2_not_null CHECK (serviceproviderid IS NOT NULL);
 ALTER TABLE
-    servicedomainresource ADD CONSTRAINT 2200_17356_3_not_null CHECK (domain IS NOT NULL);
+    servicedomainresource ADD CONSTRAINT nnc_17356_3_not_null CHECK (domain IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_1_not_null CHECK (id IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_10_not_null CHECK (updateddate IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_10_not_null CHECK (updateddate IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_11_not_null CHECK (wmsversion IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_11_not_null CHECK (wmsversion IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_2_not_null CHECK (name IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_2_not_null CHECK (name IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_3_not_null CHECK (abbr IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_3_not_null CHECK (abbr IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_4_not_null CHECK (title IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_4_not_null CHECK (title IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_8_not_null CHECK (givenname IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_8_not_null CHECK (givenname IS NOT NULL);
 ALTER TABLE
-    serviceprovider ADD CONSTRAINT 2200_17364_9_not_null CHECK (url IS NOT NULL);
+    serviceprovider ADD CONSTRAINT nnc_17364_9_not_null CHECK (url IS NOT NULL);
 ALTER TABLE
     serviceproviderkeywordlist ADD CONSTRAINT fk9b8f46a13501f45f FOREIGN KEY (serviceproviderid) REFERENCES serviceprovider (id);
 ALTER TABLE
-    serviceproviderkeywordlist ADD CONSTRAINT 2200_17376_1_not_null CHECK (serviceproviderid IS NOT NULL);
+    serviceproviderkeywordlist ADD CONSTRAINT nnc_17376_1_not_null CHECK (serviceproviderid IS NOT NULL);
 ALTER TABLE
-    serviceproviderkeywordlist ADD CONSTRAINT 2200_17376_2_not_null CHECK (keyword IS NOT NULL);
+    serviceproviderkeywordlist ADD CONSTRAINT nnc_17376_2_not_null CHECK (keyword IS NOT NULL);
 ALTER TABLE
-    spatial_ref_sys ADD CONSTRAINT 2200_16794_1_not_null CHECK (srid IS NOT NULL);
+    spatial_ref_sys ADD CONSTRAINT nnc_16794_1_not_null CHECK (srid IS NOT NULL);
 ALTER TABLE
     srs ADD CONSTRAINT fk1bdf4aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    srs ADD CONSTRAINT 2200_17380_1_not_null CHECK (id IS NOT NULL);
+    srs ADD CONSTRAINT nnc_17380_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    srs ADD CONSTRAINT 2200_17380_2_not_null CHECK (layerid IS NOT NULL);
+    srs ADD CONSTRAINT nnc_17380_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
     style ADD CONSTRAINT fk68b1db1aa303ad5 FOREIGN KEY (layerid) REFERENCES layer (id);
 ALTER TABLE
-    style ADD CONSTRAINT 2200_17383_1_not_null CHECK (id IS NOT NULL);
+    style ADD CONSTRAINT nnc_17383_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    style ADD CONSTRAINT 2200_17383_2_not_null CHECK (layerid IS NOT NULL);
+    style ADD CONSTRAINT nnc_17383_2_not_null CHECK (layerid IS NOT NULL);
 ALTER TABLE
-    style ADD CONSTRAINT 2200_17383_3_not_null CHECK (name IS NOT NULL);
+    style ADD CONSTRAINT nnc_17383_3_not_null CHECK (name IS NOT NULL);
 ALTER TABLE
-    style ADD CONSTRAINT 2200_17383_4_not_null CHECK (title IS NOT NULL);
+    style ADD CONSTRAINT nnc_17383_4_not_null CHECK (title IS NOT NULL);
 ALTER TABLE
     styledomainformat ADD CONSTRAINT fk1ac945ecf79e2f77 FOREIGN KEY (sdrid) REFERENCES styledomainresource (id);
 ALTER TABLE
-    styledomainformat ADD CONSTRAINT 2200_17391_1_not_null CHECK (sdrid IS NOT NULL);
+    styledomainformat ADD CONSTRAINT nnc_17391_1_not_null CHECK (sdrid IS NOT NULL);
 ALTER TABLE
-    styledomainformat ADD CONSTRAINT 2200_17391_2_not_null CHECK (format IS NOT NULL);
+    styledomainformat ADD CONSTRAINT nnc_17391_2_not_null CHECK (format IS NOT NULL);
 ALTER TABLE
     styledomainresource ADD CONSTRAINT fk5cf968c33d563395 FOREIGN KEY (styleid) REFERENCES style (id);
 ALTER TABLE
-    styledomainresource ADD CONSTRAINT 2200_17394_1_not_null CHECK (id IS NOT NULL);
+    styledomainresource ADD CONSTRAINT nnc_17394_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    styledomainresource ADD CONSTRAINT 2200_17394_2_not_null CHECK (styleid IS NOT NULL);
+    styledomainresource ADD CONSTRAINT nnc_17394_2_not_null CHECK (styleid IS NOT NULL);
 ALTER TABLE
-    styledomainresource ADD CONSTRAINT 2200_17394_3_not_null CHECK (domain IS NOT NULL);
+    styledomainresource ADD CONSTRAINT nnc_17394_3_not_null CHECK (domain IS NOT NULL);
 ALTER TABLE
-    styledomainresource ADD CONSTRAINT 2200_17394_4_not_null CHECK (url IS NOT NULL);
+    styledomainresource ADD CONSTRAINT nnc_17394_4_not_null CHECK (url IS NOT NULL);
 ALTER TABLE
     userip ADD CONSTRAINT fkce2b32326bcbfe49 FOREIGN KEY (userid) REFERENCES users (id);
 ALTER TABLE
-    userip ADD CONSTRAINT 2200_17400_1_not_null CHECK (userid IS NOT NULL);
+    userip ADD CONSTRAINT nnc_17400_1_not_null CHECK (userid IS NOT NULL);
 ALTER TABLE
-    userip ADD CONSTRAINT 2200_17400_2_not_null CHECK (ipaddress IS NOT NULL);
+    userip ADD CONSTRAINT nnc_17400_2_not_null CHECK (ipaddress IS NOT NULL);
 ALTER TABLE
     userroles ADD CONSTRAINT fk154649d26bcbfe49 FOREIGN KEY (userid) REFERENCES users (id);
 ALTER TABLE
     userroles ADD CONSTRAINT fk154649d275e26a26 FOREIGN KEY (roleid) REFERENCES roles (id);
 ALTER TABLE
-    userroles ADD CONSTRAINT 2200_17403_1_not_null CHECK (userid IS NOT NULL);
+    userroles ADD CONSTRAINT nnc_17403_1_not_null CHECK (userid IS NOT NULL);
 ALTER TABLE
-    userroles ADD CONSTRAINT 2200_17403_2_not_null CHECK (roleid IS NOT NULL);
+    userroles ADD CONSTRAINT nnc_17403_2_not_null CHECK (roleid IS NOT NULL);
 ALTER TABLE
     users ADD CONSTRAINT fk6a68e08c136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_1_not_null CHECK (id IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_2_not_null CHECK (organizationid IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_2_not_null CHECK (organizationid IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_3_not_null CHECK (firstname IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_3_not_null CHECK (firstname IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_4_not_null CHECK (lastname IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_4_not_null CHECK (lastname IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_5_not_null CHECK (emailaddress IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_5_not_null CHECK (emailaddress IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_6_not_null CHECK (username IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_6_not_null CHECK (username IS NOT NULL);
 ALTER TABLE
-    users ADD CONSTRAINT 2200_17406_7_not_null CHECK (password IS NOT NULL);
+    users ADD CONSTRAINT nnc_17406_7_not_null CHECK (password IS NOT NULL);
 ALTER TABLE
     wfs_layer ADD CONSTRAINT fkbb3050d66a0442a7 FOREIGN KEY (wfsserviceproviderid) REFERENCES wfs_serviceprovider (id);
 ALTER TABLE
-    wfs_layer ADD CONSTRAINT 2200_17417_1_not_null CHECK (id IS NOT NULL);
+    wfs_layer ADD CONSTRAINT nnc_17417_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    wfs_layer ADD CONSTRAINT 2200_17417_2_not_null CHECK (wfsserviceproviderid IS NOT NULL);
+    wfs_layer ADD CONSTRAINT nnc_17417_2_not_null CHECK (wfsserviceproviderid IS NOT NULL);
 ALTER TABLE
-    wfs_layer ADD CONSTRAINT 2200_17417_4_not_null CHECK (title IS NOT NULL);
+    wfs_layer ADD CONSTRAINT nnc_17417_4_not_null CHECK (title IS NOT NULL);
 ALTER TABLE
     wfs_organizationlayer ADD CONSTRAINT fk49308c0311ca431d FOREIGN KEY (wfslayerid) REFERENCES wfs_layer (id);
 ALTER TABLE
     wfs_organizationlayer ADD CONSTRAINT fk49308c03c136f19 FOREIGN KEY (organizationid) REFERENCES organization (id);
 ALTER TABLE
-    wfs_organizationlayer ADD CONSTRAINT 2200_17424_1_not_null CHECK (organizationid IS NOT NULL);
+    wfs_organizationlayer ADD CONSTRAINT nnc_17424_1_not_null CHECK (organizationid IS NOT NULL);
 ALTER TABLE
-    wfs_organizationlayer ADD CONSTRAINT 2200_17424_2_not_null CHECK (wfslayerid IS NOT NULL);
+    wfs_organizationlayer ADD CONSTRAINT nnc_17424_2_not_null CHECK (wfslayerid IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_1_not_null CHECK (id IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_1_not_null CHECK (id IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_2_not_null CHECK (name IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_2_not_null CHECK (name IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_3_not_null CHECK (abbr IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_3_not_null CHECK (abbr IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_4_not_null CHECK (title IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_4_not_null CHECK (title IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_5_not_null CHECK (givenname IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_5_not_null CHECK (givenname IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_6_not_null CHECK (url IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_6_not_null CHECK (url IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_7_not_null CHECK (updateddate IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_7_not_null CHECK (updateddate IS NOT NULL);
 ALTER TABLE
-    wfs_serviceprovider ADD CONSTRAINT 2200_17427_8_not_null CHECK (wfsversion IS NOT NULL);
+    wfs_serviceprovider ADD CONSTRAINT nnc_17427_8_not_null CHECK (wfsversion IS NOT NULL);
