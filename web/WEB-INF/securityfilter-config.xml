@@ -32,7 +32,7 @@
         </user-data-constraint>
         -->
     </security-constraint>
-  
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -46,8 +46,8 @@
             <role-name>beheerder</role-name>
             <role-name>gebruiker</role-name>
         </auth-constraint>
-        
-        
+
+
         <!--
         <user-data-constraint>
         <description>SSL not required</description>
@@ -55,8 +55,8 @@
         </user-data-constraint>
         -->
     </security-constraint>
-    
-    <!-- dit aanzetten indien geen demo 
+
+    <!-- dit aanzetten indien geen demo
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -88,8 +88,8 @@
             <role-name>demogebruiker</role-name>
         </auth-constraint>
     </security-constraint>
-    
-    
+
+
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
         <form-login-config>
@@ -99,13 +99,14 @@
           <form-logout-page>/logout.do</form-logout-page>
         </form-login-config>
         <cookie-auth-token-config>
+            <!-- LET OP: De secret-key en extra-hash-string moeten voor elke installatie ANDERS zijn! -->
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
-            <secret-key>de176b8440c9f602</secret-key>
-            <extra-hash-string>sXzzsrig09520uie10as:l&lt;x:lZa</extra-hash-string>
+            <secret-key>BBBC9B3653DDC84E149AC5FBD7B6A097</secret-key>
+            <extra-hash-string>iushrbiub235</extra-hash-string>
             <cookie-expire>86400</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
-    
+
     <realm className="nl.b3p.kaartenbalie.service.SecurityRealm"/>
 </securityfilter-config>
