@@ -205,7 +205,7 @@ public class WfsServerAction extends ServerAction {
                 while (orgit.hasNext()) {
                     Set newOrganizationLayer = new HashSet();
                     Organization org = (Organization) orgit.next();
-                    Set orgLayers = org.getWfsOrganizationLayer();
+                    Set orgLayers = org.getWfsLayers();
                     Iterator layerit = orgLayers.iterator();
                     while (layerit.hasNext()) {
                         WfsLayer organizationLayer = (WfsLayer) layerit.next();
@@ -220,7 +220,7 @@ public class WfsServerAction extends ServerAction {
                         }
                     }
                     //vervang de oude set met layers in de organisatie voor de nieuwe set
-                    org.setWfsOrganizationLayer(newOrganizationLayer);
+                    org.setWfsLayers(newOrganizationLayer);
                     em.flush();
                 }
                 Set oldLayers = oldServiceProvider.getWfsLayers();
@@ -275,7 +275,7 @@ public class WfsServerAction extends ServerAction {
             boolean notFirstOrg = false;
             while (orgit.hasNext()) {
                 Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getWfsOrganizationLayer();
+                Set orgLayers = org.getWfsLayers();
                 if (orgLayers.size() > 0) {
                     Iterator orgLayerIterator = orgLayers.iterator();
                     boolean notFirstLayer = false;
@@ -389,7 +389,7 @@ public class WfsServerAction extends ServerAction {
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
                 Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getWfsOrganizationLayer();
+                Set orgLayers = org.getWfsLayers();
                 HashSet clonedOrgLayers = new HashSet();
                 clonedOrgLayers.addAll(orgLayers);
                 Iterator orgLayerIterator = orgLayers.iterator();
@@ -404,7 +404,7 @@ public class WfsServerAction extends ServerAction {
                     }
                 }
                 if (orgLayers.size() != clonedOrgLayers.size()) {
-                    org.setWfsOrganizationLayer(clonedOrgLayers);
+                    org.setWfsLayers(clonedOrgLayers);
                     em.merge(org);
                 }
             }

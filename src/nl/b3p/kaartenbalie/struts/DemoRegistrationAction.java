@@ -162,11 +162,11 @@ public class DemoRegistrationAction extends UserAction {
 
         populateUserObject(user, dynaForm, request);
 
-        Set orglayers = organization.getOrganizationLayer();
+        Set orglayers = organization.getLayers();
         if (orglayers == null || orglayers.isEmpty()) {
             Set layers = getStandardDemoLayerSet(request);
             if (layers != null) {
-                organization.setOrganizationLayer(new HashSet(layers));
+                organization.setLayers(new HashSet(layers));
                 // We nemen aan dat de standard set ok is
                 organization.setHasValidGetCapabilities(true);
             }
@@ -181,7 +181,7 @@ public class DemoRegistrationAction extends UserAction {
             while (roleIt.hasNext()) {
                 Roles role = (Roles) roleIt.next();
                 if (role.getRole().equalsIgnoreCase("demogebruiker")) {
-                    user.addUserRole(role);
+                    user.addRole(role);
                 }
             }
         }

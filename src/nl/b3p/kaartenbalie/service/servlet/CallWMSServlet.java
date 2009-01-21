@@ -469,7 +469,7 @@ public class CallWMSServlet extends HttpServlet {
             String remoteaddress = request.getRemoteAddr();
             boolean validip = false;
 
-            Set ipaddresses = user.getUserips();
+            Set ipaddresses = user.getIps();
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
                 String ipaddress = (String) it.next();

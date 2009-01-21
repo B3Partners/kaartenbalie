@@ -49,10 +49,10 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
     }
 
     public void sendContent(OutputStream out, Range arg1, Map<String, String> arg2) throws IOException {
-        if (layer == null || layer.getMetaData() == null) {
+        if (layer == null || layer.getMetadata() == null) {
             throw new IOException("No metadata found!");
         }
-        out.write(layer.getMetaData().getBytes("utf-8"));
+        out.write(layer.getMetadata().getBytes("utf-8"));
     }
 
     public Long getMaxAgeSeconds() {
@@ -64,10 +64,10 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
     }
 
     public Long getContentLength() {
-        if (layer == null || layer.getMetaData() == null) {
+        if (layer == null || layer.getMetadata() == null) {
             return new Long("0");
         }
-        return new Long(layer.getMetaData().length());
+        return new Long(layer.getMetadata().length());
     }
 
     public boolean authorise(Request request, Method method, Auth auth) {
@@ -82,7 +82,7 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
 
             User lUser = em.find(User.class, user.getId());
             Organization org = lUser.getOrganization();
-            Set ll = org.getOrganizationLayer();
+            Set ll = org.getLayers();
 
             Iterator it = ll.iterator();
             while (it.hasNext()) {

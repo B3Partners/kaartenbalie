@@ -107,7 +107,7 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         if (user == null) {
             return;
         }
-        Set organizationLayers = user.getOrganization().getOrganizationLayer();
+        Set organizationLayers = user.getOrganization().getLayers();
         JSONObject root = createTree(organizationLayers);
         request.setAttribute("layerList", root);
     }

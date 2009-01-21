@@ -186,7 +186,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             </td>
                             <td width="260">
                                 <div style="width: 250px; overflow: hidden;">
-                                    <c:forEach var="nRole" varStatus="status" items="${nUser.userroles}">
+                                    <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
                                         <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                                     </c:forEach>
                                 </div>
@@ -201,7 +201,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             <strong>E-mailadres:</strong> ${nUser.emailAddress}<br />
                             <strong>Organisatie:</strong> ${nUser.organization.name}<br />
                             <strong>Rollen:</strong> 
-                            <c:forEach var="nRole" varStatus="status" items="${nUser.userroles}">
+                            <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
                                 <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                             </c:forEach>
                         </div>

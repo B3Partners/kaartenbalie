@@ -109,7 +109,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         formats[4] = "image/tiff";
         request.setAttribute("formatList", formats);
 
-        Set organizationLayers = user.getOrganization().getOrganizationLayer();
+        Set organizationLayers = user.getOrganization().getLayers();
         JSONObject root = createTree(organizationLayers);
         request.setAttribute("layerList", root);
 

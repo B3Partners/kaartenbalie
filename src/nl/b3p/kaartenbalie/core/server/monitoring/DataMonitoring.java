@@ -112,7 +112,7 @@ public class DataMonitoring {
         clientRequest.setExceptionMessage(ex.getMessage());
     }
 
-    public void endClientRequest(String service, String operation, int bytesSendToUser, long totalResponseTime) {
+    public void endClientRequest(String service, String operation, int bytesSentToUser, long totalResponseTime) {
         if (!isEnableMonitoring()) {
             return;
         }
@@ -121,7 +121,7 @@ public class DataMonitoring {
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
             requestOperation.setDuration(new Long(totalResponseTime));
-            requestOperation.setBytesSendToUser(new Integer(bytesSendToUser));
+            requestOperation.setBytesSentToUser(new Integer(bytesSentToUser));
 
             this.addRequestOperation(requestOperation);
             clientRequest.setService(service);

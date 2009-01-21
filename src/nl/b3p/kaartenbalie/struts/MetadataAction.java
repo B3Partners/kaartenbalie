@@ -182,7 +182,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 return edit(mapping, dynaForm, request, response);
             }
 
-            layer.setMetaData(metadata);
+            layer.setMetadata(metadata);
 
             em.merge(layer);
             // flush used because database sometimes doesn't update (merge) quickly enough
@@ -209,7 +209,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
 
         String metadata = null;
         if (dbUser != null) {
-            Set organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+            Set organizationLayers = dbUser.getOrganization().getLayers();
             String layerUniqueName = (String) dynaForm.get("id");
             if (layerUniqueName != null && layerUniqueName.length() > 0) {
                 Layer layer = null;
@@ -220,7 +220,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                             " for metadata, cause: " + exception.getLocalizedMessage());
                 }
                 if (layer != null && hasVisibility(layer, organizationLayers)) {
-                    metadata = layer.getMetaData();
+                    metadata = layer.getMetadata();
                 }
             }
         }
@@ -518,7 +518,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         }
         dynaForm.set("id", layer.getUniqueName());
         dynaForm.set("name", layer.getTitle());
-        String metadata = layer.getMetaData();
+        String metadata = layer.getMetadata();
         if (metadata != null) {
             // remove all newline and return characters using RegEx
             metadata = metadata.replaceAll("[\\n\\r]+", "");
@@ -542,7 +542,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 return;
             }
 
-            Set organizationLayers = user.getOrganization().getOrganizationLayer();
+            Set organizationLayers = user.getOrganization().getLayers();
             JSONObject root = this.createTree(organizationLayers);
             request.setAttribute("layerList", root);
         } catch (Throwable e) {

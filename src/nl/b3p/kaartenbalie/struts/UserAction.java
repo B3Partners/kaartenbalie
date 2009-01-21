@@ -247,7 +247,7 @@ public class UserAction extends KaartenbalieCrudAction {
         String lastJoinedMessage = messages.getMessage(locale, LAST_JOINED_KEY);
 
         Organization org = user.getOrganization();
-        Set userList = org.getUser();
+        Set userList = org.getUsers();
         if (userList == null || userList.size() <= 1) {
             addAlternateMessage(mapping, request, null, lastJoinedMessage);
         }
@@ -425,7 +425,7 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("personalURL", user.getPersonalURL());
 
         String[] roleSelected = null;
-        Set uroles = user.getUserroles();
+        Set uroles = user.getRoles();
         if (uroles != null && !uroles.isEmpty()) {
             List roles = em.createQuery("from Roles").getResultList();
             ArrayList roleSet = new ArrayList(uroles);
@@ -442,7 +442,7 @@ public class UserAction extends KaartenbalieCrudAction {
         }
 
         StringBuffer registeredIP = new StringBuffer();
-        Set userips = user.getUserips();
+        Set userips = user.getIps();
         if (userips != null && !userips.isEmpty()) {
             Iterator it = userips.iterator();
             while (it.hasNext()) {
@@ -509,14 +509,14 @@ public class UserAction extends KaartenbalieCrudAction {
         String[] roleSelected = dynaForm.getStrings("roleSelected");
         int size = roleSelected.length;
         if (size > 0) {
-            user.setUserroles(null);
+            user.setRoles(null);
             List roleList = em.createQuery("from Roles").getResultList();
             for (int i = 0; i < size; i++) {
                 Iterator it = roleList.iterator();
                 while (it.hasNext()) {
                     Roles role = (Roles) it.next();
                     if (role.getId().toString().equals(roleSelected[i])) {
-                        user.addUserRole(role);
+                        user.addRole(role);
                     }
                 }
             }
@@ -533,7 +533,7 @@ public class UserAction extends KaartenbalieCrudAction {
             }
         }
 
-        user.setUserips(compareSets(user.getUserips(), newset));
+        user.setIps(compareSets(user.getIps(), newset));
 
         setPersonalUrlandTimeout(user, dynaForm, request);
 

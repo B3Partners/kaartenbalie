@@ -212,7 +212,7 @@ public class WmsServerAction extends ServerAction {
             while (orgit.hasNext()) {
                 Set newOrganizationLayer = new HashSet();
                 Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getOrganizationLayer();
+                Set orgLayers = org.getLayers();
                 Iterator layerit = orgLayers.iterator();
                 while (layerit.hasNext()) {
                     Layer organizationLayer = (Layer) layerit.next();
@@ -229,7 +229,7 @@ public class WmsServerAction extends ServerAction {
                     }
                 }
                 //vervang de oude set met layers in de organisatie voor de nieuwe set
-                org.setOrganizationLayer(newOrganizationLayer);
+                org.setLayers(newOrganizationLayer);
                 em.flush();
             }
             try {
@@ -274,7 +274,7 @@ public class WmsServerAction extends ServerAction {
             boolean notFirstOrg = false;
             while (orgit.hasNext()) {
                 Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getOrganizationLayer();
+                Set orgLayers = org.getLayers();
                 Iterator orgLayerIterator = orgLayers.iterator();
                 boolean notFirstLayer = false;
                 while (orgLayerIterator.hasNext()) {
@@ -375,7 +375,7 @@ public class WmsServerAction extends ServerAction {
             Iterator orgit = orgList.iterator();
             while (orgit.hasNext()) {
                 Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getOrganizationLayer();
+                Set orgLayers = org.getLayers();
                 HashSet clonedOrgLayers = new HashSet();
                 clonedOrgLayers.addAll(orgLayers);
                 Iterator orgLayerIterator = orgLayers.iterator();
@@ -388,7 +388,7 @@ public class WmsServerAction extends ServerAction {
                     }
                 }
                 if (orgLayers.size() != clonedOrgLayers.size()) {
-                    org.setOrganizationLayer(clonedOrgLayers);
+                    org.setLayers(clonedOrgLayers);
                     em.merge(org);
                 }
             }

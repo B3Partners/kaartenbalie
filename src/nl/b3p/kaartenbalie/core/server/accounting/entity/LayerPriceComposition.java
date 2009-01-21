@@ -58,7 +58,7 @@ public class LayerPriceComposition {
     /*
      * Relational
      */
-    private Transaction transactionLayerUsage;
+    private Transaction transaction;
 
     /*
      * Constructors
@@ -164,12 +164,12 @@ public class LayerPriceComposition {
         this.calculationTime = calculationTime;
     }
 
-    public Transaction getTransactionLayerUsage() {
-        return transactionLayerUsage;
+    public Transaction getTransaction() {
+        return transaction;
     }
 
-    public void setTransactionLayerUsage(Transaction transactionLayerUsage) {
-        this.transactionLayerUsage = transactionLayerUsage;
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
     }
 
     public String getService() {

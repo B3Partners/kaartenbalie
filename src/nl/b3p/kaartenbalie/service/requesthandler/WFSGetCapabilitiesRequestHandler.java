@@ -80,7 +80,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             version = OGCConstants.WFS_VERSION_110;
         }
 
-        Set userRoles = user.getUserroles();
+        Set userRoles = user.getRoles();
         boolean isAdmin = false;
         Iterator rolIt = userRoles.iterator();
         while (rolIt.hasNext()) {

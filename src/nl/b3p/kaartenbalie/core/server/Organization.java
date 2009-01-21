@@ -41,10 +41,10 @@ public class Organization {
     private String visitorsAddress;
     private String telephone;
     private String fax;
-    private Set user;
+    private Set users;
     private Set billing;
-    private Set organizationLayer;
-    private Set wfsOrganizationLayer;
+    private Set layers;
+    private Set wfsLayers;
     private Set reports;
     private Set reportStatus;
     private Account account;
@@ -133,12 +133,12 @@ public class Organization {
         this.fax = fax;
     }
 
-    public Set getUser() {
-        return user;
+    public Set getUsers() {
+        return users;
     }
 
-    public void setUser(Set user) {
-        this.user = user;
+    public void setUsers(Set users) {
+        this.users = users;
     }
 
     public Set getBilling() {
@@ -149,34 +149,34 @@ public class Organization {
         this.billing = billing;
     }
 
-    public Set getOrganizationLayer() {
-        return organizationLayer;
+    public Set getLayers() {
+        return layers;
     }
 
-    public void setOrganizationLayer(Set organizationLayer) {
-        this.organizationLayer = organizationLayer;
+    public void setLayers(Set layers) {
+        this.layers = layers;
     }
 
-    public void addOrganizationLayer(Layer layer) {
-        if (null == getOrganizationLayer()) {
-            setOrganizationLayer(new HashSet());
+    public void addLayer(Layer layer) {
+        if (null == getLayers()) {
+            setLayers(new HashSet());
         }
-        getOrganizationLayer().add(layer);
+        getLayers().add(layer);
     }
 
-    public Set getWfsOrganizationLayer() {
-        return wfsOrganizationLayer;
+    public Set getWfsLayers() {
+        return wfsLayers;
     }
 
-    public void setWfsOrganizationLayer(Set wfsOrganizationLayer) {
-        this.wfsOrganizationLayer = wfsOrganizationLayer;
+    public void setWfsLayers(Set wfsLayer) {
+        this.wfsLayers = wfsLayer;
     }
 
-    public void addWfsOrganizationLayer(Layer layer) {
-        if (null == getWfsOrganizationLayer()) {
-            setWfsOrganizationLayer(new HashSet());
+    public void addWfsLayer(Layer layer) {
+        if (null == getWfsLayers()) {
+            setWfsLayers(new HashSet());
         }
-        getWfsOrganizationLayer().add(layer);
+        getWfsLayers().add(layer);
     }
 
     public String getPostbox() {

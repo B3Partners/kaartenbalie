@@ -31,7 +31,7 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 public class ServiceProviderRequest {
 
     private Integer id;
-    private Long bytesSend;
+    private Long bytesSent;
     private Long bytesReceived;
     private Integer responseStatus;
     private Long requestResponseTime;
@@ -98,12 +98,12 @@ public class ServiceProviderRequest {
         this.requestResponseTime = requestResponseTime;
     }
 
-    public Long getBytesSend() {
-        return bytesSend;
+    public Long getBytesSent() {
+        return bytesSent;
     }
 
-    public void setBytesSend(Long bytesSend) {
-        this.bytesSend = bytesSend;
+    public void setBytesSent(Long bytesSent) {
+        this.bytesSent = bytesSent;
     }
 
     public Long getBytesReceived() {

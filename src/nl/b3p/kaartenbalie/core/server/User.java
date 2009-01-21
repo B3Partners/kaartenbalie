@@ -41,8 +41,8 @@ public class User implements Principal {
     private String defaultGetMap;
     private Date timeout;
     private Organization organization;
-    private Set userroles;
-    private Set userips;
+    private Set roles;
+    private Set ips;
     // <editor-fold defaultstate="" desc="getter and setter methods.">
     public Integer getId() {
         return id;
@@ -129,32 +129,32 @@ public class User implements Principal {
         defaultGetMap = s;
     }
     // </editor-fold>
-    public Set getUserroles() {
-        return userroles;
+    public Set getRoles() {
+        return roles;
     }
 
-    public void setUserroles(Set userroles) {
-        this.userroles = userroles;
+    public void setRoles(Set roles) {
+        this.roles = roles;
     }
 
-    public void addUserRole(Roles role) {
-        if (userroles == null) {
-            userroles = new HashSet();
+    public void addRole(Roles role) {
+        if (roles == null) {
+            roles = new HashSet();
         }
-        userroles.add(role);
+        roles.add(role);
     }
 
-    public void deleteUserRole(Roles role) {
-        if (userroles != null) {
-            userroles.remove(role);
+    public void deleteRole(Roles role) {
+        if (roles != null) {
+            roles.remove(role);
         }
     }
 
     public boolean checkRole(String role) {
-        if (userroles == null) {
+        if (roles == null) {
             return false;
         }
-        Iterator it = userroles.iterator();
+        Iterator it = roles.iterator();
         while (it.hasNext()) {
             Roles theUserroles = (Roles) it.next();
             if (role.equalsIgnoreCase(theUserroles.getRole())) {
@@ -165,27 +165,27 @@ public class User implements Principal {
     }
 
     public String getRolesAsString() {
-        String roles = "";
-        Iterator it = userroles.iterator();
+        String rolesStr = "";
+        Iterator it = this.roles.iterator();
         while (it.hasNext()) {
             Roles theUserroles = (Roles) it.next();
-            roles = roles + theUserroles.getRole() + " ";
+            rolesStr = rolesStr + theUserroles.getRole() + " ";
         }
-        return roles;
+        return rolesStr;
     }
 
-    public Set getUserips() {
-        return userips;
+    public Set getIps() {
+        return ips;
     }
 
-    public void setUserips(Set userips) {
-        this.userips = userips;
+    public void setIps(Set ips) {
+        this.ips = ips;
     }
 
-    public void addUserips(String userip) {
-        if (userips == null) {
-            userips = new HashSet();
+    public void addIps(String ip) {
+        if (ips == null) {
+            ips = new HashSet();
         }
-        userips.add(userip);
+        ips.add(ip);
     }
 }

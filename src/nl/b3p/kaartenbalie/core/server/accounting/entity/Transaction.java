@@ -228,7 +228,7 @@ public class Transaction {
             creditAlteration = creditAlteration.add(lpc.getLayerPrice());
             pricedLayerNames.add(lpc.getLayerName());
         }
-        lpc.setTransactionLayerUsage(this);
+        lpc.setTransaction(this);
         layerPriceCompositions.add(lpc);
     }
 

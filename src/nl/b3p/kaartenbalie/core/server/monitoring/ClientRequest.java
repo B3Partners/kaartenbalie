@@ -31,7 +31,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 public class ClientRequest {
 
     private Integer id;
-    private Date timeStamp;
+    private Date timestamp;
     private String clientRequestURI;
     private Set serviceProviderRequests;
     private Set requestOperations;
@@ -45,7 +45,7 @@ public class ClientRequest {
     private String exceptionMessage;
 
     public ClientRequest() {
-        setTimeStamp(new Date());
+        setTimestamp(new Date());
         setServiceProviderRequests(new HashSet());
         setRequestOperations(new HashSet());
     }
@@ -58,12 +58,12 @@ public class ClientRequest {
         this.id = id;
     }
 
-    public Date getTimeStamp() {
-        return timeStamp;
+    public Date getTimestamp() {
+        return timestamp;
     }
 
-    public void setTimeStamp(Date timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setTimestamp(Date timeStamp) {
+        this.timestamp = timeStamp;
     }
 
     public Set getServiceProviderRequests() {

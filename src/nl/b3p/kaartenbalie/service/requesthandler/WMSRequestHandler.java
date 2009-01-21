@@ -94,7 +94,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         User dbUser = null;
-        Set userRoles = user.getUserroles();
+        Set userRoles = user.getRoles();
         boolean isAdmin = false;
         Iterator rolIt = userRoles.iterator();
         while (rolIt.hasNext()) {
@@ -120,7 +120,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Set organizationLayers = new HashSet();
 
         if (isAdmin == false) {
-            organizationLayers = dbUser.getOrganization().getOrganizationLayer();
+            organizationLayers = dbUser.getOrganization().getLayers();
         } else {
             List layerlist = em.createQuery("from Layer").getResultList();
             Iterator it = layerlist.iterator();
@@ -222,7 +222,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
 
 
-        Set roles = dbUser.getUserroles();
+        Set roles = dbUser.getRoles();
         if (roles != null) {
             Iterator roleIt = roles.iterator();
             while (roleIt.hasNext()) {
@@ -311,7 +311,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     source = builder.parse(url);
                     copyElements(source, destination);
 
-                    wmsRequest.setBytesSend(new Long(url.getBytes().length));
+                    wmsRequest.setBytesSent(new Long(url.getBytes().length));
                     wmsRequest.setProviderRequestURI(url);
                     wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
                     wmsRequest.setBytesReceived(new Long(-1));
@@ -356,7 +356,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          */
         String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
-        wmsRequest.setBytesSend(new Long(url.getBytes().length));
+        wmsRequest.setBytesSent(new Long(url.getBytes().length));
         long startTime = System.currentTimeMillis();
         try {
             if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) &&

@@ -231,7 +231,7 @@ public class ServerActionDemo extends WmsServerAction {
             em.persist(newServiceProvider);
         }
         Set organizationLayers = new HashSet();
-        Iterator it = org.getOrganizationLayer().iterator();
+        Iterator it = org.getLayers().iterator();
         while (it.hasNext()) {
             organizationLayers.add(((Layer) it.next()).clone());
         }
@@ -239,7 +239,7 @@ public class ServerActionDemo extends WmsServerAction {
         while (newLayers.hasNext()) {
             organizationLayers.add((Layer) newLayers.next());
         }
-        org.setOrganizationLayer(organizationLayers);
+        org.setLayers(organizationLayers);
         user.setOrganization(org);
         if (org.getId() == null) {
             em.persist(org);

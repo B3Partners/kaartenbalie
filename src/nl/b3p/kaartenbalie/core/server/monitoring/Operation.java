@@ -47,7 +47,7 @@ public class Operation {
     private int type;
     private Integer numberOfImages;
     private Integer bytesReceivedFromUser;
-    private Integer bytesSendToUser;
+    private Integer bytesSentToUser;
     private Long dataSize;
 
     public Operation() {
@@ -132,18 +132,12 @@ public class Operation {
         this.bytesReceivedFromUser = bytesReceivedFromUser;
     }
 
-    /**
-     * @return the bytesSendToUser
-     */
-    public Integer getBytesSendToUser() {
-        return bytesSendToUser;
+    public Integer getBytesSentToUser() {
+        return bytesSentToUser;
     }
 
-    /**
-     * @param bytesSendToUser the bytesSendToUser to set
-     */
-    public void setBytesSendToUser(Integer bytesSendToUser) {
-        this.bytesSendToUser = bytesSendToUser;
+    public void setBytesSentToUser(Integer bytesSentToUser) {
+        this.bytesSentToUser = bytesSentToUser;
     }
 
     /**

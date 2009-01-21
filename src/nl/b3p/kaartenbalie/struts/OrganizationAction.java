@@ -188,7 +188,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         String creditsJoinedMessage = messages.getMessage(locale, CREDITS_JOINED_KEY);
         StringBuffer strMessage = null;
 
-        Set userList = organization.getUser();
+        Set userList = organization.getUsers();
         if (userList != null && !userList.isEmpty()) {
             strMessage = new StringBuffer();
             Iterator it = userList.iterator();
@@ -304,7 +304,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         JSONObject root = null;
         String checkedLayers = "";
         if (isWFS(dynaForm)) {
-            Set l = organization.getWfsOrganizationLayer();
+            Set l = organization.getWfsLayers();
             Object[] organizationLayer = l.toArray();
 
             for (int i = 0; i < organizationLayer.length; i++) {
@@ -316,7 +316,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             }
             root = this.createWfsTree();
         } else {
-            Set l = organization.getOrganizationLayer();
+            Set l = organization.getLayers();
             Object[] organizationLayer = l.toArray();
             for (int i = 0; i < organizationLayer.length; i++) {
                 if (i < organizationLayer.length - 1) {
@@ -401,7 +401,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                     serviceProviders.add(sp);
                 }
             }
-            organization.setWfsOrganizationLayer(layers);
+            organization.setWfsLayers(layers);
         } else {
 
             for (int i = 0; i < size; i++) {
@@ -430,7 +430,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             LayerValidator lv = new LayerValidator(layers);
             ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
             organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
-            organization.setOrganizationLayer(layers);
+            organization.setLayers(layers);
         }
     }
 

@@ -54,12 +54,12 @@ public class MetadataFolderResource extends MetadataResource implements Collecti
 
             User lUser = em.find(User.class, user.getId());
             Organization org = lUser.getOrganization();
-            Set ll = org.getOrganizationLayer();
+            Set ll = org.getLayers();
 
             Iterator it = ll.iterator();
             while (it.hasNext()) {
                 Layer l = (Layer) it.next();
-                if (l.getMetaData() != null) {
+                if (l.getMetadata() != null) {
                     childs.put(MetadataResourceFactory.createName(l),
                             new MetadataFileResource(l));
                 }

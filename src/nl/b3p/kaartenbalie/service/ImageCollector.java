@@ -104,7 +104,7 @@ public class ImageCollector extends Thread {
             client.getHttpConnectionManager().getParams().setConnectionTimeout(maxResponseTime);
             try {
                 int statusCode = client.executeMethod(method);
-                getWmsRequest().setBytesSend(new Long(url.getBytes().length));
+                getWmsRequest().setBytesSent(new Long(url.getBytes().length));
                 getWmsRequest().setResponseStatus(new Integer(statusCode));
                 if (statusCode != HttpStatus.SC_OK) {
                     throw new Exception("Error connecting to server. HTTP status code: " + statusCode);

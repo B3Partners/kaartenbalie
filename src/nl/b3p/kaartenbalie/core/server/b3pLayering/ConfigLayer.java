@@ -75,7 +75,7 @@ public abstract class ConfigLayer extends Layer {
         srsbb2.setMaxx("280000");
         srsbb2.setMaxy("620000");
         addSrsbb(srsbb2);
-        setMetaData(KBConfiguration.SERVICEPROVIDER_BASE_HTTP); //??? 7.1.4.5.14
+        setMetadata(KBConfiguration.SERVICEPROVIDER_BASE_HTTP); //??? 7.1.4.5.14
         setQueryable("0");
         setCascaded("0");
         setOpaque("0");
