@@ -100,9 +100,10 @@
         </form-login-config>
         <cookie-auth-token-config>
             <!-- LET OP: De secret-key en extra-hash-string moeten voor elke installatie ANDERS zijn! -->
+            <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
-            <secret-key>BBBC9B3653DDC84E149AC5FBD7B6A097</secret-key>
+            <secret-key>6E3795188DA52B035FF12C232282EA5A</secret-key>
             <extra-hash-string>iushrbiub235</extra-hash-string>
             <cookie-expire>86400</cookie-expire>
         </cookie-auth-token-config>
