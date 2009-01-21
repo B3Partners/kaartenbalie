@@ -67,11 +67,14 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                         "from User u where " +
                         "lower(u.username) = lower(:username) " +
                         "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                tx.commit();
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using encrypted password");
             } finally {
-                tx.commit();
+                if(tx.isActive() && !tx.getRollbackOnly()) {
+                    tx.commit();
+                }
             }
 
             tx = em.getTransaction();
@@ -91,7 +94,9 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             } catch (NoResultException nre) {
                 log.debug("No results using cleartext password");
             } finally {
-                tx.commit();
+                if(tx.isActive() && !tx.getRollbackOnly()) {
+                    tx.commit();
+                }
             }
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
@@ -119,13 +124,15 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             } catch (NoResultException nre) {
                 return null;
             } finally {
-                tx.commit();
+                if(tx.isActive() && !tx.getRollbackOnly()) {
+                    tx.commit();
+                }
             }
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);
         } finally {
-             log.debug("Closing entity manager .....");
-           MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
         }
         return null;
     }
