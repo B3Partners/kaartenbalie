@@ -67,7 +67,6 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                         "from User u where " +
                         "lower(u.username) = lower(:username) " +
                         "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
-                tx.commit();
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using encrypted password");
