@@ -24,6 +24,8 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.wms.capabilities.Layer;
 
 /**
  *
@@ -54,9 +56,26 @@ public class SpLayerSummary {
         this.queryable = queryable;
     }
 
+    public SpLayerSummary(Layer l, String queryable) {
+        this(l.getServiceProvider().getId(),
+                l.getId(),
+                l.getName(),
+                l.getServiceProvider().getUrl(),
+                l.getServiceProvider().getAbbr(),
+                queryable);
+    }
+
+    SpLayerSummary(WfsLayer l, String queryable) {
+        this(l.getWfsServiceProvider().getId(),
+                l.getId(),
+                l.getName(),
+                l.getWfsServiceProvider().getUrl(),
+                l.getWfsServiceProvider().getAbbr(),
+                queryable);
+    }
+
     public SpLayerSummary() {
     }
-    ;
 
     public Integer getServiceproviderId() {
         return serviceproviderId;

@@ -39,6 +39,7 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
+import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -70,7 +71,6 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         List spInfo = null;
         String prefix = null;
 
-        log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         String version = "";
@@ -96,7 +96,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         if (isAdmin == false) {
             spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
         } else {
-            spInfo = getSPURLS(layerNames, em);
+            spInfo = getLayerSummaries(layerNames);
         }
 
         if (spInfo == null || spInfo.isEmpty()) {
@@ -159,42 +159,45 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         }
     }
 
-    private List getSPURLS(String[] layers, EntityManager em) throws Exception {
+    private List getLayerSummaries(String[] layers) throws Exception {
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
         List spList = new ArrayList();
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
 
-            String[] split = layer.split("_");
-            String abbr = split[0];
-            String name = split[1];
+            String abbr = null, name = null;
+            int idx = layer.indexOf('_');
+            if(idx != -1) {
+                abbr = layer.substring(0, idx);
+                name = layer.substring(idx+1);
+            }
 
-            String query = "select 'true', l.wfsserviceproviderid, l.wfslayerid, l.name, sp.url, sp.abbr " +
-                    "from wfs_Layer l, Wfs_ServiceProvider sp " +
-                    "where l.wfsserviceproviderid = sp.wfsserviceproviderid and " +
-                    "l.name = :layerName and " +
-                    "sp.abbr = :layerCode";
-            List sqlQuery = em.createNativeQuery(query).
-                    setParameter("layerName", name).
-                    setParameter("layerCode", abbr).
-                    getResultList();
-
-            if (sqlQuery == null || sqlQuery.isEmpty()) {
-                log.error("layer not valid or no rights, name: " + layer);
+            if(abbr == null || abbr.length() == 0 || name == null || name.length() == 0) {
+                if(log.isDebugEnabled()) {
+                    log.error("invalid layer name: " + layer);
+                }
                 throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-            } else if (sqlQuery.size() > 1) {
+            }
+
+            List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr")
+                    .setParameter("name", name)
+                    .setParameter("abbr", abbr)
+                    .getResultList();
+
+            if(matchingLayers.isEmpty()) {
+                /* XXX "or no rights" ?? No rights are checked... */
+                log.error("layer not found: " + layer);
+                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            }
+
+            if(matchingLayers.size() > 1) {
                 log.error("layers with duplicate names, name: " + layer);
                 throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
             }
 
-            Object[] objecten = (Object[]) sqlQuery.get(0);
-            SpLayerSummary layerInfo = new SpLayerSummary(
-                    (Integer) objecten[1],
-                    (Integer) objecten[2],
-                    (String) objecten[3],
-                    (String) objecten[4],
-                    (String) objecten[5],
-                    (String) objecten[0]);
-            spList.add(layerInfo);
+            WfsLayer l = (WfsLayer)matchingLayers.get(0);
+            spList.add(new SpLayerSummary(l, "true"));
         }
         return spList;
     }
