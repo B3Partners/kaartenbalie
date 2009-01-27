@@ -39,7 +39,6 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary;
 
 public abstract class OGCRequestHandler implements RequestHandler {
 
