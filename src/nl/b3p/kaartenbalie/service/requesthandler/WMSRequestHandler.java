@@ -441,13 +441,13 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select l.queryable, l.serviceproviderid, l.id, l.name, sp.url, sp.abbr " +
-                "from layer l, organizationlayer ol, serviceprovider sp " +
-                "where ol.layerid = l.id and " +
-                "l.serviceproviderid = sp.id and " +
-                "ol.organizationid = :orgId and " +
-                "l.name = :layerName and " +
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {       
+        String query = "select l.queryable, l.service_provider, l.id, l.\"name\", sp.url, sp.abbr " +
+                "from layer l " +
+                "join organization_layers ol on (ol.layer = l.id) " +
+                "join service_provider sp on (sp.id = l.service_provider) " +
+                "where ol.organization = :orgId and " +
+                "l.\"name\" = :layerName and " +
                 "sp.abbr = :layerCode";
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
