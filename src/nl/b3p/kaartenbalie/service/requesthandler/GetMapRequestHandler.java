@@ -23,9 +23,11 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -34,6 +36,8 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.SrsBoundingBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -146,12 +150,12 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 gmrWrapper.setServiceProviderId(serviceProviderId);
 
                 boolean srsFound = false;
-                List sqlQuery = getSRS(spInfo.getLayerId(), em);
+                Set<String> sqlQuery = getSRS(spInfo.getLayerId(), em);
                 if (sqlQuery != null) {
                     Iterator sqlIterator = sqlQuery.iterator();
                     while (sqlIterator.hasNext()) {
                         String srs = (String) sqlIterator.next();
-                        if (srs.equals(givenSRS)) {
+                        if (srs != null && srs.equals(givenSRS)) {
                             srsFound = true;
                         }
                     }
@@ -189,40 +193,44 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
 
-    /*
-     * Recursieve functie om de SRS op te halen.
-     * Return null als er geen SRS gevonden is
+    /**
+     * Returns a set of all SRSes (not SrsBoundingBox entities, the SRS id
+     * strings) of the layer and all parent layers upto the toplayer. May return
+     * an empty Set if the layer id is unknown or there simply are no SRSes for
+     * the layers.
      */
-    private List getSRS(int layerId, EntityManager em) {
-        Integer parentId = null;
-        try {
-            Query q = em.createNativeQuery("select parentid from layer where layer.id = :layerid").setParameter("layerid", layerId);
-            Object o = q.getSingleResult();
-            if (o != null && o instanceof Integer) {
-                parentId = (Integer) o;
-            }
-        } catch (Exception e) {
-            log.debug("error getting srs from layer and parant: ", e);
+    private Set<String> getSRS(int layerId, EntityManager em) {
+        Layer l = em.find(Layer.class, layerId);
+        if(l == null) {
+            log.warn("getSRS(): layer with id " + layerId + " not found");
+            return new HashSet<String>();
         }
-        List parentSrsList = null;
-        if (parentId != null) {
-            parentSrsList = getSRS(parentId.intValue(), em);
-        }
-        String query = "select distinct srs.srs from layer, srs " +
-                "where layer.id = srs.layerid and " +
-                "srs.srs is not null and " +
-                "layer.id = :toplayer";
-        List srsList = em.createNativeQuery(query).setParameter("toplayer", layerId).getResultList();
-        if (parentSrsList == null && srsList == null) {
-            return null;
-        }
-        if (parentSrsList == null) {
-            parentSrsList = new ArrayList();
-        }
-        if (srsList != null) {
-            parentSrsList.addAll(srsList);
-        }
-        return parentSrsList;
 
+        Set<String> srses = new HashSet<String>();
+
+        srses.addAll(getSRSStrings(l.getSrsbb()));
+
+        while(l.getParent() != null) {
+            /* This is not the toplayer, so get the SRS's of the
+             * layer higher up in the tree
+             */
+            l = l.getParent();
+            srses.addAll(getSRSStrings(l.getSrsbb()));
+        }
+        return srses;
+    }
+
+    /**
+     * Converts a Set<SrsBoundingBox> to a Set<String> with the
+     * SrsBoundingBox.getSrs() values
+     */
+    private Set<String> getSRSStrings(Set<SrsBoundingBox> entities) {
+        Set<String> result = new HashSet<String>();
+        if(entities != null) { /* This check only necessary because Layer.srs isn't initialized in the standard way... */
+            for(SrsBoundingBox srsbb: entities) {
+                result.add(srsbb.getSrs());
+            }
+        }
+        return result;
     }
 }
