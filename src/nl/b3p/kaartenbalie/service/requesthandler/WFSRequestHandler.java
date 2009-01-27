@@ -75,36 +75,28 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
     }
 
     protected String[] getOrganisationLayers(EntityManager em, Integer orgId, String version, boolean isAdmin) throws Exception {
-        List sqlQuery = new ArrayList();
-        if (isAdmin == false) {
-            String query = "select sp.abbr, l.name " +
-                    "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer o " +
-                    "where o.organizationid = :orgId and l.id = o.wfslayerid and " +
-                    "l.wfsserviceproviderid = sp.id and " +
-                    "sp.wfsversion = :version";
-            sqlQuery = em.createNativeQuery(query).
-                    setParameter("orgId", orgId).
-                    setParameter("version", version).
-                    getResultList();
+        List layers = null;
+        if(!isAdmin) {
+            String query = "select sp.abbr || '_' || l.name " +
+                           "from Organization o " +
+                           "join o.wfsLayers l " +
+                           "join l.wfsServiceProvider sp " +
+                           "where o.id = :orgId " +
+                           "and sp.wfsVersion = :version";
+
+            layers = em.createQuery(query)
+                    .setParameter("orgId", orgId)
+                    .setParameter("version", version)
+                    .getResultList();
         } else {
-            String query = "select sp.abbr, l.name " +
-                    "from wfs_Layer l, Wfs_ServiceProvider sp " +
-                    "where l.wfsserviceproviderid = sp.id and " +
-                    "sp.wfsversion = :version";
-            sqlQuery = em.createNativeQuery(query).
-                    setParameter("version", version).
-                    getResultList();
+            String query = "select sp.abbr || '_' || l.name " +
+                           "from WfsLayer l " +
+                           "join l.wfsServiceProvider sp " +
+                           "where sp.wfsVersion = :version";
+            layers = em.createQuery(query)
+                    .setParameter("version", version)
+                    .getResultList();
         }
-        if (sqlQuery == null) {
-            return null;
-        }
-        int size = sqlQuery.size();
-        String[] layerNames = new String[size];
-        for (int i = 0; i < size; i++) {
-            String spAbbr = (String) ((Object[]) sqlQuery.get(i))[0];
-            String lName = (String) ((Object[]) sqlQuery.get(i))[1];
-            layerNames[i] = spAbbr + "_" + lName;
-        }
-        return layerNames;
+        return (String[])layers.toArray(new String[] {});
     }
 }
