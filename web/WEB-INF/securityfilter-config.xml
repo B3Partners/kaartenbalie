@@ -103,8 +103,9 @@
             <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
-            <secret-key>6E3795188DA52B035FF12C232282EA5A</secret-key>
-            <extra-hash-string>iushrbiub235</extra-hash-string>
+            <secret-key>40F40FD7500AE20E817093874D149176</secret-key>
+            <!-- pak wat karakters van random alpha-numeric characters -->
+            <extra-hash-string>BETN9cykaidfJF2VvQIEa</extra-hash-string>
             <cookie-expire>86400</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
