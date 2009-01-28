@@ -62,8 +62,8 @@ public class ClientRequest {
         return timestamp;
     }
 
-    public void setTimestamp(Date timeStamp) {
-        this.timestamp = timeStamp;
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Set getServiceProviderRequests() {

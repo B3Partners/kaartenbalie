@@ -198,20 +198,20 @@ public class ReportThread extends Thread {
         List resultList = null;
         try {
             resultList = (List) em.createQuery(
-                    "SELECT count(cr.timeStamp), " +
-                    "to_char(cr.timeStamp, 'DD-MM-YYYY'), " +
-                    "to_char(cr.timeStamp, 'HH24'), " +
+                    "SELECT count(cr.timestamp), " +
+                    "to_char(cr.timestamp, 'DD-MM-YYYY'), " +
+                    "to_char(cr.timestamp, 'HH24'), " +
                     "sum(ro.bytesReceivedFromUser), " +
-                    "sum(ro.bytesSendToUser), " +
+                    "sum(ro.bytesSentToUser), " +
                     "avg(ro.duration), " +
                     "max(ro.duration) " +
                     "FROM ClientRequest AS cr " +
                     "LEFT JOIN cr.requestOperations AS ro " +
                     "WHERE cr.organizationId = :organizationId " +
-                    "AND cr.timeStamp BETWEEN :startDate AND :endDate " +
+                    "AND cr.timestamp BETWEEN :startDate AND :endDate " +
                     "AND ro.type = :type " +
-                    "GROUP BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') " +
-                    "ORDER BY to_char(cr.timeStamp, 'DD-MM-YYYY'), to_char(cr.timeStamp, 'HH24') ASC").
+                    "GROUP BY to_char(cr.timestamp, 'DD-MM-YYYY'), to_char(cr.timestamp, 'HH24') " +
+                    "ORDER BY to_char(cr.timestamp, 'DD-MM-YYYY'), to_char(cr.timestamp, 'HH24') ASC").
                     setParameter("type", new Integer(Operation.REQUEST)).
                     setParameter("startDate", startDate).
                     setParameter("endDate", endDate).
@@ -264,14 +264,14 @@ public class ReportThread extends Thread {
                 result = (Object[]) em.createQuery(
                         "SELECT count(ro.type), " +
                         "sum(ro.bytesReceivedFromUser), " +
-                        "sum(ro.bytesSendToUser), " +
+                        "sum(ro.bytesSentToUser), " +
                         "sum(ro.dataSize), " +
                         "avg(ro.duration), " +
                         "max(ro.duration) " +
                         "FROM Operation AS ro " +
                         "WHERE ro.clientRequest.organizationId = :organizationId " +
                         "AND ro.type = :type " +
-                        "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                        "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                         "GROUP BY ro.type ").
                         setParameter("type", new Integer(operation)).
                         setParameter("startDate", startDate).
@@ -323,7 +323,7 @@ public class ReportThread extends Thread {
                                 "SELECT count(*) FROM Operation AS ro " +
                                 "WHERE ro.clientRequest.organizationId = :organizationId " +
                                 "AND ro.type = :type " +
-                                "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                                "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                                 "AND ro.duration BETWEEN :msLow AND :msHigh ").
                                 setParameter("type", new Integer(operation)).
                                 setParameter("startDate", startDate).
@@ -337,7 +337,7 @@ public class ReportThread extends Thread {
                                 "SELECT count(*) FROM Operation AS ro " +
                                 "WHERE ro.clientRequest.organizationId = :organizationId " +
                                 "AND ro.type = :type " +
-                                "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                                "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                                 "AND ro.duration > :msLow ").
                                 setParameter("type", new Integer(operation)).
                                 setParameter("startDate", startDate).
@@ -377,12 +377,12 @@ public class ReportThread extends Thread {
                     "SELECT ro.serviceProviderId, " +
                     "count(ro.serviceProviderId), " +
                     "sum(ro.bytesReceived), " +
-                    "sum(ro.bytesSend), " +
+                    "sum(ro.bytesSent), " +
                     "avg(ro.requestResponseTime), " +
                     "max(ro.requestResponseTime) " +
                     "FROM ServiceProviderRequest AS ro " +
                     "WHERE ro.clientRequest.organizationId = :organizationId " +
-                    "AND ro.clientRequest.timeStamp BETWEEN :startDate AND :endDate " +
+                    "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                     "GROUP BY ro.serviceProviderId ").
                     setParameter("startDate", startDate).
                     setParameter("endDate", endDate).
