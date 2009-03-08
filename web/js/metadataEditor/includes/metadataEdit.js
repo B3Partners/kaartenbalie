@@ -1,3 +1,24 @@
+/*
+B3P Metadata Editor is a ISO 19139 compliant metadata editor, 
+that is preconfigured to use the Dutch profile for geography
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Metadata Editor.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+*/
 //init();
 
 function init() {
@@ -79,6 +100,7 @@ function transformXml() {
     // Global var. Also used by create section.
     xmlTransformer = new XML.Transformer(xslDoc);
     xmlTransformer.setParameter("basePath", baseFullPath);
+   	xmlTransformer.setParameter("readonly", viewMode);
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
     
     insertTitle();
@@ -86,9 +108,11 @@ function transformXml() {
 
 function insertTitle() {
 		var titlePath = "/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:title/gco:CharacterString";
-    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+	  if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+	  	if (titlePath.indexOf(pathToRoot)!=0)
 			titlePath = trim(pathToRoot) + titlePath;
     }
+
     var titleXMLNode = findNode(titlePath);
     if (titleXMLNode == null) {
         debug("title not found");
@@ -209,13 +233,17 @@ function findChildNode(searchParent, targetRawChildTag) {
     var correctChildCount = 0;
     for (var i = 0; i < searchChildren.length; i++) {
         searchChildNode = searchChildren[i];
+        
+        
         searchChildSplit = searchChildNode.nodeName.split(/[:]+/);
+        //debug("searchChildSplit: " + searchChildSplit);
         if (searchChildSplit.length == 2) {
             searchChildNodeName = searchChildSplit[1];
         }
         else { // searchChildSplit.length == 1
             searchChildNodeName = searchChildSplit[0];
         }
+        
         debug("searchChildNodeName: " + searchChildNodeName);		
         //debug("searchChildSplit.length: " + searchChildSplit.length);
         debug("searchChildNode.nodeType: " + searchChildNode.nodeType);
@@ -234,6 +262,7 @@ function findChildNode(searchParent, targetRawChildTag) {
     debug("goede child niet gevonden bij parent: " + parent.nodeName);
     return null;
 }
+
 
 // E.g.: 
 // prefix:tagName[3]

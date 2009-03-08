@@ -189,7 +189,7 @@ public class CastorXmlTransformer {
 
         /* TODO check of optimalizatie van Marshalling zoals beschreven op
          * http://castor.org/xml-faq.html#How-can-I-speed-up-marshalling/unmarshalling-performance?
-         * zin heeft OF dat Apache FOP zowiezo de meeste tijd inneemt.
+         * zin heeft OF dat Apache FOP sowieso de meeste tijd inneemt.
          */
 
         TransformerFactory transformerFactory = TransformerFactory.newInstance();

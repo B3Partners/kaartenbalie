@@ -4,6 +4,27 @@
 					xmlns="http://www.w3.org/1999/xhtml"
 					xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 					>
+<!--
+B3P Metadata Editor is a ISO 19139 compliant metadata editor, 
+that is preconfigured to use the Dutch profile for geography
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Metadata Editor.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
 
 
@@ -57,27 +78,30 @@
 		<xsl:param name="picklist"/>
 		<xsl:param name="path" select="."/>
 		<xsl:param name="default-value"/>
-		<xsl:param name="optionality" select="'optional'"/><!-- 'mandatory' of 'optional' of leeg (= mandatory). Mandatory wordt altijd opgeslagen -->
+		<xsl:param name="optionality" select="'optional'"/><!-- 'conditional' of 'mandatory' of 'optional' of leeg (= optional). Mandatory wordt altijd opgeslagen -->
 		<xsl:param name="repeatable" select="'false'"/>
+		<xsl:param name="readonly" select="'false'"/>
 		<xsl:param name="help-text"/>
-		
+		<xsl:param name="field-type"/><!-- 'text' of 'date' of leeg (= text) (nog verder uitbreidbaar, zie generic_edit.js startEdit -->
 		
 		<xsl:variable name="class">
 			<xsl:choose>
-				<xsl:when test="$optionality = 'mandatory'">
-					<xsl:text>element-mandatory</xsl:text>
+				<xsl:when test="$optionality = 'mandatory' and $readonly = 'false'">
+					<xsl:text>key-mandatory</xsl:text>
+				</xsl:when>
+				<xsl:when test="$optionality = 'conditional' and $readonly = 'false'">
+					<xsl:text>key-conditional</xsl:text>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:text>element</xsl:text>
+					<xsl:text>key</xsl:text>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
 		
-		<div class="{$class}">
-			
+		<div class="'element'">
 			<xsl:if test="$title != ''">
 				<!-- strange layout (in this xslt-file) to get whitespace right -->
-				<span class="key"><xsl:value-of select="$title"/><xsl:if test="$repeatable = 'true' ">
+				<span class="{$class}"><xsl:value-of select="$title"/><xsl:if test="$repeatable = 'true' and $readonly = 'false'">
 						<xsl:call-template name="repeatable-menu">
 							<xsl:with-param name="path">
 								<xsl:call-template name="full-path"/>					
@@ -87,7 +111,6 @@
 					</xsl:if>: <!-- whitespace issue -->
 				</span>				
 			</xsl:if>
-			
 			<xsl:element name="span">
 				<xsl:attribute name="fullPath">
 					<xsl:call-template name="full-path">					
@@ -97,10 +120,13 @@
 				<xsl:attribute name="title"><xsl:value-of select="$help-text"/></xsl:attribute>
 				<xsl:attribute name="default"><xsl:value-of select="$default-value"/></xsl:attribute>
 				<xsl:attribute name="optionality"><xsl:value-of select="$optionality" /></xsl:attribute>
-				<xsl:attribute name="onclick">startEdit(event)</xsl:attribute>
+				<xsl:if test="$readonly = 'false'">
+					<xsl:attribute name="onclick">startEdit(event)</xsl:attribute>
+				</xsl:if>
 				<xsl:if test="$picklist != ''">
 					<xsl:attribute name="picklist"><xsl:value-of select="$picklist"/></xsl:attribute>
 				</xsl:if>
+				<xsl:attribute name="field-type"><xsl:value-of select="$field-type"/></xsl:attribute>
 				<xsl:choose>
 					<!-- check of de inhoud van $path leeg is -->
 					<xsl:when test="normalize-space($path)">
@@ -121,6 +147,9 @@
 						<xsl:attribute name="class">default-value</xsl:attribute>
 						<xsl:attribute name="changed">false</xsl:attribute>
 						<xsl:choose>
+							<xsl:when test="$readonly = 'true'">
+								<xsl:value-of select="'-'"/>
+							</xsl:when>
 							<xsl:when test="$default-value != ''">
 								<xsl:value-of select="$default-value"/>
 							</xsl:when>
@@ -143,6 +172,7 @@
 		<xsl:param name="section-path" select="."/>
 		<xsl:param name="expanded" select="'true'"/>
 		<xsl:param name="repeatable" select="'false'"/>
+		<xsl:param name="readonly" select="'false'"/>
 		
 
 		<!-- display each repeating section -->
@@ -153,6 +183,7 @@
 				<xsl:with-param name="section-path" select="$section-path"/>
 				<xsl:with-param name="expanded" select="$expanded"/>
 				<xsl:with-param name="repeatable" select="$repeatable"/>
+				<xsl:with-param name="readonly" select="$readonly"/>
 			</xsl:call-template>
 
 			<!-- add subelements of section within a "section-content" DIV-->
@@ -199,6 +230,7 @@
 		<xsl:param name="expanded" select="'true'"/>
 		<xsl:param name="expandable" select="'true'"/>		
 		<xsl:param name="repeatable" select="'false'"/>
+		<xsl:param name="readonly" select="'false'"/>
 		
 		<div class="section-header">
 			<xsl:choose>
@@ -222,7 +254,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 
-			<xsl:if test="$repeatable = 'true' ">
+			<xsl:if test="$repeatable = 'true'  and $readonly = 'false'">
 				<xsl:call-template name="repeatable-menu">
 					<xsl:with-param name="path" select="$section-path"/>
 					<xsl:with-param name="type" select="'section'"/>

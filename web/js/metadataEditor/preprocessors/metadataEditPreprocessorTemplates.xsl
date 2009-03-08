@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml">
+<xsl:stylesheet version="1.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gfc="http://www.isotc211.org/2005/gfc" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml">
 	<!--
 						exclude-result-prefixes="gmd"
 	-->
@@ -17,6 +17,7 @@
 		<xsl:element name="gmd:MD_Metadata">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-fileIdentifier"/>
+			<xsl:call-template name="add-parentIdentifier"/>
 			<xsl:call-template name="add-language"/>
 			<xsl:call-template name="add-contact"/>
 			<xsl:call-template name="add-characterSet"/>
@@ -33,6 +34,12 @@
 	</xsl:template>
 	<xsl:template name="add-fileIdentifier">
 		<xsl:element name="gmd:fileIdentifier">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-parentIdentifier">
+		<xsl:element name="gmd:parentIdentifier">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
@@ -98,7 +105,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:choose>
 				<xsl:when test="$FILL_DEFAULTS">
-					<xsl:element name="gco:CharacterString">Nederlandse metadatastandaard voor geografie 1.1</xsl:element>
+					<xsl:element name="gco:CharacterString">Nederlandse metadatastandaard voor geografie 1.2</xsl:element>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="add-CharacterString"/>
@@ -167,6 +174,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-citation"/>
 			<xsl:call-template name="add-abstract"/>
+			<xsl:call-template name="add-purpose"/>
 			<xsl:call-template name="add-status"/>
 			<xsl:call-template name="add-pointOfContact"/>
 			<xsl:call-template name="add-descriptiveKeywords"/>
@@ -189,11 +197,19 @@
 		<xsl:element name="gmd:CI_Citation">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-title"/>
+			<xsl:call-template name="add-alternateTitle"/>
 			<xsl:call-template name="add-date"/>
+			<xsl:call-template name="add-identifier"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-title">
 		<xsl:element name="gmd:title">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-alternateTitle">
+		<xsl:element name="gmd:alternateTitle">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
@@ -221,6 +237,30 @@
 		<xsl:element name="gmd:dateType">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-CI_DateTypeCode"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-identifier">
+		<xsl:element name="gmd:identifier">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-MD_Identifier"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-MD_Identifier">
+		<xsl:element name="gmd:MD_Identifier">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-identifier_code"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-identifier_code">
+		<xsl:element name="gmd:code">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-purpose">
+		<xsl:element name="gmd:purpose">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-abstract">
@@ -271,6 +311,7 @@
 		<xsl:element name="gmd:CI_Contact">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-onlineResource"/>
+			<xsl:call-template name="add-address"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-onlineResource">
@@ -283,12 +324,79 @@
 		<xsl:element name="gmd:CI_OnlineResource">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-linkage"/>
+			<xsl:call-template name="add-protocol"/>
+			<xsl:call-template name="add-name"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-linkage">
 		<xsl:element name="gmd:linkage">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-URL"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-protocol">
+		<xsl:element name="gmd:protocol">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-SV_ServiceType"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-name">
+		<xsl:element name="gmd:name">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-address">
+		<xsl:element name="gmd:address">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CI_Address"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-CI_Address">
+		<xsl:element name="gmd:CI_Address">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-deliveryPoint"/>
+			<xsl:call-template name="add-city"/>
+			<xsl:call-template name="add-administrativeArea"/>
+			<xsl:call-template name="add-postalCode"/>
+			<xsl:call-template name="add-country"/>
+			<xsl:call-template name="add-electronicMailAddress"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-deliveryPoint">
+		<xsl:element name="gmd:deliveryPoint">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-city">
+		<xsl:element name="gmd:city">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-administrativeArea">
+		<xsl:element name="gmd:administrativeArea">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-postalCode">
+		<xsl:element name="gmd:postalCode">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-country">
+		<xsl:element name="gmd:country">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-electronicMailAddress">
+		<xsl:element name="gmd:electronicMailAddress">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-spatialRepresentationType">
@@ -307,6 +415,14 @@
 		<xsl:element name="gmd:MD_Resolution">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-equivalentScale"/>
+			<xsl:call-template name="add-distance"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-distance">
+		<xsl:element name="gmd:distance">
+			<!--Add sub-elements and sections-->
+			<!-- TODO volgens ISO TS 1903-->
+			<xsl:call-template name="add-Distance"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-equivalentScale">
@@ -343,6 +459,7 @@
 		<xsl:element name="gmd:MD_Keywords">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-keyword"/>
+			<xsl:call-template name="add-thesaurusName"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-keyword">
@@ -351,17 +468,24 @@
 			<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
 	</xsl:template>
+	<xsl:template name="add-thesaurusName">
+		<xsl:element name="gmd:thesaurusName">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CI_Citation"/>
+		</xsl:element>
+	</xsl:template>
 	<xsl:template name="add-resourceConstraints">
-		<!--Add sub-elements and sections-->
-		<xsl:call-template name="add-MD_Constraints"/>
-		<xsl:call-template name="add-MD_LegalConstraints"/>
+		<xsl:element name="gmd:resourceConstraints">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-MD_Constraints"/>
+			<xsl:call-template name="add-MD_LegalConstraints"/>
+			<xsl:call-template name="add-MD_SecurityConstraints"/>
+		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-MD_Constraints">
-		<xsl:element name="gmd:resourceConstraints">
-			<xsl:element name="gmd:MD_Constraints">
-				<!--Add sub-elements and sections-->
-				<xsl:call-template name="add-useLimitation"/>
-			</xsl:element>
+		<xsl:element name="gmd:MD_Constraints">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-useLimitation"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-useLimitation">
@@ -371,17 +495,34 @@
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-MD_LegalConstraints">
-		<xsl:element name="gmd:resourceConstraints">
-			<xsl:element name="gmd:MD_LegalConstraints">
-				<!--Add sub-elements and sections-->
-				<xsl:call-template name="add-accessConstraints"/>
-			</xsl:element>
+		<xsl:element name="gmd:MD_LegalConstraints">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-accessConstraints"/>
+			<xsl:call-template name="add-otherConstraints"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-accessConstraints">
 		<xsl:element name="gmd:accessConstraints">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-MD_RestrictionCode"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-otherConstraints">
+		<xsl:element name="gmd:otherConstraints">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-MD_SecurityConstraints">
+		<xsl:element name="gmd:MD_SecurityConstraints">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-classification"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-classification">
+		<xsl:element name="gmd:classification">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-MD_ClassificationCode"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-extent">
@@ -516,6 +657,7 @@
 		<xsl:element name="gmd:MD_Distribution">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-distributor"/>
+			<xsl:call-template name="add-transferOptions"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-distributor">
@@ -536,6 +678,24 @@
 			<xsl:call-template name="add-CI_ResponsibleParty"/>
 		</xsl:element>
 	</xsl:template>
+	<xsl:template name="add-transferOptions">
+		<xsl:element name="gmd:transferOptions">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-MD_DigitalTransferOptions"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-MD_DigitalTransferOptions">
+		<xsl:element name="gmd:MD_DigitalTransferOptions">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-online"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-online">
+		<xsl:element name="gmd:online">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CI_OnlineResource"/>
+		</xsl:element>
+	</xsl:template>
 	<xsl:template name="add-dataQualityInfo">
 		<xsl:element name="gmd:dataQualityInfo">
 			<!--Add sub-elements and sections-->
@@ -546,6 +706,7 @@
 		<xsl:element name="gmd:DQ_DataQuality">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-scope"/>
+			<xsl:call-template name="add-report"/>
 			<xsl:call-template name="add-lineage"/>
 		</xsl:element>
 	</xsl:template>
@@ -565,6 +726,50 @@
 		<xsl:element name="gmd:level">
 			<!--Add sub-elements and sections-->
 			<xsl:call-template name="add-MD_ScopeCode"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-report">
+		<xsl:element name="gmd:report">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-DQ_DomainConsistency"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-DQ_DomainConsistency">
+		<xsl:element name="gmd:DQ_DomainConsistency">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-result"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-result">
+		<xsl:element name="gmd:result">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-DQ_ConformanceResult"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-DQ_ConformanceResult">
+		<xsl:element name="gmd:DQ_ConformanceResult">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-pass"/>
+			<xsl:call-template name="add-explanation"/>
+			<xsl:call-template name="add-specification"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-pass">
+		<xsl:element name="gmd:pass">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-Boolean"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-explanation">
+		<xsl:element name="gmd:explanation">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-specification">
+		<xsl:element name="gmd:specification">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CI_Citation"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-lineage">
@@ -588,6 +793,9 @@
 	<xsl:template name="add-CharacterString">
 		<xsl:element name="gco:CharacterString"/>
 	</xsl:template>
+	<xsl:template name="add-LocalName">
+		<xsl:element name="gco:LocalName"/>
+	</xsl:template>
 	<xsl:template name="add-Date">
 		<xsl:element name="gco:Date"/>
 	</xsl:template>
@@ -596,6 +804,14 @@
 	</xsl:template>
 	<xsl:template name="add-Integer">
 		<xsl:element name="gco:Integer"/>
+	</xsl:template>
+	<xsl:template name="add-Boolean">
+		<xsl:element name="gco:Boolean"/>
+	</xsl:template>
+	<xsl:template name="add-Distance">
+		<xsl:element name="gco:Distance">
+			<xsl:attribute name="uom">meters</xsl:attribute>
+		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-URL">
 		<xsl:element name="gmd:URL"/>
@@ -653,6 +869,129 @@
 		<xsl:element name="gmd:MD_RestrictionCode">
 			<xsl:attribute name="codeList">#MD_RestrictionCode</xsl:attribute>
 			<xsl:attribute name="codeListValue"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-MD_ClassificationCode">
+		<xsl:element name="gmd:MD_ClassificationCode">
+			<xsl:attribute name="codeList">#MD_ClassificationCode</xsl:attribute>
+			<xsl:attribute name="codeListValue"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-SV_ServiceType">
+		<xsl:element name="gmd:SV_ServiceType">
+			<xsl:attribute name="codeList">#SV_ServiceType</xsl:attribute>
+			<xsl:attribute name="codeListValue"/>
+		</xsl:element>
+	</xsl:template>
+	<!-- Feature catalogue ISO 19110 -->
+	<xsl:template name="add-gfc_FC_FeatureCatalogue">
+		<xsl:element name="gfc:FC_FeatureCatalogue">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-gmx_name"/>
+			<xsl:call-template name="add-gmx_scope"/>
+			<xsl:call-template name="add-gmx_versionNumber"/>
+			<xsl:call-template name="add-gmx_versionDate"/>
+			<xsl:call-template name="add-gfc_producer"/>
+			<xsl:call-template name="add-gfc_featureType"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gmx_name">
+		<xsl:element name="gmx:name">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gmx_scope">
+		<xsl:element name="gmx:scope">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gmx_versionNumber">
+		<xsl:element name="gmx:versionNumber">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gmx_versionDate">
+		<xsl:element name="gmx:versionDate">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-Date"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_producer">
+		<xsl:element name="gfc:producer">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CI_ResponsibleParty"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_featureType">
+		<xsl:element name="gfc:featureType">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-gfc_FC_FeatureType"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_FC_FeatureType">
+		<xsl:element name="gfc:FC_FeatureType">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-gfc_typeName"/>
+			<xsl:call-template name="add-gfc_definition"/>
+			<xsl:call-template name="add-gfc_isAbstract"/>
+			<xsl:call-template name="add-gfc_carrierOfCharacteristics"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_typeName">
+		<xsl:element name="gfc:typeName">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-LocalName"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_definition">
+		<xsl:element name="gfc:definition">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-CharacterString"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_isAbstract">
+		<xsl:element name="gfc:isAbstract">
+			<!--Add sub-elements and sections-->
+			<xsl:element name="gco:Boolean">
+				<xsl:value-of select="'FALSE'"/>
+			</xsl:element>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_carrierOfCharacteristics">
+		<xsl:element name="gfc:carrierOfCharacteristics">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-gfc_FC_FeatureAttribute"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_FC_FeatureAttribute">
+		<xsl:element name="gfc:FC_FeatureAttribute">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-gfc_memberName"/>
+			<xsl:call-template name="add-gfc_definition"/>
+			<xsl:call-template name="add-gfc_cardinality"/>
+			<xsl:call-template name="add-gfc_valueType"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_memberName">
+		<xsl:element name="gfc:memberName">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-LocalName"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_cardinality">
+		<xsl:element name="gfc:cardinality">
+			<!--Add sub-elements and sections-->
+			<xsl:element name="gco:Integer">
+				<xsl:value-of select="'1'"/>
+			</xsl:element>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-gfc_valueType">
+		<xsl:element name="gfc:valueType">
+			<!--Add sub-elements and sections-->
 		</xsl:element>
 	</xsl:template>
 </xsl:stylesheet>

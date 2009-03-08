@@ -44,9 +44,11 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
     private static final Log log = LogFactory.getLog(GetCapabilitiesRequestHandler.class);
     // <editor-fold defaultstate="" desc="default GetCapabilitiesRequestHandler() constructor.">
+
     public GetCapabilitiesRequestHandler() {
     }
     // </editor-fold>
+
     /**
      * Processes the parameters and creates a DocumentBuilder from the given parameters.
      * This DocumentBuilder will be used to create a XML based String which can be returned to the client.
@@ -67,6 +69,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         ByteArrayOutputStream output = null;
         this.user = user;
         this.url = user.getPersonalURL();
+        if (url == null) {
+            throw new Exception("No personal url for user found.");
+        }
         ServiceProvider s = getServiceProvider();
 
         if (user != null && user.getOrganization() != null) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml">
+<xsl:stylesheet version="1.0" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gfc="http://www.isotc211.org/2005/gfc" xmlns:gmx="http://www.isotc211.org/2005/gmx" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gml="http://www.opengis.net/gml">
 	<!--
 						exclude-result-prefixes="gmd"
 	-->
@@ -22,20 +22,29 @@
 	</xsl:template>
 	<xsl:template match="metadata">
 		<xsl:copy>
-			<!--Copy everthing else under this node-->
-			<xsl:apply-templates select="@*|node()[
-                                 not(self::gmd:MD_Metadata) 
-            ]"/>
 			<xsl:choose>
 				<xsl:when test="not(gmd:MD_Metadata)">
-					<!--Child element missing, create it-->
 					<xsl:call-template name="add-MD_Metadata"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<!--Child element exists, copy it-->
 					<xsl:apply-templates select="gmd:MD_Metadata"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:FC_FeatureCatalogue)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_FC_FeatureCatalogue"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:FC_FeatureCatalogue"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:MD_Metadata) 
+                                 and not(self::gfc:FC_FeatureCatalogue) 
+            ]"/>
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="gmd:MD_Metadata">
@@ -71,6 +80,17 @@
 				<xsl:otherwise>
 					<!--Child element exists, copy it-->
 					<xsl:apply-templates select="gmd:characterSet"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!-- ISO 5 Metadata ID MD_Metadata.parentIdentifier -->
+			<xsl:choose>
+				<xsl:when test="not(gmd:fileIdentifier)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-parentIdentifier"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:parentIdentifier"/>
 				</xsl:otherwise>
 			</xsl:choose>
 			<!-- ISO 6 Metadata hiërarchieniveau MD_Metadata.hierarchyLevel Codelijst: MD_ScopeCode (B.5.25) -->
@@ -181,6 +201,7 @@
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:fileIdentifier)
+                                 and not(self::gmd:parentIdentifier)
                                  and not(self::gmd:language)
                                  and not(self::gmd:contact) 
                                  and not(self::gmd:characterSet) 
@@ -197,6 +218,24 @@
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="gmd:fileIdentifier">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString)
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:parentIdentifier">
 		<xsl:copy>
 			<xsl:choose>
 				<xsl:when test="not(gco:CharacterString)">
@@ -533,6 +572,16 @@
 				</xsl:otherwise>
 			</xsl:choose>
 			<xsl:choose>
+				<xsl:when test="not(gmd:purpose)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-purpose"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:purpose"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
 				<xsl:when test="not(gmd:status)">
 					<!--Child element missing, create it-->
 					<xsl:call-template name="add-status"/>
@@ -627,6 +676,7 @@
                                  not(self::gmd:citation) 
                                  and not(self::gmd:characterSet) 
                                  and not(self::gmd:abstract) 
+                                 and not(self::gmd:purpose) 
                                  and not(self::gmd:status) 
                                  and not(self::gmd:pointOfContact) 
                                  and not(self::gmd:language) 
@@ -869,6 +919,16 @@
 				</xsl:otherwise>
 			</xsl:choose>
 			<xsl:choose>
+				<xsl:when test="not(gmd:title)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-alternateTitle"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:alternateTitle"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
 				<xsl:when test="not(gmd:date)">
 					<!--Child element missing, create it-->
 					<xsl:call-template name="add-date"/>
@@ -878,14 +938,44 @@
 					<xsl:apply-templates select="gmd:date"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:identifier)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-identifier"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:identifier"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:title) 
+                                 and not(self::gmd:alternateTitle) 
                                  and not(self::gmd:date) 
+                                 and not(self::gmd:identifier)
             ]"/>
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="gmd:title">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:alternateTitle">
 		<xsl:copy>
 			<xsl:choose>
 				<xsl:when test="not(gco:CharacterString)">
@@ -1004,7 +1094,79 @@
             ]"/>
 		</xsl:copy>
 	</xsl:template>
+	<xsl:template match="gmd:CI_Citation/gmd:identifier">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:MD_Identifier)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-MD_Identifier"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:MD_Identifier"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:MD_Identifier) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:MD_Identifier">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:MD_Identifier)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-identifier_code"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:code"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:code) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:code">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
 	<xsl:template match="gmd:abstract">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:purpose">
 		<xsl:copy>
 			<xsl:choose>
 				<xsl:when test="not(gco:CharacterString)">
@@ -1060,6 +1222,7 @@
 	</xsl:template>
 	<xsl:template match="gmd:CI_ResponsibleParty">
 		<!-- ISO 376 Naam organisatie metadata MD_Metadata.contact>CI_ResponsibleParty.organisationName -->
+		<!-- v1.2 ISO 386 e-mail  MD_Metadata.contact>CI_ResponsibleParty.contactInfo>CI_Contact.address>CI_Address.electronicMailAddress -->
 		<!-- ISO 397 URL metadata organisatie MD_Metadata.contact>CI_ResponsibleParty.contactInfo>CI_Contact.onlineResource>CI_OnlineResource.linkage-->
 		<!-- ISO 379 Rol organisatie metadata MD_Metadata.contact>CI_ResponsibleParty.role Codelijst: CI_RoleCode (B.5.5) -->
 		<xsl:copy>
@@ -1167,10 +1330,21 @@
 					<xsl:apply-templates select="gmd:onlineResource"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:address)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-address"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:address"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:onlineResource) 
-            ]"/>
+                                  and not(self::gmd:address) 
+           ]"/>
 		</xsl:copy>
 	</xsl:template>
 	<xsl:template match="gmd:onlineResource">
@@ -1203,9 +1377,31 @@
 					<xsl:apply-templates select="gmd:linkage"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:protocol)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-protocol"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:protocol"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:name)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-name"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:name"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:linkage) 
+                                 and not(self::gmd:protocol) 
+                                 and not(self::gmd:name) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1224,6 +1420,241 @@
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:URL) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:protocol">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:SV_ServiceType)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-SV_ServiceType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:SV_ServiceType"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:SV_ServiceType) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:name">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:address">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:CI_Address)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CI_Address"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:CI_Address"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:CI_Address) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:CI_Address">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:deliveryPoint)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-deliveryPoint"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:deliveryPoint"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:city)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-city"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:city"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:administrativeArea)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-administrativeArea"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:administrativeArea"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:postalCode)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-postalCode"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:postalCode"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:country)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-country"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:country"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:electronicMailAddress)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-electronicMailAddress"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:electronicMailAddress"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:deliveryPoint) 
+                                 and not(self::gmd:city) 
+                                 and not(self::gmd:administrativeArea) 
+                                 and not(self::gmd:postalCode) 
+                                 and not(self::gmd:country) 
+                                 and not(self::gmd:electronicMailAddress) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:deliveryPoint">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:city">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:administrativeArea">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:postalCode">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:country">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:electronicMailAddress">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1275,9 +1706,38 @@
 					<xsl:apply-templates select="gmd:equivalentScale"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:distance)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-distance"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:distance"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:equivalentScale) 
+                                 and not(self::gmd:distance) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:distance">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:Distance)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-Distance"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:Distance"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:Distance) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1314,6 +1774,24 @@
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:denominator) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:denominator">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:Integer)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-Integer"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:Integer"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:Integer) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1365,9 +1843,20 @@
 					<xsl:apply-templates select="gmd:keyword"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:thesaurusName)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-thesaurusName"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:thesaurusName"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:keyword) 
+                                 and not(self::gmd:thesaurusName)
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1389,8 +1878,25 @@
             ]"/>
 		</xsl:copy>
 	</xsl:template>
+	<xsl:template match="gmd:thesaurusName">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:CI_Citation)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CI_Citation"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:CI_Citation"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:CI_Citation) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
 	<xsl:template match="gmd:resourceConstraints">
-		<!-- TODO klopt nog niet -->
 		<xsl:copy>
 			<xsl:choose>
 				<xsl:when test="not(gmd:MD_Constraints) and not(../gmd:resourceConstraints/gmd:MD_Constraints)">
@@ -1412,10 +1918,21 @@
 					<xsl:apply-templates select="gmd:MD_LegalConstraints"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:MD_SecurityConstraints) and not(../gmd:resourceConstraints/gmd:MD_SecurityConstraints)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-MD_SecurityConstraints"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:MD_SecurityConstraints"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                      not(self::gmd:MD_LegalConstraints) 
                                      and not(self::gmd:MD_Constraints) 
+                                     and not(self::gmd:MD_SecurityConstraints) 
                 ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1437,7 +1954,54 @@
             ]"/>
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template match="gmd:MD_LegalConstraints/gmd:accessConstraints">
+	<xsl:template match="gmd:useLimitation">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:MD_LegalConstraints">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:accessConstraints)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-accessConstraints"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:accessConstraints"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:otherConstraints)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-otherConstraints"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:otherConstraints"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:accessConstraints) 
+                                 and not(self::gmd:otherConstraints) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:accessConstraints">
 		<xsl:copy>
 			<xsl:choose>
 				<xsl:when test="not(gmd:MD_RestrictionCode)">
@@ -1452,6 +2016,60 @@
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:MD_RestrictionCode) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:otherConstraints">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:MD_SecurityConstraints">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:classification)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-classification"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:classification"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:classification) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:classification">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:MD_ClassificationCode)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-MD_ClassificationCode"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:MD_ClassificationCode"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:MD_ClassificationCode) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1488,9 +2106,20 @@
 					<xsl:apply-templates select="gmd:distributor"/>
 				</xsl:otherwise>
 			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:transferOptions)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-transferOptions"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:transferOptions"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			<!--Copy everthing else under this node-->
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:distributor) 
+                                 and not(self::gmd:transferOptions) 
             ]"/>
 		</xsl:copy>
 	</xsl:template>
@@ -1548,6 +2177,60 @@
             ]"/>
 		</xsl:copy>
 	</xsl:template>
+	<xsl:template match="gmd:transferOptions">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:MD_DigitalTransferOptions)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-MD_DigitalTransferOptions"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:MD_DigitalTransferOptions"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:MD_DigitalTransferOptions) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:MD_DigitalTransferOptions">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:online)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-online"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:online"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:online) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:online">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:CI_OnlineResource)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CI_OnlineResource"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:CI_OnlineResource"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:CI_OnlineResource) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
 	<xsl:template match="gmd:dataQualityInfo">
 		<!-- ISO 83 Algemene beschrijving herkomst MD_Metadata.dataQualityInfo>DQ_DataQuality.lineage>LI_Lineage.statement -->
 		<xsl:copy>
@@ -1577,6 +2260,16 @@
 				<xsl:otherwise>
 					<!--Child element exists, copy it-->
 					<xsl:apply-templates select="gmd:scope"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:report)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-report"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:report"/>
 				</xsl:otherwise>
 			</xsl:choose>
 			<xsl:choose>
@@ -1651,6 +2344,154 @@
             ]"/>
 		</xsl:copy>
 	</xsl:template>
+	<xsl:template match="gmd:report">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:DQ_DomainConsistency)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-DQ_DomainConsistency"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:DQ_DomainConsistency"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:DQ_DomainConsistency) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:DQ_DomainConsistency">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:result)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-result"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:result"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:result) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:result">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:DQ_ConformanceResult)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-DQ_ConformanceResult"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:DQ_ConformanceResult"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:DQ_ConformanceResult) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:DQ_ConformanceResult">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:pass)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-pass"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:pass"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:explanation)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-explanation"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:explanation"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmd:specification)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-specification"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:specification"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:pass) 
+                                 and not(self::gmd:explanation) 
+                                 and not(self::gmd:specification) 
+           ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:pass">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:explanation">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmd:specification">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:CI_Citation)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CI_Citation"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:CI_Citation"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:CI_Citation) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
 	<xsl:template match="gmd:lineage">
 		<xsl:copy>
 			<xsl:choose>
@@ -1685,6 +2526,404 @@
 			<xsl:apply-templates select="@*|node()[
                                  not(self::gmd:statement) 
             ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<!-- ISO 19110 Feature Catalogue elements -->
+	<xsl:template match="gfc:FC_FeatureCatalogue">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmx:name)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gmx_name"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmx:name"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmx:scope)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gmx_scope"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmx:scope"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmx:versionNumber)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gmx_versionNumber"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmx:versionNumber"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gmx:versionDate)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gmx_versionDate"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmx:versionDate"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:producer)">
+					<xsl:call-template name="add-gfc_producer"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="gfc:producer"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:featureType)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_featureType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:featureType"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmx:name) 
+                                 and not(self::gmx:scope) 
+                                 and not(self::gmx:versionNumber) 
+                                 and not(self::gmx:versionDate) 
+                                 and not(self::gfc:producer) 
+                                 and not(self::gfc:featureType) 
+           ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmx:name">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmx:scope">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmx:versionNumber">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gmx:versionDate">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:Date)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-Date"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:Date"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:Date) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<!-- TODO mix-up of namespaces -->
+	<xsl:template match="gfc:producer">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gmd:CI_ResponsibleParty)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CI_ResponsibleParty"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gmd:CI_ResponsibleParty"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gmd:CI_ResponsibleParty) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<!-- TODO mix-up of namespaces -->
+	<xsl:template match="gfc:featureType">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gfc:FC_FeatureType)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_FC_FeatureType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:FC_FeatureType"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gfc:FC_FeatureType) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:FC_FeatureType">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gfc:typeName)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_typeName"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:typeName"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:definition)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_definition"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:definition"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:isAbstract)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_isAbstract"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:isAbstract"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:carrierOfCharacteristics)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_carrierOfCharacteristics"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:carrierOfCharacteristics"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gfc:typeName) 
+                                 and not(self::gfc:definition) 
+                                 and not(self::gfc:isAbstract) 
+                                 and not(self::gfc:carrierOfCharacteristics) 
+          ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:typeName">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:LocalName)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-LocalName"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:LocalName"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:LocalName) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:definition">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:CharacterString)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:CharacterString) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:isAbstract">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:Boolean)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-Boolean"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:Boolean"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:Boolean) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:carrierOfCharacteristics">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gfc:FC_FeatureAttribute)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_FC_FeatureAttribute"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:FC_FeatureAttribute"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gfc:FC_FeatureAttribute) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:FC_FeatureAttribute">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gfc:memberName)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_memberName"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:memberName"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:definition)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_definition"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:definition"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:cardinality)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_cardinality"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:cardinality"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<xsl:choose>
+				<xsl:when test="not(gfc:valueType)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-gfc_valueType"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gfc:valueType"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gfc:memberName) 
+                                 and  not(self::gfc:definition) 
+                                 and   not(self::gfc:cardinality) 
+                                 and  not(self::gfc:valueType) 
+           ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:memberName">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:LocalName)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-LocalName"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:LocalName"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:LocalName) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:cardinality">
+		<xsl:copy>
+			<xsl:choose>
+				<xsl:when test="not(gco:Integer)">
+					<!--Child element missing, create it-->
+					<xsl:call-template name="add-Integer"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<!--Child element exists, copy it-->
+					<xsl:apply-templates select="gco:Integer"/>
+				</xsl:otherwise>
+			</xsl:choose>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()[
+                                 not(self::gco:Integer) 
+            ]"/>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="gfc:valueType">
+		<xsl:copy>
+			<!--Copy everthing else under this node-->
+			<xsl:apply-templates select="@*|node()"/>
 		</xsl:copy>
 	</xsl:template>
 </xsl:stylesheet>

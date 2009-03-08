@@ -1,3 +1,24 @@
+/*
+B3P Metadata Editor is a ISO 19139 compliant metadata editor, 
+that is preconfigured to use the Dutch profile for geography
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Metadata Editor.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+*/
 // 3/8/07 Erik van de Pol
 
 // Loosely based on "generic_dhtml.vbs" by Eric Compas (2/3/05).
@@ -120,8 +141,63 @@ function startEdit(event) {
     preEditText = trim(getElementInnerText(element));
     debug("preEditText: " + preEditText);
     
-    // has no picklist?
-    if (element.getAttribute("picklist") == "" || element.getAttribute("picklist") == null) {
+    // has picklist?
+    if (element.getAttribute("picklist") != null && element.getAttribute("picklist") != "") {
+        // get picklist
+        var picklist = getPicklist(element.getAttribute("picklist"));
+        if (picklist == null) {
+            alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
+        }
+        else {
+            picklist.setAttribute("class", "picklist");
+            
+            // check if value exists in picklist and remember selected index
+            var exists = false;
+            var pick;
+            for (var selectedIndex = 0; selectedIndex < picklist.options.length; selectedIndex++) {
+                pick = picklist.options[selectedIndex];
+                if (getElementInnerText(pick) == preEditText) {
+                    exists = true;
+                    break;
+                }
+            }
+            
+            debug("exists: " + exists);
+            if (exists) {
+                picklist.selectedIndex = selectedIndex;
+            }
+            else {
+                // create new option
+                var newOption = document.createElement('option');
+                debug("preEditText: " + preEditText);
+                
+                if (preEditText != GLOBAL_DEFAULT) {
+                    newOption.text = preEditText;
+                    newOption.value = preEditText;
+                }
+                else {
+                    newOption.text = DEFAULT_PICKLIST_TEXT;
+                    newOption.value = DEFAULT_PICKLIST_TEXT;
+                }
+                
+                // insert value at the top of the picklist
+                try {
+                    picklist.add(newOption, picklist.options[0]); // standards compliant; doesn't work in IE
+                    debug("standards compliant picklist add");
+                }
+                catch(e) {
+                    picklist.add(newOption, picklist.selectedIndex); // IE only
+                    debug("IE only picklist add");
+                }
+                picklist.selectedIndex = 0;
+            }
+            
+            // add picklist to code and display it
+            element.innerHTML = "";
+            element.appendChild(picklist);
+            picklist.focus();
+        }   
+    } else {
         // get size from current text
         var iCol, iRow;
         if (preEditText.length > MIN_TEXTINPUT_SIZE) {
@@ -181,6 +257,10 @@ function startEdit(event) {
         element.innerHTML = "";
         element.appendChild(inputElement);
         
+        if (element.getAttribute("field-type") != null && element.getAttribute("field-type") == "date") {
+        	// TODO datapicker toevoegen
+	}
+        
         inputElement.focus();
         
         // if default value, select it (makes it easier to replace);
@@ -188,63 +268,8 @@ function startEdit(event) {
             inputElement.select();
         }
     }
-    else {
-        // get picklist
-        var picklist = getPicklist(element.getAttribute("picklist"));
-        if (picklist == null) {
-            alert("Error locating picklist '" + element.getAttribute("picklist") + "' in stylesheet.");
-        }
-        else {
-            picklist.setAttribute("class", "picklist");
-            
-            // check if value exists in picklist and remember selected index
-            var exists = false;
-            var pick;
-            for (var selectedIndex = 0; selectedIndex < picklist.options.length; selectedIndex++) {
-                pick = picklist.options[selectedIndex];
-                if (getElementInnerText(pick) == preEditText) {
-                    exists = true;
-                    break;
-                }
-            }
-            
-            debug("exists: " + exists);
-            if (exists) {
-                picklist.selectedIndex = selectedIndex;
-            }
-            else {
-                // create new option
-                var newOption = document.createElement('option');
-                debug("preEditText: " + preEditText);
-                
-                if (preEditText != GLOBAL_DEFAULT) {
-                    newOption.text = preEditText;
-                    newOption.value = preEditText;
-                }
-                else {
-                    newOption.text = DEFAULT_PICKLIST_TEXT;
-                    newOption.value = DEFAULT_PICKLIST_TEXT;
-                }
-                
-                // insert value at the top of the picklist
-                try {
-                    picklist.add(newOption, picklist.options[0]); // standards compliant; doesn't work in IE
-                    debug("standards compliant picklist add");
-                }
-                catch(e) {
-                    picklist.add(newOption, picklist.selectedIndex); // IE only
-                    debug("IE only picklist add");
-                }
-                picklist.selectedIndex = 0;
-            }
-            
-            // add picklist to code and display it
-            element.innerHTML = "";
-            element.appendChild(picklist);
-            picklist.focus();
-        }
-    }
     
+
     stopPropagation(event);
 }
 
@@ -493,21 +518,34 @@ function addElementOrSection(path, above) {
     debug("add");
     debug("path: " + path);
     
-    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
-			path = trim(pathToRoot) + path;
-    }
     var targetPath = getTargetPath(path);
     
     var toBeDuplicatedNode = findNode(targetPath, true);
     
+    // debug("toBeDuplicatedNode.nodeName: " + toBeDuplicatedNode.nodeName);
+    
+    var nodeName = toBeDuplicatedNode.nodeName;
+    var fullNameSpace = null;
+    if (nodeName.indexOf("gmd:")==0) {
+    	fullNameSpace = "http://www.isotc211.org/2005/gmd"
+    } else if (nodeName.indexOf("gmx:")==0) {
+    	fullNameSpace = "http://www.isotc211.org/2005/gmx"
+    } else if (nodeName.indexOf("gfc:")==0) {
+    	fullNameSpace = "http://www.isotc211.org/2005/gfc"
+    } else if (nodeName.indexOf("gco:")==0) {
+    	fullNameSpace = "http://www.isotc211.org/2005/gco"
+    } else if (nodeName.indexOf("gml:")==0) {
+    	fullNameSpace = "http://www.opengis.net/gml"
+    }
+    
     var newNode;
     if ("createNode" in xmlDoc) { // IE
         //debug("IE (createNode exists)");
-        newNode = xmlDoc.createNode(Node.ELEMENT_NODE, toBeDuplicatedNode.nodeName, "http://www.isotc211.org/2005/gmd");
+        newNode = xmlDoc.createNode(Node.ELEMENT_NODE, nodeName, fullNameSpace);
     }
     else { // W3C (Firefox, Opera, etc.)
         //debug("W3C (createNode doesn't exist)");
-        newNode = xmlDoc.createElementNS("http://www.isotc211.org/2005/gmd", toBeDuplicatedNode.nodeName);
+        newNode = xmlDoc.createElementNS(fullNameSpace, nodeName);
     }
     
     if (above)
@@ -520,12 +558,13 @@ function addElementOrSection(path, above) {
     
     // preprocess again to get all the ancestors to appear in the xmlDoc backend
     var xmlDocString = preprocessor.transformToString(xmlDoc);
+    //debug("xmldoc na toevoeging nieuwe element als tekst: " + xmlDocString);
     
     // put in backend var again. Compatible with both IE and FF
     xmlDoc.loadXML(xmlDocString);
     
-    //debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
-    //debugXmlDoc(xmlDoc);
+    debug("xmldoc nadat preprocessor zijn werk heeft gedaan: ");
+    debugXmlDoc(xmlDoc);
     
     // create entirely new xhtml representation of xmlDoc and add it to the current page
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
@@ -587,9 +626,6 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
     debug("delete");
     debug("path: " + path);
     
-    if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
-			path = trim(pathToRoot) + path;
-    }
     var targetPath = getTargetPath(path);
     
     // find section in backend
@@ -632,18 +668,18 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
 
 // Returns the node that must be deleted from the full path. This path is an XPath-like path. See comment below.
 // Or the node where a sibling will be added above or below.
+// Assumption:
+// Leaf is never duplicated, all repeatable elements are embedded in a basicType element
+// therefore always the parent of the current node will be used.
+// if section-path is filled than use path until one level below repeatable section
 function getTargetPath(path) {
-    // path MUST have only one nodeName with a indexNr attached to it (e.g. /nodeNameA/nodeNameB[99]/nodeNameC)
-    // if not, the parent of the last node will be used for duplication
-    var targetPath;
-    //debug("strAddName.lastIndexOf(\"]\"): " + strAddName.lastIndexOf("]"));
-    //debug("strAddName.lastIndexOf(\"]\", strAddName.lastIndexOf(\"]\") - 1): " + strAddName.lastIndexOf("]", strAddName.lastIndexOf("]") - 1) );
-    if (path.lastIndexOf("]", path.lastIndexOf("]") - 1) < 0)
-        targetPath = path.substring(0, path.lastIndexOf("]") + 1);
-    else
-        targetPath = path.substring(0, path.lastIndexOf("/"));
-    
+
+	  if (pathToRoot != "undefined" && pathToRoot != null && trim(pathToRoot) != "") {
+	  	if (path.indexOf(pathToRoot)!=0) {
+				path = trim(pathToRoot) + path;
+			}
+    }
+    var targetPath = path.substring(0, path.lastIndexOf("/"));
     debug("targetPath: " + targetPath);
-    
     return targetPath;
 }
