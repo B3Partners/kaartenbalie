@@ -59,6 +59,16 @@ ul.menu li a:hover {
 	vertical-align: top;
 	color: #196299;
 }
+.key-mandatory {
+	font-weight: bold;
+	vertical-align: top;
+	color: #EE0000;
+}
+.key-conditional {
+	font-weight: bold;
+	vertical-align: top;
+	color: #00EE00;
+}
 
 /* these options make the input field appear at exactly the same spot as the text in Firefox (not in IE ofcourse) */
 input.input {

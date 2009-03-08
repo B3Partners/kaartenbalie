@@ -24,7 +24,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <div class="containerdiv" style="height: 500px;">
-    <h1>B3P Metadata Editor (metadatastandaard kernset voor geografie 1.1)</h1>
+    <h1>B3P Metadata Editor (metadatastandaard kernset voor geografie 1.2)</h1>
     
     <div class="mdContainerDiv">
         <div class="containerdivFloat">
@@ -34,7 +34,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 mailen.
             </p>
             <p>
-                Deze metadata editor is conform metadatastandaard kernset voor geografie 1.1 en
+                Deze metadata editor is conform metadatastandaard kernset voor geografie 1.2 en
                 implementeert het Nederlandse profiel op ISO19115:2003/ ISO19139
             </p>
             <p>
