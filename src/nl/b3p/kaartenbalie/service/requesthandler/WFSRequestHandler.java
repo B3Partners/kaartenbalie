@@ -63,11 +63,12 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
     }
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select 'true', l.wfsserviceproviderid, l.id, l.name, sp.url, sp.abbr " +
-                "from wfs_Layer l, Wfs_ServiceProvider sp, Wfs_OrganizationLayer ol " +
-                "where l.id = ol.wfslayerid and " +
-                "l.wfsserviceproviderid = sp.id and " +
-                "ol.organizationid = :orgId and " +
+        String query = "select new " +
+                "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') " +
+                "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol " +
+                "where l = ol and" +
+                "l.wfsServiceProvider = sp and " +
+                "o.id = :orgId and " +
                 "l.name = :layerName and " +
                 "sp.abbr = :layerCode";
 

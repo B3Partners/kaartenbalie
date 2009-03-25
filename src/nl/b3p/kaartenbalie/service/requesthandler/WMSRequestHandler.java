@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -442,13 +441,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     }
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {       
-        String query = "select l.queryable, l.service_provider, l.id, l.\"name\", sp.url, sp.abbr " +
-                "from layer l " +
-                "join organization_layers ol on (ol.layer = l.id) " +
-                "join service_provider sp on (sp.id = l.service_provider) " +
-                "where ol.organization = :orgId and " +
-                "l.\"name\" = :layerName and " +
+        String query = "select new " +
+                "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable) " +
+                "from Layer l, Organization o, ServiceProvider sp join o.layers ol " +
+                "where l = ol and " +
+                "l.serviceProvider = sp and " +
+                "o.id = :orgId and " +
+                "l.name = :layerName and " +
                 "sp.abbr = :layerCode";
+
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
 

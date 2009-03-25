@@ -117,29 +117,20 @@ public abstract class OGCRequestHandler implements RequestHandler {
             return null;
         }
 
-        List sqlQuery = em.createNativeQuery(query).
+        List result = em.createQuery(query).
                 setParameter("orgId", orgId).
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();
-        if (sqlQuery == null || sqlQuery.isEmpty()) {
+        if (result == null || result.isEmpty()) {
             log.error("layer not valid or no rights, name: " + layer);
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-        } else if (sqlQuery.size() > 1) {
+        } else if (result.size() > 1) {
             log.error("layers with duplicate names, name: " + layer);
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
 
-        Object[] objecten = (Object[]) sqlQuery.get(0);
-        SpLayerSummary layerInfo = new SpLayerSummary(
-                (Integer) objecten[1],
-                (Integer) objecten[2],
-                (String) objecten[3],
-                (String) objecten[4],
-                (String) objecten[5],
-                (String) objecten[0]);
-
-        return layerInfo;
+        return (SpLayerSummary) result.get(0);
     }
 
     /**

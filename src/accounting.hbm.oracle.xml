@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!--
+B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
+for authentication/authorization, pricing and usage reporting.
+
+Copyright 2006, 2007, 2008 B3Partners BV
+
+This file is part of B3P Kaartenbalie.
+
+B3P Kaartenbalie is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+B3P Kaartenbalie is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<hibernate-mapping>
+  <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.Account">
+    <comment>Accounting module: balans en transacties van een organisatie</comment>
+    <id name="id">
+      <generator class="foreign">
+        <param name="property">organization</param>
+      </generator>
+    </id>
+    <one-to-one class="nl.b3p.kaartenbalie.core.server.Organization" constrained="true" name="organization"/>
+    <property name="creditBalance" precision="15" scale="2"/>
+    <set name="transactions">
+      <key column="account"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction"/>
+    </set>
+  </class>
+  <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition">
+    <comment>Accounting module: geeft opbouw van de prijs van een enkele layer uit een transactie weer</comment>
+    <id name="id">
+      <column name="id"/>
+      <generator class="sequence">
+        <param name="sequence">layer_price_composition_id_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="transaction"/>
+    <property name="serverProviderPrefix"/>
+    <property name="layerName"/>
+    <property name="calculationDate"/>
+    <property name="planType"/>
+    <property name="service"/>
+    <property name="operation"/>
+    <property name="units" precision="5" scale="2"/>
+    <property name="scale" precision="20" scale="2"/>
+    <property name="projection"/>
+    <property name="layerIsFree"/>
+    <property name="method"/>
+    <property name="calculationTime"/>
+    <property name="layerPrice" precision="12" scale="2"/>
+  </class>
+  <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing">
+    <comment>Accounting module: ingestelde prijs van een layer</comment>
+    <id name="id">
+      <column name="id"/>
+      <generator class="sequence">
+        <param name="sequence">layer_pricing_id_seq</param>
+      </generator>
+    </id>
+    <!-- Loosely relational -->
+    <property name="layerName"/>
+    <property name="serverProviderPrefix"/>
+    <property name="planType"/>
+    <property name="validFrom"/>
+    <property name="validUntil"/>
+    <property name="creationDate"/>
+    <property name="deletionDate"/>
+    <property name="layerIsFree"/>
+    <property name="unitPrice" precision="9" scale="2"/>
+    <property name="service"/>
+    <property name="operation"/>
+    <property name="minScale" precision="20" scale="10"/>
+    <property name="maxScale" precision="20" scale="10"/>
+    <property name="projection"/>
+  </class>
+  <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction">
+    <comment>Accounting module</comment>
+    <id name="id">
+      <column name="id"/>
+      <generator class="sequence">
+        <param name="sequence">transaction_id_seq</param>
+      </generator>
+    </id>
+    <property name="creditAlteration" precision="12" scale="2"/>
+    <property name="transactionDate"/>
+    <property name="mutationDate"/>
+    <property name="status"/>
+    <property name="type"/>
+    <property name="errorMessage"/>
+    <property name="userId"/>
+    <property length="32" name="description"/>
+    <many-to-one name="account"/>
+    <set name="layerPriceCompositions">
+      <key column="transaction"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition"/>
+    </set>
+    <property name="billingAmount" precision="10" scale="2"/>
+    <property name="txExchangeRate"/>
+  </class>
+</hibernate-mapping>
