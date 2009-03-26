@@ -65,7 +65,7 @@ public class SpLayerSummary {
                 queryable);
     }
 
-    SpLayerSummary(WfsLayer l, String queryable) {
+    public SpLayerSummary(WfsLayer l, String queryable) {
         this(l.getWfsServiceProvider().getId(),
                 l.getId(),
                 l.getName(),
