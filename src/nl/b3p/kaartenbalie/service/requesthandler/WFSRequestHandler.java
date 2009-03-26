@@ -66,7 +66,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         String query = "select new " +
                 "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') " +
                 "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol " +
-                "where l = ol and" +
+                "where l = ol and " +
                 "l.wfsServiceProvider = sp and " +
                 "o.id = :orgId and " +
                 "l.name = :layerName and " +
