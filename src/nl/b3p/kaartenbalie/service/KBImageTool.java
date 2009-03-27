@@ -21,18 +21,18 @@
  */
 package nl.b3p.kaartenbalie.service;
 
+import com.sun.imageio.plugins.png.PNGMetadata;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
@@ -87,10 +87,25 @@ public class KBImageTool {
         wmsRequest.setBytesReceived(new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);
-
-
-        return ir.read(0);
-
+        //if image is a png, has no alpha and has a tRNS then make that color transparent.
+        BufferedImage i= ir.read(0);
+        if(!i.getColorModel().hasAlpha() && ir.getImageMetadata(0) instanceof PNGMetadata){
+            PNGMetadata metadata = (PNGMetadata) ir.getImageMetadata(0);
+            if (metadata.tRNS_present) {
+                int alphaPix = (metadata.tRNS_red<<16)|(metadata.tRNS_green<<8)|(metadata.tRNS_blue);                
+                BufferedImage tmp = new BufferedImage(i.getWidth(),i.getHeight(),
+                        BufferedImage.TYPE_INT_ARGB);
+                for(int x = 0; x < i.getWidth(); x++) {
+                    for(int y = 0; y < i.getHeight(); y++) {
+                        int rgb = i.getRGB(x, y);
+                        rgb = (rgb&0xFFFFFF)==alphaPix?alphaPix:rgb;
+                        tmp.setRGB(x, y, rgb);
+                    }
+                }
+                i = tmp;
+            }
+        }
+        return i;
     }
     // </editor-fold>
 
