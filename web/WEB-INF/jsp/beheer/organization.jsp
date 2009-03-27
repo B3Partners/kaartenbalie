@@ -247,7 +247,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         function createLabel(container, item) {
             var div = document.createElement("div");
             var vink= document.createElement("input");
-            
+            var label= document.createElement("label");
+
             div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
             if(div.className == 'serviceproviderLabel') {
                 currentParent = container.id;
@@ -267,7 +268,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 itemClick(item);
             };
             div.appendChild(document.createTextNode(item.name));
-            container.appendChild(div);
+            label.title=item.id;
+            label.appendChild(div);
+            container.appendChild(label);
             if (item.children){
                 var d=document.createElement("a");
                 d.href="#";

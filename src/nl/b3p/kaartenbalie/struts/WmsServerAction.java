@@ -305,7 +305,8 @@ public class WmsServerAction extends ServerAction {
                     strMessage.append("]");
                 }
             }
-            addAlternateMessage(mapping, request, null, strMessage.toString());
+            if (strMessage.length()>0)
+                addAlternateMessage(mapping, request, null, strMessage.toString());
             //Check if current pricing is bound to this provider
             List lpList = null;
             LayerCalculator lc = new LayerCalculator();
@@ -333,7 +334,8 @@ public class WmsServerAction extends ServerAction {
                         strMessage.append(ln);
                     }
                 }
-                addAlternateMessage(mapping, request, null, strMessage.toString());
+                if (strMessage.length()>0)
+                    addAlternateMessage(mapping, request, null, strMessage.toString());
             }
         }
         addDefaultMessage(mapping, request);
