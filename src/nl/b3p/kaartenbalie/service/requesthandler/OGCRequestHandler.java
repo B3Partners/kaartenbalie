@@ -124,10 +124,10 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 getResultList();
         if (result == null || result.isEmpty()) {
             log.error("layer not valid or no rights, name: " + layer);
-            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION+": "+layer);
         } else if (result.size() > 1) {
             log.error("layers with duplicate names, name: " + layer);
-            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION+": "+layer);
         }
 
         return (SpLayerSummary) result.get(0);
@@ -349,13 +349,13 @@ public abstract class OGCRequestHandler implements RequestHandler {
         int pos = completeLayerName.indexOf("_");
         if (pos == -1 || completeLayerName.length() <= pos + 1) {
             log.error("layer not valid: " + completeLayerName);
-            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
         }
         String layerCode = completeLayerName.substring(0, pos);
         String layerName = completeLayerName.substring(pos + 1);
         if (layerCode.length() == 0 || layerName.length() == 0) {
             log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
         }
         return new String[]{layerCode, layerName};
     }

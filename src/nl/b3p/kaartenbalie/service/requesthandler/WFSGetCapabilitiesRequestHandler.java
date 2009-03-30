@@ -177,7 +177,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 if(log.isDebugEnabled()) {
                     log.error("invalid layer name: " + layer);
                 }
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+                throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+": "+layer);
             }
 
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr")
@@ -188,7 +188,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             if(matchingLayers.isEmpty()) {
                 /* XXX "or no rights" ?? No rights are checked... */
                 log.error("layer not found: " + layer);
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
+                throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION+": "+layer);
             }
 
             if(matchingLayers.size() > 1) {
