@@ -50,6 +50,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
@@ -126,7 +127,10 @@ public class CallWMSServlet extends HttpServlet {
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
                 User user = checkLogin(request);
-                ogcrequest.checkRequestURL();
+                //if the request is not a proxy request
+                if (FormUtils.nullIfEmpty(request.getParameter(KBConfiguration.KB_PROXY_URL))==null){
+                    ogcrequest.checkRequestURL();
+                }
 
                 rr.setUserAndOrganization(user, user.getOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
