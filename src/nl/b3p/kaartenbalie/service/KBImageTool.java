@@ -81,8 +81,11 @@ public class KBImageTool {
         InputStream is = method.getResponseBodyAsStream();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         int bytesRead = 0;
-        while ((bytesRead = is.read()) != -1) {
-            baos.write(bytesRead);
+        byte[] buffer= new byte[2048];
+        while (bytesRead!=-1){
+            bytesRead = is.read(buffer, 0, buffer.length);
+            if (bytesRead>0)
+                baos.write(buffer, 0, bytesRead);
         }
         wmsRequest.setBytesReceived(new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
