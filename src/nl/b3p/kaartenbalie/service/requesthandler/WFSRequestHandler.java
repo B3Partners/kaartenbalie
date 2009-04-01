@@ -31,7 +31,10 @@ import javax.persistence.Query;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 /**
@@ -105,4 +108,82 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         return (String[])layers.toArray(new String[] {});
     }
+    
+    /**
+     * Get version from ogcrequest otherwise return 1.1.0.
+     * 
+     * @param ogcrequest
+     * @return
+     */
+	protected String getVersion(OGCRequest ogcrequest) {
+		String finalVersion = ogcrequest.getFinalVersion();
+        String version = "";
+        if (OGCConstants.WFS_VERSION_100.equals(finalVersion) || OGCConstants.WFS_VERSION_110.equals(finalVersion)) {
+            version = ogcrequest.getFinalVersion();
+        } else {
+            version = null;
+        }
+
+		return version;
+	}
+	
+	/**
+	 * Create a URI from the ogcrequest with provided URL, by adding
+	 * the request parameters.
+	 * 
+	 * @param ogcrequest
+	 * @param lurl
+	 * @param version
+	 * @return
+	 */
+	protected String createUriString(OGCRequest ogcrequest, String lurl,
+			String version) {
+		StringBuffer url = new StringBuffer(lurl);
+		if (!lurl.endsWith("?")) {
+			url.append("?");
+		}
+		String[] params = ogcrequest.getParametersArray();
+		for (int i = 0; i < params.length; i++) {
+			String key = params[i].split("=")[0];
+			if (key.equalsIgnoreCase(OGCRequest.VERSION)) {
+				if (version != null) {// if version not given exclude from params
+					url.append(OGCRequest.VERSION);
+					url.append("=");
+					url.append(version);
+				}
+			} else {
+		    	url.append(params[i]);
+			}
+			url.append("&");
+		}
+		return url.toString();
+	}
+
+	/**
+	 * Create a ServiceProviderRequest for WFS requests.
+	 * 
+	 * @param data
+	 * @param url
+	 * @param spId
+	 * @param bytesSent
+	 * @return
+	 */
+	protected ServiceProviderRequest createServiceProviderRequest(
+			DataWrapper data, String url, 
+			Integer spId, Long bytesSent) {
+		
+		DataMonitoring rr = data.getRequestReporting();
+		OGCRequest ogcrequest = data.getOgcrequest();
+		
+		ServiceProviderRequest wfsRequest = new ServiceProviderRequest();
+		wfsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
+		wfsRequest.setServiceProviderId(spId);
+		String version = this.getVersion(ogcrequest);
+		String uri = createUriString(ogcrequest, url, version);
+		wfsRequest.setProviderRequestURI(uri);
+		wfsRequest.setWmsVersion(version);
+		wfsRequest.setBytesSent(bytesSent);
+		
+		return wfsRequest;
+	}
 }

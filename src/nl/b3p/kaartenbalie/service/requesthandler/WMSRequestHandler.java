@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -76,6 +77,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.io.input.CountingInputStream;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler extends OGCRequestHandler {
@@ -307,6 +309,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 for (int i = 0; i < urlWrapper.size(); i++) {
                     ServiceProviderRequest wmsRequest = (ServiceProviderRequest) urlWrapper.get(i);
                     String url = wmsRequest.getProviderRequestURI();
+                    // code below could be used to get bytes received
+                    //InputStream is = new URL(url).openStream();
+                    //CountingInputStream cis = new CountingInputStream(is);
+                    //source = builder.parse(cis);
                     source = builder.parse(url);
                     copyElements(source, destination);
 
@@ -314,6 +320,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     wmsRequest.setProviderRequestURI(url);
                     wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
                     wmsRequest.setBytesReceived(new Long(-1));
+                    //wmsRequest.setBytesReceived(new Long(cis.getByteCount()));
                     wmsRequest.setResponseStatus(new Integer(-1));
                     rr.addServiceProviderRequest(wmsRequest);
                 }

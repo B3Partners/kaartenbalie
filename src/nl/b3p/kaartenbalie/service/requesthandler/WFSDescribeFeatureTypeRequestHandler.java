@@ -28,6 +28,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -90,8 +92,9 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         }
 
         Iterator iter = spInfo.iterator();
+        SpLayerSummary sp = null;
         while (iter.hasNext()) {
-            SpLayerSummary sp = (SpLayerSummary) iter.next();
+            sp = (SpLayerSummary) iter.next();
             url = sp.getSpUrl();
             prefix = sp.getSpAbbr();
             ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
@@ -106,25 +109,50 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
 
+        DataMonitoring rr = data.getRequestReporting();
+        long startprocestime = System.currentTimeMillis();
+        
+        ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
+				data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
+        
         String host = url;
         method = new PostMethod(host);
         method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
         int status = client.executeMethod(method);
-        if (status == HttpStatus.SC_OK) {
-            data.setContentType("text/xml");
-            InputStream is = method.getResponseBodyAsStream();
-
-            /*
-             * Nothing has to be done with DescribeFeatureType so it will be sent to the client at once.
-             */
-            int len = 1;
-            byte[] buffer = new byte[2024];
-            while ((len = is.read(buffer, 0, len)) > 0) {
-                os.write(buffer, 0, len);
-            }
-        } else {
-            log.error("Failed to connect with " + url + " Using body: " + body);
-            throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+        try {
+	        if (status == HttpStatus.SC_OK) {
+	            wfsRequest.setResponseStatus(new Integer(200));
+	            wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+	            
+	            data.setContentType("text/xml");
+	            InputStream is = method.getResponseBodyAsStream();
+	
+	            /*
+	             * Nothing has to be done with DescribeFeatureType so it will be sent to the client at once.
+	             */
+	            int len = 1;
+	            int byteCount = 0;
+	            byte[] buffer = new byte[2024];
+	            while ((len = is.read(buffer, 0, buffer.length)) > 0) {
+	                os.write(buffer, 0, len);
+	                byteCount += len;
+	            }
+	            wfsRequest.setBytesReceived(new Long(byteCount));
+	        } else {
+	        	wfsRequest.setResponseStatus(status);
+	            wfsRequest.setExceptionMessage("Failed to connect with " + url + " Using body: " + body);
+	            wfsRequest.setExceptionClass(UnsupportedOperationException.class);
+	            
+	            log.error("Failed to connect with " + url + " Using body: " + body);
+	            throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+	        }
+        } catch (Exception e) {
+            wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
+            wfsRequest.setExceptionClass(e.getClass());
+        	
+        	throw e;
+        } finally {
+            rr.addServiceProviderRequest(wfsRequest);
         }
     }
 }

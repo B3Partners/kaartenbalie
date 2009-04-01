@@ -118,10 +118,17 @@ public class CallWMSServlet extends HttpServlet {
 
             DataMonitoring rr = new DataMonitoring();
             data.setRequestReporting(rr);
+            
+            String serviceName = OGCConstants.WMS_SERVICE_WMS;
 
             try {
                 OGCRequest ogcrequest = calcOGCRequest(request);
                 data.setOgcrequest(ogcrequest);
+                
+                String serviceParam = ogcrequest.getParameter(OGCConstants.SERVICE);
+                if (serviceParam != null || !"".equals(serviceParam)) {
+                	serviceName = serviceParam;
+                }
 
                 String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
@@ -142,7 +149,7 @@ public class CallWMSServlet extends HttpServlet {
                 rr.setClientRequestException(ex);
                 handleRequestException(ex, data);
             } finally {
-                rr.endClientRequest("WMS", data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
+                rr.endClientRequest(serviceName, data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
             }
             tx.commit();
         } catch (Exception ex) {

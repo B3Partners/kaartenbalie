@@ -33,6 +33,8 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -40,6 +42,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.input.CountingInputStream;
 import org.w3c.dom.Document;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,6 +122,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
+
+        DataMonitoring rr = data.getRequestReporting();
+        long startprocestime = System.currentTimeMillis();
+        
         PostMethod method = null;
         HttpClient client = new HttpClient();
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
@@ -137,22 +144,45 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 
             String body = data.getOgcrequest().getXMLBody();
 
+            ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
+					data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
+            
             String host = url;
             method = new PostMethod(host);
             method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
             int status = client.executeMethod(method);
-            if (status == HttpStatus.SC_OK) {
-                data.setContentType("text/xml");
-                InputStream is = method.getResponseBodyAsStream();
-
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(is);
-
-                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-            } else {
-                log.error("Failed to connect with " + url + " Using body: " + body);
-                throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+            try {
+	            if (status == HttpStatus.SC_OK) {
+	                wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
+	                wfsRequest.setResponseStatus(new Integer(200));
+	                wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+	                
+	                data.setContentType("text/xml");
+	                InputStream is = method.getResponseBodyAsStream();
+                    CountingInputStream cis = new CountingInputStream(is);
+	
+	                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	                DocumentBuilder builder = dbf.newDocumentBuilder();
+	                Document doc = builder.parse(cis);
+	
+                    wfsRequest.setBytesReceived(new Long(cis.getByteCount()));
+                	
+	                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+	            } else {
+	            	wfsRequest.setResponseStatus(status);
+	                wfsRequest.setExceptionMessage("Failed to connect with " + url + " Using body: " + body);
+	                wfsRequest.setExceptionClass(UnsupportedOperationException.class);
+	                
+	                log.error("Failed to connect with " + url + " Using body: " + body);
+	                throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+	            }
+            } catch (Exception e) {
+                wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
+                wfsRequest.setExceptionClass(e.getClass());
+            	
+            	throw e;
+            } finally {
+                rr.addServiceProviderRequest(wfsRequest);
             }
         }
         doAccounting(orgId, data, user);
@@ -164,4 +194,5 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
     }
+
 }

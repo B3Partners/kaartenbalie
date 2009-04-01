@@ -43,6 +43,7 @@ import nl.b3p.kaartenbalie.reporting.castor.ResponseTime;
 import nl.b3p.kaartenbalie.reporting.castor.ServiceProvider;
 import nl.b3p.kaartenbalie.reporting.castor.ServiceProviders;
 import nl.b3p.kaartenbalie.reporting.castor.TypeSummary;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -418,11 +419,25 @@ public class ReportThread extends Thread {
         return serviceProviders;
     }
 
+    /**
+     * The returned SpName can be a ServiceProvider or a WfsServiceProvider. So
+     * if the ServiceProvider is not found the WfsServiceProvider is retrieved.
+     * If that one is not provided, onbekend will be returned.
+     * 
+     * @param id
+     * @return
+     */
     private String getSpName(Integer id) {
         nl.b3p.wms.capabilities.ServiceProvider sp =
                 (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
         String spName = "onbekend";
-        if (sp != null) {
+        if (sp == null) {// try wfs
+        	WfsServiceProvider wfsSp =
+                (WfsServiceProvider) em.find(WfsServiceProvider.class, id);
+            if (wfsSp != null) {// onbekend
+            	spName = wfsSp.getAbbr();
+            }
+        } else {//wms
             spName = sp.getAbbr();
         }
         return spName;

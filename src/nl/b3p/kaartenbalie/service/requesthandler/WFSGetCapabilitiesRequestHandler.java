@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +35,8 @@ import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -45,6 +48,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.input.CountingInputStream;
 import org.w3c.dom.Document;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,12 +77,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
 
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-        String version = "";
-        if (OGCConstants.WFS_VERSION_100.equals(ogcrequest.getFinalVersion()) || OGCConstants.WFS_VERSION_110.equals(ogcrequest.getFinalVersion())) {
-            version = ogcrequest.getFinalVersion();
-        } else {
-            version = null;
-        }
+        String version = this.getVersion(ogcrequest);
 
         Set userRoles = user.getRoles();
         boolean isAdmin = false;
@@ -121,6 +120,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
 
+        DataMonitoring rr = data.getRequestReporting();
+        long startprocestime = System.currentTimeMillis();
+        
         Iterator it = spInfo.iterator();
         List servers = new ArrayList();
         while (it.hasNext()) {
@@ -130,23 +132,46 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 servers.add(sp.getSpAbbr());
                 lurl = sp.getSpUrl();
                 prefix = sp.getSpAbbr();
+                
+                ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
+    					data, lurl, sp.getServiceproviderId(), new Long(body.getBytes().length));
 
                 String host = lurl;
                 method = new PostMethod(host);
                 method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
                 int status = client.executeMethod(method);
-                if (status == HttpStatus.SC_OK) {
-                    data.setContentType("text/xml");
-                    InputStream is = method.getResponseBodyAsStream();
-
-                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder builder = dbf.newDocumentBuilder();
-                    Document doc = builder.parse(is);
-
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-                } else {
-                    log.error("Failed to connect with " + lurl + " Using body: " + body);
-                    throw new UnsupportedOperationException("Failed to connect with " + lurl + " Using body: " + body);
+                try {
+	                if (status == HttpStatus.SC_OK) {
+	                    wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
+	                    wfsRequest.setResponseStatus(new Integer(200));
+	                    wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+	                    
+	                    data.setContentType("text/xml");
+	                    InputStream is = method.getResponseBodyAsStream();
+	                    CountingInputStream cis = new CountingInputStream(is);
+	
+	                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	                    DocumentBuilder builder = dbf.newDocumentBuilder();
+	                    Document doc = builder.parse(cis);
+	                    
+	                    wfsRequest.setBytesReceived(new Long(cis.getByteCount()));
+	
+	                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+	                } else {
+	                	wfsRequest.setResponseStatus(status);
+	                    wfsRequest.setExceptionMessage("Failed to connect with " + lurl + " Using body: " + body);
+	                    wfsRequest.setExceptionClass(UnsupportedOperationException.class);
+	                    
+	                    log.error("Failed to connect with " + lurl + " Using body: " + body);
+	                    throw new UnsupportedOperationException("Failed to connect with " + lurl + " Using body: " + body);
+	                }
+                } catch (Exception e) {
+                    wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
+                    wfsRequest.setExceptionClass(e.getClass());
+                	
+                	throw e;
+                } finally {
+                    rr.addServiceProviderRequest(wfsRequest);
                 }
             }
         }
