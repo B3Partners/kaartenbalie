@@ -74,16 +74,16 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         String version = "";
-        if (ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_100) || ogcrequest.getFinalVersion().equals(OGCConstants.WFS_VERSION_110)) {
+        if (OGCConstants.WFS_VERSION_100.equals(ogcrequest.getFinalVersion()) || OGCConstants.WFS_VERSION_110.equals(ogcrequest.getFinalVersion())) {
             version = ogcrequest.getFinalVersion();
         } else {
-            version = OGCConstants.WFS_VERSION_110;
+            version = null;
         }
 
         Set userRoles = user.getRoles();
         boolean isAdmin = false;
         Iterator rolIt = userRoles.iterator();
-        while (rolIt.hasNext()) {
+        while (rolIt.hasNext() && !isAdmin) {
             Roles role = (Roles) rolIt.next();
             if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
                 /* de gebruiker is een beheerder */

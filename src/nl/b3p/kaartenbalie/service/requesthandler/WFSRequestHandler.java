@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.OGCConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 /**
  *
  * @author Jytte
@@ -82,21 +82,26 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                            "from Organization o " +
                            "join o.wfsLayers l " +
                            "join l.wfsServiceProvider sp " +
-                           "where o.id = :orgId " +
-                           "and sp.wfsVersion = :version";
+                           "where o.id = :orgId";
+            if (version!=null)
+                query+=" and sp.wfsVersion = :version";
 
-            layers = em.createQuery(query)
-                    .setParameter("orgId", orgId)
-                    .setParameter("version", version)
-                    .getResultList();
+            Query q = em.createQuery(query);
+            q.setParameter("orgId", orgId);
+            if (version!=null)
+                q.setParameter("version", version);
+            layers = q.getResultList();
         } else {
             String query = "select sp.abbr || '_' || l.name " +
                            "from WfsLayer l " +
-                           "join l.wfsServiceProvider sp " +
-                           "where sp.wfsVersion = :version";
-            layers = em.createQuery(query)
-                    .setParameter("version", version)
-                    .getResultList();
+                           "join l.wfsServiceProvider sp";
+            if (version!=null)
+                query+=" where sp.wfsVersion = :version";
+
+             Query q= em.createQuery(query);
+             if (version!=null)
+                q.setParameter("version", version);
+             layers=q.getResultList();
         }
         return (String[])layers.toArray(new String[] {});
     }
