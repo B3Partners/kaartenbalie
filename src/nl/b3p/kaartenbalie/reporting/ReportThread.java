@@ -40,6 +40,7 @@ import nl.b3p.kaartenbalie.reporting.castor.RequestLoad;
 import nl.b3p.kaartenbalie.reporting.castor.RequestSummary;
 import nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency;
 import nl.b3p.kaartenbalie.reporting.castor.ResponseTime;
+import nl.b3p.kaartenbalie.reporting.castor.Service;
 import nl.b3p.kaartenbalie.reporting.castor.ServiceProvider;
 import nl.b3p.kaartenbalie.reporting.castor.ServiceProviders;
 import nl.b3p.kaartenbalie.reporting.castor.TypeSummary;
@@ -54,6 +55,8 @@ import org.apache.commons.logging.LogFactory;
 public class ReportThread extends Thread {
 
     private static final Log log = LogFactory.getLog(ReportThread.class);
+    private static final String[] SERVICES = {"WMS","WFS"};
+    
     protected Organization organization;
     /* entity manager alleen voor deze class onafhankelijk van thread */
     protected EntityManager em = null;
@@ -173,27 +176,34 @@ public class ReportThread extends Thread {
     protected MonitorReport createMonitorReport() {
         MonitorReport mr = new MonitorReport();
 
-        RequestLoad requestLoad = createRequestLoad();
-        if (requestLoad != null) {
-            mr.setRequestLoad(requestLoad);
-        }
-        RequestSummary requestSummary = createRequestSummary();
-        if (requestSummary != null) {
-            mr.setRequestSummary(requestSummary);
-        }
-        ResponseFrequency responseFrequency = createResponseFrequency();
-        if (responseFrequency != null) {
-            mr.setResponseFrequency(responseFrequency);
-        }
-        ServiceProviders serviceProviders = createServiceProviders();
-        if (serviceProviders != null) {
-            mr.setServiceProviders(serviceProviders);
-        }
-
+        for (int i = 0; i < SERVICES.length; i++) {
+        	Service service = new Service();
+        	service.setName(SERVICES[i]);
+        	
+            RequestLoad requestLoad = createRequestLoad(service.getName());
+            if (requestLoad != null) {
+                service.setRequestLoad(requestLoad);
+            }
+            RequestSummary requestSummary = createRequestSummary(service.getName());
+            if (requestSummary != null) {
+            	service.setRequestSummary(requestSummary);
+            }
+            ResponseFrequency responseFrequency = createResponseFrequency(service.getName());
+            if (responseFrequency != null) {
+            	service.setResponseFrequency(responseFrequency);
+            }
+            ServiceProviders serviceProviders = createServiceProviders(service.getName());
+            if (serviceProviders != null) {
+            	service.setServiceProviders(serviceProviders);
+            }
+            
+            mr.addService(service);
+		}
+        
         return mr;
     }
 
-    protected RequestLoad createRequestLoad() {
+    protected RequestLoad createRequestLoad(String service) {
         RequestLoad requestLoad = null;
 
         List resultList = null;
@@ -208,11 +218,13 @@ public class ReportThread extends Thread {
                     "max(ro.duration) " +
                     "FROM ClientRequest AS cr " +
                     "LEFT JOIN cr.requestOperations AS ro " +
-                    "WHERE cr.organizationId = :organizationId " +
+                    "WHERE cr.service = :service " +
+                    "AND cr.organizationId = :organizationId " +
                     "AND cr.timestamp BETWEEN :startDate AND :endDate " +
                     "AND ro.type = :type " +
                     "GROUP BY to_char(cr.timestamp, 'DD-MM-YYYY'), to_char(cr.timestamp, 'HH24') " +
                     "ORDER BY to_char(cr.timestamp, 'DD-MM-YYYY'), to_char(cr.timestamp, 'HH24') ASC").
+                    setParameter("service", service).
                     setParameter("type", new Integer(Operation.REQUEST)).
                     setParameter("startDate", startDate).
                     setParameter("endDate", endDate).
@@ -255,7 +267,7 @@ public class ReportThread extends Thread {
         return requestLoad;
     }
 
-    protected RequestSummary createRequestSummary() {
+    protected RequestSummary createRequestSummary(String service) {
         RequestSummary requestSummary = null;
 
         for (int operation = 2; operation <= 5; operation++) {
@@ -270,10 +282,12 @@ public class ReportThread extends Thread {
                         "avg(ro.duration), " +
                         "max(ro.duration) " +
                         "FROM Operation AS ro " +
-                        "WHERE ro.clientRequest.organizationId = :organizationId " +
+                        "WHERE ro.clientRequest.service = :service " +
+                        "AND ro.clientRequest.organizationId = :organizationId " +
                         "AND ro.type = :type " +
                         "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                         "GROUP BY ro.type ").
+                        setParameter("service", service).
                         setParameter("type", new Integer(operation)).
                         setParameter("startDate", startDate).
                         setParameter("endDate", endDate).
@@ -307,7 +321,7 @@ public class ReportThread extends Thread {
         return requestSummary;
     }
 
-    protected ResponseFrequency createResponseFrequency() {
+    protected ResponseFrequency createResponseFrequency(String service) {
         ResponseFrequency responseFrequency = new ResponseFrequency();
 
         for (int operation = 2; operation <= 6; operation++) {
@@ -322,10 +336,12 @@ public class ReportThread extends Thread {
                     if (i <= 20) {
                         frequencyHits = (Long) em.createQuery(
                                 "SELECT count(*) FROM Operation AS ro " +
-                                "WHERE ro.clientRequest.organizationId = :organizationId " +
+                                "WHERE ro.clientRequest.service = :service " +
+                                "AND ro.clientRequest.organizationId = :organizationId " +
                                 "AND ro.type = :type " +
                                 "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                                 "AND ro.duration BETWEEN :msLow AND :msHigh ").
+                                setParameter("service", service).
                                 setParameter("type", new Integer(operation)).
                                 setParameter("startDate", startDate).
                                 setParameter("endDate", endDate).
@@ -336,10 +352,12 @@ public class ReportThread extends Thread {
                     } else {
                         frequencyHits = (Long) em.createQuery(
                                 "SELECT count(*) FROM Operation AS ro " +
-                                "WHERE ro.clientRequest.organizationId = :organizationId " +
+                                "WHERE ro.clientRequest.service = :service " +
+                                "AND ro.clientRequest.organizationId = :organizationId " +
                                 "AND ro.type = :type " +
                                 "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                                 "AND ro.duration > :msLow ").
+                                setParameter("service", service).
                                 setParameter("type", new Integer(operation)).
                                 setParameter("startDate", startDate).
                                 setParameter("endDate", endDate).
@@ -369,7 +387,7 @@ public class ReportThread extends Thread {
         return responseFrequency;
     }
 
-    protected ServiceProviders createServiceProviders() {
+    protected ServiceProviders createServiceProviders(String service) {
         ServiceProviders serviceProviders = null;
 
         List resultList = null;
@@ -382,9 +400,11 @@ public class ReportThread extends Thread {
                     "avg(ro.requestResponseTime), " +
                     "max(ro.requestResponseTime) " +
                     "FROM ServiceProviderRequest AS ro " +
-                    "WHERE ro.clientRequest.organizationId = :organizationId " +
+                    "WHERE ro.clientRequest.service = :service " +
+                    "AND ro.clientRequest.organizationId = :organizationId " +
                     "AND ro.clientRequest.timestamp BETWEEN :startDate AND :endDate " +
                     "GROUP BY ro.serviceProviderId ").
+                    setParameter("service", service).
                     setParameter("startDate", startDate).
                     setParameter("endDate", endDate).
                     setParameter("organizationId", organization.getId()).
