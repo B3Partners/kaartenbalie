@@ -55,18 +55,19 @@ text-align: right;
 white-space: nowrap;
 }
 	</xsl:variable>
-	<xsl:template match="/">
+	<xsl:template name="start">
+		<xsl:param name="service"/>
 		<html>
 			<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
 			<head>
 				<style>
 					<xsl:value-of select="$styles"/>
 				</style>
-				<title>Kaartenbalie Performance Rapport</title>
+				<title>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/></title>
 			</head>
 			<body>
-				<h1>Kaartenbalie Performance Rapport</h1>
-				<xsl:apply-templates/>
+				<h1>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/></h1>
+				<xsl:apply-templates select="monitor-report/service[@name=$service]"/>
 			</body>
 		</html>
 	</xsl:template>
