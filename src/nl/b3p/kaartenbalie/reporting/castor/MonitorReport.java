@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.0M2</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.0.2</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -11,15 +11,9 @@ package nl.b3p.kaartenbalie.reporting.castor;
  //- Imported classes and packages -/
 //---------------------------------/
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.Writer;
-import org.exolab.castor.xml.MarshalException;
+import java.util.Collections;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.ValidationException;
-import org.xml.sax.ContentHandler;
 
 /**
  * selection of monitoring data for creating reports
@@ -39,24 +33,9 @@ public class MonitorReport implements java.io.Serializable {
     private nl.b3p.kaartenbalie.reporting.castor.Parameters _parameters;
 
     /**
-     * Field _requestSummary
+     * Field _serviceList
      */
-    private nl.b3p.kaartenbalie.reporting.castor.RequestSummary _requestSummary;
-
-    /**
-     * Field _responseFrequency
-     */
-    private nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency _responseFrequency;
-
-    /**
-     * Field _serviceProviders
-     */
-    private nl.b3p.kaartenbalie.reporting.castor.ServiceProviders _serviceProviders;
-
-    /**
-     * Field _requestLoad
-     */
-    private nl.b3p.kaartenbalie.reporting.castor.RequestLoad _requestLoad;
+    private java.util.ArrayList _serviceList;
 
 
       //----------------/
@@ -66,12 +45,61 @@ public class MonitorReport implements java.io.Serializable {
     public MonitorReport() 
      {
         super();
+        _serviceList = new java.util.ArrayList();
     } //-- nl.b3p.kaartenbalie.reporting.castor.MonitorReport()
 
 
       //-----------/
      //- Methods -/
     //-----------/
+
+    /**
+     * Method addService
+     * 
+     * 
+     * 
+     * @param vService
+     */
+    public void addService(nl.b3p.kaartenbalie.reporting.castor.Service vService)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _serviceList.add(vService);
+    } //-- void addService(nl.b3p.kaartenbalie.reporting.castor.Service) 
+
+    /**
+     * Method addService
+     * 
+     * 
+     * 
+     * @param index
+     * @param vService
+     */
+    public void addService(int index, nl.b3p.kaartenbalie.reporting.castor.Service vService)
+        throws java.lang.IndexOutOfBoundsException
+    {
+        _serviceList.add(index, vService);
+    } //-- void addService(int, nl.b3p.kaartenbalie.reporting.castor.Service) 
+
+    /**
+     * Method clearService
+     * 
+     */
+    public void clearService()
+    {
+        _serviceList.clear();
+    } //-- void clearService() 
+
+    /**
+     * Method enumerateService
+     * 
+     * 
+     * 
+     * @return Enumeration
+     */
+    public java.util.Enumeration enumerateService()
+    {
+        return Collections.enumeration(_serviceList);
+    } //-- java.util.Enumeration enumerateService() 
 
     /**
      * Returns the value of field 'parameters'.
@@ -85,48 +113,52 @@ public class MonitorReport implements java.io.Serializable {
     } //-- nl.b3p.kaartenbalie.reporting.castor.Parameters getParameters() 
 
     /**
-     * Returns the value of field 'requestLoad'.
+     * Method getService
      * 
-     * @return RequestLoad
-     * @return the value of field 'requestLoad'.
+     * 
+     * 
+     * @param index
+     * @return Service
      */
-    public nl.b3p.kaartenbalie.reporting.castor.RequestLoad getRequestLoad()
+    public nl.b3p.kaartenbalie.reporting.castor.Service getService(int index)
+        throws java.lang.IndexOutOfBoundsException
     {
-        return this._requestLoad;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.RequestLoad getRequestLoad() 
+        //-- check bounds for index
+        if ((index < 0) || (index >= _serviceList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        
+        return (nl.b3p.kaartenbalie.reporting.castor.Service) _serviceList.get(index);
+    } //-- nl.b3p.kaartenbalie.reporting.castor.Service getService(int) 
 
     /**
-     * Returns the value of field 'requestSummary'.
+     * Method getService
      * 
-     * @return RequestSummary
-     * @return the value of field 'requestSummary'.
+     * 
+     * 
+     * @return Service
      */
-    public nl.b3p.kaartenbalie.reporting.castor.RequestSummary getRequestSummary()
+    public nl.b3p.kaartenbalie.reporting.castor.Service[] getService()
     {
-        return this._requestSummary;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.RequestSummary getRequestSummary() 
+        int size = _serviceList.size();
+        nl.b3p.kaartenbalie.reporting.castor.Service[] mArray = new nl.b3p.kaartenbalie.reporting.castor.Service[size];
+        for (int index = 0; index < size; index++) {
+            mArray[index] = (nl.b3p.kaartenbalie.reporting.castor.Service) _serviceList.get(index);
+        }
+        return mArray;
+    } //-- nl.b3p.kaartenbalie.reporting.castor.Service[] getService() 
 
     /**
-     * Returns the value of field 'responseFrequency'.
+     * Method getServiceCount
      * 
-     * @return ResponseFrequency
-     * @return the value of field 'responseFrequency'.
-     */
-    public nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency getResponseFrequency()
-    {
-        return this._responseFrequency;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency getResponseFrequency() 
-
-    /**
-     * Returns the value of field 'serviceProviders'.
      * 
-     * @return ServiceProviders
-     * @return the value of field 'serviceProviders'.
+     * 
+     * @return int
      */
-    public nl.b3p.kaartenbalie.reporting.castor.ServiceProviders getServiceProviders()
+    public int getServiceCount()
     {
-        return this._serviceProviders;
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviders getServiceProviders() 
+        return _serviceList.size();
+    } //-- int getServiceCount() 
 
     /**
      * Method isValid
@@ -175,6 +207,20 @@ public class MonitorReport implements java.io.Serializable {
     } //-- void marshal(org.xml.sax.ContentHandler) 
 
     /**
+     * Method removeService
+     * 
+     * 
+     * 
+     * @param vService
+     * @return boolean
+     */
+    public boolean removeService(nl.b3p.kaartenbalie.reporting.castor.Service vService)
+    {
+        boolean removed = _serviceList.remove(vService);
+        return removed;
+    } //-- boolean removeService(nl.b3p.kaartenbalie.reporting.castor.Service) 
+
+    /**
      * Sets the value of field 'parameters'.
      * 
      * @param parameters the value of field 'parameters'.
@@ -185,45 +231,38 @@ public class MonitorReport implements java.io.Serializable {
     } //-- void setParameters(nl.b3p.kaartenbalie.reporting.castor.Parameters) 
 
     /**
-     * Sets the value of field 'requestLoad'.
+     * Method setService
      * 
-     * @param requestLoad the value of field 'requestLoad'.
+     * 
+     * 
+     * @param index
+     * @param vService
      */
-    public void setRequestLoad(nl.b3p.kaartenbalie.reporting.castor.RequestLoad requestLoad)
+    public void setService(int index, nl.b3p.kaartenbalie.reporting.castor.Service vService)
+        throws java.lang.IndexOutOfBoundsException
     {
-        this._requestLoad = requestLoad;
-    } //-- void setRequestLoad(nl.b3p.kaartenbalie.reporting.castor.RequestLoad) 
+        //-- check bounds for index
+        if ((index < 0) || (index >= _serviceList.size())) {
+            throw new IndexOutOfBoundsException();
+        }
+        _serviceList.set(index, vService);
+    } //-- void setService(int, nl.b3p.kaartenbalie.reporting.castor.Service) 
 
     /**
-     * Sets the value of field 'requestSummary'.
+     * Method setService
      * 
-     * @param requestSummary the value of field 'requestSummary'.
-     */
-    public void setRequestSummary(nl.b3p.kaartenbalie.reporting.castor.RequestSummary requestSummary)
-    {
-        this._requestSummary = requestSummary;
-    } //-- void setRequestSummary(nl.b3p.kaartenbalie.reporting.castor.RequestSummary) 
-
-    /**
-     * Sets the value of field 'responseFrequency'.
      * 
-     * @param responseFrequency the value of field
-     * 'responseFrequency'.
-     */
-    public void setResponseFrequency(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency responseFrequency)
-    {
-        this._responseFrequency = responseFrequency;
-    } //-- void setResponseFrequency(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency) 
-
-    /**
-     * Sets the value of field 'serviceProviders'.
      * 
-     * @param serviceProviders the value of field 'serviceProviders'
+     * @param serviceArray
      */
-    public void setServiceProviders(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders serviceProviders)
+    public void setService(nl.b3p.kaartenbalie.reporting.castor.Service[] serviceArray)
     {
-        this._serviceProviders = serviceProviders;
-    } //-- void setServiceProviders(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders) 
+        //-- copy array
+        _serviceList.clear();
+        for (int i = 0; i < serviceArray.length; i++) {
+            _serviceList.add(serviceArray[i]);
+        }
+    } //-- void setService(nl.b3p.kaartenbalie.reporting.castor.Service) 
 
     /**
      * Method unmarshal

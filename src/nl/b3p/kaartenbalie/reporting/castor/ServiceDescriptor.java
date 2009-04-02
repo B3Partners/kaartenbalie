@@ -8,11 +8,11 @@
 package nl.b3p.kaartenbalie.reporting.castor;
 
 /**
- * Class ServiceProviderDescriptor.
+ * Class ServiceDescriptor.
  * 
  * @version $Revision$ $Date$
  */
-public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
+public class ServiceDescriptor extends org.exolab.castor.xml.util.XMLClassDescriptorImpl {
 
 
       //--------------------------/
@@ -49,10 +49,10 @@ public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLCla
      //- Constructors -/
     //----------------/
 
-    public ServiceProviderDescriptor() 
+    public ServiceDescriptor() 
      {
         super();
-        xmlName = "service-provider";
+        xmlName = "service";
         elementDefinition = true;
         
         //-- set grouping compositor
@@ -62,23 +62,21 @@ public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLCla
         org.exolab.castor.xml.FieldValidator               fieldValidator = null;
         //-- initialize attribute descriptors
         
-        //-- initialize element descriptors
-        
         //-- _name
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "_name", "name", org.exolab.castor.xml.NodeType.Element);
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "_name", "name", org.exolab.castor.xml.NodeType.Attribute);
         desc.setImmutable(true);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProvider target = (ServiceProvider) object;
+                Service target = (Service) object;
                 return target.getName();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProvider target = (ServiceProvider) object;
+                    Service target = (Service) object;
                     target.setName( (java.lang.String) value);
                 }
                 catch (java.lang.Exception ex) {
@@ -103,217 +101,141 @@ public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLCla
             fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _count
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_count", "count", org.exolab.castor.xml.NodeType.Element);
+        //-- initialize element descriptors
+        
+        //-- _requestSummary
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.RequestSummary.class, "_requestSummary", "request-summary", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProvider target = (ServiceProvider) object;
-                if(!target.hasCount())
-                    return null;
-                return new java.lang.Integer(target.getCount());
+                Service target = (Service) object;
+                return target.getRequestSummary();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProvider target = (ServiceProvider) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setCount( ((java.lang.Integer)value).intValue());
+                    Service target = (Service) object;
+                    target.setRequestSummary( (nl.b3p.kaartenbalie.reporting.castor.RequestSummary) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
+                return new nl.b3p.kaartenbalie.reporting.castor.RequestSummary();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _count
+        //-- validation code for: _requestSummary
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
-            org.exolab.castor.xml.validators.IntegerValidator typeValidator = new org.exolab.castor.xml.validators.IntegerValidator();
-            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _durationAvg
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationAvg", "duration-avg", org.exolab.castor.xml.NodeType.Element);
+        //-- _responseFrequency
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency.class, "_responseFrequency", "response-frequency", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProvider target = (ServiceProvider) object;
-                if(!target.hasDurationAvg())
-                    return null;
-                return new java.lang.Long(target.getDurationAvg());
+                Service target = (Service) object;
+                return target.getResponseFrequency();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProvider target = (ServiceProvider) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setDurationAvg( ((java.lang.Long)value).longValue());
+                    Service target = (Service) object;
+                    target.setResponseFrequency( (nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
+                return new nl.b3p.kaartenbalie.reporting.castor.ResponseFrequency();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _durationAvg
+        //-- validation code for: _responseFrequency
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
-            org.exolab.castor.xml.validators.LongValidator typeValidator = new org.exolab.castor.xml.validators.LongValidator();
-            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _durationMax
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(long.class, "_durationMax", "duration-max", org.exolab.castor.xml.NodeType.Element);
+        //-- _serviceProviders
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.ServiceProviders.class, "_serviceProviders", "service-providers", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProvider target = (ServiceProvider) object;
-                if(!target.hasDurationMax())
-                    return null;
-                return new java.lang.Long(target.getDurationMax());
+                Service target = (Service) object;
+                return target.getServiceProviders();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProvider target = (ServiceProvider) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setDurationMax( ((java.lang.Long)value).longValue());
+                    Service target = (Service) object;
+                    target.setServiceProviders( (nl.b3p.kaartenbalie.reporting.castor.ServiceProviders) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
+                return new nl.b3p.kaartenbalie.reporting.castor.ServiceProviders();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _durationMax
+        //-- validation code for: _serviceProviders
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
-            org.exolab.castor.xml.validators.LongValidator typeValidator = new org.exolab.castor.xml.validators.LongValidator();
-            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _bytesReceivedSum
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_bytesReceivedSum", "bytes-received-sum", org.exolab.castor.xml.NodeType.Element);
+        //-- _requestLoad
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(nl.b3p.kaartenbalie.reporting.castor.RequestLoad.class, "_requestLoad", "request-load", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
-                ServiceProvider target = (ServiceProvider) object;
-                if(!target.hasBytesReceivedSum())
-                    return null;
-                return new java.lang.Integer(target.getBytesReceivedSum());
+                Service target = (Service) object;
+                return target.getRequestLoad();
             }
             public void setValue( java.lang.Object object, java.lang.Object value) 
                 throws IllegalStateException, IllegalArgumentException
             {
                 try {
-                    ServiceProvider target = (ServiceProvider) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setBytesReceivedSum( ((java.lang.Integer)value).intValue());
+                    Service target = (Service) object;
+                    target.setRequestLoad( (nl.b3p.kaartenbalie.reporting.castor.RequestLoad) value);
                 }
                 catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
             }
             public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
+                return new nl.b3p.kaartenbalie.reporting.castor.RequestLoad();
             }
         };
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         
-        //-- validation code for: _bytesReceivedSum
+        //-- validation code for: _requestLoad
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
-            org.exolab.castor.xml.validators.IntegerValidator typeValidator = new org.exolab.castor.xml.validators.IntegerValidator();
-            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
-        //-- _bytesSentSum
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "_bytesSentSum", "bytes-sent-sum", org.exolab.castor.xml.NodeType.Element);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                ServiceProvider target = (ServiceProvider) object;
-                if(!target.hasBytesSentSum())
-                    return null;
-                return new java.lang.Integer(target.getBytesSentSum());
-            }
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    ServiceProvider target = (ServiceProvider) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) return;
-                    
-                    target.setBytesSentSum( ((java.lang.Integer)value).intValue());
-                }
-                catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public java.lang.Object newInstance( java.lang.Object parent ) {
-                return null;
-            }
-        };
-        desc.setHandler(handler);
-        desc.setRequired(true);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-        
-        //-- validation code for: _bytesSentSum
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
-        { //-- local scope
-            org.exolab.castor.xml.validators.IntegerValidator typeValidator = new org.exolab.castor.xml.validators.IntegerValidator();
-            fieldValidator.setValidator(typeValidator);
-        }
-        desc.setValidator(fieldValidator);
-    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceProviderDescriptor()
+    } //-- nl.b3p.kaartenbalie.reporting.castor.ServiceDescriptor()
 
 
       //-----------/
@@ -365,7 +287,7 @@ public class ServiceProviderDescriptor extends org.exolab.castor.xml.util.XMLCla
      */
     public java.lang.Class getJavaClass()
     {
-        return nl.b3p.kaartenbalie.reporting.castor.ServiceProvider.class;
+        return nl.b3p.kaartenbalie.reporting.castor.Service.class;
     } //-- java.lang.Class getJavaClass() 
 
     /**

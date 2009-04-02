@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.0M2</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.0.2</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -11,17 +11,9 @@ package nl.b3p.kaartenbalie.reporting.castor;
  //- Imported classes and packages -/
 //---------------------------------/
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import org.exolab.castor.xml.MarshalException;
+import java.util.Collections;
 import org.exolab.castor.xml.Marshaller;
 import org.exolab.castor.xml.Unmarshaller;
-import org.exolab.castor.xml.ValidationException;
-import org.xml.sax.ContentHandler;
 
 /**
  * Class RequestSummary.
@@ -48,7 +40,7 @@ public class RequestSummary implements java.io.Serializable {
     public RequestSummary() 
      {
         super();
-        _typeSummaryList = new ArrayList();
+        _typeSummaryList = new java.util.ArrayList();
     } //-- nl.b3p.kaartenbalie.reporting.castor.RequestSummary()
 
 
@@ -101,7 +93,7 @@ public class RequestSummary implements java.io.Serializable {
      */
     public java.util.Enumeration enumerateTypeSummary()
     {
-        return new org.exolab.castor.util.IteratorEnumeration(_typeSummaryList.iterator());
+        return Collections.enumeration(_typeSummaryList);
     } //-- java.util.Enumeration enumerateTypeSummary() 
 
     /**
@@ -116,7 +108,7 @@ public class RequestSummary implements java.io.Serializable {
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
-        if ((index < 0) || (index > _typeSummaryList.size())) {
+        if ((index < 0) || (index >= _typeSummaryList.size())) {
             throw new IndexOutOfBoundsException();
         }
         
@@ -224,7 +216,7 @@ public class RequestSummary implements java.io.Serializable {
         throws java.lang.IndexOutOfBoundsException
     {
         //-- check bounds for index
-        if ((index < 0) || (index > _typeSummaryList.size())) {
+        if ((index < 0) || (index >= _typeSummaryList.size())) {
             throw new IndexOutOfBoundsException();
         }
         _typeSummaryList.set(index, vTypeSummary);
