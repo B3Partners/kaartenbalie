@@ -95,7 +95,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <td><b><fmt:message key="beheer.reporting.xsl"/>:</b></td>
             <td>
                 <html:select property="xsl">
-                    <html:option value="usage.xsl">Algemeen overzicht</html:option>
+                    <html:option value="usage-wms.xsl">Algemeen overzicht WMS</html:option>
+                    <html:option value="usage-wfs.xsl">Algemeen overzicht WFS</html:option>
                     <html:option value="">XML</html:option>
                 </html:select>
             </td>
