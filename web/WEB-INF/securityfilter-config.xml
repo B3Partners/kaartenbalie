@@ -103,9 +103,10 @@
             <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
-            <secret-key>40F40FD7500AE20E817093874D149176</secret-key>
+            <!-- deze waardes zijn voor (HOU DEZE INFORMATIE UP-TO-DATE!): www.kaartenbalie.nl -->
+            <secret-key>81BF677C3015E66FE5F2A71DDA21160B</secret-key>
             <!-- pak wat karakters van random alpha-numeric characters -->
-            <extra-hash-string>BETN9cykaidfJF2VvQIEa</extra-hash-string>
+            <extra-hash-string>s6AWd5MYe39B5NP3UaLl4</extra-hash-string>                               
             <cookie-expire>86400</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
