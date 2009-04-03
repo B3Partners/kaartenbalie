@@ -2218,7 +2218,7 @@
 			<xsl:choose>
 				<xsl:when test="not(gmd:CI_OnlineResource)">
 					<!--Child element missing, create it-->
-					<xsl:call-template name="add-CI_OnlineResource"/>
+					<xsl:call-template name="add-transferOptions-CI_OnlineResource"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<!--Child element exists, copy it-->

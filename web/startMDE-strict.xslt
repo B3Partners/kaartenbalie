@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 B3P Metadata Editor is a ISO 19139 compliant metadata editor, 
-that is preconfigured to use the Dutch profile for geography
+that is preconfigured to use the Dutch profile for geography.
 
 Copyright 2006, 2007, 2008 B3Partners BV
 
@@ -64,10 +64,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 							
 						var metadataXML = "";
 						// path to root of ISO metadata element MD_Metadata, required for add/delete menu
-						var pathToRoot = "/metadata";
-						var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;metadata&gt;&lt;/metadata&gt;";
+						var pathToRoot = "/";
+						var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
 								
-						var mainXslFullPath = baseFullPath + "mdEdit_tabbed.xsl";
+						var mainXslFullPath = baseFullPath + "mdEdit_strict.xsl";
 						var preprocessorXslFullPath = baseFullPath + "preprocessors/metadataEditPreprocessor.xsl";			
 						var PLUS_IMAGE = baseFullPath + "images/xp_plus.gif";
 						var MINUS_IMAGE = baseFullPath + "images/xp_minus.gif";
@@ -78,7 +78,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 							// if no metadata is present we start the editor with all elements empty
 							if (trim(escapedMetadataXML) == "") {
 								metadataXML = basicMetadataXML.unescapeHTML();
-							} else if (escapedMetadataXML.indexOf("&lt;metadata") == -1) {
+							} else if (escapedMetadataXML.indexOf("&lt;MD_Metadata") == -1) {
 								if (confirm("Onleesbare metadata gevonden (metadata tag ontbreekt), overschrijven?")) {
 									metadataXML = basicMetadataXML.unescapeHTML();
 								} else {
@@ -239,16 +239,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 				<xsl:text>&lt;</xsl:text>
 				<xsl:value-of select="name()"/>
 				<xsl:text> xmlns=\&quot;http://www.isotc211.org/2005/gmd\&quot; xmlns:gmd=\&quot;http://www.isotc211.org/2005/gmd\&quot; xmlns:gco=\&quot;http://www.isotc211.org/2005/gco\&quot; xmlns:gml=\&quot;http://www.opengis.net/gml\&quot; xmlns:xlink=\&quot;http://www.w3.org/1999/xlink\&quot; xmlns:xsi=\&quot;http://www.w3.org/2001/XMLSchema-instance\&quot;</xsl:text>
-				<xsl:text>&gt;</xsl:text>
-				<xsl:apply-templates mode="copy"/>
-				<xsl:text>&lt;/</xsl:text>
-				<xsl:value-of select="name()"/>
-				<xsl:text>&gt;</xsl:text>
-			</xsl:when>
-			<xsl:when test="name() = 'FC_FeatureCatalogue' or name() = 'gfc:FC_FeatureCatalogue' ">
-				<xsl:text>&lt;</xsl:text>
-				<xsl:value-of select="name()"/>
-				<xsl:text> xmlns=\&quot;http://www.isotc211.org/2005/gmd\&quot; xmlns:gmd=\&quot;http://www.isotc211.org/2005/gmd\&quot; xmlns:gfc=\&quot;http://www.isotc211.org/2005/gfc\&quot; xmlns:gco=\&quot;http://www.isotc211.org/2005/gco\&quot; xmlns:gmx=\&quot;http://www.isotc211.org/2005/gmx\&quot; xmlns:xsi=\&quot;http://www.w3.org/2001/XMLSchema-instance\&quot;</xsl:text>
 				<xsl:text>&gt;</xsl:text>
 				<xsl:apply-templates mode="copy"/>
 				<xsl:text>&lt;/</xsl:text>

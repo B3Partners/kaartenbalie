@@ -11,6 +11,8 @@
 	Beschrijving stylesheet:
 	Bevat templates die ontbrekende nodes toevoegen om de mogelijkheid te bieden deze te editen in de stylesheet.
 	-->
+	<!--get template that 'knows' how to defaults and where to get synchronised values-->
+	<xsl:include href="metadataEditPreprocessorDefaults.xsl"/>
 	<!-- do we want default values filled in, templates must be prepared for this-->
 	<xsl:variable name="FILL_DEFAULTS">true</xsl:variable>
 	<xsl:template name="add-MD_Metadata">
@@ -35,7 +37,14 @@
 	<xsl:template name="add-fileIdentifier">
 		<xsl:element name="gmd:fileIdentifier">
 			<!--Add sub-elements and sections-->
-			<xsl:call-template name="add-CharacterString"/>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-fileIdentifier-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-parentIdentifier">
@@ -84,7 +93,14 @@
 	<xsl:template name="add-dateStamp">
 		<xsl:element name="gmd:dateStamp">
 			<!--Add sub-elements and sections-->
-			<xsl:call-template name="add-Date"/>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-dateStamp-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-Date"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-metadataStandardName">
@@ -190,7 +206,7 @@
 	<xsl:template name="add-citation">
 		<xsl:element name="gmd:citation">
 			<!--Add sub-elements and sections-->
-			<xsl:call-template name="add-CI_Citation"/>
+			<xsl:call-template name="add-citation-CI_Citation"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-CI_Citation">
@@ -202,10 +218,31 @@
 			<xsl:call-template name="add-identifier"/>
 		</xsl:element>
 	</xsl:template>
-	<xsl:template name="add-title">
+	<xsl:template name="add-citation-CI_Citation">
+		<xsl:element name="gmd:CI_Citation">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-citation-title"/>
+			<xsl:call-template name="add-alternateTitle"/>
+			<xsl:call-template name="add-date"/>
+			<xsl:call-template name="add-identifier"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-citation-title">
 		<xsl:element name="gmd:title">
 			<!--Add sub-elements and sections-->
-			<xsl:call-template name="add-CharacterString"/>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-citation-title-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-title">
+		<xsl:element name="gmd:title">
+					<xsl:call-template name="add-CharacterString"/>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-alternateTitle">
@@ -558,7 +595,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:choose>
 				<xsl:when test="$FILL_DEFAULTS">
-					<xsl:element name="gco:Decimal">3.3</xsl:element>
+					<xsl:call-template name="add-westBoundLongitude-default"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="add-Decimal"/>
@@ -571,7 +608,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:choose>
 				<xsl:when test="$FILL_DEFAULTS">
-					<xsl:element name="gco:Decimal">7.2</xsl:element>
+					<xsl:call-template name="add-eastBoundLongitude-default"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="add-Decimal"/>
@@ -584,7 +621,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:choose>
 				<xsl:when test="$FILL_DEFAULTS">
-					<xsl:element name="gco:Decimal">50.5</xsl:element>
+					<xsl:call-template name="add-southBoundLatitude-default"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="add-Decimal"/>
@@ -597,7 +634,7 @@
 			<!--Add sub-elements and sections-->
 			<xsl:choose>
 				<xsl:when test="$FILL_DEFAULTS">
-					<xsl:element name="gco:Decimal">53.5</xsl:element>
+					<xsl:call-template name="add-northBoundLatitude-default"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:call-template name="add-Decimal"/>
@@ -693,7 +730,54 @@
 	<xsl:template name="add-online">
 		<xsl:element name="gmd:online">
 			<!--Add sub-elements and sections-->
-			<xsl:call-template name="add-CI_OnlineResource"/>
+			<xsl:call-template name="add-transferOptions-CI_OnlineResource"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-transferOptions-CI_OnlineResource">
+		<xsl:element name="gmd:CI_OnlineResource">
+			<!--Add sub-elements and sections-->
+			<xsl:call-template name="add-transferOptions-linkage"/>
+			<xsl:call-template name="add-transferOptions-protocol"/>
+			<xsl:call-template name="add-transferOptions-name"/>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-transferOptions-linkage">
+		<xsl:element name="gmd:linkage">
+			<!--Add sub-elements and sections-->
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-transferOptions-linkage-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-URL"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-transferOptions-protocol">
+		<xsl:element name="gmd:protocol">
+			<!--Add sub-elements and sections-->
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-transferOptions-protocol-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-SV_ServiceType"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:element>
+	</xsl:template>
+	<xsl:template name="add-transferOptions-name">
+		<xsl:element name="gmd:name">
+			<!--Add sub-elements and sections-->
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-transferOptions-name-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="add-CharacterString"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-dataQualityInfo">
@@ -825,19 +909,27 @@
 	<xsl:template name="add-MD_CharacterSetCode">
 		<xsl:element name="gmd:MD_CharacterSetCode">
 			<xsl:attribute name="codeList">#MD_CharacterSetCode</xsl:attribute>
-			<xsl:attribute name="codeListValue"><xsl:if test="$FILL_DEFAULTS"><xsl:value-of select="'utf8'"/></xsl:if></xsl:attribute>
-			<xsl:if test="$FILL_DEFAULTS">
-				<xsl:value-of select="'utf8'"/>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-MD_CharacterSetCode-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="codeListValue"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-MD_ProgressCode">
 		<xsl:element name="gmd:MD_ProgressCode">
 			<xsl:attribute name="codeList">#MD_ProgressCode</xsl:attribute>
-			<xsl:attribute name="codeListValue"><xsl:if test="$FILL_DEFAULTS"><xsl:value-of select="'completed'"/></xsl:if></xsl:attribute>
-			<xsl:if test="$FILL_DEFAULTS">
-				<xsl:value-of select="'compleet'"/>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-MD_ProgressCode-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="codeListValue"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-CI_RoleCode">
@@ -859,10 +951,14 @@
 	<xsl:template name="add-MD_ScopeCode">
 		<xsl:element name="gmd:MD_ScopeCode">
 			<xsl:attribute name="codeList">#MD_ScopeCode</xsl:attribute>
-			<xsl:attribute name="codeListValue"><xsl:if test="$FILL_DEFAULTS"><xsl:value-of select="'dataset'"/></xsl:if></xsl:attribute>
-			<xsl:if test="$FILL_DEFAULTS">
-				<xsl:value-of select="'dataset'"/>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="$FILL_DEFAULTS">
+					<xsl:call-template name="add-MD_ScopeCode-default"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="codeListValue"/>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:element>
 	</xsl:template>
 	<xsl:template name="add-MD_RestrictionCode">

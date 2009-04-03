@@ -29,6 +29,7 @@ function xmlDocInit() {
   setInitialTab(visibleTab);
 }
 
+var currentTab;
 //selecteert de aangeklikte tab
 function changeTab(eTD)  {
   var eTD = getWindowEvent(eTD);            
@@ -41,33 +42,55 @@ function changeTab(eTD)  {
   }
   oldTab.className = "tab-unselected";
   var oldContent = getAssociated(oldTab);
-  oldContent.style.display = "none";
+  if(oldContent != null) oldContent.style.display = "none";
 
   var newTab = eTD;
+  currentTab = eTD.id;
   newTab.className = "tab-selected";
   var newContent = getAssociated(newTab);
-  newContent.style.display = "block";
+  if(newContent != null) newContent.style.display = "block";
 
   stopPropagation(eTD);
 }
 
+function changeToCurrentTab() {
+	var eRow = document.getElementById("main-tab-menu");
+	var tabs = eRow.childNodes;
+	for (var i = 0; i < tabs.length; i++) {
+	    var oldTab = tabs[i];
+	    if (oldTab.nodeType == 1) {
+	      var tabContent = getAssociated(oldTab);
+	      if(tabContent != null) tabContent.style.display = "none";
+		  oldTab.className = "tab-unselected";
+	    }
+	}
+	var currentTabEl = document.getElementById(currentTab);
+	currentTabEl.className = "tab-selected";
+	var newContent = getAssociated(currentTabEl);
+	if(newContent != null) newContent.style.display = "block";
+}
+
 //selecteert tab die bij starten zichtbaar is.
 function setInitialTab(tab)  {
-  var eRow = document.getElementById("main-menu");
+  var eRow = document.getElementById("main-tab-menu");
+  if (eRow == undefined || eRow == null) {
+  	return;
+  }
   var tabs = eRow.childNodes;
-  var tabs = tabs[0].childNodes;
-  var tabs = tabs[0].childNodes;  
+  // var tabs = tabs[0].childNodes;
+  // var tabs = tabs[0].childNodes;  
   for (var i = 0; i < tabs.length; i++) {
     var oldTab = tabs[i];
     if (oldTab.nodeType == 1) {
       var tabContent = getAssociated(oldTab);
-      tabContent.style.display = "none";
+      if(tabContent != null) tabContent.style.display = "none";
     }
   }
 
+  currentTab = tab.id;
   tab.className = "tab-selected";
   var newContent = getAssociated(tab);
-  newContent.style.display = "block";
+  if(newContent != null) newContent.style.display = "block";
 }
 
 //returnt het element dat de inhoud van de tab bevat

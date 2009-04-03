@@ -242,7 +242,7 @@ function startEdit(event) {
             // use text input
             inputElement = document.createElement("input");
             inputElement.setAttribute("type", "text");
-            inputElement.setAttribute("class", "input");
+            inputElement.setAttribute("class", "inputfield");
             inputElement.setAttribute("value", newInnerText);
             inputElement.setAttribute("size", iCol);		
         }
@@ -574,6 +574,9 @@ function addElementOrSection(path, above) {
     
     // page changed value
     changeFlag(true);
+	
+	// Set current tab again
+	changeToCurrentTab();
 }
 
 function deleteElement(element, elementPath) {
@@ -663,7 +666,10 @@ function deleteElementOrSection(element, folderNode, path, notAllowedDeleteText,
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
     
     //page changed value
-    changeFlag(true);	
+    changeFlag(true);
+
+	// Set current tab again
+	changeToCurrentTab();	
 }
 
 // Returns the node that must be deleted from the full path. This path is an XPath-like path. See comment below.

@@ -22,8 +22,12 @@
 	</xsl:template>
 	<xsl:template name="theMetadata">
 		<div id="edit-doc-root" changed="false">
-			<div id="properties-box">
-				<div>
+			<div>
+				<div class="tabmenu" id="main-tab-menu">
+					<div id="overzicht-tab" class="tab-unselected" onmouseover="tabHover(this)" onclick="changeTab(this)" title="Klik hier voor een overzicht van de dataset">Overzicht</div>
+					<div id="specificaties-tab" class="tab-unselected" onmouseover="tabHover(this)" onclick="changeTab(this)" title="Klik hier voor informatie over de specificaties van de dataset">Specificaties</div>
+					<div id="attributen-tab" class="tab-unselected" onmouseover="tabHover(this)" onclick="changeTab(this)" title="Klik hier voor informatie over de attributen van de dataset">Attributen</div>				
+					<!-- 
 					<table id="menu" width="300" height="30" cellspacing="0" cellpadding="0">
 						<tr>
 							<td id="overzicht-tab" class="tab-unselected" onmouseover="tabHover(this)" onclick="changeTab(this)" title="Klik hier voor een overzicht van de dataset">Overzicht</td>
@@ -31,6 +35,7 @@
 							<td id="attributen-tab" class="tab-unselected" onmouseover="tabHover(this)" onclick="changeTab(this)" title="Klik hier voor informatie over de attributen van de dataset">Attributen</td>
 						</tr>
 					</table>
+					-->
 				</div>
 				<xsl:variable name="background-class-name">
 					<xsl:call-template name="get-background-class-name"/>
@@ -59,10 +64,7 @@
 						<!-- Alternatieve titel ISO 361 (normaal lettertype, gecentreerd) -->
 						<!-- ISO 361 Dataset titel MD_Metadata.identificationInfo>MD_DataIdentification.citation>CI_Citation.alternateTitle-->
 						<xsl:apply-templates select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:alternateTitle"/>
-						<!-- Thumbnail  
-
-
--->
+						<!-- Thumbnail  -->
 						<!-- Samenvatting ISO 25  -->
 						<!-- ISO 25 Samenvatting MD_Metadata.identificationInfo>MD_DataIdentification.abstract -->
 						<xsl:apply-templates select="gmd:identificationInfo/gmd:MD_DataIdentification/gmd:abstract"/>

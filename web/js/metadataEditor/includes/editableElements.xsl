@@ -98,7 +98,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 			</xsl:choose>
 		</xsl:variable>
 		
-		<div class="'element'">
+		<div class="element">
 			<xsl:if test="$title != ''">
 				<!-- strange layout (in this xslt-file) to get whitespace right -->
 				<span class="{$class}"><xsl:value-of select="$title"/><xsl:if test="$repeatable = 'true' and $readonly = 'false'">
@@ -161,11 +161,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 				</xsl:choose>
 			</xsl:element>
 		</div>
-
 	</xsl:template>
-	
-	
-	
+
 	<!-- TEMPLATE: for (repeating) section -->
 	<xsl:template name="section">
 		<xsl:param name="title"/>
@@ -177,7 +174,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
 		<!-- display each repeating section -->
 		<div class="section" section-path="{$section-path}" id="{$section-path}">
-
 			<xsl:call-template name="section-title">
 				<xsl:with-param name="title" select="$title"/>
 				<xsl:with-param name="section-path" select="$section-path"/>
@@ -185,14 +181,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 				<xsl:with-param name="repeatable" select="$repeatable"/>
 				<xsl:with-param name="readonly" select="$readonly"/>
 			</xsl:call-template>
-
 			<!-- add subelements of section within a "section-content" DIV-->
 			<xsl:element name="div">
-				<xsl:attribute name="class">section-content</xsl:attribute>
+				<xsl:attribute name="class">section-contents</xsl:attribute>
 				<!-- start collapsed? -->
-				<xsl:if test="$expanded != 'true'">
+				<xsl:if test="$expanded != 'true'"> -->
 					<xsl:attribute name="style">display:none;</xsl:attribute>
-				</xsl:if>
+				</xsl:if> -->
 				<xsl:choose>
 					<!-- valid local name? -->
 					<xsl:when test="local-name()">
@@ -202,21 +197,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 					</xsl:when>
 					<xsl:otherwise>
 						<!-- error, missing local-name, display message -->
-
 						<h2 class="error">Transform error: Local name is blank</h2>
 						<p class="error">local-name() = <xsl:value-of select="local-name()" /></p>
 						<p class="error">name() = <xsl:value-of select="name()"/></p>
-
 					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:element>
-
 		</div>
-	
-
 	</xsl:template>
-	
-
 
 	<!-- TEMPLATE: for section-title -->
 	<!-- 
@@ -253,7 +241,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 					<span class="section-title"><xsl:value-of select="$title"/></span>
 				</xsl:otherwise>
 			</xsl:choose>
-
 			<xsl:if test="$repeatable = 'true'  and $readonly = 'false'">
 				<xsl:call-template name="repeatable-menu">
 					<xsl:with-param name="path" select="$section-path"/>
@@ -261,7 +248,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 				</xsl:call-template>
 			</xsl:if>
 		</div>
-
 	</xsl:template>
 	
 	
@@ -351,7 +337,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 				</li>
 			</ul>
 		</span>
-
 	</xsl:template>
 	
 	
@@ -367,7 +352,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 			<xsl:attribute name="target"><xsl:value-of select="$target"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
 		</xsl:element>
-
 	</xsl:template>
 	
 	<!-- TEMPLATE: geeft een mailto-anchor weer -->
@@ -380,7 +364,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 			<xsl:attribute name="href">mailto:<xsl:value-of select="$email"/></xsl:attribute>
 			<xsl:value-of select="$name-shown"/>
 		</xsl:element>
-
 	</xsl:template>
 	
 

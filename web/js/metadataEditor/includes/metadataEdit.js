@@ -104,6 +104,8 @@ function transformXml() {
     xmlTransformer.transformAndAppend(xmlDoc, "write-root");
     
     insertTitle();
+	
+	xmlDocInit();
 }
 
 function insertTitle() {
@@ -342,7 +344,7 @@ function removeEmptyStringValuesFromArray(array) {
 function checkForm(source) {
     var form = document.forms[0];
     
-    addDateStampToXMLDom();
+    // addDateStampToXMLDom();
     
     var metadataHiddenInput = document.getElementById("metadata");
     if (metadataHiddenInput) {

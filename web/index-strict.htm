@@ -20,7 +20,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
-
 <html xhtml="true">
 <head>
     <meta http-equiv="pragma" content="no-cache" />
@@ -32,8 +31,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         var metadataXML = "";
 				// path to root of ISO metadata element MD_Metadata, required for add/delete menu
-				var pathToRoot = "/metadata";
-        var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;metadata&gt;&lt;/metadata&gt;";
+				var pathToRoot = "/";
+
+        var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
 
 				// sets param in stylesheet
         //var viewMode = "true";
@@ -41,21 +41,23 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         
         var baseURL = "./";
         var baseFullPath = baseURL + "js/metadataEditor/";
-        var mainXslFullPath = baseFullPath + "mdEdit_tabbed.xsl";
+        var mainXslFullPath = baseFullPath + "mdEdit_strict.xsl";
         var preprocessorXslFullPath = baseFullPath + "preprocessors/metadataEditPreprocessor.xsl";
+
 
         function editMetadata()
         {
             var ta = document.getElementById('metadata');
             metadataXML = ta.value;
+
             // if no metadata is present we start the editor with all elements empty
             if (metadataXML == "undefined" || metadataXML == null ||
                 trim(metadataXML) == "" || trim(metadataXML) == "plak hier het metadata xml") {
                 metadataXML = basicMetadataXML.unescapeHTML();
             }
+
             transformXml();
         }
-		
         function saveMetadata()
         {
             addDateStampToXMLDom();
@@ -89,27 +91,26 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <script type="text/javascript" src="./js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js"></script>
 
     <link href="./styles/metadataEdit.css" rel="stylesheet" type="text/css" />
-	<!--[if lte IE 7]> <link href="./styles/metadataEdit-ie.css" rel="stylesheet" type="text/css" /> <![endif]-->
 
 </head>
 <body>
-    <div class="content_container">
-		<h1>B3P Metadata Editor</h1>
-	    <form method="post">
-	        <div id="write-root" onclick="click();"></div>
-	        <input type="hidden" name="save" value="" />
-	        <!-- <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> -->
-	        <hr />
-	        <input type="button" onclick="editMetadata();" value="Edit Metadata" />
-	        <input type="button" onclick="saveMetadata();" value="Save Metadata" /><br /><br />
-	        <textarea  name="metadata" cols="80" rows="15" id="metadata">plak hier het metadata xml</textarea>
-	    </form>
-	    <div class="hidden">
-	        <!-- plus/minus images used for expanding/collapsing sections -->
-	        <img id="plus_img" class="plus-minus" src="./js/metadataEditor/images/xp_plus.gif"></img>
-	        <img id="minus_img" class="plus-minus" src="./js/metadataEditor/images/xp_minus.gif"></img>
-	    </div>
-	</div>
+    <h1>B3P Metadata Editor</h1>
+    <form>
+        <div id="write-root" onclick="click();"></div>
+        <input type="hidden" name="save" value="">
+        <!-- html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/ -->
+        <hr/>
+        <input type="button" onclick="editMetadata()" value="Edit Metadata" />
+        <input type="button" onclick="saveMetadata()" value="Save Metadata" />
+        <p/>
+        <textarea  name="metadata" cols="80" rows="15" id="metadata">plak hier het metadata xml
+        </textarea>
+    </form>
+    <div class="hidden">
+        <!-- plus/minus images used for expanding/collapsing sections -->
+        <img id="plus_img" class="plus-minus" src="./js/metadataEditor/images/xp_plus.gif"></img>
+        <img id="minus_img" class="plus-minus" src="./js/metadataEditor/images/xp_minus.gif"></img>
+    </div>
 </body>
 <!-- another head: prevents IE cache bug/feature -->
 <head>
