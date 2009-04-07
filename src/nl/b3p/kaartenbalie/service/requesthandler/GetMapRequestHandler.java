@@ -26,10 +26,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
@@ -127,22 +125,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!
-                StringBuffer url = new StringBuffer();
-                String layersList = spInfo.getLayersAsString();
-                url.append(spInfo.getSpUrl());
-                String[] params = ogc.getParametersArray();
-                for (int i = 0; i < params.length; i++) {
-                    String[] keyValuePair = params[i].split("=");
-                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
-                        url.append(OGCConstants.WMS_PARAM_LAYERS);
-                        url.append("=");
-                        url.append(layersList);
-                        url.append("&");
-                    } else {
-                        url.append(params[i]);
-                        url.append("&");
-                    }
-                }
+                StringBuffer url = createOnlineUrl(spInfo,ogc);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
 
@@ -167,22 +150,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                     throw new Exception(KBConfiguration.SRS_EXCEPTION);
                 }
 
-                String layersList = spInfo.getLayersAsString();
-                StringBuffer url = new StringBuffer();
-                url.append(spInfo.getSpUrl());
-                String[] params = ogc.getParametersArray();
-                for (int i = 0; i < params.length; i++) {
-                    String[] keyValuePair = params[i].split("=");
-                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
-                        url.append(OGCConstants.WMS_PARAM_LAYERS);
-                        url.append("=");
-                        url.append(layersList);
-                        url.append("&");
-                    } else {
-                        url.append(params[i]);
-                        url.append("&");
-                    }
-                }
+                
+                StringBuffer url = createOnlineUrl(spInfo,ogc);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
             }
@@ -191,6 +160,33 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         doAccounting(orgId, dw, user);
 
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
+    }
+
+    private StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc) {
+        StringBuffer returnValue = new StringBuffer();
+        String layersList = spInfo.getLayersAsString();
+        returnValue.append(spInfo.getSpUrl());
+        if (returnValue.indexOf("?")!=returnValue.length()-1 && returnValue.indexOf("&")!= returnValue.length()-1){
+            if (returnValue.indexOf("?")>=0){
+                returnValue.append("&");
+            }else{
+                returnValue.append("?");
+            }
+        }
+        String[] params = ogc.getParametersArray();
+        for (int i = 0; i < params.length; i++) {
+            String[] keyValuePair = params[i].split("=");
+            if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                returnValue.append(OGCConstants.WMS_PARAM_LAYERS);
+                returnValue.append("=");
+                returnValue.append(layersList);
+                returnValue.append("&");
+            } else {
+                returnValue.append(params[i]);
+                returnValue.append("&");
+            }
+        }
+        return returnValue;
     }
 
     /**
