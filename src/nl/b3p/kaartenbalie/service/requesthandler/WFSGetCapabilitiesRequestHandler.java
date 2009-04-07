@@ -45,7 +45,9 @@ import nl.b3p.ogc.utils.OGCResponse;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.input.CountingInputStream;
@@ -114,7 +116,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
-        PostMethod method = null;
+        HttpMethod method = null;
         HttpClient client = new HttpClient();
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
@@ -137,12 +139,22 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
     					data, lurl, sp.getServiceproviderId(), new Long(body.getBytes().length));
 
                 String host = lurl;
-                method = new PostMethod(host);
-                method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                OGCRequest or = new OGCRequest(host);
+                or.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WFS_REQUEST_GetCapabilities);
+                or.addOrReplaceParameter(OGCConstants.SERVICE, OGCConstants.WMS_PARAM_WFS);
+                method= new GetMethod(or.getUrl());
                 int status = client.executeMethod(method);
+                if (status != HttpStatus.SC_OK){
+                    method = new PostMethod(host);
+                    ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                    status = client.executeMethod(method);
+                }
                 try {
 	                if (status == HttpStatus.SC_OK) {
-	                    wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
+	                    if (method instanceof PostMethod)
+                            wfsRequest.setBytesReceived(new Long(((PostMethod)method).getResponseContentLength()));
+                        if (method instanceof GetMethod)
+                            wfsRequest.setBytesReceived(new Long(((GetMethod)method).getResponseContentLength()));
 	                    wfsRequest.setResponseStatus(new Integer(200));
 	                    wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
 	                    
