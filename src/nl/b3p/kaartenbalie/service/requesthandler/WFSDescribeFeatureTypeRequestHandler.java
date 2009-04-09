@@ -21,10 +21,12 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.beans.Encoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -34,7 +36,9 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
@@ -55,7 +59,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
 
         OGCResponse ogcresponse = new OGCResponse();
-        OGCRequest ogcrequest = data.getOgcrequest();
+        OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
         String layers = null;
         String[] layerNames = null;
         Integer orgId = user.getOrganization().getId();
@@ -69,13 +73,17 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         }
 
         layerNames = new String[allLayers.length];
+        String[] prefixes=new String[allLayers.length];
         for (int i = 0; i < allLayers.length; i++) {
             String[] temp = allLayers[i].split("}");
             if (temp.length > 1) {
                 layerNames[i] = temp[1];
+                int index1=allLayers[i].indexOf("{");
+                int index2=allLayers[i].indexOf("}");
+                prefixes[i]=ogcrequest.getPrefix(allLayers[i].substring(index1+1,index2));
             } else {
                 String temp2[] = temp[0].split(":");
-                if (temp2.length < 1) {
+                if (temp2.length > 1) {
                     layerNames[i] = temp2[1];
                 } else {
                     layerNames[i] = allLayers[i];
@@ -84,26 +92,38 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         }
         String url = null;
         List spInfo = null;
-        String prefix = null;
 
         spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
-
+        String layerParam="";
+        for (int i=0; i< layerNames.length; i++){
+            if (layerParam.length()!=0){
+                layerParam+=",";
+            }
+            if (prefixes[i]!=null){
+                layerParam+=prefixes[i]+":";
+            }
+            int index1 = layerNames[i].indexOf("_");
+            if (index1!=-1){
+                layerParam+=layerNames[i].substring(index1+1);
+            }else{
+                layerParam+=layerNames[i];
+            }
+        }//dit stukje gaat fout als er meerder serviceproviders zijn!
         Iterator iter = spInfo.iterator();
         SpLayerSummary sp = null;
         while (iter.hasNext()) {
             sp = (SpLayerSummary) iter.next();
             url = sp.getSpUrl();
-            prefix = sp.getSpAbbr();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, "app:" + sp.getLayersAsString());
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
         }
 
         if (url == null || url == "") {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
-        PostMethod method = null;
+        HttpMethod method = null;
         HttpClient client = new HttpClient();
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
@@ -116,9 +136,16 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 				data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
         
         String host = url;
-        method = new PostMethod(host);
-        method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+        ogcrequest.setHttpHost(host);
+        //probeer eerst met Http getMethod op te halen.
+        String reqUrl=ogcrequest.getUrl();
+        method= new GetMethod(reqUrl);
         int status = client.executeMethod(method);
+        if (status!=HttpStatus.SC_OK){
+            method = new PostMethod(host);
+            ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+            status = client.executeMethod(method);
+        }
         try {
 	        if (status == HttpStatus.SC_OK) {
 	            wfsRequest.setResponseStatus(new Integer(200));
