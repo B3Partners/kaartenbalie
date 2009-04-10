@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -124,7 +125,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             organizationLayers = dbUser.getOrganization().getLayers();
         } else {
             List layerlist = em.createQuery("from Layer").getResultList();
-            Iterator it = layerlist.iterator();
             organizationLayers.addAll(layerlist);
         }
 
@@ -155,6 +155,23 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 kaartenbalieTopLayer.addSrsbb(lv.validateLatLonBoundingBox());
 
                 Iterator tlId = topLayers.iterator();
+
+                /* To prevent multiple topLayers as a child of the kaartenbalieTopLayer
+                 * with duplicate name, title and cascaded properties (but not
+                 * service provider abbr!), keep count of how many duplicates
+                 * there are and a duplicate number after the layer title in braces.
+                 *
+                 * NOTE: theoretically a duplicate can only occur when name is
+                 * null, otherwise a unique abbreviation prefix has been added
+                 * to the name
+                 */
+
+                /* Map of as keys layer identity tuples maps; see Layer.getIdentityMap()
+                 * and as value an Integer of the duplicate count. No map entry means a
+                 * count of 0, naturally.
+                 */
+                Map topLayerDuplicateCounts = new HashMap();
+
                 while (tlId.hasNext()) {
                     Layer layer = (Layer) tlId.next();
                     Layer layerCloned = (Layer) layer.clone();
@@ -172,7 +189,21 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     if (authSubLayers == null) {
                         authSubLayers = new HashSet();
                     }
+                    Map topLayerIdentity = layerCloned.getIdentityMap(false);
+                    Integer duplicateCount = (Integer)topLayerDuplicateCounts.get(topLayerIdentity);
+                    if(duplicateCount == null) {
+                        /* First time this identity combo has been encountered... Do not add
+                         * a counter to the title
+                         */
+                        topLayerDuplicateCounts.put(topLayerIdentity, new Integer(1));
+                    } else {
+                        /* Add a counter to the title */
+                        int count = duplicateCount.intValue()+1;
+                        layerCloned.setTitle(layerCloned.getTitle().trim() + " (" + count + ")");
+                        topLayerDuplicateCounts.put(topLayerIdentity, new Integer(count));
+                    }
                     kaartenbalieTopLayer.addLayer(layerCloned);
+
                 }
 
                 // Valideer SRS van toplayers
