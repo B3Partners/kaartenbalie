@@ -21,12 +21,10 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import java.beans.Encoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Iterator;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -69,9 +67,8 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         String[] allLayers = layers.split(",");
 
         if (allLayers.length > 1) {
-            throw new UnsupportedOperationException(request + " request with more then one maplayer is not supported yet!");
+            throw new Exception(request + " request with more then one maplayer is not supported yet!");
         }
-
         layerNames = new String[allLayers.length];
         String[] prefixes=new String[allLayers.length];
         for (int i = 0; i < allLayers.length; i++) {
@@ -111,7 +108,11 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             }else{
                 layerParam+=layerNames[i];
             }
-        }//dit stukje gaat fout als er meerder serviceproviders zijn!
+        }
+        /*dit stukje gaat fout als er meerder serviceproviders zijn!
+         * Er moet een layerParam per service provider worden gemaakt
+         * en een ogcRequest per sp.
+         */
         Iterator iter = spInfo.iterator();
         SpLayerSummary sp = null;
         while (iter.hasNext()) {
@@ -143,7 +144,9 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         int status = client.executeMethod(method);
         if (status!=HttpStatus.SC_OK){
             method = new PostMethod(host);
-            ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+            //work around voor ESRI post request. Content type mag geen text/xml zijn.
+            //((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+            ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null,null));
             status = client.executeMethod(method);
         }
         try {

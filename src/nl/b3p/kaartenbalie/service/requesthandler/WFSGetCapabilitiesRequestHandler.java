@@ -146,7 +146,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 int status = client.executeMethod(method);
                 if (status != HttpStatus.SC_OK){
                     method = new PostMethod(host);
-                    ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                    //work around voor ESRI post Messages
+                     //((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                    ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null,null));
                     status = client.executeMethod(method);
                 }
                 try {
