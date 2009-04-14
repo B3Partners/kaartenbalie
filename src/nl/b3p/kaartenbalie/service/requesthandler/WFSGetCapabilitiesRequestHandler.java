@@ -79,8 +79,8 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
 
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-        String version = this.getVersion(ogcrequest);
-
+        //String version = this.getVersion(ogcrequest);
+        String version = null;
         Set userRoles = user.getRoles();
         boolean isAdmin = false;
         Iterator rolIt = userRoles.iterator();
@@ -142,6 +142,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 OGCRequest or = new OGCRequest(host);
                 or.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WFS_REQUEST_GetCapabilities);
                 or.addOrReplaceParameter(OGCConstants.SERVICE, OGCConstants.WMS_PARAM_WFS);
+                if(data.getOgcrequest().getParameter(OGCConstants.WMS_VERSION)!=null){
+                    or.addOrReplaceParameter(OGCConstants.VERSION, data.getOgcrequest().getParameter(OGCConstants.WMS_VERSION));
+                }
                 method= new GetMethod(or.getUrl());
                 int status = client.executeMethod(method);
                 if (status != HttpStatus.SC_OK){
