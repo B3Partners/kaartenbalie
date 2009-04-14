@@ -97,6 +97,13 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             lgrWrapper.setServiceProviderId(serviceProviderId);
             StringBuffer url = new StringBuffer();
             url.append(spInfo.getSpUrl());
+            if (url.indexOf("?")!=url.length()-1 && url.indexOf("&")!= url.length()-1){
+                if (url.indexOf("?")>=0){
+                    url.append("&");
+                }else{
+                    url.append("?");
+                }
+            }
             String[] params = ogc.getParametersArray();
             for (int i = 0; i < params.length; i++) {
                 String[] keyValuePair = params[i].split("=");

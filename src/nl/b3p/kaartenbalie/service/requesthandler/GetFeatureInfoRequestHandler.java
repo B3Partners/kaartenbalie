@@ -97,6 +97,13 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
 
                 StringBuffer url = new StringBuffer();
                 url.append(spInfo.getSpUrl());
+                if (url.indexOf("?")!=url.length()-1 && url.indexOf("&")!= url.length()-1){
+                    if (url.indexOf("?")>=0){
+                        url.append("&");
+                    }else{
+                        url.append("?");
+                    }
+                }
                 String[] params = dw.getOgcrequest().getParametersArray();
                 for (int i = 0; i < params.length; i++) {
                     String[] keyValuePair = params[i].split("=");
