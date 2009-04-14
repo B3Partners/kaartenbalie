@@ -345,7 +345,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <many-to-one name="wfsServiceProvider" not-null="true" column="wfs_service_provider"/>
 
     <property name="name" length="200"/>
-    <property name="title" length="255" not-null="true"/>
+    <property name="title" length="255"/>
     <property name="metadata" type="text"/>
   </class>
   
