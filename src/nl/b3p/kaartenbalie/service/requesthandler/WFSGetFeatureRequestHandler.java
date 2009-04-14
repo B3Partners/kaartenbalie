@@ -67,7 +67,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         Integer orgId = user.getOrganization().getId();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
-        layers = ogcrequest.getGetFeatureMap().keySet();
+        layers = ogcrequest.getGetFeatureFilterMap().keySet();
         Iterator it = layers.iterator();
         String[] allLayers = new String[layers.size()];
         int x = 0;
@@ -140,6 +140,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
             if (filter != null) {
                 ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+            }
+            String propertyNames = ogcrequest.getGetFeaturePropertyNameList(sp.getSpAbbr() + "_" + sp.getLayerName());
+            if (propertyNames != null) {
+                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
             }
 
             String body = data.getOgcrequest().getXMLBody();
