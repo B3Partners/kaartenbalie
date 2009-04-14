@@ -362,7 +362,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     </set>
     <property name="name" length="60" not-null="true"/>
     <property name="abbr" length="60" not-null="true"/>
-    <property name="title" length="50" not-null="true"/>
+    <property name="title" length="50"/>
     <property name="givenName" length="50" not-null="true"/>
     <property name="url" length="4000" not-null="true"/>
     <property name="updatedDate" not-null="true"/>
