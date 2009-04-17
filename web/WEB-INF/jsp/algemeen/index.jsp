@@ -40,7 +40,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <p>
                     Neemt u contact op met B3Partners voor meer informatie: 
                     <a href="mailto:info@b3partners.nl">info@b3partners.nl</a> of kijk
-                    op de website van <a href="www.b3partners.nl">B3Partners</a>.
+                    op de website van <html:link href="http://www.b3partners.nl/">B3Partners</html:link>.
                 </p>
             </div>
             
