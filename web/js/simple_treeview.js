@@ -203,8 +203,9 @@ function treeview_displayToggle(options, toggle, collapsed) {
     toggle.src = options.toggleImages[collapsed ? "collapsed" : "expanded"]
 }
 
+var treeview_id_counter = 0;
 function treeview_getDOMItemId(options, treeItemId) {
-    return options.id + "_item_" + treeItemId;
+    return options.id + "_item_" + treeItemId + '_' + treeview_id_counter++;
 }
 
 /*** functies voor maken HTML van treeview, sneller (maar lelijker) dan met DOM ***/
