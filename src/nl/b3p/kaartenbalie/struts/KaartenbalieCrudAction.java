@@ -380,7 +380,12 @@ public class KaartenbalieCrudAction extends CrudAction {
         jsonLayer.put("name", layer.getTitle());
         String name = layer.getUniqueName();
         if (name == null) {
-            jsonLayer.put("id", layer.getTitle().replace(" ", ""));
+            String title="";
+            if (layer.getSpAbbr()!=null){
+                title+=layer.getSpAbbr();
+            }
+            title+="_"+layer.getTitle().replace(" ", "");
+            jsonLayer.put("id", title);
             jsonLayer.put("type", "placeholder");
         } else {
             jsonLayer.put("id", name);
