@@ -21,6 +21,8 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,6 +37,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -190,13 +193,32 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 	                
 	                data.setContentType("text/xml");
 	                InputStream is = method.getResponseBodyAsStream();
-                    CountingInputStream cis = new CountingInputStream(is);
-	
-	                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-	                DocumentBuilder builder = dbf.newDocumentBuilder();
-	                Document doc = builder.parse(cis);
-	
-                    wfsRequest.setBytesReceived(new Long(cis.getByteCount()));
+                    InputStream isx = null;
+                    byte[] bytes = null;
+                    if (KBConfiguration.SAVE_MESSAGES) {
+        	            int len = 1;
+        	            byte[] buffer = new byte[2024];
+        	            ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+        	            while ((len = is.read(buffer, 0, buffer.length)) > 0) {
+        	                bos.write(buffer, 0, len);
+        	            }
+        	            bytes = bos.toByteArray();
+                    	isx = new ByteArrayInputStream(bytes);
+                    } else {
+                    	isx = new CountingInputStream(is);
+                    }
+
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder builder = dbf.newDocumentBuilder();
+                    Document doc = builder.parse(isx);
+                    
+    	            if (KBConfiguration.SAVE_MESSAGES) {
+    	            	wfsRequest.setMessageSent(body);
+    		            wfsRequest.setMessageReceived(new String(bytes));
+    	            	wfsRequest.setBytesReceived(new Long(bytes.length));
+    	            } else {
+    	            	wfsRequest.setBytesReceived(new Long(((CountingInputStream)isx).getByteCount()));
+    	            }
                 	
 	                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
 	            } else {

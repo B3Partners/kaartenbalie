@@ -77,6 +77,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <many-to-one column="client_request" name="clientRequest" update="true"/>
     <property name="bytesSent"/>
     <property name="bytesReceived"/>
+    <property name="messageSent" type="text"/>
+    <property name="messageReceived" type="text" />
     <property name="responseStatus"/>
     <property column="provider_request_uri" length="4000" name="providerRequestURI"/>
     <property name="requestResponseTime"/>

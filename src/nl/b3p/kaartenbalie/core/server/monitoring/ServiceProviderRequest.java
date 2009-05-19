@@ -33,6 +33,8 @@ public class ServiceProviderRequest {
     private Integer id;
     private Long bytesSent;
     private Long bytesReceived;
+    private String messageSent;
+    private String messageReceived;
     private Integer responseStatus;
     private Long requestResponseTime;
     private String providerRequestURI;
@@ -209,5 +211,21 @@ public class ServiceProviderRequest {
     public void setBoundingBox(String boundingBox) {
         this.boundingBox = boundingBox;
     }
+
+	public String getMessageSent() {
+		return messageSent;
+	}
+
+	public void setMessageSent(String messageSent) {
+		this.messageSent = messageSent;
+	}
+
+	public String getMessageReceived() {
+		return messageReceived;
+	}
+
+	public void setMessageReceived(String messageReceived) {
+		this.messageReceived = messageReceived;
+	}
 
 }

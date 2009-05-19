@@ -30,6 +30,7 @@ import java.util.Iterator;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -163,11 +164,19 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 	            int len = 1;
 	            int byteCount = 0;
 	            byte[] buffer = new byte[2024];
+	            StringBuffer message = new StringBuffer();
 	            while ((len = is.read(buffer, 0, buffer.length)) > 0) {
 	                os.write(buffer, 0, len);
+	                if (KBConfiguration.SAVE_MESSAGES) {
+	                	message.append(new String(buffer, 0, len));
+	                }
 	                byteCount += len;
 	            }
 	            wfsRequest.setBytesReceived(new Long(byteCount));
+	            if (KBConfiguration.SAVE_MESSAGES) {
+	            	wfsRequest.setMessageSent(body);
+		            wfsRequest.setMessageReceived(message.toString());
+	            }
 	        } else {
 	        	wfsRequest.setResponseStatus(status);
 	            wfsRequest.setExceptionMessage("Failed to connect with " + url + " Using body: " + body);
