@@ -90,6 +90,58 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
     public WMSRequestHandler() {
     }
+    
+    public Set getServiceProviders() throws Exception {
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+        User dbUser = null;
+        Set userRoles = user.getRoles();
+        boolean isAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while (rolIt.hasNext()) {
+            Roles role = (Roles) rolIt.next();
+            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
+                break;
+            }
+        }
+
+        try {
+            dbUser = (User) em.createQuery("from User u where " +
+                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
+        } catch (NoResultException nre) {
+            log.error("No serviceprovider for user found.");
+            throw new Exception("No serviceprovider for user found.");
+        }
+
+        Set serviceproviders = null;
+        Set organizationLayers = new HashSet();
+
+        if (isAdmin == false) {
+            organizationLayers = dbUser.getOrganization().getLayers();
+        } else {
+            List layerlist = em.createQuery("from Layer").getResultList();
+            organizationLayers.addAll(layerlist);
+        }
+
+        if (organizationLayers != null && !organizationLayers.isEmpty()) {
+
+            serviceproviders = new HashSet();
+            Iterator it = organizationLayers.iterator();
+
+            while (it.hasNext()) {
+                Layer layer = (Layer) it.next();
+                ServiceProvider sp = layer.getServiceProvider();
+                if (!serviceproviders.contains(sp)) {
+                    serviceproviders.add(sp);
+                }
+            }
+        }
+        
+        return serviceproviders;
+    }
 
     public ServiceProvider getServiceProvider() throws Exception {
         log.debug("Getting entity manager ......");

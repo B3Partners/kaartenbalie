@@ -24,21 +24,29 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 
 public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
@@ -72,6 +80,14 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }
+        
+        /*
+         * Only used if specific param is given (used for monitoring)
+         */
+        if ("true".equalsIgnoreCase(dw.getOgcrequest().getParameter("_FORCE_FETCH"))) {
+            forceFetch(dw);
+        }
+        
         ServiceProvider s = getServiceProvider();
 
         if (user != null && user.getOrganization() != null) {
@@ -115,4 +131,46 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dw.write(output);
     }
     // </editor-fold>
+    
+    /**
+     * Do a forced fetch for monitoring
+     */
+	private void forceFetch(DataWrapper dw) throws Exception {
+		DataMonitoring rr = dw.getRequestReporting();
+		
+		Set serviceProviders = this.getServiceProviders();
+		for (Object serviceProvider : serviceProviders) {
+			ServiceProvider sp = (ServiceProvider) serviceProvider;
+		    long startprocestime = System.currentTimeMillis();
+			
+			ServiceProviderRequest wmsRequest = new ServiceProviderRequest();
+			wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
+			wmsRequest.setServiceProviderId(sp.getId());
+			wmsRequest.setWmsVersion(sp.getWmsVersion());
+		    
+			WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+			try {
+                OGCRequest or = new OGCRequest(sp.getUrl());
+                or.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
+                or.addOrReplaceParameter(OGCConstants.SERVICE, OGCConstants.WMS_SERVICE_WMS);
+                or.addOrReplaceParameter(OGCConstants.VERSION, sp.getWmsVersion());
+    			String url = or.getUrl();
+                wmsRequest.setProviderRequestURI(url);
+    			wmsRequest.setBytesSent((long)url.getBytes().length);
+    			
+		    	String xml = wms.getCapabilities(url);
+		    	
+		        wmsRequest.setResponseStatus(new Integer(200));
+		        wmsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+		    	wmsRequest.setBytesReceived((long)xml.getBytes().length);
+		    	wmsRequest.setMessageReceived(xml);
+			} catch (Exception e) {
+		        wmsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
+		        wmsRequest.setExceptionClass(e.getClass());
+				throw e;
+		    } finally {
+		        rr.addServiceProviderRequest(wmsRequest);
+			}
+		}
+	}
 }
