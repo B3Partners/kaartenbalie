@@ -420,7 +420,7 @@ public class ReportThread extends Thread {
                 if (result != null && result.length == 6) {
                     ServiceProvider serviceProvider = new ServiceProvider();
 
-                    serviceProvider.setName(getSpName((Integer) result[0]));
+                    serviceProvider.setName(getSpName((Integer) result[0], service));
                     Long count = (Long) result[1];
                     serviceProvider.setCount(count == null ? new Integer(0) : new Integer(count.intValue()));
                     Long bytesReceived = (Long) result[2];
@@ -447,17 +447,17 @@ public class ReportThread extends Thread {
      * @param id
      * @return
      */
-    private String getSpName(Integer id) {
-        nl.b3p.wms.capabilities.ServiceProvider sp =
-                (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
+    private String getSpName(Integer id, String service) {
         String spName = "onbekend";
-        if (sp == null) {// try wfs
-        	WfsServiceProvider wfsSp =
+        if ("WFS".equalsIgnoreCase(service)) {
+        	WfsServiceProvider sp =
                 (WfsServiceProvider) em.find(WfsServiceProvider.class, id);
-            if (wfsSp != null) {// onbekend
-            	spName = wfsSp.getAbbr();
+            if (sp != null) {
+            	spName = sp.getAbbr();
             }
-        } else {//wms
+        } else if ("WMS".equalsIgnoreCase(service)) {//wms
+            nl.b3p.wms.capabilities.ServiceProvider sp =
+                (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
             spName = sp.getAbbr();
         }
         return spName;
