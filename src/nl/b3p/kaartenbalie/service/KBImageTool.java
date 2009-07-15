@@ -90,25 +90,29 @@ public class KBImageTool {
         wmsRequest.setBytesReceived(new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);
-        //if image is a png, has no alpha and has a tRNS then make that color transparent.
-        BufferedImage i= ir.read(0);
-        if(!i.getColorModel().hasAlpha() && ir.getImageMetadata(0) instanceof PNGMetadata){
-            PNGMetadata metadata = (PNGMetadata) ir.getImageMetadata(0);
-            if (metadata.tRNS_present) {
-                int alphaPix = (metadata.tRNS_red<<16)|(metadata.tRNS_green<<8)|(metadata.tRNS_blue);                
-                BufferedImage tmp = new BufferedImage(i.getWidth(),i.getHeight(),
-                        BufferedImage.TYPE_INT_ARGB);
-                for(int x = 0; x < i.getWidth(); x++) {
-                    for(int y = 0; y < i.getHeight(); y++) {
-                        int rgb = i.getRGB(x, y);
-                        rgb = (rgb&0xFFFFFF)==alphaPix?alphaPix:rgb;
-                        tmp.setRGB(x, y, rgb);
+        try {
+            //if image is a png, has no alpha and has a tRNS then make that color transparent.
+            BufferedImage i= ir.read(0);
+            if(!i.getColorModel().hasAlpha() && ir.getImageMetadata(0) instanceof PNGMetadata){
+                PNGMetadata metadata = (PNGMetadata) ir.getImageMetadata(0);
+                if (metadata.tRNS_present) {
+                    int alphaPix = (metadata.tRNS_red<<16)|(metadata.tRNS_green<<8)|(metadata.tRNS_blue);
+                    BufferedImage tmp = new BufferedImage(i.getWidth(),i.getHeight(),
+                            BufferedImage.TYPE_INT_ARGB);
+                    for(int x = 0; x < i.getWidth(); x++) {
+                        for(int y = 0; y < i.getHeight(); y++) {
+                            int rgb = i.getRGB(x, y);
+                            rgb = (rgb&0xFFFFFF)==alphaPix?alphaPix:rgb;
+                            tmp.setRGB(x, y, rgb);
+                        }
                     }
+                    i = tmp;
                 }
-                i = tmp;
             }
+            return i;
+        } finally {
+            ir.dispose();
         }
-        return i;
     }
     // </editor-fold>
 
