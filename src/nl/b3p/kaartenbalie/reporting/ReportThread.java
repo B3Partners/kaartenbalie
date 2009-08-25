@@ -55,8 +55,7 @@ import org.apache.commons.logging.LogFactory;
 public class ReportThread extends Thread {
 
     private static final Log log = LogFactory.getLog(ReportThread.class);
-    private static final String[] SERVICES = {"WMS","WFS"};
-    
+    private static final String[] SERVICES = {"WMS", "WFS"};
     protected Organization organization;
     /* entity manager alleen voor deze class onafhankelijk van thread */
     protected EntityManager em = null;
@@ -177,29 +176,29 @@ public class ReportThread extends Thread {
         MonitorReport mr = new MonitorReport();
 
         for (int i = 0; i < SERVICES.length; i++) {
-        	Service service = new Service();
-        	service.setName(SERVICES[i]);
-        	
+            Service service = new Service();
+            service.setName(SERVICES[i]);
+
             RequestLoad requestLoad = createRequestLoad(service.getName());
             if (requestLoad != null) {
                 service.setRequestLoad(requestLoad);
             }
             RequestSummary requestSummary = createRequestSummary(service.getName());
             if (requestSummary != null) {
-            	service.setRequestSummary(requestSummary);
+                service.setRequestSummary(requestSummary);
             }
             ResponseFrequency responseFrequency = createResponseFrequency(service.getName());
             if (responseFrequency != null) {
-            	service.setResponseFrequency(responseFrequency);
+                service.setResponseFrequency(responseFrequency);
             }
             ServiceProviders serviceProviders = createServiceProviders(service.getName());
             if (serviceProviders != null) {
-            	service.setServiceProviders(serviceProviders);
+                service.setServiceProviders(serviceProviders);
             }
-            
+
             mr.addService(service);
-		}
-        
+        }
+
         return mr;
     }
 
@@ -450,15 +449,17 @@ public class ReportThread extends Thread {
     private String getSpName(Integer id, String service) {
         String spName = "onbekend";
         if ("WFS".equalsIgnoreCase(service)) {
-        	WfsServiceProvider sp =
-                (WfsServiceProvider) em.find(WfsServiceProvider.class, id);
+            WfsServiceProvider sp =
+                    (WfsServiceProvider) em.find(WfsServiceProvider.class, id);
             if (sp != null) {
-            	spName = sp.getAbbr();
+                spName = sp.getAbbr();
             }
         } else if ("WMS".equalsIgnoreCase(service)) {//wms
             nl.b3p.wms.capabilities.ServiceProvider sp =
-                (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
-            spName = sp.getAbbr();
+                    (nl.b3p.wms.capabilities.ServiceProvider) em.find(nl.b3p.wms.capabilities.ServiceProvider.class, id);
+            if (sp != null) {
+                spName = sp.getAbbr();
+            }
         }
         return spName;
     }
