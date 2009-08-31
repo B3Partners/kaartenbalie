@@ -104,6 +104,7 @@ public class SelectCSS extends HttpServlet {
         } catch (IOException ex) {
             try {
                 cssur = new URL(createUrl(scheme, server, port, contextPath, csspath_default));
+                log.debug("Selecting css via url: " + cssur.toString());
                 s = cssur.openStream();
             } catch (IOException ex2) {
                 errorMessage(response, "No css url could be opened: " + 

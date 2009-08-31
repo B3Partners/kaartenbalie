@@ -142,6 +142,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <fmt:formatDate pattern="dd-MM-yyyy" value="${report.endDate}"/>
                                 </td>
                                 <c:choose>
+                                    <c:when test="${empty report.processingTime}">
+                                        <td>
+                                            klik op vernieuwen om te verversen
+                                        </td>
+                                    </c:when>
                                     <c:when test="${report.reportMime == 'text/html'}">
                                         <td>
                                             <html:link page="/reporting.do?download=submit&id=${report.id}" target="rapport"><html:img page="/images/icons/html.gif" border="0" module=""/></html:link>
