@@ -217,7 +217,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     		            wfsRequest.setMessageReceived(new String(bytes));
     	            	wfsRequest.setBytesReceived(new Long(bytes.length));
     	            } else {
-    	            	wfsRequest.setBytesReceived(new Long(((CountingInputStream)isx).getByteCount()));
+    	            	wfsRequest.setBytesReceived(new Long(((CountingInputStream)isx).getCount()));
     	            }
                 	
 	                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
