@@ -119,6 +119,8 @@ public class MyEMFDatabase extends HttpServlet {
             log.debug("cache pad: " + cachePath);
         }
 
+        rg  = new Random();
+
         // configure kb via properties
         KBConfiguration.configure();
     }

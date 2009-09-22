@@ -535,10 +535,12 @@ public class MetadataAction extends KaartenbalieCrudAction {
             EntityManager em = getEntityManager();
             User sesuser = (User) request.getUserPrincipal();
             if (sesuser == null) {
+                log.debug("No user principal found.");
                 return;
             }
             User user = (User) em.find(User.class, sesuser.getId());
             if (user == null) {
+                log.debug("No database user matching principal found.");
                 return;
             }
 
