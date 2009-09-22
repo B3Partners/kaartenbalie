@@ -34,12 +34,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 mailen.
             </p>
             <p>
-                Deze metadata editor is conform metadatastandaard kernset voor geografie 1.2 en
-                implementeert het Nederlandse profiel op ISO19115:2003/ ISO19139
+                Deze metadata editor is conform metadatastandaard kernset voor geografie 1.2 
+                (ISO19139). Als extra kan ook (attribuut informatie (ISO19110) worden
+                toegevoegd. Om beide soorten metadata in een document
+                te plaatsen staan deze binnen een overkoepelende metadata tag.
             </p>
             <p>
-                Een aantal velden hebben een vooringevulde waarde. Ook deze velden
-                kunt u aanpassen.
+                Als u de metadata wil valideren bij Geonovum, dient u alle
+                waarden met een gekleurd label in te vullen. Bij Geonovum kunt u alleen het
+                ISO19139 deel valideren; dit deel dient u uit het toegestuurde xml-document
+                te knippen en in de validator te plakken.
             </p>
             <p>
                 Indien u deze editor in uw eigen omgeving wilt toepassen, kunt u 

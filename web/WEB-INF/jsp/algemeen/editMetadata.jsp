@@ -28,59 +28,65 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <html:html xhtml="true">
     <head>
         <meta http-equiv="pragma" content="no-cache" />
-        
+
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/defaults.js' module='' />"></script>
         <script type="text/javascript">
-        /* <![CDATA[ */
-        		//var debugMode = true;
-        		var debugMode = false;
-       			//var viewMode = "true";
-        		var viewMode = "false";
+            /* <![CDATA[ */
+            //var debugMode = true;
+            var debugMode = false;
+            //var viewMode = "true";
+            var viewMode = "<c:out value="${metadataForm.map.viewMode}"/>";
+            //var strictMode = "true";
+            var strictMode = "<c:out value="${metadataForm.map.strictMode}"/>";
         		
             var layerId = "<c:out value="${metadataForm.map.id}"/>";
             var layerName = "<c:out value="${metadataForm.map.name}"/>";
             var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
  
-            // path to root of ISO metadata element MD_Metadata, required for add/delete menu
-						var pathToRoot = "/";
-            var basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;MD_Metadata xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.isotc211.org/2005/gmd\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gml=\"http://www.opengis.net/gml\" xsi:schemaLocation=\"http://www.isotc211.org/2005/gmd ./ISO19139_2005-10-08/gmd/gmd.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" /&gt;";
             var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));
             var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
-            var mainXslFullPath = "<html:rewrite page='/js/metadataEditor/mdEdit_strict.xsl' module='' />";
-            var preprocessorXslFullPath = "<html:rewrite page='/js/metadataEditor/preprocessors/metadataEditPreprocessor.xsl' module='' />";
+            var preprocessorXslFullPath = baseFullPath + "preprocessors/metadataEditPreprocessor.xsl";
 
-            if (false) { // switch om ISO met CEN te combineren in een metadata document
-                pathToRoot ="/metadata";
-                basicMetadataXML = "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;metadata&gt;&lt;/metadata&gt;";
-                mainXslFullPath = "<html:rewrite page='/js/metadataEditor/mdEdit_default.xsl' module='' />";
+            // path to root of ISO metadata element MD_Metadata, required for add/delete menu
+            var pathToRoot;
+            var basicMetadataXML;
+            var mainXslFullPath;
+            if (strictMode != "true") {
+                pathToRoot = Defaults.Loose.pathToRoot;
+                basicMetadataXML = Defaults.Loose.basicMetadataXML;
+                mainXslFullPath = baseFullPath + Defaults.Loose.mainXsl;
+            } else {
+                pathToRoot = Defaults.Strict.pathToRoot;
+                basicMetadataXML = Defaults.Strict.basicMetadataXML;
+                mainXslFullPath = baseFullPath + Defaults.Strict.mainXsl;
             }
- 
             /* ]]> */
         </script>	
-        
+
         <title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
-        
+
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
-        
+
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
-        
+
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
-        
+
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
-        
+
         <script type="text/javascript">
             /* <![CDATA[ */
             addLoadEvent(initWithXmlString);
             /* ]]> */
         </script>	
-        
+
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
-				<!--[if lte IE 7]> <link href="<html:rewrite page='/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
+                                <!--[if lte IE 7]> <link href="<html:rewrite page='/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
 
 
 
@@ -93,7 +99,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="xsl" value="/infoText.xsl"/>
             <html:hidden property="subject" value="Metadata.xml van B3P Kaartenbalie"/>
             <html:hidden property="body" value="Bijgevoegd vindt u de metadata als xml zoals u dat heeft ingevuld op onze website.\n\nMet vriendelijke groeten\n\nB3Partners BV"/>
-            
+
             <html:hidden property="id" />
             <html:hidden property="name" />
             <html:hidden property="metadata" styleId="metadata"/>
