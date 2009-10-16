@@ -44,6 +44,10 @@
             <param-name>cache</param-name>
             <param-value>/WEB-INF/xml</param-value>
         </init-param>
+        <init-param>
+            <param-name>mapfiles</param-name>
+            <param-value>/var/config/kaartenbalie/mapfiles/</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>

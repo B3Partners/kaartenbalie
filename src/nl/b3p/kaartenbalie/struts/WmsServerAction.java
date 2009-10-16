@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,6 +42,8 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.DirectoryParser;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
@@ -51,6 +54,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -92,6 +97,7 @@ public class WmsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -113,7 +119,7 @@ public class WmsServerAction extends ServerAction {
         }
 
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
-        if (url==null) {
+        if (url == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
@@ -251,6 +257,7 @@ public class WmsServerAction extends ServerAction {
         return super.save(mapping, dynaForm, request, response);
     }
     // </editor-fold>
+
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -305,8 +312,9 @@ public class WmsServerAction extends ServerAction {
                     strMessage.append("]");
                 }
             }
-            if (strMessage.length()>0)
+            if (strMessage.length() > 0) {
                 addAlternateMessage(mapping, request, null, strMessage.toString());
+            }
             //Check if current pricing is bound to this provider
             List lpList = null;
             LayerCalculator lc = new LayerCalculator();
@@ -334,8 +342,9 @@ public class WmsServerAction extends ServerAction {
                         strMessage.append(ln);
                     }
                 }
-                if (strMessage.length()>0)
+                if (strMessage.length() > 0) {
                     addAlternateMessage(mapping, request, null, strMessage.toString());
+                }
             }
         }
         addDefaultMessage(mapping, request);
@@ -415,8 +424,27 @@ public class WmsServerAction extends ServerAction {
         // Only shows WMS servers for now
         List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
+
+        createTreeview(form, request);
     }
-    // </editor-fold>
+// </editor-fold>
+
+    public void createTreeview(DynaValidatorForm form, HttpServletRequest request) throws Exception {
+        //File dir = new File("/var/mapfiles/");
+        JSONObject root = new JSONObject();
+        DirectoryParser directoryParser = new DirectoryParser();
+        File dir = new File(MyEMFDatabase.getMapfiles());
+        String[] allowed_files = {".map"};
+
+        if (dir.isDirectory()) {
+            root.put("id", "root");
+            root.put("children", directoryParser.stepIntoDirectory(dir, allowed_files));
+            root.put("title", "bestanden");
+        }
+
+        request.setAttribute("mapfiles", root.toString(4));
+    }
+
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
@@ -449,6 +477,7 @@ public class WmsServerAction extends ServerAction {
      * @param serviceProvider ServiceProvider object that to be filled
      */
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
+
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
         serviceProvider.setUpdatedDate(new Date());
@@ -465,6 +494,7 @@ public class WmsServerAction extends ServerAction {
      * @param request The HTTP Request we are processing.
      */
     // <editor-fold defaultstate="" desc="populateOrganizationForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) method.">
+
     private void populateServiceProviderForm(ServiceProvider serviceProvider, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", serviceProvider.getId().toString());
         dynaForm.set("givenName", serviceProvider.getGivenName());
@@ -481,6 +511,7 @@ public class WmsServerAction extends ServerAction {
      * @return layer if found.
      */
     // <editor-fold defaultstate="" desc="checkLayer(Layer orgLayer, Set layers) method.">
+
     private Layer checkLayer(Layer orgLayer, Set layers) {
         if (layers == null || layers.isEmpty()) {
             return null;
@@ -504,6 +535,7 @@ public class WmsServerAction extends ServerAction {
         return null;
     }
     // </editor-fold>
+
     protected String checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
         if (ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) &&

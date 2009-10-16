@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.core.server.persistence;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,7 @@ public class MyEMFDatabase extends HttpServlet {
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     private static String cachePath = null;
     private static Random rg = null;
+    private static String mapfiles = null;
 
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
         log.info("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
@@ -119,7 +121,28 @@ public class MyEMFDatabase extends HttpServlet {
             log.debug("cache pad: " + cachePath);
         }
 
-        rg  = new Random();
+        rg = new Random();
+
+        // Mapfiles path for Beheer->servers
+        File checkFile = null;
+
+        String value = config.getInitParameter("mapfiles");
+        if (value != null && value.length() > 0) {
+            mapfiles = value;
+        }
+        if (getMapfiles() == null) {
+            mapfiles = getServletContext().getRealPath("/mapfiles/");
+        }
+
+        try {
+            checkFile = new File(getMapfiles());
+            if (!checkFile.isDirectory()) {
+                log.info("creating: " + checkFile.getCanonicalPath());
+                checkFile.mkdirs();
+            }
+        } catch (IOException ex) {
+            throw new ServletException(ex);
+        }
 
         // configure kb via properties
         KBConfiguration.configure();
@@ -234,9 +257,10 @@ public class MyEMFDatabase extends HttpServlet {
     public static String localPath() {
         return localPath(null);
     }
+
     public static String localPath(String fileName) {
         if (fileName == null) {
-            fileName="";
+            fileName = "";
         }
         if (!fileName.startsWith(File.separator)) {
             fileName = File.separator + fileName;
@@ -290,5 +314,9 @@ public class MyEMFDatabase extends HttpServlet {
 
     public static String getExceptiondtd() {
         return exceptiondtd;
+    }
+
+    public static String getMapfiles() {
+        return mapfiles;
     }
 }
