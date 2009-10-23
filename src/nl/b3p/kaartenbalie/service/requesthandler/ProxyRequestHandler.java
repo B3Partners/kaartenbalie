@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -52,12 +53,12 @@ public class ProxyRequestHandler extends WMSRequestHandler {
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         OGCRequest ogcrequest = dw.getOgcrequest();
-        String encodedUrl = ogcrequest.getParameter(KBConfiguration.KB_PROXY_URL);
-        if (encodedUrl == null || encodedUrl.length() == 0) {
+        String decodedUrl = ogcrequest.getParameter(KBConfiguration.KB_PROXY_URL);
+        if (decodedUrl == null || decodedUrl.length() == 0) {
             log.error(KBConfiguration.KB_PROXY_EXECPTION);
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         }
-
+        String encodedUrl = URLEncoder.encode(decodedUrl);
         String purl = KBCrypter.decryptText(encodedUrl);
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
         proxyWrapper.setProviderRequestURI(purl);
