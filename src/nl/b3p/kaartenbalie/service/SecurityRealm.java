@@ -107,7 +107,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         return null;
     }
 
-    public Principal getAuthenticatedPrincipal(String username) {
+    public Principal getAuthenticatedPrincipal(String username, String password) {
         Object identity = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.REALM_EM);
