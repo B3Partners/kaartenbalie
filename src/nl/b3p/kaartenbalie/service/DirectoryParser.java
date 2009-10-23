@@ -42,7 +42,7 @@ public class DirectoryParser {
                     JSONObject folder = new JSONObject();
                     folder.put("id", Integer.toString(fileId));
                     folder.put("title", file.getName());
-                    folder.put("children", stepIntoDirectory(file));
+                    folder.put("children", stepIntoDirectory(file, filter));
                     folder.put("isChild", false);
 
                     nodes.put(folder);
