@@ -22,6 +22,9 @@
     <definition name="base.beheer.server" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/server.jsp"/>
     </definition>
+    <definition name="base.beheer.mapserver" extends="base.beheer">
+        <put name="content" value="/WEB-INF/jsp/beheer/mapserver.jsp"/>
+    </definition>
     <definition name="base.beheer.wfsserver" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/wfsserver.jsp"/>
     </definition>

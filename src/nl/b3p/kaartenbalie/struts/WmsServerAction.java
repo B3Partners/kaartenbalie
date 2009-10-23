@@ -425,10 +425,10 @@ public class WmsServerAction extends ServerAction {
         List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
 
-        createTreeview(form, request);
+        //createTreeview(form, request);
     }
 // </editor-fold>
-
+/*
     public void createTreeview(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         //File dir = new File("/var/mapfiles/");
         JSONObject root = new JSONObject();
@@ -444,7 +444,7 @@ public class WmsServerAction extends ServerAction {
 
         request.setAttribute("mapfiles", root.toString(4));
     }
-
+*/
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------

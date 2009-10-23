@@ -29,7 +29,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <c:set var="delete" value="${action == 'delete'}"/>
 
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
-<script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 
 <html:form action="/${form.serverType}server" onsubmit="return validateServerForm(this)" focus="givenName">
@@ -100,78 +99,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         Table.stripe(server_table, 'table_alternate_tr');
         Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
     </script>
-
-    <div id="mapFiles" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
-
-    </div>
-
-    <script type="text/javascript">
-        setOnload(initTreeView);
-
-        var options = {};
-
-        // Copied from Utils.js from M.L.
-        function setOnload(func) {
-            /* Dit zou eventueel ook kunnen met window.addEventListener/attachEvent,
-             * maar dan verschilt natuurlijk de volgorde van meerdere events tussen IE/Firefox
-             */
-
-            var oldOnload = window.onload;
-            window.onload = function() {
-                if(oldOnload) {
-                    oldOnload();
-                }
-                func();
-            }
-        }
-        // \
-
-        function initTreeView() {
-            var root = ${mapfiles};
-            options.id = "mapFiles";
-            options.root = root;
-            options.itemLabelCreatorFunction = createLabel,
-            options.rootChildrenAsRoots = true,
-            options.toggleImages = {
-                "collapsed": "<html:rewrite page="/images/treeview/plus.gif" module=""/>",
-                "expanded": "<html:rewrite page="/images/treeview/minus.gif" module=""/>",
-                "leaf": "<html:rewrite page="/images/treeview/kaart.gif" module=""/>"
-            };
-
-            if(options.root.children.length == 0){
-                options.containerNode = document.getElementById(options.id);
-                options.containerNode.innerHTML = "Niets gevonden";
-            }else{
-                treeview_create(options);
-            }
-        }
-
-
-
-        function createLabel(container, item) {
-            // Label text
-            container.className = "node";
-
-            var a = document.createElement("a");
-            a.href = "#";
-            a.onclick = function() {
-                treeItemClick(item);
-            };
-            a.appendChild(document.createTextNode(item.title));
-
-            container.appendChild(a);
-        }
-
-        function treeItemClick(item) {
-            if(item.isChild){
-                alert( item.title + ' selected');
-            }else{
-                treeview_expandItemParents(options.id, item.id);
-            }
-        }
-    </script>
-
-
 
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
         <c:choose>

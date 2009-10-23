@@ -27,6 +27,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <div id="nav-menu">
 
             <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
+            <a href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="beheer.mapserver"/></a>
             <a href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.server"/></a>
             <a href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
             <a href="<html:rewrite page='/beheer/pricing.do' module='' />"><fmt:message key="beheer.pricing"/></a>
