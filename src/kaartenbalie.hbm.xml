@@ -28,34 +28,32 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="property">layer</param>
       </generator>
     </id>
-    <one-to-one name="layer" class="nl.b3p.wms.capabilities.Layer" constrained="true"/>
-    <property name="title" length="50"/>
-    <property name="attributionURL" length="4000" column="attribution_url"/>
-    <property name="logoURL" length="4000" column="logo_url"/>
-    <property name="logoWidth" length="50"/>
-    <property name="logoHeight" length="50"/>
+    <one-to-one class="nl.b3p.wms.capabilities.Layer" constrained="true" name="layer"/>
+    <property length="50" name="title"/>
+    <property column="attribution_url" length="4000" name="attributionURL"/>
+    <property column="logo_url" length="4000" name="logoURL"/>
+    <property length="50" name="logoWidth"/>
+    <property length="50" name="logoHeight"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.ContactInformation">
     <id name="id">
       <generator class="foreign">
         <param name="property">serviceProvider</param>
       </generator>
     </id>
-    <one-to-one name="serviceProvider" class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true"/>
-    <property name="contactPerson" length="50"/>
-    <property name="contactPosition" length="50"/>
-    <property name="address" length="50"/>
-    <property name="addressType" length="50"/>
-    <property name="postcode" length="50"/>
-    <property name="city" length="50"/>
-    <property name="stateOrProvince" length="50"/>
-    <property name="country" length="50"/>
-    <property name="voiceTelephone" length="50"/>
-    <property name="fascimileTelephone" length="50"/>
-    <property name="emailAddress" length="50"/>
+    <one-to-one class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true" name="serviceProvider"/>
+    <property length="50" name="contactPerson"/>
+    <property length="50" name="contactPosition"/>
+    <property length="50" name="address"/>
+    <property length="50" name="addressType"/>
+    <property length="50" name="postcode"/>
+    <property length="50" name="city"/>
+    <property length="50" name="stateOrProvince"/>
+    <property length="50" name="country"/>
+    <property length="50" name="voiceTelephone"/>
+    <property length="50" name="fascimileTelephone"/>
+    <property length="50" name="emailAddress"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.Dimensions">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -64,16 +62,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       </generator>
     </id>
     <many-to-one name="layer" not-null="true"/>
-    <property name="dimensionsName" length="50"/>
-    <property name="dimensionsUnit" length="50"/>
-    <property name="dimensionsUnitSymbol" length="50"/>
-    <property name="extentName" length="50"/>
-    <property name="extentDefaults" length="50"/>
-    <property name="extentNearestValue" length="50"/>
-    <property name="extentMultipleValues" length="50"/>
-    <property name="extentCurrent" length="50"/>
+    <property length="50" name="dimensionsName"/>
+    <property length="50" name="dimensionsUnit"/>
+    <property length="50" name="dimensionsUnitSymbol"/>
+    <property length="50" name="extentName"/>
+    <property length="50" name="extentDefaults"/>
+    <property length="50" name="extentNearestValue"/>
+    <property length="50" name="extentMultipleValues"/>
+    <property length="50" name="extentCurrent"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.Identifier">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -82,10 +79,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       </generator>
     </id>
     <many-to-one name="layer" not-null="true"/>
-    <property name="authorityName" length="50" not-null="true"/>
-    <property name="authorityURL" column="authority_url" length="50" not-null="true"/>
+    <property length="50" name="authorityName" not-null="true"/>
+    <property column="authority_url" length="50" name="authorityURL" not-null="true"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.Layer">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -93,53 +89,50 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">layer_id_seq</param>
       </generator>
     </id>
-    <many-to-one name="serviceProvider" not-null="true" column="service_provider"/>
-
-    <many-to-one name="parent" class="nl.b3p.wms.capabilities.Layer"/>
-    <set name="layers" cascade="all-delete-orphan" inverse="true" order-by="title">
+    <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
+    <many-to-one class="nl.b3p.wms.capabilities.Layer" name="parent"/>
+    <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
       <key column="parent"/>
       <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
     </set>
-    
-    <set name="dimensions" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="dimensions">
       <key column="layer"/>
       <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
     </set>
-    <set name="keywordList" cascade="all">
+    <set cascade="all" name="keywordList">
       <key column="layer"/>
       <element column="keyword" length="50" not-null="true" type="string"/>
     </set>
-    <set name="styles" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="styles">
       <key column="layer"/>
       <one-to-many class="nl.b3p.wms.capabilities.Style"/>
     </set>
-    <set name="domainResource" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="domainResource">
       <key column="layer"/>
       <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
     </set>
-    <set name="identifiers" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="identifiers">
       <key column="layer"/>
       <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
     </set>
-    <set name="srsbb" cascade="all" inverse="true" lazy="false">
+    <set cascade="all" inverse="true" lazy="false" name="srsbb">
       <key column="layer"/>
       <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
     </set>
-    <one-to-one name="attribution" cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false"/>
-    <property name="name" length="200"/>
+    <one-to-one cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false" name="attribution"/>
+    <property length="200" name="name"/>
     <property name="title" not-null="true"/>
     <property name="abstracts" type="text"/>
-    <property name="queryable" length="50"/>
-    <property name="cascaded" length="50"/>
-    <property name="opaque" length="50"/>
-    <property name="nosubsets" length="50"/>
-    <property name="fixedWidth" length="50"/>
-    <property name="fixedHeight" length="50"/>
-    <property name="scaleHintMin" length="50"/>
-    <property name="scaleHintMax" length="50"/>
+    <property length="50" name="queryable"/>
+    <property length="50" name="cascaded"/>
+    <property length="50" name="opaque"/>
+    <property length="50" name="nosubsets"/>
+    <property length="50" name="fixedWidth"/>
+    <property length="50" name="fixedHeight"/>
+    <property length="50" name="scaleHintMin"/>
+    <property length="50" name="scaleHintMax"/>
     <property name="metadata" type="text"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.LayerDomainResource">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -152,10 +145,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="layer_domain_resource" not-null="true"/>
       <element column="format" length="100" not-null="true" type="string"/>
     </set>
-    <property name="domain" length="50" not-null="true"/>
-    <property name="url" length="4000" not-null="true"/>
+    <property length="50" name="domain" not-null="true"/>
+    <property length="4000" name="url" not-null="true"/>
   </class>
-  
   <class name="nl.b3p.kaartenbalie.core.server.Organization">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -163,37 +155,36 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">organization_id_seq</param>
       </generator>
     </id>
-    <set name="layers" lazy="false" order-by="layer ASC">
+    <set lazy="false" name="layers" order-by="layer ASC">
       <key column="organization"/>
       <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
     </set>
-    <set name="wfsLayers" lazy="false" order-by="layer ASC">
+    <set lazy="false" name="wfsLayers" order-by="layer ASC">
       <key column="organization"/>
       <many-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer" column="layer" lazy="false"/>
     </set>
-    <set name="users" cascade="delete" inverse="true" lazy="false">
+    <set cascade="delete" inverse="true" lazy="false" name="users">
       <key column="organization"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
     </set>
-    <one-to-one name="account" cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false"/>
-    <property name="name" length="50" not-null="true"/>
-    <property name="street" length="50"/>
-    <property name="number" length="5"/>
-    <property name="addition" length="10"/>
-    <property name="postalcode" length="45"/>
-    <property name="province" length="50"/>
-    <property name="country" length="50"/>
-    <property name="postbox" length="50"/>
-    <property name="billingAddress" length="50"/>
-    <property name="visitorsAddress" length="50"/>
-    <property name="telephone" length="50"/>
-    <property name="fax" length="50"/>
+    <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
+    <property length="50" name="name" not-null="true"/>
+    <property length="50" name="street"/>
+    <property length="5" name="number"/>
+    <property length="10" name="addition"/>
+    <property length="45" name="postalcode"/>
+    <property length="50" name="province"/>
+    <property length="50" name="country"/>
+    <property length="50" name="postbox"/>
+    <property length="50" name="billingAddress"/>
+    <property length="50" name="visitorsAddress"/>
+    <property length="50" name="telephone"/>
+    <property length="50" name="fax"/>
     <property name="hasValidGetCapabilities" not-null="true"/>
-    <property name="bbox" length="50"/>
-    <property name="code" length="50"/>
+    <property length="50" name="bbox"/>
+    <property length="50" name="code"/>
     <property name="allowAccountingLayers" not-null="true"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.Roles">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -201,9 +192,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">roles_id_seq</param>
       </generator>
     </id>
-    <property name="role" length="45" not-null="true"/>
+    <property length="45" name="role" not-null="true"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.ServiceDomainResource">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -211,16 +201,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">service_domain_resource_id_seq</param>
       </generator>
     </id>
-    <many-to-one name="serviceProvider" not-null="true" column="service_provider"/>
-    <set name="formats" lazy="false">
+    <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
+    <set lazy="false" name="formats">
       <key column="service_domain_resource" not-null="true"/>
       <element column="format" length="100" not-null="true" type="string"/>
     </set>
-    <property name="domain" length="50" not-null="true"/>
-    <property name="getUrl" length="4000"/>
-    <property name="postUrl" length="4000"/>
+    <property length="50" name="domain" not-null="true"/>
+    <property length="4000" name="getUrl"/>
+    <property length="4000" name="postUrl"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.ServiceProvider">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -228,35 +217,34 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">service_provider_id_seq</param>
       </generator>
     </id>
-    <one-to-one name="contactInformation" cascade="all" class="nl.b3p.wms.capabilities.ContactInformation"/>
-    <set name="layers" cascade="all" inverse="true" order-by="title">
+    <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
+    <set cascade="all" inverse="true" name="layers" order-by="title">
       <key column="service_provider"/>
       <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
     </set>
-    <set name="serviceProviderKeywordList" cascade="all" table="service_provider_keyword_list">
+    <set cascade="all" name="serviceProviderKeywordList" table="service_provider_keyword_list">
       <key column="service_provider"/>
       <element column="keyword" length="50" not-null="true" type="string"/>
     </set>
-    <set name="domainResource" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="domainResource">
       <key column="service_provider"/>
       <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
     </set>
-    <set name="exceptions" cascade="all" table="service_provider_exceptions">
+    <set cascade="all" name="exceptions" table="service_provider_exceptions">
       <key column="service_provider"/>
       <element column="format" length="50" not-null="true" type="string"/>
     </set>
-    <property name="name" length="60" not-null="true"/>
-    <property name="abbr" length="60" not-null="true"/>
-    <property name="title" length="255" not-null="true"/>
+    <property length="60" name="name" not-null="true"/>
+    <property length="60" name="abbr" not-null="true"/>
+    <property length="255" name="title" not-null="true"/>
     <property name="abstracts" type="text"/>
     <property name="fees" type="text"/>
     <property name="accessConstraints" type="text"/>
-    <property name="givenName" length="50" not-null="true"/>
-    <property name="url" length="4000" not-null="true"/>
+    <property length="50" name="givenName" not-null="true"/>
+    <property length="4000" name="url" not-null="true"/>
     <property name="updatedDate" not-null="true"/>
-    <property name="wmsVersion" length="50" not-null="true"/>
+    <property length="50" name="wmsVersion" not-null="true"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -265,15 +253,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       </generator>
     </id>
     <many-to-one column="layer" name="layer" not-null="true"/>
-    <property name="srs" length="150"/>
-    <property name="minx" length="50"/>
-    <property name="maxx" length="50"/>
-    <property name="miny" length="50"/>
-    <property name="maxy" length="50"/>
-    <property name="resx" length="50"/>
-    <property name="resy" length="50"/>
+    <property length="150" name="srs"/>
+    <property length="50" name="minx"/>
+    <property length="50" name="maxx"/>
+    <property length="50" name="miny"/>
+    <property length="50" name="maxy"/>
+    <property length="50" name="resx"/>
+    <property length="50" name="resy"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.Style">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -282,15 +269,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       </generator>
     </id>
     <many-to-one name="layer" not-null="true"/>
-    <set name="domainResource" cascade="all" inverse="true">
+    <set cascade="all" inverse="true" name="domainResource">
       <key column="style"/>
       <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
     </set>
-    <property name="name" length="50" not-null="true"/>
-    <property name="title" length="255" not-null="true"/>
+    <property length="50" name="name" not-null="true"/>
+    <property length="255" name="title" not-null="true"/>
     <property name="abstracts" type="text"/>
   </class>
-  
   <class name="nl.b3p.wms.capabilities.StyleDomainResource">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -303,12 +289,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="style_domain_resource" not-null="true"/>
       <element column="format" length="45" not-null="true" type="string"/>
     </set>
-    <property name="domain" length="45" not-null="true"/>
-    <property name="url" length="4000" not-null="true"/>
-    <property name="width" length="45"/>
-    <property name="height" length="45"/>
+    <property length="45" name="domain" not-null="true"/>
+    <property length="4000" name="url" not-null="true"/>
+    <property length="45" name="width"/>
+    <property length="45" name="height"/>
   </class>
-  
   <class name="nl.b3p.kaartenbalie.core.server.User" table="_user">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -316,25 +301,24 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">_user_id_seq</param>
       </generator>
     </id>
-    <many-to-one name="organization" lazy="false" not-null="true"/>
-    <set name="roles" lazy="false">
+    <many-to-one lazy="false" name="organization" not-null="true"/>
+    <set lazy="false" name="roles">
       <key column="_user"/>
-      <many-to-many column="role" class="nl.b3p.wms.capabilities.Roles" lazy="false"/>
+      <many-to-many class="nl.b3p.wms.capabilities.Roles" column="role" lazy="false"/>
     </set>
-    <set name="ips" cascade="all" lazy="false">
+    <set cascade="all" lazy="false" name="ips">
       <key column="_user"/>
       <element column="ipaddress" length="45" not-null="true" type="string"/>
     </set>
-    <property name="firstName" length="50" not-null="true"/>
-    <property name="surname" length="50" not-null="true"/>
-    <property name="emailAddress" length="50" not-null="true"/>
-    <property name="username" length="50" not-null="true"/>
-    <property name="password" length="50" not-null="true"/>
-    <property name="personalURL" length="4000"/>
+    <property length="50" name="firstName" not-null="true"/>
+    <property length="50" name="surname" not-null="true"/>
+    <property length="50" name="emailAddress" not-null="true"/>
+    <property length="50" name="username" not-null="true"/>
+    <property length="50" name="password" not-null="true"/>
+    <property length="4000" name="personalURL"/>
     <property name="timeout"/>
-    <property name="defaultGetMap" length="4000"/>
+    <property length="4000" name="defaultGetMap"/>
   </class>
-  
   <class name="nl.b3p.ogc.wfs.v110.WfsLayer">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -342,13 +326,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">wfs_layer_id_seq</param>
       </generator>
     </id>
-    <many-to-one name="wfsServiceProvider" not-null="true" column="wfs_service_provider"/>
-
-    <property name="name" length="200"/>
-    <property name="title" length="255" not-null="true"/>
+    <many-to-one column="wfs_service_provider" name="wfsServiceProvider" not-null="true"/>
+    <property length="200" name="name"/>
+    <property length="255" name="title" not-null="true"/>
     <property name="metadata" type="text"/>
   </class>
-  
   <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider">
     <id name="id">
       <column name="id" sql-type="serial"/>
@@ -356,16 +338,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">wfs_service_provider_id_seq</param>
       </generator>
     </id>
-    <set name="wfsLayers" cascade="all" inverse="true" >
+    <set cascade="all" inverse="true" name="wfsLayers">
       <key column="wfs_service_provider"/>
       <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
     </set>
-    <property name="name" length="60" not-null="true"/>
-    <property name="abbr" length="60" not-null="true"/>
-    <property name="title" length="50"/>
-    <property name="givenName" length="50" not-null="true"/>
-    <property name="url" length="4000" not-null="true"/>
+    <property length="60" name="name" not-null="true"/>
+    <property length="60" name="abbr" not-null="true"/>
+    <property length="50" name="title"/>
+    <property length="50" name="givenName" not-null="true"/>
+    <property length="4000" name="url" not-null="true"/>
     <property name="updatedDate" not-null="true"/>
-    <property name="wfsVersion" length="50" not-null="true"/>
+    <property length="50" name="wfsVersion" not-null="true"/>
   </class>
 </hibernate-mapping>

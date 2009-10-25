@@ -18,6 +18,7 @@
 
         -->
 <project xmlns:webproject1="http://www.netbeans.org/ns/web-project/1" xmlns:webproject2="http://www.netbeans.org/ns/web-project/2" xmlns:webproject3="http://www.netbeans.org/ns/web-project/3" basedir=".." default="default" name="kaartenbalie-impl">
+    <import file="rest-build.xml"/>
     <import file="ant-deploy.xml"/>
     <fail message="Please build using Ant 1.7.1 or higher.">
         <condition>
@@ -577,9 +578,10 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.securityfilter-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.securityfilter-b3p.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.commons-mail-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.commons-mail-b3p.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.restapi.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restapi.classpath" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.restlib.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restlib.classpath" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.jstl11.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pFopLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.reference.milton-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.libs.restapi.classpath} "/>
+            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.jstl11.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pFopLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.reference.milton-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.libs.restapi.classpath} ${manifest.libs.restlib.classpath} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -600,6 +602,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.securityfilter-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.commons-mail-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.restapi.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.restlib.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>

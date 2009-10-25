@@ -21,11 +21,17 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForward;
@@ -35,6 +41,9 @@ import org.apache.struts.validator.DynaValidatorForm;
 public abstract class ServerAction extends KaartenbalieCrudAction {
 
     private static final Log log = LogFactory.getLog(ServerAction.class);
+
+    protected static final String ADD = "add";
+
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
@@ -48,8 +57,18 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
     protected static final String LAYER_JOINED_KEY = "beheer.server.layer.joined";
     protected static final String PRICING_JOINED_KEY = "beheer.server.pricing.joined";
 
-    /** Creates a new instance of ServerAction */
-    public ServerAction() {
+    @Override
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+
+        ExtendedMethodProperties crudProp = null;
+
+        crudProp = new ExtendedMethodProperties(ADD);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setAlternateForwardName(LISTFW);
+        map.put(ADD, crudProp);
+
+        return map;
     }
 
     /* Execute method which handles all unspecified requests.
@@ -65,24 +84,23 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        this.createLists(dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
         return mapping.findForward(SUCCESS);
     }
-    // </editor-fold>
-    /* Method which gets the hidden id in a form.
-     *
-     * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param response The HTTP Response we are processing.
-     *
-     * @return an Actionforward object.
-     *
-     * @throws Exception
-     */
-    // <editor-fold defaultstate="" desc="getID(DynaValidatorForm dynaForm) method.">
+
+    public ActionForward add(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // eerst alles wissen
+        dynaForm.initialize(mapping);
+        dynaForm.set("givenName", request.getParameter("givenName"));
+        dynaForm.set("url", request.getParameter("url"));
+        dynaForm.set("updatedDate", request.getParameter("updatedDate"));
+        dynaForm.set("abbr", request.getParameter("abbr"));
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
+    }
+
     protected Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
@@ -98,4 +116,46 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
         }
         return true;
     }
+
+    protected boolean isAbbrUnique(Integer spId, DynaValidatorForm dynaForm, EntityManager em) {
+        return isWFSAbbrUnique(spId, dynaForm, em) && isWMSAbbrUnique(spId, dynaForm, em);
+    }
+
+    protected boolean isWFSAbbrUnique(Integer spId, DynaValidatorForm dynaForm, EntityManager em) {
+        try {
+            WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
+                    "from WfsServiceProvider sp where " +
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr"))).getSingleResult();
+
+            if (dbSp != null) {
+                if (spId != null) {
+                    if (spId.equals(dbSp.getId())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (NoResultException nre) {
+            return true;
+        }
+    }
+
+    protected boolean isWMSAbbrUnique(Integer spId, DynaValidatorForm dynaForm, EntityManager em) {
+        try {
+            ServiceProvider dbSp = (ServiceProvider) em.createQuery(
+                    "from ServiceProvider sp where " +
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr"))).getSingleResult();
+            if (dbSp != null) {
+                if (spId != null) {
+                    if (spId.equals(dbSp.getId())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } catch (NoResultException nre) {
+            return true;
+        }
+    }
+
 }

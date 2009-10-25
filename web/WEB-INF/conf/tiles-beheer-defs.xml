@@ -11,27 +11,33 @@
 -->
 <tiles-definitions>
     <definition name="base.beheer" extends="base">
-        <put name="menu" value="/WEB-INF/jsp/beheer/menu.jsp"/>
+        <put name="menu" value="/WEB-INF/jsp/beheer/adminMenu.jsp"/>
+    </definition>
+    <definition name="base.proxy" extends="base">
+        <put name="menu" value="/WEB-INF/jsp/beheer/proxyMenu.jsp"/>
     </definition>
     <definition name="base.beheer.index" extends="base.beheer">
         <put name="content" value="/WEB-INF/jsp/beheer/index.jsp"/>
     </definition>
-    <definition name="base.beheer.user" extends="base.beheer">
+    <definition name="base.beheer.user" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/user.jsp"/>
     </definition>
-    <definition name="base.beheer.server" extends="base.beheer">
+    <definition name="base.beheer.server" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/server.jsp"/>
     </definition>
-    <definition name="base.beheer.mapserver" extends="base.beheer">
+    <definition name="base.beheer.mapserver" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/mapserver.jsp"/>
     </definition>
-    <definition name="base.beheer.wfsserver" extends="base.beheer">
+    <definition name="base.beheer.wfsserver" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/wfsserver.jsp"/>
     </definition>
-    <definition name="base.beheer.organization" extends="base.beheer">
+    <definition name="base.beheer.organization" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/organization.jsp"/>
     </definition>
-    <definition name="base.beheer.wfsorganization" extends="base.beheer">
+    <definition name="base.beheer.rights" extends="base.proxy">
+        <put name="content" value="/WEB-INF/jsp/beheer/rights.jsp"/>
+    </definition>
+    <definition name="base.beheer.wfsorganization" extends="base.proxy">
         <put name="content" value="/WEB-INF/jsp/beheer/wfsorganization.jsp"/>
     </definition>
     <definition name="base.beheer.metadata" extends="base.beheer">

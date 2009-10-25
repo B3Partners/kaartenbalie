@@ -21,7 +21,6 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -42,8 +40,6 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.service.DirectoryParser;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
@@ -54,8 +50,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -74,6 +68,7 @@ public class WmsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         ServiceProvider serviceprovider = getServiceProvider(dynaForm, request, false);
         if (serviceprovider == null) {
@@ -98,6 +93,7 @@ public class WmsServerAction extends ServerAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
 
+    @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -143,9 +139,13 @@ public class WmsServerAction extends ServerAction {
         }
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
+        Integer oldId = null;
+        if (oldServiceProvider!=null) {
+            oldId = oldServiceProvider.getId();
+        }
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
 
-        if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
+        if (!isAbbrUnique(oldId, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -258,6 +258,7 @@ public class WmsServerAction extends ServerAction {
     }
     // </editor-fold>
 
+    @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -362,6 +363,7 @@ public class WmsServerAction extends ServerAction {
      *
      * @throws Exception
      */
+    @Override
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -562,21 +564,4 @@ public class WmsServerAction extends ServerAction {
         return ogcrequest.getUrl();
     }
 
-    protected boolean isAbbrUnique(ServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
-        try {
-            ServiceProvider dbSp = (ServiceProvider) em.createQuery(
-                    "from ServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr"))).getSingleResult();
-            if (dbSp != null) {
-                if (sp != null) {
-                    if (dbSp.getId().equals(sp.getId())) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        } catch (NoResultException nre) {
-            return true;
-        }
-    }
 }

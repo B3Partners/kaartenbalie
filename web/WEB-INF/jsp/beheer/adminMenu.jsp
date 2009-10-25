@@ -22,17 +22,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <div id="nav">
-    <center><B>Menu Algemeen</B></center><br>
+    <center><B>Menu Beheer</B></center><br>
     <p>
         <div id="nav-menu">
+
             <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
-            <a href="<html:rewrite page='/viewer.do' module='' />"><fmt:message key="algemeen.viewer"/></a>
-            <c:if test="${true}">
-                <a href="<html:rewrite page='/demo.do' module='' />"><fmt:message key="algemeen.demo"/></a>
-            </c:if>
-            <a href="<html:rewrite page='/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
-            <a href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="algemeen.proxy"/></a>
-            <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="algemeen.beheer"/></a>
+            <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="beheer.reporting"/></a>
+            <a href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
+            <a href="<html:rewrite page='/beheer/pricing.do' module='' />"><fmt:message key="beheer.pricing"/></a>
+            <a href="<html:rewrite page='/beheer/accounting.do' module='' />"><fmt:message key="beheer.accounting"/></a>
         </div>
     </p>
 </div>

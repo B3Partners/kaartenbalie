@@ -22,18 +22,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <div id="nav">
-    <center><B>Menu beheerder</B></center><br>
+    <center><B>Menu Toegang</B></center><br>
     <p>
         <div id="nav-menu">
 
             <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
             <a href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="beheer.mapserver"/></a>
             <a href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.server"/></a>
-            <a href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
-            <a href="<html:rewrite page='/beheer/pricing.do' module='' />"><fmt:message key="beheer.pricing"/></a>
+            <a href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.wfsserver"/></a>
             <a href="<html:rewrite page='/beheer/organization.do' module='' />"><fmt:message key="beheer.organization"/></a>
-            <a href="<html:rewrite page='/beheer/accounting.do' module='' />"><fmt:message key="beheer.accounting"/></a>
-            <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="beheer.reporting"/></a>
+            <a href="<html:rewrite page='/beheer/rights.do' module='' />"><fmt:message key="beheer.rights"/></a>
             <a href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="beheer.users"/></a>
         </div>
     </p>

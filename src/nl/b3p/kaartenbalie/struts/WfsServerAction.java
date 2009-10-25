@@ -138,9 +138,13 @@ public class WfsServerAction extends ServerAction {
         // tot hier het zelfde
         WfsServiceProvider newServiceProvider = null;
         WfsServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
+        Integer oldId = null;
+        if (oldServiceProvider!=null) {
+            oldId = oldServiceProvider.getId();
+        }
         WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
 
-        if (!isAbbrUnique(oldServiceProvider, dynaForm, em)) {
+        if (!isAbbrUnique(oldId, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
@@ -514,22 +518,4 @@ public class WfsServerAction extends ServerAction {
         return null;
     }
     // </editor-fold>
-    protected boolean isAbbrUnique(WfsServiceProvider sp, DynaValidatorForm dynaForm, EntityManager em) {
-        try {
-            WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
-                    "from WfsServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", FormUtils.nullIfEmpty(dynaForm.getString("abbr"))).getSingleResult();
-
-            if (dbSp != null) {
-                if (sp != null) {
-                    if (dbSp.getId() == sp.getId()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        } catch (NoResultException nre) {
-            return true;
-        }
-    }
 }

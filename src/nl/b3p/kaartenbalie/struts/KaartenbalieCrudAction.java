@@ -263,9 +263,9 @@ public class KaartenbalieCrudAction extends CrudAction {
         return root;
     }
 
-    protected JSONObject createWfsTree() throws JSONException {
+    protected JSONObject createWfsTree(String rootName) throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("name", "root");
+        root.put("name", rootName);
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();

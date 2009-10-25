@@ -79,7 +79,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property name="bytesReceived"/>
     <property name="responseStatus"/>
     <property name="messageSent" type="text"/>
-    <property name="messageReceived" type="text" />
+    <property name="messageReceived" type="text"/>
     <property column="provider_request_uri" length="4000" name="providerRequestURI"/>
     <property name="requestResponseTime"/>
     <property name="msSinceRequestStart"/>

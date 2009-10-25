@@ -21,7 +21,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-
 <c:set var="form" value="${serverForm.map}"/>
 <c:set var="action" value="${form.action}"/>
 <c:set var="mainid" value="${form.id}"/>
@@ -32,13 +31,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 
-<html:form action="/server" onsubmit="return validateServerForm(this)" focus="givenName">
+<html:form action="/wfsserver" onsubmit="return validateServerForm(this)" focus="givenName">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
 
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer WMS Services</H1>
+        <H1>Beheer WFS Services</H1>
         <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
             <thead>
                 <tr class="serverRijTitel" id="topRij">
@@ -61,7 +60,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <tr class="serverRij" onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
                             <td width="350">
                                 <div style="width: 340px; overflow: hidden;">
-                                    <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
+                                    <html:link page="/wfsserver.do?edit=submit&id=${nServiceProvider.id}">
                                         <c:out value="${nServiceProvider.givenName}"/>
                                     </html:link>
                                 </div>

@@ -38,19 +38,17 @@ public class MapParser {
 
         String line = "";
         while ((line = buffer.readLine()) != null) {
-            if (line.equals("MAP")) {
+//            if (line.trim().toUpperCase().equals("MAP")) {
                 parseMap(line, buffer);
-            }else if (line.equals("END")) {
                 break;
-            }
+//            }
         }
     }
 
     private void parseMap(String line, BufferedReader buffer) throws IOException {
         while ((line = buffer.readLine()) != null) {
-            if (line.equals("  WEB")) {
+            if (line.trim().toUpperCase().equals("WEB")) {
                 parseWeb(line, buffer);
-            }else if(line.equals("  END")){
                 break;
             }
         }
@@ -58,9 +56,8 @@ public class MapParser {
 
     private void parseWeb(String line, BufferedReader buffer) throws IOException {
         while ((line = buffer.readLine()) != null) {
-            if (line.toUpperCase().contains("    METADATA")) {
+            if (line.trim().toUpperCase().equals("METADATA")) {
                 parseMetaData(line, buffer);
-            }else if(line.equals("    END")){
                 break;
             }
         }
@@ -68,22 +65,37 @@ public class MapParser {
 
     private void parseMetaData(String line, BufferedReader buffer) throws IOException {
         while ((line = buffer.readLine()) != null) {
-            if (line.contains("'")) {
-                // Line example: "      'wms_srs'             'EPSG:4326'"
-                String[] lineParts = line.split("'");
-
-                if (lineParts.length == 3) {
-                    // K/V has no value
-                    // {space}{key}{space}
-                    webMetadata.put(lineParts[1], "");
-                } else if (lineParts.length == 4) {
-                    // {space}{key}{space}{value}
-                    webMetadata.put(lineParts[1], lineParts[3]);
-                }
-            } else if (line.toUpperCase().contains("END")) {
+            if (line.trim().toLowerCase().indexOf("wms_title") >= 0) {
+                webMetadata.put("wms_title", lastFromSplitLine(line));
+            } else if (line.trim().toLowerCase().indexOf("wms_onlineresource") >= 0) {
+                webMetadata.put("wms_onlineresource", lastFromSplitLine(line));
+            } else if (line.trim().toLowerCase().indexOf("wms_srs") >= 0) {
+                webMetadata.put("wms_srs", lastFromSplitLine(line));
+            } else if (line.trim().toUpperCase().equals("END")) {
                 break;
             }
         }
+    }
+
+    private String[] splitLine(String line) {
+        if (line == null) {
+            return null;
+        }
+        String[] splitLine = null;
+        line = line.replace('\'', '\"');
+        splitLine = line.split("\"");
+        return splitLine;
+    }
+
+    private String lastFromSplitLine(String line) {
+        String[] splitLine = splitLine(line);
+        for (int i = splitLine.length - 1; i >= 0; i--) {
+            String lineFrag = splitLine[i].trim();
+            if (lineFrag.length() > 0) {
+                return lineFrag;
+            }
+        }
+        return null;
     }
 
     public Map<String, String> getWebMetadata() {

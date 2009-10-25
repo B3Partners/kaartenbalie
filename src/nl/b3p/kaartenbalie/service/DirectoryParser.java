@@ -1,7 +1,9 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import org.json.JSONArray;
@@ -14,8 +16,7 @@ import org.json.JSONObject;
  */
 public class DirectoryParser {
 
-    public static final String[] SHELL_FILES = {"Thumbs.db"};
-    private int fileId;
+    protected int fileId;
 
     public DirectoryParser() {
         reset();
@@ -25,11 +26,14 @@ public class DirectoryParser {
         fileId = 0;
     }
 
-    public JSONArray stepIntoDirectory(File directory) throws JSONException {
-        return stepIntoDirectory(directory, new String[0]);
+    public JSONArray parse2JSON(File directory) throws JSONException {
+        return parse2JSON(directory, null);
     }
 
-    public JSONArray stepIntoDirectory(File directory, String[] filter) throws JSONException {
+    public JSONArray parse2JSON(File directory, String[] filter) throws JSONException {
+        if (directory == null) {
+            return null;
+        }
         JSONArray nodes = new JSONArray();
 
         if (directory.isDirectory()) {
@@ -42,12 +46,12 @@ public class DirectoryParser {
                     JSONObject folder = new JSONObject();
                     folder.put("id", Integer.toString(fileId));
                     folder.put("title", file.getName());
-                    folder.put("children", stepIntoDirectory(file, filter));
+                    folder.put("children", parse2JSON(file, filter));
                     folder.put("isChild", false);
 
                     nodes.put(folder);
 
-                } else if (allowedFile(file, filter) || (filter.length == 0 && !allowedFile(file, SHELL_FILES))) {
+                } else if (allowedFile(file, filter)) {
                     JSONObject child = new JSONObject();
                     child.put("id", Integer.toString(fileId));
                     child.put("title", file.getName());
@@ -61,21 +65,33 @@ public class DirectoryParser {
         return nodes;
     }
 
-    public void deleteFileByID(File directory, int deleteAt) {
-        if (directory.isDirectory()) {
-            File[] files = sortFiles(directory.listFiles());
+        public List parse2List(File directory) {
+        return parse2List(directory, null);
+    }
 
-            for (int i = 0; i < files.length; i++) {
-                if (++fileId == deleteAt) {
-                    // File found, delete it
-                    files[i].delete();
-                    break;
-                }
-                if (files[i].isDirectory()) {
-                    deleteFileByID(files[i], deleteAt);
-                }
+    public List parse2List(File directory, String[] filter) {
+        return parse2List(directory, filter, new ArrayList());
+    }
+
+    public List parse2List(File directory, String[] filter, List results) {
+        if (directory == null || results == null) {
+            return null;
+        }
+        if (!directory.isDirectory()) {
+            return results;
+        }
+
+        File[] files = sortFiles(directory.listFiles());
+
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            if (file.isDirectory()) {
+                results = parse2List(file, filter, results);
+            } else if (allowedFile(file, filter)) {
+                results.add(file.getPath());
             }
         }
+        return results;
     }
 
     /**
@@ -83,7 +99,7 @@ public class DirectoryParser {
      * @param files Files (and dirs) to sort
      * @return Sorted file array
      */
-    private static File[] sortFiles(File[] files) {
+    protected static File[] sortFiles(File[] files) {
         SortedMap<String, File> mapDirs = new TreeMap();
         SortedMap<String, File> mapFiles = new TreeMap();
 
@@ -121,6 +137,9 @@ public class DirectoryParser {
      * @return File approved
      */
     public static boolean allowedFile(File file, String[] extensions) {
+        if (extensions==null || extensions.length==0) {
+            return true;
+        }
         String filename = file.getName();
         for (int i = 0; i < extensions.length; i++) {
             String endFix = extensions[i];

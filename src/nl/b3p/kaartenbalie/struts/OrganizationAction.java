@@ -27,20 +27,20 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
@@ -51,6 +51,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,7 +61,10 @@ import org.json.JSONObject;
  */
 public class OrganizationAction extends KaartenbalieCrudAction {
 
-    private final static String SUCCESS = "success";
+    private final static String SAVE_RIGHTS = "saveRights";
+    private final static String EDIT_RIGHTS = "editRights";
+    private final static String LIST_RIGHTS = "listRights";
+    private final static String RIGHTSFW = "rights";
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
@@ -68,6 +72,33 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
+
+    @Override
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+
+        ExtendedMethodProperties crudProp = null;
+
+
+        crudProp = new ExtendedMethodProperties(SAVE_RIGHTS);
+        crudProp.setDefaultForwardName(RIGHTSFW);
+        crudProp.setDefaultMessageKey("warning.crud.savedone");
+        crudProp.setAlternateForwardName(RIGHTSFW);
+        crudProp.setAlternateMessageKey("error.crud.savefailed");
+        map.put(SAVE_RIGHTS, crudProp);
+
+        crudProp = new ExtendedMethodProperties(EDIT_RIGHTS);
+        crudProp.setDefaultForwardName(RIGHTSFW);
+        crudProp.setAlternateForwardName(RIGHTSFW);
+        map.put(EDIT_RIGHTS, crudProp);
+
+        crudProp = new ExtendedMethodProperties(LIST_RIGHTS);
+        crudProp.setDefaultForwardName(RIGHTSFW);
+        crudProp.setAlternateForwardName(RIGHTSFW);
+        map.put(LIST_RIGHTS, crudProp);
+
+        return map;
+    }
 
     /* Execute method which handles all unspecified requests.
      *
@@ -81,23 +112,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        this.createLists(dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request);
         return mapping.findForward(SUCCESS);
     }
 
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward af = super.create(mapping, dynaForm, request, response);
-        if (isWFS(dynaForm)) {
-            dynaForm.set("serverType", OGCConstants.WFS_SERVICE_WFS);
-            request.setAttribute("layerList", createWfsTree());
-        } else {
-            dynaForm.set("serverType", "");
-            request.setAttribute("layerList", createTree());
-        }
-        createLists(dynaForm, request);
-        return af;
+    public ActionForward listRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
     }
 
     /* Edit method which handles all editable requests.
@@ -120,6 +143,17 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         populateOrganizationForm(organization, dynaForm, request);
         return super.edit(mapping, dynaForm, request, response);
+    }
+
+    public ActionForward editRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Organization organization = getOrganization(dynaForm, request, false);
+        prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+        if (organization == null) {
+            addAlternateMessage(mapping, request, ORG_NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        populateOrganizationTree(organization, dynaForm, request);
+        return getDefaultForward(mapping, request);
     }
 
     /* Method for saving a new organization from input of a user.
@@ -156,14 +190,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         populateOrganizationObject(dynaForm, organization);
 
-        /**
-         * A warning has to be given if the organization has an invalid capability with the
-         * selected layers.
-         */
-        if (isWMS(dynaForm) && !organization.getHasValidGetCapabilities()) {
-            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
-        }
-
         if (organization.getId() == null) {
             em.persist(organization);
         } else {
@@ -171,6 +197,39 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
         em.flush();
         return super.save(mapping, dynaForm, request, response);
+    }
+
+    public ActionForward saveRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
+        log.debug("Getting entity manager ......");
+        EntityManager em = getEntityManager();
+        if (!isTokenValid(request)) {
+            prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        Organization organization = getOrganization(dynaForm, request, false);
+        if (null == organization) {
+            prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+            addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+        populateOrganizationLayers(dynaForm, organization);
+
+        /**
+         * A warning has to be given if the organization has an invalid capability with the
+         * selected layers.
+         */
+        if (organization.getLayers() != null && !organization.getLayers().isEmpty() && !organization.getHasValidGetCapabilities()) {
+            addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
+        }
+
+        em.merge(organization);
+        em.flush();
+        
+        populateOrganizationTree(organization, dynaForm, request);
+        prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+        addDefaultMessage(mapping, request);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -300,36 +359,48 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         } else {
             dynaForm.set("allow", "");
         }
+    }
+
+    protected void populateOrganizationTree(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException {
+        dynaForm.set("id", organization.getId().toString());
+        dynaForm.set("name", organization.getName());
 
         JSONObject root = null;
-        String checkedLayers = "";
-        if (isWFS(dynaForm)) {
-            Set l = organization.getWfsLayers();
-            Object[] organizationLayer = l.toArray();
+        StringBuffer checkedLayers = new StringBuffer();
 
-            for (int i = 0; i < organizationLayer.length; i++) {
-                if (i < organizationLayer.length - 1) {
-                    checkedLayers += ((WfsLayer) organizationLayer[i]).getUniqueName() + ",";
-                } else {
-                    checkedLayers += ((WfsLayer) organizationLayer[i]).getUniqueName();
-                }
-            }
-            root = this.createWfsTree();
-        } else {
-            Set l = organization.getLayers();
-            Object[] organizationLayer = l.toArray();
-            for (int i = 0; i < organizationLayer.length; i++) {
-                if (i < organizationLayer.length - 1) {
-                    checkedLayers += ((Layer) organizationLayer[i]).getUniqueName() + ",";
-                } else {
-                    checkedLayers += ((Layer) organizationLayer[i]).getUniqueName();
-                }
-            }
-            root = this.createTree();
+        Set wmsLayers = organization.getLayers();
+        Object[] wmsOrganizationLayer = wmsLayers.toArray();
+        for (int i = 0; i < wmsOrganizationLayer.length; i++) {
+            checkedLayers.append(",");
+            checkedLayers.append(((Layer) wmsOrganizationLayer[i]).getUniqueName());
+        }
+        root = this.createTree();
+        JSONArray rootArray = (JSONArray) root.get("children");
+
+        Set wfsLayers = organization.getWfsLayers();
+        Object[] wfsOrganizationLayer = wfsLayers.toArray();
+
+        for (int i = 0; i < wfsOrganizationLayer.length; i++) {
+            checkedLayers.append(",");
+            checkedLayers.append(((WfsLayer) wfsOrganizationLayer[i]).getUniqueName());
         }
 
+        JSONObject wfsRoot = this.createWfsTree("WFS Services");
+        JSONArray wfsRootArray = (JSONArray) wfsRoot.get("children");
+        if (wfsRootArray != null && wfsRootArray.length() > 0) {
+            if (rootArray == null || rootArray.length() == 0) {
+                root = new JSONObject();
+                root.put("name", "root");
+                root.put("children", wfsRootArray);
+            } else {
+                rootArray.put(wfsRoot);
+            }
+        }
+
+        if (checkedLayers.length()>0) {
+            request.setAttribute("checkedLayers", checkedLayers.substring(1));
+        }
         request.setAttribute("layerList", root);
-        request.setAttribute("checkedLayers", checkedLayers);
     }
 
     /* Method that fills an organization object with the user input from the forms.
@@ -383,39 +454,32 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         } else {
             organization.setAllowAccountingLayers(false);
         }
-        Set layers = new HashSet();
-        Set serviceProviders = new HashSet();
+    }
+
+    private void populateOrganizationLayers(DynaValidatorForm dynaForm, Organization organization) throws Exception {
+        Set wmsLayers = new HashSet();
+        Set wfsLayers = new HashSet();
+        Set wmsServiceProviders = new HashSet();
         String[] selectedLayers = (String[]) dynaForm.get("selectedLayers");
         int size = selectedLayers.length;
 
-        if (isWFS(dynaForm)) {
-            for (int i = 0; i < size; i++) {
-                // nieuwe methode voor maken
-                WfsLayer l = getWfsLayerByUniqueName(selectedLayers[i]);
-                if (l == null) {
-                    continue;
-                }
-                layers.add(l);
-                WfsServiceProvider sp = l.getWfsServiceProvider();
-                if (!serviceProviders.contains(sp)) {
-                    serviceProviders.add(sp);
+        for (int i = 0; i < size; i++) {
+            String layerName = selectedLayers[i];
+            WfsLayer wfsl = getWfsLayerByUniqueName(layerName);
+            if (wfsl != null) {
+                wfsLayers.add(wfsl);
+            }
+            Layer wmsl = getLayerByUniqueName(layerName);
+            if (wmsl != null) {
+                wmsLayers.add(wmsl);
+                ServiceProvider sp = wmsl.getServiceProvider();
+                if (!wmsServiceProviders.contains(sp)) {
+                    wmsServiceProviders.add(sp);
                 }
             }
-            organization.setWfsLayers(layers);
-        } else {
+        }
 
-            for (int i = 0; i < size; i++) {
-                Layer l = getLayerByUniqueName(selectedLayers[i]);
-                if (l == null) {
-                    continue;
-                }
-                layers.add(l);
-                ServiceProvider sp = l.getServiceProvider();
-                if (!serviceProviders.contains(sp)) {
-                    serviceProviders.add(sp);
-                }
-            }
-
+        if (!wmsServiceProviders.isEmpty()) {
             /* There is a possibility that some serviceproviders do not support the same SRS's or image formats.
              * Some might have compatibility some others not. To make sure this wont give any problems, we need to
              * check which formats and srs's are the same. If and only if this complies we can say for sure that
@@ -427,11 +491,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
              * according to the WMS rules. This will prevent the user from being kept in the dark if something doesn't
              * work properly.
              */
-            LayerValidator lv = new LayerValidator(layers);
-            ServiceProviderValidator spv = new ServiceProviderValidator(serviceProviders);
+            LayerValidator lv = new LayerValidator(wmsLayers);
+            ServiceProviderValidator spv = new ServiceProviderValidator(wmsServiceProviders);
             organization.setHasValidGetCapabilities(lv.validate() && spv.validate());
-            organization.setLayers(layers);
         }
+
+        organization.setWfsLayers(wfsLayers);
+        organization.setLayers(wmsLayers);
     }
 
     /* Creates a list with the available layers.
@@ -486,25 +552,4 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private Integer getID(DynaValidatorForm dynaForm) {
         return FormUtils.StringToInteger(dynaForm.getString("id"));
     }
-
-    private String getServerType(DynaValidatorForm dynaForm) {
-        return FormUtils.nullIfEmpty(dynaForm.getString("serverType"));
-    }
-
-    private boolean isWMS(DynaValidatorForm dynaForm) {
-        String wms = getServerType(dynaForm);
-        if (wms == null || OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(wms)) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isWFS(DynaValidatorForm dynaForm) {
-        String wfs = getServerType(dynaForm);
-        if (wfs != null && OGCConstants.WFS_SERVICE_WFS.equalsIgnoreCase(wfs)) {
-            return true;
-        }
-        return false;
-    }
-
 }

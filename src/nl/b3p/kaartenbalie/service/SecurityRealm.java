@@ -151,4 +151,8 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         //log.info("Check user principal has role");
         return user.checkRole(role);
     }
+
+    public Principal getAuthenticatedPrincipal(String username) {
+        return null;
+    }
 }
