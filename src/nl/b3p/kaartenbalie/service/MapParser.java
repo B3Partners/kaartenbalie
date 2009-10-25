@@ -31,18 +31,26 @@ public class MapParser {
     }
 
     public void parse() throws FileNotFoundException, IOException {
-        InputStream in = new FileInputStream(mapFile);
+        InputStream in = null;
+        try {
+            in = new FileInputStream(mapFile);
 
-        InputStreamReader converter = new InputStreamReader(in);
-        BufferedReader buffer = new BufferedReader(converter);
+            InputStreamReader converter = new InputStreamReader(in);
+            BufferedReader buffer = new BufferedReader(converter);
 
-        String line = "";
-        while ((line = buffer.readLine()) != null) {
+            String line = "";
+            while ((line = buffer.readLine()) != null) {
 //            if (line.trim().toUpperCase().equals("MAP")) {
                 parseMap(line, buffer);
                 break;
 //            }
+            }
+        } finally {
+            if (in != null) {
+                in.close();
+            }
         }
+
     }
 
     private void parseMap(String line, BufferedReader buffer) throws IOException {

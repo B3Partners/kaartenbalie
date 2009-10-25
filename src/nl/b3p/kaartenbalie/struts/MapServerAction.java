@@ -23,7 +23,10 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,11 +46,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.upload.FormFile;
 import org.apache.struts.validator.DynaValidatorForm;
 
 public class MapServerAction extends KaartenbalieCrudAction {
 
     protected static final Log log = LogFactory.getLog(MapServerAction.class);
+    protected static final String MAPFILE_EXT_ERRORKEY = "error.mapserver.extention";
+    protected static final String MAPFILE_SIZE_ERRORKEY = "error.mapserver.size";
+    protected static final String MAPFILE_FORMAT_ERRORKEY = "error.mapserver.format";
+    protected static final String MAPFILE_EXISTS_ERRORKEY = "error.mapserver.exists";
 
     @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -56,12 +64,71 @@ public class MapServerAction extends KaartenbalieCrudAction {
         return mapping.findForward(SUCCESS);
     }
 
-    public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return super.edit(mapping, dynaForm, request, response);
-    }
-
     @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        FormFile thisFile = (FormFile) dynaForm.get("mapFile");
+        Boolean overwrite = (Boolean) dynaForm.get("overwrite");
+
+        if (thisFile == null) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAPFILE_SIZE_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+        int fileSize = (int) thisFile.getFileSize();
+        if (fileSize > (1024 * 1024)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAPFILE_SIZE_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+        String fileName = thisFile.getFileName();
+        if (fileName == null || !fileName.endsWith(".map")) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAPFILE_EXT_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+
+        String mapdir = MyEMFDatabase.getMapfiles();
+        File targetFile = new File(mapdir, fileName);
+        boolean exists = targetFile.exists();
+        boolean doOverwrite = false;
+        if (overwrite != null && overwrite.booleanValue()) {
+            doOverwrite = true;
+        }
+        if (exists && !doOverwrite) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAPFILE_EXISTS_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+
+        InputStream stream = null;
+        try {
+            //retrieve the file data
+            stream = thisFile.getInputStream();
+            OutputStream bos = null;
+            try {
+                bos = new FileOutputStream(targetFile);
+                int bytesRead = 0;
+                byte[] buffer = new byte[8192];
+                while ((bytesRead = stream.read(buffer, 0, 8192)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+            } finally {
+                if (bos != null) {
+                    bos.close();
+                }
+            }
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
+        Map md = collectMetadata(targetFile, 9999);
+        if (md==null) {
+            targetFile.delete();
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MAPFILE_FORMAT_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
         return super.save(mapping, dynaForm, request, response);
     }
 
@@ -81,33 +148,10 @@ public class MapServerAction extends KaartenbalieCrudAction {
         while (it.hasNext()) {
             String mapFilePath = (String) it.next();
             try {
-                MapParser mapParser = new MapParser(new File(mapFilePath));
-                mapParser.parse();
-                Map md = mapParser.getWebMetadata();
-                String url = (String) md.get("wms_onlineresource");
-                if (url == null || url.length() == 0) {
-                    continue;
+                Map md = collectMetadata(new File(mapFilePath), mapFilesInfoList.size());
+                if (md != null) {
+                    mapFilesInfoList.add(md);
                 }
-                md.put("encoded_url", URLEncoder.encode(url, "UTF-8"));
-                String title = (String) md.get("wms_title");
-                if (title == null || title.length() == 0) {
-                    title = "title" + mapFilesInfoList.size();
-                }
-                md.put("wms_title", title);
-                md.put("encoded_title", URLEncoder.encode(title, "UTF-8"));
-                md.put("map", mapFilePath);
-                md.put("id", "map" + mapFilesInfoList.size());
-                try {
-                    md.put("kb_wms", findWMSService(url));
-                } catch (Exception ex) {
-                    log.error("", ex);
-                }
-                try {
-                    md.put("kb_wfs", findWFSService(url));
-                } catch (Exception ex) {
-                    log.error("", ex);
-                }
-                mapFilesInfoList.add(md);
             } catch (FileNotFoundException ex) {
                 log.error("map file '" + mapFilePath + "' not found:", ex);
             } catch (IOException ex) {
@@ -115,6 +159,36 @@ public class MapServerAction extends KaartenbalieCrudAction {
             }
         }
         request.setAttribute("mapfiles", mapFilesInfoList);
+    }
+
+    protected Map collectMetadata(File mapPath, int index) throws IOException {
+        MapParser mapParser = new MapParser(mapPath);
+        mapParser.parse();
+        Map md = mapParser.getWebMetadata();
+        String url = (String) md.get("wms_onlineresource");
+        if (url == null || url.length() == 0) {
+            return null;
+        }
+        md.put("encoded_url", URLEncoder.encode(url, "UTF-8"));
+        String title = (String) md.get("wms_title");
+        if (title == null || title.length() == 0) {
+            title = "title" + index;
+        }
+        md.put("wms_title", title);
+        md.put("encoded_title", URLEncoder.encode(title, "UTF-8"));
+        md.put("map", mapPath.getPath());
+        md.put("id", "map" + index);
+        try {
+            md.put("kb_wms", findWMSService(url));
+        } catch (Exception ex) {
+            log.error("", ex);
+        }
+        try {
+            md.put("kb_wfs", findWFSService(url));
+        } catch (Exception ex) {
+            log.error("", ex);
+        }
+        return md;
     }
 
     protected Integer findWMSService(String url) throws Exception {
