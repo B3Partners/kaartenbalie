@@ -144,6 +144,10 @@ public class CallWMSServlet extends HttpServlet {
 
                 parseRequestAndData(data, user);
 
+            } catch (AccessDeniedException adex) {
+                log.error("Error while logging in: " + adex.getLocalizedMessage());
+                rr.setClientRequestException(adex);
+                handleRequestException(adex, data);
             } catch (Exception ex) {
                 log.error("Error while handling request: ", ex);
                 rr.setClientRequestException(ex);
