@@ -229,6 +229,7 @@ public class KaartenbalieCrudAction extends CrudAction {
     private JSONObject createTree(Set organizationLayers, boolean checkLayers) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("name", "root");
+        root.put("id", "wmsroot");
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
@@ -266,6 +267,7 @@ public class KaartenbalieCrudAction extends CrudAction {
     protected JSONObject createWfsTree(String rootName) throws JSONException {
         JSONObject root = new JSONObject();
         root.put("name", rootName);
+        root.put("id", "wfs" + rootName);
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();
@@ -347,7 +349,7 @@ public class KaartenbalieCrudAction extends CrudAction {
      */
     private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
+        root.put("id", "wfs" + serviceProvider.getId());
         root.put("name", serviceProvider.getGivenName());
         root.put("type", "serviceprovider");
         return root;
@@ -355,7 +357,7 @@ public class KaartenbalieCrudAction extends CrudAction {
 
     private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("id", serviceProvider.getId());
+        root.put("id", "wms" + serviceProvider.getId());
         root.put("name", serviceProvider.getGivenName());
         root.put("type", "serviceprovider");
         return root;
