@@ -33,9 +33,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class DOMValidator extends DefaultHandler {
 
-    private boolean documentIsValid = true;
-    private boolean documentHadWarnings = false;
-
     public void parseAndValidate(ByteArrayInputStream uri) throws SAXParseException, ParserConfigurationException, SAXException, IOException {
         Document doc = null;
 
@@ -46,7 +43,6 @@ public class DOMValidator extends DefaultHandler {
         DocumentBuilder db = dbf.newDocumentBuilder();
         db.setErrorHandler(this);
         doc = db.parse(uri);
-        doc = null;
     }
 
     /** Warning. */

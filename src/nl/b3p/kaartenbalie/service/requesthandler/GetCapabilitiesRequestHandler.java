@@ -127,7 +127,6 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         DOMValidator dv = new DOMValidator();
         dv.parseAndValidate(new ByteArrayInputStream(output.toString().getBytes(KBConfiguration.CHARSET)));
 
-        byte[] data = output.toByteArray();
         dw.write(output);
     }
     // </editor-fold>
