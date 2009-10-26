@@ -31,7 +31,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <a href="<html:rewrite page='/demo.do' module='' />"><fmt:message key="algemeen.demo"/></a>
             </c:if>
             <a href="<html:rewrite page='/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
-            <a href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="algemeen.proxy"/></a>
+            <a href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="algemeen.proxy"/></a>
             <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="algemeen.beheer"/></a>
         </div>
     </p>

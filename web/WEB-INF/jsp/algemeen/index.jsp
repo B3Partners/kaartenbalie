@@ -48,10 +48,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             &nbsp;&nbsp;
         </td><td valign="top">
             <dl>
-                <dt><b>Beheer</b></dt>
-                <dd>Toevoegen van kaartlagen/servers, metadata en prijzen,
-                    toevoegen van organisaties, gebruikers en een budget voor het ophalen 
-                    van betaalde kaarten, rapportages van het gebruik.
+                <dt><b>Beheer (Toegang)</b></dt>
+                <dd>Toevoegen van kaartlagen/servers, organisaties en gebruikers.
+                    Aangeven van rechten op kaarten voor organisaties.
+                </dd>
+                <dt><b>Beheer (Extra)</b></dt>
+                <dd>Toevoegen van metadata en prijzen, een budget voor het ophalen
+                    van betaalde kaarten en rapportages van het gebruik.
                 </dd>
                 <dt><b>Persoonlijke pagina</b></dt>
                 <dd>Wachtwoord en ipadres aanpassen en uw personelijke url opvragen
@@ -59,10 +62,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </dd>
                 <dt><b>Metadata Editor</b></dt>
                 <dd>Metadata editor conform kernset voor geografie 1.1 (Nederlands profiel op ISO19115:2003/ ISO19139)
-                </dd>
-                <dt><b>Demo</b></dt>
-                <dd>Nieuwe gebruikers kunnen via de demo kennismaken van de mogelijkheden van
-                    B3P Kaartenbalie.
                 </dd>
                 <dt><b>Viewer</b></dt>
                 <dd>Als u al een inlog heeft kunt u direct naar de <a href="/gisviewer/viewer.do">viewer</a>.
