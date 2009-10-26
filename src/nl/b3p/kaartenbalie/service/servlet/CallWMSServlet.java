@@ -297,7 +297,6 @@ public class CallWMSServlet extends HttpServlet {
     }
 
     private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
-        log.error("Exception converted into image: ", ex);
         String message = ex.getMessage();
         try {
             ExceptionLayer el = new ExceptionLayer();
@@ -318,7 +317,6 @@ public class CallWMSServlet extends HttpServlet {
     }
 
     private void handleRequestExceptionAsXML(Exception ex, DataWrapper data) throws IOException {
-        log.error("Exception converted into xml: ", ex);
         ByteArrayOutputStream output = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
