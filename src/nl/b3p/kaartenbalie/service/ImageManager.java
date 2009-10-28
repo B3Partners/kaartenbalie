@@ -88,8 +88,7 @@ public class ImageManager {
             ic = (ImageCollector) it.next();
             int status = ic.getStatus();
             if (status == ImageCollector.ERROR || ic.getBufferedImage() == null) {
-                log.error(ic.getMessage() + " (Status: " + status + ")");
-                throw new Exception(ic.getMessage() + " (Status: " + status + ")");
+                throw new ProviderException(ic.getMessage() + " (Status: " + status + ")");
             }
             if (status != ImageCollector.COMPLETED) {
                 // problem with one of sp's, but we continue with the rest!

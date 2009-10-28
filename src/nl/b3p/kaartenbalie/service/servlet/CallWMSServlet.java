@@ -54,6 +54,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.service.ProviderException;
 import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -144,6 +145,10 @@ public class CallWMSServlet extends HttpServlet {
 
                 parseRequestAndData(data, user);
 
+            } catch (ProviderException pex) {
+                log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
+                rr.setClientRequestException(pex);
+                handleRequestException(pex, data);
             } catch (AccessDeniedException adex) {
                 log.error("Error while logging in: " + adex.getLocalizedMessage());
                 rr.setClientRequestException(adex);
