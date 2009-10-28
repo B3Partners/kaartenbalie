@@ -182,7 +182,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
             }
 
             // layer toevoegen aan sp indien queryable voorwaarde ok
-            if (!checkForQueryable || (checkForQueryable && layerInfo.getQueryable().equals("1"))) {
+            if (!checkForQueryable || 
+                    (checkForQueryable && layerInfo.getQueryable()!=null && layerInfo.getQueryable().equals("1"))) {
                 addToServerProviderList(eventualSPList, layerInfo);
             }
         }
