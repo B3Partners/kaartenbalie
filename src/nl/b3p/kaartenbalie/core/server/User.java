@@ -30,7 +30,6 @@ import nl.b3p.wms.capabilities.Roles;
 
 public class User implements Principal {
 
-    public static final String BEHEERDER = "beheerder";
     private Integer id;
     private String firstName;
     private String surname;

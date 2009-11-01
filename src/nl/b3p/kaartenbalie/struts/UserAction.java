@@ -135,9 +135,9 @@ public class UserAction extends KaartenbalieCrudAction {
         ActionForward af = saveCheck(user, mapping, dynaForm, request);
         if (af != null) {
             return af;
-        /*
-         * Check if this user gets a valid capability when using this personalURL
-         */
+            /*
+             * Check if this user gets a valid capability when using this personalURL
+             */
         }
         if (user.getOrganization() != null && !user.getOrganization().getHasValidGetCapabilities()) {
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
@@ -189,8 +189,8 @@ public class UserAction extends KaartenbalieCrudAction {
 
         try {
             User dbUser = (User) em.createQuery(
-                    "from User u where " +
-                    "lower(u.username) = lower(:username) ").setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username"))).getSingleResult();
+                    "from User u where "
+                    + "lower(u.username) = lower(:username) ").setParameter("username", FormUtils.nullIfEmpty(dynaForm.getString("username"))).getSingleResult();
             if (dbUser != null && (dbUser.getId() != user.getId())) {
                 prepareMethod(dynaForm, request, EDIT, LIST);
                 addAlternateMessage(mapping, request, NON_UNIQUE_USERNAME_ERROR_KEY);
@@ -361,7 +361,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
         User sessUser = (User) request.getUserPrincipal();
         // Alleen beheeders mogen iemand anders bewerken
-        if (!request.isUserInRole(User.BEHEERDER) && !createNew) {
+        if (!request.isUserInRole(Roles.ADMIN) && !createNew) {
             if (sessUser == null) {
                 return null;
             }
@@ -551,9 +551,9 @@ public class UserAction extends KaartenbalieCrudAction {
         boolean urlNeedsRefresh = true;
         String persURL = user.getPersonalURL();
         // check of er uberhaupt een url en timeout zijn
-        if (persURL != null &&
-                persURL.length() > 0 &&
-                oldDate != null) {
+        if (persURL != null
+                && persURL.length() > 0
+                && oldDate != null) {
             urlNeedsRefresh = false;
             // check of timeout veranderd is
             if (oldDate.before(newDate)) {

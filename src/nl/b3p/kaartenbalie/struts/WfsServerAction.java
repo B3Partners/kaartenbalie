@@ -82,12 +82,6 @@ public class WfsServerAction extends ServerAction {
         return super.unspecified(mapping, dynaForm, request, response);
     }
 
-    public ActionForward create(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ActionForward af = super.create(mapping, dynaForm, request, response);
-        dynaForm.set("serverType", "wfs");
-        return af;
-    }
-
     /* Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.

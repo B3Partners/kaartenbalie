@@ -78,6 +78,7 @@ public class CallWMSServlet extends HttpServlet {
      * @throws ServletException
      */
     // <editor-fold defaultstate="" desc="init(ServletConfig config) method.">
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         // Zet de logger
@@ -569,6 +570,7 @@ public class CallWMSServlet extends HttpServlet {
      * @param request servlet request
      * @param response servlet response
      */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
@@ -578,6 +580,7 @@ public class CallWMSServlet extends HttpServlet {
      * @param request servlet request
      * @param response servlet response
      */
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
@@ -585,6 +588,7 @@ public class CallWMSServlet extends HttpServlet {
 
     /** Returns a short description of the servlet.
      */
+    @Override
     public String getServletInfo() {
         return "CallWMSServlet info";
     }

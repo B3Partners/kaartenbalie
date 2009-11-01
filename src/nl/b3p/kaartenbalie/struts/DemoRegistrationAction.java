@@ -175,12 +175,12 @@ public class DemoRegistrationAction extends UserAction {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
-        if (!user.checkRole("demogebruiker")) {
+        if (!user.checkRole(Roles.GUEST)) {
             List roles = em.createQuery("from Roles").getResultList();
             Iterator roleIt = roles.iterator();
             while (roleIt.hasNext()) {
                 Roles role = (Roles) roleIt.next();
-                if (role.getRole().equalsIgnoreCase("demogebruiker")) {
+                if (role.getRole().equalsIgnoreCase(Roles.GUEST)) {
                     user.addRole(role);
                 }
             }

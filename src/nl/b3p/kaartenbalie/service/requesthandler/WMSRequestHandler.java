@@ -26,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,7 +77,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.io.input.CountingInputStream;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler extends OGCRequestHandler {
@@ -90,42 +88,51 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
     public WMSRequestHandler() {
     }
-    
-    public Set getServiceProviders() throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
-        User dbUser = null;
+    protected Set getValidLayers(User user, EntityManager em) throws Exception {
+
         Set userRoles = user.getRoles();
         boolean isAdmin = false;
+        boolean isOrgAdmin = false;
         Iterator rolIt = userRoles.iterator();
         while (rolIt.hasNext()) {
             Roles role = (Roles) rolIt.next();
-            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
+            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
                 /* de gebruiker is een beheerder */
                 isAdmin = true;
-                break;
+            }
+            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
+                /* de gebruiker is een organisatiebeheerder */
+                isOrgAdmin = true;
             }
         }
 
+
+        Set organizationLayers = new HashSet();
+
+        if (isAdmin && !isOrgAdmin) {
+            List layerlist = em.createQuery("from Layer").getResultList();
+            organizationLayers.addAll(layerlist);
+        } else {
+            organizationLayers = user.getOrganization().getLayers();
+        }
+        return organizationLayers;
+    }
+
+    public Set getServiceProviders() throws Exception {
+        log.debug("Getting entity manager ......");
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        User dbUser = null;
         try {
-            dbUser = (User) em.createQuery("from User u where " +
-                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
+            dbUser = (User) em.createQuery("from User u where "
+                    + "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
+        Set organizationLayers = getValidLayers(dbUser, em);
 
         Set serviceproviders = null;
-        Set organizationLayers = new HashSet();
-
-        if (isAdmin == false) {
-            organizationLayers = dbUser.getOrganization().getLayers();
-        } else {
-            List layerlist = em.createQuery("from Layer").getResultList();
-            organizationLayers.addAll(layerlist);
-        }
-
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
 
             serviceproviders = new HashSet();
@@ -139,46 +146,24 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
             }
         }
-        
+
         return serviceproviders;
     }
 
     public ServiceProvider getServiceProvider() throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-
         User dbUser = null;
-        Set userRoles = user.getRoles();
-        boolean isAdmin = false;
-        Iterator rolIt = userRoles.iterator();
-        while (rolIt.hasNext()) {
-            Roles role = (Roles) rolIt.next();
-            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
-                /* de gebruiker is een beheerder */
-                isAdmin = true;
-                break;
-            }
-        }
-
         try {
-            dbUser = (User) em.createQuery("from User u where " +
-                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
+            dbUser = (User) em.createQuery("from User u where "
+                    + "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
-
+        Set organizationLayers = getValidLayers(dbUser, em);
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
-
-        Set organizationLayers = new HashSet();
-
-        if (isAdmin == false) {
-            organizationLayers = dbUser.getOrganization().getLayers();
-        } else {
-            List layerlist = em.createQuery("from Layer").getResultList();
-            organizationLayers.addAll(layerlist);
-        }
 
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
 
@@ -242,15 +227,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         authSubLayers = new HashSet();
                     }
                     Map topLayerIdentity = layerCloned.getIdentityMap(false);
-                    Integer duplicateCount = (Integer)topLayerDuplicateCounts.get(topLayerIdentity);
-                    if(duplicateCount == null) {
+                    Integer duplicateCount = (Integer) topLayerDuplicateCounts.get(topLayerIdentity);
+                    if (duplicateCount == null) {
                         /* First time this identity combo has been encountered... Do not add
                          * a counter to the title
                          */
                         topLayerDuplicateCounts.put(topLayerIdentity, new Integer(1));
                     } else {
                         /* Add a counter to the title */
-                        int count = duplicateCount.intValue()+1;
+                        int count = duplicateCount.intValue() + 1;
                         layerCloned.setTitle(layerCloned.getTitle().trim() + " (" + count + ")");
                         topLayerDuplicateCounts.put(topLayerIdentity, new Integer(count));
                     }
@@ -448,8 +433,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         wmsRequest.setBytesSent(new Long(url.getBytes().length));
         long startTime = System.currentTimeMillis();
         try {
-            if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) &&
-                    url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
+            if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)
+                    && url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
                 //B3PLayering...
                 long time = System.currentTimeMillis() - startTime;
                 try {
@@ -530,15 +515,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {       
-        String query = "select new " +
-                "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable) " +
-                "from Layer l, Organization o, ServiceProvider sp join o.layers ol " +
-                "where l = ol and " +
-                "l.serviceProvider = sp and " +
-                "o.id = :orgId and " +
-                "l.name = :layerName and " +
-                "sp.abbr = :layerCode";
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
+        String query = "select new "
+                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable) "
+                + "from Layer l, Organization o, ServiceProvider sp join o.layers ol "
+                + "where l = ol and "
+                + "l.serviceProvider = sp and "
+                + "o.id = :orgId and "
+                + "l.name = :layerName and "
+                + "sp.abbr = :layerCode";
 
         return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
     }
@@ -574,14 +559,17 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
         StringBuffer sb;
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) {
             sb = new StringBuffer();
         }
 
+        @Override
         public void characters(char[] chars, int start, int len) {
             sb.append(chars, start, len);
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) {
             stack.push(sb.toString());
         }

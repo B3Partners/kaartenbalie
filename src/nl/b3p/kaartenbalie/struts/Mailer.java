@@ -259,40 +259,19 @@ public class Mailer {
         if (mailTo != null && mailTo.trim().length() != 0) {
             ds = mailTo.split(",");
             for (int i = 0; i < ds.length; i++) {
-                try {
-                    email.addTo(ds[i]);
-                } catch (MessagingException me) {
-                    log.error("To email address not valid: ", me);
-                    if (errors != null) {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("error.message.emailproblem", ds[i]));
-                    }
-                }
+                email.addTo(ds[i]);
             }
         }
         if (mailCc != null && mailCc.trim().length() != 0) {
             ds = mailCc.split(",");
             for (int i = 0; i < ds.length; i++) {
-                try {
-                    email.addCc(ds[i]);
-                } catch (MessagingException me) {
-                    log.error("Cc email address not valid: ", me);
-                    if (errors != null) {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("error.message.emailproblem", ds[i]));
-                    }
-                }
+                email.addCc(ds[i]);
             }
         }
         if (mailBcc != null && mailBcc.trim().length() != 0) {
             ds = mailBcc.split(",");
             for (int i = 0; i < ds.length; i++) {
-                try {
-                    email.addBcc(ds[i]);
-                } catch (MessagingException me) {
-                    log.error("Bcc email address not valid: ", me);
-                    if (errors != null) {
-                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("error.message.emailproblem", ds[i]));
-                    }
-                }
+                email.addBcc(ds[i]);
             }
         }
 
@@ -511,15 +490,15 @@ public class Mailer {
                 continue;
             }
             String theValue = (String) extraParams.get(theParameter);
-            if (theParameter.equals("fullname") ||
-                    theParameter.equals("company") ||
-                    theParameter.equals("address") ||
-                    theParameter.equals("zipcode") ||
-                    theParameter.equals("receipt") ||
-                    theParameter.equals("city") ||
-                    theParameter.equals("country") ||
-                    theParameter.equals("phone") ||
-                    theParameter.equals("fax")) {
+            if (theParameter.equals("fullname")
+                    || theParameter.equals("company")
+                    || theParameter.equals("address")
+                    || theParameter.equals("zipcode")
+                    || theParameter.equals("receipt")
+                    || theParameter.equals("city")
+                    || theParameter.equals("country")
+                    || theParameter.equals("phone")
+                    || theParameter.equals("fax")) {
                 continue;
             }
             ib.append("\n");

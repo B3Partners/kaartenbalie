@@ -85,21 +85,27 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         String version = null;
         Set userRoles = user.getRoles();
         boolean isAdmin = false;
+        boolean isOrgAdmin = false;
         Iterator rolIt = userRoles.iterator();
         while (rolIt.hasNext() && !isAdmin) {
             Roles role = (Roles) rolIt.next();
-            if (role.getId() == 1 && role.getRole().equalsIgnoreCase("beheerder")) {
+            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
                 /* de gebruiker is een beheerder */
                 isAdmin = true;
             }
+            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
+                /* de gebruiker is een organisatiebeheerder */
+                isOrgAdmin = true;
+            }
         }
 
-        String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin);
+        // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
+        String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin && !isOrgAdmin);
 
-        if (isAdmin == false) {
-            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
-        } else {
+        if (isAdmin && !isOrgAdmin) {
             spInfo = getLayerSummaries(layerNames);
+        } else {
+            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
         }
 
         if (spInfo == null || spInfo.isEmpty()) {
