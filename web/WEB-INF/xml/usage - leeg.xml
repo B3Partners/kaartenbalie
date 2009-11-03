@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="usage-wms.xsl"?>
+<monitor-report>
+	<parameters>
+		<id>5</id>
+		<organization>Beheerders</organization>
+		<time-stamp>2009-11-03T19:06:34.959+01:00</time-stamp>
+		<processing-time>466</processing-time>
+		<date-start>2009-10-01</date-start>
+		<date-end>2009-10-02</date-end>
+	</parameters>
+	<service name="WMS"/>
+	<service name="WFS"/>
+</monitor-report>

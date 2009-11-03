@@ -63,11 +63,25 @@ white-space: nowrap;
 				<style>
 					<xsl:value-of select="$styles"/>
 				</style>
-				<title>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/></title>
+				<title>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/>
+				</title>
 			</head>
 			<body>
-				<h1>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/></h1>
-				<xsl:apply-templates select="monitor-report/service[@name=$service]"/>
+				<h1>Kaartenbalie Performance Rapport - <xsl:value-of select="$service"/>
+				</h1>
+				<xsl:apply-templates select="monitor-report/parameters"/>
+				<xsl:choose>
+					<xsl:when test="monitor-report/service[@name=$service]/node()">
+						<xsl:apply-templates select="monitor-report/service[@name=$service]"/>
+					</xsl:when>
+					<xsl:otherwise>
+					<fieldset id="no-results">
+							<legend>Service: <xsl:value-of select="$service"/>
+							</legend>
+							<p>Geen resultaten</p>
+						</fieldset>
+					</xsl:otherwise>
+				</xsl:choose>
 			</body>
 		</html>
 	</xsl:template>

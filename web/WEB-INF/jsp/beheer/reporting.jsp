@@ -109,9 +109,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <fieldset class="reportingFieldset">
         <legend><fmt:message key="beheer.reporting.reports"/></legend>
         <c:choose>
+            <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Vernieuw</html:submit>
+            <html:submit property="delete" styleClass="submit" styleId="removeChecked" onclick="bCancel=true">Verwijder geselecteerd</html:submit>
             <c:when test="${fn:length(reports) > 0}">
-                <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Vernieuw</html:submit>
-                <html:submit property="delete" styleClass="submit" styleId="removeChecked" onclick="bCancel=true">Verwijder geselecteerd</html:submit>
                 <table id="reportTable" style="padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="serverRijTitel">
