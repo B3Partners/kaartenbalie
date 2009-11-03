@@ -50,6 +50,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.securityfilter.filter.SecurityRequestWrapper;
 
 public class UserAction extends KaartenbalieCrudAction {
 
@@ -153,6 +154,8 @@ public class UserAction extends KaartenbalieCrudAction {
             em.merge(user);
         }
         em.flush();
+
+        updatePrincipal(request, user);
 
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
@@ -381,6 +384,21 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         return user;
     }
+
+    protected boolean updatePrincipal(HttpServletRequest request, User user) {
+        User sessUser = (User) request.getUserPrincipal();
+        if (!sessUser.equals(user)) {
+            return false;
+        }
+        // need to update logged in user
+        if (request instanceof SecurityRequestWrapper) {
+            SecurityRequestWrapper srw = (SecurityRequestWrapper) request;
+            srw.setUserPrincipal(user);
+            return true;
+        }
+        return false;
+    }
+
     // </editor-fold>
     /* Method which returns the organization with a specified id.
      *
@@ -391,7 +409,6 @@ public class UserAction extends KaartenbalieCrudAction {
      * @return a Organization object.
      */
     // <editor-fold defaultstate="" desc="getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, Integer id) method.">
-
     private Organization getOrganization(Integer id) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();

@@ -187,4 +187,25 @@ public class User implements Principal {
         }
         ips.add(ip);
     }
+
+    Object o = null;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof User) || o==null) {
+            return false;
+        }
+        User ouser = (User)o;
+        if (this.username == null) {
+            return false;
+        }
+        return (this.username.equals(ouser.getUsername()));
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 29 * hash + (this.username != null ? this.username.hashCode() : 0);
+        return hash;
+    }
 }
