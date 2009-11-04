@@ -705,3 +705,37 @@ Demo voortgang Styles...
     background: #e4edec;
     border-right: 2px solid #fff;
 }
+
+/* tables */
+.scroll {
+    /* width: 900px;
+    height: 153px; */
+    overflow: auto;
+    /* font-size: 11px; */
+    clear: both;
+}
+table.tablesorter {
+	font-family:arial;
+	background-color: #CDCDCD;
+	margin: 0px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: #e6EEEE;
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px;
+}
+table.tablesorter thead tr .header {
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody td {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #FFF;
+	vertical-align: top;
+}

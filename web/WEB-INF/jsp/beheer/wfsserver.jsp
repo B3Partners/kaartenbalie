@@ -38,57 +38,73 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer WFS Services</H1>
-        <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-            <thead>
-                <tr class="serverRijTitel" id="topRij">
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="350"><div>Naam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="250"><div>Afkorting</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['date'], col:2}); sortTable(this);" width="140"><div>Datum laatste update</div></td>
-                </tr>
-            </thead>
-        </table>
 
-        <c:set var="hoogte" value="${(fn:length(serviceproviderlist) * 21)}" />
-        <c:if test="${hoogte > 230}">
-            <c:set var="hoogte" value="230" />
-        </c:if>
-
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px; width: 770px;"> 
-            <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-                <tbody>
-                    <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                        <tr class="serverRij" onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
-                            <td width="350">
-                                <div style="width: 340px; overflow: hidden;">
-                                    <html:link page="/wfsserver.do?edit=submit&id=${nServiceProvider.id}">
-                                        <c:out value="${nServiceProvider.givenName}"/>
-                                    </html:link>
-                                </div>
-                            </td>
-                            <td width="250">
-                                <div style="width: 240px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
-                            </td>
-                            <td width="140">
-                                <div style="width: 130px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
-                            </td>
-                        </tr>
-                    <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
-                        <strong>Naam:</strong> ${nServiceProvider.givenName}<br />
-                        <strong>Afkorting:</strong> ${nServiceProvider.abbr}<br />
-                        <strong>URL:</strong> ${nServiceProvider.url}<br />
-                        <strong>Datum laatste update:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
-                    </div>
-                </c:forEach>
-                </tbody>
-            </table>
-        </div>
+        <c:choose>
+            <c:when test="${!empty serviceproviderlist}">
+                <c:set var="hoogte" value="${(fn:length(serviceproviderlist) * 28) + 28}" />
+                <c:if test="${hoogte > 400}">
+                    <c:set var="hoogte" value="400" />
+                </c:if>
+                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                    <table id="server_table" class="tablesorter">
+                        <thead>
+                            <tr>
+                                <th style="width: 47%;" id="sort_col1">Naam</th>
+                                <th style="width: 34%;" id="sort_col2">Afkorting</th>
+                                <th style="width: 19%;" id="sort_col3">Datum laatste update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                                <c:set var="id_selected" value='' />
+                                <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
+                                <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});"${id_selected}>
+                                    <td width="350">
+                                        <div style="width: 340px; overflow: hidden;">
+                                            <html:link page="/wfsserver.do?edit=submit&id=${nServiceProvider.id}">
+                                                <c:out value="${nServiceProvider.givenName}"/>
+                                            </html:link>
+                                        </div>
+                                    </td>
+                                    <td width="250">
+                                        <div style="width: 240px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
+                                    </td>
+                                    <td width="140">
+                                        <div style="width: 130px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
+                                    </td>
+                                </tr>
+                            <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
+                                <strong>Naam:</strong> ${nServiceProvider.givenName}<br />
+                                <strong>Afkorting:</strong> ${nServiceProvider.abbr}<br />
+                                <strong>URL:</strong> ${nServiceProvider.url}<br />
+                                <strong>Datum laatste update:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                            </div>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <script type="text/javascript">
+                    if(document.getElementById('regel_selected')) {
+                        $("#regel_selected").addClass('selected');
+                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
+                    }
+                    $("#server_table").tablesorter({
+                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
+                        sortList: [[0,0]],
+                        headers: {
+                            2: {
+                                sorter:'dutchdates'
+                            }
+                        },
+                        textExtraction: linkExtract
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                Nog geen WMS Services beschikbaar
+            </c:otherwise>
+        </c:choose>
     </div>
-
-    <script type="text/javascript">
-        var server_table = document.getElementById('server_table');
-        Table.stripe(server_table, 'table_alternate_tr');
-        Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
-    </script>
 
     <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
         <c:choose>

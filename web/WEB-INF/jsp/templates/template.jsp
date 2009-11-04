@@ -42,6 +42,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/tabcontainer.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/jquery-1.3.2.min.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/jquery.tablesorter.min.js' module=''/>"></script>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {

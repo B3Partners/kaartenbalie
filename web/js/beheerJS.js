@@ -80,3 +80,23 @@ function sortTable(obj) {
 }
 
 // EINDE SORTTABLE CODE //
+
+// Used for sorting
+var linkExtract = function(node) {
+    var found = false;
+    for(x in node.childNodes) {
+        var tmpNode = node.childNodes[x];
+        if(tmpNode.tagName && tmpNode.tagName.toLowerCase() == 'div') {
+            if(tmpNode.hasChildNodes())
+            {
+                for(y in tmpNode.childNodes) {
+                    var tmpNode2 = tmpNode.childNodes[y];
+                    if(tmpNode2.tagName && tmpNode2.tagName.toLowerCase() == 'a') {
+                        return tmpNode2.innerHTML;
+                    }
+                }
+            }
+        }
+    }
+    return node.innerHTML;
+}

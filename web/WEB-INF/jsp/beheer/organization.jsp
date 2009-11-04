@@ -40,66 +40,74 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Organisaties</H1>
 
-        <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-            <thead>
-                <tr class="serverRijTitel" id="topRij">
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="200"><div>Naam organisatie</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="250"><div>Adres</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="125"><div>Plaats</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:3}); sortTable(this);" width="100"><div>Telefoon</div></td>
-                </tr>
-            </thead>
-        </table>
+        <c:choose>
+            <c:when test="${!empty organizationlist}">
+                <c:set var="hoogte" value="${(fn:length(organizationlist) * 28) + 28}" />
+                <c:if test="${hoogte > 400}">
+                    <c:set var="hoogte" value="400" />
+                </c:if>
+                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                    <table id="server_table" class="tablesorter">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;" id="sort_col1">Naam organisatie</th>
+                                <th style="width: 37%;" id="sort_col2">Adres</th>
+                                <th style="width: 19%;" id="sort_col3">Plaats</th>
+                                <th style="width: 15%;" id="sort_col4">Telefoon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                                <c:set var="id_selected" value='' />
+                                <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
+                                <tr onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});"${id_selected}>
+                                    <td style="width: 30%;">
+                                        <div style="width: 100%; overflow: hidden;">
+                                            <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                                <c:out value="${nOrganization.name}"/>
+                                            </html:link>
+                                        </div>
+                                    </td>
 
-        <c:set var="hoogte" value="${(fn:length(organizationlist) * 21)}" />
-        <c:if test="${hoogte > 230}">
-            <c:set var="hoogte" value="230" />
-        </c:if>
-
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px; width: 770px;">          
-            <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-                <tbody>
-                    <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-
-                        <tr class="serverRij" onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
-                            <td width="200">
-                                <div style="width: 190px; overflow: hidden;">
-                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
-                                        <c:out value="${nOrganization.name}"/>
-                                    </html:link>
+                                    <td style="width: 37%;">
+                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/></div>
+                                    </td>
+                                    <td style="width: 19%;">
+                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.province}"/></div>
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.telephone}"/></div>
+                                    </td>
+                                </tr>
+                                <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
+                                    <strong>Naam:</strong> <c:out value="${nOrganization.name}"/><br />
+                                    <strong>Adres:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
+                                    <strong>Postcode:</strong> <c:out value="${nOrganization.postalcode}"/><br />
+                                    <strong>Plaats:</strong> <c:out value="${nOrganization.province}"/><br />
+                                    <strong>Land:</strong> <c:out value="${nOrganization.country}"/><br />
+                                    <strong>Telefoon:</strong> <c:out value="${nOrganization.telephone}"/>
                                 </div>
-                            </td>
-
-                            <td style="width: 250px;">
-                                <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
-                            </td>
-                            <td style="width: 125px;">
-                                <c:out value="${nOrganization.province}"/>
-                            </td>
-                            <td style="width: 100px;">
-                                <c:out value="${nOrganization.telephone}"/>
-                            </td>
-                        </tr>
-                    <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
-                        <strong>Naam:</strong> <c:out value="${nOrganization.name}"/><br />
-                        <strong>Adres:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
-                        <strong>Postcode:</strong> <c:out value="${nOrganization.postalcode}"/><br />
-                        <strong>Plaats:</strong> <c:out value="${nOrganization.province}"/><br />
-                        <strong>Land:</strong> <c:out value="${nOrganization.country}"/><br />
-                        <strong>Telefoon:</strong> <c:out value="${nOrganization.telephone}"/>
-                    </div>
-                </c:forEach>
-                </tbody>
-            </table>
-        </div>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+                <script type="text/javascript">
+                    if(document.getElementById('regel_selected')) {
+                        $("#regel_selected").addClass('selected');
+                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
+                    }
+                    $("#server_table").tablesorter({
+                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
+                        sortList: [[0,0]],
+                        textExtraction: linkExtract
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                Nog geen WMS Services beschikbaar
+            </c:otherwise>
+        </c:choose>
     </div>
-
-    <script type="text/javascript">
-        var server_table = document.getElementById('server_table');
-        Table.stripe(server_table, 'table_alternate_tr');
-        Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
-    </script>
-
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
         <c:choose>
             <c:when test="${action != 'list'}">

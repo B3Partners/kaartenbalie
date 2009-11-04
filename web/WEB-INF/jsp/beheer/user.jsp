@@ -152,70 +152,86 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1>Beheer Gebruikers</H1>
-        
-        <table style="width: 740px;" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-            <thead>
-                <tr class="serverRijTitel" id="topRij">
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:0}); sortTable(this);" width="160"><div>Gebruikersnaam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:1}); sortTable(this);" width="160"><div>Achternaam</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:2}); sortTable(this);" width="260"><div>Rollen</div></td>
-                    <td class="serverRijTitel table-sortable" onclick="Table.sort(server_table, {sorttype:Sort['ignorecase'], col:3}); sortTable(this);" width="100"><div>Timeout</div></td>
-                </tr>
-            </thead>
-        </table>
-        
-        <c:set var="hoogte" value="${(fn:length(userlist) * 21)}" />
-        <c:if test="${hoogte > 230}">
-            <c:set var="hoogte" value="230" />
-        </c:if>
-        
-        <div class="tableContainer" id="tableContainer" style="height: ${hoogte}px; width: 770px;">     
-            <table id="server_table" class="table-autosort table-stripeclass:table_alternate_tr" width="740" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
-                <tbody>
-                    <c:forEach var="nUser" varStatus="status" items="${userlist}">
-                        <tr class="serverRij" onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
-                            <td width="160">
-                                <div style="width: 150px; overflow: hidden;">
-                                    <html:link page="/user.do?edit=submit&id=${nUser.id}">
-                                        <c:out value="${nUser.username}"/>
-                                    </html:link>
-                                </div>
-                            </td>
-                            <td width="160">
-                                <div style="width: 150px; overflow: hidden;"><c:out value="${nUser.surname}"/></div>
-                            </td>
-                            <td width="260">
-                                <div style="width: 250px; overflow: hidden;">
+
+        <c:choose>
+            <c:when test="${!empty userlist}">
+                <c:set var="hoogte" value="${(fn:length(userlist) * 28) + 28}" />
+                <c:if test="${hoogte > 400}">
+                    <c:set var="hoogte" value="400" />
+                </c:if>
+                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                    <table id="server_table" class="tablesorter">
+                        <thead>
+                            <tr>
+                                <th style="width: 24%;" id="sort_col1">Gebruikersnaam</th>
+                                <th style="width: 24%;" id="sort_col2">Achternaam</th>
+                                <th style="width: 38%;" id="sort_col3">Rollen</th>
+                                <th style="width: 15%;" id="sort_col4">Timeout</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="nUser" varStatus="status" items="${userlist}">
+                                <c:set var="id_selected" value='' />
+                                <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
+                                <tr onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});"${regel_selected}>
+                                    <td style="width: 24%;">
+                                        <div style="width: 100%; overflow: hidden;">
+                                            <html:link page="/user.do?edit=submit&id=${nUser.id}">
+                                                <c:out value="${nUser.username}"/>
+                                            </html:link>
+                                        </div>
+                                    </td>
+                                    <td style="width: 24%;">
+                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nUser.surname}"/></div>
+                                    </td>
+                                    <td style="width: 38%;">
+                                        <div style="width: 100%; overflow: hidden;">
+                                            <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                                                <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                            </c:forEach>
+                                        </div>
+                                    </td>
+                                    <td style="width: 15%;">
+                                        <div style="width: 100%; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" /></div>
+                                    </td>
+                                </tr>
+                                <div id="infoLabel${nUser.id}" class="infoLabelClass">
+                                    <strong>Gebruikersnaam:</strong> ${nUser.username}<br />
+                                    <strong>Naam:</strong> ${nUser.firstName} ${nUser.surname}<br />
+                                    <strong>E-mailadres:</strong> ${nUser.emailAddress}<br />
+                                    <strong>Organisatie:</strong> ${nUser.organization.name}<br />
+                                    <strong>Rollen:</strong>
                                     <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
                                         <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                                     </c:forEach>
                                 </div>
-                            </td>
-                            <td width="100">
-                                <div style="width: 90px; overflow: hidden;"><fmt:formatDate pattern="yyyy-MM-dd" value="${nUser.timeout}" /></div>
-                            </td>
-                        </tr>
-                        <div id="infoLabel${nUser.id}" class="infoLabelClass">
-                            <strong>Gebruikersnaam:</strong> ${nUser.username}<br />
-                            <strong>Naam:</strong> ${nUser.firstName} ${nUser.surname}<br />
-                            <strong>E-mailadres:</strong> ${nUser.emailAddress}<br />
-                            <strong>Organisatie:</strong> ${nUser.organization.name}<br />
-                            <strong>Rollen:</strong> 
-                            <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                             </c:forEach>
-                        </div>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </div>
+                        </tbody>
+                    </table>
+                </div>
+
+                <script type="text/javascript">
+                    if(document.getElementById('regel_selected')) {
+                        $("#regel_selected").addClass('selected');
+                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
+                    }
+                    $("#server_table").tablesorter({
+                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
+                        sortList: [[0,0]],
+                        headers: {
+                            3: {
+                                sorter:'dutchdates'
+                            }
+                        },
+                        textExtraction: linkExtract
+                    });
+                </script>
+            </c:when>
+            <c:otherwise>
+                Nog geen WMS Services beschikbaar
+            </c:otherwise>
+        </c:choose>
     </div>
-    
-    <script type="text/javascript">
-        var server_table = document.getElementById('server_table');
-        Table.stripe(server_table, 'table_alternate_tr');
-        Table.sort(server_table, {sorttype:Sort['alphanumeric'], col:0});
-    </script>
     
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 440px;" class="containerdiv">
         <c:choose>
