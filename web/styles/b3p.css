@@ -356,14 +356,32 @@ tbody, td {
 }
 
 #copyright {
-    width: 120px;
+    width: 180px;
     height: 50px;
-    background-image: url(../images/kaartenbalie/copyright.gif);
+    /* background-image: url(../images/kaartenbalie/copyright.gif); */
     float: left;
     position: relative;
     top: 0px;
     left: 50%;
     margin-left: -480px;
+}
+
+#footer_tekst_links {
+    position: relative;
+    left: -50px;
+    top: 18px;
+}
+
+#footer_tekst_rechts {
+    position: relative;
+    right: 126px;
+    top: 18px;
+}
+
+.footer_tekst {
+    font-family: Arial, sans-serif;
+    color: #7891A5;
+    font-size: 11px;
 }
 
 /* Stijl voor de content */

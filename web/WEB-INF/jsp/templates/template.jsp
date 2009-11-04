@@ -122,8 +122,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <tiles:insert name='footer'/>
                     END footer
                 </div>-->
-                <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;"><div id="initiatief"></div></a>
-                <div id="copyright"></div>
+                <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;">
+                    <div id="initiatief">
+                        <div id="footer_tekst_rechts" class="footer_tekst">KaartenBalie.nl is een initiatief van</div>
+                    </div>
+                </a>
+                <div id="copyright">
+                    <div id="footer_tekst_links" class="footer_tekst">&copy; 2007-2009 B3Partners</div>
+                </div>
             </div>
         </div>
         <tiles:insert definition="common.googleAnalytics"/>        
