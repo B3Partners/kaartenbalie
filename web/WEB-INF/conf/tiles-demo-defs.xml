@@ -15,15 +15,19 @@
         <put name="menu" value="/WEB-INF/jsp/demo/menu.jsp"/>
     </definition>
     <definition name="base.demo.index" extends="base.demo">
+        <put name="title" value="Home - Demo" type="string"/>
         <put name="content" value="/WEB-INF/jsp/demo/index.jsp"/>
     </definition> 
     <definition name="base.demo.registration" extends="base.demo">
+        <put name="title" value="Registratie - Demo" type="string"/>
         <put name="content" value="/WEB-INF/jsp/demo/registratie.jsp"/>
     </definition>
     <definition name="base.demo.addUrl" extends="base.demo">
+        <put name="title" value="URL toevoegen - Demo" type="string"/>
         <put name="content" value="/WEB-INF/jsp/demo/addUrl.jsp"/>
     </definition>
     <definition name="base.demo.createurl" extends="base.demo">
+        <put name="title" value="URL aanmaken - Demo" type="string"/>
         <put name="content" value="/WEB-INF/jsp/demo/createURL.jsp"/>
     </definition>
 </tiles-definitions>

@@ -29,18 +29,23 @@
         <put name="menu" value="/WEB-INF/jsp/algemeen/menu.jsp"/>
     </definition>
     <definition name="base.algemeen.index" extends="base.algemeen">
+        <put name="title" value="Home" type="string"/>
         <put name="content" value="/WEB-INF/jsp/algemeen/index.jsp"/>
     </definition>
     <definition name="base.algemeen.norights" extends="base.algemeen">
+        <put name="title" value="Geen rechten" type="string"/>
         <put name="content" value="/WEB-INF/jsp/algemeen/noRights.jsp"/>
     </definition>
     <definition name="base.algemeen.invalidlogin" extends="base.algemeen">
+        <put name="title" value="Foutive inloggegevens" type="string"/>
         <put name="content" value="/WEB-INF/jsp/algemeen/invalidLogin.jsp"/>
     </definition>  
     <definition name="base.algemeen.login" extends="base.algemeen">
+        <put name="title" value="Inlogscherm" type="string"/>
         <put name="content" value="/WEB-INF/jsp/algemeen/login.jsp"/>
     </definition>  
     <definition name="base.algemeen.metadata" extends="base.algemeen">
+        <put name="title" value="Metadata editor" type="string"/>
         <put name="content" value="/WEB-INF/jsp/algemeen/metadata.jsp"/>
     </definition>
     <definition name="base.algemeen.editmetadata" path="/WEB-INF/jsp/algemeen/editMetadata.jsp"/>

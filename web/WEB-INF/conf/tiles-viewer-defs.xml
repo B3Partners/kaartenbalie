@@ -15,15 +15,19 @@
         <put name="menu" value="/WEB-INF/jsp/viewer/menu.jsp"/>
     </definition>
     <definition name="base.viewer.index" extends="base.viewer">
+        <put name="title" value="Home - Viewer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/viewer/index.jsp"/>
     </definition>
     <definition name="base.viewer.changeprofile" extends="base.viewer">
+        <put name="title" value="Profiel wijzigen - Viewer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/viewer/profile.jsp"/>
     </definition>
     <definition name="base.viewer.createurl" extends="base.viewer">
+        <put name="title" value="URL aanmaken - Viewer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/viewer/createURL.jsp"/>
     </definition>
     <definition name="base.viewer.creategetmapurl" extends="base.viewer">
+        <put name="title" value="MapURL aanmaken - Viewer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/viewer/wmsUrlCreator.jsp"/>
     </definition>
 </tiles-definitions>

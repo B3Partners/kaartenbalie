@@ -30,7 +30,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <META HTTP-EQUIV="Expires" CONTENT="-1" />
         <META HTTP-EQUIV="Cache-Control" CONTENT="max-age=0, no-store" />
         
-        <title>Kaartenbalie</title>
+        <title><tiles:insert name='title'/> - Kaartenbalie</title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/selectcss' module='' />" type="text/css" rel="stylesheet" />
         <!--[if IE 6]>
