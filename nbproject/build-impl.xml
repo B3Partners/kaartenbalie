@@ -578,11 +578,11 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.commons-mail-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.commons-mail-b3p.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.restapi.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restapi.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${libs.restlib.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.restlib.classpath" todir="${dist.ear.dir}"/>
-        <copyfiles files="${libs.B3pGeotoolsOgcLib.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.B3pGeotoolsOgcLib.classpath" todir="${dist.ear.dir}"/>
-        <copyfiles files="${libs.B3pGeotoolsCommonLib.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.B3pGeotoolsCommonLib.classpath" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.B3pGeotoolsCommonLib2.5.5.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.B3pGeotoolsCommonLib2.5.5.classpath" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.B3pGeotoolsOgcLib2.5.5.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.B3pGeotoolsOgcLib2.5.5.classpath" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.jstl11.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pFopLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.reference.milton-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.libs.restapi.classpath} ${manifest.libs.restlib.classpath} ${manifest.libs.B3pGeotoolsOgcLib.classpath} ${manifest.libs.B3pGeotoolsCommonLib.classpath} "/>
+            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.libs.jstl11.classpath} ${manifest.libs.B3pCommonsLib.classpath} ${manifest.libs.B3pHibernateLib.classpath} ${manifest.libs.B3pHibernateEntityManagerLib.classpath} ${manifest.libs.B3pCastorLib.classpath} ${manifest.libs.B3pXalanLib.classpath} ${manifest.libs.B3pAxisLib.classpath} ${manifest.libs.B3pFopLib.classpath} ${manifest.reference.jump-b3p.jar} ${manifest.reference.b3p-commons-core.jar} ${manifest.reference.b3p-commons-gis.jar} ${manifest.reference.b3p-commons-hibernate.jar} ${manifest.reference.milton-b3p.jar} ${manifest.reference.securityfilter-b3p.jar} ${manifest.reference.commons-mail-b3p.jar} ${manifest.libs.restapi.classpath} ${manifest.libs.restlib.classpath} ${manifest.libs.B3pGeotoolsCommonLib2.5.5.classpath} ${manifest.libs.B3pGeotoolsOgcLib2.5.5.classpath} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
@@ -604,8 +604,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.commons-mail-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.restapi.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.restlib.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${libs.B3pGeotoolsOgcLib.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${libs.B3pGeotoolsCommonLib.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.B3pGeotoolsCommonLib2.5.5.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.B3pGeotoolsOgcLib2.5.5.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
