@@ -254,10 +254,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             }
         }
 
+
+
         //controleer of een organisatie een bepaalde startpostitie heeft voor de BBOX
         //indien dit het geval is, voeg deze bbox toe aan de toplayer.
         String orgBbox = dbUser.getOrganization().getBbox();
-        if (orgBbox != null) {
+        if ( orgBbox != null && kaartenbalieTopLayer != null ) {
             String[] values = orgBbox.split(",");
             SrsBoundingBox srsbb = new SrsBoundingBox();
             srsbb.setSrs("EPSG:28992");
@@ -280,16 +282,16 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         /*
          *Only adds AllowTransaction layer and creditInfo layer if the user has the rights to see these layers.
          */
-        if (allowAccountingLayers == true) {
+        if (allowAccountingLayers == true && kaartenbalieTopLayer != null) {
             Map configLayers = ConfigLayer.getConfigLayers();
             Iterator iterLayerKeys = configLayers.keySet().iterator();
             while (iterLayerKeys.hasNext()) {
                 Layer configLayer = ConfigLayer.forName((String) iterLayerKeys.next());
                 configLayer.setServiceProvider(validServiceProvider);
+
                 kaartenbalieTopLayer.addLayer(configLayer);
             }
         }
-
 
         Set roles = dbUser.getRoles();
         if (roles != null) {

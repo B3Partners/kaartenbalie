@@ -47,7 +47,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <tbody>
                             <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nMapfile["id"] == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
+                                <c:if test="${nMapfile['id'] == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
                                 <tr onmouseover="showLabel('${nMapfile["id"]}');" onmouseout="hideLabel('${nMapfile["id"]}');"${id_selected}>
                                     <td style="width: 19%">
                                         <div style="width: 100%; overflow: hidden;">
