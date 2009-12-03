@@ -167,9 +167,10 @@ function doCustomSubmit(){
             Hieronder vindt u de huidige gegevens zoals deze in de applicatie bekend zijn. 
         </P>        
         <P>
-            Via volgende link kunt u de voor u geldende WMS GetCapabilities ophalen:
-            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">GetCapabilities</html:link>
-        </P>        
+            Via volgende link kunt u de voor u geldende GetCapabilities ophalen:
+            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">WMS</html:link>
+            en
+            <html:link page="/services/?SERVICE=WFS&REQUEST=GetCapabilities" module="" target="_blank">WFS</html:link></P>
         
         <H2>Huidige gegevens:</H2>
         <table>
