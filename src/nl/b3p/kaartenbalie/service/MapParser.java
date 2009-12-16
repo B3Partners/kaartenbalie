@@ -51,6 +51,8 @@ public class MapParser {
             }
         }
 
+        
+
     }
 
     private void parseMap(String line, BufferedReader buffer) throws IOException {
