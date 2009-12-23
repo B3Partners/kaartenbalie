@@ -66,11 +66,13 @@ public class ImageCollector extends Thread {
     private static Stack stack = new Stack();
     private ServiceProviderRequest wmsRequest;
     private DataWrapper dw;
+    private int index;
 
-    public ImageCollector(ServiceProviderRequest wmsRequest, DataWrapper dw) {
+    public ImageCollector(ServiceProviderRequest wmsRequest, DataWrapper dw, int index) {
         this.wmsRequest = wmsRequest;
         this.dw = dw;
-        this.setMessage("Still downloading...");
+        this.index = index;
+        this.setMessage("Request started ...");
     }
 
     public void processNew() throws InterruptedException {
@@ -79,7 +81,11 @@ public class ImageCollector extends Thread {
     }
 
     public void processWaiting() throws InterruptedException {
-        join(maxResponseTime);
+        join(maxResponseTime * 5);
+        if (status == ACTIVE) {
+            handleRequestException(new Exception("Provider did not respond in due time!"));
+            getWmsRequest().setRequestResponseTime(new Long(maxResponseTime));
+        }
     }
 
     public void run() {
@@ -94,9 +100,7 @@ public class ImageCollector extends Thread {
                 setBufferedImage(ConfigLayer.handleRequest(url, dw.getLayeringParameterMap()));
                 setStatus(COMPLETED);
             } catch (Exception ex) {
-                log.error("error callimage collector: ", ex);
-                setMessage(ex.getMessage());
-                setStatus(ERROR);
+                handleRequestException(ex);
             }
         } else {
             HttpClient client = new HttpClient();
@@ -121,32 +125,7 @@ public class ImageCollector extends Thread {
                 setStatus(COMPLETED);
 
             } catch (Exception ex) {
-                log.error("error callimage collector: ", ex);
-                // check if client wants xml or image error
-                OGCRequest ogcr = dw.getOgcrequest();
-                if (ogcr.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS) ||
-                        OGCConstants.WMS_PARAM_EXCEPTION_XML.equalsIgnoreCase(ogcr.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))) {
-                    // if xml handle it elsewhere
-                    setMessage(ex.getMessage());
-                    setStatus(ERROR);
-                } else {
-                    // if image it will be added to the stack of images collected
-                    try {
-                        ExceptionLayer el = new ExceptionLayer();
-                        Map parameterMap = new HashMap();
-                        parameterMap.put("type", ex.getClass());
-                        parameterMap.put("message", ex.getMessage());
-                        parameterMap.put("stacktrace", ex.getStackTrace());
-                        parameterMap.put("transparant", Boolean.TRUE);
-                        setBufferedImage(el.drawImage(ogcr, parameterMap));
-                        setMessage(ex.getMessage());
-                        setStatus(WARNING);
-                    } catch (Exception e) {
-                        // if no image produced revert to original error message
-                        setMessage(ex.getMessage());
-                        setStatus(ERROR);
-                    }
-                }
+                handleRequestException(ex);
             } finally {
                 method.releaseConnection();
             }
@@ -155,6 +134,37 @@ public class ImageCollector extends Thread {
         operationEnd = new Date();
         getWmsRequest().setRequestResponseTime(new Long(operationEnd.getTime() - operationStart.getTime()));
         return;
+    }
+
+    private void handleRequestException(Exception ex) {
+        log.error("error callimage collector: ", ex);
+        // check if client wants xml or image error
+        OGCRequest ogcr = dw.getOgcrequest();
+        if (ogcr.containsParameter(OGCConstants.WMS_PARAM_EXCEPTIONS)
+                && OGCConstants.WMS_PARAM_EXCEPTION_XML.equalsIgnoreCase(ogcr.getParameter(OGCConstants.WMS_PARAM_EXCEPTIONS))) {
+            // if xml handle it elsewhere
+            setMessage(ex.getMessage());
+            setStatus(ERROR);
+        } else {
+            // if image it will be added to the stack of images collected
+            try {
+                ExceptionLayer el = new ExceptionLayer();
+                Map parameterMap = new HashMap();
+                parameterMap.put("type", ex.getClass());
+                parameterMap.put("message", ex.getMessage());
+                parameterMap.put("stacktrace", ex.getStackTrace());
+                parameterMap.put("transparant", Boolean.TRUE);
+                parameterMap.put("index", new Integer(index));
+                setBufferedImage(el.drawImage(ogcr, parameterMap));
+                setMessage(ex.getMessage());
+                setStatus(WARNING);
+            } catch (Exception e) {
+                log.error("error during callimage collector error handling: ", e);
+                // if no image produced revert to original error message
+                setMessage(e.getMessage());
+                setStatus(ERROR);
+            }
+        }
     }
 
     public BufferedImage getBufferedImage() {

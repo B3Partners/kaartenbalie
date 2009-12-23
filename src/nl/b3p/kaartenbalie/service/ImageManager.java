@@ -43,11 +43,9 @@ public class ImageManager {
         if (urlWrapper == null || urlWrapper.isEmpty()) {
             return;
         }
-        Iterator it = urlWrapper.iterator();
-        while (it.hasNext()) {
-            ServiceProviderRequest wmsRequest = (ServiceProviderRequest) it.next();
-            //String url = wmsRequest.getProviderRequestURI();
-            ImageCollector ic = new ImageCollector(wmsRequest, dw);
+        for (int i = 0; i<urlWrapper.size(); i++) {
+            ServiceProviderRequest wmsRequest = (ServiceProviderRequest) urlWrapper.get(i);
+            ImageCollector ic = new ImageCollector(wmsRequest, dw, i);
             ics.add(ic);
         }
     }
@@ -68,7 +66,7 @@ public class ImageManager {
         it = ics.iterator();
         while (it.hasNext()) {
             ic = (ImageCollector) it.next();
-            if (ic.getStatus() == ImageCollector.ACTIVE) {//if (ic.isAlive()) { /
+            if (ic!=null && ic.isAlive()) { 
                 ic.processWaiting();
             }
         }

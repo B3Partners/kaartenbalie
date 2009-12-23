@@ -169,7 +169,7 @@ public abstract class ConfigLayer extends Layer {
     protected void addTagsToImage(BufferedImage bufImage, Map parameterMap) {
         Graphics2D g2d = (Graphics2D) bufImage.getGraphics();
         Boolean showName = (Boolean) parameterMap.get("showname");
-        if (showName == null || (showName != null && showName.booleanValue() == true)) {
+        if (showName != null && showName.booleanValue() == true) {
             drawTitledMessageBox(g2d, "KaartenBalie", "Message for Layer '" + super.getName() + "'", 20, 20, 300, 30);
         }
     }

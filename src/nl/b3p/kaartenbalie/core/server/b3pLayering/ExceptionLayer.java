@@ -32,7 +32,7 @@ import java.util.Map;
 public class ExceptionLayer extends BackgroundLayer {
 
     public static final String NAME = "exceptionlayer";
-    public static final String TITLE = "kb_exception_layer";
+    public static final String TITLE = "Kaartenbalie Foutbericht";
 
     public ExceptionLayer() {
         super(NAME, TITLE);
@@ -44,21 +44,30 @@ public class ExceptionLayer extends BackgroundLayer {
     protected BufferedImage modifyBaseImage(BufferedImage bufImage, Map parameterMap) throws Exception {
 
         String message = (String) parameterMap.get("message");
-        Class type = (Class) parameterMap.get("type");
-        StackTraceElement[] stacktrace = (StackTraceElement[]) parameterMap.get("stacktrace");
+        // positie in scherm
+        Integer index = (Integer) parameterMap.get("index");
+        int i = 0;
+        if (index!=null) {
+            i = index.intValue();
+        }
+
+//        Class type = (Class) parameterMap.get("type");
+//        StackTraceElement[] stacktrace = (StackTraceElement[]) parameterMap.get("stacktrace");
         Graphics2D g2 = (Graphics2D) bufImage.getGraphics();
 
         int paddingsides = 30;
         int w = bufImage.getWidth() - (paddingsides * 2);
-        if (type != null) {
+        if (message != null) {
             drawTitledMessageBox(g2,
-                    TITLE, type.getCanonicalName(),
-                    paddingsides, 80, w, 30);
+                    TITLE, message,
+                    paddingsides, 80 + (i*50), w, 30);
         }
-        int paddingbottom = 50;
-        int y = 130;
-        int h = bufImage.getHeight() - y - paddingbottom;
-        drawMessageBox(g2, message, paddingsides, y, w, h);
+//        if (type != null) {
+//            int paddingbottom = 50;
+//            int y = 130;
+//            int h = bufImage.getHeight() - y - paddingbottom;
+//            drawMessageBox(g2, type.getCanonicalName(), paddingsides, y, w, h);
+//        }
         return bufImage;
     }
 }
