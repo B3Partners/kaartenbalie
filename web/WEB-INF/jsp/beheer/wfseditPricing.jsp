@@ -52,29 +52,29 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <div class="tabcollection" id="pricingCollection">
             <div id="tabs">
                 <ul id="tabul">
-                    <li id="pricing" onclick="displayTabBySource(this);"><a href="#">Overzicht</a></li>
-                    <li id="details" onclick="displayTabBySource(this);"><a href="#">Details</a></li>
-                    <li id="new"  onclick="displayTabBySource(this);"><a href="#">Nieuwe Prijsbepaling</a></li>
+                    <li id="pricing" onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.wfseditpricing.overzicht"/></a></li>
+                    <li id="details" onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.wfseditpricing.details"/></a></li>
+                    <li id="new"  onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.wfseditpricing.nieuweprijsbepaling"/></a></li>
                 </ul>
             </div>
             <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
             <div id="sheets">
                 <div id="pricing" class="sheet">  
-                    <label>Service Provider :</label> ${spName} <br/>
-                    <label style="margin-bottom:10px;">Kaartlaag :</label> <b>${lName}</b><br/><br />
-                    <h1>Prijsoverzicht</h1>
+                    <label><fmt:message key="beheer.wfseditpricing.serviceprovider"/> :</label> ${spName} <br/>
+                    <label style="margin-bottom:10px;"><fmt:message key="beheer.wfseditpricing.kaartlaag"/> :</label> <b>${lName}</b><br/><br />
+                    <h1><fmt:message key="beheer.wfseditpricing.title"/></h1>
                     <table id="summaryTable" style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
                         <thead>
                             <tr class="serverRijTitel">
                                 <th colspan="2">&nbsp;</th>
-                                <th colspan="3">Per Request</th>
+                                <th colspan="3"><fmt:message key="beheer.wfseditpricing.table.perrequest"/></th>
                             </tr>
                             <tr class="serverRijTitel">
-                                <th style="width:40px;">Serv.</th>
-                                <th style="width:200px;">Operation/Methode</th>
-                                <th style="width:60px;">Prijs</th>
-                                <th style="width:70px;">tCalc</th>
-                                <th style="width:60px;">Via</th>
+                                <th style="width:40px;"><fmt:message key="beheer.wfseditpricing.table.server"/></th>
+                                <th style="width:200px;"><fmt:message key="beheer.wfseditpricing.table.operatie"/></th>
+                                <th style="width:60px;"><fmt:message key="beheer.wfseditpricing.table.prijs"/></th>
+                                <th style="width:70px;"><fmt:message key="beheer.wfseditpricing.table.calc"/></th>
+                                <th style="width:60px;"><fmt:message key="beheer.wfseditpricing.table.via"/></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,7 +91,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <td>
                                         <c:choose>
                                             <c:when test="${dataRow[2].layerIsFree}">
-                                                Gratis
+                                                <fmt:message key="beheer.wfseditpricing.table.prijs.gratis"/>
                                             </c:when>
                                             <c:otherwise>
                                                 <fmt:formatNumber value="${dataRow[2].layerPrice}" minFractionDigits="2"  maxFractionDigits="2"/> c
@@ -116,19 +116,19 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         Table.stripe(document.getElementById('summaryTable'), 'table_alternate_tr');
                     </script>
                     <p></p>
-                    <button onclick="location.href = '<html:rewrite page="/wfspricingtest.do?id=${id}"/>'" module="/beheer">Proefberekening Maken</button>
+                    <button onclick="location.href = '<html:rewrite page="/wfspricingtest.do?id=${id}"/>'" module="/beheer"><fmt:message key="beheer.wfseditpricing.proefberekening"/></button>
                 </div>
                 <div id="details" class="sheet">  
                     <div>
                         <table id="planTable" style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
                             <thead>
                                 <tr class="serverRijTitel">
-                                    <th>Type</th>
-                                    <th>Service / Methode</th>
-                                    <th>Geldig vanaf</th>
-                                    <th>Verloopt</th>
-                                    <th>Schaalbereik</th>
-                                    <th>Tarief</th>
+                                    <th><fmt:message key="beheer.wfseditpricing.type"/></th>
+                                    <th><fmt:message key="beheer.wfseditpricing.servicemethode"/></th>
+                                    <th><fmt:message key="beheer.wfseditpricing.geldigvanaf"/></th>
+                                    <th><fmt:message key="beheer.wfseditpricing.verloopt"/></th>
+                                    <th><fmt:message key="beheer.wfseditpricing.schaalbereik"/></th>
+                                    <th><fmt:message key="beheer.wfseditpricing.tarief"/></th>
                                     <th></th>                            
                                 </tr>
                             </thead>
@@ -139,10 +139,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${layerPricing.planType == 1}">
-                                                    Per Opvraag
+                                                    <fmt:message key="beheer.wfseditpricing.plantype.peropvraag"/>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    Onbekend
+                                                    <fmt:message key="beheer.wfseditpricing.plantype.onbekend"/>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
@@ -154,7 +154,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                             </c:choose>
                                             <c:choose>
                                                 <c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when>
-                                                <c:otherwise>Alle</c:otherwise>
+                                                <c:otherwise><fmt:message key="beheer.wfseditpricing.operatie.alle"/></c:otherwise>
                                             </c:choose>
                                         </td>                                        
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
@@ -163,7 +163,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                                     <fmt:formatDate pattern="dd-MM-yyyy" value="${layerPricing.validFrom}"/>        
                                                 </c:when>
                                                 <c:otherwise>
-                                                    Altijd
+                                                    <fmt:message key="beheer.wfseditpricing.geldigvanaf.altijd"/>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
@@ -173,7 +173,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                                     <fmt:formatDate pattern="dd-MM-yyyy" value="${layerPricing.validUntil}"/>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    Nooit
+                                                    <fmt:message key="beheer.wfseditpricing.verloopt.nooit"/>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
@@ -189,7 +189,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <td class="${rowstyle}" onmouseover="showLabel(${layerPricing.id})" onmouseout="hideLabel(${layerPricing.id});">
                                             <c:choose>
                                                 <c:when test="${layerPricing.layerIsFree == true}">
-                                                    Gratis
+                                                    <fmt:message key="beheer.wfseditpricing.table.prijs.gratis"/>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <fmt:formatNumber value="${layerPricing.unitPrice}" minFractionDigits="2"  maxFractionDigits="2"/>        
@@ -203,11 +203,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         </td>                            
                                     </tr>
                                     <div id="infoLabel${layerPricing.id}" class="infoLabelClass">
-                                        <strong>Type: </strong><c:choose><c:when test="${layerPricing.planType == 1}">Per Opvraag</c:when><c:otherwise>Onbekend</c:otherwise></c:choose><br />
-                                        <strong>Service: </strong>${layerPricing.service}<br />
-                                        <strong>Methode: </strong><c:choose><c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when><c:otherwise>Alle</c:otherwise></c:choose><br />
-                                        <strong>Aangemaakt: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.creationDate}"/><br />
-                                        <strong>Verwijderd: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.deletionDate}"/>
+                                        <strong><fmt:message key="beheer.wfseditpricing.type"/>: </strong><c:choose><c:when test="${layerPricing.planType == 1}">Per Opvraag</c:when><c:otherwise>Onbekend</c:otherwise></c:choose><br />
+                                        <strong><fmt:message key="beheer.wfseditpricing.service"/>: </strong>${layerPricing.service}<br />
+                                        <strong><fmt:message key="beheer.wfseditpricing.methode"/>: </strong><c:choose><c:when test="${not empty layerPricing.operation}">${layerPricing.operation}</c:when><c:otherwise>Alle</c:otherwise></c:choose><br />
+                                        <strong><fmt:message key="beheer.wfseditpricing.aangemaakt"/>: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.creationDate}"/><br />
+                                        <strong><fmt:message key="beheer.wfseditpricing.verwijderd"/>: </strong><fmt:formatDate pattern="dd-MM-yyyy, HH:mm:ss" value="${layerPricing.deletionDate}"/>
                                     </div>
                                 </c:forEach>
                             </tbody>
@@ -226,15 +226,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <table>
                             <tr>
                                 <td>
-                                    <label>Type :</label>
+                                    <label><fmt:message key="beheer.wfseditpricing.type"/> :</label>
                                     <html:select property="planType">
-                                        <html:option value="1">Per Opvraag</html:option>
+                                        <html:option value="1"><fmt:message key="beheer.wfseditpricing.plantype.peropvraag"/></html:option>
                                     </html:select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Geldig vanaf :</label><html:text property="validFrom" styleId="validFrom"/>
+                                    <label><fmt:message key="beheer.wfseditpricing.geldigvanaf"/> :</label><html:text property="validFrom" styleId="validFrom"/>
                                     <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button1"
                                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                                          title="Date selector"
@@ -248,7 +248,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Geldig tot en met :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
+                                    <label><fmt:message key="beheer.wfseditpricing.geldigtotenmet"/> :</label><html:text styleClass="validUntil" property="validUntil" styleId="validUntil"/>
                                     <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button2"
                                          style="cursor: pointer; border: 1px solid red; vertical-align:text-bottom;" 
                                          title="Date selector"
@@ -262,13 +262,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Tarief :</label>
+                                    <label><fmt:message key="beheer.wfseditpricing.tarief"/> :</label>
                                     <html:text styleId="unitPrice" property="unitPrice"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Projectie :</label>
+                                    <label><fmt:message key="beheer.wfseditpricing.projectie"/> :</label>
                                     <script type="text/javascript">
                                         function setScaleVisible(state){
                                             var selectScale = document.getElementById('selectScale');
@@ -280,20 +280,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         }
                                     </script>                        
                                     <html:select styleId="" property="projection" onchange="setScaleVisible(this.value != '');">
-                                        <html:option value="">Unspecified</html:option>
+                                        <html:option value=""><fmt:message key="beheer.wfseditpricing.projectie.unspecified"/></html:option>
                                         <c:forEach var="projectionString" items="${projections}">
                                             <html:option value="${projectionString}" >${projectionString}</html:option>
                                         </c:forEach>
                                     </html:select>
                                     <div id="selectScale" style="display:none; margin-top: 4px;">
-                                        <label>Schaalbereik :</label>    
+                                        <label><fmt:message key="beheer.wfseditpricing.schaalbereik"/> :</label>    
                                         <html:text property="minScale" style="width:100px;"/> van/tot <html:text property="maxScale" style="width:100px;"/><br/>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <label>Service & Methode :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS} ${pricingForm.map.operationWFS}
+                                    <label><fmt:message key="beheer.wfseditpricing.servicemethode"/> :</label> ${pricingForm.map.service} ${pricingForm.map.operationWMS} ${pricingForm.map.operationWFS}
                                 </td>
                             </tr>
                         </table>
@@ -331,7 +331,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 </td>
                             </tr>
                         </table>
-                        <html:submit property="save" styleClass="submit">Voeg toe</html:submit>
+                        <html:submit property="save" styleClass="submit"><fmt:message key="beheer.wfseditpricing.voegtoe"/></html:submit>
                         
                     </html:form>
                 </div>
@@ -343,7 +343,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         </script>
     </c:when>
     <c:otherwise>
-        Selecteer een kaartlaag
+        <fmt:message key="beheer.wfseditpricing.selecteerkaartlaag"/>
     </c:otherwise>
     
 </c:choose>

@@ -25,7 +25,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
 <c:set var="form" value="${accountingForm.map}"/>
 
-<H1>Beheer Accounting</H1>
+<H1><fmt:message key="beheer.accounting.title" /></H1>
 <html:form action="/accounting" focus="selectedOrganization">
     <html:select property="selectedOrganization" onchange="submit();">
         <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
@@ -34,7 +34,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </html:option>
         </c:forEach>
     </html:select> 
-    Startregel
+    <fmt:message key="beheer.accounting.startregel" />
     <html:select property="firstResult" onchange="submit();">
         <html:option value="0">1</html:option>
         <html:option value="19">20</html:option>
@@ -42,7 +42,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <html:option value="999">1000</html:option>
         <html:option value="9999">10000</html:option>
     </html:select>
-    Regels per pagina
+    <fmt:message key="beheer.accounting.regelsperpagina" />
     <html:select property="listMax" onchange="submit();">
         <html:option value="20">20</html:option>
         <html:option value="50">50</html:option>
@@ -53,19 +53,19 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px; margin-top: 15px;">
     <div id="tabs">
         <ul id="tabul" style="width: 650px;">
-            <li id="Withdrawals" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Afboekingen</a></li>            
-            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Laatste Bijboekingen</a></li>
-            <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;">Account Details</a></li>
+            <li id="Withdrawals" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.laatsteafboekingen" /></a></li>            
+            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.laatstebijboekingen" /></a></li>
+            <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.accountdetails" /></a></li>
         </ul>
     </div>
     <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
     <div id="sheets" style="height:500px;">
         <div id="AccountDetails" class="sheet">
-            Credit Overzicht:
+            <fmt:message key="beheer.accounting.creditoverzicht" />:
             <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${balance}" /> credits
             <p>
                 <html:link page="/deposit.do?orgId=${form.selectedOrganization}" module="/beheer">
-                    Credits aanschaffen
+                    <fmt:message key="beheer.accounting.creditsaanschaffen" />
                 </html:link>
             </p>
         </div>
@@ -74,12 +74,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <table id="depositTable" style="width: 95%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="headerRijTitel">
-                            <th>Aangemaakt</th>
-                            <th>Verwerkt</th>
-                            <th>Valuta &euro;</th>
-                            <th>Omschrijving</th>
-                            <th>Resultaat</th>
-                            <th>Status</th>
+                            <th><fmt:message key="beheer.accounting.aangemaakt" /></th>
+                            <th><fmt:message key="beheer.accounting.verwerkt" /></th>
+                            <th><fmt:message key="beheer.accounting.valuta" /></th>
+                            <th><fmt:message key="beheer.accounting.omschrijving" /></th>
+                            <th><fmt:message key="beheer.accounting.resultaat" /></th>
+                            <th><fmt:message key="beheer.accounting.status" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,13 +105,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <td>
                                     <c:choose>
                                         <c:when test="${tpd.status == 0}">
-                                            Wachtrij
+                                            <fmt:message key="beheer.accounting.status.wachtrij" />
                                         </c:when>
                                         <c:when test="${tpd.status == 1}">
-                                            Verwerkt
+                                            <fmt:message key="beheer.accounting.status.verwerkt" />
                                         </c:when>
                                         <c:when test="${tpd.status == 2}">
-                                            Geweigerd
+                                            <fmt:message key="beheer.accounting.status.geweigerd" />
                                         </c:when>
                                     </c:choose>
                                 </td>
@@ -129,11 +129,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <table id="withdrawlTable" style="width: 95%; padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="headerRijTitel">
-                            <th>Aangemaakt</th>
-                            <th>Verwerkt</th>
+                            <th><fmt:message key="beheer.accounting.withdrawal.aangemaakt" /></th>
+                            <th><fmt:message key="beheer.accounting.withdrawal.verwerkt" /></th>
                             <th>&nbsp;</th>
-                            <th style="padding-right: 10px;">Credits</th>
-                            <th>Status</th>
+                            <th style="padding-right: 10px;"><fmt:message key="beheer.accounting.withdrawal.credits" /></th>
+                            <th><fmt:message key="beheer.accounting.withdrawal.status" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -154,13 +154,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <td>
                                     <c:choose>
                                         <c:when test="${tlu.status == 0}">
-                                            Wachtrij
+                                            <fmt:message key="beheer.accounting.status.wachtrij" />
                                         </c:when>
                                         <c:when test="${tlu.status == 1}">
-                                            Verwerkt
+                                            <fmt:message key="beheer.accounting.status.verwerkt" />
                                         </c:when>
                                         <c:when test="${tlu.status == 2}">
-                                            Geweigerd
+                                            <fmt:message key="beheer.accounting.status.geweigerd" />
                                         </c:when>
                                     </c:choose>
                                 </td>

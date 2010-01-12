@@ -64,7 +64,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             /* ]]> */
         </script>	
         
-        <title>Metadata Editor - <c:out value="${metadataForm.map.name}"/></title>
+        <title><fmt:message key="beheer.metadataeditor.title" /> - <c:out value="${metadataForm.map.name}"/></title>
         
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
@@ -96,8 +96,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="alt_action"/>
             <html:hidden property="from" value="info@b3partners.nl"/>
             <html:hidden property="xsl" value="/infoText.xsl"/>
-            <html:hidden property="subject" value="Metadata.xml van B3P Kaartenbalie"/>
-            <html:hidden property="body" value="Bijgevoegd vindt u de metadata als xml zoals u dat heeft ingevuld op onze website.\n\nMet vriendelijke groeten\n\nB3Partners BV"/>
+            <html:hidden property="subject" value="<fmt:message key="beheer.metadataeditor.subject" />"/>
+            <html:hidden property="body" value="<fmt:message key="beheer.metadataeditor.body" />"/>
             
             <html:hidden property="id" />
             <html:hidden property="name" />
@@ -112,11 +112,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <div id="write-root" onclick="click();"></div>
             <input type="hidden" name="save" value="">
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
-            <h4>Direct metadata.xml downloaden</h4>
+            <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
             <input type="hidden" name="download" value="">
             <html:button property="downloadButton" value="Downloaden" styleId="downloadButton" onclick="checkForm(this);"/> 
             <%--
-            <h4>Email met metadata.xml verzenden</h4>
+            <h4><fmt:message key="beheer.metadataeditor.email" /></h4>
             <table>
                 <tr>
                     <td><B><fmt:message key="message.fullname"/></B></td>
@@ -157,7 +157,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <td>
                         <html:text property="to" size="50"/>
                         <input type="hidden" name="send" value="">
-                        <html:button property="sendButton" value="Verzenden" disabled="true" styleId="sendButton" onclick="checkForm(this);"/> 
+                        <html:button property="sendButton" value="<fmt:message key="beheer.metadataeditor.email.verzenden" />" disabled="true" styleId="sendButton" onclick="checkForm(this);"/> 
                     </td>
                 </tr>
             </table>

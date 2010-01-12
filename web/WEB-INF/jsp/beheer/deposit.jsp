@@ -28,33 +28,33 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="orgId"/>
-    <h1>Credits kopen voor ${form.orgName}</h1>
+    <h1><fmt:message key="beheer.deposit.title" /> ${form.orgName}</h1>
     
     <table>
         <tr>
             <td colspan="2" style="height: 30px;" valign="top">
-                <strong>Huidige koers: 1 euro voor ${exchangeRate} credits</strong>
+                <strong><fmt:message key="beheer.deposit.rate" />1 ${exchangeRate} <fmt:message key="beheer.deposit.rate" />2</strong>
             </td>
         </tr>
         <tr>
             <td>
-                Gewenste bedrag:
+                <fmt:message key="beheer.deposit.bedrag" />:
             </td>
             <td>
-                <html:text property="amount" size="4" maxlength="4"/> , <html:text property="fraction" size="2" maxlength="2"/> (euro)
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Eigen kenmerk:
-            </td>
-            <td>
-                <html:text property="description" maxlength="12"/> (max 12 karakters)
+                <html:text property="amount" size="4" maxlength="4"/> , <html:text property="fraction" size="2" maxlength="2"/> <fmt:message key="beheer.deposit.bedrag.type" />
             </td>
         </tr>
         <tr>
             <td>
-                Betaalmethode: 
+                <fmt:message key="beheer.deposit.kenmerk" />:
+            </td>
+            <td>
+                <html:text property="description" maxlength="12"/> <fmt:message key="beheer.deposit.kenmerk.maxcharacters" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <fmt:message key="beheer.deposit.betaalmethode" />: 
             </td>
             <td>
                 <html:radio property="paymentMethod" value="Ogone"/> Ogone

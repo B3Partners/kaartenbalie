@@ -26,9 +26,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <c:set var="id" value="${form.map.id}"/>
 
 <div id="content_c">
-    <h1>Proefberekening</h1>
-    <label>Service Provider:</label> ${spName} <br/>
-    <label style="margin-bottom:10px;">Kaartlaag:</label> <b>${lName}</b><br/><br />
+    <h1><fmt:message key="beheer.testcalculation.title" /></h1>
+    <label><fmt:message key="beheer.testcalculation.serviceprovider" />:</label> ${spName} <br/>
+    <label style="margin-bottom:10px;"><fmt:message key="beheer.testcalculation.kaartlaag" />:</label> <b>${lName}</b><br/><br />
     
     <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
     <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
@@ -94,12 +94,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </tr>
             <tr>
                 <td>
-                    <label><fmt:message key="beheer.pricing.test.testSteps"/>:</label><html:text property="testSteps" style="width:100px;"/> (Max. 20 stappen)
+                    <label><fmt:message key="beheer.pricing.test.testSteps"/>:</label><html:text property="testSteps" style="width:100px;"/> <fmt:message key="beheer.testcalculation.maxteststeps" />
                 </td>
             </tr>
         </table>
-        <html:submit property="test" style="margin-top: 10px; margin-bottom: 10px;">Voer proefberekening uit</html:submit>
-        <button style="margin-top: 10px; margin-bottom: 10px;" onclick="location.href = '<html:rewrite page="/pricingtest.do?back=t&id=${id}" module="/beheer"/>'">Annuleren</button>
+        <html:submit property="test" style="margin-top: 10px; margin-bottom: 10px;"><fmt:message key="beheer.testcalculation.uitvoeren" /></html:submit>
+        <button style="margin-top: 10px; margin-bottom: 10px;" onclick="location.href = '<html:rewrite page="/pricingtest.do?back=t&id=${id}" module="/beheer"/>'"><fmt:message key="beheer.testcalculation.annuleren" /></button>
     </html:form>
     
     <c:if test="${not empty resultSet}">

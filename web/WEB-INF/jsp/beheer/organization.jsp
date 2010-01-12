@@ -38,7 +38,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="id" />
  
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer Organisaties</H1>
+        <H1><fmt:message key="beheer.organization.title" /></H1>
 
         <c:choose>
             <c:when test="${!empty organizationlist}">
@@ -50,10 +50,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 30%;" id="sort_col1">Naam organisatie</th>
-                                <th style="width: 37%;" id="sort_col2">Adres</th>
-                                <th style="width: 19%;" id="sort_col3">Plaats</th>
-                                <th style="width: 15%;" id="sort_col4">Telefoon</th>
+                                <th style="width: 30%;" id="sort_col1"><fmt:message key="beheer.organization.table.naam" /></th>
+                                <th style="width: 37%;" id="sort_col2"><fmt:message key="beheer.organization.table.adres" /></th>
+                                <th style="width: 19%;" id="sort_col3"><fmt:message key="beheer.organization.table.plaats" /></th>
+                                <th style="width: 15%;" id="sort_col4"><fmt:message key="beheer.organization.table.telefoon" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,12 +80,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     </td>
                                 </tr>
                                 <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
-                                    <strong>Naam:</strong> <c:out value="${nOrganization.name}"/><br />
-                                    <strong>Adres:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
-                                    <strong>Postcode:</strong> <c:out value="${nOrganization.postalcode}"/><br />
-                                    <strong>Plaats:</strong> <c:out value="${nOrganization.province}"/><br />
-                                    <strong>Land:</strong> <c:out value="${nOrganization.country}"/><br />
-                                    <strong>Telefoon:</strong> <c:out value="${nOrganization.telephone}"/>
+                                    <strong><fmt:message key="beheer.organization.infolabel.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
+                                    <strong><fmt:message key="beheer.organization.table.adres" />:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
+                                    <strong><fmt:message key="beheer.organizationPostalcode" />:</strong> <c:out value="${nOrganization.postalcode}"/><br />
+                                    <strong><fmt:message key="beheer.organization.table.plaats" />:</strong> <c:out value="${nOrganization.province}"/><br />
+                                    <strong><fmt:message key="beheer.organizationCountry" />:</strong> <c:out value="${nOrganization.country}"/><br />
+                                    <strong><fmt:message key="beheer.organization.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
                                 </div>
                             </c:forEach>
                         </tbody>
@@ -104,7 +104,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </script>
             </c:when>
             <c:otherwise>
-                Nog geen WMS Services beschikbaar
+                <fmt:message key="beheer.organization.geenbeschikbaar" />
             </c:otherwise>
         </c:choose>
     </div>

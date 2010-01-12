@@ -26,7 +26,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <html:form action="/mapserver" focus="mapFile" enctype="multipart/form-data">
 
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beschikbare Mapserver WMS/WFS Services</H1>
+        <H1><fmt:message key="beheer.mapserver.title" /></H1>
         
         <c:choose>
             <c:when test="${!empty mapfiles}">
@@ -38,10 +38,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 19%;" id="sort_col1">Titel</th>
-                                <th style="width: 69%;" id="sort_col2">Url</th>
-                                <th style="width: 6%;" id="sort_col3">WMS</th>
-                                <th style="width: 6%;" id="sort_col4">WFS</th>
+                                <th style="width: 19%;" id="sort_col1"><fmt:message key="beheer.mapserver.table.titel" /></th>
+                                <th style="width: 69%;" id="sort_col2"><fmt:message key="beheer.mapserver.table.url" /></th>
+                                <th style="width: 6%;" id="sort_col3"><fmt:message key="beheer.mapserver.table.wms" /></th>
+                                <th style="width: 6%;" id="sort_col4"><fmt:message key="beheer.mapserver.table.wfs" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,12 +63,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <c:choose>
                                             <c:when test='${empty nMapfile["kb_wms"]}'>
                                                 <html:link page='/server.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
-                                                    <c:out value='Add'/>
+                                                    <fmt:message key="beheer.mapserver.table.addmapfile" />
                                                 </html:link>
                                             </c:when>
                                             <c:otherwise>
                                                 <html:link page='/server.do?edit=t&id=${nMapfile["kb_wms"]}'>
-                                                    <c:out value='Edit'/>
+                                                    <fmt:message key="beheer.mapserver.table.editmapfile" />
                                                 </html:link>
                                             </c:otherwise>
                                         </c:choose>
@@ -77,22 +77,22 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <c:choose>
                                             <c:when test='${empty nMapfile["kb_wfs"]}'>
                                                 <html:link page='/wfsserver.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
-                                                    <c:out value='Add'/>
+                                                    <fmt:message key="beheer.mapserver.table.addmapfile" />
                                                 </html:link>
                                             </c:when>
                                             <c:otherwise>
                                                 <html:link page='/wfsserver.do?edit=t&id=${nMapfile["kb_wfs"]}'>
-                                                    <c:out value='Edit'/>
+                                                    <fmt:message key="beheer.mapserver.table.editmapfile" />
                                                 </html:link>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
                                 </tr>
                                 <div id="infoLabel${nMapfile["id"]}" class="infoLabelClass">
-                                    <strong>ID:</strong> <c:out value='${nMapfile["id"]}'/><br />
-                                    <strong>SRS:</strong> <c:out value='${nMapfile["wms_srs"]}'/><br />
-                                    <strong>Bestand:</strong> <c:out value='${nMapfile["map"]}'/><br />
-                                    <strong>URL:</strong> <c:out value='${nMapfile["wms_onlineresource"]}'/><br />
+                                    <strong><fmt:message key="beheer.mapserver.infolabel.id" />:</strong> <c:out value='${nMapfile["id"]}'/><br />
+                                    <strong><fmt:message key="beheer.mapserver.infolabel.srs" />:</strong> <c:out value='${nMapfile["wms_srs"]}'/><br />
+                                    <strong><fmt:message key="beheer.mapserver.infolabel.bestand" />:</strong> <c:out value='${nMapfile["map"]}'/><br />
+                                    <strong><fmt:message key="beheer.mapserver.table.url" />:</strong> <c:out value='${nMapfile["wms_onlineresource"]}'/><br />
                                 </div>
                             </c:forEach>
                         </tbody>
@@ -111,7 +111,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </script>
             </c:when>
             <c:otherwise>
-                Nog geen Mapserver WMS/WFS Services beschikbaar
+                <fmt:message key="beheer.mapserver.geenbeschikbaar" />
             </c:otherwise>
         </c:choose>
     </div>
@@ -120,16 +120,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <table>
                 <tr>
                     <td colspan="2">
-                        U kunt hier een UMN Mapserver map-bestand uploaden<br/>
-                        Indien het bestand een correcte inhoud heeft, wordt het in bovenstaande lijst zichtbaar.
+                        <fmt:message key="beheer.mapserver.uploaden" />
                     </td>
                 </tr>
                 <tr>
-                    <td><B>Map bestand:</B></td>
+                    <td><B><fmt:message key="beheer.mapserver.mapbestand" />:</B></td>
                     <td><html:file size="80" property="mapFile"/></td>
                 </tr>
                 <tr>
-                    <td><B>Overschrijven:</B></td>
+                    <td><B><fmt:message key="beheer.mapserver.overschrijven" />:</B></td>
                     <td><html:checkbox property="overwrite"/></td>
                 </tr>
             </table>

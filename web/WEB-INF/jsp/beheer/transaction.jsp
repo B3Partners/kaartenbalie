@@ -21,32 +21,32 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<h1>Transactie</h1>
+<h1><fmt:message key="beheer.transaction.title"/></h1>
 
 <c:if test="${not empty transaction}">
 
     <fieldset class="reportingFieldset">
-        <legend>Details voor transactie</legend>
-        <label>Type :</label>${type}<br/>
-        <label>Datum aangemaakt :</label><fmt:formatDate  value="${transaction.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/><br/>
-        <label>Datum verwerkt :</label><fmt:formatDate  value="${transaction.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/><br/>
-        <label>Totaal credits :</label><fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${transaction.creditAlteration}"/><br/>
-        <label>Omschrijving :</label>${transaction.description}<br/>
-        <label>Status : </label>
+        <legend><fmt:message key="beheer.transaction.details"/></legend>
+        <label><fmt:message key="beheer.transaction.type"/> :</label>${type}<br/>
+        <label><fmt:message key="beheer.transaction.created"/> :</label><fmt:formatDate  value="${transaction.transactionDate}" pattern="dd-MM-yyyy @ HH:mm"/><br/>
+        <label><fmt:message key="beheer.transaction.edited"/> :</label><fmt:formatDate  value="${transaction.mutationDate}" pattern="dd-MM-yyyy @ HH:mm"/><br/>
+        <label><fmt:message key="beheer.transaction.credits"/> :</label><fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${transaction.creditAlteration}"/><br/>
+        <label><fmt:message key="beheer.transaction.description"/> :</label>${transaction.description}<br/>
+        <label><fmt:message key="beheer.transaction.status"/> : </label>
         <c:choose>
             <c:when test="${transaction.status == 0}">
-                Wachtrij
+                <fmt:message key="beheer.transaction.status.wachtrij"/>
             </c:when>
             <c:when test="${transaction.status == 1}">
-                Verwerkt
+                <fmt:message key="beheer.transaction.status.verwerkt"/>
             </c:when>
             <c:when test="${transaction.status == 2}">
-                Geweigerd
+                <fmt:message key="beheer.transaction.status.geweigerd"/>
             </c:when>
         </c:choose>
         <br/>
         <c:if test="${not empty transaction.errorMessage}">
-            <label>Foutmelding : </label>
+            <label><fmt:message key="beheer.transaction.errorMessage"/> : </label>
             <div>${transaction.errorMessage}</div>
             <br/>
         </c:if>
@@ -57,14 +57,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="transactionTable" style="width:100%;padding:0px;margin:0px;border-collapse: collapse;" class="table-stripeclass:table_alternate_tr">
                         <thead>
                             <tr class="serverRijTitel">
-                                <th style="width:150px;vertical-align:top;">Layer</th>
-                                <th>Type</th>
-                                <th>Aantal</th>
-                                <th>Projectie</th>
-                                <th>Schaal</th>
-                                <th>Service</th>
-                                <th>Dienst</th>
-                                <th>Prijs</th>                            
+                                <th style="width:150px;vertical-align:top;"><fmt:message key="beheer.transaction.table.layer"/></th>
+                                <th><fmt:message key="beheer.transaction.table.type"/></th>
+                                <th><fmt:message key="beheer.transaction.table.aantal"/></th>
+                                <th><fmt:message key="beheer.transaction.table.projectie"/></th>
+                                <th><fmt:message key="beheer.transaction.table.schaal"/></th>
+                                <th><fmt:message key="beheer.transaction.table.service"/></th>
+                                <th><fmt:message key="beheer.transaction.table.dienst"/></th>
+                                <th><fmt:message key="beheer.transaction.table.prijs"/></th>                            
                             </tr>
                         </thead>
                         <c:forEach var="lpc" items="${layerPriceCompositions}">
@@ -79,7 +79,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <td style="vertical-align:top;">
                                     <c:choose>
                                         <c:when test="${lpc.layerIsFree == true}">
-                                            Gratis
+                                            <fmt:message key="beheer.transaction.table.prijs.gratis"/>
                                         </c:when>
                                         <c:otherwise>
                                             <fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${lpc.layerPrice}"/>        
@@ -95,8 +95,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </script>
                 </c:when>
                 <c:when  test="${type == 'TransactionPaymentDeposit'}">
-                    <label>Koers : </label>1:${transaction.txExchangeRate}<br/>
-                    <label>Valuta &euro; : </label><fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${transaction.billingAmount}"/><br/>
+                    <label><fmt:message key="beheer.transaction.koers"/> : </label>1:${transaction.txExchangeRate}<br/>
+                    <label><fmt:message key="beheer.transaction.valuta"/> : </label><fmt:formatNumber maxFractionDigits="2" minFractionDigits="2" value="${transaction.billingAmount}"/><br/>
                 </c:when>            
             </c:choose>
         </p>
@@ -104,5 +104,5 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     
 </c:if>
 <p>
-    <button onclick="location.href = '<html:rewrite page="/accounting.do"/>'">Terug</button>
+    <button onclick="location.href = '<html:rewrite page="/accounting.do"/>'"><fmt:message key="beheer.transaction.terug"/></button>
 </p>

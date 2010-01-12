@@ -104,7 +104,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             tbl.removeChild( parent );
             count--;
         } else {
-            alert('U dient minimaal een IP adres op te geven!');
+            alert('<fmt:message key="beheer.user.ipalert"/>');
         }
     
         updateDiv();
@@ -151,7 +151,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="registeredIP" styleId="registeredIP"/>
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer Gebruikers</H1>
+        <H1><fmt:message key="beheer.user.title"/></H1>
 
         <c:choose>
             <c:when test="${!empty userlist}">
@@ -163,10 +163,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 24%;" id="sort_col1">Gebruikersnaam</th>
-                                <th style="width: 24%;" id="sort_col2">Achternaam</th>
-                                <th style="width: 38%;" id="sort_col3">Rollen</th>
-                                <th style="width: 15%;" id="sort_col4">Timeout</th>
+                                <th style="width: 24%;" id="sort_col1"><fmt:message key="beheer.userUsername"/></th>
+                                <th style="width: 24%;" id="sort_col2"><fmt:message key="beheer.userSurname"/></th>
+                                <th style="width: 38%;" id="sort_col3"><fmt:message key="beheer.user.table.rollen"/></th>
+                                <th style="width: 15%;" id="sort_col4"><fmt:message key="beheer.user.table.timeout"/></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -196,11 +196,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     </td>
                                 </tr>
                                 <div id="infoLabel${nUser.id}" class="infoLabelClass">
-                                    <strong>Gebruikersnaam:</strong> ${nUser.username}<br />
-                                    <strong>Naam:</strong> ${nUser.firstName} ${nUser.surname}<br />
-                                    <strong>E-mailadres:</strong> ${nUser.emailAddress}<br />
-                                    <strong>Organisatie:</strong> ${nUser.organization.name}<br />
-                                    <strong>Rollen:</strong>
+                                    <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
+                                    <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
+                                    <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
+                                    <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.organization.name}<br />
+                                    <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
                                     <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
                                         <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                                     </c:forEach>
@@ -228,7 +228,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </script>
             </c:when>
             <c:otherwise>
-                Nog geen WMS Services beschikbaar
+                <fmt:message key="beheer.user.geenwmsservices"/>
             </c:otherwise>
         </c:choose>
     </div>

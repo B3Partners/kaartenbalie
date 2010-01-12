@@ -22,7 +22,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <div id="nav">
-    <center><B>Menu Toegang</B></center><br>
+    <center><B><fmt:message key="beheer.proxyMenu.title" /></B></center><br>
     <p>
         <div id="nav-menu">
 

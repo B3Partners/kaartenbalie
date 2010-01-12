@@ -38,7 +38,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="id" />
 
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Beheer WMS Services</H1>
+        <H1><fmt:message key="beheer.server.title" /></H1>
         
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
@@ -50,9 +50,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 47%;" id="sort_col1">Naam</th>
-                                <th style="width: 34%;" id="sort_col2">Afkorting</th>
-                                <th style="width: 19%;" id="sort_col3">Datum laatste update</th>
+                                <th style="width: 47%;" id="sort_col1"><fmt:message key="beheer.server.table.naam" /></th>
+                                <th style="width: 34%;" id="sort_col2"><fmt:message key="beheer.server.table.afkorting" /></th>
+                                <th style="width: 19%;" id="sort_col3"><fmt:message key="beheer.server.table.datumupdate" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,10 +75,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     </td>
                                 </tr>
                                 <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
-                                    <strong>Naam:</strong> ${nServiceProvider.givenName}<br />
-                                    <strong>Afkorting:</strong> ${nServiceProvider.abbr}<br />
-                                    <strong>URL:</strong> ${nServiceProvider.url}<br />
-                                    <strong>Datum laatste update:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                                    <strong><fmt:message key="beheer.server.table.naam" />:</strong> ${nServiceProvider.givenName}<br />
+                                    <strong><fmt:message key="beheer.server.table.afkorting" />:</strong> ${nServiceProvider.abbr}<br />
+                                    <strong><fmt:message key="beheer.server.infolabel.url" />:</strong> ${nServiceProvider.url}<br />
+                                    <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                                 </div>
                             </c:forEach>
                         </tbody>
@@ -102,7 +102,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </script>
             </c:when>
             <c:otherwise>
-                Nog geen WMS Services beschikbaar
+                <fmt:message key="beheer.server.geenbeschikbaar" />
             </c:otherwise>
         </c:choose>
     </div>

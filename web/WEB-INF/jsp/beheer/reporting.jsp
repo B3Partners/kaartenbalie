@@ -95,9 +95,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <td><b><fmt:message key="beheer.reporting.xsl"/>:</b></td>
             <td>
                 <html:select property="xsl">
-                    <html:option value="usage-wms.xsl">Algemeen overzicht WMS</html:option>
-                    <html:option value="usage-wfs.xsl">Algemeen overzicht WFS</html:option>
-                    <html:option value="">XML</html:option>
+                    <html:option value="usage-wms.xsl"><fmt:message key="beheer.reporting.xsl.wms" /></html:option>
+                    <html:option value="usage-wfs.xsl"><fmt:message key="beheer.reporting.xsl.wfs" /></html:option>
+                    <html:option value=""><fmt:message key="beheer.reporting.xsl.xml" /></html:option>
                 </html:select>
             </td>
         </tr>
@@ -116,11 +116,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <thead>
                         <tr class="serverRijTitel">
                             <th align="center" style="width: 30px; height:14px;"><input type="checkbox" onclick="checkAll(1,this);"/></th>
-                            <th style="width: 170px;">Tijdstip Rapport</th>
-                            <th style="width: 170px;">Naam</th>
-                            <th style="width: 120px;">Begindatum</th>
-                            <th style="width: 120px;">Einddatum</th>
-                            <th style="width: 75px;">Download</th>
+                            <th style="width: 170px;"><fmt:message key="beheer.reporting.table.tijdstip" /></th>
+                            <th style="width: 170px;"><fmt:message key="beheer.reporting.table.naam" /></th>
+                            <th style="width: 120px;"><fmt:message key="beheer.reporting.table.begindatum" /></th>
+                            <th style="width: 120px;"><fmt:message key="beheer.reporting.table.einddatum" /></th>
+                            <th style="width: 75px;"><fmt:message key="beheer.reporting.table.download" /></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -144,7 +144,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <c:choose>
                                     <c:when test="${empty report.processingTime}">
                                         <td>
-                                            klik op vernieuwen om te verversen
+                                            <fmt:message key="beheer.reporting.refresh" />
                                         </td>
                                     </c:when>
                                     <c:when test="${report.reportMime == 'text/html'}">

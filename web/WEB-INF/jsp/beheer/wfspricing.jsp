@@ -24,9 +24,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <div class="containerDiv" style=";">
-    <h1>Beheer WFS Layer prijzen</h1>
+    <h1><fmt:message key="beheer.wfspricing.title"/></h1>
     
-    <b>Lijst met beschikbare WFS layers:</b>
+    <b><fmt:message key="beheer.wfspricing.wmslagen"/>:</b>
     
     <div style="height: 600px; margin: 0px; border: 0px Solid Black; padding: 0px;">
         <div id="tree" style="border: 0px none White; float: left; width: 230px; height: 550px; overflow: auto; margin: 5px;">

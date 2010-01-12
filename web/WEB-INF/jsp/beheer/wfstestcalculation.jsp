@@ -26,9 +26,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <c:set var="id" value="${form.map.id}"/>
 
 <div id="content_c">
-    <h1>Proefberekening</h1>
-    <label>Service Provider:</label> ${spName} <br/>
-    <label style="margin-bottom:10px;">Kaartlaag:</label> <b>${lName}</b><br/><br />
+    <h1><fmt:message key="beheer.wfstestcalculation.title"/></h1>
+    <label><fmt:message key="beheer.wfstestcalculation.serviceprovider"/>:</label> ${spName} <br/>
+    <label style="margin-bottom:10px;"><fmt:message key="beheer.wfstestcalculation.kaartlaag"/>:</label> <b>${lName}</b><br/><br />
     
     <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
     <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
@@ -94,12 +94,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </tr>
             <tr>
                 <td>
-                    <label><fmt:message key="beheer.pricing.test.testSteps"/>:</label><html:text property="testSteps" style="width:100px;"/> (Max. 20 stappen)
+                    <label><fmt:message key="beheer.pricing.test.testSteps"/>:</label><html:text property="testSteps" style="width:100px;"/> <fmt:message key="beheer.wfstestcalculation.maxteststeps"/>
                 </td>
             </tr>
         </table>
-        <html:submit property="test" style="margin-top: 10px; margin-bottom: 10px;">Voer proefberekening uit</html:submit>
-        <button style="margin-top: 10px; margin-bottom: 10px;" onclick="location.href = '<html:rewrite page="/wfspricingtest.do?back=t&id=${id}" module="/beheer"/>'">Annuleren</button>
+        <html:submit property="test" style="margin-top: 10px; margin-bottom: 10px;"><fmt:message key="beheer.wfstestcalculation.uitvoeren"/></html:submit>
+        <button style="margin-top: 10px; margin-bottom: 10px;" onclick="location.href = '<html:rewrite page="/wfspricingtest.do?back=t&id=${id}" module="/beheer"/>'"><fmt:message key="beheer.wfstestcalculation.annuleren"/></button>
     </html:form>
     
     <c:if test="${not empty resultSet}">
@@ -116,7 +116,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <c:choose>
                             <c:when test="${firstDateCheck == false}">
                                 <c:set var="firstDateCheck" value="${true}"/>        
-                                <th colspan="3" style="width:${tWidth}px;">Huidige tijd</th>        
+                                <th colspan="3" style="width:${tWidth}px;"><fmt:message key="beheer.wfstestcalculation.huidigetijd"/></th>        
                             </c:when>
                             <c:otherwise>
                                 <th colspan="3"  style="width:${tWidth}px;"><fmt:formatDate pattern="yyyy-MM-dd @ HH:mm" value="${date}"/></th>        

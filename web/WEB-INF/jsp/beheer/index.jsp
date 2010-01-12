@@ -21,15 +21,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<H1>Welkom in de beheer module</H1>
-Deze module stelt u in staat om de kaartenbalie naar uw wensen te configureren. Zo is het via
-deze module mogelijk nieuwe WMS servers toe te voegen aan het systeem of oude te verwijderen. 
-Daarnaast kunnen er via deze module gebruikers en organisaties aan het systeem toegevoegd worden
-en kunnen er voor deze gebruikers op organisatie niveau rechten ingesteld worden waarbij bepaald 
-wordt welke layers ze wel en geen recht op heeft om te bekijken.
-<p>
-Indien u zich al geregistreerd heeft kunt u met behulp van de onderstaande button meteen naar de viewer.
-<p>
+<H1><fmt:message key="beheer.index.title" /></H1>
+<fmt:message key="beheer.index.body" />
 <html:button  property="viewer" onclick="javascript:window.location.href='/gisviewer/viewer.do'">
     <fmt:message key="button.toviewer"/>
 </html:button>
