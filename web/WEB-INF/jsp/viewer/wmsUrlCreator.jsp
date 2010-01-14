@@ -43,9 +43,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <c:choose>
         <c:when test="${not empty persUrl}">
             <div class="containerdiv" style="float: left; clear: none; margin-bottom: 15px;">
-                <H1>Persoonlijke GetMap URL</H1>
-                Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
-                U kunt deze GetMap URL gebruiken voor viewers die het GetCapabilities commando niet ondersteunen.
+                <H1><fmt:message key="viewer.wmsurlCreator.title" /></H1>
+                <fmt:message key="viewer.wmsurlCreator.body" />
             </div>    
             
             <!-- <b>Layer rechten:</b><br/> --><br />
@@ -88,14 +87,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </div>
             <%-- Layer volgorde aanpassen. Dit werkt alleen nog niet. Onderste rij is met de URL. --%>
             <div class="volgordeBox" style="width: 748px;">    
-                <br /><b>Volgorde</b><br>
-                Bepaal hieronder de volgorde van de kaarten.
-                <br />Selecteer een kaart en verplaats het met de knoppen.
+                <br /><b><fmt:message key="viewer.wmsurlCreator.volgorde" /></b><br>
+                <fmt:message key="viewer.wmsurlCreator.volgorde.text" />
                 <input type="button" value="/\" onclick="javascript: moveSelectedUp()"/>
                 <input type="button" value="\/" onclick="javascript: moveSelectedDown()"/>
                 <div id="orderLayerBox" class="orderLayerBox" style="width: 748px;"></div>
             </div>
-            Persoonlijke GetMap URL:<BR>
+            <fmt:message key="viewer.wmsurlCreator.persurl" /><BR>
             <html:textarea property="defaultGetMap" styleClass="readOnly" styleId="defaultGetMap" readonly="true" cols="85" rows="5" style="width: 748px;" />
             
             <div style="clear: both; height: 0px;"></div>
@@ -165,12 +163,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     function setAllTrue(element){
                         setAll(element,true);
                         element.onclick= function(){setAllFalse(this);};
-                        element.innerHTML="&nbsp;Niets";
+                        element.innerHTML="<fmt:message key="viewer.wmsurlCreator.niets" />";
                     }
                     function setAllFalse(element){
                         setAll(element,false);
                         element.onclick= function(){setAllTrue(this);};
-                        element.innerHTML="&nbsp;Alles";
+                        element.innerHTML="<fmt:message key="viewer.wmsurlCreator.alles" />";
                     }
 
                     function setAll(element,checked){
@@ -217,14 +215,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         </c:when>
         <c:otherwise>
             <div class="containerdiv" style="float: left; clear: none;">
-                <H1>Persoonlijke GetMap URL</H1>
+                <H1><fmt:message key="viewer.wmsurlCreator.title" /></H1>
                 <P>
-                    Op deze pagina kunt u een persoonlijke GetMap URL maken die gebaseerd is op uw Persoonlijke URL.
-                    Indien u nopg geen persoonlijke URL heeft, dient u deze eerst aan te maken alvorens u een persoonlijke
-                    GetMap URL kunt maken.
-                    Met behulp van de persoonlijke GetMap URL kunt u op eenvoudige wijze er voor zorgen dat u bij het
-                    gebruik van een externe viewer altijd een bepaalde beginsituatie creeert die altijd gelijk is tot
-                    u deze URL wijzigt.
+                    <fmt:message key="viewer.wmsurlCreator.body2" />
                 </P>
             </div>
         </c:otherwise>

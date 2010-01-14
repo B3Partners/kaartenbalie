@@ -96,8 +96,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="alt_action"/>
             <html:hidden property="from" value="info@b3partners.nl"/>
             <html:hidden property="xsl" value="/infoText.xsl"/>
-            <html:hidden property="subject" value="<fmt:message key="beheer.metadataeditor.subject" />"/>
-            <html:hidden property="body" value="<fmt:message key="beheer.metadataeditor.body" />"/>
+            <c:set var="subject"><fmt:message key="beheer.metadataeditor.subject" /></c:set>
+            <c:set var="body"><fmt:message key="beheer.metadataeditor.body" /></c:set>
+            <html:hidden property="subject" value="${subject}" />
+            <html:hidden property="body" value="${body}" />
             
             <html:hidden property="id" />
             <html:hidden property="name" />

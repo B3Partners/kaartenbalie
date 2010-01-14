@@ -22,21 +22,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <div class="steps">
-    <div class="step"><html:link module="" page="/demo.do">Start</html:link></div>
-    <div class="step"><html:link module="/demo" page="/registration.do">Registreren</html:link></div>
-    <div class="stepactive">Kaarten</div>
-    <div class="step">Pers. URL</div>   
-    <div class="step">Viewer</div>   
+    <div class="step"><html:link module="" page="/demo.do"><fmt:message key="demo.steps.start" /></html:link></div>
+    <div class="step"><html:link module="/demo" page="/registration.do"><fmt:message key="demo.steps.registeren" /></html:link></div>
+    <div class="stepactive"><fmt:message key="demo.steps.kaarten" /></div>
+    <div class="step"><fmt:message key="demo.steps.persurl" /></div>   
+    <div class="step"><fmt:message key="demo.steps.viewer" /></div>   
 </div>
 
 
 <div id='democontent'>
-    <div id="democontentheader">Kaarten via een OGC WMS server toevoegen</div>
+    <div id="democontentheader"><fmt:message key="demo.addUrl.title" /></div>
     <div id="democontenttext">
-        Kaartenbalie heeft om het gebruik te kunnen demonstreren een aantal verschillende kaarten al in haar bestand
-        opgenomen. Om u te overtuigen van de mogelijkheden van Kaartenbalie, bieden wij u aan om ook een
-        eigen mapserver toe te voegen aan het systeem zodat u duidelijk deze mogelijkheden kunt zien en testen.
-        <b>U kunt deze stap ook overslaan.</b><br><br>
+        <fmt:message key="demo.addUrl.text" />
         <div class="serverDetailsClass">
             <html:form action="/voegurltoe" focus="givenName">
                 <c:if test="${not empty message}">
@@ -69,7 +66,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             <html:submit property="save" >
                                 <fmt:message key="button.add"/>
                             </html:submit>
-                            <button onclick="location.href='<html:rewrite page="/createPersonalURL.do" module="/demo"/>'; return false;">Verder</button>
+                            <button onclick="location.href='<html:rewrite page="/createPersonalURL.do" module="/demo"/>'; return false;"><fmt:message key="demo.addUrl.verder" /></button>
                         </td>
                         <td align="left"></td>
                     </tr>

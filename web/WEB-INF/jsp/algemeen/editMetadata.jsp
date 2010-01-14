@@ -97,8 +97,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="alt_action"/>
             <html:hidden property="from" value="info@b3partners.nl"/>
             <html:hidden property="xsl" value="/infoText.xsl"/>
-            <html:hidden property="subject" value="Metadata.xml van B3P Kaartenbalie"/>
-            <html:hidden property="body" value="Bijgevoegd vindt u de metadata als xml zoals u dat heeft ingevuld op onze website.\n\nMet vriendelijke groeten\n\nB3Partners BV"/>
+            <c:set var="subject"><fmt:message key="algemeen.editMetadata.subject" /></c:set>
+            <c:set var="body"><fmt:message key="algemeen.editMetadata.body" /></c:set>
+            <html:hidden property="subject" value="${subject}" />
+            <html:hidden property="body" value="${body}" />
 
             <html:hidden property="id" />
             <html:hidden property="name" />
@@ -118,7 +120,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <input type="hidden" name="download" value="">
             <html:button property="downloadButton" value="Downloaden" disabled="true" styleId="downloadButton" onclick="checkForm(this);"/> 
             --%>
-            <h4>Email met metadata.xml verzenden</h4>
+            <h4><fmt:message key="algemeen.editMetadata.title" /></h4>
             <table>
                 <tr>
                     <td><B><fmt:message key="message.fullname"/></B></td>

@@ -54,7 +54,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         if (elements.length>0){
             for(i = 0; i < elements.length; i++) {
                 if (elements[i].value.length <= 0) {
-                    alert('Veld is leeg');
+                    alert('<fmt:message key="viewer.createUrl.veldleeg" />');
                     return;
                 }
             }
@@ -103,7 +103,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             tbl.removeChild( parent );
             count--;
         } else {
-        alert('U dient minimaal een IP adres op te geven!');
+        alert('<fmt:message key="viewer.createUrl.ipadres" />');
     }
     
     updateDiv();
@@ -160,50 +160,48 @@ function doCustomSubmit(){
     <input type="hidden" id="hiddenSaveField"/>
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Persoonlijke URL</H1>
+        <H1><fmt:message key="viewer.createUrl.title" /></H1>
         <P>
-            De persoonlijke URL stelt u in staat om op eenvoudige wijze met andere viewers 
-            dan de intern meegeleverde viewer gebruik te maken van de Kaartenbalie. 
-            Hieronder vindt u de huidige gegevens zoals deze in de applicatie bekend zijn. 
+            <fmt:message key="viewer.createUrl.body" />
         </P>        
         <P>
-            Via volgende link kunt u de voor u geldende GetCapabilities ophalen:
-            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank">WMS</html:link>
-            en
-            <html:link page="/services/?SERVICE=WFS&REQUEST=GetCapabilities" module="" target="_blank">WFS</html:link></P>
+            <fmt:message key="viewer.createUrl.getcapabilities" />
+            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank"><fmt:message key="viewer.createUrl.wms" /></html:link>
+            <fmt:message key="viewer.createUrl.en" />
+            <html:link page="/services/?SERVICE=WFS&REQUEST=GetCapabilities" module="" target="_blank"><fmt:message key="viewer.createUrl.wfs" /></html:link></P>
         
-        <H2>Huidige gegevens:</H2>
+        <H2><fmt:message key="viewer.createUrl.huidigegegevens" /></H2>
         <table>
             <tr>
-                <td>Naam:</td>
+                <td><fmt:message key="viewer.createUrl.naam" />:</td>
                 <td><c:out value="${form.map.firstname}"/>&nbsp;<c:out value="${form.map.surname}"/></td>
             </tr>
             <tr>
-                <td>Gebruikersnaam:</td>
+                <td><fmt:message key="viewer.createUrl.gebruikersnaam" />:</td>
                 <td><c:out value="${form.map.username}"/></td>
             </tr>
             <tr>
-                <td>Email adres:</td>
+                <td><fmt:message key="viewer.createUrl.emailadres" />:</td>
                 <td><c:out value="${form.map.emailAddress}"/></td>
             </tr>
             
             <c:choose>
                 <c:when test="${form.map.personalURL != null}">
                     <tr>
-                        <td>Pers. URL:</td>
+                        <td><fmt:message key="viewer.createUrl.persurl" />:</td>
                         <td><c:out value="${form.map.personalURL}"/></td>
                     </tr>
                 </c:when>
                 <c:otherwise>
                     <tr>
-                        <td>Pers. URL:</td>
-                        <td>Nog geen URL aangemaakt.</td>
+                        <td><fmt:message key="viewer.createUrl.persurl" />:</td>
+                        <td><fmt:message key="viewer.createUrl.geenurl" /></td>
                     </tr>
                 </c:otherwise>
             </c:choose>
             
             <tr>
-                <td>Huidig IP adres:</td>
+                <td><fmt:message key="viewer.createUrl.ipadres" />:</td>
                 <td><c:out value="${form.map.currentAddress}"/></td>
             </tr>
         </table>
@@ -216,7 +214,7 @@ function doCustomSubmit(){
                     <table>
                         <tr>
                             <td colspan="2">
-                                <strong>LET OP: uw persoonlijke url verandert als u geldigheidsdatum aanpast.</strong>
+                                <strong><fmt:message key="viewer.createUrl.aanpassing" /></strong>
                             </td>
                         </tr>
                         <tr>
@@ -245,7 +243,7 @@ function doCustomSubmit(){
                                         </tbody>
                                     </table>
                                 </div>
-                                <input style="float: left;" type="button" onClick='addRow(); return false' value="Voeg IP adres toe"/>
+                                <input style="float: left;" type="button" onClick='addRow(); return false' value="<fmt:message key="viewer.createUrl.ipadrestoevoegen" />"/>
                             </td>
                         </tr>            
                         <tr>

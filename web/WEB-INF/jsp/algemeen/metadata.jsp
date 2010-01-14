@@ -24,31 +24,21 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
 <div class="containerdiv" style="height: 500px;">
-    <h1>B3P Metadata Editor (metadatastandaard kernset voor geografie 1.2)</h1>
+    <h1><fmt:message key="algemeen.metadata.title" /></h1>
     
     <div class="mdContainerDiv">
         <div class="containerdivFloat">
             <p>
-                U kunt deze metadata editor gratis gebruiken vanaf deze website.
-                Nadat u de gegevens heeft ingevuld kunt u het xml-bestand naar u toe
-                mailen.
+                <fmt:message key="algemeen.metadata.deel1" />
             </p>
             <p>
-                Deze metadata editor is conform metadatastandaard kernset voor geografie 1.2 
-                (ISO19139). Als extra kan ook (attribuut informatie (ISO19110) worden
-                toegevoegd. Om beide soorten metadata in een document
-                te plaatsen staan deze binnen een overkoepelende metadata tag.
+                <fmt:message key="algemeen.metadata.deel2" />
             </p>
             <p>
-                Als u de metadata wil valideren bij Geonovum, dient u alle
-                waarden met een gekleurd label in te vullen. Bij Geonovum kunt u alleen het
-                ISO19139 deel valideren; dit deel dient u uit het toegestuurde xml-document
-                te knippen en in de validator te plakken.
+                <fmt:message key="algemeen.metadata.deel3" />
             </p>
             <p>
-                Indien u deze editor in uw eigen omgeving wilt toepassen, kunt u 
-                contact opnemen met B3Partners BV: 
-                <a href="mailto:info@b3partners.nl">info@b3partners.nl</a>
+                <fmt:message key="algemeen.metadata.deel4" />
             </p>
         </div>
         <c:set var="link">

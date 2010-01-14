@@ -20,8 +20,7 @@ You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
-Wachtwoord en/of gebruikersnaam zijn onjuist.<p>
-Probeer het nogmaals:
+<fmt:message key="algemeen.invalidLogin.loginfault" />
 <form action="j_security_check" method='post' >
     <div class="item">
         <fmt:message key="algemeen.username"/>:

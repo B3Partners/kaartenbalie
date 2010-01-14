@@ -43,29 +43,27 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="organizationTelephone" />
     
     <div class="containerdiv" style="float: left; clear: none;">
-        <H1>Profiel wijzigen</H1>
+        <H1><fmt:message key="viewer.profile.title" /></H1>
         <P>
-            Op deze pagina kunt uw profiel wijzigen. De velden zijn niet verplicht om in te vullen.
-            Indien u velden leeg laat, zullen de oude waarden van dit veld automatisch opgenomen worden
-            in de database.
+            <fmt:message key="viewer.profile.body" />
         </P>        
         
-        <H2>Huidige gegevens:</H2>
+        <H2><fmt:message key="viewer.profile.gegevens" />:</H2>
         <table>
             <tr>
-                <td>Naam:</td>
+                <td><fmt:message key="viewer.profile.naam" />:</td>
                 <td><c:out value="${form.map.firstname}"/>&nbsp;<c:out value="${form.map.surname}"/></td>
             </tr>
             <tr>
-                <td>Gebruikersnaam:</td>
+                <td><fmt:message key="viewer.profile.gebruikersnaam" />:</td>
                 <td><c:out value="${form.map.username}"/></td>
             </tr>
             <tr>
-                <td>Email adres:</td>
+                <td><fmt:message key="viewer.profile.emailadres" />:</td>
                 <td><c:out value="${form.map.emailAddress}"/></td>
             </tr>
             <tr>
-                <td>Organisatie:</td>
+                <td><fmt:message key="viewer.profile.organisatie" />:</td>
                 <td><c:out value="${form.map.organizationName}"/></td>
             </tr>
         </table>

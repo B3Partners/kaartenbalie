@@ -21,5 +21,4 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-Copyright &copy; 2006-2007 B3Partners &nbsp;|&nbsp;
-<A href="mailto:info@b3partners.nl">info@b3partners.nl</A>
+<fmt:message key="commons.footer.footertext" />

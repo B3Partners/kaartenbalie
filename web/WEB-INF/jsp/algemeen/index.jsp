@@ -21,26 +21,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<H1>Welkom bij de kaartenbalie</H1>
+<H1><fmt:message key="algemeen.index.title" /></H1>
 <table>
     <tr><td valign="top">
             <div id="inleiding" style="float: left;">
                 <p>
-                    U werkt met een groot aantal kaarten. U heeft zelf kaarten en u wilt
-                    deze informatie verrijken met kaarten van externen: luchtfoto's, 
-                    wegenkaarten of mogelijk de Grootschalige Basis Kaart Nederland (GBKN).
-                    Het is natuurlijk mogelijk deze kaarten allemaal te kopen en 
-                    op de eigen server te zetten, maar een betere oplossing is Kaartenbalie.
+                    <fmt:message key="algemeen.index.inleiding.deel1" />
                 </p>
                 <p>
-                    Kaartenbalie maakt het mogelijk om kaarten afkomstig van meerdere
-                    bronnen als een geheel te raadplegen. U kunt metadata toevoegen,
-                    prijzen instellen en het gebruik monitoren.
+                    <fmt:message key="algemeen.index.inleiding.deel2" />
                 </p>
                 <p>
-                    Neemt u contact op met B3Partners voor meer informatie: 
-                    <a href="mailto:info@b3partners.nl">info@b3partners.nl</a> of kijk
-                    op de website van <html:link href="http://www.b3partners.nl/">B3Partners</html:link>.
+                    <fmt:message key="algemeen.index.inleiding.deel3" />
                 </p>
             </div>
             
@@ -48,24 +40,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             &nbsp;&nbsp;
         </td><td valign="top">
             <dl>
-                <dt><b>Beheer (Toegang)</b></dt>
-                <dd>Toevoegen van kaartlagen/servers, organisaties en gebruikers.
-                    Aangeven van rechten op kaarten voor organisaties.
-                </dd>
-                <dt><b>Beheer (Extra)</b></dt>
-                <dd>Toevoegen van metadata en prijzen, een budget voor het ophalen
-                    van betaalde kaarten en rapportages van het gebruik.
-                </dd>
-                <dt><b>Persoonlijke pagina</b></dt>
-                <dd>Wachtwoord en ipadres aanpassen en uw personelijke url opvragen
-                    of een volledige kaartadres genereren.
-                </dd>
-                <dt><b>Metadata Editor</b></dt>
-                <dd>Metadata editor conform kernset voor geografie 1.1 (Nederlands profiel op ISO19115:2003/ ISO19139)
-                </dd>
-                <dt><b>Viewer</b></dt>
-                <dd>Als u al een inlog heeft kunt u direct naar de <a href="/gisviewer/viewer.do">viewer</a>.
-                </dd>
+                <dt><b><fmt:message key="algemeen.index.beheer.title" /></b></dt>
+                <dd><fmt:message key="algemeen.index.beheer.body" /></dd>
+                <dt><b><fmt:message key="algemeen.index.extra.title" /></b></dt>
+                <dd><fmt:message key="algemeen.index.extra.body" /></dd>
+                <dt><b><fmt:message key="algemeen.index.persoonlijk.title" /></b></dt>
+                <dd><fmt:message key="algemeen.index.persoonlijk.body" /></dd>
+                <dt><b><fmt:message key="algemeen.index.metadataeditor.title" /></b></dt>
+                <dd><fmt:message key="algemeen.index.metadataeditor.body" /></dd>
+                <dt><b><fmt:message key="algemeen.index.viewer.title" /></b></dt>
+                <dd><fmt:message key="algemeen.index.viewer.body" /></dd>
             </dl>
             
     </td></tr>
@@ -73,6 +57,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
 <div>
     <c:if test="${pageContext.request.remoteUser != null}">
-        Ingelogd als: <c:out value="${pageContext.request.remoteUser}"/> | <html:link page="/logout.do" module="">Uitloggen</html:link>
+        <fmt:message key="algemeen.index.ingelogdals" />: <c:out value="${pageContext.request.remoteUser}"/> | <html:link page="/logout.do" module=""><fmt:message key="algemeen.index.uitloggen" /></html:link>
     </c:if>    
 </div>

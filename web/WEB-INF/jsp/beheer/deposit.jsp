@@ -33,7 +33,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <table>
         <tr>
             <td colspan="2" style="height: 30px;" valign="top">
-                <strong><fmt:message key="beheer.deposit.rate" />1 ${exchangeRate} <fmt:message key="beheer.deposit.rate" />2</strong>
+                <strong><fmt:message key="beheer.deposit.rate1" /> ${exchangeRate} <fmt:message key="beheer.deposit.rate2" /></strong>
             </td>
         </tr>
         <tr>

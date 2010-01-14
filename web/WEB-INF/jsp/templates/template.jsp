@@ -30,7 +30,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <META HTTP-EQUIV="Expires" CONTENT="-1" />
         <META HTTP-EQUIV="Cache-Control" CONTENT="max-age=0, no-store" />
         
-        <title><tiles:insert name='title'/> - Kaartenbalie</title>
+        <title><tiles:insert name='title'/> - <fmt:message key="kaartenbalie.title" /></title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/selectcss' module='' />" type="text/css" rel="stylesheet" />
         <!--[if IE 6]>
@@ -126,11 +126,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </div>-->
                 <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;">
                     <div id="initiatief">
-                        <div id="footer_tekst_rechts" class="footer_tekst">KaartenBalie.nl is een initiatief van</div>
+                        <div id="footer_tekst_rechts" class="footer_tekst"><fmt:message key="templates.template.initiatief" /></div>
                     </div>
                 </a>
                 <div id="copyright">
-                    <div id="footer_tekst_links" class="footer_tekst">&copy; 2007-2009 B3Partners</div>
+                    <div id="footer_tekst_links" class="footer_tekst"><fmt:message key="templates.template.copyright" /></div>
                 </div>
             </div>
         </div>

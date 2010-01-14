@@ -22,7 +22,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <div id="nav">
-    <center><B>Menu viewer</B></center><br>
+    <center><B><fmt:message key="viewer.menu.title" /></B></center><br>
     <p>
         <div id="nav-menu">
             <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="viewer.home"/></a>

@@ -21,4 +21,4 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-Deze pagina kan niet worden getoond omdat u geen rechten heeft.
+<fmt:message key="algemeen.noRights.geenrechten" />

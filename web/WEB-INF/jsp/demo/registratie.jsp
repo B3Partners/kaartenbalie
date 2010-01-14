@@ -32,20 +32,17 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="timeout" />
     
     <div class="steps">
-        <div class="step"><html:link module="" page="/demo.do">Start</html:link></div>
-        <div class="stepactive">Registreren</div>
-        <div class="step">Kaarten</div>
-        <div class="step">Pers. URL</div>   
-        <div class="step">Viewer</div>   
+        <div class="step"><html:link module="" page="/demo.do"><fmt:message key="demo.steps.start" /></html:link></div>
+        <div class="stepactive"><fmt:message key="demo.steps.registeren" /></div>
+        <div class="step"><fmt:message key="demo.steps.kaarten" /></div>
+        <div class="step"><fmt:message key="demo.steps.persurl" /></div>   
+        <div class="step"><fmt:message key="demo.steps.viewer" /></div>   
     </div>
     
     <div id='democontent'>
-        <div id="democontentheader">Registratie</div>
+        <div id="democontentheader"><fmt:message key="demo.registratie.header" /></div>
         <div id="democontenttext">    
-            Voordat u gebruik kunt maken van de Kaartenbalie Demo
-            dient u zich eerst te registreren.<br>
-            Zodra u geregistreerd bent als gebruiker
-            heeft u toegang tot enige testkaarten.
+            <fmt:message key="demo.registratie.body" />
         </div>
     </div><br />
     
@@ -53,7 +50,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <table>
             <tr>
                 <td colspan="2">
-                    <div id="demoheader3" style="margin-top: 0px;">Vul hieronder uw gegevens in</div>
+                    <div id="demoheader3" style="margin-top: 0px;"><fmt:message key="demo.registratie.gegevens" /></div>
                     <c:if test="${not empty message}">
                         <div id="error">
                             <div><c:out value="${message}"/></div>
@@ -100,7 +97,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <tr>
                 <td colspan="2" align="left">
                     <html:submit property="save">
-                        Registreren
+                        <fmt:message key="demo.registratie.registreren" />
                     </html:submit>                                        
                 </td>
             </tr>

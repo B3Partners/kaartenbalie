@@ -21,14 +21,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<div class="onderbalk" style="color: #FFF0C4;">LOGIN</div>
+<div class="onderbalk" style="color: #FFF0C4;"><fmt:message key="algemeen.login.title" /></div>
 <form id="loginForm" action="j_security_check" method="POST">
     <div style="height: 430px">
         <div style="width: 430px; padding: 10px; border: 1px solid #dddddd;">
             <table>
-                <tr><td>Gebruikersnaam:</td><td><input type="text" name="j_username" size="36"></td></tr>
-                <tr><td>Wachtwoord:</td><td><input type="password" name="j_password" size="36"></td></tr>
-                <tr><td><input type="Submit" value="Login"></td></tr>
+                <tr><td><fmt:message key="algemeen.login.gebruikersnaam" />:</td><td><input type="text" name="j_username" size="36"></td></tr>
+                <tr><td><fmt:message key="algemeen.login.wachtwoord" />:</td><td><input type="password" name="j_password" size="36"></td></tr>
+                <tr><td><input type="Submit" value="<fmt:message key="algemeen.login.login" />"></td></tr>
             </table>
         </div>
     </div>    

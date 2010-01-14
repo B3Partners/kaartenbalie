@@ -54,7 +54,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         if (elements.length>0){
             for(i = 0; i < elements.length; i++) {
                 if (elements[i].value.length <= 0) {
-                    alert('Veld is leeg');
+                    alert('<fmt:message key="demo.createUrl.leegveld" />');
                     return;
                 }
             }
@@ -103,7 +103,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             tbl.removeChild( parent );
             count--;
         } else {
-            alert('U dient minimaal een IP adres op te geven!');
+            alert('<fmt:message key="demo.createUrl.ipadres" />');
         }
     
         updateDiv();
@@ -160,27 +160,25 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <input type="hidden" id="hiddenSaveField"/>
     
     <div class="steps">
-        <div class="step"><html:link module="" page="/demo.do">Start</html:link></div>
-        <div class="step"><html:link module="/demo" page="/registration.do">Registreren</html:link></div>
-        <div class="step"><html:link module="/demo" page="/voegurltoe.do">Kaarten</html:link></div>
-        <div class="stepactive">Pers. URL</div>   
-        <div class="step">Viewer</div>   
+        <div class="step"><html:link module="" page="/demo.do"><fmt:message key="demo.steps.start" /></html:link></div>
+        <div class="step"><html:link module="/demo" page="/registration.do"><fmt:message key="demo.steps.registeren" /></html:link></div>
+        <div class="step"><html:link module="/demo" page="/voegurltoe.do"><fmt:message key="demo.steps.kaarten" /></html:link></div>
+        <div class="stepactive"><fmt:message key="demo.steps.persurl" /></div>   
+        <div class="step"><fmt:message key="demo.steps.viewer" /></div>   
     </div>
     <div id='democontent'>
-        <div id="democontentheader">Persoonlijke URL</div>
-        U kunt B3P Kaartenbalie gebruiken met elke GIS-Viewer die de OGC WMS standaard ondersteunt.<br>
-        Hiertoe dient u onderstaande Persoonlijke URL te kopieren en in uw GIS applicatie te plakken:<br><br>
+        <div id="democontentheader"><fmt:message key="demo.createUrl.title" /></div>
+        <fmt:message key="demo.createUrl.body" />
         <c:choose>
             <c:when test="${form.map.personalURL != null}">
                 <b><c:out value="${form.map.personalURL}"/></b>
             </c:when>
             <c:otherwise>
-                Nog geen URL aangemaakt!
+                <fmt:message key="demo.createUrl.geenurl" />
             </c:otherwise>
         </c:choose>
         <p>
-            <br>Als u gebruik wilt maken van onze eigen GIS-Viewer:&nbsp;&nbsp;
-            <button onclick="location.href='/gisviewer/viewer.do'; return false;">Verder naar Viewer</button>
+            <fmt:message key="demo.createUrl.gisviewer" />
         </p>
     </div>
     
@@ -191,7 +189,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table>
                         <tr>
                             <td colspan="2">
-                                <strong>LET OP: uw persoonlijke url verandert als u geldigheidsdatum aanpast.</strong>
+                                <strong><fmt:message key="demo.createUrl.geldigheidsdatum" /></strong>
                             </td>
                         </tr>
                         <tr>
@@ -242,7 +240,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <html:hidden property="registeredIP" />
                 <html:hidden property="personalURL" />
                 <html:hidden property="timeout" />
-                <br>Geavanceerde gebruikers kunnen hun Persoonlijke URL&nbsp;&nbsp;
+                <fmt:message key="demo.createUrl.geavanceerd" />
                 <html:submit property="edit" accesskey="n" styleClass="knop" onclick="bCancel=true">
                     <fmt:message key="button.edit"/>
                 </html:submit>
