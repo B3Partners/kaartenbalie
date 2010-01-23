@@ -27,13 +27,14 @@ import java.io.OutputStream;
 
 import java.util.List;
 import java.util.Iterator;
+import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
-import nl.b3p.ogc.utils.OGCResponse;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
@@ -57,7 +58,6 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
 
-        OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
         String layers = null;
         String[] layerNames = null;
@@ -91,7 +91,28 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         String url = null;
         List spInfo = null;
 
-        spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+        Set userRoles = user.getRoles();
+        boolean isAdmin = false;
+        boolean isOrgAdmin = false;
+        Iterator rolIt = userRoles.iterator();
+        while (rolIt.hasNext()) {
+            Roles role = (Roles) rolIt.next();
+            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
+                /* de gebruiker is een beheerder */
+                isAdmin = true;
+            }
+            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
+                /* de gebruiker is een organisatiebeheerder */
+                isOrgAdmin = true;
+            }
+        }
+
+        if (isAdmin && !isOrgAdmin) {
+            spInfo = getLayerSummaries(layerNames);
+        } else {
+            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+        }
+
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }

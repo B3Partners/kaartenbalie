@@ -43,7 +43,6 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
-import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -235,41 +234,4 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         }
     }
 
-    private List getLayerSummaries(String[] layers) throws Exception {
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-
-        List spList = new ArrayList();
-        for (int i = 0; i < layers.length; i++) {
-            String layer = layers[i];
-
-            String abbr = null, name = null;
-            int idx = layer.indexOf('_');
-            if (idx != -1) {
-                abbr = layer.substring(0, idx);
-                name = layer.substring(idx + 1);
-            }
-
-            if (abbr == null || abbr.length() == 0 || name == null || name.length() == 0) {
-                log.debug("invalid layer name: " + layer);
-                throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + layer);
-            }
-
-            List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
-
-            if (matchingLayers.isEmpty()) {
-                /* XXX "or no rights" ?? No rights are checked... */
-                log.error("layer not found: " + layer);
-                throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + layer);
-            }
-
-            if (matchingLayers.size() > 1) {
-                log.error("layers with duplicate names, name: " + layer);
-                throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-            }
-
-            WfsLayer l = (WfsLayer) matchingLayers.get(0);
-            spList.add(new SpLayerSummary(l, "true"));
-        }
-        return spList;
-    }
 }
