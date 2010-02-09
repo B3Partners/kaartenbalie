@@ -232,4 +232,26 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         return spList;
     }
+
+    static protected String cleanPrefixInBody(String body, String prefix, String nsUrl, String ns) {
+        String old = "";
+        if (nsUrl!=null) {
+            old += nsUrl;
+        }
+        if (prefix!=null) {
+            old += prefix;
+        }
+        if (old.length()==0) {
+            return body;
+        }
+        String nsnew = "";
+        if (ns!=null) {
+            nsnew += ns;
+        }
+        StringBuffer bBody = new StringBuffer(body);
+        for (int start = bBody.indexOf(old); start >=0; ) {
+            bBody.replace(start, start + old.length(), nsnew);
+        }
+        return bBody.toString();
+    }
 }

@@ -48,10 +48,8 @@ public class DataWrapper {
     private OutputStream sos;
     private String operation;
     private String service;
-
     private DataMonitoring requestReporting;
     private Map layeringParameterMap;
-
     private OGCRequest ogcrequest;
 
     public DataWrapper(HttpServletResponse response) throws IOException {
@@ -140,6 +138,14 @@ public class DataWrapper {
     }
 
     public void write(ByteArrayOutputStream baos) throws IOException {
+
+        if (response.isCommitted()) {
+            log.error("response already committed, next message not written:");
+            if (baos != null) {
+                log.error(baos.toString());
+            }
+            return;
+        }
         //Logging the dataspeed...
         Operation o = new Operation();
         o.setType(Operation.CLIENT_TRANSFER);
@@ -211,5 +217,4 @@ public class DataWrapper {
     public void setService(String service) {
         this.service = service;
     }
-
 }

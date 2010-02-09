@@ -143,7 +143,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
         }
 
-        if (url == null || url == "") {
+        if (url == null || url.length()==0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         HttpMethod method = null;
@@ -151,6 +151,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
+        // TODO body cleanen
 
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();

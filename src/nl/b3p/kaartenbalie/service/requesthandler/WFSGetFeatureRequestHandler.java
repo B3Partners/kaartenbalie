@@ -175,6 +175,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             }
 
             String body = data.getOgcrequest().getXMLBody();
+            // TODO body cleanen
 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
 					data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));

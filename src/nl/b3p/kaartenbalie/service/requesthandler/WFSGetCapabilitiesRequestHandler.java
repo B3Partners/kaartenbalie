@@ -126,6 +126,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
+        // TODO body cleanen
 
         String WFSVersionUsed = null;
         if (data.getOgcrequest().getParameter(OGCConstants.WMS_VERSION) != null) {
