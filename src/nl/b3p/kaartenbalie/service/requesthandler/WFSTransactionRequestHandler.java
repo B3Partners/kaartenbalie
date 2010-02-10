@@ -114,12 +114,17 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             while (iter.hasNext()) {
                 SpLayerSummary sp = (SpLayerSummary) iter.next();
                 List tlayers = sp.getLayers();
-                if (tlayers == null) {
-                    continue;
-                }
                 url = sp.getSpUrl();
                 prefix = sp.getSpAbbr();
-                Iterator it2 = layers.iterator();
+                if (tlayers == null) {
+                    String layerName = sp.getLayerName();
+                    HashMap layer = new HashMap();
+                    layer.put("spAbbr", prefix);
+                    layer.put("layer", layerName);
+                    spLayers.add(layer);
+                    continue;
+                }
+                Iterator it2 = tlayers.iterator();
                 while (it2.hasNext()) {
                     String layerName = (String) it2.next();
                     HashMap layer = new HashMap();

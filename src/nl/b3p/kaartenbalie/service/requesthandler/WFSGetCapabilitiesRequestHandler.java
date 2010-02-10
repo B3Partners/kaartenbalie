@@ -112,14 +112,19 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         List spLayers = new ArrayList();
         while (iter.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) iter.next();
+            String spAbbr = sp.getSpAbbr();
             List layers = sp.getLayers();
             if (layers == null) {
+                String layerName = sp.getLayerName();
+                HashMap layer = new HashMap();
+                layer.put("spAbbr", spAbbr);
+                layer.put("layer", layerName);
+                spLayers.add(layer);
                 continue;
             }
-            String spAbbr = sp.getSpAbbr();
             Iterator it2 = layers.iterator();
             while (it2.hasNext()) {
-                String layerName = (String)it2.next();
+                String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
                 layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
