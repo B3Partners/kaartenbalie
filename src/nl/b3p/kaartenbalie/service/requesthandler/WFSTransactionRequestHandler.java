@@ -63,7 +63,6 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         String url = "";
-        List spInfo = null;
         String prefix = "";
         List layers = ogcrequest.getLayers();
 
@@ -114,13 +113,22 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             Iterator iter = spUrls.iterator();
             while (iter.hasNext()) {
                 SpLayerSummary sp = (SpLayerSummary) iter.next();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", sp.getSpAbbr());
-                layer.put("layer", sp.getLayerName());
-                spLayers.add(layer);
+                List tlayers = sp.getLayers();
+                if (tlayers == null) {
+                    continue;
+                }
                 url = sp.getSpUrl();
                 prefix = sp.getSpAbbr();
+                Iterator it2 = layers.iterator();
+                while (it2.hasNext()) {
+                    String layerName = (String) it2.next();
+                    HashMap layer = new HashMap();
+                    layer.put("spAbbr", prefix);
+                    layer.put("layer", layerName);
+                    spLayers.add(layer);
+                }
             }
+
             // layer names moeten nog vervangen worden voor het naar de service provider word gestuurt
             List elementList = ogcrequest.getTransactionElementList(prefix);
             List newElementList = new ArrayList();
@@ -195,7 +203,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             method = new PostMethod(host);
             //work around voor ESRI post Messages
             //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-            method.setRequestEntity(new StringRequestEntity(body, null,null));
+            method.setRequestEntity(new StringRequestEntity(body, null, null));
             int status = client.executeMethod(method);
             if (status == HttpStatus.SC_OK) {
                 data.setContentType("text/xml");
@@ -222,7 +230,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             }
         } finally {
             log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity,MyEMFDatabase.MAIN_EM);
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
 }

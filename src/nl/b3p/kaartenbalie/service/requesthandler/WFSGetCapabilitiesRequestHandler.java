@@ -112,15 +112,24 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         List spLayers = new ArrayList();
         while (iter.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) iter.next();
-            HashMap layer = new HashMap();
-            layer.put("spAbbr", sp.getSpAbbr());
-            layer.put("layer", sp.getLayerName());
-            spLayers.add(layer);
+            List layers = sp.getLayers();
+            if (layers == null) {
+                continue;
+            }
+            String spAbbr = sp.getSpAbbr();
+            Iterator it2 = layers.iterator();
+            while (it2.hasNext()) {
+                String layerName = (String)it2.next();
+                HashMap layer = new HashMap();
+                layer.put("spAbbr", spAbbr);
+                layer.put("layer", layerName);
+                spLayers.add(layer);
+            }
         }
-
         if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
+
         HttpMethod method = null;
         HttpClient client = new HttpClient();
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
@@ -131,7 +140,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         String WFSVersionUsed = null;
         if (data.getOgcrequest().getParameter(OGCConstants.WMS_VERSION) != null) {
             WFSVersionUsed = data.getOgcrequest().getParameter(OGCConstants.WMS_VERSION);
-        } else if (spInfo!=null && spInfo.size()>1) {
+        } else if (spInfo != null && spInfo.size() > 1) {
             // assume that wfs 1.0.0 will be supported by all providers
             WFSVersionUsed = OGCConstants.WFS_VERSION_100;
         }
@@ -234,5 +243,4 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
     }
-
 }

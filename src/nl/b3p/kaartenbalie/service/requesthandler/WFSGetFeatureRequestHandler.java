@@ -136,16 +136,24 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             }
         }
 
-        List spLayers = new ArrayList();
         Iterator iter = spUrls.iterator();
+        List spLayers = new ArrayList();
         while (iter.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) iter.next();
-            HashMap layer = new HashMap();
-            layer.put("spAbbr", sp.getSpAbbr());
-            layer.put("layer", sp.getLayerName());
-            spLayers.add(layer);
+            List tlayers = sp.getLayers();
+            if (tlayers == null) {
+                continue;
+            }
+            String spAbbr = sp.getSpAbbr();
+            Iterator it2 = tlayers.iterator();
+            while (it2.hasNext()) {
+                String layerName = (String)it2.next();
+                HashMap layer = new HashMap();
+                layer.put("spAbbr", spAbbr);
+                layer.put("layer", layerName);
+                spLayers.add(layer);
+            }
         }
-
         if (spLayers == null || spLayers.size() == 0) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
