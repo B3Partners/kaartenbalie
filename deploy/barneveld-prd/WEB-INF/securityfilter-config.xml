@@ -89,7 +89,6 @@
         </auth-constraint>
     </security-constraint>
 
-
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
         <form-login-config>
@@ -106,7 +105,7 @@
             <!-- deze waardes zijn voor (HOU DEZE INFORMATIE UP-TO-DATE!): www.kaartenbalie.nl 81BF677C3015E66FE5F2A71DDA21160B Extra hash: s6AWd5MYe39B5NP3UaLl4 -->
             <secret-key>40F40FD7500AE20E817093874D149176</secret-key>
             <extra-hash-string>BETN9cykaidfJF2VvQIEa</extra-hash-string>
-            <cookie-expire>86400</cookie-expire>
+            <cookie-expire>28800</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
 
