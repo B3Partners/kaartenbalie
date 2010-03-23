@@ -159,7 +159,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     			
 		    	ByteArrayOutputStream baos = wms.getCapabilities(url);
 
-                        String xml = baos.toString(KBConfiguration.charset);
+                String xml = baos.toString(KBConfiguration.CHARSET);
 		    	
 		        wmsRequest.setResponseStatus(new Integer(200));
 		        wmsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
