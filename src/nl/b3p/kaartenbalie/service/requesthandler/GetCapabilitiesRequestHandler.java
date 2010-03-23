@@ -157,7 +157,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
                 wmsRequest.setProviderRequestURI(url);
     			wmsRequest.setBytesSent((long)url.getBytes().length);
     			
-		    	String xml = wms.getCapabilities(url);
+		    	ByteArrayOutputStream baos = wms.getCapabilities(url);
+
+                        String xml = baos.toString(KBConfiguration.charset);
 		    	
 		        wmsRequest.setResponseStatus(new Integer(200));
 		        wmsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
