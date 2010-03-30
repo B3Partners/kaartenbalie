@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.ogc.utils.KBConfiguration;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -146,6 +147,10 @@ public class MyEMFDatabase extends HttpServlet {
 
         // configure kb via properties
         KBConfiguration.configure();
+        // Make sure HttpClient respects proxy settings from Java VM.
+        HttpClientParams.getDefaultParams().setParameter(HttpClientParams.CONNECTION_MANAGER_CLASS,
+        		nl.b3p.kaartenbalie.service.AutoProxyHttpConnectionManager.class);
+        log.info("Connection Manager set to: " + HttpClientParams.getDefaultParams().getParameter(HttpClientParams.CONNECTION_MANAGER_CLASS));
     }
 
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
