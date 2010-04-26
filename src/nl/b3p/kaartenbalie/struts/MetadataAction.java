@@ -47,7 +47,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
@@ -65,9 +64,12 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.*;
@@ -78,6 +80,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
     protected static final String SEND = "send";
     protected static final String DOWNLOAD = "download";
     protected static final String GET = "get";
+    protected static String METADATA_LINE_SEPARATOR = "<pseudohtml:br/>";
 
     // We map the prefixes to URIs
     protected static final NamespaceContext ctx = new NamespaceContext() {
@@ -519,10 +522,38 @@ public class MetadataAction extends KaartenbalieCrudAction {
         dynaForm.set("id", layer.getUniqueName());
         dynaForm.set("name", layer.getTitle());
         String metadata = layer.getMetadata();
-        if (metadata != null) {
-            // remove all newline and return characters using RegEx
-            metadata = metadata.replaceAll("[\\n\\r]+", "");
+        try {
+            if (metadata != null && !metadata.isEmpty()) {
+                SAXBuilder builder = new SAXBuilder();
+
+                org.jdom.Document document = builder.build(new StringReader(metadata));
+                Format format = Format.getRawFormat();
+                format = format.setLineSeparator(METADATA_LINE_SEPARATOR);
+
+                metadata = new XMLOutputter(format).outputString(document);
+
+                //log.debug("md:\n" + metadata);
+
+                metadata = metadata.replace("\\", "\\\\");
+
+                /*
+                // we assume utf-8. TODO: for utf-16+ we have to interpret the byte order mark.
+                // remove byte-order mark (e.g. "&#65279;" after escaping (without quotes))
+                metadata = metadata.trim();
+                if (!metadata.startsWith("<")) {
+                    metadata = metadata.substring(1);
+                }*/
+
+                // the above should be robust enough to deal with all valid xml input that is encoded in utf-8.
+                metadata = StringEscapeUtils.escapeXml(metadata);
+                log.debug("escaped md to jsp:\n" + metadata);
+            }
+        } catch (JDOMException ex) {
+            log.error("Could not build an xml document from the metadata.\nResponse: " + metadata, ex);
+        } catch (IOException ex) {
+            log.error("Could not build an xml document from the metadata.\nResponse: " + metadata, ex);
         }
+
         dynaForm.set("metadata", metadata);
     }
     //-------------------------------------------------------------------------------------------------------

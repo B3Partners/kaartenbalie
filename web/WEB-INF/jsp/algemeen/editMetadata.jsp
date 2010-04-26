@@ -41,7 +41,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         		
             var layerId = "<c:out value="${metadataForm.map.id}"/>";
             var layerName = "<c:out value="${metadataForm.map.name}"/>";
-            var metadataXML = "<c:out value="${metadataForm.map.metadata}"/>";
+            var metadataXML = "<c:out value="${metadataForm.map.metadata}" escapeXml='false'/>";
  
             var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));
             var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
@@ -76,7 +76,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
 
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>		
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
 
         <script type="text/javascript">
             /* <![CDATA[ */
@@ -84,11 +85,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             /* ]]> */
         </script>	
 
-        <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
+        <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css" />
         <link href="<html:rewrite page='/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
-                                <!--[if lte IE 7]> <link href="<html:rewrite page='/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
-
-
+        <!--[if lte IE 7]> 
+            <link href="<html:rewrite page='/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" />
+        <![endif]-->
 
     </head>
     <body>
@@ -112,7 +113,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </div>
                 </html:messages> 
             </div> 
-            <div id="write-root" onclick="click();"></div>
+            <div id="write-root"></div>
             <%--
             <input type="hidden" name="save" value="">
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
