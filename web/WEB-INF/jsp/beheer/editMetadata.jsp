@@ -36,15 +36,17 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             //var debugMode = true;
             var debugMode = false;
             //var viewMode = "true";
-            var viewMode = "<c:out value="${metadataForm.map.viewMode}"/>";
+            var viewMode = "false";
+            //var viewMode = "<c:out value="${metadataForm.map.viewMode}"/>";
             //var strictMode = "true";
-            var strictMode = "<c:out value="${metadataForm.map.strictMode}"/>";
+            var strictMode = "false";
+            //var strictMode = "<c:out value="${metadataForm.map.strictMode}"/>";
 
             var layerId = "<c:out value="${metadataForm.map.id}"/>";
             var layerName = "<c:out value="${metadataForm.map.name}"/>";
             var metadataXML = "<c:out value="${metadataForm.map.metadata}" escapeXml='false'/>";
 
-            var baseURL = document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));
+            var baseURL = "<html:rewrite page='' module='' />";//document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));
             var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
             var preprocessorXslFullPath = baseFullPath + "preprocessors/metadataEditPreprocessor.xsl";
 
@@ -115,7 +117,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </html:messages> 
             </div> 
             <div id="write-root"></div>
-            <input type="hidden" name="save" value="">
+            <input type="hidden" id="save" name="save" value="">
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
             <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
             <input type="hidden" name="download" value="">
