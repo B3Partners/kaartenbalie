@@ -523,7 +523,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
         dynaForm.set("name", layer.getTitle());
         String metadata = layer.getMetadata();
         try {
-            if (metadata != null && !metadata.isEmpty()) {
+            if (metadata != null && metadata.length() != 0) {
                 SAXBuilder builder = new SAXBuilder();
 
                 org.jdom.Document document = builder.build(new StringReader(metadata));

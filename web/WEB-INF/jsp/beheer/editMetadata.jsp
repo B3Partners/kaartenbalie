@@ -120,7 +120,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <input type="hidden" id="save" name="save" value="">
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
             <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
-            <input type="hidden" name="download" value="">
+            <input type="hidden" id="download" name="download" value="">
             <html:button property="downloadButton" value="Downloaden" styleId="downloadButton" onclick="checkForm(this);"/> 
             <%--
             <h4><fmt:message key="beheer.metadataeditor.email" /></h4>
