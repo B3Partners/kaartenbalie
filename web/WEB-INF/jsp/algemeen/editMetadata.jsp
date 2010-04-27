@@ -163,7 +163,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </td>
                     <td>
                         <html:text property="to" size="50"/>
-                        <input type="hidden" name="send" value="">
+                        <input type="hidden" id="send" name="send" value="" />
                         <html:button property="sendButton" value="Verzenden" styleId="sendButton" onclick="checkForm(this);"/> 
                     </td>
                 </tr>

@@ -81,7 +81,6 @@ public class MetadataAction extends KaartenbalieCrudAction {
     protected static final String DOWNLOAD = "download";
     protected static final String GET = "get";
     protected static String METADATA_LINE_SEPARATOR = "<pseudohtml:br/>";
-
     // We map the prefixes to URIs
     protected static final NamespaceContext ctx = new NamespaceContext() {
 
@@ -202,8 +201,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
         User user = (User) request.getUserPrincipal();
         User dbUser = null;
         try {
-            dbUser = (User) em.createQuery("from User u where " +
-                    "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
+            dbUser = (User) em.createQuery("from User u where "
+                    + "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
@@ -219,8 +218,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 try {
                     layer = getLayerByUniqueName(layerUniqueName);
                 } catch (Exception exception) {
-                    log.error("Can not get layer " + layerUniqueName +
-                            " for metadata, cause: " + exception.getLocalizedMessage());
+                    log.error("Can not get layer " + layerUniqueName
+                            + " for metadata, cause: " + exception.getLocalizedMessage());
                 }
                 if (layer != null && hasVisibility(layer, organizationLayers)) {
                     metadata = layer.getMetadata();
@@ -296,45 +295,41 @@ public class MetadataAction extends KaartenbalieCrudAction {
 
     public ActionForward send(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+        String id = (String) dynaForm.get("id");
+        String name = (String) dynaForm.get("name");
         String metadata = getMetadata(dynaForm);
 
         ActionErrors errors = dynaForm.validate(mapping, request);
         if (!errors.isEmpty()) {
-            if (metadata != null) {
-                // remove all newline and return characters using RegEx
-                metadata = metadata.replaceAll("[\\n\\r]+", "");
-            }
-            dynaForm.set("metadata", metadata);
+            populateMetadataEditorForm(id, name, metadata, dynaForm, request);
 
             addMessages(request, errors);
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, VALIDATION_ERROR_KEY);
+            
             return getAlternateForward(mapping, request);
-        }
-
-        Mailer mailer = new Mailer();
-        populateMailerObject(mailer, dynaForm, request);
-
-        String type = "text/xml; charset=utf-8";
-        ByteArrayDataSource bads = new ByteArrayDataSource(metadata.getBytes("utf-8"), type);
-        mailer.setAttachmentDataSource(bads);
-        mailer.setAttachmentName("metadata.xml");
-
-        ActionMessages messages = getMessages(request);
-        messages = mailer.send(messages);
-        saveMessages(request, messages);
-
-        if (metadata != null) {
-            // remove all newline and return characters using RegEx
-            metadata = metadata.replaceAll("[\\n\\r]+", "");
-        }
-        dynaForm.set("metadata", metadata);
-        if (messages.isEmpty()) {
-            addDefaultMessage(mapping, request);
         } else {
-            addAlternateMessage(mapping, request, null, "zie hiervoor");
+            Mailer mailer = new Mailer();
+            populateMailerObject(mailer, dynaForm, request);
+
+            String type = "text/xml; charset=utf-8";
+            ByteArrayDataSource bads = new ByteArrayDataSource(metadata.getBytes("utf-8"), type);
+            mailer.setAttachmentDataSource(bads);
+            mailer.setAttachmentName("metadata.xml");
+
+            ActionMessages messages = getMessages(request);
+            messages = mailer.send(messages);
+            saveMessages(request, messages);
+
+            populateMetadataEditorForm(id, name, metadata, dynaForm, request);
+
+            if (messages.isEmpty()) {
+                addDefaultMessage(mapping, request);
+            } else {
+                addAlternateMessage(mapping, request, null, "zie hiervoor");
+            }
+            return mapping.findForward(SUCCESS);
         }
-        return mapping.findForward(SUCCESS);
     }
 
     protected void populateMailerObject(Mailer infoMailer, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
@@ -403,12 +398,12 @@ public class MetadataAction extends KaartenbalieCrudAction {
         Enumeration cenum = request.getParameterNames();
         while (cenum.hasMoreElements()) {
             String theParameter = (String) cenum.nextElement();
-            if (theParameter.equals("to") ||
-                    theParameter.equals("cc") ||
-                    theParameter.equals("bcc") ||
-                    theParameter.equals("from") ||
-                    theParameter.equals("subject") ||
-                    theParameter.equals("body")) {
+            if (theParameter.equals("to")
+                    || theParameter.equals("cc")
+                    || theParameter.equals("bcc")
+                    || theParameter.equals("from")
+                    || theParameter.equals("subject")
+                    || theParameter.equals("body")) {
                 continue;
             }
             params.put(theParameter, request.getParameter(theParameter));
@@ -516,12 +511,14 @@ public class MetadataAction extends KaartenbalieCrudAction {
     }
 
     private void populateMetadataEditorForm(Layer layer, DynaValidatorForm dynaForm, HttpServletRequest request) {
-        if (layer == null) {
-            return;
+        if (layer != null) {
+            populateMetadataEditorForm(layer.getUniqueName(), layer.getTitle(), layer.getMetadata(), dynaForm, request);
         }
-        dynaForm.set("id", layer.getUniqueName());
-        dynaForm.set("name", layer.getTitle());
-        String metadata = layer.getMetadata();
+    }
+
+    private void populateMetadataEditorForm(String id, String name, String metadata, DynaValidatorForm dynaForm, HttpServletRequest request) {
+        dynaForm.set("id", id);
+        dynaForm.set("name", name);
         try {
             if (metadata != null && metadata.length() != 0) {
                 SAXBuilder builder = new SAXBuilder();
@@ -541,7 +538,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 // remove byte-order mark (e.g. "&#65279;" after escaping (without quotes))
                 metadata = metadata.trim();
                 if (!metadata.startsWith("<")) {
-                    metadata = metadata.substring(1);
+                metadata = metadata.substring(1);
                 }*/
 
                 // the above should be robust enough to deal with all valid xml input that is encoded in utf-8.
