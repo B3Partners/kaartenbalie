@@ -155,8 +155,8 @@ public class ServiceProviderValidator {
         serviceProvider.setName(KBConfiguration.SERVICE_NAME);
         serviceProvider.setTitle(KBConfiguration.SERVICE_TITLE);
         serviceProvider.setAbstracts(KBConfiguration.SERVICE_ABSTRACT);
-        serviceProvider.setAccessConstraints(KBConfiguration.SERVICE_FEES);
-        serviceProvider.setFees(KBConfiguration.SERVICE_CONSTRAINTS);
+        serviceProvider.setAccessConstraints(KBConfiguration.SERVICE_CONSTRAINTS);
+        serviceProvider.setFees(KBConfiguration.SERVICE_FEES);
 
         ContactInformation ci = new ContactInformation();
         ci.setContactPerson(KBConfiguration.CONTACT_PERSON);
