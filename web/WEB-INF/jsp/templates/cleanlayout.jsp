@@ -29,7 +29,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title><fmt:message key="kaartenbalie.title" /></title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
-        <link href="<html:rewrite page='/styles/selectcss' module='' />" type="text/css" rel="stylesheet" />
+        <link href="<html:rewrite page='/styles/b3p.css' module='' />" type="text/css" rel="stylesheet" />
         <!--[if IE 6]>
         <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
