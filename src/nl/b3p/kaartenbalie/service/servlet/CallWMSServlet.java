@@ -131,7 +131,7 @@ public class CallWMSServlet extends HttpServlet {
         	DESCRIBELAYER_DTD = baseUrl.toString() + "/dtd/WMS_DescribeLayerResponse.dtd"; 
         }
 
-        DataWrapper data = new DataWrapper(response);
+        DataWrapper data = new DataWrapper(request,response);
 
         Object identity = null;
         EntityManager em = null;
@@ -304,6 +304,21 @@ public class CallWMSServlet extends HttpServlet {
             baseUrl.append(queryString);
         }
         return baseUrl;
+    }
+
+    private String extractCode(HttpServletRequest request) {
+        String code = request.getPathInfo();
+        int pos = code.indexOf("/");
+        if (pos<0) {
+            return code;
+        }
+        code = code.substring(pos+1);
+        pos = code.indexOf("/");
+        if (pos<0) {
+            return code;
+        }
+        code = code.substring(0, pos);
+        return code;
     }
 
     private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
@@ -511,17 +526,11 @@ public class CallWMSServlet extends HttpServlet {
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
             try {
-                String url = requestUrl(createBaseUrl(request), request).toString();
-                int pos = url.indexOf("://");
-                // Make sure no double "/" in URL, since we want to be able to check personalURL against
-                // the actual URL being called, which can never contain double slashes.
-                url = url.substring(0, pos+3).toString()
-                		+ url.substring(pos+3).toString().replaceAll("//+", "/");
-
-                log.info("check URL: " + url);
+                String code = extractCode(request);
+                log.info("check code: " + code);
                 user = (User) em.createQuery(
                         "from User u where " +
-                        "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
+                        "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
                 em.flush();
             } catch (NoResultException nre) {
                 throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
@@ -540,7 +549,9 @@ public class CallWMSServlet extends HttpServlet {
             Iterator it = ipaddresses.iterator();
             while (it.hasNext()) {
                 String ipaddress = (String) it.next();
-                if (ipaddress.equalsIgnoreCase(remoteaddress) || ipaddress.equalsIgnoreCase("0.0.0.0")) {
+                if (ipaddress.equalsIgnoreCase(remoteaddress)
+                        || ipaddress.equalsIgnoreCase("0.0.0.0")
+                        || ipaddress.equalsIgnoreCase("::")) {
                     validip = true;
                     break;
                 }

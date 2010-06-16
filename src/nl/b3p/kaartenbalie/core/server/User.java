@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
+import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.wms.capabilities.Roles;
 
 public class User implements Principal {
@@ -102,6 +104,24 @@ public class User implements Principal {
     /* impl principal*/
     public String getName() {
         return username;
+    }
+
+    /**
+     * creates full personal url from code and request info.
+     * for backwards compatibility first checks if full url
+     * is already stored in database.
+     *
+     * @param request
+     * @return
+     */
+    public String getPersonalURL(HttpServletRequest request) {
+        if (personalURL.startsWith("http")) {
+            return personalURL;
+        }
+        StringBuffer baseUrl = CallWMSServlet.createBaseUrl(request);
+        baseUrl.append("/services/");
+        baseUrl.append(personalURL);
+        return baseUrl.toString();
     }
 
     public String getPersonalURL() {

@@ -96,7 +96,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         if (user == null) {
             return;
         }
-        form.set("personalUrl", user.getPersonalURL());
+        form.set("personalUrl", user.getPersonalURL(request));
         String bbox = (String) form.get("bbox");
         if (bbox == null || bbox.length() == 0) {
             form.set("bbox", "12000,304000,280000,620000"); // heel nederland
@@ -178,7 +178,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         }
         String layer = layerString.substring(0, layerString.lastIndexOf(","));
 
-        StringBuffer getMapUrl = new StringBuffer(user.getPersonalURL());
+        StringBuffer getMapUrl = new StringBuffer(user.getPersonalURL(request));
         getMapUrl.append("?");
         getMapUrl.append(OGCConstants.WMS_SERVICE);
         getMapUrl.append("=");

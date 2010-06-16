@@ -54,7 +54,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
     // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         this.user = user;
-        this.url = user.getPersonalURL();
+        this.url = user.getPersonalURL(dw.getRequest());
         Integer orgId = user.getOrganization().getId();
         OGCRequest ogc = dw.getOgcrequest();
 

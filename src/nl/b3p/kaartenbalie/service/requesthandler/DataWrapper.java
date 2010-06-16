@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.Operation;
@@ -44,6 +45,7 @@ public class DataWrapper {
     private static final Log log = LogFactory.getLog(DataWrapper.class);
     private String errorContentType;
     private int contentLength;
+    private HttpServletRequest request;
     private HttpServletResponse response;
     private OutputStream sos;
     private String operation;
@@ -52,7 +54,8 @@ public class DataWrapper {
     private Map layeringParameterMap;
     private OGCRequest ogcrequest;
 
-    public DataWrapper(HttpServletResponse response) throws IOException {
+    public DataWrapper(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        this.request = request;
         this.response = response;
         this.sos = response.getOutputStream();
         layeringParameterMap = new HashMap();
@@ -216,5 +219,9 @@ public class DataWrapper {
      */
     public void setService(String service) {
         this.service = service;
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
     }
 }

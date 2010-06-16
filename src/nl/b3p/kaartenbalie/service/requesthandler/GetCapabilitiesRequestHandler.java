@@ -76,7 +76,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
         ByteArrayOutputStream output = null;
         this.user = user;
-        this.url = user.getPersonalURL();
+        this.url = user.getPersonalURL(dw.getRequest());
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }

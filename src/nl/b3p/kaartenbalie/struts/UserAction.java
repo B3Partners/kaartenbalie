@@ -433,18 +433,15 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("surname", user.getSurname());
         dynaForm.set("emailAddress", user.getEmailAddress());
         dynaForm.set("username", user.getUsername());
-        dynaForm.set("personalURL", user.getPersonalURL());
+        dynaForm.set("personalURL", user.getPersonalURL(request));
         dynaForm.set("currentAddress", request.getRemoteAddr());
 
         dynaForm.set("password", "");
         dynaForm.set("repeatpassword", "");
 
-        dynaForm.set("personalURL", user.getPersonalURL());
-
         String[] roleSelected = null;
         Set uroles = user.getRoles();
         if (uroles != null && !uroles.isEmpty()) {
-            List roles = em.createQuery("from Roles").getResultList();
             ArrayList roleSet = new ArrayList(uroles);
             roleSelected = new String[roleSet.size()];
             for (int i = 0; i < roleSet.size(); i++) {
@@ -562,7 +559,7 @@ public class UserAction extends KaartenbalieCrudAction {
         Date oldDate = user.getTimeout();
         Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
         if (newDate == null) {
-            newDate = getDefaultTimeOut(3);
+            newDate = getDefaultTimeOut(120);
         }
 
         boolean urlNeedsRefresh = true;
@@ -576,27 +573,14 @@ public class UserAction extends KaartenbalieCrudAction {
             if (oldDate.before(newDate)) {
                 urlNeedsRefresh = true;
             } else {
-                // check of url goede vorm heeft
-                int pos = persURL.lastIndexOf("/");
-                int length = persURL.length();
-                if (pos == -1 || length == pos + 1) {
+                if (persURL.startsWith("http")) {
                     urlNeedsRefresh = true;
                 }
-
             }
         }
         if (!urlNeedsRefresh) {
             return;
         }
-
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-
-        String protocolAndVersion = request.getProtocol();
-        String requestServerName = request.getServerName();
-        String contextPath = request.getContextPath();
-        int port = request.getServerPort();
-        String protocol = protocolAndVersion.substring(0, protocolAndVersion.indexOf("/")).toLowerCase();
 
         Random rd = new Random();
         StringBuffer toBeHashedString = new StringBuffer(user.getUsername());
@@ -609,21 +593,7 @@ public class UserAction extends KaartenbalieCrudAction {
         byte[] md5hash = md.digest();
         String hashString = new String(Hex.encodeHex(md5hash));
 
-        StringBuffer personalURL = new StringBuffer(protocol);
-        personalURL.append("://");
-        personalURL.append(requestServerName);
-        if (port != 80) {
-            personalURL.append(":");
-            personalURL.append(port);
-        }
-
-        personalURL.append(contextPath);
-        personalURL.append("/");
-        personalURL.append("services");
-        personalURL.append("/");
-        personalURL.append(hashString);
-
-        user.setPersonalURL(personalURL.toString());
+        user.setPersonalURL(hashString);
         user.setTimeout(newDate);
     }
 

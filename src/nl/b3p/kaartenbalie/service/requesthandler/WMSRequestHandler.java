@@ -566,7 +566,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
         
-        String personalUrl = this.user.getPersonalURL();
+        String personalUrl = this.user.getPersonalURL(dw.getRequest());
         Integer orgId = this.user.getOrganization().getId();
         WFSProviderDAO wfsProviderDao = new WFSProviderDAO();
         String[] validLayerNames = wfsProviderDao.getAuthorizedFeatureTypeNames(orgId, null, false);
