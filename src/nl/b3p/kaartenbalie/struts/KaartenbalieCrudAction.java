@@ -218,6 +218,27 @@ public class KaartenbalieCrudAction extends CrudAction {
         return false;
     }
 
+    /* Method which checks if a certain layer is allowed to be shown on the screen.
+    *
+    * @param layer Layer object that has to be checked
+    * @param organizationLayers Set of restrictions which define the visible and non visible layers
+    *
+    * @return boolean
+    */
+   protected boolean hasVisibility(WfsLayer layer, Set organizationLayers) {
+       if (layer == null || organizationLayers == null) {
+           return false;
+       }
+       Iterator it = organizationLayers.iterator();
+       while (it.hasNext()) {
+           WfsLayer organizationLayer = (WfsLayer) it.next();
+           if (layer.getId() == organizationLayer.getId()) {
+               return true;
+           }
+       }
+       return false;
+   }
+
     protected JSONObject createTree() throws JSONException {
         return createTree(null, false);
     }
@@ -265,6 +286,11 @@ public class KaartenbalieCrudAction extends CrudAction {
     }
 
     protected JSONObject createWfsTree(String rootName) throws JSONException {
+        return createWfsTree(rootName, null, false);
+    }
+    
+    protected JSONObject createWfsTree(String rootName, Set organizationLayers, boolean checkLayers) throws JSONException {
+    	
         JSONObject root = new JSONObject();
         root.put("name", rootName);
         root.put("id", "wfs" + rootName);
@@ -281,7 +307,7 @@ public class KaartenbalieCrudAction extends CrudAction {
                 HashSet set = new HashSet();
                 Set layers = sp.getWfsLayers();
                 set.addAll(layers);
-                parentObj = createWfsTreeList(set, parentObj);
+                parentObj = createWfsTreeList(set, parentObj, organizationLayers, checkLayers);
                 if (parentObj.has("children")) {
                     rootArray.put(parentObj);
                 }
@@ -325,13 +351,15 @@ public class KaartenbalieCrudAction extends CrudAction {
         return parent;
     }
 
-    private JSONObject createWfsTreeList(Set layers, JSONObject parent) throws JSONException {
+    private JSONObject createWfsTreeList(Set layers, JSONObject parent, Set organizationLayers, boolean checkLayers) throws JSONException {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
             WfsLayer layer = (WfsLayer) layerIterator.next();
             JSONObject layerObj = this.layerToJSON(layer);
-            parentArray.put(layerObj);
+            if (!checkLayers || hasVisibility(layer, organizationLayers)) {
+            	parentArray.put(layerObj);
+            }
         }
         if (parentArray.length() > 0) {
             parent.put("children", parentArray);

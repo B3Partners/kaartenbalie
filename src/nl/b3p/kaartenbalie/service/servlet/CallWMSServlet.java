@@ -21,40 +21,61 @@
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
-import java.util.Enumeration;
-import javax.xml.parsers.ParserConfigurationException;
-import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.utils.KBCrypter;
-import nl.b3p.ogc.utils.OGCRequest;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import java.util.HashMap;
-import java.util.Set;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import nl.b3p.kaartenbalie.service.AccessDeniedException;
-import nl.b3p.kaartenbalie.service.requesthandler.*;
-import nl.b3p.kaartenbalie.service.requesthandler.WFSTransactionRequestHandler;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import nl.b3p.kaartenbalie.core.server.User;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.codec.binary.Base64;
-import java.security.NoSuchAlgorithmException;
+import java.util.Set;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.ProviderException;
+import nl.b3p.kaartenbalie.service.requesthandler.DOMValidator;
+import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
+import nl.b3p.kaartenbalie.service.requesthandler.DescribeLayerRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.GetCapabilitiesRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.GetFeatureInfoRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.GetLegendGraphicRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.GetMapRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.ProxyRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.RequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.TextToImage;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSDescribeFeatureTypeRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSGetCapabilitiesRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSGetFeatureRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.WFSTransactionRequestHandler;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.KBCrypter;
+import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.exolab.castor.xml.ValidationException;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMImplementation;
@@ -69,6 +90,7 @@ public class CallWMSServlet extends HttpServlet {
     public static final long serialVersionUID = 24362462L;
     public static String CAPABILITIES_DTD = null;
     public static String EXCEPTION_DTD = null;
+    public static String DESCRIBELAYER_DTD = null;
 
     /** Initializes the servlet.
      * Turns the logging of the servlet on.
@@ -100,10 +122,13 @@ public class CallWMSServlet extends HttpServlet {
 
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
-            CAPABILITIES_DTD = baseUrl.toString() + MyEMFDatabase.getCapabilitiesdtd();
+            CAPABILITIES_DTD = baseUrl.toString() +  "/dtd/capabilities_1_1_1.dtd";
         }
         if (EXCEPTION_DTD == null) {
-            EXCEPTION_DTD = baseUrl.toString() + MyEMFDatabase.getExceptiondtd();
+            EXCEPTION_DTD = baseUrl.toString() +  "/dtd/exception_1_1_1.dtd";
+        } 
+        if (DESCRIBELAYER_DTD == null){
+        	DESCRIBELAYER_DTD = baseUrl.toString() + "/dtd/WMS_DescribeLayerResponse.dtd"; 
         }
 
         DataWrapper data = new DataWrapper(response);
@@ -232,27 +257,34 @@ public class CallWMSServlet extends HttpServlet {
         return ogcrequest;
     }
 
-    private StringBuffer createBaseUrl(HttpServletRequest request) {
+    public static StringBuffer createBaseUrl(HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
-        String contextPath = request.getContextPath();
+        String contextPath = KBConfiguration.KB_SERVICES_CONTEXT_PATH;
+        if (contextPath == null || contextPath.length() == 0) {
+        	contextPath = request.getContextPath();
+        }
 
-        StringBuffer theUrl = new StringBuffer(scheme);
-        theUrl.append("://");
-        theUrl.append(serverName);
-        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
-            theUrl.append(":");
-            theUrl.append(serverPort);
+        StringBuffer theUrl = new StringBuffer();
+        if (KBConfiguration.KB_SERVICES_SERVER_URI != null && KBConfiguration.KB_SERVICES_SERVER_URI.length() > 5) {
+        	theUrl.append(KBConfiguration.KB_SERVICES_SERVER_URI);
+        } else {
+	        theUrl.append(scheme);
+	        theUrl.append("://");
+	        theUrl.append(serverName);
+	        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
+	            theUrl.append(":");
+	            theUrl.append(serverPort);
+	        }
         }
         theUrl.append(contextPath);
         return theUrl;
     }
 
-    private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
+    private StringBuffer requestUrl(StringBuffer baseUrl, HttpServletRequest request) {
         String servletPath = request.getServletPath();
         String pathInfo = request.getPathInfo();
-        String queryString = request.getQueryString();
 
         if (servletPath != null && servletPath.length() != 0) {
             baseUrl.append(servletPath);
@@ -260,6 +292,13 @@ public class CallWMSServlet extends HttpServlet {
         if (pathInfo != null && pathInfo.length() != 0) {
             baseUrl.append(pathInfo);
         }
+        return baseUrl;
+    }
+    
+    private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
+    	baseUrl = requestUrl(baseUrl, request);
+        String queryString = request.getQueryString();
+
         if (queryString != null && queryString.length() != 0) {
             baseUrl.append("?");
             baseUrl.append(queryString);
@@ -472,7 +511,14 @@ public class CallWMSServlet extends HttpServlet {
         if (user == null) {
             // niet ingelogd dus, dan checken op token in url
             try {
-                String url = request.getRequestURL().toString();
+                String url = requestUrl(createBaseUrl(request), request).toString();
+                int pos = url.indexOf("://");
+                // Make sure no double "/" in URL, since we want to be able to check personalURL against
+                // the actual URL being called, which can never contain double slashes.
+                url = url.substring(0, pos+3).toString()
+                		+ url.substring(pos+3).toString().replaceAll("//+", "/");
+
+                log.info("check URL: " + url);
                 user = (User) em.createQuery(
                         "from User u where " +
                         "u.personalURL = :personalURL").setParameter("personalURL", url).getSingleResult();
@@ -540,6 +586,8 @@ public class CallWMSServlet extends HttpServlet {
                 requestHandler = new GetFeatureInfoRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
                 requestHandler = new GetLegendGraphicRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)){
+            	requestHandler = new DescribeLayerRequestHandler();
             } else {
                 throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }

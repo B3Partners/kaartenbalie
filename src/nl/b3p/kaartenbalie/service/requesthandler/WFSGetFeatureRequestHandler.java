@@ -86,14 +86,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         }
 
         layerNames = new String[allLayers.length];
-        String[] prefixes=new String[allLayers.length];
+        String[] prefixes = new String[allLayers.length];
         for (int i = 0; i < allLayers.length; i++) {
             String[] temp = allLayers[i].split("}");
             if (temp.length > 1) {
                 layerNames[i] = temp[1];
-                int index1=allLayers[i].indexOf("{");
-                int index2=allLayers[i].indexOf("}");
-                prefixes[i]=ogcrequest.getPrefix(allLayers[i].substring(index1+1,index2));
+                int index1 = allLayers[i].indexOf("{");
+                int index2 = allLayers[i].indexOf("}");
+                prefixes[i] = ogcrequest.getPrefix(allLayers[i].substring(index1 + 1, index2));
             } else {
                 String temp2[] = temp[0].split(":");
                 if (temp2.length > 1) {
@@ -116,23 +116,23 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             log.error("No urls qualify for request.");
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
-        if (spUrls.size()>1){
+        if (spUrls.size() > 1) {
             log.error("More then 1 service provider addressed. Not supported (yet)");
             throw new Exception("More then 1 service provider addressed. Not supported (yet)");
         }
-        String layerParam="";
-        for (int i=0; i< layerNames.length; i++){
-            if (layerParam.length()!=0){
-                layerParam+=",";
+        String layerParam = "";
+        for (int i = 0; i < layerNames.length; i++) {
+            if (layerParam.length() != 0) {
+                layerParam += ",";
             }
-            if (prefixes[i]!=null){
-                layerParam+=prefixes[i]+":";
+            if (prefixes[i] != null) {
+                layerParam += prefixes[i] + ":";
             }
             int index1 = layerNames[i].indexOf("_");
-            if (index1!=-1){
-                layerParam+=layerNames[i].substring(index1+1);
-            }else{
-                layerParam+=layerNames[i];
+            if (index1 != -1) {
+                layerParam += layerNames[i].substring(index1 + 1);
+            } else {
+                layerParam += layerNames[i];
             }
         }
 
@@ -152,7 +152,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             }
             Iterator it2 = tlayers.iterator();
             while (it2.hasNext()) {
-                String layerName = (String)it2.next();
+                String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
                 layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
@@ -165,7 +165,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();
-        
+
         PostMethod method = null;
         HttpClient client = new HttpClient();
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
@@ -191,63 +191,63 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             // TODO body cleanen
 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
-					data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
-            
+                    data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
+
             String host = url;
             method = new PostMethod(host);
             //work around voor ESRI post Messages
             //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-            method.setRequestEntity(new StringRequestEntity(body, null,null));
+            method.setRequestEntity(new StringRequestEntity(body, null, null));
             int status = client.executeMethod(method);
             try {
-	            if (status == HttpStatus.SC_OK) {
-	                wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
-	                wfsRequest.setResponseStatus(new Integer(200));
-	                wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
-	                
-	                data.setContentType("text/xml");
-	                InputStream is = method.getResponseBodyAsStream();
+                if (status == HttpStatus.SC_OK) {
+                    wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
+                    wfsRequest.setResponseStatus(new Integer(200));
+                    wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+
+                    data.setContentType("text/xml");
+                    InputStream is = method.getResponseBodyAsStream();
                     InputStream isx = null;
                     byte[] bytes = null;
                     if (KBConfiguration.SAVE_MESSAGES) {
-        	            int len = 1;
-        	            byte[] buffer = new byte[2024];
-        	            ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
-        	            while ((len = is.read(buffer, 0, buffer.length)) > 0) {
-        	                bos.write(buffer, 0, len);
-        	            }
-        	            bytes = bos.toByteArray();
-                    	isx = new ByteArrayInputStream(bytes);
+                        int len = 1;
+                        byte[] buffer = new byte[2024];
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        while ((len = is.read(buffer, 0, buffer.length)) > 0) {
+                            bos.write(buffer, 0, len);
+                        }
+                        bytes = bos.toByteArray();
+                        isx = new ByteArrayInputStream(bytes);
                     } else {
-                    	isx = new CountingInputStream(is);
+                        isx = new CountingInputStream(is);
                     }
 
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(isx);
-                    
-    	            if (KBConfiguration.SAVE_MESSAGES) {
-    	            	wfsRequest.setMessageSent(body);
-    		            wfsRequest.setMessageReceived(new String(bytes));
-    	            	wfsRequest.setBytesReceived(new Long(bytes.length));
-    	            } else {
-    	            	wfsRequest.setBytesReceived(new Long(((CountingInputStream)isx).getCount()));
-    	            }
-                	
-	                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-	            } else {
-	            	wfsRequest.setResponseStatus(status);
-	                wfsRequest.setExceptionMessage(""+status+": Failed to connect with " + url + " Using body: " + body);
-	                wfsRequest.setExceptionClass(UnsupportedOperationException.class);
-	                
-	                log.error("Failed to connect with " + url + " Using body: " + body);
-	                throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
-	            }
+
+                    if (KBConfiguration.SAVE_MESSAGES) {
+                        wfsRequest.setMessageSent(body);
+                        wfsRequest.setMessageReceived(new String(bytes));
+                        wfsRequest.setBytesReceived(new Long(bytes.length));
+                    } else {
+                        wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
+                    }
+
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                } else {
+                    wfsRequest.setResponseStatus(status);
+                    wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + url + " Using body: " + body);
+                    wfsRequest.setExceptionClass(UnsupportedOperationException.class);
+
+                    log.error("Failed to connect with " + url + " Using body: " + body);
+                    throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+                }
             } catch (Exception e) {
                 wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
                 wfsRequest.setExceptionClass(e.getClass());
-            	
-            	throw e;
+
+                throw e;
             } finally {
                 rr.addServiceProviderRequest(wfsRequest);
             }
@@ -261,5 +261,4 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
     }
-
 }

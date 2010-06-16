@@ -46,6 +46,7 @@ public class ServiceProviderRequest {
 
     private String wmsVersion;
     private Integer serviceProviderId;
+    private String serviceProviderAbbreviation;
     private String srs;
     private Integer width;
     private Integer height;
@@ -228,4 +229,11 @@ public class ServiceProviderRequest {
 		this.messageReceived = messageReceived;
 	}
 
+	public String getServiceProviderAbbreviation(){
+		return this.serviceProviderAbbreviation;
+	}
+	
+	public void setServiceProviderAbbreviation(String abbreviation){
+		this.serviceProviderAbbreviation = abbreviation;
+	}
 }

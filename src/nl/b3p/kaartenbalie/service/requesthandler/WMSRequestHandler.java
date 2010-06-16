@@ -35,48 +35,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import nl.b3p.commons.xml.IgnoreEntityResolver;
-import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.Operation;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.ImageManager;
+import nl.b3p.kaartenbalie.service.KBImageTool;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
+import nl.b3p.kaartenbalie.service.persistence.WFSProviderDAO;
+import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.ElementHandler;
+import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.Roles;
+import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.wms.capabilities.Switcher;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.geotools.data.ows.LayerDescription;
+import org.geotools.data.wms.response.DescribeLayerResponse;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import nl.b3p.kaartenbalie.service.ImageManager;
-import nl.b3p.kaartenbalie.service.KBImageTool;
-import nl.b3p.wms.capabilities.Roles;
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.xml.sax.XMLReader;
 
 public abstract class WMSRequestHandler extends OGCRequestHandler {
@@ -316,7 +324,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-    protected static void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
+    protected void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage[] bi = null;
 
@@ -359,7 +367,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                 /*
                  * Create a DOM document and copy all the information of the several GetFeatureInfo
-                 * responses into one document. This document has the same layout as the recieved
+                 * responses into one document. This document has the same layout as the received
                  * documents and will hold all the information of the specified objects.
                  * After combining these documents, the new document will be sent onto the request.
                  */
@@ -383,7 +391,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     //InputStream is = new URL(url).openStream();
                     //CountingInputStream cis = new CountingInputStream(is);
                     //source = builder.parse(cis);
-                    source = builder.parse(url);
+                    source = builder.parse(url); //what if url points to non MapServer service?
                     copyElements(source, destination);
 
                     wmsRequest.setBytesSent(new Long(url.getBytes().length));
@@ -400,8 +408,35 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 XMLSerializer serializer = new XMLSerializer(baos, format);
                 serializer.serialize(destination);
                 dw.write(baos);
-            }
+            } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)){
+                
+            	//TODO: implement and refactor so there is less code duplication with getFeatureInfo 
+            	/*
+            	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setValidating(false);
+                dbf.setNamespaceAware(true);
+                dbf.setIgnoringElementContentWhitespace(true);
+
+                DocumentBuilder builder = dbf.newDocumentBuilder();
+                Document destination = builder.newDocument();
+                
+                //root element is different
+                Element rootElement = destination.createElement("WMS_DescribeLayerResponse");
+                destination.appendChild(rootElement);
+                //set version attribute
+                Document source = null;
+                for (int i = 0; i < urlWrapper.size(); i++) {
+                    ServiceProviderRequest dlRequest = (ServiceProviderRequest) urlWrapper.get(i);
+                    String url = dlRequest.getProviderRequestURI();
+                    source = builder.parse(url);
+                    copyElements(source,destination);
+                }*/
+            	
+            	throw new Exception(REQUEST_TYPE + " request with more then one service url is not supported yet!");            	
+            }            	
+        	
         } else {
+        	//urlWrapper not > 1, so only 1 url or zero urls
             if (!urlWrapper.isEmpty()) {
                 getOnlineData(dw, (ServiceProviderRequest) urlWrapper.get(0), REQUEST_TYPE);
             } else {
@@ -425,7 +460,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-    private static void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
+    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data recieved from the url can be directly transported to the client.
@@ -450,6 +485,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
                 wmsRequest.setRequestResponseTime(new Long(time));
             } else {
+            	//Get data for GetFeatureInfo and DescribeLayer (and GetLegend?)
                 HttpClient client = new HttpClient();
                 GetMethod method = new GetMethod(url);
                 client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
@@ -477,8 +513,23 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     }
 
                     dw.setContentType(rhValue);
-                    dw.write(method.getResponseBodyAsStream());
-                    wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
+                    if(!REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)){
+                        dw.write(method.getResponseBodyAsStream());
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                    	
+                    } else {                    	
+                    	DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, method.getResponseBodyAsStream());
+                    	DescribeLayerData data = new DescribeLayerData(wmsRequest.getServiceProviderAbbreviation(), wmsResponse);
+                    	List<DescribeLayerData> dataList = new ArrayList<DescribeLayerData>();
+                    	dataList.add(data);
+                    	Document newResponse = createKBDescribeLayerResponse(dw, dataList);
+                        OutputFormat format = new OutputFormat(newResponse, KBConfiguration.CHARSET, true);
+                        format.setIndenting(true);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        XMLSerializer serializer = new XMLSerializer(baos, format);
+                        serializer.serialize(newResponse);
+                    	dw.write(baos);
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                    	
+                    }
                 } catch (HttpException e) {
                     log.error("Fatal protocol violation: " + e.getMessage());
                     throw new HttpException("Fatal protocol violation: " + e.getMessage());
@@ -500,7 +551,85 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
     }
 
-    protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, ExtLayerCalculator lc, String spAbbr, String layerName) throws Exception {
+    private Document createKBDescribeLayerResponse(DataWrapper dw,
+			List<DescribeLayerData> describeLayerData) throws Exception {
+    	
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(false);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        DOMImplementation di = db.getDOMImplementation();
+                
+        // <!DOCTYPE WMS_DescribeLayerResponse SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_DescribeLayerResponse.dtd">
+        // [ <WMS_DescribeLayerResponse version="1.1.1" > (...) </WMS_DescribeLayerResponse>]        
+        DocumentType dt = di.createDocumentType("WMS_DescribeLayerResponse", null, CallWMSServlet.DESCRIBELAYER_DTD);
+        Document dom = di.createDocument(null, "WMS_DescribeLayerResponse", dt);
+        Element rootElement = dom.getDocumentElement();
+        rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
+        
+        String personalUrl = this.user.getPersonalURL();
+        Integer orgId = this.user.getOrganization().getId();
+        WFSProviderDAO wfsProviderDao = new WFSProviderDAO();
+        String[] validLayerNames = wfsProviderDao.getAuthorizedFeatureTypeNames(orgId, null, false);
+        //it is not possible to use getSeviceProviderURLS because that will call getValidObjects implementation of WMSRequestHandler
+        //therefore build spInfo here in loop
+        //also, B3PLayering is not relevant here, because describeLayer should not be subject to pricing
+        List spInfo = new ArrayList();
+        for(String name : validLayerNames){
+            SpLayerSummary layerInfo = wfsProviderDao.getAuthorizedFeatureTypeSummary(name, orgId, false);
+            if (layerInfo == null) {
+                continue;
+            }
+            spInfo.add(layerInfo);
+        } 
+        
+        for(DescribeLayerData resp : describeLayerData){       	        	
+        	for(LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
+        		Element layerDescriptionElement = dom.createElement("LayerDescription");
+        		layerDescriptionElement.setAttribute("name", resp.getWmsPrefix() + "_" + descr.getName());
+        		
+        		descr.getOwsURL();        		
+        		        		
+        		//additional info should only be returned for WMS layer that has corresponding WFS type that is served by Kaartenbalie
+        		String wfsPrefix = getAuthorizedWFSPrefix(spInfo, descr);
+        		if(wfsPrefix != null) {
+        			layerDescriptionElement.setAttribute("wfs", personalUrl);
+        			layerDescriptionElement.setAttribute("owsType", descr.getOwsType());
+        			layerDescriptionElement.setAttribute("owsURL", personalUrl);
+            
+        			Element queryElement = dom.createElement("Query");
+        			queryElement.setAttribute("typeName", wfsPrefix + "_" + descr.getName()); //this needs to be fixed
+        			layerDescriptionElement.appendChild(queryElement);
+        		}
+        		rootElement.appendChild(layerDescriptionElement);
+        	}
+        }        
+		return dom;		
+	}
+        
+    private String getAuthorizedWFSPrefix(List spLayerSummaries, LayerDescription descr ){    
+    	String wfsPrefix = null;
+        Iterator it = spLayerSummaries.iterator();
+        while(it.hasNext()){
+        	SpLayerSummary spLayerSummary = (SpLayerSummary) it.next();
+        	
+        	String spUrl = spLayerSummary.getSpUrl();
+        	//will KB remove '?' char?
+        	if(spUrl.endsWith("?")){
+        		spUrl = spUrl.substring(0, (spUrl.length()-1));
+        	}
+        	String owsUrl = descr.getOwsURL().toString();
+        	if(owsUrl.endsWith("?")){
+        		owsUrl = owsUrl.substring(0, (owsUrl.length()-1));
+        	}
+        
+        	if(spUrl.equals(owsUrl) && descr.getName().equalsIgnoreCase(spLayerSummary.getLayerName())){
+        		wfsPrefix = spLayerSummary.getSpAbbr();
+        	}
+        }    	
+    	return wfsPrefix; 
+    } 
+
+	protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, ExtLayerCalculator lc, String spAbbr, String layerName) throws Exception {
         String operation = dw.getOperation();
         if (operation == null) {
             log.error("Operation can not be null");
@@ -577,6 +706,25 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
     }
 
+    private class DescribeLayerData {
+    	
+    	String prefix;
+    	DescribeLayerResponse resp;
+    	    	
+    	DescribeLayerData(String wmsPrefix, DescribeLayerResponse wmsResponse){
+    		this.prefix = wmsPrefix;
+    		this.resp = wmsResponse;
+    	}
+    	
+    	String getWmsPrefix(){
+    		return this.prefix;
+    	}
+    	
+    	DescribeLayerResponse getDescribeLayerResponse(){
+    		return this.resp;
+    	}    	
+    }
+    
     /** Method which copies information from one XML document to another document.
      * It adds information to an document and with this method it's possible to create
      * one document from several other documents as used to create an GetFeatureInfo

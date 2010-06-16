@@ -22,14 +22,33 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import nl.b3p.kaartenbalie.core.server.User;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/** 
+ * A RequestHandler for the DescribeLayerRequest.
+ *  
+ * The DescribeLayer request is an optional operation that applies to Styled Layer Descriptor WMS.
+ * It is a mechanism by which a client can obtain feature/coverage-type information for a named layer.
+ * 
+ *
+ */
 public class DescribeLayerRequestHandler extends WMSRequestHandler {
-    // <editor-fold defaultstate="" desc="default DescribeLayerRequestHandler() constructor">
+
+	private static final Log log = LogFactory.getLog(DescribeLayerRequestHandler.class);
+	
     public DescribeLayerRequestHandler() {
     }
-    // </editor-fold>
-    // TODO: onderstaande getRequest methode heeft nog geen implementatie. Deze moet nog uitgebreid worden.
+    
     /** Processes the parameters and creates the specified urls from the given parameters.
      * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
      * 
@@ -41,9 +60,90 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
      * @throws Exception
      * @throws IOException
      */
-    // <editor-fold defaultstate="" desc="getRequest(DataWrapper dw, User user) method.">
-    public void getRequest(DataWrapper dw, User user) throws IOException {
-        return;
+
+    public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
+        
+    	dw.setHeader("Content-Disposition", "inline; filename=\"DescribeLayer.xml\";");
+    	
+    	this.user = user;
+        this.url = user.getPersonalURL();
+        Integer orgId = user.getOrganization().getId(); //for authorization
+        OGCRequest ogcRequest = dw.getOgcrequest();
+        
+        //should DescribeLayer do anything with format param? at present it doesn't
+        dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
+                
+        Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
+        
+        // --
+        // -- get params from ogcrequest
+        // --
+        String requestParam = ogcRequest.getParameter(OGCConstants.REQUEST);
+        String layersParam = ogcRequest.getParameter(OGCConstants.WMS_PARAM_LAYERS);
+        
+        // --
+        // -- check if there are service provider urls to collect data from
+        // -- getSeviceProviderURLS returns list with SpLayerSummary objects
+        // --
+        List spInfo = getSeviceProviderURLS(layersParam.split(","), orgId, false, dw);
+        if (spInfo == null || spInfo.isEmpty()) {
+        	//Error message from KBConfiguration in b3p-commons-gis?
+        	log.error(requestParam + ": no urls qualify for request.");
+            throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
+        }
+        
+        // --
+        // -- prepare to collect data
+        // --
+        ArrayList urlWrapper = new ArrayList();
+        Iterator it = spInfo.iterator();
+        while (it.hasNext()) {
+
+            SpLayerSummary spLayerSummary = (SpLayerSummary) it.next();
+            
+            ServiceProviderRequest dlrWrapper = new ServiceProviderRequest();
+            dlrWrapper.setMsSinceRequestStart(timeFromStart);
+            
+            dlrWrapper.setWmsVersion(ogcRequest.getParameter(OGCConstants.WMS_VERSION));            
+            
+            Integer serviceProviderId = spLayerSummary.getServiceproviderId();
+            if(serviceProviderId != null && serviceProviderId.intValue() == -1){
+            	//B3P layering necessary for DescribeLayer?
+            	// when is Id < -1 ?
+            } else {
+            	dlrWrapper.setServiceProviderId(serviceProviderId);
+            	dlrWrapper.setServiceProviderAbbreviation(spLayerSummary.getSpAbbr());
+            	String layersList = spLayerSummary.getLayersAsString(); //
+            	
+                StringBuffer url = new StringBuffer();
+                url.append(spLayerSummary.getSpUrl());
+                if (url.indexOf("?")!=url.length()-1 && url.indexOf("&")!= url.length()-1){
+                    if (url.indexOf("?")>=0){
+                        url.append("&");
+                    }else{
+                        url.append("?");
+                    }
+                }
+                String[] params = dw.getOgcrequest().getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                    String[] keyValuePair = params[i].split("=");
+                    if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                        url.append(OGCConstants.WMS_PARAM_LAYERS);
+                        url.append("=");
+                        url.append(layersList);
+                        url.append("&");
+                    } else {
+                        url.append(params[i]);
+                        url.append("&");
+                    }
+                }
+                dlrWrapper.setProviderRequestURI(url.toString());
+                urlWrapper.add(dlrWrapper);  
+                
+            }
+        }
+        
+        getOnlineData(dw, urlWrapper, false, OGCConstants.WMS_REQUEST_DescribeLayer);        
     }
-    // </editor-fold>
+
 }

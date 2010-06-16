@@ -47,8 +47,6 @@ public class MyEMFDatabase extends HttpServlet {
     public static final String MAIN_EM = "mainEM";
     public static final String INIT_EM = "initEM";
     public static final String REALM_EM = "realmEM";
-    public static String capabilitiesdtd = "/dtd/capabilities_1_1_1.dtd";
-    public static String exceptiondtd = "/dtd/exception_1_1_1.dtd";
     private static EntityManagerFactory emf = null;
     private static ThreadLocal tlMap = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
@@ -112,9 +110,6 @@ public class MyEMFDatabase extends HttpServlet {
             log.debug("Closing entity manager .....");
             closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
-
-        capabilitiesdtd = getConfigValue(config, "dtd", "/dtd/capabilities_1_1_1.dtd");
-        exceptiondtd = getConfigValue(config, "dtd", "/dtd/exception_1_1_1.dtd");
 
         cachePath = getConfigValue(config, "cache", "/");
         if (cachePath != null) {
@@ -314,14 +309,6 @@ public class MyEMFDatabase extends HttpServlet {
             extension = "";
         }
         return thePath + prefix + val1 + val2 + extension;
-    }
-
-    public static String getCapabilitiesdtd() {
-        return capabilitiesdtd;
-    }
-
-    public static String getExceptiondtd() {
-        return exceptiondtd;
     }
 
     public static String getMapfiles() {
