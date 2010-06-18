@@ -68,7 +68,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         OGCRequest ogcrequest = data.getOgcrequest();
         Set layers = null;
         String[] layerNames = null;
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         layers = ogcrequest.getGetFeatureFilterMap().keySet();
@@ -107,11 +107,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         String url = null;
         String prefix = null;
 
-        List spUrls = getSeviceProviderURLS(layerNames, orgId, false, data);
+        List spUrls = getSeviceProviderURLS(layerNames, orgIds, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
-        spUrls = prepareAccounting(orgId, data, spUrls);
+        spUrls = prepareAccounting(user.getMainOrganizationId(), data, spUrls);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
@@ -252,7 +252,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 rr.addServiceProviderRequest(wfsRequest);
             }
         }
-        doAccounting(orgId, data, user);
+        doAccounting(user.getMainOrganizationId(), data, user);
         String responseBody = ogcresponse.getResponseBody(spLayers);
         if (responseBody != null && !responseBody.equals("")) {
             byte[] buffer = responseBody.getBytes();

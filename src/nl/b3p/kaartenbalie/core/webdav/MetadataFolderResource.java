@@ -53,15 +53,19 @@ public class MetadataFolderResource extends MetadataResource implements Collecti
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
             User lUser = em.find(User.class, user.getId());
-            Organization org = lUser.getOrganization();
-            Set ll = org.getLayers();
-
-            Iterator it = ll.iterator();
+            Set orgs = lUser.getOrganizations();
+            Iterator it = orgs.iterator();
             while (it.hasNext()) {
-                Layer l = (Layer) it.next();
-                if (l.getMetadata() != null) {
-                    childs.put(MetadataResourceFactory.createName(l),
-                            new MetadataFileResource(l));
+                Organization org = (Organization) it.next();
+                Set ll = org.getLayers();
+
+                Iterator it2 = ll.iterator();
+                while (it2.hasNext()) {
+                    Layer l = (Layer) it2.next();
+                    if (l.getMetadata() != null) {
+                        childs.put(MetadataResourceFactory.createName(l),
+                                new MetadataFileResource(l));
+                    }
                 }
             }
         } catch (Throwable e) {

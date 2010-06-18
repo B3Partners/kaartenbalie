@@ -149,7 +149,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
     <html:hidden property="registeredIP" styleId="registeredIP"/>
-    
+
     <div class="containerdiv" style="float: left; clear: none;">
         <H1><fmt:message key="beheer.user.title"/></H1>
 
@@ -195,17 +195,17 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <div style="width: 100%; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" /></div>
                                     </td>
                                 </tr>
-                                <div id="infoLabel${nUser.id}" class="infoLabelClass">
-                                    <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
-                                    <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
-                                    <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
-                                    <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.organization.name}<br />
-                                    <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
-                                    <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
-                                    </c:forEach>
-                                </div>
-                            </c:forEach>
+                            <div id="infoLabel${nUser.id}" class="infoLabelClass">
+                                <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
+                                <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
+                                <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
+                                <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.mainOrganization.name}<br />
+                                <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
+                                <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                                    <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                </c:forEach>
+                            </div>
+                        </c:forEach>
                         </tbody>
                     </table>
                 </div>
@@ -232,7 +232,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </c:otherwise>
         </c:choose>
     </div>
-    
+
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 440px;" class="containerdiv">
         <c:choose>
             <c:when test="${action != 'list'}">
@@ -241,18 +241,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <tr>
                             <td>
                                 <table>
-                                    <tr>
-                                        <td><B><fmt:message key="beheer.userOrganization"/>:</B></td>
-                                        <td>
-                                            <html:select property="selectedOrganization">
-                                                <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                                                    <html:option value="${nOrganization.id}">
-                                                    ${nOrganization.name}
-                                                    </html:option>
-                                                </c:forEach>
-                                            </html:select>     
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
                                         <td><html:text property="firstname"/></td>
@@ -280,7 +268,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <tr>
                                         <td><B>
                                                 <fmt:message key="viewer.persoonlijkeurl.timeout"/>:
-                                        </B></td>
+                                            </B></td>
                                         <td>
                                             <html:text property="timeout" styleId="cal_date"/> &nbsp;
                                             <img src="<html:rewrite page='/images/siteImages/calendar_image.gif' module='' />" id="cal-button"
@@ -297,7 +285,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <tr>
                                         <td valign="top"><B>
                                                 <fmt:message key="viewer.persoonlijkeurl.registeredip"/>:
-                                        </B></td>
+                                            </B>
+                                            <input type="button" onClick='addRow(); return false' value="Voeg toe"/>
+                                        </td>
                                         <td valign="top">
                                             <div id='ipDiv' class='ipDiv' style="margin: 0px; padding: 0px; margin-left: -3px; float: left;">
                                                 <table id='iptable' style="margin: 0px; padding: 0px;">
@@ -305,27 +295,44 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <input style="float: left;" type="button" onClick='addRow(); return false' value="Voeg toe"/>
                                         </td>
                                     </tr>            
                                 </table>
                             </td>
-                            
-                            
+
                             <td valign="top" style="padding-left: 20px;">
                                 <table cellpadding="0px;">
-                                    <B><fmt:message key="beheer.userRole"/>:</B>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.userOrganization"/>:</B></td>
+                                        <td>
+                                            <html:select property="mainOrganization">
+                                                <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                                                    <html:option value="${nOrganization.id}">
+                                                        ${nOrganization.name}
+                                                    </html:option>
+                                                </c:forEach>
+                                            </html:select>
+                                        </td>
+                                    </tr>
+                                    <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
+                                        <tr>
+                                            <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
+                                            <td><c:out value="${nOrg.name}" /></td>
+                                        </tr>
+                                    </c:forEach>
+                                    <tr><td>&nbsp;</td></tr>
+                                    <tr><td><B><fmt:message key="beheer.userRole"/>:</B></td></tr>
                                     <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
                                         <tr>
                                             <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
                                             <td><c:out value="${nRole.role}" /></td>
                                         </tr>
                                     </c:forEach>
-                                    
+
                                 </table>
                             </td>
                         </tr>
-                        
+
                         <tr>
                             <td colspan="2">
                                 <table>
@@ -339,7 +346,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             </td>
                         </tr>
                     </table>
-                    
+
                     <div class="knoppen">
                         <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
                             <fmt:message key="button.cancel"/>
@@ -379,12 +386,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     </div>
 </html:form>
 <script type="text/javascript">
-   <c:if test="${action != 'list'}">
+    <c:if test="${action != 'list'}">
        if (iplist!=null && iplist.length>0){        
            var tokens=iplist.split(",");        
            for (var b=0;b < tokens.length; b++){            
                addRow(tokens[b]);
            }
        }
-   </c:if>
+    </c:if>
 </script>

@@ -81,14 +81,17 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
             User lUser = em.find(User.class, user.getId());
-            Organization org = lUser.getOrganization();
-            Set ll = org.getLayers();
-
-            Iterator it = ll.iterator();
+            Set orgs = lUser.getOrganizations();
+            Iterator it = orgs.iterator();
             while (it.hasNext()) {
-                Layer l = (Layer) it.next();
-                if (l.equals(layer)) {
-                    return true;
+                Organization org = (Organization) it.next();
+                Set ll = org.getLayers();
+                Iterator it2 = ll.iterator();
+                while (it2.hasNext()) {
+                    Layer l = (Layer) it2.next();
+                    if (l.equals(layer)) {
+                        return true;
+                    }
                 }
             }
         } catch (Throwable e) {

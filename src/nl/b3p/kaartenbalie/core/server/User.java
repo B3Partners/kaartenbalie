@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,10 +42,11 @@ public class User implements Principal {
     private String personalURL;
     private String defaultGetMap;
     private Date timeout;
-    private Organization organization;
+    private Set userOrganizations;
     private Set roles;
     private Set ips;
     // <editor-fold defaultstate="" desc="getter and setter methods.">
+
     public Integer getId() {
         return id;
     }
@@ -93,13 +95,203 @@ public class User implements Principal {
         this.password = password;
     }
 
-    public Organization getOrganization() {
-        return organization;
+    public Set getUserOrganizations() {
+        return userOrganizations;
     }
 
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
+    public void setUserOrganizations(Set userOrganizations) {
+        this.userOrganizations = userOrganizations;
     }
+
+    public void addUserOrganization(UserOrganization uo) {
+        if (userOrganizations == null) {
+            userOrganizations = new HashSet();
+        }
+        userOrganizations.add(uo);
+    }
+
+//    public void setMainOrganization(Organization organization) {
+//        Set uorgs = this.getUserOrganizations();
+//        if (uorgs == null) {
+//            uorgs = new HashSet();
+//            ;
+//        }
+//        boolean mainOrgPresent = false;
+//        Iterator it = uorgs.iterator();
+//        while (it.hasNext()) {
+//            UserOrganization uorg = (UserOrganization) it.next();
+//            Organization org = uorg.getOrganization();
+//            if (org.getId() == organization.getId()) {
+//                mainOrgPresent = true;
+//                uorg.setType("main");
+//            } else {
+//                uorg.setType("bla");
+//            }
+//        }
+//        if (!mainOrgPresent) {
+//            UserOrganization uorg = new UserOrganization();
+//            uorg.setOrganization(organization);
+//            uorg.setUser(this);
+//            uorg.setType("main");
+//            uorgs.add(uorg);
+//        }
+//    }
+//    public void addOrganization(Organization organization) {
+//        Set uorgs = this.getUserOrganizations();
+//        if (uorgs == null) {
+//            uorgs = new HashSet();
+//        }
+//        boolean orgPresent = false;
+//        Iterator it = uorgs.iterator();
+//        while (it.hasNext()) {
+//            UserOrganization uorg = (UserOrganization) it.next();
+//            Organization org = uorg.getOrganization();
+//            if (org.getId() == organization.getId()) {
+//                orgPresent = true;
+//                break;
+//            }
+//        }
+//        if (!orgPresent) {
+//            UserOrganization uorg = new UserOrganization();
+//            uorg.setOrganization(organization);
+//            uorg.setUser(this);
+//            uorgs.add(uorg);
+//        }
+//    }
+//    public void deleteOrganization(Organization organization) {
+//        Set uorgs = this.getUserOrganizations();
+//        if (uorgs == null) {
+//            uorgs = new HashSet();
+//            ;
+//        }
+//        Organization removableOrg = null;
+//        Iterator it = uorgs.iterator();
+//        while (it.hasNext()) {
+//            UserOrganization uorg = (UserOrganization) it.next();
+//            Organization org = uorg.getOrganization();
+//            if (org.getId() == organization.getId()) {
+//                removableOrg = org;
+//                break;
+//            }
+//        }
+//        if (removableOrg != null) {
+//            uorgs.remove(removableOrg);
+//        }
+//    }
+    public String getOrganisationCodes() {
+        Set uorgs = this.getUserOrganizations();
+        if (uorgs == null || uorgs.size() == 0) {
+            return null;
+        }
+        StringBuffer codes = new StringBuffer();
+        Iterator it = uorgs.iterator();
+        while (it.hasNext()) {
+            if (codes.length() != 0) {
+                codes.append(",");
+            }
+            UserOrganization uorg = (UserOrganization) it.next();
+            Organization org = uorg.getOrganization();
+            codes.append(org.getCode());
+        }
+        return codes.toString();
+    }
+
+    public Integer[] getOrganizationIds() {
+        return getOrganizationIds(null);
+    }
+
+    public Integer getMainOrganizationId() {
+        Integer[] oids = getOrganizationIds("main");
+        if (oids.length > 0) {
+            // should never be more than one
+            return oids[0];
+        }
+        return null;
+    }
+
+    private Integer[] getOrganizationIds(String type) {
+        Set uorgs = this.getUserOrganizations();
+        if (uorgs == null || uorgs.size() == 0) {
+            return null;
+        }
+        Organization fallbackOrg = null;
+        ArrayList oidList = new ArrayList();
+        Iterator it = uorgs.iterator();
+        while (it.hasNext()) {
+            UserOrganization uorg = (UserOrganization) it.next();
+            Organization org = uorg.getOrganization();
+            fallbackOrg = org;
+            if (type == null || (type != null && type.equals(uorg.getType()))) {
+                oidList.add(org.getId());
+            }
+        }
+        if (oidList.size() == 0 && fallbackOrg != null) {
+            oidList.add(fallbackOrg);
+        }
+        Integer[] orgIds = new Integer[oidList.size()];
+        orgIds = (Integer[]) oidList.toArray(orgIds);
+        return orgIds;
+    }
+
+    public Organization getMainOrganization() {
+        Set orgs = getOrganizations("main");
+        if (orgs != null && orgs.size() > 0) {
+            // should never be more than one
+            return (Organization) orgs.toArray(new Organization[orgs.size()])[0];
+        }
+        return null;
+    }
+
+    public Set getOrganizations() {
+        return getOrganizations(null);
+    }
+
+    private Set getOrganizations(String type) {
+        Set uorgs = this.getUserOrganizations();
+        if (uorgs == null || uorgs.size() == 0) {
+            return null;
+        }
+        Organization fallbackOrg = null;
+        Set oidSet = new HashSet();
+        Iterator it = uorgs.iterator();
+        while (it.hasNext()) {
+            UserOrganization uorg = (UserOrganization) it.next();
+            Organization org = uorg.getOrganization();
+            fallbackOrg = org;
+            if (type == null || (type != null && type.equals(uorg.getType()))) {
+                oidSet.add(org);
+            }
+        }
+        if (oidSet.size() == 0 && fallbackOrg != null) {
+            oidSet.add(fallbackOrg);
+        }
+        return oidSet;
+    }
+
+    public Set getLayers() {
+        return getLayers(null);
+    }
+
+    private Set getLayers(String type) {
+        Set uorgs = this.getUserOrganizations();
+        if (uorgs == null || uorgs.size() == 0) {
+            return null;
+        }
+        Set layerSet = new HashSet();
+        Iterator it = uorgs.iterator();
+        while (it.hasNext()) {
+            UserOrganization uorg = (UserOrganization) it.next();
+            if (type == null || (type != null && type.equals(uorg.getType()))) {
+                Organization org = uorg.getOrganization();
+                layerSet.addAll(org.getLayers());
+            }
+        }
+        if (layerSet.size() == 0) {
+            return null;
+        }
+        return layerSet;
+    }
+
 
     /* impl principal*/
     public String getName() {
@@ -148,6 +340,7 @@ public class User implements Principal {
         defaultGetMap = s;
     }
     // </editor-fold>
+
     public Set getRoles() {
         return roles;
     }
@@ -207,15 +400,14 @@ public class User implements Principal {
         }
         ips.add(ip);
     }
-
     Object o = null;
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof User) || o==null) {
+        if (!(o instanceof User) || o == null) {
             return false;
         }
-        User ouser = (User)o;
+        User ouser = (User) o;
         if (this.username == null) {
             return false;
         }

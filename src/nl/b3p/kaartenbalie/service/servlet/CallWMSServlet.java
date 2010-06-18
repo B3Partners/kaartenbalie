@@ -166,7 +166,7 @@ public class CallWMSServlet extends HttpServlet {
                     ogcrequest.checkRequestURL();
                 }
 
-                rr.setUserAndOrganization(user, user.getOrganization());
+                rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
 
                 parseRequestAndData(data, user);

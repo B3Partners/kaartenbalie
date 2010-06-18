@@ -70,7 +70,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
 
         OGCResponse ogcresponse = new OGCResponse();
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
 
         String lurl = null;
         List spInfo = null;
@@ -97,12 +97,12 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         }
 
         // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
-        String[] layerNames = getOrganisationLayers(em, orgId, version, isAdmin && !isOrgAdmin);
+        String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin && !isOrgAdmin);
 
         if (isAdmin && !isOrgAdmin) {
             spInfo = getLayerSummaries(layerNames);
         } else {
-            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+            spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
         }
 
         if (spInfo == null || spInfo.isEmpty()) {

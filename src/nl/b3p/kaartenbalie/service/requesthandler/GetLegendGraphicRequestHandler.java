@@ -55,7 +55,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         this.user = user;
         this.url = user.getPersonalURL(dw.getRequest());
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 
         String value = "";
@@ -74,7 +74,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
 
-        List spUrls = getSeviceProviderURLS(layers, orgId, false, dw);
+        List spUrls = getSeviceProviderURLS(layers, orgIds, false, dw);
         if (spUrls == null || spUrls.size() != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);

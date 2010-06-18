@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.util.Date;
 import java.util.List;
@@ -69,33 +70,33 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select new "
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
+        String query = "select distinct new "
                 + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') "
                 + "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol "
                 + "where l = ol and "
                 + "l.wfsServiceProvider = sp and "
-                + "o.id = :orgId and "
+                + "o.id in (:orgIds) and "
                 + "l.name = :layerName and "
                 + "sp.abbr = :layerCode";
 
-        return getValidLayerObjects(em, query, layer, orgId, b3pLayering);
+        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
     }
 
-    protected String[] getOrganisationLayers(EntityManager em, Integer orgId, String version, boolean isAdmin) throws Exception {
+    protected String[] getOrganisationLayers(EntityManager em, Integer[] orgIds, String version, boolean isAdmin) throws Exception {
         List layers = null;
         if (!isAdmin) {
-            String query = "select sp.abbr || '_' || l.name "
+            String query = "select distinct sp.abbr || '_' || l.name "
                     + "from Organization o "
                     + "join o.wfsLayers l "
                     + "join l.wfsServiceProvider sp "
-                    + "where o.id = :orgId";
+                    + "where o.id in (:orgIds)";
             if (version != null) {
                 query += " and sp.wfsVersion = :version";
             }
 
             Query q = em.createQuery(query);
-            q.setParameter("orgId", orgId);
+            q.setParameter("orgIds", Arrays.asList(orgIds));
             if (version != null) {
                 q.setParameter("version", version);
             }

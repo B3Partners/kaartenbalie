@@ -211,7 +211,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
 
         String metadata = null;
         if (dbUser != null) {
-            Set organizationLayers = dbUser.getOrganization().getLayers();
+            Set userLayers = dbUser.getLayers();
             String layerUniqueName = (String) dynaForm.get("id");
             if (layerUniqueName != null && layerUniqueName.length() > 0) {
                 Layer layer = null;
@@ -221,7 +221,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                     log.error("Can not get layer " + layerUniqueName
                             + " for metadata, cause: " + exception.getLocalizedMessage());
                 }
-                if (layer != null && hasVisibility(layer, organizationLayers)) {
+                if (layer != null && hasVisibility(layer, userLayers)) {
                     metadata = layer.getMetadata();
                 }
             }
@@ -572,8 +572,8 @@ public class MetadataAction extends KaartenbalieCrudAction {
                 return;
             }
 
-            Set organizationLayers = user.getOrganization().getLayers();
-            JSONObject root = this.createTree(organizationLayers);
+            Set userLayers = user.getLayers();
+            JSONObject root = this.createTree(userLayers);
             request.setAttribute("layerList", root);
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);

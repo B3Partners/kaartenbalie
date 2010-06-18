@@ -64,7 +64,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         this.user = user;
         this.url = user.getPersonalURL(dw.getRequest());
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 
         String value = "";
@@ -95,12 +95,12 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
 
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgId, false, dw);
+        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgIds, false, dw);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
-        spUrls = prepareAccounting(orgId, dw, spUrls);
+        spUrls = prepareAccounting(user.getMainOrganizationId(), dw, spUrls);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
@@ -157,7 +157,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             }
         }
 
-        doAccounting(orgId, dw, user);
+        doAccounting(user.getMainOrganizationId(), dw, user);
 
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }

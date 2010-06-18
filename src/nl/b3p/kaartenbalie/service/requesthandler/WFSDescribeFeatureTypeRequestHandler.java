@@ -61,7 +61,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
         String layers = null;
         String[] layerNames = null;
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
@@ -110,7 +110,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         if (isAdmin && !isOrgAdmin) {
             spInfo = getLayerSummaries(layerNames);
         } else {
-            spInfo = getSeviceProviderURLS(layerNames, orgId, false, data);
+            spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
         }
 
         if (spInfo == null || spInfo.isEmpty()) {

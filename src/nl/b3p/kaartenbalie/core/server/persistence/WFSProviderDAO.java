@@ -1,5 +1,6 @@
 package nl.b3p.kaartenbalie.service.persistence;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -34,25 +35,25 @@ public class WFSProviderDAO extends BaseDAO {
 	/**
 	 * Get all TypeNames of WFS services that a user is authorized for.
 	 * 
-	 * @param orgId - id of the organization a user belongs to
+	 * @param orgIds - ids of the organizations a user belongs to
 	 * @param version - null to retrieve all layers for all versions
 	 * @param isAdmin - true if the user is administrator
 	 * @return
 	 * @throws Exception
 	 */
-    public String[] getAuthorizedFeatureTypeNames(Integer orgId, String version, boolean isAdmin) throws Exception {
+    public String[] getAuthorizedFeatureTypeNames(Integer[] orgIds, String version, boolean isAdmin) throws Exception {
         List layers = null;
         if(!isAdmin) {
-            String query = "select sp.abbr || '_' || l.name " +
+            String query = "select distinct sp.abbr || '_' || l.name " +
                            "from Organization o " +
                            "join o.wfsLayers l " +
                            "join l.wfsServiceProvider sp " +
-                           "where o.id = :orgId";
+                           "where o.id in (:orgIds)";
             if (version!=null)
                 query+=" and sp.wfsVersion = :version";
 
             Query q = em.createQuery(query);
-            q.setParameter("orgId", orgId);
+            q.setParameter("orgIds", Arrays.asList(orgIds));
             if (version!=null)
                 q.setParameter("version", version);
             layers = q.getResultList();
@@ -72,17 +73,17 @@ public class WFSProviderDAO extends BaseDAO {
     }
 
     
-    public SpLayerSummary getAuthorizedFeatureTypeSummary(String layer, Integer orgId, boolean b3pLayering) throws Exception {
-        String query = "select new " +
+    public SpLayerSummary getAuthorizedFeatureTypeSummary(String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
+        String query = "select distinct new " +
                 "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') " +
                 "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol " +
                 "where l = ol and " +
                 "l.wfsServiceProvider = sp and " +
-                "o.id = :orgId and " +
+                "o.id in (:orgIds) and " +
                 "l.name = :layerName and " +
                 "sp.abbr = :layerCode";
 
-        return getValidLayerObjects(query, layer, orgId, b3pLayering);
+        return getValidLayerObjects(query, layer, orgIds, b3pLayering);
     }
     
     /**
@@ -92,14 +93,14 @@ public class WFSProviderDAO extends BaseDAO {
      * @param em EntityManager
      * @param query query waarmee rechten en bestaan gecheckt kan worden
      * @param layer layer naam met sp abbrr (abbr_layer)
-     * @param orgId organisatie id
+     * @param orgIds organisatie id's
      * @param b3pLayering bepaalt of service layers toegevoegd worden, true = alleen service layers,
      * false = alleen echte layers.
      * @return object array met resultaat voor gezochte layer
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(String query, String layer, Integer orgId, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String[] layerCodeAndName = toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
@@ -122,7 +123,7 @@ public class WFSProviderDAO extends BaseDAO {
         }
 
         List result = em.createQuery(query).
-                setParameter("orgId", orgId).
+                setParameter("orgIds", Arrays.asList(orgIds)).
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();

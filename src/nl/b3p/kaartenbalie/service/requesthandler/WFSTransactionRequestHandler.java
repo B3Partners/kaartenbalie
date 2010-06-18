@@ -59,7 +59,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
         OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
-        Integer orgId = user.getOrganization().getId();
+        Integer[] orgIds = user.getOrganizationIds();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         String url = "";
@@ -98,7 +98,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 layerList[i] = tempList.get(i).toString();
             }
 
-            List spUrls = getSeviceProviderURLS(layerList, orgId, false, data);
+            List spUrls = getSeviceProviderURLS(layerList, orgIds, false, data);
             if (spUrls == null || spUrls.isEmpty()) {
                 throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
             }

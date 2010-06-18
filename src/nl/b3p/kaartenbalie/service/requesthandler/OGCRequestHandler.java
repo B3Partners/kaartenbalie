@@ -22,9 +22,12 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
@@ -79,7 +82,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer orgId, boolean b3pLayering) throws Exception;
+    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception;
 
     /**
      * methode die alleen een query nodig heeft om bestaan en rechten van layer
@@ -95,7 +98,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String[] layerCodeAndName = toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
@@ -118,16 +121,16 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
 
         List result = em.createQuery(query).
-                setParameter("orgId", orgId).
+                setParameter("orgIds", Arrays.asList(orgIds)).
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();
         if (result == null || result.isEmpty()) {
             log.error("layer not valid or no rights, name: " + layer);
-            throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION+": "+layer);
+            throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + layer);
         } else if (result.size() > 1) {
             log.error("layers with duplicate names, name: " + layer);
-            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION+": "+layer);
+            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + layer);
         }
 
         return (SpLayerSummary) result.get(0);
@@ -159,7 +162,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @return lijst van serviceproviders met daarin bij behorende layers
      * @throws java.lang.Exception fout bij ophalen layer informatie
      */
-    protected List getSeviceProviderURLS(String[] layers, Integer orgId, boolean checkForQueryable, DataWrapper dw) throws Exception {
+    protected List getSeviceProviderURLS(String[] layers, Integer[] orgIds, boolean checkForQueryable, DataWrapper dw) throws Exception {
 
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
@@ -176,14 +179,14 @@ public abstract class OGCRequestHandler implements RequestHandler {
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
         for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
             if (layerInfo == null) {
                 continue;
             }
 
             // layer toevoegen aan sp indien queryable voorwaarde ok
-            if (!checkForQueryable || 
-                    (checkForQueryable && layerInfo.getQueryable()!=null && layerInfo.getQueryable().equals("1"))) {
+            if (!checkForQueryable
+                    || (checkForQueryable && layerInfo.getQueryable() != null && layerInfo.getQueryable().equals("1"))) {
                 addToServerProviderList(eventualSPList, layerInfo);
             }
         }
@@ -191,7 +194,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         //als laatste b3pLayering meenemen
         b3pLayering = true;
         for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgId, b3pLayering);
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
             if (layerInfo == null) {
                 continue;
             }
@@ -350,13 +353,13 @@ public abstract class OGCRequestHandler implements RequestHandler {
         int pos = completeLayerName.indexOf("_");
         if (pos == -1 || completeLayerName.length() <= pos + 1) {
             log.error("layer not valid: " + completeLayerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
+            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + completeLayerName);
         }
         String layerCode = completeLayerName.substring(0, pos);
         String layerName = completeLayerName.substring(pos + 1);
         if (layerCode.length() == 0 || layerName.length() == 0) {
             log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
+            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + completeLayerName);
         }
         return new String[]{layerCode, layerName};
     }

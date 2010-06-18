@@ -280,7 +280,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         User sessionUser = (User) request.getUserPrincipal();
         Organization sessionOrg = null;
         if (sessionUser != null) {
-            sessionOrg = sessionUser.getOrganization();
+            sessionOrg = sessionUser.getMainOrganization();
         }
         if (sessionOrg != null && sessionOrg.getId().equals(organization.getId())) {
             prepareMethod(dynaForm, request, LIST, EDIT);
@@ -320,7 +320,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         User sessionUser = (User) request.getUserPrincipal();
         Organization sessionOrg = null;
         if (sessionUser != null) {
-            sessionOrg = sessionUser.getOrganization();
+            sessionOrg = sessionUser.getMainOrganization();
         }
         if (sessionOrg != null && sessionOrg.getId().equals(organization.getId())) {
             prepareMethod(dynaForm, request, LIST, EDIT);

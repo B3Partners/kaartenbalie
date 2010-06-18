@@ -41,6 +41,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
@@ -140,7 +141,10 @@ public class UserAction extends KaartenbalieCrudAction {
              * Check if this user gets a valid capability when using this personalURL
              */
         }
-        if (user.getOrganization() != null && !user.getOrganization().getHasValidGetCapabilities()) {
+
+        Organization org = user.getMainOrganization();
+        if (org != null && !org.getHasValidGetCapabilities()) {
+            // TODO: we should check for the combination of all organisations
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
         }
 
@@ -249,7 +253,7 @@ public class UserAction extends KaartenbalieCrudAction {
         Locale locale = getLocale(request);
         String lastJoinedMessage = messages.getMessage(locale, LAST_JOINED_KEY);
 
-        Organization org = user.getOrganization();
+        Organization org = user.getMainOrganization();
         Set userList = org.getUsers();
         if (userList == null || userList.size() <= 1) {
             addAlternateMessage(mapping, request, null, lastJoinedMessage);
@@ -451,8 +455,20 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         dynaForm.set("roleSelected", roleSelected);
 
-        if (user.getOrganization() != null) {
-            dynaForm.set("selectedOrganization", FormUtils.IntegerToString(user.getOrganization().getId()));
+        String[] orgSelected = null;
+        Set uorgs = user.getOrganizations();
+        if (uorgs != null && !uorgs.isEmpty()) {
+            ArrayList orgSet = new ArrayList(uorgs);
+            orgSelected = new String[orgSet.size()];
+            for (int i = 0; i < orgSet.size(); i++) {
+                Organization org = (Organization) orgSet.get(i);
+                orgSelected[i] = FormUtils.IntegerToString(org.getId());
+            }
+        }
+        dynaForm.set("orgSelected", orgSelected);
+        Organization mainOrg = user.getMainOrganization();
+        if (mainOrg != null) {
+            dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
         }
 
         StringBuffer registeredIP = new StringBuffer();
@@ -477,13 +493,12 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         dynaForm.set("timeout", FormUtils.DateToFormString(timeout, request.getLocale()));
 
-        Organization org = user.getOrganization();
-        if (org == null) {
+        if (mainOrg == null) {
             dynaForm.set("organizationName", "");
             dynaForm.set("organizationTelephone", "");
         } else {
-            dynaForm.set("organizationName", org.getName());
-            dynaForm.set("organizationTelephone", org.getTelephone());
+            dynaForm.set("organizationName", mainOrg.getName());
+            dynaForm.set("organizationTelephone", mainOrg.getTelephone());
         }
 
 
@@ -515,20 +530,44 @@ public class UserAction extends KaartenbalieCrudAction {
                 throw new Exception("New passwords do not match!");
             }
         }
-        Integer orgId = FormUtils.StringToInteger(dynaForm.getString("selectedOrganization"));
-        if (orgId != null) {
-            user.setOrganization(getOrganization(orgId));
+        String mainOrgId = dynaForm.getString("mainOrganization");
+        String[] orgSelected = dynaForm.getStrings("orgSelected");
+        Set orgSelectedSet = new HashSet();
+        for (int i = 0; i < orgSelected.length; i++) {
+            orgSelectedSet.add(orgSelected[i]);
         }
-
+        if (!orgSelectedSet.contains(mainOrgId)) {
+            // main org is always selected
+            orgSelectedSet.add(mainOrgId);
+        }
+        user.setUserOrganizations(null);
+        List orgList = em.createQuery("from Organization").getResultList();
+        Iterator it = orgSelectedSet.iterator();
+        while (it.hasNext()) {
+            String orgId = (String) it.next();
+            Iterator it2 = orgList.iterator();
+            while (it2.hasNext()) {
+                Organization org = (Organization) it2.next();
+                if (org.getId().toString().equals(orgId)) {
+                    UserOrganization uorg = new UserOrganization();
+                    uorg.setOrganization(org);
+                    uorg.setUser(user);
+                    if (org.getId().toString().equals(mainOrgId)) {
+                        uorg.setType("main");
+                    }
+                    user.addUserOrganization(uorg);
+                }
+            }
+        }
         String[] roleSelected = dynaForm.getStrings("roleSelected");
         int size = roleSelected.length;
         if (size > 0) {
             user.setRoles(null);
             List roleList = em.createQuery("from Roles").getResultList();
             for (int i = 0; i < size; i++) {
-                Iterator it = roleList.iterator();
-                while (it.hasNext()) {
-                    Roles role = (Roles) it.next();
+                Iterator it3 = roleList.iterator();
+                while (it3.hasNext()) {
+                    Roles role = (Roles) it3.next();
                     if (role.getId().toString().equals(roleSelected[i])) {
                         user.addRole(role);
                     }
@@ -558,28 +597,42 @@ public class UserAction extends KaartenbalieCrudAction {
 
         Date oldDate = user.getTimeout();
         Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
+
+
         if (newDate == null) {
             newDate = getDefaultTimeOut(120);
+
+
         }
 
         boolean urlNeedsRefresh = true;
         String persURL = user.getPersonalURL();
         // check of er uberhaupt een url en timeout zijn
+
+
         if (persURL != null
                 && persURL.length() > 0
                 && oldDate != null) {
             urlNeedsRefresh = false;
             // check of timeout veranderd is
+
+
             if (oldDate.before(newDate)) {
                 urlNeedsRefresh = true;
+
+
             } else {
                 if (persURL.startsWith("http")) {
                     urlNeedsRefresh = true;
+
+
                 }
             }
         }
         if (!urlNeedsRefresh) {
             return;
+
+
         }
 
         Random rd = new Random();
@@ -590,50 +643,77 @@ public class UserAction extends KaartenbalieCrudAction {
 
         MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
         md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
+
+
         byte[] md5hash = md.digest();
         String hashString = new String(Hex.encodeHex(md5hash));
 
         user.setPersonalURL(hashString);
         user.setTimeout(newDate);
+
+
     }
 
     public Set compareSets(
             Set oldset, Set newset) {
         if (oldset == null) {
             oldset = new HashSet();
+
+
         }
 
         Set tempRemoveSet = new HashSet();
         Iterator it = oldset.iterator();
+
+
         while (newset != null && it.hasNext()) {
             String userip = (String) it.next();
+
+
             if (!newset.contains(userip)) {
                 tempRemoveSet.add(userip);
+
+
             }
 
         }
 
         Iterator removeIt = tempRemoveSet.iterator();
+
+
         while (removeIt.hasNext()) {
             String removableIP = (String) removeIt.next();
             oldset.remove(removableIP);
+
+
         }
 
         Iterator newit = newset.iterator();
+
+
         while (newit.hasNext()) {
             String userip = (String) newit.next();
+
+
             if (!oldset.contains(userip)) {
                 oldset.add(userip);
+
+
             }
 
         }
         return oldset;
+
+
     }
 
     public Date getDefaultTimeOut(
             int months) {
         Calendar gc = new GregorianCalendar();
         gc.add(Calendar.MONTH, months);
+
+
         return gc.getTime();
+
     }
 }

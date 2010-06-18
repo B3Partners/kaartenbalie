@@ -145,7 +145,7 @@ public class DepositAction extends KaartenbalieCrudAction {
             if (user == null) {
                 return null;
             }
-            organization = user.getOrganization();
+            organization = user.getMainOrganization();
         } else {
             organization = (Organization) em.find(Organization.class, id);
         }

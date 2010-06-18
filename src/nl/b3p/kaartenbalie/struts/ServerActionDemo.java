@@ -37,6 +37,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
@@ -75,6 +76,7 @@ public class ServerActionDemo extends WmsServerAction {
         return action;
     }
     // </editor-fold>
+
     /** Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -132,7 +134,7 @@ public class ServerActionDemo extends WmsServerAction {
             return getAlternateForward(mapping, request);
         }
         User dbUser = (User) em.createQuery("from User u where u.id = :uid").setParameter("uid", user.getId()).getSingleResult();
-        Organization org = dbUser.getOrganization();
+        Organization org = dbUser.getMainOrganization();
         /*
          * Now check if the given abbreviation is unique.
          */
@@ -164,7 +166,7 @@ public class ServerActionDemo extends WmsServerAction {
          * First we need to check if the given url is conform the url standard.
          */
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
-        if (url==null) {
+        if (url == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
@@ -240,7 +242,13 @@ public class ServerActionDemo extends WmsServerAction {
             organizationLayers.add((Layer) newLayers.next());
         }
         org.setLayers(organizationLayers);
-        user.setOrganization(org);
+
+        UserOrganization uorg = new UserOrganization();
+        uorg.setOrganization(org);
+        uorg.setUser(user);
+        uorg.setType("main");
+        user.addUserOrganization(uorg);
+
         if (org.getId() == null) {
             em.persist(org);
         } else {

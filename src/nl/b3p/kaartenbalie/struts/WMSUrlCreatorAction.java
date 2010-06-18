@@ -109,11 +109,11 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         formats[4] = "image/tiff";
         request.setAttribute("formatList", formats);
 
-        Set organizationLayers = user.getOrganization().getLayers();
-        JSONObject root = createTree(organizationLayers);
+        Set userLayers = user.getLayers();
+        JSONObject root = createTree(userLayers);
         request.setAttribute("layerList", root);
 
-        LayerValidator lv = new LayerValidator(organizationLayers);
+        LayerValidator lv = new LayerValidator(userLayers);
         String[] alSrsen = lv.validateSRS();
         request.setAttribute("projectieList", alSrsen);
 

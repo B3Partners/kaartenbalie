@@ -67,7 +67,7 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
     	
     	this.user = user;
         this.url = user.getPersonalURL(dw.getRequest());
-        Integer orgId = user.getOrganization().getId(); //for authorization
+        Integer[] orgIds = user.getOrganizationIds(); //for authorization
         OGCRequest ogcRequest = dw.getOgcrequest();
         
         //should DescribeLayer do anything with format param? at present it doesn't
@@ -85,7 +85,7 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
         // -- check if there are service provider urls to collect data from
         // -- getSeviceProviderURLS returns list with SpLayerSummary objects
         // --
-        List spInfo = getSeviceProviderURLS(layersParam.split(","), orgId, false, dw);
+        List spInfo = getSeviceProviderURLS(layersParam.split(","), orgIds, false, dw);
         if (spInfo == null || spInfo.isEmpty()) {
         	//Error message from KBConfiguration in b3p-commons-gis?
         	log.error(requestParam + ": no urls qualify for request.");

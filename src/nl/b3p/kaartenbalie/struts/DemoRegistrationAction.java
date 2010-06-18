@@ -36,6 +36,7 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
@@ -79,7 +80,7 @@ public class DemoRegistrationAction extends UserAction {
         if (af != null) {
             return af;
         }
-        Organization organization = user.getOrganization();
+        Organization organization = user.getMainOrganization();
         if (organization == null) {
             organization = new Organization();
         }
@@ -189,7 +190,11 @@ public class DemoRegistrationAction extends UserAction {
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
 
-        user.setOrganization(organization);
+        UserOrganization uorg = new UserOrganization();
+        uorg.setOrganization(organization);
+        uorg.setUser(user);
+        uorg.setType("main");
+        user.addUserOrganization(uorg);
 
     }
     // </editor-fold>

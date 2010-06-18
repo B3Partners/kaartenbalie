@@ -90,8 +90,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         
         ServiceProvider s = getServiceProvider();
 
-        if (user != null && user.getOrganization() != null) {
-            s.setOrganizationCode(user.getOrganization().getCode());
+        if (user != null) {
+            s.setOrganizationCode(user.getOrganisationCodes());
         }
         s.overwriteURL(url);
 
