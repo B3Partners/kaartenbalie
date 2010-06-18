@@ -117,7 +117,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
             if (report != null) {
                 String fileName = reportingDate.format(report.getReportDate()) + "_report_" + id;
                 String xml = report.getReportXML();
-                if (xml==null || xml.length()==0) {
+                if (xml == null || xml.length() == 0) {
                     xml = "empty or unfinished";
                 }
                 response.setContentType(report.getReportMime());
@@ -149,15 +149,17 @@ public class ReportingAction extends KaartenbalieCrudAction {
         parameterMap.put("name", name);
 
         // TODO via gui opvragen
-        if (xsl==null || xsl.length()==0) {
+        if (xsl == null || xsl.length() == 0) {
             parameterMap.put("type", CastorXmlTransformer.XML);
         } else {
             parameterMap.put("type", CastorXmlTransformer.HTML);
         }
 
         parameterMap.put("users", em.createQuery(
-                "FROM User AS u " +
-                "WHERE u.organization.id = :organizationId").setParameter("organizationId", organization.getId()).getResultList());
+                "from User AS u "
+                + "join u.userOrganizations as uo "
+                + "where uo.organization = :organization").setParameter("organization", organization).getResultList());
+
 
         ReportThread rtt = new ReportThread();
         rtt.init(parameterMap);
