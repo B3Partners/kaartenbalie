@@ -70,6 +70,12 @@
                 <arg0 key="beheer.organizationTelephone"/>
             </field>           
         </form>
+
+        <form name="roleForm">
+            <field property="name" depends="required">
+                <arg0 key="beheer.name"/>
+            </field>
+        </form>
         
         <form name="depositForm">
             <field property="amount" depends="required, integer">

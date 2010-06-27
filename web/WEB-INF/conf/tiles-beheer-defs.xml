@@ -40,6 +40,10 @@
         <put name="title" value="Organizaties - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/organization.jsp"/>
     </definition>
+    <definition name="base.beheer.role" extends="base.proxy">
+        <put name="title" value="Rollen - Beheer" type="string"/>
+        <put name="content" value="/WEB-INF/jsp/beheer/role.jsp"/>
+    </definition>
     <definition name="base.beheer.rights" extends="base.proxy">
         <put name="title" value="Rechten - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/rights.jsp"/>

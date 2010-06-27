@@ -76,32 +76,38 @@
             <form-property name="code" type="java.lang.String"/>
             <form-property name="allow" type="java.lang.String"/>
         </form-bean>
+        <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <form-property name="serverType" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="street" type="java.lang.String"/>
+            <form-property name="number" type="java.lang.String"/>
+            <form-property name="addition" type="java.lang.String"/>
+            <form-property name="postalcode" type="java.lang.String"/>
+            <form-property name="province" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="postbox" type="java.lang.String"/>
+            <form-property name="billingAddress" type="java.lang.String"/>
+            <form-property name="visitorsAddress" type="java.lang.String"/>
+            <form-property name="telephone" type="java.lang.String"/>
+            <form-property name="fax" type="java.lang.String"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="bbox" type="java.lang.String"/>
+            <form-property name="code" type="java.lang.String"/>
+            <form-property name="allow" type="java.lang.String"/>
+        </form-bean>
         
-        <form-bean name="metadataForm" type="org.apache.struts.validator.DynaValidatorForm">
+        <form-bean name="roleForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
             <form-property name="action" type="java.lang.String"/>
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
-            <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="name" type="java.lang.String"/>
-            <form-property name="metadata" type="java.lang.String"/>
-            <form-property name="mailhost" type="java.lang.String" initial="mail.b3partners.nl"/>
-            <form-property name="xsl" type="java.lang.String"/>
-            <form-property name="to" type="java.lang.String"/>
-            <form-property name="from" type="java.lang.String"/>
-            <form-property name="subject" type="java.lang.String"/>
-            <form-property name="cc" type="java.lang.String"/>
-            <form-property name="bcc" type="java.lang.String"/>
-            <form-property name="body" type="java.lang.String"/>
-            <form-property name="fullname" type="java.lang.String"/>
-            <form-property name="company" type="java.lang.String"/>
-            <form-property name="address" type="java.lang.String"/>
-            <form-property name="zipcode" type="java.lang.String"/>
-            <form-property name="city" type="java.lang.String"/>
-            <form-property name="country" type="java.lang.String"/>
-            <form-property name="phone" type="java.lang.String"/>
-            <form-property name="fax" type="java.lang.String"/>
         </form-bean>
         <form-bean name="reportingForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
@@ -206,6 +212,10 @@
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
             <forward name="rights" path="base.beheer.rights"/>
+        </action>
+        <action path="/role" name="roleForm" type="nl.b3p.kaartenbalie.struts.RoleAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.role"/>
+            <forward name="failure" path="base.beheer.role"/>
         </action>
         <action path="/rights" forward="/organization.do?listRights=t"/>
         <action path="/accounting" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">

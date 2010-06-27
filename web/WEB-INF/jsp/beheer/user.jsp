@@ -314,6 +314,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                             </html:select>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td colspan="2"><B><fmt:message key="beheer.userOtherOrganizations"/>:</B></td>
+                                    </tr>
                                     <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
                                         <tr>
                                             <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
@@ -387,11 +390,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 </html:form>
 <script type="text/javascript">
     <c:if test="${action != 'list'}">
-       if (iplist!=null && iplist.length>0){        
-           var tokens=iplist.split(",");        
-           for (var b=0;b < tokens.length; b++){            
-               addRow(tokens[b]);
-           }
-       }
+        if (iplist!=null && iplist.length>0){
+            var tokens=iplist.split(",");
+            for (var b=0;b < tokens.length; b++){
+                addRow(tokens[b]);
+            }
+        }
     </c:if>
 </script>

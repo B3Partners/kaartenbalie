@@ -33,6 +33,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <a href="<html:rewrite page='/beheer/organization.do' module='' />"><fmt:message key="beheer.organization"/></a>
             <a href="<html:rewrite page='/beheer/rights.do' module='' />"><fmt:message key="beheer.rights"/></a>
             <a href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="beheer.users"/></a>
+            <a href="<html:rewrite page='/beheer/role.do' module='' />"><fmt:message key="beheer.roles"/></a>
         </div>
     </p>
 </div>
