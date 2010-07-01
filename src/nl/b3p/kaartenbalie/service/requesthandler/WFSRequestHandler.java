@@ -96,7 +96,14 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             }
 
             Query q = em.createQuery(query);
-            q.setParameter("orgIds", Arrays.asList(orgIds));
+
+            if (orgIds != null) {
+                List lijst = Arrays.asList(orgIds);
+                q.setParameter("orgIds", lijst);
+            } else {
+                q.setParameter("orgIds", null);
+            }
+
             if (version != null) {
                 q.setParameter("version", version);
             }
