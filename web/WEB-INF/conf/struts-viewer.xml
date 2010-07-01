@@ -28,6 +28,8 @@
             <!-- organization form fields -->
             <form-property name="organizationName" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
+            <form-property name="orgSelected" type="java.lang.String[]"/>
+            <form-property name="mainOrganization" type="java.lang.String"/>
         </form-bean>
         
         <form-bean name="wmsUrlCreatorForm" type="org.apache.struts.validator.DynaValidatorForm">

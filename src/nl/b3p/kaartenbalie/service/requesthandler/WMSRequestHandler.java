@@ -124,11 +124,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             organizationLayers.addAll(layerlist);
         } else {
             Set orgs = user.getOrganizations();
-            Iterator it = orgs.iterator();
-            while (it.hasNext()) {
-                Organization org = (Organization) it.next();
-                organizationLayers.addAll(org.getLayers());
+
+            if (orgs != null) {
+                Iterator it = orgs.iterator();
+                while (it.hasNext()) {
+                    Organization org = (Organization) it.next();
+                    organizationLayers.addAll(org.getLayers());
+                }
             }
+            
         }
         return organizationLayers;
     }
@@ -289,14 +293,18 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          */
         boolean allowAccountingLayers = false;
         Set orgs = dbUser.getOrganizations();
-        Iterator it = orgs.iterator();
-        while (it.hasNext()) {
-            Organization org = (Organization) it.next();
-            if (org.getAllowAccountingLayers()) {
-                allowAccountingLayers = true;
-                break;
+
+        if (orgs != null) {
+            Iterator it = orgs.iterator();
+            while (it.hasNext()) {
+                Organization org = (Organization) it.next();
+                if (org.getAllowAccountingLayers()) {
+                    allowAccountingLayers = true;
+                    break;
+                }
             }
         }
+
         /*
          *Only adds AllowTransaction layer and creditInfo layer if the user has the rights to see these layers.
          */
