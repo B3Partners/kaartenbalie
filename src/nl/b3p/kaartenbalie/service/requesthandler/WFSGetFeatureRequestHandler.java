@@ -201,7 +201,6 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             int status = client.executeMethod(method);
             try {
                 if (status == HttpStatus.SC_OK) {
-                    wfsRequest.setBytesReceived(new Long(method.getResponseContentLength()));
                     wfsRequest.setResponseStatus(new Integer(200));
                     wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
 
