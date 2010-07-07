@@ -24,9 +24,11 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,6 +49,8 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -67,40 +71,25 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 
         String layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
         String[] allLayers = layers.split(",");
-
-        String[] layerNames = new String[allLayers.length];
-        String[] prefixes = new String[allLayers.length];
-        String[] spAbbrs = new String[allLayers.length];
         String[] spLayerNames = new String[allLayers.length];
+        ArrayList layerMapList = null;
+        String layerParam = "";
         for (int i = 0; i < allLayers.length; i++) {
-            String tPrefix = null;
-            String tLayerName = null;
-            String tSpAbbr = null;
-            String tSpLayerName = null;
-            String[] temp = allLayers[i].split("}");
-            if (temp.length > 1) {
-                tSpLayerName = temp[1];
-                int index1 = allLayers[i].indexOf("{");
-                int index2 = allLayers[i].indexOf("}");
-                tPrefix = ogcrequest.getPrefix(allLayers[i].substring(index1 + 1, index2));
-            } else {
-                String temp2[] = temp[0].split(":");
-                if (temp2.length > 1) {
-                    tSpLayerName = temp2[1];
-                    tPrefix = temp2[0];
-                } else {
-                    tSpLayerName = allLayers[i];
-                }
+            if (layerMapList == null) {
+                layerMapList = new ArrayList();
             }
-            int index1 = tSpLayerName.indexOf("_");
-            if (index1 != -1) {
-                tSpAbbr = tSpLayerName.substring(0, index1);
-                tLayerName = tSpLayerName.substring(index1 + 1);
+            Map layerMap = ogcrequest.splitLayerInParts(allLayers[i]);
+            layerMapList.add(layerMap);
+
+            spLayerNames[i] = (String) layerMap.get("spLayerName");
+
+            if (layerParam.length() != 0) {
+                layerParam += ",";
             }
-            prefixes[i] = tPrefix;
-            spAbbrs[i] = tSpAbbr;
-            layerNames[i] = tLayerName;
-            spLayerNames[i] = tSpLayerName;
+            if (layerMap.get("prefix") != null) {
+                layerParam += ((String) layerMap.get("prefix")) + ":";
+            }
+            layerParam += (String) layerMap.get("layerName");
         }
 
         Set userRoles = user.getRoles();
@@ -135,27 +124,17 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         while (spIt.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) spIt.next();
             Integer tSpId = sp.getServiceproviderId();
-            if (spId!=null && tSpId != null && tSpId.compareTo(spId) != 0) {
+            if (spId != null && tSpId != null && tSpId.compareTo(spId) != 0) {
                 log.error("More then 1 service provider addressed. Not supported (yet)");
                 throw new UnsupportedOperationException("More then 1 service provider addressed. Not supported (yet)");
             }
             spId = tSpId;
             spurl = sp.getSpUrl();
         }
-        if (spurl == null || spurl.length() == 0 || spId==null) {
+        if (spurl == null || spurl.length() == 0 || spId == null) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
 
-        String layerParam = "";
-        for (int i = 0; i < layerNames.length; i++) {
-            if (layerParam.length() != 0) {
-                layerParam += ",";
-            }
-            if (prefixes[i] != null) {
-                layerParam += prefixes[i] + ":";
-            }
-            layerParam += layerNames[i];
-        }
         ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
 
         HttpMethod method = null;
@@ -198,24 +177,8 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
                 Document doc = builder.parse(is);
 
                 OGCResponse ogcresponse = new OGCResponse(doc);
-
-                String[] oldVals = new String[layerNames.length];
-                String[] newVals = new String[layerNames.length];
-                for (int i = 0; i < layerNames.length; i++) {
-                    oldVals[i] = "";
-                    newVals[i] = "";
-                    if (prefixes[i] != null) {
-                        oldVals[i] += prefixes[i] + ":";
-                        newVals[i] += prefixes[i] + ":";
-                    }
-                    if (spAbbrs[i] != null) {
-                        newVals[i] += spAbbrs[i];
-                        newVals[i] += "_";
-                    }
-                    oldVals[i] += layerNames[i];
-                    newVals[i] += layerNames[i];
-                }
-                replaceStringInElementName(ogcresponse, oldVals, newVals);
+                // update layer names in response
+                replaceStringInElementName(ogcresponse, layerMapList);
 
                 String output = ogcresponse.serializeNode(doc);
                 os.write(output.getBytes());
@@ -236,8 +199,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         }
     }
 
-
-        /**
+    /**
      * Replaces a string value in a XSD document for the name attribute of an
      * element tag.
      *
@@ -245,17 +207,50 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
      * @param newVal new name
      * @throws XPathExpressionException
      */
-    public void replaceStringInElementName(OGCResponse ogcresponse, String[] oldVals, String[] newVals) throws Exception {
+    private void replaceStringInElementName(OGCResponse ogcresponse, List layerMapList) throws Exception {
+        if (layerMapList == null || layerMapList.size() == 0) {
+            return;
+        }
         String prefix = ogcresponse.getNameSpacePrefix("http://www.w3.org/2001/XMLSchema");
         StringBuilder sb = new StringBuilder();
-        sb.append("//");
+        sb.append("/");
+        if (prefix != null && prefix.length() > 0) {
+            sb.append(prefix);
+            sb.append(":");
+        }
+        sb.append("schema/");
         if (prefix != null && prefix.length() > 0) {
             sb.append(prefix);
             sb.append(":");
         }
         sb.append("element/@name");
-        ogcresponse.replaceStringInNode(sb.toString(),oldVals, newVals);
+        NodeList nodes = ogcresponse.getNodeListFromXPath(sb.toString());
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            String textContent = n.getTextContent();
+            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent);
+            String responseLayerName = (String) responseLayerMap.get("layerName");
+            if (responseLayerName == null) {
+                // impossible
+                continue;
+            }
+            Iterator it = layerMapList.iterator();
+            while (it.hasNext()) {
+                Map requestLayerMap = (Map) it.next();
+                //only check on pure layer name without namespace
+                //hack necessary because response does not (always) return
+                //same namespace as in request.
+                String requestLayerName = (String) requestLayerMap.get("layerName");
+                if (requestLayerName != null && requestLayerName.equals(responseLayerName)) {
+                    String fullLayerName = "";
+                    if (responseLayerMap.get("prefix") != null) {
+                        // use response prefix to make sure xml stays valid
+                        fullLayerName += ((String) responseLayerMap.get("prefix")) + ":";
+                    }
+                    fullLayerName += (String) requestLayerMap.get("spLayerName");
+                    n.setTextContent(fullLayerName);
+                }
+            }
+        }
     }
-
-
 }

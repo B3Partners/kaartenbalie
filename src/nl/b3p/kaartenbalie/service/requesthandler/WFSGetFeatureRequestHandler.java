@@ -93,7 +93,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 layerNames[i] = temp[1];
                 int index1 = allLayers[i].indexOf("{");
                 int index2 = allLayers[i].indexOf("}");
-                prefixes[i] = ogcrequest.getPrefix(allLayers[i].substring(index1 + 1, index2));
+                prefixes[i] = ogcrequest.getNameSpacePrefix(allLayers[i].substring(index1 + 1, index2));
             } else {
                 String temp2[] = temp[0].split(":");
                 if (temp2.length > 1) {
