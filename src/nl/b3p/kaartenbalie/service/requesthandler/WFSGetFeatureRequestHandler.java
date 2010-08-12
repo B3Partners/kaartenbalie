@@ -64,21 +64,27 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     }
 
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
-        OGCResponse ogcresponse = new OGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest();
         Set layers = null;
         String[] layerNames = null;
+        String[] allLayers = null;
         Integer[] orgIds = user.getOrganizationIds();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
-        layers = ogcrequest.getGetFeatureFilterMap().keySet();
-        Iterator it = layers.iterator();
-        String[] allLayers = new String[layers.size()];
-        int x = 0;
-        while (it.hasNext()) {
-            String layer = it.next().toString();
-            allLayers[x] = layer;
-            x++;
+
+        if (ogcrequest.getHttpMethod().equals("POST")) {
+            layers = ogcrequest.getGetFeatureFilterMap().keySet();
+            Iterator it = layers.iterator();
+            allLayers = new String[layers.size()];
+            int x = 0;
+            while (it.hasNext()) {
+                String layer = it.next().toString();
+                allLayers[x] = layer;
+                x++;
+            }
+        } else {
+            String typeName = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
+            allLayers = typeName.split(",");
         }
 
         if (allLayers.length < 1) {
@@ -163,6 +169,8 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
 
+        OGCResponse ogcresponse = null;
+
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();
 
@@ -222,8 +230,12 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     }
 
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    dbf.setNamespaceAware(true);
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(isx);
+
+                    // Let op: dit werkt niet indien vanaf meer sp's data binnenkomt.
+                    ogcresponse = new OGCResponse(doc);
 
                     if (KBConfiguration.SAVE_MESSAGES) {
                         wfsRequest.setMessageSent(body);
@@ -252,7 +264,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             }
         }
         doAccounting(user.getMainOrganizationId(), data, user);
-        String responseBody = ogcresponse.getResponseBody(spLayers);
+        String responseBody = null;
+        if (ogcresponse!=null) {
+            responseBody = ogcresponse.getResponseBody(spLayers);
+        }
         if (responseBody != null && !responseBody.equals("")) {
             byte[] buffer = responseBody.getBytes();
             os.write(buffer);

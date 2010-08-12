@@ -228,7 +228,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             String textContent = n.getTextContent();
-            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent);
+            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent, false);
             String responseLayerName = (String) responseLayerMap.get("layerName");
             if (responseLayerName == null) {
                 // impossible

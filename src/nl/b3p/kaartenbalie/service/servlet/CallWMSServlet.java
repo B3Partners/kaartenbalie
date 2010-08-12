@@ -221,7 +221,9 @@ public class CallWMSServlet extends HttpServlet {
 
         if (request.getMethod().equalsIgnoreCase("GET")) {
             ogcrequest = new OGCRequest(iUrl);
-        } else if (request.getMethod().equalsIgnoreCase("POST") && request.getParameter(OGCConstants.SERVICE) != null && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+        } else if (request.getMethod().equalsIgnoreCase("POST") && 
+                request.getParameter(OGCConstants.SERVICE) != null &&
+                request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             ogcrequest = new OGCRequest(iUrl);
             Enumeration params = request.getParameterNames();
             while (params.hasMoreElements()) {
@@ -254,6 +256,7 @@ public class CallWMSServlet extends HttpServlet {
             Document doc = builder.parse(request.getInputStream());
             ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
         }
+        ogcrequest.setHttpMethod(request.getMethod());
         return ogcrequest;
     }
 
