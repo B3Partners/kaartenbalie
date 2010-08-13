@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,8 +43,10 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.input.CountingInputStream;
@@ -65,15 +68,13 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
         OGCRequest ogcrequest = data.getOgcrequest();
-        Set layers = null;
-        String[] layerNames = null;
-        String[] allLayers = null;
         Integer[] orgIds = user.getOrganizationIds();
 
         String request = ogcrequest.getParameter(OGCConstants.REQUEST);
 
+        String[] allLayers = null;
         if (ogcrequest.getHttpMethod().equals("POST")) {
-            layers = ogcrequest.getGetFeatureFilterMap().keySet();
+            Set layers = ogcrequest.getGetFeatureFilterMap().keySet();
             Iterator it = layers.iterator();
             allLayers = new String[layers.size()];
             int x = 0;
@@ -91,27 +92,16 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported!");
         }
 
-        layerNames = new String[allLayers.length];
-        String[] prefixes = new String[allLayers.length];
+        List requestLayers = new ArrayList();
         for (int i = 0; i < allLayers.length; i++) {
-            String[] temp = allLayers[i].split("}");
-            if (temp.length > 1) {
-                layerNames[i] = temp[1];
-                int index1 = allLayers[i].indexOf("{");
-                int index2 = allLayers[i].indexOf("}");
-                prefixes[i] = ogcrequest.getNameSpacePrefix(allLayers[i].substring(index1 + 1, index2));
-            } else {
-                String temp2[] = temp[0].split(":");
-                if (temp2.length > 1) {
-                    layerNames[i] = temp2[1];
-                } else {
-                    layerNames[i] = allLayers[i];
-                }
-            }
+             requestLayers.add(ogcrequest.splitLayerInParts(allLayers[i], true));
         }
 
-        String url = null;
-        String prefix = null;
+        String[] layerNames = new String[requestLayers.size()];
+        for (int i = 0; i < requestLayers.size(); i++) {
+            Map rl = (Map)requestLayers.get(i);
+            layerNames[i] = (String)rl.get("spLayerName");
+        }
 
         List spUrls = getSeviceProviderURLS(layerNames, orgIds, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
@@ -121,25 +111,6 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
-        }
-        if (spUrls.size() > 1) {
-            log.error("More then 1 service provider addressed. Not supported (yet)");
-            throw new Exception("More then 1 service provider addressed. Not supported (yet)");
-        }
-        String layerParam = "";
-        for (int i = 0; i < layerNames.length; i++) {
-            if (layerParam.length() != 0) {
-                layerParam += ",";
-            }
-            if (prefixes[i] != null) {
-                layerParam += prefixes[i] + ":";
-            }
-            int index1 = layerNames[i].indexOf("_");
-            if (index1 != -1) {
-                layerParam += layerNames[i].substring(index1 + 1);
-            } else {
-                layerParam += layerNames[i];
-            }
         }
 
         Iterator iter = spUrls.iterator();
@@ -169,43 +140,90 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
 
-        OGCResponse ogcresponse = null;
+        OGCResponse ogcresponse = new OGCResponse();
 
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();
 
-        PostMethod method = null;
         HttpClient client = new HttpClient();
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         OutputStream os = data.getOutputStream();
 
+        String spUrl = null;
+        String prefix = null;
         Iterator spIt = spUrls.iterator();
         while (spIt.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) spIt.next();
-            url = sp.getSpUrl();
+            spUrl = sp.getSpUrl();
             prefix = sp.getSpAbbr();
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
-            String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
-            if (filter != null) {
-                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
-            }
-            String propertyNames = ogcrequest.getGetFeaturePropertyNameList(sp.getSpAbbr() + "_" + sp.getLayerName());
-            if (propertyNames != null) {
-                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
-            }
 
-            String body = data.getOgcrequest().getXMLBody();
-            // TODO body cleanen
+            String layerParam = "";
+            for (int i = 0; i < requestLayers.size(); i++) {
+                Map rl = (Map) requestLayers.get(i);
+                if (prefix.equals(rl.get("spAbbr"))) {
+                    if (layerParam.length() != 0) {
+                        layerParam += ",";
+                    }
+                    String nsPrefix = (String) rl.get("prefix");
+                    if (nsPrefix != null) {
+                        layerParam += nsPrefix + ":";
+                    }
+                    layerParam += (String) rl.get("layerName");
+                }
+             }
+
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
-                    data, url, sp.getServiceproviderId(), new Long(body.getBytes().length));
+                    data, spUrl, sp.getServiceproviderId(), 0l);
 
-            String host = url;
-            method = new PostMethod(host);
-            //work around voor ESRI post Messages
-            //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-            method.setRequestEntity(new StringRequestEntity(body, null, null));
+            HttpMethod  method = null;
+            if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
+
+                String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
+                if (filter != null) {
+                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+                }
+                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(sp.getSpAbbr() + "_" + sp.getLayerName());
+                if (propertyNames != null) {
+                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+                }
+
+                String body = data.getOgcrequest().getXMLBody();
+                // TODO body cleanen
+                if (KBConfiguration.SAVE_MESSAGES) {
+                    wfsRequest.setMessageSent(body);
+                }
+                wfsRequest.setBytesSent(new Long(body.getBytes().length));
+
+                method = new PostMethod(spUrl);
+                //work around voor ESRI post Messages
+                //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+                ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null, null));
+            } else { // get
+
+                StringBuffer getUrl = new StringBuffer(spUrl);
+                if (getUrl.indexOf("?") != getUrl.length() - 1 && getUrl.indexOf("&") != getUrl.length() - 1) {
+                    if (getUrl.indexOf("?") >= 0) {
+                        getUrl.append("&");
+                    } else {
+                        getUrl.append("?");
+                    }
+                }
+
+                String[] params = ogcrequest.getParametersArray();
+                for (int i = 0; i < params.length; i++) {
+                        getUrl.append(params[i]);
+                        getUrl.append("&");
+                }
+
+                if (KBConfiguration.SAVE_MESSAGES) {
+                    wfsRequest.setMessageSent(getUrl.toString());
+                }
+                wfsRequest.setBytesSent(new Long(getUrl.length()));
+                method = new GetMethod(getUrl.toString());
+            }
             int status = client.executeMethod(method);
             try {
                 if (status == HttpStatus.SC_OK) {
@@ -234,25 +252,23 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(isx);
 
-                    // Let op: dit werkt niet indien vanaf meer sp's data binnenkomt.
-                    ogcresponse = new OGCResponse(doc);
+                    ogcresponse.findNameSpace(doc);
 
                     if (KBConfiguration.SAVE_MESSAGES) {
-                        wfsRequest.setMessageSent(body);
                         wfsRequest.setMessageReceived(new String(bytes));
                         wfsRequest.setBytesReceived(new Long(bytes.length));
                     } else {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), ogcrequest, prefix);
                 } else {
                     wfsRequest.setResponseStatus(status);
-                    wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + url + " Using body: " + body);
+                    wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + spUrl);
                     wfsRequest.setExceptionClass(UnsupportedOperationException.class);
 
-                    log.error("Failed to connect with " + url + " Using body: " + body);
-                    throw new UnsupportedOperationException("Failed to connect with " + url + " Using body: " + body);
+                    log.error("Failed to connect with " + spUrl);
+                    throw new UnsupportedOperationException("Failed to connect with " + spUrl);
                 }
             } catch (Exception e) {
                 wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());

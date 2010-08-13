@@ -91,12 +91,18 @@ public class DataMonitoring {
         if (!isEnableMonitoring()) {
             return;
         }
+        if (clientRequest==null) {
+            return;
+        }
         clientRequest.getServiceProviderRequests().add(s);
 
     }
 
     public void addRequestOperation(Operation o) throws Exception {
         if (!isEnableMonitoring()) {
+            return;
+        }
+        if (clientRequest==null) {
             return;
         }
         clientRequest.getRequestOperations().add(o);
@@ -108,12 +114,18 @@ public class DataMonitoring {
      * the database. After this you can restart your clientRequest without creating a new RequestReporting.
      */
     public void setClientRequestException(Exception ex) {
+        if (clientRequest==null) {
+            return;
+        }
         clientRequest.setExceptionClass(ex.getClass());
         clientRequest.setExceptionMessage(ex.getMessage());
     }
 
     public void endClientRequest(String service, String operation, int bytesSentToUser, long totalResponseTime) {
         if (!isEnableMonitoring()) {
+            return;
+        }
+        if (clientRequest==null) {
             return;
         }
         try {

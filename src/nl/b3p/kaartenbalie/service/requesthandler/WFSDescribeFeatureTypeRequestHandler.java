@@ -176,9 +176,10 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(is);
 
-                OGCResponse ogcresponse = new OGCResponse(doc);
+                OGCResponse ogcresponse = new OGCResponse();
+                ogcresponse.findNameSpace(doc);
                 // update layer names in response
-                replaceStringInElementName(ogcresponse, layerMapList);
+                replaceStringInElementName(ogcresponse, doc, layerMapList);
 
                 String output = ogcresponse.serializeNode(doc);
                 os.write(output.getBytes());
@@ -207,7 +208,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
      * @param newVal new name
      * @throws XPathExpressionException
      */
-    private void replaceStringInElementName(OGCResponse ogcresponse, List layerMapList) throws Exception {
+    private void replaceStringInElementName(OGCResponse ogcresponse, Node currentNode, List layerMapList) throws Exception {
         if (layerMapList == null || layerMapList.size() == 0) {
             return;
         }
@@ -224,7 +225,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             sb.append(":");
         }
         sb.append("element/@name");
-        NodeList nodes = ogcresponse.getNodeListFromXPath(sb.toString());
+        NodeList nodes = ogcresponse.getNodeListFromXPath(currentNode, sb.toString());
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             String textContent = n.getTextContent();

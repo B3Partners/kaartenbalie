@@ -70,6 +70,7 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.ogc.utils.OgcWfsClient;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -217,11 +218,11 @@ public class CallWMSServlet extends HttpServlet {
 
         StringBuffer baseUrl = createBaseUrl(request);
         String iUrl = completeUrl(baseUrl, request).toString();
-        log.info("Incoming URL: " + iUrl);
-
+ 
         if (request.getMethod().equalsIgnoreCase("GET")) {
             ogcrequest = new OGCRequest(iUrl);
-        } else if (request.getMethod().equalsIgnoreCase("POST") && 
+            log.info("Incoming Get URL: " + iUrl);
+       } else if (request.getMethod().equalsIgnoreCase("POST") &&
                 request.getParameter(OGCConstants.SERVICE) != null &&
                 request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             ogcrequest = new OGCRequest(iUrl);
@@ -250,11 +251,24 @@ public class CallWMSServlet extends HttpServlet {
                 }
                 ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
             }
+            log.info("Incoming POST converted to GET URL: " + ogcrequest.getUrlWithNonOGCparams());
         } else {
+            log.info("Incoming POST URL (content follows): " + iUrl);
+
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            int bytesRead = 0;
+//            while ((bytesRead = request.getInputStream().read()) != -1) {
+//                baos.write(bytesRead);
+//            }
+//            log.info("Incoming POST content: \n" + baos.toString());
+
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            dbf.setValidating(false);
             DocumentBuilder builder = dbf.newDocumentBuilder();
             Document doc = builder.parse(request.getInputStream());
             ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
+            log.info("Incoming POST content: \n" + OgcWfsClient.elementToString(doc.getDocumentElement()));
         }
         ogcrequest.setHttpMethod(request.getMethod());
         return ogcrequest;
