@@ -33,6 +33,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <title><tiles:insert name='title'/> - <fmt:message key="kaartenbalie.title" /></title>
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/b3p.css' module='' />" type="text/css" rel="stylesheet" />
+        <link href="<html:rewrite page='/styles/tablesorter-style.css' module='' />" type="text/css" rel="stylesheet" />
         <!--[if IE 6]>
         <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
@@ -43,7 +44,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/tabcontainer.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/jquery-1.3.2.min.js' module=''/>"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/jquery.tablesorter.min.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/tablesort.js' module=''/>"></script>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {

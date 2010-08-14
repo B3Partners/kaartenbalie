@@ -155,76 +155,61 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         <c:choose>
             <c:when test="${!empty userlist}">
-                <c:set var="hoogte" value="${(fn:length(userlist) * 28) + 28}" />
-                <c:if test="${hoogte > 400}">
-                    <c:set var="hoogte" value="400" />
-                </c:if>
-                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                <div>
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 24%;" id="sort_col1"><fmt:message key="beheer.userUsername"/></th>
-                                <th style="width: 24%;" id="sort_col2"><fmt:message key="beheer.userSurname"/></th>
-                                <th style="width: 38%;" id="sort_col3"><fmt:message key="beheer.user.table.rollen"/></th>
-                                <th style="width: 15%;" id="sort_col4"><fmt:message key="beheer.user.table.timeout"/></th>
+                                <th style="width: 24%;"><fmt:message key="beheer.userUsername"/></th>
+                                <th style="width: 24%;"><fmt:message key="beheer.userSurname"/></th>
+                                <th style="width: 38%;"><fmt:message key="beheer.user.table.rollen"/></th>
+                                <th class="{sorter: 'dutchdates'}" style="width: 14%;"><fmt:message key="beheer.user.table.timeout"/></th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="nUser" varStatus="status" items="${userlist}">
+                                <c:url var="link" value="/beheer/user.do?edit=submit&id=${nUser.id}" />
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
-                                <tr onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});"${regel_selected}>
-                                    <td style="width: 24%;">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <html:link page="/user.do?edit=submit&id=${nUser.id}">
-                                                <c:out value="${nUser.username}"/>
-                                            </html:link>
-                                        </div>
+                                <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
+                                <tr onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
+                                    <td>
+                                        <html:link page="/user.do?edit=submit&id=${nUser.id}">
+                                            <c:out value="${nUser.username}"/>
+                                        </html:link>
+                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
-                                    <td style="width: 24%;">
-                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nUser.surname}"/></div>
+                                    <td>
+                                        <c:out value="${nUser.surname}"/>
                                     </td>
-                                    <td style="width: 38%;">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                                <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
-                                            </c:forEach>
-                                        </div>
+                                    <td>
+                                        <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                                            <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                        </c:forEach>
                                     </td>
-                                    <td style="width: 15%;">
-                                        <div style="width: 100%; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" /></div>
+                                    <td>
+                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
                                     </td>
                                 </tr>
-                            <div id="infoLabel${nUser.id}" class="infoLabelClass">
-                                <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
-                                <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
-                                <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
-                                <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.mainOrganization.name}<br />
-                                <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
-                                <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                    <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
-                                </c:forEach>
-                            </div>
-                        </c:forEach>
+                                <div id="infoLabel${nUser.id}" class="infoLabelClass">
+                                    <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
+                                    <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
+                                    <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
+                                    <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.mainOrganization.name}<br />
+                                    <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
+                                    <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                    </c:forEach>
+                                </div>
+                            </c:forEach>
                         </tbody>
                     </table>
                 </div>
 
                 <script type="text/javascript">
-                    if(document.getElementById('regel_selected')) {
-                        $("#regel_selected").addClass('selected');
-                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
-                    }
-                    $("#server_table").tablesorter({
-                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
-                        sortList: [[0,0]],
-                        headers: {
-                            3: {
-                                sorter:'dutchdates'
-                            }
-                        },
-                        textExtraction: linkExtract
-                    });
+                    tablepager(
+                        'server_table',
+                        '930',
+                        '14'
+                    );
                 </script>
             </c:when>
             <c:otherwise>

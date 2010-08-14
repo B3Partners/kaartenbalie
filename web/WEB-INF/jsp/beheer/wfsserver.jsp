@@ -41,36 +41,32 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
-                <c:set var="hoogte" value="${(fn:length(serviceproviderlist) * 28) + 28}" />
-                <c:if test="${hoogte > 400}">
-                    <c:set var="hoogte" value="400" />
-                </c:if>
-                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                <div>
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 47%;" id="sort_col1"><fmt:message key="beheer.wfsserver.naam"/></th>
-                                <th style="width: 34%;" id="sort_col2"><fmt:message key="beheer.wfsserver.afkorting"/></th>
-                                <th style="width: 19%;" id="sort_col3"><fmt:message key="beheer.wfsserver.datumupdate"/></th>
+                                <th style="width: 47%;"><fmt:message key="beheer.wfsserver.naam"/></th>
+                                <th style="width: 34%;"><fmt:message key="beheer.wfsserver.afkorting"/></th>
+                                <th style="width: 19%;"><fmt:message key="beheer.wfsserver.datumupdate"/></th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                                <c:url var="link" value="/beheer/wfsserver.do?edit=submit&id=${nServiceProvider.id}" />
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
-                                <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});"${id_selected}>
-                                    <td width="350">
-                                        <div style="width: 340px; overflow: hidden;">
-                                            <html:link page="/wfsserver.do?edit=submit&id=${nServiceProvider.id}">
-                                                <c:out value="${nServiceProvider.givenName}"/>
-                                            </html:link>
-                                        </div>
+                                <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
+                                <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
+                                    <td>
+                                        <html:link page="/wfsserver.do?edit=submit&id=${nServiceProvider.id}">
+                                            <c:out value="${nServiceProvider.givenName}"/>
+                                        </html:link>
+                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
-                                    <td width="250">
-                                        <div style="width: 240px; overflow: hidden;"><c:out value="${nServiceProvider.abbr}"/></div>
+                                    <td>
+                                        <c:out value="${nServiceProvider.abbr}"/>
                                     </td>
-                                    <td width="140">
-                                        <div style="width: 130px; overflow: hidden;"><fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/></div>
+                                    <td>
+                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                                     </td>
                                 </tr>
                             <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
@@ -84,20 +80,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </table>
                 </div>
                 <script type="text/javascript">
-                    if(document.getElementById('regel_selected')) {
-                        $("#regel_selected").addClass('selected');
-                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
-                    }
-                    $("#server_table").tablesorter({
-                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
-                        sortList: [[0,0]],
-                        headers: {
-                            2: {
-                                sorter:'dutchdates'
-                            }
-                        },
-                        textExtraction: linkExtract
-                    });
+                    tablepager(
+                        'server_table',
+                        '930',
+                        '14'
+                    );
                 </script>
             </c:when>
             <c:otherwise>

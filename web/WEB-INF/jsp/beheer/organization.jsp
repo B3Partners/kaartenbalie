@@ -50,33 +50,32 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 30%;" id="sort_col1"><fmt:message key="beheer.organization.table.naam" /></th>
-                                <th style="width: 37%;" id="sort_col2"><fmt:message key="beheer.organization.table.adres" /></th>
-                                <th style="width: 19%;" id="sort_col3"><fmt:message key="beheer.organization.table.plaats" /></th>
-                                <th style="width: 15%;" id="sort_col4"><fmt:message key="beheer.organization.table.telefoon" /></th>
+                                <th style="width: 30%;"><fmt:message key="beheer.organization.table.naam" /></th>
+                                <th style="width: 37%;"><fmt:message key="beheer.organization.table.adres" /></th>
+                                <th style="width: 19%;"><fmt:message key="beheer.organization.table.plaats" /></th>
+                                <th style="width: 15%;"><fmt:message key="beheer.organization.table.telefoon" /></th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                                <c:url var="link" value="/beheer/organization.do?edit=submit&id=${nOrganization.id}" />
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
+                                <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
                                 <tr onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});"${id_selected}>
-                                    <td style="width: 30%;">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
-                                                <c:out value="${nOrganization.name}"/>
-                                            </html:link>
-                                        </div>
+                                    <td>
+                                        <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                            <c:out value="${nOrganization.name}"/>
+                                        </html:link>
+                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
-
-                                    <td style="width: 37%;">
-                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/></div>
+                                    <td>
+                                        <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
                                     </td>
-                                    <td style="width: 19%;">
-                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.province}"/></div>
+                                    <td>
+                                        <c:out value="${nOrganization.province}"/>
                                     </td>
-                                    <td style="width: 15%;">
-                                        <div style="width: 100%; overflow: hidden;"><c:out value="${nOrganization.telephone}"/></div>
+                                    <td>
+                                        <c:out value="${nOrganization.telephone}"/>
                                     </td>
                                 </tr>
                                 <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
@@ -92,15 +91,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </table>
                 </div>
                 <script type="text/javascript">
-                    if(document.getElementById('regel_selected')) {
-                        $("#regel_selected").addClass('selected');
-                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
-                    }
-                    $("#server_table").tablesorter({
-                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
-                        sortList: [[0,0]],
-                        textExtraction: linkExtract
-                    });
+                    tablepager(
+                        'server_table',
+                        '930',
+                        '14'
+                    );
                 </script>
             </c:when>
             <c:otherwise>

@@ -41,35 +41,38 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         <c:choose>
             <c:when test="${!empty roleslist}">
-                <c:set var="hoogte" value="${(fn:length(roleslist) * 28) + 28}" />
-                <c:if test="${hoogte > 400}">
-                    <c:set var="hoogte" value="400" />
-                </c:if>
-                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                <div>
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 100%;" id="sort_col1"><fmt:message key="beheer.role.name" /></th>
+                                <th style="width: 100%;" class="no-filter"><fmt:message key="beheer.role.name" /></th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="nRole" varStatus="status" items="${roleslist}">
+                                <c:choose>
+                                    <c:when test="${nRole.protectedRole}">
+                                        <c:set var="link" value="" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:url var="link" value="/beheer/role.do?edit=submit&id=${nRole.id}" />
+                                    </c:otherwise>
+                                </c:choose>
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nRole.id == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
-                                <tr ${id_selected}>
-                                    <td style="width: 100%;">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <c:choose>
-                                                <c:when test="${nRole.protectedRole}">
-                                                    <c:out value="${nRole.role}"/> - <fmt:message key="beheer.role.protected" />
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <html:link page="/role.do?edit=submit&id=${nRole.id}">
-                                                        <c:out value="${nRole.role}"/>
-                                                    </html:link>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
+                                <c:if test="${nRole.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
+                                <tr>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${nRole.protectedRole}">
+                                                <c:out value="${nRole.role}"/> - <fmt:message key="beheer.role.protected" />
+                                            </c:when>
+                                            <c:otherwise>
+                                                <html:link page="/role.do?edit=submit&id=${nRole.id}">
+                                                    <c:out value="${nRole.role}"/>
+                                                </html:link>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -77,15 +80,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </table>
                 </div>
                 <script type="text/javascript">
-                    if(document.getElementById('regel_selected')) {
-                        $("#regel_selected").addClass('selected');
-                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
-                    }
-                    $("#server_table").tablesorter({
-                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
-                        sortList: [[0,0]],
-                        textExtraction: linkExtract
-                    });
+                    tablepager(
+                        'server_table',
+                        '930',
+                        '14'
+                    );
                 </script>
             </c:when>
             <c:otherwise>

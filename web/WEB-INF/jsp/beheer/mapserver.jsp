@@ -38,28 +38,25 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 19%;" id="sort_col1"><fmt:message key="beheer.mapserver.table.titel" /></th>
-                                <th style="width: 69%;" id="sort_col2"><fmt:message key="beheer.mapserver.table.url" /></th>
-                                <th style="width: 6%;" id="sort_col3"><fmt:message key="beheer.mapserver.table.wms" /></th>
-                                <th style="width: 6%;" id="sort_col4"><fmt:message key="beheer.mapserver.table.wfs" /></th>
+                                <th style="width: 19%;"><fmt:message key="beheer.mapserver.table.titel" /></th>
+                                <th style="width: 69%;"><fmt:message key="beheer.mapserver.table.url" /></th>
+                                <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wms" /></th>
+                                <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wfs" /></th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
                                 <c:set var="id_selected" value='' />
-                                <c:if test="${nMapfile['id'] == mainid}"><c:set var="id_selected" value=' id="regel_selected"' /></c:if>
-                                <tr onmouseover="showLabel('${nMapfile["id"]}');" onmouseout="hideLabel('${nMapfile["id"]}');"${id_selected}>
-                                    <td style="width: 19%">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <c:out value='${nMapfile["wms_title"]}'/>
-                                        </div>
+                                <c:if test="${nMapfile['id'] == mainid}"><c:set var="id_selected" value='selected' /></c:if>
+                                <tr onmouseover="showLabel('${nMapfile["id"]}');" onmouseout="hideLabel('${nMapfile["id"]}');">
+                                    <td>
+                                        <c:out value='${nMapfile["wms_title"]}'/>
+                                        <input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
-                                    <td style="width: 69%;">
-                                        <div style="width: 100%; overflow: hidden;">
-                                            <c:out value='${nMapfile["wms_onlineresource"]}'/>
-                                        </div>
+                                    <td>
+                                        <c:out value='${nMapfile["wms_onlineresource"]}'/>
                                     </td>
-                                    <td style="width: 6%;">
+                                    <td>
                                         <c:choose>
                                             <c:when test='${empty nMapfile["kb_wms"]}'>
                                                 <html:link page='/server.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
@@ -73,7 +70,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td style="width: 6%;">
+                                    <td>
                                         <c:choose>
                                             <c:when test='${empty nMapfile["kb_wfs"]}'>
                                                 <html:link page='/wfsserver.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
@@ -99,15 +96,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     </table>
                 </div>
                 <script type="text/javascript">
-                    if(document.getElementById('regel_selected')) {
-                        $("#regel_selected").addClass('selected');
-                        if(${hoogte} == 400) $(".scroll").scrollTop(($("#regel_selected").position().top - $("#regel_selected").parent().position().top));
-                    }
-                    $("#server_table").tablesorter({
-                        widgets: ['zebra', 'hoverRows', 'fixedHeaders'],
-                        sortList: [[0,0]],
-                        textExtraction: linkExtract
-                    });
+                    tablepager(
+                        'server_table',
+                        '930',
+                        '14'
+                    );
                 </script>
             </c:when>
             <c:otherwise>
