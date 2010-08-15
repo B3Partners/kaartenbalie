@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.servlet;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
@@ -73,6 +74,16 @@ import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OgcWfsClient;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.HttpVersion;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.serialize.OutputFormat;
@@ -719,5 +730,58 @@ public class CallWMSServlet extends HttpServlet {
             // Decode and parse the authorization credentials
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
+    }
+
+
+
+    public static void main(String[] args) throws UnsupportedEncodingException, IOException, ParserConfigurationException, SAXException {
+        HttpClient client = new HttpClient();
+        client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
+        client.getHttpConnectionManager().getParams().setConnectionTimeout(10000);
+        client.getParams().setAuthenticationPreemptive(true);
+        Credentials defaultcreds = new UsernamePasswordCredentials("Beheerder", "***REMOVED***");
+        AuthScope authScope = new AuthScope("localhost", 8084);
+        client.getState().setCredentials(authScope, defaultcreds);
+
+        HttpMethod method = null;
+
+
+        // POST
+        String postUrl = "http://localhost:8084/kaartenbalie/services/";
+        String postBody = "<GetFeature xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.opengis.net/wfs\" xsi:schemaLocation=\"http://www.opengis.net/wfs ../wfs/1.1.0/WFS.xsd\" version=\"1.0.0\" service=\"WFS\"><Query typeName=\"app:Bestemmingsplangebied\"  /></GetFeature>";
+//        xmlns:app=\"http://bla\"
+        method = new PostMethod(postUrl);
+        //work around voor ESRI post Messages
+        //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
+        ((PostMethod) method).setRequestEntity(new StringRequestEntity(postBody, null, null));
+
+
+        // GET
+//        String getUrl = "http://localhost:8084/kaartenbalie/services/";
+//        method = new GetMethod(getUrl);
+
+        int status = client.executeMethod(method);
+        if (status == HttpStatus.SC_OK) {
+            InputStream is = method.getResponseBodyAsStream();
+            InputStream isx = null;
+            byte[] bytes = null;
+            int len = 1;
+            byte[] buffer = new byte[2024];
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            while ((len = is.read(buffer, 0, buffer.length)) > 0) {
+                bos.write(buffer, 0, len);
+            }
+            bytes = bos.toByteArray();
+            System.out.println(new String(bytes));
+            isx = new ByteArrayInputStream(bytes);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder builder = dbf.newDocumentBuilder();
+            Document doc = builder.parse(isx);
+            System.out.println("parse klaar");
+        }
+
+        System.out.println("klaar");
     }
 }

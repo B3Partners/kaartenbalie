@@ -191,6 +191,8 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 }
 
                 String body = data.getOgcrequest().getXMLBody();
+                log.debug("WFS POST to serviceprovider: '" + prefix + "' with url: '" + spUrl + "' and body:");
+                log.debug(body);
                 // TODO body cleanen
                 if (KBConfiguration.SAVE_MESSAGES) {
                     wfsRequest.setMessageSent(body);
@@ -218,6 +220,8 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                         getUrl.append("&");
                 }
 
+                log.debug("WFS GET to serviceprovider: '" + prefix + "' with url: '" + getUrl.toString() + "'");
+                
                 if (KBConfiguration.SAVE_MESSAGES) {
                     wfsRequest.setMessageSent(getUrl.toString());
                 }
