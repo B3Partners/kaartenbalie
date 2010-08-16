@@ -71,18 +71,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <c:out value="${nOrganization.telephone}"/>
                                     </td>
                                 </tr>
-                                <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
-                                    <strong><fmt:message key="beheer.rights.table.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
-                                    <strong><fmt:message key="beheer.rights.table.adres" />:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
-                                    <strong><fmt:message key="beheer.rights.infolabel.postcode" />:</strong> <c:out value="${nOrganization.postalcode}"/><br />
-                                    <strong><fmt:message key="beheer.rights.table.plaats" />:</strong> <c:out value="${nOrganization.province}"/><br />
-                                    <strong><fmt:message key="beheer.rights.infolabel.land" />:</strong> <c:out value="${nOrganization.country}"/><br />
-                                    <strong><fmt:message key="beheer.rights.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
-                                </div>
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
+                <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
+                    <strong><fmt:message key="beheer.rights.table.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
+                    <strong><fmt:message key="beheer.rights.table.adres" />:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
+                    <strong><fmt:message key="beheer.rights.infolabel.postcode" />:</strong> <c:out value="${nOrganization.postalcode}"/><br />
+                    <strong><fmt:message key="beheer.rights.table.plaats" />:</strong> <c:out value="${nOrganization.province}"/><br />
+                    <strong><fmt:message key="beheer.rights.infolabel.land" />:</strong> <c:out value="${nOrganization.country}"/><br />
+                    <strong><fmt:message key="beheer.rights.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
+                </div>
+                </c:forEach>
                 <script type="text/javascript">
                     tablepager(
                         'server_table',

@@ -189,20 +189,23 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
                                     </td>
                                 </tr>
-                                <div id="infoLabel${nUser.id}" class="infoLabelClass">
-                                    <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
-                                    <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
-                                    <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
-                                    <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.mainOrganization.name}<br />
-                                    <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
-                                    <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
-                                    </c:forEach>
-                                </div>
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
+
+                <c:forEach var="nUser" varStatus="status" items="${userlist}">
+                    <div id="infoLabel${nUser.id}" class="infoLabelClass">
+                        <strong><fmt:message key="beheer.userUsername"/>:</strong> ${nUser.username}<br />
+                        <strong><fmt:message key="beheer.user.infolabel.naam"/>:</strong> ${nUser.firstName} ${nUser.surname}<br />
+                        <strong><fmt:message key="beheer.userEmail"/>:</strong> ${nUser.emailAddress}<br />
+                        <strong><fmt:message key="beheer.userOrganization"/>:</strong> ${nUser.mainOrganization.name}<br />
+                        <strong><fmt:message key="beheer.user.infolabel.rollen"/>:</strong>
+                        <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                            <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                        </c:forEach>
+                    </div>
+                </c:forEach>
 
                 <script type="text/javascript">
                     tablepager(

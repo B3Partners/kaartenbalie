@@ -85,16 +85,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         </c:choose>
                                     </td>
                                 </tr>
-                                <div id="infoLabel${nMapfile["id"]}" class="infoLabelClass">
-                                    <strong><fmt:message key="beheer.mapserver.infolabel.id" />:</strong> <c:out value='${nMapfile["id"]}'/><br />
-                                    <strong><fmt:message key="beheer.mapserver.infolabel.srs" />:</strong> <c:out value='${nMapfile["wms_srs"]}'/><br />
-                                    <strong><fmt:message key="beheer.mapserver.infolabel.bestand" />:</strong> <c:out value='${nMapfile["map"]}'/><br />
-                                    <strong><fmt:message key="beheer.mapserver.table.url" />:</strong> <c:out value='${nMapfile["wms_onlineresource"]}'/><br />
-                                </div>
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
+                <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
+                <div id="infoLabel${nMapfile["id"]}" class="infoLabelClass">
+                    <strong><fmt:message key="beheer.mapserver.infolabel.id" />:</strong> <c:out value='${nMapfile["id"]}'/><br />
+                    <strong><fmt:message key="beheer.mapserver.infolabel.srs" />:</strong> <c:out value='${nMapfile["wms_srs"]}'/><br />
+                    <strong><fmt:message key="beheer.mapserver.infolabel.bestand" />:</strong> <c:out value='${nMapfile["map"]}'/><br />
+                    <strong><fmt:message key="beheer.mapserver.table.url" />:</strong> <c:out value='${nMapfile["wms_onlineresource"]}'/><br />
+                </div>
+                </c:forEach>
                 <script type="text/javascript">
                     tablepager(
                         'server_table',

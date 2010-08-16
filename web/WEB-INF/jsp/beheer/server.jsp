@@ -70,16 +70,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                                     </td>
                                 </tr>
-                                <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
-                                    <strong><fmt:message key="beheer.server.table.naam" />:</strong> ${nServiceProvider.givenName}<br />
-                                    <strong><fmt:message key="beheer.server.table.afkorting" />:</strong> ${nServiceProvider.abbr}<br />
-                                    <strong><fmt:message key="beheer.server.infolabel.url" />:</strong> ${nServiceProvider.url}<br />
-                                    <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
-                                </div>
                             </c:forEach>
                         </tbody>
                     </table>
                 </div>
+                
+                <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
+                    <strong><fmt:message key="beheer.server.table.naam" />:</strong> ${nServiceProvider.givenName}<br />
+                    <strong><fmt:message key="beheer.server.table.afkorting" />:</strong> ${nServiceProvider.abbr}<br />
+                    <strong><fmt:message key="beheer.server.infolabel.url" />:</strong> ${nServiceProvider.url}<br />
+                    <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                </div>
+                </c:forEach>
+
                 <script type="text/javascript">
                     tablepager(
                         'server_table',

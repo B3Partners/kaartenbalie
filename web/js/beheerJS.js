@@ -25,16 +25,18 @@
 var timeout = null;
 function showLabel(objId) {
     var lbl = document.getElementById('infoLabel' + objId);
-    lbl.style.left = xMousePos + 'px';
-    lbl.style.top = yMousePos + 'px';
-    timeout = setTimeout("makeLabelVisible('" + objId  +"')", 200);
+    if(lbl) {
+        lbl.style.left = xMousePos + 'px';
+        lbl.style.top = yMousePos + 'px';
+        timeout = setTimeout("makeLabelVisible('" + objId  +"')", 200);
+    }
 }
 function makeLabelVisible(objId) {
-    document.getElementById('infoLabel' + objId).style.display = 'block';
+    if(document.getElementById('infoLabel' + objId)) document.getElementById('infoLabel' + objId).style.display = 'block';
 }
 function hideLabel(objId) {
     window.clearTimeout(timeout)
-    document.getElementById('infoLabel' + objId).style.display = 'none';
+    if(document.getElementById('infoLabel' + objId)) document.getElementById('infoLabel' + objId).style.display = 'none';
 }
 
 xMousePos = 0;
