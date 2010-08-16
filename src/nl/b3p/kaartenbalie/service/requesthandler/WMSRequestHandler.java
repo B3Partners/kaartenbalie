@@ -632,7 +632,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         for (DescribeLayerData resp : describeLayerData) {
             for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
                 Element layerDescriptionElement = dom.createElement("LayerDescription");
-                layerDescriptionElement.setAttribute("name", resp.getWmsPrefix() + "_" + descr.getName());
+                layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(),descr.getName()));
 
                 descr.getOwsURL();
 
@@ -644,7 +644,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     layerDescriptionElement.setAttribute("owsURL", personalUrl);
 
                     Element queryElement = dom.createElement("Query");
-                    queryElement.setAttribute("typeName", wfsPrefix + "_" + descr.getName()); //this needs to be fixed
+                    queryElement.setAttribute("typeName", completeLayerName(wfsPrefix, descr.getName()) ); //this needs to be fixed
                     layerDescriptionElement.appendChild(queryElement);
                 }
                 rootElement.appendChild(layerDescriptionElement);

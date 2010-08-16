@@ -210,17 +210,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
 
-            String abbr = null, name = null;
-            int idx = layer.indexOf('_');
-            if (idx != -1) {
-                abbr = layer.substring(0, idx);
-                name = layer.substring(idx + 1);
-            }
-
-            if (abbr == null || abbr.length() == 0 || name == null || name.length() == 0) {
-                log.debug("invalid layer name: " + layer);
-                throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + layer);
-            }
+            String[] layerAndCode = toCodeAndName(layer);
+            String abbr = layerAndCode[0];
+            String name = layerAndCode[1];
 
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
 

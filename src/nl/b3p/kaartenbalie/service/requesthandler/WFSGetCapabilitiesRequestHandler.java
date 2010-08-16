@@ -96,6 +96,8 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             }
         }
 
+        // TODO: hieronder wordt iets dubbel gedaan
+        // rol wordt 2x gebruikt om te testen
         // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
         String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin && !isOrgAdmin);
 

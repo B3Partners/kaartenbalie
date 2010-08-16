@@ -40,6 +40,7 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -349,6 +350,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception fout in format lange layer naam
      */
     protected String[] toCodeAndName(String completeLayerName) throws Exception {
+        // TODO: dit gaat eigenlijk niet goed omdat net als bij wfs
+        // de namespace er weer voor gezet moet worden.
         // Check of layers[i] juiste format heeft
         int pos = completeLayerName.indexOf("_");
         if (pos == -1 || completeLayerName.length() <= pos + 1) {
@@ -362,6 +365,14 @@ public abstract class OGCRequestHandler implements RequestHandler {
             throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + completeLayerName);
         }
         return new String[]{layerCode, layerName};
+    }
+
+    protected String completeLayerName(String layerCode, String layerName) throws Exception {
+        if (layerCode==null || layerName==null) {
+            log.error("layer name or code not valid: " + layerCode + ", " + layerName);
+            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + layerCode + ", " + layerName);
+        }
+        return layerCode + "_" + layerName;
     }
 
     /**

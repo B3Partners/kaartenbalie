@@ -181,11 +181,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             HttpMethod  method = null;
             if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
 
-                String filter = ogcrequest.getGetFeatureFilter(sp.getSpAbbr() + "_" + sp.getLayerName());
+                String filter = ogcrequest.getGetFeatureFilter(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
                 if (filter != null) {
                     ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
                 }
-                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(sp.getSpAbbr() + "_" + sp.getLayerName());
+                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
                 if (propertyNames != null) {
                     ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
                 }

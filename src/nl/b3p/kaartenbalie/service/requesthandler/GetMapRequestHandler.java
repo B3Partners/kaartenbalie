@@ -125,7 +125,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!
-                StringBuffer url = createOnlineUrl(spInfo,ogc);
+                StringBuffer url = createOnlineUrl(spInfo, ogc);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
 
@@ -150,8 +150,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                     throw new Exception(KBConfiguration.SRS_EXCEPTION);
                 }
 
-                
-                StringBuffer url = createOnlineUrl(spInfo,ogc);
+
+                StringBuffer url = createOnlineUrl(spInfo, ogc);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
             }
@@ -164,12 +164,13 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
     private StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc) {
         StringBuffer returnValue = new StringBuffer();
-        String layersList = spInfo.getLayersAsString();
+        String layersString = spInfo.getLayersAsString();
+        List layersList = spInfo.getLayers();
         returnValue.append(spInfo.getSpUrl());
-        if (returnValue.indexOf("?")!=returnValue.length()-1 && returnValue.indexOf("&")!= returnValue.length()-1){
-            if (returnValue.indexOf("?")>=0){
+        if (returnValue.indexOf("?") != returnValue.length() - 1 && returnValue.indexOf("&") != returnValue.length() - 1) {
+            if (returnValue.indexOf("?") >= 0) {
                 returnValue.append("&");
-            }else{
+            } else {
                 returnValue.append("?");
             }
         }
@@ -179,7 +180,44 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
                 returnValue.append(OGCConstants.WMS_PARAM_LAYERS);
                 returnValue.append("=");
-                returnValue.append(layersList);
+                returnValue.append(layersString);
+                returnValue.append("&");
+            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_STYLES)) {
+                returnValue.append(OGCConstants.WMS_PARAM_STYLES);
+                returnValue.append("=");
+                try {
+                    if (layersList != null && layersList.size() > 0) {
+                        String stylesParameter = ogc.getParameter(OGCConstants.WMS_PARAM_STYLES);
+                        if (stylesParameter != null && stylesParameter.length() > 0) {
+                            String[] stylesArray = stylesParameter.split(",");
+                            String layersParameter = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS);
+                            if (layersParameter != null && layersParameter.length() > 0) {
+                                String[] layersArray = layersParameter.split(",");
+                                if (stylesArray.length == layersArray.length) {
+                                    StringBuffer stylesString = new StringBuffer();
+                                    Iterator it = layersList.iterator();
+                                    while (it.hasNext()) {
+                                        String l = (String) it.next();
+                                        String completeName = completeLayerName(spInfo.getSpAbbr(), l);
+                                        for (int j = 0; j < layersArray.length; j++) {
+                                            if (completeName.equals(layersArray[j])) {
+                                                String style = stylesArray[j];
+                                                if (stylesString.length() != 0) {
+                                                    stylesString.append(",");
+                                                }
+                                                stylesString.append(style);
+                                            }
+                                        }
+                                    }
+                                    returnValue.append(stylesString);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // so no styles param
+                    log.debug(e);
+                }
                 returnValue.append("&");
             } else {
                 returnValue.append(params[i]);
@@ -197,7 +235,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
      */
     private Set<String> getSRS(int layerId, EntityManager em) {
         Layer l = em.find(Layer.class, layerId);
-        if(l == null) {
+        if (l == null) {
             log.warn("getSRS(): layer with id " + layerId + " not found");
             return new HashSet<String>();
         }
@@ -206,7 +244,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         srses.addAll(getSRSStrings(l.getSrsbb()));
 
-        while(l.getParent() != null) {
+        while (l.getParent() != null) {
             /* This is not the toplayer, so get the SRS's of the
              * layer higher up in the tree
              */
@@ -222,8 +260,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
      */
     private Set<String> getSRSStrings(Set<SrsBoundingBox> entities) {
         Set<String> result = new HashSet<String>();
-        if(entities != null) { /* This check only necessary because Layer.srs isn't initialized in the standard way... */
-            for(SrsBoundingBox srsbb: entities) {
+        if (entities != null) { /* This check only necessary because Layer.srs isn't initialized in the standard way... */
+            for (SrsBoundingBox srsbb : entities) {
                 result.add(srsbb.getSrs());
             }
         }
