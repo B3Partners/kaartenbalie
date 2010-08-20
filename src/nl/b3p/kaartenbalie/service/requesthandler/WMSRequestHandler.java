@@ -339,7 +339,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             String orgBbox = org.getBbox();
             if (orgBbox != null) {
                 String[] values = orgBbox.split(",");
-                if (srsbb == null) {
+
+                if (values.length != 4)
+                    continue;
+
+                if (srsbb.getMinx() == null) {
                     srsbb = new SrsBoundingBox();
                     srsbb.setSrs("EPSG:28992");
                     srsbb.setMinx(values[0]);
