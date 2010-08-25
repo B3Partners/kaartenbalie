@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-<!-- Resource op b3p-demoserver
+<!-- Resource op b3p-demoserver -->
 <Resource
     auth="Container"
     driverClassName="org.postgresql.Driver"
@@ -18,9 +18,9 @@
     validationQuery="select 1"
     minEvictableIdleTimeMillis="10000"
     timeBetweenEvictionRunsMillis="60000"
-/> -->
+/>
 
-<!-- Resource lokaal -->
+<!-- Resource lokaal
 <Resource
     auth="Container"
     driverClassName="org.postgresql.Driver"
@@ -38,5 +38,5 @@
     validationQuery="select 1"
     minEvictableIdleTimeMillis="10000"
     timeBetweenEvictionRunsMillis="60000"
-/>
+/> -->
 </Context>
