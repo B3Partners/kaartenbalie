@@ -1,11 +1,4 @@
 
-    create table _user_orgs (
-        _user number(10,0) not null,
-        organization number(10,0) not null,
-        type varchar2(255 char) not null,
-        primary key (_user, organization, type)
-    );
-
     create table account (
         id number(10,0) not null,
         credit_balance number(15,2),
@@ -377,6 +370,13 @@
         primary key (id)
     );
 
+    create table users_orgs (
+        users number(10,0) not null,
+        organization number(10,0) not null,
+        "TYPE" varchar2(255 char) not null,
+        primary key (users, organization, type)
+    );
+
     create table users_ips (
         users number(10,0) not null,
         ipaddress varchar2(45 char) not null,
@@ -409,16 +409,6 @@
         wfs_version varchar2(50 char) not null,
         primary key (id)
     );
-
-    alter table _user_orgs 
-        add constraint FKBB7B9C848999E2BE 
-        foreign key (organization) 
-        references organization;
-
-    alter table _user_orgs 
-        add constraint FKBB7B9C84A31270CD 
-        foreign key (_user) 
-        references users;
 
     alter table account 
         add constraint FKB9D38A2D435502A6 
@@ -564,6 +554,16 @@
         add constraint FK7FA0D2DE7E3BAC70 
         foreign key (account) 
         references account;
+
+    alter table users_orgs 
+        add constraint FK9457DDE6A4475A2B 
+        foreign key (users) 
+        references users;
+
+    alter table users_orgs 
+        add constraint FK9457DDE68999E2BE 
+        foreign key (organization) 
+        references organization;
 
     alter table users_ips 
         add constraint FK154D1175A4475A2B 
