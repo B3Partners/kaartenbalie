@@ -4,9 +4,14 @@
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <properties>
       <property name="hibernate.connection.datasource" value="java:comp/env/jdbc/kaartenbalie"/>
-      <property name="hibernate.connection.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+      <!-- property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/-->
+
+      <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.xml"/>
+
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
+      <property name="hibernate.show.sql" value="true"/>
     </properties>
   </persistence-unit>
 </persistence>

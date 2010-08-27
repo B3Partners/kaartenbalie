@@ -38,12 +38,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition">
     <comment>Accounting module: geeft opbouw van de prijs van een enkele layer uit een transactie weer</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">layer_price_composition_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <many-to-one name="transaction"/>
     <property name="serverProviderPrefix"/>
     <property name="layerName"/>
@@ -61,12 +58,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing">
     <comment>Accounting module: ingestelde prijs van een layer</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">layer_pricing_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <!-- Loosely relational -->
     <property name="layerName"/>
     <property name="serverProviderPrefix"/>
@@ -85,12 +79,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.accounting.entity.Transaction">
     <comment>Accounting module</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">transaction_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <property name="creditAlteration" precision="12" scale="2"/>
     <property name="transactionDate"/>
     <property name="mutationDate"/>

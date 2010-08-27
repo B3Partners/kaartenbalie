@@ -1,64 +1,15 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Id: hibernate.cfg.xml 2782 2006-03-01 15:56:39Z Matthijs $ -->
 <!DOCTYPE hibernate-configuration PUBLIC
-"-//Hibernate/Hibernate Configuration DTD//EN"
-"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
-<!--
-B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
-for authentication/authorization, pricing and usage reporting.
-
-Copyright 2006, 2007, 2008 B3Partners BV
-
-This file is part of B3P Kaartenbalie.
-
-B3P Kaartenbalie is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-B3P Kaartenbalie is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
--->
+	"-//Hibernate/Hibernate Configuration DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-<session-factory>
-        <!-- No need for it anymore...
-        <property name="connection.datasource">java:comp/env/jdbc/kaartenbalie</property>
-               
-        <property name="show_sql">false</property>
-        <property name="format_sql">false</property>
-        <property name="use_sql_comments">true</property>
-
-        <property name="dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
-        
-        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-        <property name="current_session_context_class">thread</property>
-        
-        <property name="jdbc.batch_size">20</property>
-        -->
-        <!-- Mapping files -->
-        <!-- No need for references to mappings files. Let EM scan for them instead..
-        <mapping resource="attribution.hbm.xml"/>
-        <mapping resource="contactInformation.hbm.xml"/>
-        <mapping resource="organization.hbm.xml"/>
-        <mapping resource="serviceDomainResource.hbm.xml"/>
-        <mapping resource="serviceProvider.hbm.xml"/>
-        <mapping resource="user.hbm.xml"/>
-        <mapping resource="layer.hbm.xml"/>
-        <mapping resource="dimensions.hbm.xml"/>
-        <mapping resource="identifier.hbm.xml"/>
-        <mapping resource="layerDomainResource.hbm.xml"/>
-        <mapping resource="srsboundingbox.hbm.xml"/>
-        <mapping resource="style.hbm.xml"/>
-        <mapping resource="styleDomainResource.hbm.xml"/>
-        <mapping resource="roles.hbm.xml"/>
-        <mapping resource="ipaddresses.hbm.xml"/>
-        <mapping resource="report_serviceproviderrequest.hbm.xml"/>
-        <mapping resource="report_clientrequest.hbm.xml"/>
-        -->
-</session-factory>
+	<session-factory>
+		<!-- Mapping files -->
+		<mapping resource="kaartenbalie.hbm.pg.xml"/>
+		<mapping resource="monitoring.hbm.pg.xml"/>
+		<mapping resource="reporting.hbm.pg.xml"/>
+		<mapping resource="accounting.hbm.pg.xml"/>
+	</session-factory>
 </hibernate-configuration>
 

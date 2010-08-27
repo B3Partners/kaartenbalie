@@ -10,77 +10,87 @@
             <name>kaartenbalie</name>
             <minimum-ant-version>1.6</minimum-ant-version>
             <web-module-libraries>
-                <library>
+                <library dirs="200">
                     <file>${libs.Struts.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.jstl11.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Commons.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Hibernate.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.HibernateEntityManager.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Castor.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Xalan.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Axis.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.jump-b3p.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.Fop-0.20.5.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.b3p-commons-core.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.b3p-commons-gis.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.b3p-commons-hibernate.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.milton-b3p.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.securityfilter-b3p.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.commons-mail-b3p.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.GeotoolsCommon2.5.5.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.GeotoolsOgc2.5.5.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${libs.HibernateTools.classpath}</file>
+                </library>
+                <library dirs="200">
+                    <file>${libs.hibernate-persistence.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${libs.Servlet-2.4.classpath}</file>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>

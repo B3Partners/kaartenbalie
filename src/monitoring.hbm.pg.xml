@@ -24,12 +24,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <hibernate-mapping>
   <class name="nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest">
     <comment>Monitoring module</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">client_request_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <set name="serviceProviderRequests">
       <key column="client_request" not-null="false" update="true"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest"/>
@@ -51,12 +48,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.monitoring.Operation">
     <comment>Monitoring module</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">operation_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <many-to-one column="client_request" name="clientRequest" update="true"/>
     <property name="type"/>
     <property name="duration"/>
@@ -68,12 +62,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
   </class>
   <class name="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest">
     <comment>Monitoring module</comment>
-    <id name="id">
-      <column name="id" sql-type="serial"/>
-      <generator class="native">
-        <param name="sequence">service_provider_request_id_seq</param>
-      </generator>
-    </id>
+		    <id name="id">
+		      <generator class="identity"/>
+		    </id>
     <many-to-one column="client_request" name="clientRequest" update="true"/>
     <property name="bytesSent"/>
     <property name="bytesReceived"/>
