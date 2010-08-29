@@ -5,7 +5,7 @@
 	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 	<session-factory>
-		<!-- Mapping files -->
+		<!-- PG mapping files -->
 		<mapping resource="kaartenbalie.hbm.pg.xml"/>
 		<mapping resource="monitoring.hbm.pg.xml"/>
 		<mapping resource="reporting.hbm.pg.xml"/>

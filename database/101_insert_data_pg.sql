@@ -15,12 +15,12 @@ insert into roles (id, "role") values (5, 'demogebruiker');
     
 select setval('roles_id_seq', (select max(id) from roles));
 
-insert into _user (id, organization, first_name, surname, email_address, username, "password") 
+insert into users (id, organization, first_name, surname, email_address, username, "password") 
 	values (1, 1, 'beheerder', 'beheerder', 'info@b3partners.nl', 'beheerder', 'JMzUf6QkCdc%3D');
 
-select setval('_user_id_seq', (select max(id) from _user));
+select setval('_user_id_seq', (select max(id) from users));
 
-insert into _user_roles (_user, "role") values (1,1);
-insert into _user_roles (_user, "role") values (1,2);
-insert into _user_roles (_user, "role") values (1,3);
-insert into _user_roles (_user, "role") values (1,4);
+insert into users_roles (users, "role") values (1,1);
+insert into users_roles (users, "role") values (1,2);
+insert into users_roles (users, "role") values (1,3);
+insert into users_roles (users, "role") values (1,4);

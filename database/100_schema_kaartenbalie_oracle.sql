@@ -160,7 +160,7 @@
     create table operation (
         id number(10,0) not null,
         client_request number(10,0),
-        type number(10,0),
+        soort number(10,0),
         duration number(19,0),
         ms_since_request_start number(19,0),
         number_of_images number(10,0),
@@ -198,11 +198,6 @@
         organization number(10,0) not null,
         layer number(10,0) not null,
         primary key (organization, layer)
-    );
-
-    create table organization_users (
-        organization number(10,0) not null,
-        _user number(10,0) not null
     );
 
     create table organization_wfs_layers (
@@ -344,7 +339,7 @@
         transaction_date timestamp,
         mutation_date timestamp,
         status number(10,0),
-        type number(10,0),
+        soort number(10,0),
         error_message varchar2(255 char),
         user_id number(10,0),
         description varchar2(32 char),
@@ -370,17 +365,17 @@
         primary key (id)
     );
 
-    create table users_orgs (
-        users number(10,0) not null,
-        organization number(10,0) not null,
-        "TYPE" varchar2(255 char) not null,
-        primary key (users, organization, type)
-    );
-
     create table users_ips (
         users number(10,0) not null,
         ipaddress varchar2(45 char) not null,
         primary key (users, ipaddress)
+    );
+
+    create table users_orgs (
+        organization number(10,0) not null,
+        users number(10,0) not null,
+        soort varchar2(255 char) not null,
+        primary key (organization, users)
     );
 
     create table users_roles (
@@ -480,16 +475,6 @@
         foreign key (layer) 
         references layer;
 
-    alter table organization_users 
-        add constraint FKDABFEBFC8999E2BE 
-        foreign key (organization) 
-        references organization;
-
-    alter table organization_users 
-        add constraint FKDABFEBFCA31270CD 
-        foreign key (_user) 
-        references users;
-
     alter table organization_wfs_layers 
         add constraint FKD17104E98999E2BE 
         foreign key (organization) 
@@ -555,6 +540,11 @@
         foreign key (account) 
         references account;
 
+    alter table users_ips 
+        add constraint FK154D1175A4475A2B 
+        foreign key (users) 
+        references users;
+
     alter table users_orgs 
         add constraint FK9457DDE6A4475A2B 
         foreign key (users) 
@@ -564,11 +554,6 @@
         add constraint FK9457DDE68999E2BE 
         foreign key (organization) 
         references organization;
-
-    alter table users_ips 
-        add constraint FK154D1175A4475A2B 
-        foreign key (users) 
-        references users;
 
     alter table users_roles 
         add constraint FKF6CCD9C6A4475A2B 

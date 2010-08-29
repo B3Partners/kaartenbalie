@@ -1,36 +1,4 @@
 
-    create table _user (
-        id  serial not null,
-        first_name varchar(50) not null,
-        surname varchar(50) not null,
-        email_address varchar(50) not null,
-        username varchar(50) not null,
-        password varchar(50) not null,
-        personalurl varchar(4000),
-        timeout timestamp,
-        default_get_map varchar(4000),
-        primary key (id)
-    );
-
-    create table _user_ips (
-        _user int4 not null,
-        ipaddress varchar(45) not null,
-        primary key (_user, ipaddress)
-    );
-
-    create table _user_orgs (
-        _user int4 not null,
-        organization int4 not null,
-        type varchar(255) not null,
-        primary key (_user, organization, type)
-    );
-
-    create table _user_roles (
-        _user int4 not null,
-        role int4 not null,
-        primary key (_user, role)
-    );
-
     create table account (
         id int4 not null,
         credit_balance numeric(15, 2),
@@ -192,7 +160,7 @@
     create table operation (
         id  serial not null,
         client_request int4,
-        type int4,
+        soort int4,
         duration int8,
         ms_since_request_start int8,
         number_of_images int4,
@@ -209,7 +177,7 @@
         id  serial not null,
         name varchar(50) not null,
         street varchar(50),
-        number varchar(5),
+        streetnumber varchar(5),
         addition varchar(10),
         postalcode varchar(45),
         province varchar(50),
@@ -230,11 +198,6 @@
         organization int4 not null,
         layer int4 not null,
         primary key (organization, layer)
-    );
-
-    create table organization_users (
-        organization int4 not null,
-        _user int4 not null
     );
 
     create table organization_wfs_layers (
@@ -274,7 +237,7 @@
         primary key (id)
     );
 
-    create table service_domain_resource_formats (
+    create table service_domain_resource_fmts (
         service_domain_resource int4 not null,
         format varchar(100) not null,
         primary key (service_domain_resource, format)
@@ -376,7 +339,7 @@
         transaction_date timestamp,
         mutation_date timestamp,
         status int4,
-        type int4,
+        soort int4,
         error_message varchar(255),
         user_id int4,
         description varchar(32),
@@ -388,6 +351,38 @@
 
     comment on table transaction is
         'Accounting module';
+
+    create table users (
+        id  serial not null,
+        first_name varchar(50) not null,
+        surname varchar(50) not null,
+        email_address varchar(50) not null,
+        username varchar(50) not null,
+        password varchar(50) not null,
+        personalurl varchar(4000),
+        timeout timestamp,
+        default_get_map varchar(4000),
+        primary key (id)
+    );
+
+    create table users_ips (
+        users int4 not null,
+        ipaddress varchar(45) not null,
+        primary key (users, ipaddress)
+    );
+
+    create table users_orgs (
+        organization int4 not null,
+        users int4 not null,
+        soort varchar(255) not null,
+        primary key (organization, users)
+    );
+
+    create table users_roles (
+        users int4 not null,
+        role int4 not null,
+        primary key (users, role)
+    );
 
     create table wfs_layer (
         id  serial not null,
@@ -409,31 +404,6 @@
         wfs_version varchar(50) not null,
         primary key (id)
     );
-
-    alter table _user_ips 
-        add constraint FKF5880717A31270CD 
-        foreign key (_user) 
-        references _user;
-
-    alter table _user_orgs 
-        add constraint FKBB7B9C848999E2BE 
-        foreign key (organization) 
-        references organization;
-
-    alter table _user_orgs 
-        add constraint FKBB7B9C84A31270CD 
-        foreign key (_user) 
-        references _user;
-
-    alter table _user_roles 
-        add constraint FKB420EEE8AD40A28B 
-        foreign key (role) 
-        references roles;
-
-    alter table _user_roles 
-        add constraint FKB420EEE8A31270CD 
-        foreign key (_user) 
-        references _user;
 
     alter table account 
         add constraint FKB9D38A2D435502A6 
@@ -505,16 +475,6 @@
         foreign key (layer) 
         references layer;
 
-    alter table organization_users 
-        add constraint FKDABFEBFC8999E2BE 
-        foreign key (organization) 
-        references organization;
-
-    alter table organization_users 
-        add constraint FKDABFEBFCA31270CD 
-        foreign key (_user) 
-        references _user;
-
     alter table organization_wfs_layers 
         add constraint FKD17104E98999E2BE 
         foreign key (organization) 
@@ -535,8 +495,8 @@
         foreign key (service_provider) 
         references service_provider;
 
-    alter table service_domain_resource_formats 
-        add constraint FK1A89EEBCE96D5DFE 
+    alter table service_domain_resource_fmts 
+        add constraint FK709D5A26E96D5DFE 
         foreign key (service_domain_resource) 
         references service_domain_resource;
 
@@ -579,6 +539,31 @@
         add constraint FK7FA0D2DE7E3BAC70 
         foreign key (account) 
         references account;
+
+    alter table users_ips 
+        add constraint FK154D1175A4475A2B 
+        foreign key (users) 
+        references users;
+
+    alter table users_orgs 
+        add constraint FK9457DDE6A4475A2B 
+        foreign key (users) 
+        references users;
+
+    alter table users_orgs 
+        add constraint FK9457DDE68999E2BE 
+        foreign key (organization) 
+        references organization;
+
+    alter table users_roles 
+        add constraint FKF6CCD9C6A4475A2B 
+        foreign key (users) 
+        references users;
+
+    alter table users_roles 
+        add constraint FKF6CCD9C6AD40A28B 
+        foreign key (role) 
+        references roles;
 
     alter table wfs_layer 
         add constraint FKBB3050D69B6DCE00 

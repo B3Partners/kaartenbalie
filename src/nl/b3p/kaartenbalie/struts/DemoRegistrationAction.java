@@ -100,6 +100,9 @@ public class DemoRegistrationAction extends UserAction {
             em.merge(user);
         }
 
+        UserOrganization uorg = new UserOrganization(user, organization, "main");
+        em.persist(uorg);
+
         em.flush();
 
         /*
@@ -189,12 +192,6 @@ public class DemoRegistrationAction extends UserAction {
 
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("organizationName")));
         organization.setTelephone(FormUtils.nullIfEmpty(dynaForm.getString("organizationTelephone")));
-
-        UserOrganization uorg = new UserOrganization();
-        uorg.setOrganization(organization);
-        uorg.setUser(user);
-        uorg.setType("main");
-        user.addUserOrganization(uorg);
 
     }
     // </editor-fold>

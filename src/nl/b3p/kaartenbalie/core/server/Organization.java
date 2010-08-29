@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.wms.capabilities.Layer;
@@ -41,7 +42,7 @@ public class Organization {
     private String visitorsAddress;
     private String telephone;
     private String fax;
-    private Set users;
+    private Set userOrganizations;
     private Set billing;
     private Set layers;
     private Set wfsLayers;
@@ -133,15 +134,32 @@ public class Organization {
         this.fax = fax;
     }
 
-    public Set getUsers() {
-        return users;
+    public Set<User> getUsers() {
+        Set uorgs = this.getUserOrganizations();
+        if (uorgs == null || uorgs.size() == 0) {
+            return null;
+        }
+        Set<User> userSet = null;
+        Iterator it = uorgs.iterator();
+        while (it.hasNext()) {
+            UserOrganization uorg = (UserOrganization) it.next();
+            if (userSet == null) {
+                userSet = new HashSet<User>();
+            }
+            userSet.add(uorg.getUser());
+        }
+        return userSet;
     }
 
-    public void setUsers(Set users) {
-        this.users = users;
+    public Set getUserOrganizations() {
+        return userOrganizations;
     }
 
-    public Set getBilling() {
+     public void setUserOrganizations(Set userOrganizations) {
+        this.userOrganizations = userOrganizations;
+    }
+
+     public Set getBilling() {
         return billing;
     }
 
@@ -262,4 +280,6 @@ public class Organization {
     public boolean getAllowAccountingLayers() {
         return allowAccountingLayers;
     }
+
+
 }

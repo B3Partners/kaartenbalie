@@ -148,14 +148,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <key column="organization"/>
             <many-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer" column="layer" lazy="false"/>
         </set>
-        <set inverse="true" name="users">
+        <set name="userOrganizations" inverse="true" lazy="false">
             <key column="organization"/>
-            <many-to-many class="nl.b3p.kaartenbalie.core.server.User" column="_user" lazy="false"/>
-        </set>
+             <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
+       </set>
         <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
         <property length="50" name="name" not-null="true"/>
         <property length="50" name="street"/>
-        <property length="5" name="number"/>
+        <property length="5" name="number" column="streetnumber"/>
         <property length="10" name="addition"/>
         <property length="45" name="postalcode"/>
         <property length="50" name="province"/>
@@ -170,6 +170,17 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="50" name="code"/>
         <property name="allowAccountingLayers" not-null="true"/>
     </class>
+    <class name="nl.b3p.kaartenbalie.core.server.UserOrganization" mutable="false" table="users_orgs">
+    		<composite-id name="id" class="nl.b3p.kaartenbalie.core.server.UserOrganization$Id">
+    			<key-property name="organizationId" access="field" column="organization"/>
+   				<key-property name="userId" access="field" column="users"/>
+   			</composite-id>
+       	<property name="type" column="soort" not-null="true"/>
+        <many-to-one name="organization" 
+            	column="organization"  not-null="true" insert="false" update="false" lazy="false"/>
+        <many-to-one name="user" 
+            column="users"  not-null="true" insert="false" update="false" lazy="false"/>
+    </class>
     <class name="nl.b3p.wms.capabilities.Roles">
 		    <id name="id">
 		      <generator class="identity"/>
@@ -181,7 +192,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 		      <generator class="identity"/>
 		    </id>
         <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
-        <set lazy="false" name="formats">
+        <set lazy="false" name="formats" table="service_domain_resource_fmts">
             <key column="service_domain_resource" not-null="true"/>
             <element column="format" length="100" not-null="true" type="string"/>
         </set>
@@ -261,24 +272,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="45" name="width"/>
         <property length="45" name="height"/>
     </class>
-    <class name="nl.b3p.kaartenbalie.core.server.User" table="_user">
+    <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
 		    <id name="id">
 		      <generator class="identity"/>
 		    </id>
-        <set lazy="false" name="userOrganizations" table="_user_orgs">
-            <key column="_user"/>
-            <composite-element class="nl.b3p.kaartenbalie.core.server.UserOrganization">
-                <parent name="user"/>
-                <many-to-one name="organization" column="organization" not-null="true" class="nl.b3p.kaartenbalie.core.server.Organization" lazy="false"/>
-                <property name="type" not-null="true"/>
-            </composite-element>
-        </set>
-        <set lazy="false" name="roles">
-            <key column="_user"/>
+         <set name="userOrganizations" inverse="true" lazy="false">
+            <key column="users"/>
+             <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
+       </set>
+       <set lazy="false" name="roles">
+            <key column="users"/>
             <many-to-many class="nl.b3p.wms.capabilities.Roles" column="role" lazy="false"/>
         </set>
         <set cascade="all" lazy="false" name="ips">
-            <key column="_user"/>
+            <key column="users"/>
             <element column="ipaddress" length="45" not-null="true" type="string"/>
         </set>
         <property length="50" name="firstName" not-null="true"/>

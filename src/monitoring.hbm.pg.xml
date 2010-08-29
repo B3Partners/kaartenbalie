@@ -52,7 +52,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 		      <generator class="identity"/>
 		    </id>
     <many-to-one column="client_request" name="clientRequest" update="true"/>
-    <property name="type"/>
+    <property name="type" column="soort"/>
     <property name="duration"/>
     <property name="msSinceRequestStart"/>
     <property name="numberOfImages"/>

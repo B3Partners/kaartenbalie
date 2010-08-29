@@ -21,15 +21,65 @@
  */
 package nl.b3p.kaartenbalie.core.server;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Chris
  */
 public class UserOrganization {
 
+    public static class Id implements Serializable {
+
+        private Integer userId;
+        private Integer organizationId;
+
+        public Id() {
+        }
+
+        public Id(Integer userId, Integer organizationId) {
+            this.organizationId = organizationId;
+            this.userId = userId;
+        }
+
+        public boolean equals(Object o) {
+            if (o != null && o instanceof Id) {
+                Id that = (Id) o;
+                return this.organizationId.equals(that.organizationId)
+                        && this.userId.equals(that.userId);
+            } else {
+                return false;
+            }
+        }
+    }
+    private Id id = new Id();
     private User user;
     private Organization organization;
     private String type;
+
+    public UserOrganization() {
+    }
+
+    public UserOrganization(User user, Organization organization, String type) {
+        this.type = type;
+        this.organization = organization;
+        this.user = user;
+
+        this.id.organizationId = organization.getId();
+        this.id.userId = user.getId();
+
+        organization.getUserOrganizations().add(this);
+        user.getUserOrganizations().add(this);
+
+    }
+
+    public Id getId() {
+        return id;
+    }
+
+    public void setId(Id id) {
+        this.id = id;
+    }
 
     public User getUser() {
         return user;
@@ -53,29 +103,5 @@ public class UserOrganization {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    @Override
-    public boolean equals(Object uo) {
-        if (!(uo instanceof UserOrganization) || uo == null) {
-            return false;
-        }
-        UserOrganization luo = (UserOrganization) uo;
-        if ((luo.organization.getId() == this.organization.getId())
-                && (luo.user.getId() == this.user.getId())
-                && ((this.type != null && this.type.equals(luo.type))
-                || (this.type == null && luo.type == null))) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = this.organization.hashCode() + this.user.hashCode();
-        if (this.type!=null) {
-            hash += this.type.hashCode();
-        }
-        return hash;
     }
 }

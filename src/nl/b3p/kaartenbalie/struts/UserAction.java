@@ -540,7 +540,33 @@ public class UserAction extends KaartenbalieCrudAction {
             // main org is always selected
             orgSelectedSet.add(mainOrgId);
         }
-        user.setUserOrganizations(null);
+
+        Set uorgSet = user.getUserOrganizations();
+        Iterator uoIt = uorgSet.iterator();
+        while (uoIt.hasNext()) {
+            UserOrganization uorg = (UserOrganization) uoIt.next();
+            Iterator it = orgSelectedSet.iterator();
+            boolean found = false;
+            while (it.hasNext()) {
+                String orgId = (String) it.next();
+                if (uorg.getOrganization().getId().toString().equals(orgId)) {
+                    found = true;
+                    it.remove();
+                    break;
+                }
+            }
+            if (found) {
+                if (uorg.getOrganization().getId().toString().equals(mainOrgId)) {
+                    uorg.setType("main");
+                } else {
+                    uorg.setType("sub");
+                }
+                em.merge(uorg);
+            } else {
+                uoIt.remove();
+                em.remove(uorg);
+            }
+        }
         List orgList = em.createQuery("from Organization").getResultList();
         Iterator it = orgSelectedSet.iterator();
         while (it.hasNext()) {
@@ -549,16 +575,15 @@ public class UserAction extends KaartenbalieCrudAction {
             while (it2.hasNext()) {
                 Organization org = (Organization) it2.next();
                 if (org.getId().toString().equals(orgId)) {
-                    UserOrganization uorg = new UserOrganization();
-                    uorg.setOrganization(org);
-                    uorg.setUser(user);
+                    UserOrganization uorg = new UserOrganization(user, org, "sub");
                     if (org.getId().toString().equals(mainOrgId)) {
                         uorg.setType("main");
                     }
-                    user.addUserOrganization(uorg);
+                    em.persist(uorg);
                 }
             }
         }
+
         String[] roleSelected = dynaForm.getStrings("roleSelected");
         int size = roleSelected.length;
         if (size > 0) {

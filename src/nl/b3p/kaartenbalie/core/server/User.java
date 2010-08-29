@@ -45,8 +45,7 @@ public class User implements Principal {
     private Set userOrganizations;
     private Set roles;
     private Set ips;
-    // <editor-fold defaultstate="" desc="getter and setter methods.">
-
+ 
     public Integer getId() {
         return id;
     }

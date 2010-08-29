@@ -243,12 +243,6 @@ public class ServerActionDemo extends WmsServerAction {
         }
         org.setLayers(organizationLayers);
 
-        UserOrganization uorg = new UserOrganization();
-        uorg.setOrganization(org);
-        uorg.setUser(user);
-        uorg.setType("main");
-        user.addUserOrganization(uorg);
-
         if (org.getId() == null) {
             em.persist(org);
         } else {
@@ -259,6 +253,9 @@ public class ServerActionDemo extends WmsServerAction {
         } else {
             em.merge(user);
         }
+        UserOrganization uorg = new UserOrganization(user, org, "main");
+        em.persist(uorg);
+
         em.flush();
         /*
          * Make sure that the system will accept the user already as logged in.

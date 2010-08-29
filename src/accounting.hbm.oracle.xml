@@ -95,7 +95,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property name="transactionDate"/>
     <property name="mutationDate"/>
     <property name="status"/>
-    <property name="type"/>
+    <property name="type" column="soort"/>
     <property name="errorMessage"/>
     <property name="userId"/>
     <property length="32" name="description"/>
