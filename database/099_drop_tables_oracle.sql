@@ -25,6 +25,7 @@ drop table TRANSACTION                     cascade constraints;
 drop table USERS                           cascade constraints;
 drop table USERS_IPS                       cascade constraints;
 drop table USERS_ROLES                     cascade constraints;
+drop table USERS_ORGS                     cascade constraints;
 drop table WFS_LAYER                       cascade constraints;
 drop table CLIENT_REQUEST									 cascade constraints;
 drop table LAYER_PRICING                   cascade constraints;

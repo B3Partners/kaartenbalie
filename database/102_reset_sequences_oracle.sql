@@ -64,44 +64,44 @@ select max(id) from wfs_service_provider;
     drop sequence wfs_service_provider_id_seq;
 
 
-    create sequence client_request_id_seq INCREMENT BY 1 START WITH 4044;
+    create sequence client_request_id_seq INCREMENT BY 1 START WITH 11797;
 
     create sequence dimensions_id_seq INCREMENT BY 1 START WITH 1;
 
     create sequence identifier_id_seq INCREMENT BY 1 START WITH 1;
 
-    create sequence layer_domain_resource_id_seq INCREMENT BY 1 START WITH 84;
+    create sequence layer_domain_resource_id_seq INCREMENT BY 1 START WITH 74;
 
-    create sequence layer_id_seq INCREMENT BY 1 START WITH 130;
+    create sequence layer_id_seq INCREMENT BY 1 START WITH 967;
 
     create sequence layer_price_composition_id_seq INCREMENT BY 1 START WITH 1;
 
-    create sequence layer_pricing_id_seq INCREMENT BY 1 START WITH 1;
+    create sequence layer_pricing_id_seq INCREMENT BY 1 START WITH 4;
 
-    create sequence operation_id_seq INCREMENT BY 1 START WITH 6214;
+    create sequence operation_id_seq INCREMENT BY 1 START WITH 27926;
 
-    create sequence organization_id_seq INCREMENT BY 1 START WITH 3;
+    create sequence organization_id_seq INCREMENT BY 1 START WITH 6;
 
-    create sequence report_id_seq INCREMENT BY 1 START WITH 8;
+    create sequence report_id_seq INCREMENT BY 1 START WITH 11;
 
-    create sequence roles_id_seq INCREMENT BY 1 START WITH 7;
+    create sequence roles_id_seq INCREMENT BY 1 START WITH 6;
 
-    create sequence service_domain_resource_id_seq INCREMENT BY 1 START WITH 27;
+    create sequence service_domain_resource_id_seq INCREMENT BY 1 START WITH 243;
 
-    create sequence service_provider_id_seq INCREMENT BY 1 START WITH 6;
+    create sequence service_provider_id_seq INCREMENT BY 1 START WITH 42;
 
-    create sequence service_provider_req_id_seq INCREMENT BY 1 START WITH 1;
+    create sequence service_provider_req_id_seq INCREMENT BY 1 START WITH 13798;
 
-    create sequence srs_bounding_box_id_seq INCREMENT BY 1 START WITH 1394;
+    create sequence srs_bounding_box_id_seq INCREMENT BY 1 START WITH 3319;
 
-    create sequence style_domain_resource_id_seq INCREMENT BY 1 START WITH 159;
+    create sequence style_domain_resource_id_seq INCREMENT BY 1 START WITH 689;
 
-    create sequence style_id_seq INCREMENT BY 1 START WITH 159;
+    create sequence style_id_seq INCREMENT BY 1 START WITH 689;
 
     create sequence transaction_id_seq INCREMENT BY 1 START WITH 1;
 
-    create sequence users_id_seq INCREMENT BY 1 START WITH 3;
+    create sequence users_id_seq INCREMENT BY 1 START WITH 10;
 
-    create sequence wfs_layer_id_seq INCREMENT BY 1 START WITH 85;
+    create sequence wfs_layer_id_seq INCREMENT BY 1 START WITH 247;
 
-    create sequence wfs_service_provider_id_seq INCREMENT BY 1 START WITH 5;
+    create sequence wfs_service_provider_id_seq INCREMENT BY 1 START WITH 13;
