@@ -41,9 +41,7 @@ public class ServiceProviderRequest {
     private Long msSinceRequestStart;
     private Class exceptionClass;
     private String exceptionMessage;
-
     private ClientRequest clientRequest;
-
     private String wmsVersion;
     private Integer serviceProviderId;
     private String serviceProviderAbbreviation;
@@ -88,8 +86,12 @@ public class ServiceProviderRequest {
     public String getProviderRequestURI() {
         return providerRequestURI;
     }
+    public static final int MAX_LEN = 4000;
 
     public void setProviderRequestURI(String providerRequestURI) {
+        if (providerRequestURI != null && providerRequestURI.length() > MAX_LEN) {
+            providerRequestURI = providerRequestURI.substring(0, MAX_LEN);
+        }
         this.providerRequestURI = providerRequestURI;
     }
 
@@ -172,7 +174,7 @@ public class ServiceProviderRequest {
             return null;
         }
     }
-    
+
     public String getSrs() {
         return srs;
     }
@@ -213,27 +215,33 @@ public class ServiceProviderRequest {
         this.boundingBox = boundingBox;
     }
 
-	public String getMessageSent() {
-		return messageSent;
-	}
+    public String getMessageSent() {
+        return messageSent;
+    }
 
-	public void setMessageSent(String messageSent) {
-		this.messageSent = messageSent;
-	}
+    public void setMessageSent(String messageSent) {
+        if (messageSent != null && messageSent.length() > MAX_LEN) {
+            messageSent = messageSent.substring(0, MAX_LEN);
+        }
+        this.messageSent = messageSent;
+    }
 
-	public String getMessageReceived() {
-		return messageReceived;
-	}
+    public String getMessageReceived() {
+        return messageReceived;
+    }
 
-	public void setMessageReceived(String messageReceived) {
-		this.messageReceived = messageReceived;
-	}
+    public void setMessageReceived(String messageReceived) {
+        if (messageReceived != null && messageReceived.length() > MAX_LEN) {
+            messageReceived = messageReceived.substring(0, MAX_LEN);
+        }
+        this.messageReceived = messageReceived;
+    }
 
-	public String getServiceProviderAbbreviation(){
-		return this.serviceProviderAbbreviation;
-	}
-	
-	public void setServiceProviderAbbreviation(String abbreviation){
-		this.serviceProviderAbbreviation = abbreviation;
-	}
+    public String getServiceProviderAbbreviation() {
+        return this.serviceProviderAbbreviation;
+    }
+
+    public void setServiceProviderAbbreviation(String abbreviation) {
+        this.serviceProviderAbbreviation = abbreviation;
+    }
 }

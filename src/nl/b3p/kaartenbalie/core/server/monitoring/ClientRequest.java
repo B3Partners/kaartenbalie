@@ -77,8 +77,11 @@ public class ClientRequest {
     public String getClientRequestURI() {
         return clientRequestURI;
     }
-
+    public static final int MAX_LEN = 4000;
     public void setClientRequestURI(String clientRequestURI) {
+        if(clientRequestURI != null && clientRequestURI.length() > MAX_LEN) {
+            clientRequestURI = clientRequestURI.substring(0, MAX_LEN);
+        }
         this.clientRequestURI = clientRequestURI;
     }
 
