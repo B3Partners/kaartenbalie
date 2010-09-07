@@ -67,10 +67,6 @@ public class UserOrganization {
 
         this.id.organizationId = organization.getId();
         this.id.userId = user.getId();
-
-        organization.getUserOrganizations().add(this);
-        user.getUserOrganizations().add(this);
-
     }
 
     public Id getId() {
