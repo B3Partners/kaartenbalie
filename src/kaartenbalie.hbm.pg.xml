@@ -288,9 +288,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="users"/>
       <element column="ipaddress" length="45" not-null="true" type="string"/>
     </set>
-    <property length="50" name="firstName" not-null="true"/>
-    <property length="50" name="surname" not-null="true"/>
-    <property length="50" name="emailAddress" not-null="true"/>
+    <property length="50" name="firstName"/>
+    <property length="50" name="surname"/>
+    <property length="50" name="emailAddress"/>
     <property length="50" name="username" not-null="true"/>
     <property length="50" name="password" not-null="true"/>
     <property length="4000" name="personalURL"/>

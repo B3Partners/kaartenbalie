@@ -1,0 +1,6 @@
+ALTER TABLE users
+   ALTER COLUMN first_name DROP NOT NULL;
+ALTER TABLE users
+   ALTER COLUMN surname DROP NOT NULL;
+ALTER TABLE users
+   ALTER COLUMN email_address DROP NOT NULL;

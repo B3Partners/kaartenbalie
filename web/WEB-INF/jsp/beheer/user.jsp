@@ -144,7 +144,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 </script>
 
 <html:javascript formName="userForm" staticJavascript="false"/>
-<html:form action="/user" onsubmit="collectIps(); return validateUserForm(this)" focus="firstname">
+<html:form action="/user" onsubmit="collectIps(); return validateUserForm(this)" focus="username">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -230,18 +230,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                             <td>
                                 <table>
                                     <tr>
-                                        <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
-                                        <td><html:text property="firstname"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
-                                        <td><html:text property="surname"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
-                                        <td><html:text property="emailAddress"/></td>
-                                    </tr>
-                                    <tr>
                                         <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
                                         <td><html:text property="username"/></td>
                                     </tr>
@@ -252,6 +240,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <tr>
                                         <td><B><fmt:message key="beheer.repeatpassword"/>:</B></td>
                                         <td><html:password property="repeatpassword"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.userFirstname"/>:</B></td>
+                                        <td><html:text property="firstname"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.userSurname"/>:</B></td>
+                                        <td><html:text property="surname"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><B><fmt:message key="beheer.userEmail"/>:</B></td>
+                                        <td><html:text property="emailAddress"/></td>
                                     </tr>
                                     <tr>
                                         <td><B>

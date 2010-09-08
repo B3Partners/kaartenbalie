@@ -1,3 +1,5 @@
+ALTER TABLE user_id_seq RENAME TO users_id_seq;
+
 select setval('client_request_id_seq', (select max(id) from client_request));
 select setval('dimensions_id_seq', (select max(id) from dimensions));
 select setval('identifier_id_seq', (select max(id) from identifier));
@@ -16,6 +18,6 @@ select setval('srs_bounding_box_id_seq', (select max(id) from srs_bounding_box))
 select setval('style_domain_resource_id_seq', (select max(id) from style_domain_resource));
 select setval('style_id_seq', (select max(id) from style));
 select setval('transaction_id_seq', (select max(id) from transaction));
-select setval('_user_id_seq', (select max(id) from _user));
+select setval('users_id_seq', (select max(id) from users));
 select setval('wfs_layer_id_seq', (select max(id) from wfs_layer));
 select setval('wfs_service_provider_id_seq', (select max(id) from wfs_service_provider));

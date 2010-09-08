@@ -126,6 +126,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();
+
         if (result == null || result.isEmpty()) {
             log.error("layer not valid or no rights, name: " + layer);
             throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + layer);

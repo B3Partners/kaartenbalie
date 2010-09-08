@@ -254,13 +254,19 @@ public class UserAction extends KaartenbalieCrudAction {
         String lastJoinedMessage = messages.getMessage(locale, LAST_JOINED_KEY);
 
         Organization org = user.getMainOrganization();
-        Set userList = org.getUsers();
+        Set userList = null;
+
+        if (org != null) {
+            userList = org.getUsers();
+        }
+
         if (userList == null || userList.size() <= 1) {
             addAlternateMessage(mapping, request, null, lastJoinedMessage);
         }
 
         prepareMethod(dynaForm, request, DELETE, EDIT);
         addDefaultMessage(mapping, request);
+
         return getDefaultForward(mapping, request);
     }
 
@@ -603,7 +609,7 @@ public class UserAction extends KaartenbalieCrudAction {
                         uorg.setType("main");
                     }
                     
-                    em.persist(uorg);
+                    //em.persist(uorg);
                 }
             }
         }

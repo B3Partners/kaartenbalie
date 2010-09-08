@@ -22,18 +22,10 @@
              </field>
         </form>
         <form name="userForm">
-            <field property="firstname" depends="required"> <!-- required -->
-                <arg0 key="beheer.firstname"/>
-            </field>
-            <field property="surname" depends="required"> <!-- required -->
-                <arg0 key="beheer.surname"/>
-            </field>
-            <field property="emailAddress" depends="required, email"> <!-- required -->
-                <arg0 key="beheer.emailAddress"/>
-            </field>
             <field property="username" depends="required"> <!-- required -->
                 <arg0 key="beheer.username"/>
             </field>
+
             <field property="password" depends="minlength, maxlength">
                 <arg0 key="beheer.password"/>
                 <arg1 name="minlength" key="${var:minlength}" resource="false"/>
@@ -48,6 +40,7 @@
                     <var-value>15</var-value>
                 </var>
             </field>
+
         </form>
         
         <form name="serverForm">

@@ -66,13 +66,17 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private final static String EDIT_RIGHTS = "editRights";
     private final static String LIST_RIGHTS = "listRights";
     private final static String RIGHTSFW = "rights";
+
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
+
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
+
+    protected static final String USER_ORGS_MAINSOORT = "main";
 
     @Override
     protected Map getActionMethodPropertiesMap() {
@@ -262,7 +266,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                     strMessage.append(": ");
                     notFirstUser = true;
                 }
-                strMessage.append(u.getSurname());
+                strMessage.append(u.getUsername());
             }
             addAlternateMessage(mapping, request, null, strMessage.toString());
         }
@@ -306,39 +310,57 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
         log.debug("Getting entity manager ......");
+
         EntityManager em = getEntityManager();
+
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         Organization organization = getOrganization(dynaForm, request, false);
+
         if (null == organization) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         User sessionUser = (User) request.getUserPrincipal();
         Organization sessionOrg = null;
+
         if (sessionUser != null) {
             sessionOrg = sessionUser.getMainOrganization();
         }
+
         if (sessionOrg != null && sessionOrg.getId().equals(organization.getId())) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         Set orgUsers = organization.getUserOrganizations();
-        if (orgUsers!=null){
+
+        if (orgUsers!=null) {
             Iterator it = orgUsers.iterator();
+
             while (it.hasNext()) {
+
                 UserOrganization uo = (UserOrganization)it.next();
+
                 em.remove(uo);
                 it.remove();
+
+                if (uo.getType().equals(USER_ORGS_MAINSOORT)) {
+                    em.remove(uo.getUser());
+                }
             }
         }
+
         em.remove(organization);
         em.flush();
+
         return super.delete(mapping, dynaForm, request, response);
     }
 
