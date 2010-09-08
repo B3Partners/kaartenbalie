@@ -65,10 +65,7 @@
         <form name="organizationForm">
             <field property="name" depends="required">
                 <arg0 key="beheer.name"/>
-            </field>
-            <field property="telephone" depends="required">
-                <arg0 key="beheer.organizationTelephone"/>
-            </field>           
+            </field>          
         </form>
 
         <form name="roleForm">
