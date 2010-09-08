@@ -43,10 +43,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 30%;"><fmt:message key="beheer.rights.table.naam" /></th>
-                                <th style="width: 37%;"><fmt:message key="beheer.rights.table.adres" /></th>
-                                <th style="width: 19%;"><fmt:message key="beheer.rights.table.plaats" /></th>
+                                <th style="width: 20%;"><fmt:message key="beheer.rights.table.naam" /></th>
+                                <th style="width: 25%;"><fmt:message key="beheer.rights.table.adres" /></th>
+                                <th style="width: 10%;"><fmt:message key="beheer.rights.table.plaats" /></th>
                                 <th style="width: 15%;"><fmt:message key="beheer.rights.table.telefoon" /></th>
+                                <th style="width: 30%;"><fmt:message key="beheer.organization.table.bbox" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,6 +70,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     </td>
                                     <td>
                                         <c:out value="${nOrganization.telephone}"/>
+                                    </td>
+                                    <td>
+                                        <c:out value="${nOrganization.bbox}"/>
                                     </td>
                                 </tr>
                             </c:forEach>

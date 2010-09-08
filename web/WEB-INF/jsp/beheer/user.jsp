@@ -159,10 +159,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 24%;"><fmt:message key="beheer.userUsername"/></th>
-                                <th style="width: 24%;"><fmt:message key="beheer.userSurname"/></th>
-                                <th style="width: 38%;"><fmt:message key="beheer.user.table.rollen"/></th>
-                                <th class="{sorter: 'dutchdates'}" style="width: 14%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                                <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
+                                <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
+                                <th style="width: 30%;"><fmt:message key="beheer.user.table.rollen"/></th>
+                                <th class="{sorter: 'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -178,6 +178,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                         <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
                                     <td>
+                                        <c:if test="${!empty nUser.firstName}">
+                                            <c:out value="${nUser.firstName}"/>
+                                        </c:if>
+
                                         <c:out value="${nUser.surname}"/>
                                     </td>
                                     <td>

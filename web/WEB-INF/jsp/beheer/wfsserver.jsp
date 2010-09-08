@@ -45,9 +45,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 47%;"><fmt:message key="beheer.wfsserver.naam"/></th>
-                                <th style="width: 34%;"><fmt:message key="beheer.wfsserver.afkorting"/></th>
-                                <th style="width: 19%;"><fmt:message key="beheer.wfsserver.datumupdate"/></th>
+                                <th style="width: 60%;"><fmt:message key="beheer.wfsserver.naam"/></th>
+                                <th style="width: 20%;"><fmt:message key="beheer.wfsserver.afkorting"/></th>
+                                <th style="width: 20%;"><fmt:message key="beheer.wfsserver.datumupdate"/></th>
                             </tr>
                         </thead>
                         <tbody>

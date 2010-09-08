@@ -46,9 +46,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 47%;"><fmt:message key="beheer.server.table.naam" /></th>
-                                <th style="width: 34%;"><fmt:message key="beheer.server.table.afkorting" /></th>
-                                <th style="width: 19%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
+                                <th style="width: 60%;"><fmt:message key="beheer.server.table.naam" /></th>
+                                <th style="width: 20%;"><fmt:message key="beheer.server.table.afkorting" /></th>
+                                <th style="width: 20%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,16 +57,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <c:set var="id_selected" value='' />
                                 <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
                                 <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
-                                    <td style="width: 47%">
+                                    <td>
                                         <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
                                             <c:out value="${nServiceProvider.givenName}"/>
                                         </html:link>
                                         <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
                                     </td>
-                                    <td style="width: 34%">
+                                    <td>
                                         <c:out value="${nServiceProvider.abbr}"/>
                                     </td>
-                                    <td style="width: 19%">
+                                    <td>
                                         <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                                     </td>
                                 </tr>
