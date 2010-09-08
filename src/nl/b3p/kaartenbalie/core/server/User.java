@@ -27,11 +27,17 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.wms.capabilities.Roles;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class User implements Principal {
+
+    private static final Log log = LogFactory.getLog(User.class);
 
     private Integer id;
     private String firstName;
@@ -42,7 +48,7 @@ public class User implements Principal {
     private String personalURL;
     private String defaultGetMap;
     private Date timeout;
-    private Set userOrganizations;
+    private Set userOrganizations = new HashSet();
     private Set roles;
     private Set ips;
  
@@ -111,18 +117,28 @@ public class User implements Principal {
 
     public String getOrganisationCodes() {
         Set uorgs = this.getUserOrganizations();
-        if (uorgs == null || uorgs.size() == 0) {
-            return null;
-        }
         StringBuffer codes = new StringBuffer();
-        Iterator it = uorgs.iterator();
-        while (it.hasNext()) {
-            if (codes.length() != 0) {
-                codes.append(",");
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+
+            Iterator it = uorgs.iterator();
+            while (it.hasNext()) {
+                if (codes.length() != 0) {
+                    codes.append(",");
+                }
+                UserOrganization uorg = (UserOrganization) it.next();
+                // organization lazy loading causes problems
+                Organization org = em.find(Organization.class, uorg.getOrganization().getId());
+                codes.append(org.getCode());
             }
-            UserOrganization uorg = (UserOrganization) it.next();
-            Organization org = uorg.getOrganization();
-            codes.append(org.getCode());
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
         return codes.toString();
     }
@@ -142,9 +158,6 @@ public class User implements Principal {
 
     private Integer[] getOrganizationIds(String type) {
         Set uorgs = this.getUserOrganizations();
-        if (uorgs == null || uorgs.size() == 0) {
-            return null;
-        }
         Organization fallbackOrg = null;
         ArrayList oidList = new ArrayList();
         Iterator it = uorgs.iterator();
@@ -166,7 +179,7 @@ public class User implements Principal {
 
     public Organization getMainOrganization() {
         Set orgs = getOrganizations("main");
-        if (orgs != null && orgs.size() > 0) {
+        if (orgs.size() > 0) {
             // should never be more than one
             return (Organization) orgs.toArray(new Organization[orgs.size()])[0];
         }
@@ -179,22 +192,33 @@ public class User implements Principal {
 
     private Set getOrganizations(String type) {
         Set uorgs = this.getUserOrganizations();
-        if (uorgs == null || uorgs.size() == 0) {
-            return null;
-        }
-        Organization fallbackOrg = null;
+
         Set oidSet = new HashSet();
-        Iterator it = uorgs.iterator();
-        while (it.hasNext()) {
-            UserOrganization uorg = (UserOrganization) it.next();
-            Organization org = uorg.getOrganization();
-            fallbackOrg = org;
-            if (type == null || (type != null && type.equals(uorg.getType()))) {
-                oidSet.add(org);
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+
+            Organization fallbackOrg = null;
+            Iterator it = uorgs.iterator();
+            while (it.hasNext()) {
+                UserOrganization uorg = (UserOrganization) it.next();
+                // organization lazy loading causes problems
+                Organization org = em.find(Organization.class, uorg.getOrganization().getId());
+                fallbackOrg = org;
+                if (type == null || (type != null && type.equals(uorg.getType()))) {
+                    oidSet.add(org);
+                }
             }
-        }
-        if (oidSet.size() == 0 && fallbackOrg != null) {
-            oidSet.add(fallbackOrg);
+            if (oidSet.size() == 0 && fallbackOrg != null) {
+                oidSet.add(fallbackOrg);
+            }
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
         return oidSet;
     }
@@ -205,17 +229,27 @@ public class User implements Principal {
 
     private Set getLayers(String type) {
         Set uorgs = this.getUserOrganizations();
-        if (uorgs == null || uorgs.size() == 0) {
-            return null;
-        }
         Set layerSet = new HashSet();
-        Iterator it = uorgs.iterator();
-        while (it.hasNext()) {
-            UserOrganization uorg = (UserOrganization) it.next();
-            if (type == null || (type != null && type.equals(uorg.getType()))) {
-                Organization org = uorg.getOrganization();
-                layerSet.addAll(org.getLayers());
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+
+            Iterator it = uorgs.iterator();
+            while (it.hasNext()) {
+                UserOrganization uorg = (UserOrganization) it.next();
+                if (type == null || (type != null && type.equals(uorg.getType()))) {
+                    // organization lazy loading causes problems
+                    Organization org = em.find(Organization.class, uorg.getOrganization().getId());
+                    layerSet.addAll(org.getLayers());
+                }
             }
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
         if (layerSet.size() == 0) {
             return null;

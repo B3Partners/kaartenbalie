@@ -307,10 +307,10 @@ public class UserAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         Set usersOrg = user.getUserOrganizations();
-        if (usersOrg!=null){
+        if (usersOrg != null) {
             Iterator it = usersOrg.iterator();
             while (it.hasNext()) {
-                UserOrganization uo = (UserOrganization)it.next();
+                UserOrganization uo = (UserOrganization) it.next();
                 em.remove(uo);
                 it.remove();
             }
@@ -556,10 +556,8 @@ public class UserAction extends KaartenbalieCrudAction {
         }
 
         Set uorgSet = user.getUserOrganizations();
-
         if (uorgSet != null) {
             Iterator uoIt = uorgSet.iterator();
-
             while (uoIt.hasNext()) {
                 UserOrganization uorg = (UserOrganization) uoIt.next();
                 Iterator it = orgSelectedSet.iterator();
@@ -573,7 +571,6 @@ public class UserAction extends KaartenbalieCrudAction {
                         break;
                     }
                 }
-
                 if (found) {
                     if (uorg.getOrganization().getId().toString().equals(mainOrgId)) {
                         uorg.setType("main");
@@ -588,6 +585,10 @@ public class UserAction extends KaartenbalieCrudAction {
             }
         }
 
+        if (user.getId() == null) {
+            em.persist(user);
+        }
+
         List orgList = em.createQuery("from Organization").getResultList();
         Iterator it = orgSelectedSet.iterator();
 
@@ -598,18 +599,12 @@ public class UserAction extends KaartenbalieCrudAction {
                 Organization org = (Organization) it2.next();
                 if (org.getId().toString().equals(orgId)) {
                     UserOrganization uorg = new UserOrganization(user, org, "sub");
-
-                    if (org.getUserOrganizations() != null)
-                        org.getUserOrganizations().add(uorg);
-
-                    if (user.getUserOrganizations() != null)
-                        user.getUserOrganizations().add(uorg);
-
+//                    org.getUserOrganizations().add(uorg);
+                    user.getUserOrganizations().add(uorg);
                     if (org.getId().toString().equals(mainOrgId)) {
                         uorg.setType("main");
                     }
-                    
-                    //em.persist(uorg);
+                    em.persist(uorg);
                 }
             }
         }

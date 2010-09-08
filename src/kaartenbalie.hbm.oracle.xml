@@ -167,7 +167,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="organization"/>
       <one-to-many class="nl.b3p.kaartenbalie.reporting.Report"/>
     </set>
-    <set cascade="all-delete-orphan" inverse="true" lazy="false" name="userOrganizations">
+    <set inverse="true" lazy="false" name="userOrganizations">
       <key column="organization"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
     </set>
@@ -312,7 +312,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">users_id_seq</param>
       </generator>
     </id>
-    <set cascade="all-delete-orphan" inverse="true" lazy="false" name="userOrganizations">
+    <set inverse="true" lazy="false" name="userOrganizations">
       <key column="users"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
     </set>

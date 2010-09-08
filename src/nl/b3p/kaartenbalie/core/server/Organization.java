@@ -24,10 +24,16 @@ package nl.b3p.kaartenbalie.core.server;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Organization {
+
+    private static final Log log = LogFactory.getLog(User.class);
 
     private Integer id;
     private String name;
@@ -42,7 +48,7 @@ public class Organization {
     private String visitorsAddress;
     private String telephone;
     private String fax;
-    private Set userOrganizations;
+    private Set userOrganizations = new HashSet();
     private Set billing;
     private Set layers;
     private Set wfsLayers;
@@ -53,7 +59,7 @@ public class Organization {
     private String bbox;
     private String code;
     private boolean allowAccountingLayers;
-    // <editor-fold defaultstate="" desc="getter and setter methods.">
+
     public Integer getId() {
         return id;
     }
@@ -136,17 +142,25 @@ public class Organization {
 
     public Set<User> getUsers() {
         Set uorgs = this.getUserOrganizations();
-        if (uorgs == null || uorgs.size() == 0) {
-            return null;
-        }
-        Set<User> userSet = null;
-        Iterator it = uorgs.iterator();
-        while (it.hasNext()) {
-            UserOrganization uorg = (UserOrganization) it.next();
-            if (userSet == null) {
-                userSet = new HashSet<User>();
+        Set<User> userSet = new HashSet<User>();
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+
+            Iterator it = uorgs.iterator();
+            while (it.hasNext()) {
+                UserOrganization uorg = (UserOrganization) it.next();
+                // user lazy loading causes problems
+                User user = em.find(User.class, uorg.getUser().getId());
+                userSet.add(user);
             }
-            userSet.add(uorg.getUser());
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
         return userSet;
     }
