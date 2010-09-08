@@ -231,7 +231,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <div class="serverDetailsClass"> 
                     <table>
                         <tr>
-                            <td>
+                            <td valign="top" style="padding-left: 20px;">
                                 <table>
                                     <tr>
                                         <td><B><fmt:message key="beheer.userUsername"/>:</B></td>
@@ -309,21 +309,32 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                     <tr>
                                         <td colspan="2"><B><fmt:message key="beheer.userOtherOrganizations"/>:</B></td>
                                     </tr>
-                                    <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
-                                        <tr>
-                                            <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
-                                            <td><c:out value="${nOrg.name}" /></td>
-                                        </tr>
-                                    </c:forEach>
-                                    <tr><td>&nbsp;</td></tr>
-                                    <tr><td><B><fmt:message key="beheer.userRole"/>:</B></td></tr>
-                                    <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
-                                        <tr>
-                                            <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
-                                            <td><c:out value="${nRole.role}" /></td>
-                                        </tr>
-                                    </c:forEach>
-
+                                    <tr><td colspan="2">
+                                <div class="orgsHolder">
+                                            <table cellpadding="0px;">
+                                                <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
+                                                    <tr>
+                                                        <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
+                                                        <td><c:out value="${nOrg.name}" /></td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </table>
+                                </div>
+                                        </td></tr>
+                                    <tr><td colspan="2">&nbsp;</td></tr>
+                                    <tr><td colspan="2"><B><fmt:message key="beheer.userRole"/>:</B></td></tr>
+                                    <tr><td colspan="2">
+                                <div class="orgsHolder">
+                                            <table cellpadding="0px;">
+                                                <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
+                                                    <tr>
+                                                        <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
+                                                        <td><c:out value="${nRole.role}" /></td>
+                                                    </tr>
+                                                </c:forEach>
+                                            </table>
+                                </div>
+                                        </td></tr>
                                 </table>
                             </td>
                         </tr>
