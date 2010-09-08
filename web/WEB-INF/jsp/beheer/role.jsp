@@ -98,7 +98,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <div class="serverDetailsClass">
                     <table>
                         <tr>
-                            <td><B><fmt:message key="beheer.name"/>:</B></td>
+                            <td><B><fmt:message key="beheer.rol.name"/>:</B></td>
                             <td><html:text property="name" size="50" /></td>
                         </tr>
                     </table>
