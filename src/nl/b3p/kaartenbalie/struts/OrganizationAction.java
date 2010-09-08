@@ -36,6 +36,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
@@ -326,6 +327,15 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
+        }
+        Set orgUsers = organization.getUserOrganizations();
+        if (orgUsers!=null){
+            Iterator it = orgUsers.iterator();
+            while (it.hasNext()) {
+                UserOrganization uo = (UserOrganization)it.next();
+                em.remove(uo);
+                it.remove();
+            }
         }
         em.remove(organization);
         em.flush();

@@ -300,7 +300,15 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
+        Set usersOrg = user.getUserOrganizations();
+        if (usersOrg!=null){
+            Iterator it = usersOrg.iterator();
+            while (it.hasNext()) {
+                UserOrganization uo = (UserOrganization)it.next();
+                em.remove(uo);
+                it.remove();
+            }
+        }
         em.remove(user);
         em.flush();
         return super.delete(mapping, dynaForm, request, response);

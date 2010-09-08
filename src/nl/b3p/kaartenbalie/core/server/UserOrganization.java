@@ -28,33 +28,8 @@ import java.io.Serializable;
  * @author Chris
  */
 public class UserOrganization {
+    private UserOrganizationId key;
 
-    public static class Id implements Serializable {
-
-        private Integer userId;
-        private Integer organizationId;
-
-        public Id() {
-        }
-
-        public Id(Integer userId, Integer organizationId) {
-            this.organizationId = organizationId;
-            this.userId = userId;
-        }
-
-        public boolean equals(Object o) {
-            if (o != null && o instanceof Id) {
-                Id that = (Id) o;
-                return this.organizationId.equals(that.organizationId)
-                        && this.userId.equals(that.userId);
-            } else {
-                return false;
-            }
-        }
-    }
-    private Id id = new Id();
-    private User user;
-    private Organization organization;
     private String type;
 
     public UserOrganization() {
@@ -62,35 +37,24 @@ public class UserOrganization {
 
     public UserOrganization(User user, Organization organization, String type) {
         this.type = type;
-        this.organization = organization;
-        this.user = user;
-
-        this.id.organizationId = organization.getId();
-        this.id.userId = user.getId();
+        this.setKey(new UserOrganizationId(organization, user));
     }
 
-    public Id getId() {
-        return id;
+    public UserOrganizationId getKey() {
+        return key;
     }
 
-    public void setId(Id id) {
-        this.id = id;
+    public void setKey(UserOrganizationId key) {
+        this.key = key;
     }
+
 
     public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+        return getKey().getUser();
     }
 
     public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization org) {
-        this.organization = org;
+        return getKey().getOrganization();
     }
 
     public String getType() {
