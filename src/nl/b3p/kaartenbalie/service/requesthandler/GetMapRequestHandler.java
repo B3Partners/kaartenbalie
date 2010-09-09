@@ -195,20 +195,23 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                 String[] layersArray = layersParameter.split(",");
                                 if (stylesArray.length == layersArray.length) {
                                     StringBuffer stylesString = new StringBuffer();
-                                    Iterator it = layersList.iterator();
-                                    while (it.hasNext()) {
-                                        String l = (String) it.next();
-                                        String completeName = completeLayerName(spInfo.getSpAbbr(), l);
-                                        for (int j = 0; j < layersArray.length; j++) {
+
+                                    for (int j = 0; j < layersArray.length; j++) {
+                                        Iterator it = layersList.iterator();
+                                        while (it.hasNext()) {
+                                            String l = (String) it.next();
+                                            String completeName = completeLayerName(spInfo.getSpAbbr(), l);
                                             if (completeName.equals(layersArray[j])) {
                                                 String style = stylesArray[j];
                                                 if (stylesString.length() != 0) {
                                                     stylesString.append(",");
                                                 }
                                                 stylesString.append(style);
+                                                break;
                                             }
                                         }
                                     }
+ 
                                     returnValue.append(stylesString);
                                 }
                             }
