@@ -22,11 +22,8 @@
 package nl.b3p.kaartenbalie.core.server;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,12 +45,13 @@ public class Organization {
     private String visitorsAddress;
     private String telephone;
     private String fax;
-    private Set userOrganizations = new HashSet();
-    private Set billing;
-    private Set layers;
-    private Set wfsLayers;
-    private Set reports;
-    private Set reportStatus;
+    private Set users = new HashSet();
+    private Set mainUsers = new HashSet();
+    private Set billing = new HashSet();
+    private Set layers = new HashSet();
+    private Set wfsLayers = new HashSet();
+    private Set reports = new HashSet();
+    private Set reportStatus = new HashSet();
     private Account account;
     private boolean hasValidGetCapabilities;
     private String bbox;
@@ -140,40 +138,8 @@ public class Organization {
         this.fax = fax;
     }
 
-    public Set<User> getUsers() {
-        Set uorgs = this.getUserOrganizations();
-        Set<User> userSet = new HashSet<User>();
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
-            log.debug("Getting entity manager ......");
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
-            Iterator it = uorgs.iterator();
-            while (it.hasNext()) {
-                UserOrganization uorg = (UserOrganization) it.next();
-                // user lazy loading causes problems
-                User user = em.find(User.class, uorg.getUser().getId());
-                userSet.add(user);
-            }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
-        }
-        return userSet;
-    }
-
-    public Set getUserOrganizations() {
-        return userOrganizations;
-    }
-
-     public void setUserOrganizations(Set userOrganizations) {
-        this.userOrganizations = userOrganizations;
-    }
-
-     public Set getBilling() {
+    public Set getBilling() {
         return billing;
     }
 
@@ -293,6 +259,34 @@ public class Organization {
 
     public boolean getAllowAccountingLayers() {
         return allowAccountingLayers;
+    }
+
+    /**
+     * @return the users
+     */
+    public Set getUsers() {
+        return users;
+    }
+
+    /**
+     * @param users the users to set
+     */
+    public void setUsers(Set users) {
+        this.users = users;
+    }
+
+    /**
+     * @return the mainUsers
+     */
+    public Set getMainUsers() {
+        return mainUsers;
+    }
+
+    /**
+     * @param mainUsers the mainUsers to set
+     */
+    public void setMainUsers(Set mainUsers) {
+        this.mainUsers = mainUsers;
     }
 
 

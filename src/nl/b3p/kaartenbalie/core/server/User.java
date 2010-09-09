@@ -48,9 +48,10 @@ public class User implements Principal {
     private String personalURL;
     private String defaultGetMap;
     private Date timeout;
-    private Set userOrganizations = new HashSet();
-    private Set roles;
-    private Set ips;
+    private Organization mainOrganization;
+    private Set organizations = new HashSet();
+    private Set roles = new HashSet();
+    private Set ips = new HashSet();
  
     public Integer getId() {
         return id;
@@ -100,156 +101,76 @@ public class User implements Principal {
         this.password = password;
     }
 
-    public Set getUserOrganizations() {
-        return userOrganizations;
+    public Set getOrganizations() {
+        return organizations;
     }
 
-    public void setUserOrganizations(Set userOrganizations) {
-        this.userOrganizations = userOrganizations;
+    public void setOrganizations(Set organizations) {
+        this.organizations = organizations;
     }
 
-    public void addUserOrganization(UserOrganization uo) {
-        if (userOrganizations == null) {
-            userOrganizations = new HashSet();
-        }
-        userOrganizations.add(uo);
+    public void addOrganization(Organization o) {
+        organizations.add(o);
     }
 
     public String getOrganisationCodes() {
-        Set uorgs = this.getUserOrganizations();
+        Set orgs = new HashSet(getOrganizations());
+        Organization mainOrg = getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
         StringBuffer codes = new StringBuffer();
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
-            log.debug("Getting entity manager ......");
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
-
-            Iterator it = uorgs.iterator();
-            while (it.hasNext()) {
-                if (codes.length() != 0) {
-                    codes.append(",");
-                }
-                UserOrganization uorg = (UserOrganization) it.next();
-                // organization lazy loading causes problems
-                Organization org = em.find(Organization.class, uorg.getOrganization().getId());
-                codes.append(org.getCode());
+        Iterator it = orgs.iterator();
+        while (it.hasNext()) {
+            if (codes.length() != 0) {
+                codes.append(",");
             }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
+            Organization org = (Organization) it.next();
+            codes.append(org.getCode());
         }
         return codes.toString();
     }
 
-    public Integer[] getOrganizationIds() {
-        return getOrganizationIds(null);
-    }
-
     public Integer getMainOrganizationId() {
-        Integer[] oids = getOrganizationIds("main");
-        if (oids.length > 0) {
-            // should never be more than one
-            return oids[0];
-        }
-        return null;
+        return getMainOrganization().getId();
     }
 
-    private Integer[] getOrganizationIds(String type) {
-        Set uorgs = this.getUserOrganizations();
-        Organization fallbackOrg = null;
+    public Integer[] getOrganizationIds() {
+        Set orgs = new HashSet(getOrganizations());
+        Organization mainOrg = getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
         ArrayList oidList = new ArrayList();
-        Iterator it = uorgs.iterator();
+        Iterator it = orgs.iterator();
         while (it.hasNext()) {
-            UserOrganization uorg = (UserOrganization) it.next();
-            Organization org = uorg.getOrganization();
-            fallbackOrg = org;
-            if (type == null || (type != null && type.equals(uorg.getType()))) {
-                oidList.add(org.getId());
-            }
-        }
-        if (oidList.size() == 0 && fallbackOrg != null) {
-            oidList.add(fallbackOrg);
-        }
+            Organization org = (Organization) it.next();
+            oidList.add(org.getId());
+         }
         Integer[] orgIds = new Integer[oidList.size()];
         orgIds = (Integer[]) oidList.toArray(orgIds);
         return orgIds;
     }
 
+    public void setMainOrganization(Organization mainOrganization) {
+        this.mainOrganization = mainOrganization;
+    }
+
     public Organization getMainOrganization() {
-        Set orgs = getOrganizations("main");
-        if (orgs.size() > 0) {
-            // should never be more than one
-            return (Organization) orgs.toArray(new Organization[orgs.size()])[0];
-        }
-        return null;
-    }
-
-    public Set getOrganizations() {
-        return getOrganizations(null);
-    }
-
-    private Set getOrganizations(String type) {
-        Set uorgs = this.getUserOrganizations();
-
-        Set oidSet = new HashSet();
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
-            log.debug("Getting entity manager ......");
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
-
-            Organization fallbackOrg = null;
-            Iterator it = uorgs.iterator();
-            while (it.hasNext()) {
-                UserOrganization uorg = (UserOrganization) it.next();
-                // organization lazy loading causes problems
-                Organization org = em.find(Organization.class, uorg.getOrganization().getId());
-                fallbackOrg = org;
-                if (type == null || (type != null && type.equals(uorg.getType()))) {
-                    oidSet.add(org);
-                }
-            }
-            if (oidSet.size() == 0 && fallbackOrg != null) {
-                oidSet.add(fallbackOrg);
-            }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
-        }
-        return oidSet;
+        return mainOrganization;
     }
 
     public Set getLayers() {
-        return getLayers(null);
-    }
-
-    private Set getLayers(String type) {
-        Set uorgs = this.getUserOrganizations();
+        Set orgs = new HashSet(getOrganizations());
+        Organization mainOrg = getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
         Set layerSet = new HashSet();
-        Object identity = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
-            log.debug("Getting entity manager ......");
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
-
-            Iterator it = uorgs.iterator();
-            while (it.hasNext()) {
-                UserOrganization uorg = (UserOrganization) it.next();
-                if (type == null || (type != null && type.equals(uorg.getType()))) {
-                    // organization lazy loading causes problems
-                    Organization org = em.find(Organization.class, uorg.getOrganization().getId());
-                    layerSet.addAll(org.getLayers());
-                }
-            }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
+        Iterator it = orgs.iterator();
+        while (it.hasNext()) {
+            Organization org = (Organization) it.next();
+            layerSet.addAll(org.getLayers());
         }
         if (layerSet.size() == 0) {
             return null;
@@ -385,4 +306,5 @@ public class User implements Principal {
         hash = 29 * hash + (this.username != null ? this.username.hashCode() : 0);
         return hash;
     }
+
 }

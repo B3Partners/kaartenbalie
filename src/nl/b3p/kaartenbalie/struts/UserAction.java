@@ -306,15 +306,6 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        Set usersOrg = user.getUserOrganizations();
-        if (usersOrg != null) {
-            Iterator it = usersOrg.iterator();
-            while (it.hasNext()) {
-                UserOrganization uo = (UserOrganization) it.next();
-                em.remove(uo);
-                it.remove();
-            }
-        }
         em.remove(user);
         em.flush();
         return super.delete(mapping, dynaForm, request, response);
@@ -470,20 +461,19 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("roleSelected", roleSelected);
 
         String[] orgSelected = null;
-        Set uorgs = user.getOrganizations();
-        if (uorgs != null && !uorgs.isEmpty()) {
-            ArrayList orgSet = new ArrayList(uorgs);
-            orgSelected = new String[orgSet.size()];
-            for (int i = 0; i < orgSet.size(); i++) {
-                Organization org = (Organization) orgSet.get(i);
-                orgSelected[i] = FormUtils.IntegerToString(org.getId());
-            }
+        Set orgs = user.getOrganizations();
+        ArrayList orgSet = new ArrayList(orgs);
+        Organization mainOrg = user.getMainOrganization();
+        if (!orgSet.contains(mainOrg)) {
+            orgSet.add(mainOrg);
+        }
+        orgSelected = new String[orgSet.size()];
+        for (int i = 0; i < orgSet.size(); i++) {
+            Organization org = (Organization) orgSet.get(i);
+            orgSelected[i] = FormUtils.IntegerToString(org.getId());
         }
         dynaForm.set("orgSelected", orgSelected);
-        Organization mainOrg = user.getMainOrganization();
-        if (mainOrg != null) {
-            dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
-        }
+        dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
 
         StringBuffer registeredIP = new StringBuffer();
         Set userips = user.getIps();
@@ -555,38 +545,29 @@ public class UserAction extends KaartenbalieCrudAction {
             orgSelectedSet.add(mainOrgId);
         }
 
-        Set uorgSet = user.getUserOrganizations();
-        if (uorgSet != null) {
-            Iterator uoIt = uorgSet.iterator();
-            while (uoIt.hasNext()) {
-                UserOrganization uorg = (UserOrganization) uoIt.next();
-                Iterator it = orgSelectedSet.iterator();
-                boolean found = false;
+        Set orgSet = user.getOrganizations();
+        Iterator oIt = orgSet.iterator();
+        while (oIt.hasNext()) {
+            Organization org = (Organization) oIt.next();
+            Iterator it = orgSelectedSet.iterator();
+            boolean found = false;
 
-                while (it.hasNext()) {
-                    String orgId = (String) it.next();
-                    if (uorg.getOrganization().getId().toString().equals(orgId)) {
-                        found = true;
-                        it.remove();
-                        break;
-                    }
-                }
-                if (found) {
-                    if (uorg.getOrganization().getId().toString().equals(mainOrgId)) {
-                        uorg.setType("main");
-                    } else {
-                        uorg.setType("sub");
-                    }
-                    em.merge(uorg);
-                } else {
-                    uoIt.remove();
-                    em.remove(uorg);
+            while (it.hasNext()) {
+                String orgId = (String) it.next();
+                if (org.getId().toString().equals(orgId)) {
+                    found = true;
+                    it.remove();
+                    break;
                 }
             }
-        }
-
-        if (user.getId() == null) {
-            em.persist(user);
+            if (found) {
+                if (org.getId().toString().equals(mainOrgId)) {
+                    user.setMainOrganization(org);
+                }
+            } else {
+                oIt.remove();
+//                em.remove(org);
+            }
         }
 
         List orgList = em.createQuery("from Organization").getResultList();
@@ -598,13 +579,10 @@ public class UserAction extends KaartenbalieCrudAction {
             while (it2.hasNext()) {
                 Organization org = (Organization) it2.next();
                 if (org.getId().toString().equals(orgId)) {
-                    UserOrganization uorg = new UserOrganization(user, org, "sub");
-//                    org.getUserOrganizations().add(uorg);
-                    user.getUserOrganizations().add(uorg);
+                    user.addOrganization(org);
                     if (org.getId().toString().equals(mainOrgId)) {
-                        uorg.setType("main");
+                        user.setMainOrganization(org);
                     }
-                    em.persist(uorg);
                 }
             }
         }

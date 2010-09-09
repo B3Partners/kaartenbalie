@@ -124,7 +124,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             organizationLayers.addAll(layerlist);
         } else {
             Set orgs = user.getOrganizations();
-
+            Organization mainOrg = user.getMainOrganization();
+            if (!orgs.contains(mainOrg)) {
+                orgs.add(mainOrg);
+            }
             if (orgs != null) {
                 Iterator it = orgs.iterator();
                 while (it.hasNext()) {
@@ -293,15 +296,16 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          */
         boolean allowAccountingLayers = false;
         Set orgs = dbUser.getOrganizations();
-
-        if (orgs != null) {
-            Iterator it = orgs.iterator();
-            while (it.hasNext()) {
-                Organization org = (Organization) it.next();
-                if (org.getAllowAccountingLayers()) {
-                    allowAccountingLayers = true;
-                    break;
-                }
+        Organization mainOrg = user.getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
+        Iterator it = orgs.iterator();
+        while (it.hasNext()) {
+            Organization org = (Organization) it.next();
+            if (org.getAllowAccountingLayers()) {
+                allowAccountingLayers = true;
+                break;
             }
         }
 
@@ -333,35 +337,38 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     private SrsBoundingBox calcSrsBoundingBox(User user) {
         SrsBoundingBox srsbb = new SrsBoundingBox();
         Set orgs = user.getOrganizations();
+        Organization mainOrg = user.getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
 
-        if (orgs != null) {
-            Iterator it = orgs.iterator();
-            while (it.hasNext()) {
-                Organization org = (Organization) it.next();
-                String orgBbox = org.getBbox();
-                if (orgBbox != null) {
-                    String[] values = orgBbox.split(",");
+        Iterator it = orgs.iterator();
+        while (it.hasNext()) {
+            Organization org = (Organization) it.next();
+            String orgBbox = org.getBbox();
+            if (orgBbox != null) {
+                String[] values = orgBbox.split(",");
 
-                    if (values.length != 4)
-                        continue;
+                if (values.length != 4) {
+                    continue;
+                }
 
-                    if (srsbb.getMinx() == null) {
-                        srsbb = new SrsBoundingBox();
-                        srsbb.setSrs("EPSG:28992");
-                        srsbb.setMinx(values[0]);
-                        srsbb.setMiny(values[1]);
-                        srsbb.setMaxx(values[2]);
-                        srsbb.setMaxy(values[3]);
-                    } else {
-                        srsbb.setMinx(Float.toString(Math.min(Float.parseFloat(srsbb.getMinx()),Float.parseFloat(values[0]))));
-                        srsbb.setMiny(Float.toString(Math.min(Float.parseFloat(srsbb.getMiny()),Float.parseFloat(values[1]))));
-                        srsbb.setMaxx(Float.toString(Math.max(Float.parseFloat(srsbb.getMaxx()),Float.parseFloat(values[2]))));
-                        srsbb.setMaxy(Float.toString(Math.max(Float.parseFloat(srsbb.getMaxy()),Float.parseFloat(values[3]))));
-                    }
+                if (srsbb.getMinx() == null) {
+                    srsbb = new SrsBoundingBox();
+                    srsbb.setSrs("EPSG:28992");
+                    srsbb.setMinx(values[0]);
+                    srsbb.setMiny(values[1]);
+                    srsbb.setMaxx(values[2]);
+                    srsbb.setMaxy(values[3]);
+                } else {
+                    srsbb.setMinx(Float.toString(Math.min(Float.parseFloat(srsbb.getMinx()), Float.parseFloat(values[0]))));
+                    srsbb.setMiny(Float.toString(Math.min(Float.parseFloat(srsbb.getMiny()), Float.parseFloat(values[1]))));
+                    srsbb.setMaxx(Float.toString(Math.max(Float.parseFloat(srsbb.getMaxx()), Float.parseFloat(values[2]))));
+                    srsbb.setMaxy(Float.toString(Math.max(Float.parseFloat(srsbb.getMaxy()), Float.parseFloat(values[3]))));
                 }
             }
         }
-        
+
         return srsbb;
     }
 

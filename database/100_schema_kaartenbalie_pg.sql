@@ -354,9 +354,10 @@
 
     create table users (
         id  serial not null,
-        first_name varchar(50) not null,
-        surname varchar(50) not null,
-        email_address varchar(50) not null,
+        main_organization int4 not null,
+        first_name varchar(50),
+        surname varchar(50),
+        email_address varchar(50),
         username varchar(50) not null,
         password varchar(50) not null,
         personalurl varchar(4000),
@@ -374,7 +375,6 @@
     create table users_orgs (
         organization int4 not null,
         users int4 not null,
-        soort varchar(255) not null,
         primary key (organization, users)
     );
 
@@ -539,6 +539,11 @@
         add constraint FK7FA0D2DE7E3BAC70 
         foreign key (account) 
         references account;
+
+    alter table users 
+        add constraint FK6A68E08C51D1B84 
+        foreign key (main_organization) 
+        references organization;
 
     alter table users_ips 
         add constraint FK154D1175A4475A2B 

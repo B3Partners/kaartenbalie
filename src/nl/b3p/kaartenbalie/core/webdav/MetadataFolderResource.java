@@ -54,6 +54,10 @@ public class MetadataFolderResource extends MetadataResource implements Collecti
 
             User lUser = em.find(User.class, user.getId());
             Set orgs = lUser.getOrganizations();
+            Organization mainOrg = lUser.getMainOrganization();
+            if (!orgs.contains(mainOrg)) {
+                orgs.add(mainOrg);
+            }
             Iterator it = orgs.iterator();
             while (it.hasNext()) {
                 Organization org = (Organization) it.next();

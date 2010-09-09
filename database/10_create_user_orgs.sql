@@ -1,34 +1,30 @@
 CREATE
-    TABLE _user_orgs
+    TABLE users_orgs
     (
-        _user INTEGER NOT NULL,
-        organization INTEGER NOT NULL,
-        type varchar(255),
-        PRIMARY KEY (_user, organization),
-        CONSTRAINT _user_orgs__user_fkey FOREIGN KEY (_user) REFERENCES _user (id),
-        CONSTRAINT _user_orgs_organization_fkey FOREIGN KEY (organization) REFERENCES organization (id)
+        users INTEGER NOT NULL,
+        organization INTEGER NOT NULL
+        PRIMARY KEY (users, organization),
+        CONSTRAINT users_orgs__user_fkey FOREIGN KEY (users) REFERENCES users (id),
+        CONSTRAINT users_orgs_organization_fkey FOREIGN KEY (organization) REFERENCES organization (id)
     );
     
 INSERT
 INTO
-    _user_orgs
+    users_orgs
     (
-        _user,
-        organization,
-        type
+        users,
+        organization
     )
 SELECT DISTINCT
-    _user.id,
-    organization.id,
-    'main'
+    users.id,
+    organization.id
 FROM
-    _user
+    users
 INNER JOIN organization
 ON
     (
-        _user.organization = organization.id
+        users.organization = organization.id
     ) ;
     
-ALTER TABLE _user DROP COLUMN organization;
-
+ALTER TABLE users RENAME COLUMN organization TO main_organization;
 

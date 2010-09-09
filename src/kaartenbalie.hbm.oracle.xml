@@ -167,9 +167,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="organization"/>
       <one-to-many class="nl.b3p.kaartenbalie.reporting.Report"/>
     </set>
-    <set inverse="true" lazy="false" name="userOrganizations">
+    <set cascade="all-delete-orphan" inverse="true" name="mainUsers">
+      <key column="mainOrganization"/>
+      <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
+    </set>
+    <set lazy="false" name="users" table="users_orgs" cascade="save-update">
       <key column="organization"/>
-      <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
+      <many-to-many class="nl.b3p.kaartenbalie.core.server.User" column="users"/>
     </set>
     <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
     <property length="50" name="name" not-null="true"/>
@@ -188,13 +192,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property length="50" name="bbox"/>
     <property length="50" name="code"/>
     <property name="allowAccountingLayers" not-null="true"/>
-  </class>
-  <class name="nl.b3p.kaartenbalie.core.server.UserOrganization" table="users_orgs">
-    <composite-id name="key">
-      <key-many-to-one name="organization"/>
-      <key-many-to-one column="users" name="user"/>
-    </composite-id>
-    <property column="soort" name="type" not-null="true"/>
   </class>
   <class name="nl.b3p.wms.capabilities.Roles">
     <id name="id">
@@ -312,9 +309,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <param name="sequence">users_id_seq</param>
       </generator>
     </id>
-    <set inverse="true" lazy="false" name="userOrganizations">
+    <many-to-one name="mainOrganization" lazy="false" not-null="true"/>
+    <set lazy="false" name="organizations" table="users_orgs"
+        cascade="save-update" inverse="true">
       <key column="users"/>
-      <one-to-many class="nl.b3p.kaartenbalie.core.server.UserOrganization"/>
+      <many-to-many class="nl.b3p.kaartenbalie.core.server.Organization"
+        column="organization"/>
     </set>
     <set lazy="false" name="roles">
       <key column="users"/>
