@@ -36,7 +36,6 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.Account;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
@@ -344,7 +343,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         Iterator it = users.iterator();
         while (it.hasNext()) {
             User u = (User) it.next();
-//            em.remove(u);
+            em.remove(u);
             it.remove();
         }
 

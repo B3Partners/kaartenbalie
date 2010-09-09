@@ -41,7 +41,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.ogc.utils.KBConfiguration;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
@@ -545,31 +544,7 @@ public class UserAction extends KaartenbalieCrudAction {
             orgSelectedSet.add(mainOrgId);
         }
 
-        Set orgSet = user.getOrganizations();
-        Iterator oIt = orgSet.iterator();
-        while (oIt.hasNext()) {
-            Organization org = (Organization) oIt.next();
-            Iterator it = orgSelectedSet.iterator();
-            boolean found = false;
-
-            while (it.hasNext()) {
-                String orgId = (String) it.next();
-                if (org.getId().toString().equals(orgId)) {
-                    found = true;
-                    it.remove();
-                    break;
-                }
-            }
-            if (found) {
-                if (org.getId().toString().equals(mainOrgId)) {
-                    user.setMainOrganization(org);
-                }
-            } else {
-                oIt.remove();
-//                em.remove(org);
-            }
-        }
-
+        user.setOrganizations(new HashSet());
         List orgList = em.createQuery("from Organization").getResultList();
         Iterator it = orgSelectedSet.iterator();
 

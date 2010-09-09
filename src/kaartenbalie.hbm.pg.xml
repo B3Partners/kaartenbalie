@@ -156,7 +156,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="mainOrganization"/>
       <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
     </set>
-    <set lazy="false" name="users" table="users_orgs" cascade="save-update">
+    <set lazy="false" name="users" table="users_orgs" inverse="true" cascade="save-update">
       <key column="organization"/>
       <many-to-many class="nl.b3p.kaartenbalie.core.server.User" column="users"/>
     </set>
@@ -274,8 +274,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <generator class="identity"/>
     </id>
     <many-to-one name="mainOrganization" lazy="false" not-null="true"/>
-    <set lazy="false" name="organizations" table="users_orgs"
-        cascade="save-update" inverse="true">
+    <set lazy="false" name="organizations" table="users_orgs" cascade="save-update">
       <key column="users"/>
       <many-to-many class="nl.b3p.kaartenbalie.core.server.Organization"
         column="organization"/>
