@@ -39,7 +39,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         <c:choose>
             <c:when test="${!empty organizationlist}">
-                <div>
+                <div style="height: 325px;">
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>

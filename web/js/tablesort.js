@@ -1490,6 +1490,8 @@ function tablepagerfunc(tableid, tablewidth, cellheight) {
 
 		tableid = "#" + tableid;
 
+                jQuery(tableid).show();
+
 		jQuery(tableid).parent().css("width", tablewidth + 'px');
 
 		// Add divs to td for overflow: hidden

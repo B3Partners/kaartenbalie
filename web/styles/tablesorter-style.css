@@ -6,6 +6,7 @@ table.tablesorter {
 	text-align: left;
 	table-layout:fixed;
         width: 100%;
+        display: none;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th, table.tablesorter thead tr td {
 	font-weight: bold;

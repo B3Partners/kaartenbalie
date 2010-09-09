@@ -41,7 +41,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
         <c:choose>
             <c:when test="${!empty roleslist}">
-                <div>
+                <div style="325px;">
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
