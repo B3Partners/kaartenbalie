@@ -355,9 +355,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="wfs_service_provider"/>
       <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
     </set>
-    <property length="60" name="name" not-null="true"/>
-    <property length="60" name="abbr" not-null="true"/>
-    <property length="50" name="title"/>
+    <property length="80" name="name" not-null="true"/>
+    <property length="80" name="abbr" not-null="true"/>
+    <property length="255" name="title"/>
     <property length="50" name="givenName" not-null="true"/>
     <property length="4000" name="url" not-null="true"/>
     <property name="updatedDate" not-null="true"/>
