@@ -424,7 +424,7 @@ public class WmsServerAction extends ServerAction {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         // Only shows WMS servers for now
-        List serviceproviderlist = em.createQuery("from ServiceProvider").getResultList();
+        List serviceproviderlist = em.createQuery("from ServiceProvider order by given_name").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
 
         //createTreeview(form, request);

@@ -548,7 +548,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         super.createLists(form, request);
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
-        List organizationlist = em.createQuery("from Organization").getResultList();
+        List organizationlist = em.createQuery("from Organization order by name").getResultList();
         request.setAttribute("organizationlist", organizationlist);
     }
 

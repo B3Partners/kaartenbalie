@@ -424,7 +424,7 @@ public class WfsServerAction extends ServerAction {
         super.createLists(form, request);
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
-        List serviceproviderlist = em.createQuery("from WfsServiceProvider").getResultList();
+        List serviceproviderlist = em.createQuery("from WfsServiceProvider order by given_name").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
     }
     // </editor-fold>
