@@ -485,6 +485,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         } else {
             organization.setAllowAccountingLayers(false);
         }
+
+        /* Bij aanmaken nieuwe groep de HasValidGetCapabilities op TRUE zetten
+         * bij het zetten van rechten wordt deze dan juist op TRUE of FALSE gezet
+         * Dit is zodat bij maken gebruiker voor nieuwe groep die net is aangemaakt
+         * de check daar niet gaat miepen over mogelijk fout in getCap */
+        organization.setHasValidGetCapabilities(true);
     }
 
     private void populateOrganizationLayers(DynaValidatorForm dynaForm, Organization organization) throws Exception {
