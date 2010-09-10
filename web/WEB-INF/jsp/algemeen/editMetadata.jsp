@@ -108,18 +108,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="id" />
             <html:hidden property="name" />
             <html:hidden property="metadata" styleId="metadata"/>
-            <div class="messages"> 
-                <html:messages id="message" message="true" >
-                    <div id="error">
-                        <c:out value="${message}" escapeXml="false"/>
-                    </div>
-                </html:messages> 
-                <html:messages id="message" name="acknowledgeMessages">
-                    <div id="acknowledge">
-                      <c:out value="${message}"/>
-                    </div>
-                </html:messages>
-            </div> 
+            <tiles:insert definition="actionMessages"/>
             <div id="write-root"></div>
             <%--
             <input type="hidden" name="save" value="">
