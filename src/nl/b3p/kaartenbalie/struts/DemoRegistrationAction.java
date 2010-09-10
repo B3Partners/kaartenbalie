@@ -58,7 +58,7 @@ public class DemoRegistrationAction extends UserAction {
         }
         populateUserForm(user, dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
@@ -120,7 +120,7 @@ public class DemoRegistrationAction extends UserAction {
         populateUserForm(user, dynaForm, request);
 
         prepareMethod(dynaForm, request, LIST, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(NEXTPAGE);
     }
     // </editor-fold>

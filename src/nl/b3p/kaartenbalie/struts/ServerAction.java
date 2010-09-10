@@ -85,7 +85,7 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
@@ -96,8 +96,9 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
         dynaForm.set("url", request.getParameter("url"));
         dynaForm.set("updatedDate", request.getParameter("updatedDate"));
         dynaForm.set("abbr", request.getParameter("abbr"));
+
         prepareMethod(dynaForm, request, EDIT, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 

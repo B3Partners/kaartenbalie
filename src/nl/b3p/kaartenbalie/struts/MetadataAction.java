@@ -324,7 +324,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             populateMetadataEditorForm(id, name, metadata, dynaForm, request);
 
             if (messages.isEmpty()) {
-                addDefaultMessage(mapping, request);
+                addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
             } else {
                 addAlternateMessage(mapping, request, null, "zie hiervoor");
             }

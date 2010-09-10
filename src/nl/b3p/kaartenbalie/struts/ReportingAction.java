@@ -66,7 +66,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
 
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
@@ -84,7 +84,9 @@ public class ReportingAction extends KaartenbalieCrudAction {
     }
 
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -103,7 +105,11 @@ public class ReportingAction extends KaartenbalieCrudAction {
             }
             em.flush();
         }
-        return super.delete(mapping, dynaForm, request, response);
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward download(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -165,7 +171,10 @@ public class ReportingAction extends KaartenbalieCrudAction {
         rtt.init(parameterMap);
         rtt.start();
 
-        return super.create(mapping, dynaForm, request, response);
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {

@@ -77,7 +77,9 @@ public class WmsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         populateServiceProviderForm(serviceprovider, dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     /* Method for saving a new service provider from input of a user.
@@ -254,7 +256,9 @@ public class WmsServerAction extends ServerAction {
             }
         }
         dynaForm.set("id", null);
-        return super.save(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
 
@@ -348,7 +352,7 @@ public class WmsServerAction extends ServerAction {
                 }
             }
         }
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -408,7 +412,11 @@ public class WmsServerAction extends ServerAction {
         }
         em.remove(serviceProvider);
         em.flush();
-        return super.delete(mapping, dynaForm, request, response);
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     /* Creates a list of all the service providers in the database.

@@ -58,7 +58,7 @@ public class AccountingAction extends KaartenbalieCrudAction {
 
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 

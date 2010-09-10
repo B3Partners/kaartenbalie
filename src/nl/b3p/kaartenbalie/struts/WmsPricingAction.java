@@ -152,7 +152,9 @@ public class WmsPricingAction extends PricingAction {
             lp.setLayerIsFree(Boolean.TRUE);
         }
         em.persist(lp);
-        return super.save(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {

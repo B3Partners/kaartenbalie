@@ -67,7 +67,7 @@ public abstract class PricingAction extends KaartenbalieCrudAction {
         }
         lp.setDeletionDate(new Date());
         prepareMethod(dynaForm, request, LIST, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 

@@ -75,7 +75,7 @@ public abstract class TestPricingAction extends KaartenbalieCrudAction {
         dynaForm.set("testUntil", FormUtils.DateToFormString(cal.getTime(), null));
 
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 

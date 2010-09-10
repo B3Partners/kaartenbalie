@@ -71,7 +71,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         this.createLists(dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
@@ -240,7 +240,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
 
         populateForm(getMapUrl.toString(), dynaForm, request);
         prepareMethod(dynaForm, request, LIST, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>

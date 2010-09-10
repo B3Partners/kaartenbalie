@@ -131,7 +131,7 @@ public class WmsTestPricingAction extends TestPricingAction {
             lc.closeEntityManager();
         }
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 

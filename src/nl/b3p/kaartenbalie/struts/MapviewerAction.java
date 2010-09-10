@@ -75,7 +75,10 @@ public class MapviewerAction extends KaartenbalieCrudAction {
         String extend = request.getParameter("extent");
         request.setAttribute("checkedLayers", checkedLayers);
         request.setAttribute("extent", extend);
-        return super.unspecified(mapping, dynaForm, request, response);
+
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
     /** Creates a list with the available layers.

@@ -65,7 +65,7 @@ public class RoleAction extends KaartenbalieCrudAction {
      */
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
@@ -88,7 +88,9 @@ public class RoleAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         populateRoleForm(role, dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     /* Method for saving a new organization from input of a user.
@@ -141,7 +143,9 @@ public class RoleAction extends KaartenbalieCrudAction {
             em.merge(role);
         }
         em.flush();
-        return super.save(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -169,7 +173,7 @@ public class RoleAction extends KaartenbalieCrudAction {
         }
 
         prepareMethod(dynaForm, request, DELETE, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -218,7 +222,11 @@ public class RoleAction extends KaartenbalieCrudAction {
 
         em.remove(role);
         em.flush();
-        return super.delete(mapping, dynaForm, request, response);
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     /* Method which will fill the JSP form with the data of  a given organization.

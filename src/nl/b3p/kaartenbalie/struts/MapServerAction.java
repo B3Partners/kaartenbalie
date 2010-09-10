@@ -58,7 +58,7 @@ public class MapServerAction extends KaartenbalieCrudAction {
     @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
@@ -127,7 +127,9 @@ public class MapServerAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, MAPFILE_FORMAT_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        return super.save(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     @Override

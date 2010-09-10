@@ -75,11 +75,15 @@ public class WfsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         populateServiceProviderForm(serviceprovider, dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return super.unspecified(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return mapping.findForward(SUCCESS);
     }
 
     /* Method for saving a new service provider from input of a user.
@@ -245,7 +249,9 @@ public class WfsServerAction extends ServerAction {
              */
         }
         dynaForm.set("id", null);
-        return super.save(mapping, dynaForm, request, response);
+         prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -348,7 +354,7 @@ public class WfsServerAction extends ServerAction {
                 }
             }
         }
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -409,7 +415,11 @@ public class WfsServerAction extends ServerAction {
         }
         em.remove(serviceProvider);
         em.flush();
-        return super.delete(mapping, dynaForm, request, response);
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     /* Creates a list of all the service providers in the database.

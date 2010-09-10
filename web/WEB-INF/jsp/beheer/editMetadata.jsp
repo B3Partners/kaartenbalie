@@ -115,6 +115,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         <c:out value="${message}" escapeXml="false"/>
                     </div>
                 </html:messages> 
+                <html:messages id="message" name="acknowledgeMessages">
+                    <div id="acknowledge">
+                      <c:out value="${message}"/>
+                    </div>
+                </html:messages>
             </div> 
             <div id="write-root"></div>
             <input type="hidden" id="save" name="save" value="" />

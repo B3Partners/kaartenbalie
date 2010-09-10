@@ -50,6 +50,7 @@ public class KaartenbalieCrudAction extends CrudAction {
 
     private static final Log log = LogFactory.getLog(KaartenbalieCrudAction.class);
     protected static final String UNKNOWN_SES_USER_ERROR_KEY = "error.sesuser";
+    protected static final String ACKNOWLEDGE_MESSAGES = "acknowledgeMessages";
 
     protected ActionForward getUnspecifiedAlternateForward(ActionMapping mapping, HttpServletRequest request) {
         return mapping.findForward(FAILURE);

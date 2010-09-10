@@ -14,6 +14,13 @@
     background: #fff5f5 url(../images/siteImages/warning.jpg) no-repeat;
 }
 
+#acknowledge {
+    border: 1px solid green;
+    width: 550px;
+    padding: 12px;
+    margin: 10px;
+}
+
 #error h3 {
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 12px;

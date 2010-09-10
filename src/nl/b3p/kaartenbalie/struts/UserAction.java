@@ -89,8 +89,9 @@ public class UserAction extends KaartenbalieCrudAction {
 
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
+
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
     // </editor-fold>
@@ -118,7 +119,9 @@ public class UserAction extends KaartenbalieCrudAction {
 
         populateUserForm(user, dynaForm, request);
         createLists(dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     /* Method for saving a new or updating an existing user.
@@ -177,7 +180,7 @@ public class UserAction extends KaartenbalieCrudAction {
         createLists(dynaForm, request);
 
         prepareMethod(dynaForm, request, EDIT, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
@@ -277,7 +280,7 @@ public class UserAction extends KaartenbalieCrudAction {
         }
 
         prepareMethod(dynaForm, request, DELETE, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
 
         return getDefaultForward(mapping, request);
     }
@@ -320,7 +323,11 @@ public class UserAction extends KaartenbalieCrudAction {
         }
         em.remove(user);
         em.flush();
-        return super.delete(mapping, dynaForm, request, response);
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
     // </editor-fold>
     /* Creates a list of all the users in the database.

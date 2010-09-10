@@ -65,16 +65,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private final static String EDIT_RIGHTS = "editRights";
     private final static String LIST_RIGHTS = "listRights";
     private final static String RIGHTSFW = "rights";
-
     private static final Log log = LogFactory.getLog(OrganizationAction.class);
-
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
     protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     protected static final String USER_JOINED_KEY = "beheer.org.user.joined";
     protected static final String CREDITS_JOINED_KEY = "beheer.org.credits.joined";
-
     protected static final String USER_ORGS_MAINSOORT = "main";
 
     @Override
@@ -117,13 +114,13 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      */
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
     public ActionForward listRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -146,7 +143,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         populateOrganizationForm(organization, dynaForm, request);
-        return super.edit(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward editRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -200,7 +199,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             em.merge(organization);
         }
         em.flush();
-        return super.save(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     public ActionForward saveRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
@@ -229,10 +230,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
 
         em.merge(organization);
         em.flush();
-        
+
         populateOrganizationTree(organization, dynaForm, request);
         prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -292,7 +293,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
         prepareMethod(dynaForm, request, DELETE, EDIT);
-        addDefaultMessage(mapping, request);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
@@ -360,7 +361,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         em.remove(organization);
         em.flush();
 
-        return super.delete(mapping, dynaForm, request, response);
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 
     /* Method which will fill the JSP form with the data of  a given organization.
@@ -428,7 +432,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             }
         }
 
-        if (checkedLayers.length()>0) {
+        if (checkedLayers.length() > 0) {
             request.setAttribute("checkedLayers", checkedLayers.substring(1));
         }
         request.setAttribute("layerList", root);

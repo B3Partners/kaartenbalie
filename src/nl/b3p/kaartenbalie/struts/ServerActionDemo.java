@@ -71,7 +71,9 @@ public class ServerActionDemo extends WmsServerAction {
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String userid = request.getParameter("userid");
-        ActionForward action = super.unspecified(mapping, dynaForm, request, response);
+        prepareMethod(dynaForm, request, EDIT, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        ActionForward action =  mapping.findForward(SUCCESS);
         dynaForm.set("id", userid);
         return action;
     }
