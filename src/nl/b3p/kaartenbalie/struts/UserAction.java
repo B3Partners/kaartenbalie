@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.struts;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -63,6 +64,7 @@ public class UserAction extends KaartenbalieCrudAction {
     protected static final String DATE_INPUT_ERROR_KEY = "error.dateinput";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String LAST_JOINED_KEY = "beheer.user.last.joined";
+    protected static final String NOROLES_WARNING_KEY = "warning.noroles";
 
     /* Execute method which handles all executable requests.
      *
@@ -76,6 +78,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
         if (user == null) {
@@ -104,6 +107,7 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
 
+    @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
         if (user == null) {
@@ -130,6 +134,7 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
 
+    @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         User user = getUser(dynaForm, request, true);
@@ -145,6 +150,14 @@ public class UserAction extends KaartenbalieCrudAction {
         if (org != null && !org.getHasValidGetCapabilities()) {
             // TODO: we should check for the combination of all organisations
             addAlternateMessage(mapping, request, CAPABILITY_WARNING_KEY);
+        }
+
+        /* controleren of er rollen zijn gekozen */
+        Integer[] roleSelected = (Integer[])dynaForm.get("roleSelected");
+        int size = roleSelected.length;
+
+        if (size < 1) {
+            addAlternateMessage(mapping, request, NOROLES_WARNING_KEY);
         }
 
         populateUserObject(user, dynaForm, request);
@@ -447,14 +460,14 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("password", "");
         dynaForm.set("repeatpassword", "");
 
-        String[] roleSelected = null;
+        Integer[] roleSelected = null;
         Set uroles = user.getRoles();
         if (uroles != null && !uroles.isEmpty()) {
             ArrayList roleSet = new ArrayList(uroles);
-            roleSelected = new String[roleSet.size()];
+            roleSelected = new Integer[roleSet.size()];
             for (int i = 0; i < roleSet.size(); i++) {
                 Roles role = (Roles) roleSet.get(i);
-                roleSelected[i] = FormUtils.IntegerToString(role.getId());
+                roleSelected[i] = role.getId();
             }
         }
         dynaForm.set("roleSelected", roleSelected);
@@ -562,21 +575,17 @@ public class UserAction extends KaartenbalieCrudAction {
             }
         }
 
-        String[] roleSelected = dynaForm.getStrings("roleSelected");
-        int size = roleSelected.length;
+        /* ingevulde rollen bewaren */
+        Integer[] rolesSelected = (Integer[])dynaForm.get("roleSelected");
 
-        if (size > 0) {
-            user.setRoles(null);
-            List roleList = em.createQuery("from Roles").getResultList();
-            for (int i = 0; i < size; i++) {
-                Iterator it3 = roleList.iterator();
-                while (it3.hasNext()) {
-                    Roles role = (Roles) it3.next();
-                    if (role.getId().toString().equals(roleSelected[i])) {
-                        user.addRole(role);
-                    }
-                }
-            }
+        if (rolesSelected.length < 1) {
+            user.getRoles().clear();
+        } else {
+            List newRoles = em.createQuery("from Roles where id in (:ids)")
+                    .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
+
+            user.getRoles().retainAll(newRoles);
+            user.getRoles().addAll(newRoles);
         }
 
         String regip = dynaForm.getString("registeredIP");

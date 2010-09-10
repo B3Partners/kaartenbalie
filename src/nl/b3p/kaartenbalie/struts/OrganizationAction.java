@@ -339,12 +339,22 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             return getAlternateForward(mapping, request);
         }
 
-        Set users = organization.getMainUsers();
-        Iterator it = users.iterator();
+        /* verwijderen users die deze org als main hebben */
+        Set mainUsers = organization.getMainUsers();
+        Iterator it = mainUsers.iterator();
         while (it.hasNext()) {
             User u = (User) it.next();
             em.remove(u);
             it.remove();
+        }
+
+        /* verwijderen users die deze org gekoppeld hebben */
+        Set users = organization.getUsers();
+        Iterator it2 = users.iterator();
+        while (it2.hasNext()) {
+            User u = (User) it2.next();
+            em.remove(u);
+            it2.remove();
         }
 
         em.remove(organization);
