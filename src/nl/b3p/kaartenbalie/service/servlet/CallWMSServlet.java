@@ -198,7 +198,7 @@ public class CallWMSServlet extends HttpServlet {
             } finally {
                 rr.endClientRequest(serviceName, data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
             }
-            //tx.commit();
+            tx.commit();
         } catch (Exception ex) {
             log.error("Error creating EntityManager: ", ex);
             try {

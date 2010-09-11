@@ -120,7 +120,7 @@ public class DataMonitoring {
     }
 
     public void endClientRequest(String service, String operation, int bytesSentToUser, long totalResponseTime) {
-        /*
+        
         if (!isEnableMonitoring()) {
             return;
         }
@@ -154,7 +154,7 @@ public class DataMonitoring {
         } catch (Exception e) {
             log.error("", e);
         }
-        */
+        
         clientRequest = null;
     }
 
