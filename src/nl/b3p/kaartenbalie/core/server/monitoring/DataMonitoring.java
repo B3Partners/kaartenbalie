@@ -120,12 +120,14 @@ public class DataMonitoring {
     }
 
     public void endClientRequest(String service, String operation, int bytesSentToUser, long totalResponseTime) {
+        /*
         if (!isEnableMonitoring()) {
             return;
         }
         if (clientRequest==null) {
             return;
         }
+
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
@@ -152,6 +154,7 @@ public class DataMonitoring {
         } catch (Exception e) {
             log.error("", e);
         }
+        */
         clientRequest = null;
     }
 
