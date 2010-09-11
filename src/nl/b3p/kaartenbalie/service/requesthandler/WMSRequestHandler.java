@@ -123,11 +123,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             List layerlist = em.createQuery("from Layer").getResultList();
             organizationLayers.addAll(layerlist);
         } else {
-            Set orgs = user.getOrganizations();
-            Organization mainOrg = user.getMainOrganization();
-            if (!orgs.contains(mainOrg)) {
-                orgs.add(mainOrg);
-            }
+            Set orgs = user.getAllOrganizations();
             if (orgs != null) {
                 Iterator it = orgs.iterator();
                 while (it.hasNext()) {
@@ -295,11 +291,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
          * B3Partners Configuration Layers..
          */
         boolean allowAccountingLayers = false;
-        Set orgs = dbUser.getOrganizations();
-        Organization mainOrg = user.getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
-            orgs.add(mainOrg);
-        }
+        Set orgs = dbUser.getAllOrganizations();
         Iterator it = orgs.iterator();
         while (it.hasNext()) {
             Organization org = (Organization) it.next();
@@ -336,11 +328,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
     private SrsBoundingBox calcSrsBoundingBox(User user) {
         SrsBoundingBox srsbb = new SrsBoundingBox();
-        Set orgs = user.getOrganizations();
-        Organization mainOrg = user.getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
-            orgs.add(mainOrg);
-        }
+        Set orgs = user.getAllOrganizations();
 
         Iterator it = orgs.iterator();
         while (it.hasNext()) {

@@ -105,6 +105,15 @@ public class User implements Principal {
         return organizations;
     }
 
+    public Set getAllOrganizations() {
+        Set orgs = new HashSet(getOrganizations());
+        Organization mainOrg = getMainOrganization();
+        if (!orgs.contains(mainOrg)) {
+            orgs.add(mainOrg);
+        }
+        return orgs;
+    }
+
     public void setOrganizations(Set organizations) {
         this.organizations = organizations;
     }
@@ -114,11 +123,7 @@ public class User implements Principal {
     }
 
     public String getOrganisationCodes() {
-        Set orgs = new HashSet(getOrganizations());
-        Organization mainOrg = getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
-            orgs.add(mainOrg);
-        }
+        Set orgs = getAllOrganizations();
         StringBuffer codes = new StringBuffer();
         Iterator it = orgs.iterator();
         while (it.hasNext()) {
@@ -136,11 +141,7 @@ public class User implements Principal {
     }
 
     public Integer[] getOrganizationIds() {
-        Set orgs = new HashSet(getOrganizations());
-        Organization mainOrg = getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
-            orgs.add(mainOrg);
-        }
+        Set orgs = getAllOrganizations();
         ArrayList oidList = new ArrayList();
         Iterator it = orgs.iterator();
         while (it.hasNext()) {
@@ -161,11 +162,7 @@ public class User implements Principal {
     }
 
     public Set getLayers() {
-        Set orgs = new HashSet(getOrganizations());
-        Organization mainOrg = getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
-            orgs.add(mainOrg);
-        }
+        Set orgs = getAllOrganizations();
         Set layerSet = new HashSet();
         Iterator it = orgs.iterator();
         while (it.hasNext()) {

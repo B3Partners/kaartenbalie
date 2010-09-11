@@ -480,12 +480,9 @@ public class UserAction extends KaartenbalieCrudAction {
         dynaForm.set("roleSelected", roleSelected);
 
         String[] orgSelected = null;
-        Set orgs = user.getOrganizations();
+        Set orgs = user.getAllOrganizations();
         ArrayList orgSet = new ArrayList(orgs);
         Organization mainOrg = user.getMainOrganization();
-        if (!orgSet.contains(mainOrg)) {
-            orgSet.add(mainOrg);
-        }
         orgSelected = new String[orgSet.size()];
         for (int i = 0; i < orgSet.size(); i++) {
             Organization org = (Organization) orgSet.get(i);

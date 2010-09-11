@@ -53,11 +53,7 @@ public class MetadataFolderResource extends MetadataResource implements Collecti
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
             User lUser = em.find(User.class, user.getId());
-            Set orgs = lUser.getOrganizations();
-            Organization mainOrg = lUser.getMainOrganization();
-            if (!orgs.contains(mainOrg)) {
-                orgs.add(mainOrg);
-            }
+            Set orgs = lUser.getAllOrganizations();
             Iterator it = orgs.iterator();
             while (it.hasNext()) {
                 Organization org = (Organization) it.next();
