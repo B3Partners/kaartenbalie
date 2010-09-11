@@ -92,24 +92,25 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             layerParam += (String) layerMap.get("layerName");
         }
 
-        Set userRoles = user.getRoles();
+         /*
+         * Only used if specific param is given (used for configuration)
+         */
         boolean isAdmin = false;
-        boolean isOrgAdmin = false;
-        Iterator rolIt = userRoles.iterator();
-        while (rolIt.hasNext()) {
-            Roles role = (Roles) rolIt.next();
-            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
-                /* de gebruiker is een beheerder */
-                isAdmin = true;
-            }
-            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
-                /* de gebruiker is een organisatiebeheerder */
-                isOrgAdmin = true;
+        if ("true".equalsIgnoreCase(data.getOgcrequest().getParameter("_VIEWER_CONFIG"))) {
+            Set userRoles = user.getRoles();
+            Iterator rolIt = userRoles.iterator();
+            while (rolIt.hasNext()) {
+                Roles role = (Roles) rolIt.next();
+                if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
+                    /* de gebruiker is een beheerder */
+                    isAdmin = true;
+                    break;
+                }
             }
         }
 
         List spInfo = null;
-        if (isAdmin && !isOrgAdmin) {
+        if (isAdmin) {
             spInfo = getLayerSummaries(spLayerNames);
         } else {
             spInfo = getSeviceProviderURLS(spLayerNames, orgIds, false, data);

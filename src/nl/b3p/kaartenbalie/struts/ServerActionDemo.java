@@ -37,7 +37,6 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.logging.Log;
@@ -250,14 +249,13 @@ public class ServerActionDemo extends WmsServerAction {
         } else {
             em.merge(org);
         }
+
+        user.setMainOrganization(org);
         if (user.getId() == null) {
             em.persist(user);
         } else {
             em.merge(user);
         }
-        UserOrganization uorg = new UserOrganization(user, org, "main");
-        em.persist(uorg);
-
         em.flush();
         /*
          * Make sure that the system will accept the user already as logged in.

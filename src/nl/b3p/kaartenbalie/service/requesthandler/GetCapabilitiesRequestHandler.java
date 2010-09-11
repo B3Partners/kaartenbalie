@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,6 +37,7 @@ import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 
@@ -80,15 +82,33 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }
-        
+
+
+         /*
+         * Only used if specific param is given (used for configuration)
+         */
+        boolean isAdmin = false;
+        if ("true".equalsIgnoreCase(dw.getOgcrequest().getParameter("_VIEWER_CONFIG"))) {
+            Set userRoles = user.getRoles();
+            Iterator rolIt = userRoles.iterator();
+            while (rolIt.hasNext()) {
+                Roles role = (Roles) rolIt.next();
+                if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
+                    /* de gebruiker is een beheerder */
+                    isAdmin = true;
+                    break;
+                }
+            }
+        }
+
         /*
          * Only used if specific param is given (used for monitoring)
          */
         if ("true".equalsIgnoreCase(dw.getOgcrequest().getParameter("_FORCE_FETCH"))) {
-            forceFetch(dw);
+            forceFetch(dw, isAdmin);
         }
-        
-        ServiceProvider s = getServiceProvider();
+
+        ServiceProvider s = getServiceProvider(isAdmin);
 
         if (user != null) {
             s.setOrganizationCode(user.getOrganisationCodes());
@@ -130,48 +150,48 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dw.write(output);
     }
     // </editor-fold>
-    
+
     /**
      * Do a forced fetch for monitoring
      */
-	private void forceFetch(DataWrapper dw) throws Exception {
-		DataMonitoring rr = dw.getRequestReporting();
-		
-		Set serviceProviders = this.getServiceProviders();
-		for (Object serviceProvider : serviceProviders) {
-			ServiceProvider sp = (ServiceProvider) serviceProvider;
-		    long startprocestime = System.currentTimeMillis();
-			
-			ServiceProviderRequest wmsRequest = new ServiceProviderRequest();
-			wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
-			wmsRequest.setServiceProviderId(sp.getId());
-			wmsRequest.setWmsVersion(sp.getWmsVersion());
-		    
-			WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
-			try {
+    private void forceFetch(DataWrapper dw, boolean isAdmin) throws Exception {
+        DataMonitoring rr = dw.getRequestReporting();
+
+        Set serviceProviders = this.getServiceProviders(isAdmin);
+        for (Object serviceProvider : serviceProviders) {
+            ServiceProvider sp = (ServiceProvider) serviceProvider;
+            long startprocestime = System.currentTimeMillis();
+
+            ServiceProviderRequest wmsRequest = new ServiceProviderRequest();
+            wmsRequest.setMsSinceRequestStart(new Long(rr.getMSSinceStart()));
+            wmsRequest.setServiceProviderId(sp.getId());
+            wmsRequest.setWmsVersion(sp.getWmsVersion());
+
+            WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+            try {
                 OGCRequest or = new OGCRequest(sp.getUrl());
                 or.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
                 or.addOrReplaceParameter(OGCConstants.SERVICE, OGCConstants.WMS_SERVICE_WMS);
                 or.addOrReplaceParameter(OGCConstants.VERSION, sp.getWmsVersion());
-    			String url = or.getUrl();
+                String url = or.getUrl();
                 wmsRequest.setProviderRequestURI(url);
-    			wmsRequest.setBytesSent((long)url.getBytes().length);
-    			
-		    	ByteArrayOutputStream baos = wms.getCapabilities(url);
+                wmsRequest.setBytesSent((long) url.getBytes().length);
+
+                ByteArrayOutputStream baos = wms.getCapabilities(url);
 
                 String xml = baos.toString(KBConfiguration.CHARSET);
-		    	
-		        wmsRequest.setResponseStatus(new Integer(200));
-		        wmsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
-		    	wmsRequest.setBytesReceived((long)xml.getBytes().length);
-		    	wmsRequest.setMessageReceived(xml);
-			} catch (Exception e) {
-		        wmsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
-		        wmsRequest.setExceptionClass(e.getClass());
-				throw e;
-		    } finally {
-		        rr.addServiceProviderRequest(wmsRequest);
-			}
-		}
-	}
+
+                wmsRequest.setResponseStatus(new Integer(200));
+                wmsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
+                wmsRequest.setBytesReceived((long) xml.getBytes().length);
+                wmsRequest.setMessageReceived(xml);
+            } catch (Exception e) {
+                wmsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
+                wmsRequest.setExceptionClass(e.getClass());
+                throw e;
+            } finally {
+                rr.addServiceProviderRequest(wmsRequest);
+            }
+        }
+    }
 }

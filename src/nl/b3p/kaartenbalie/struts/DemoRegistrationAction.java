@@ -36,7 +36,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.UserOrganization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionMapping;
@@ -94,15 +93,13 @@ public class DemoRegistrationAction extends UserAction {
         } else {
             em.merge(organization);
         }
+
+        user.setMainOrganization(organization);
         if (user.getId() == null) {
             em.persist(user);
         } else {
             em.merge(user);
         }
-
-        UserOrganization uorg = new UserOrganization(user, organization, "main");
-        em.persist(uorg);
-
         em.flush();
 
         /*

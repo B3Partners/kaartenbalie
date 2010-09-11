@@ -80,28 +80,30 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
 
         //String version = this.getVersion(ogcrequest);
         String version = null;
-        Set userRoles = user.getRoles();
+
+        /*
+         * Only used if specific param is given (used for configuration)
+         */
         boolean isAdmin = false;
-        boolean isOrgAdmin = false;
-        Iterator rolIt = userRoles.iterator();
-        while (rolIt.hasNext()) {
-            Roles role = (Roles) rolIt.next();
-            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
-                /* de gebruiker is een beheerder */
-                isAdmin = true;
-            }
-            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
-                /* de gebruiker is een organisatiebeheerder */
-                isOrgAdmin = true;
+        if ("true".equalsIgnoreCase(data.getOgcrequest().getParameter("_VIEWER_CONFIG"))) {
+            Set userRoles = user.getRoles();
+            Iterator rolIt = userRoles.iterator();
+            while (rolIt.hasNext()) {
+                Roles role = (Roles) rolIt.next();
+                if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
+                    /* de gebruiker is een beheerder */
+                    isAdmin = true;
+                    break;
+                }
             }
         }
 
         // TODO: hieronder wordt iets dubbel gedaan
         // rol wordt 2x gebruikt om te testen
         // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
-        String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin && !isOrgAdmin);
+        String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin);
 
-        if (isAdmin && !isOrgAdmin) {
+        if (isAdmin) {
             spInfo = getLayerSummaries(layerNames);
         } else {
             spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);

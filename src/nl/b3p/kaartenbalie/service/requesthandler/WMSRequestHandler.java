@@ -98,28 +98,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     public WMSRequestHandler() {
     }
 
-    protected Set getValidLayers(User user, EntityManager em) throws Exception {
-
-        Set userRoles = user.getRoles();
-        boolean isAdmin = false;
-        boolean isOrgAdmin = false;
-        Iterator rolIt = userRoles.iterator();
-        while (rolIt.hasNext()) {
-            Roles role = (Roles) rolIt.next();
-            if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
-                /* de gebruiker is een beheerder */
-                isAdmin = true;
-            }
-            if (role.getRole().equalsIgnoreCase(Roles.ORG_ADMIN)) {
-                /* de gebruiker is een organisatiebeheerder */
-                isOrgAdmin = true;
-            }
-        }
-
+    protected Set getValidLayers(User user, EntityManager em, boolean isAdmin) throws Exception {
 
         Set organizationLayers = new HashSet();
 
-        if (isAdmin && !isOrgAdmin) {
+        if (isAdmin) {
             List layerlist = em.createQuery("from Layer").getResultList();
             organizationLayers.addAll(layerlist);
         } else {
@@ -136,7 +119,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return organizationLayers;
     }
 
-    public Set getServiceProviders() throws Exception {
+    public Set getServiceProviders(boolean isAdmin) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         User dbUser = null;
@@ -147,7 +130,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
-        Set organizationLayers = getValidLayers(dbUser, em);
+        Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
 
         Set serviceproviders = null;
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
@@ -167,7 +150,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return serviceproviders;
     }
 
-    public ServiceProvider getServiceProvider() throws Exception {
+    public ServiceProvider getServiceProvider(boolean isAdmin) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         User dbUser = null;
@@ -178,7 +161,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
-        Set organizationLayers = getValidLayers(dbUser, em);
+        Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
 
