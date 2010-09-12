@@ -161,10 +161,7 @@ public class ReportingAction extends KaartenbalieCrudAction {
             parameterMap.put("type", CastorXmlTransformer.HTML);
         }
 
-        parameterMap.put("users", em.createQuery(
-                "from User AS u "
-                + "join u.userOrganizations as uo "
-                + "where uo.organization = :organization").setParameter("organization", organization).getResultList());
+        parameterMap.put("users", organization.getMainUsers());
 
 
         ReportThread rtt = new ReportThread();
