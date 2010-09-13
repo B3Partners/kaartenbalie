@@ -183,6 +183,15 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 
                 String filter = ogcrequest.getGetFeatureFilter(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
                 if (filter != null) {
+                    String version = ogcrequest.getFinalVersion();
+                    if (version!=null && version.equals(OGCConstants.WFS_VERSION_100)) {
+                        // check of geotools onterecht intersects (met s) heeft gebruikt bij wfs 1.0.0
+                        // later oplossen in geotools
+                        // nu wat testen en hier fixen
+                        if (filter.contains("<Intersects>") && filter.contains("</Intersects>")) {
+                            filter = filter.replace("<Intersects>", "<Intersect>").replace("</Intersects>", "</Intersect>");
+                        }
+                    }
                     ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
                 }
                 String propertyNames = ogcrequest.getGetFeaturePropertyNameList(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
@@ -205,19 +214,27 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null, null));
             } else { // get
 
-                StringBuffer getUrl = new StringBuffer(spUrl);
-                if (getUrl.indexOf("?") != getUrl.length() - 1 && getUrl.indexOf("&") != getUrl.length() - 1) {
-                    if (getUrl.indexOf("?") >= 0) {
-                        getUrl.append("&");
+                StringBuffer getHost = new StringBuffer(spUrl);
+                if (getHost.indexOf("?") != getHost.length() - 1 && getHost.indexOf("&") != getHost.length() - 1) {
+                    if (getHost.indexOf("?") >= 0) {
+                        getHost.append("&");
                     } else {
-                        getUrl.append("?");
+                        getHost.append("?");
                     }
                 }
 
-                String[] params = ogcrequest.getParametersArray();
-                for (int i = 0; i < params.length; i++) {
-                        getUrl.append(params[i]);
-                        getUrl.append("&");
+                String getUrl = ogcrequest.getUrl(getHost.toString());
+                
+                if (getUrl.contains(OGCConstants.WFS_PARAM_FILTER)) {
+                    String version = ogcrequest.getFinalVersion();
+                    if (version != null && version.equals(OGCConstants.WFS_VERSION_100)) {
+                        // check of geotools onterecht intersects (met s) heeft gebruikt bij wfs 1.0.0
+                        // later oplossen in geotools
+                        // nu wat testen en hier fixen
+                        if (getUrl.contains("<Intersects>") && getUrl.contains("</Intersects>")) {
+                            getUrl = getUrl.replace("<Intersects>", "<Intersect>").replace("</Intersects>", "</Intersect>");
+                        }
+                    }
                 }
 
                 log.debug("WFS GET to serviceprovider: '" + prefix + "' with url: '" + getUrl.toString() + "'");
