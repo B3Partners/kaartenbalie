@@ -173,17 +173,18 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 }
              }
 
-            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
+            OGCRequest spOgcReq = (OGCRequest)ogcrequest.clone();
+            spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, spUrl, sp.getServiceproviderId(), 0l);
 
             HttpMethod  method = null;
-            if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
+            if (spOgcReq.getHttpMethod().equalsIgnoreCase("POST")) {
 
-                String filter = ogcrequest.getGetFeatureFilter(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
+                String filter = spOgcReq.getGetFeatureFilter(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
                 if (filter != null) {
-                    String version = ogcrequest.getFinalVersion();
+                    String version = spOgcReq.getFinalVersion();
                     if (version!=null && version.equals(OGCConstants.WFS_VERSION_100)) {
                         // check of geotools onterecht intersects (met s) heeft gebruikt bij wfs 1.0.0
                         // later oplossen in geotools
@@ -192,14 +193,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                             filter = filter.replace("<Intersects>", "<Intersect>").replace("</Intersects>", "</Intersect>");
                         }
                     }
-                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+                    spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
                 }
-                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
+                String propertyNames = spOgcReq.getGetFeaturePropertyNameList(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
                 if (propertyNames != null) {
-                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+                    spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
                 }
 
-                String body = data.getOgcrequest().getXMLBody();
+                String body = spOgcReq.getXMLBody();
                 log.debug("WFS POST to serviceprovider: '" + prefix + "' with url: '" + spUrl + "' and body:");
                 log.debug(body);
                 // TODO body cleanen
@@ -223,10 +224,10 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     }
                 }
 
-                String getUrl = ogcrequest.getUrl(getHost.toString());
+                String getUrl = spOgcReq.getUrl(getHost.toString());
                 
                 if (getUrl.contains(OGCConstants.WFS_PARAM_FILTER)) {
-                    String version = ogcrequest.getFinalVersion();
+                    String version = spOgcReq.getFinalVersion();
                     if (version != null && version.equals(OGCConstants.WFS_VERSION_100)) {
                         // check of geotools onterecht intersects (met s) heeft gebruikt bij wfs 1.0.0
                         // later oplossen in geotools
@@ -282,7 +283,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), ogcrequest, prefix);
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, prefix);
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + spUrl);
