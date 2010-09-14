@@ -38,15 +38,18 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <html:hidden property="id" />
  
     <div class="containerdiv" style="float: left; clear: none;">
+        
         <H1><fmt:message key="beheer.organization.title" /></H1>
 
         <c:choose>
             <c:when test="${!empty organizationlist}">
+                <div style="height: 325px;">
+
                 <c:set var="hoogte" value="${(fn:length(organizationlist) * 28) + 28}" />
                 <c:if test="${hoogte > 400}">
                     <c:set var="hoogte" value="400" />
                 </c:if>
-                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
+                
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
@@ -86,6 +89,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         </tbody>
                     </table>
                 </div>
+
                 <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                 <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
                     <strong><fmt:message key="beheer.organization.infolabel.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
@@ -109,6 +113,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </c:otherwise>
         </c:choose>
     </div>
+
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
         <c:choose>
             <c:when test="${action != 'list'}">

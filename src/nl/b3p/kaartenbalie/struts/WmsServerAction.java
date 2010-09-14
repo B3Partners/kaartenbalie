@@ -172,7 +172,7 @@ public class WmsServerAction extends ServerAction {
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wms.getProvider(url);
+            newServiceProvider = wms.getProvider(url.trim());
         } catch (IOException e) {
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -427,6 +427,7 @@ public class WmsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    @Override
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         log.debug("Getting entity manager ......");

@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -67,6 +66,7 @@ public class WfsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         WfsServiceProvider serviceprovider = getServiceProvider(dynaForm, request, false);
         if (serviceprovider == null) {
@@ -80,6 +80,7 @@ public class WfsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+    @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, EDIT, LIST);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
@@ -98,6 +99,7 @@ public class WfsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -168,7 +170,7 @@ public class WfsServerAction extends ServerAction {
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wfs.getProvider(url);
+            newServiceProvider = wfs.getProvider(url.trim());
             newServiceProvider.setAbbr(dynaForm.getString("abbr"));
             newServiceProvider.setGivenName(dynaForm.getString("givenName"));
         } catch (IOException e) {
@@ -254,6 +256,7 @@ public class WfsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+    @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -317,7 +320,7 @@ public class WfsServerAction extends ServerAction {
                 }
             }
             // Small check so it doesn't show empty warning boxes
-            if (strMessage.toString() != "" && strMessage != null && strMessage.length() > 0) {
+            if ((strMessage.toString() == null ? "" != null : !strMessage.toString().equals("")) && strMessage != null && strMessage.length() > 0) {
                 addAlternateMessage(mapping, request, null, strMessage.toString());
             //Check if current pricing is bound to this provider
             }
@@ -349,7 +352,7 @@ public class WfsServerAction extends ServerAction {
 
                 }
                 // Small check so it doesn't show empty warning boxes
-                if (strMessage.toString() != "" && strMessage != null && strMessage.length() > 0) {
+                if ((strMessage.toString() == null ? "" != null : !strMessage.toString().equals("")) && strMessage != null && strMessage.length() > 0) {
                     addAlternateMessage(mapping, request, null, strMessage.toString());
                 }
             }
@@ -369,6 +372,7 @@ public class WfsServerAction extends ServerAction {
      *
      * @throws Exception
      */
+    @Override
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -430,6 +434,7 @@ public class WfsServerAction extends ServerAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
+    @Override
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         log.debug("Getting entity manager ......");
