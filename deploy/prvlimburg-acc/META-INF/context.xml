@@ -3,7 +3,7 @@
 <!-- acceptatie.prvlimburg.nl -->
 <Resource
 	auth="Container"
-	driverClassName="org.postgresql.Driver"
+	driverClassName="oracle.jdbc.driver.OracleDriver"
 	logAbandoned="true"
 	maxActive="100"
 	maxIdle="30"
@@ -15,7 +15,6 @@
 	removeAbandonedTimeout="60"
 	type="javax.sql.DataSource"
 	url="jdbc:oracle:thin:@lin033:1521:tgis"
-	validationQuery="select 1"
 	minEvictableIdleTimeMillis="10000"
 	timeBetweenEvictionRunsMillis="60000"
 />
