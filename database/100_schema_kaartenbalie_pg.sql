@@ -246,7 +246,7 @@
     create table service_provider (
         id  serial not null,
         name varchar(60) not null,
-        abbr varchar(60) not null,
+        abbr varchar(50) not null,
         title varchar(255) not null,
         abstracts text,
         fees text,
@@ -396,7 +396,7 @@
     create table wfs_service_provider (
         id  serial not null,
         name varchar(60) not null,
-        abbr varchar(60) not null,
+        abbr varchar(50) not null,
         title varchar(50),
         given_name varchar(50) not null,
         url varchar(4000) not null,

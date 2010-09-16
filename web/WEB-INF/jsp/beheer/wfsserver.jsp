@@ -107,7 +107,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serviceProviderAbbr"/>:</B></td>
-                            <td><html:text property="abbr" size="16" maxlength="10"/></td>
+                            <td><html:text property="abbr" size="16" maxlength="50"/></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>

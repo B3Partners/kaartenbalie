@@ -246,7 +246,7 @@
     create table service_provider (
         id number(10,0) not null,
         name varchar2(60 char) not null,
-        abbr varchar2(60 char) not null,
+        abbr varchar2(50 char) not null,
         title varchar2(255 char) not null,
         abstracts clob,
         fees clob,
@@ -396,7 +396,7 @@
     create table wfs_service_provider (
         id number(10,0) not null,
         name varchar2(80 char) not null,
-        abbr varchar2(80 char) not null,
+        abbr varchar2(50 char) not null,
         title varchar2(255 char),
         given_name varchar2(50 char) not null,
         url varchar2(4000 char) not null,
