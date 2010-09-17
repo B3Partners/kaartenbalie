@@ -7,10 +7,7 @@ insert into account (id, credit_balance)
 	values (1, 0.0);
 	
 insert into roles (id, "role") values (1, 'beheerder');
-insert into roles (id, "role") values (2, 'organisatiebeheerder');
-insert into roles (id, "role") values (3, 'themabeheerder');
-insert into roles (id, "role") values (4, 'gebruiker');
-insert into roles (id, "role") values (5, 'demogebruiker');
+insert into roles (id, "role") values (2, 'gebruiker');
     
 select setval('roles_id_seq', (select max(id) from roles));
 
@@ -21,7 +18,5 @@ select setval('users_id_seq', (select max(id) from users));
 
 insert into users_roles (users, "role") values (1,1);
 insert into users_roles (users, "role") values (1,2);
-insert into users_roles (users, "role") values (1,3);
-insert into users_roles (users, "role") values (1,4);
 
 insert into users_orgs (organization, users) values (1,1);
