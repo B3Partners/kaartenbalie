@@ -21,15 +21,25 @@
  */
 package nl.b3p.kaartenbalie.core.server;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Roles;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -302,4 +312,30 @@ public class User implements Principal {
         return hash;
     }
 
+    public static boolean isValidCode(String code) {
+        if (code==null || code.length()!=32) {
+            return false;
+        }
+        try {
+            Hex.decodeHex(code.toCharArray());
+        } catch (DecoderException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    public static String createCode(User user, Date newDate, HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        Random rd = new Random();
+        StringBuffer toBeHashedString = new StringBuffer(user.getUsername());
+        toBeHashedString.append(user.getPassword());
+        toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
+        toBeHashedString.append(rd.nextLong());
+
+        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
+        md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
+
+
+        byte[] md5hash = md.digest();
+        return new String(Hex.encodeHex(md5hash));
+    }
 }

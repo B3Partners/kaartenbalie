@@ -36,7 +36,7 @@ public class DirectoryParser {
         }
         JSONArray nodes = new JSONArray();
 
-        if (directory.isDirectory()) {
+        if (directory.isDirectory() && directory.listFiles()!=null) {
             File[] files = sortFiles(directory.listFiles());
 
             for (int i = 0; i < files.length; i++) {

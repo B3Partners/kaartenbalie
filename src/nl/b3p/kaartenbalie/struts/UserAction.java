@@ -616,58 +616,31 @@ public class UserAction extends KaartenbalieCrudAction {
 
         Date oldDate = user.getTimeout();
         Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
-
-
         if (newDate == null) {
             newDate = getDefaultTimeOut(120);
-
-
         }
 
         boolean urlNeedsRefresh = true;
         String persURL = user.getPersonalURL();
         // check of er uberhaupt een url en timeout zijn
-
-
         if (persURL != null
                 && persURL.length() > 0
                 && oldDate != null) {
             urlNeedsRefresh = false;
             // check of timeout veranderd is
-
-
             if (oldDate.before(newDate)) {
                 urlNeedsRefresh = true;
-
-
             } else {
                 if (persURL.startsWith("http")) {
                     urlNeedsRefresh = true;
-
-
                 }
             }
         }
         if (!urlNeedsRefresh) {
             return;
-
-
         }
 
-        Random rd = new Random();
-        StringBuffer toBeHashedString = new StringBuffer(user.getUsername());
-        toBeHashedString.append(user.getPassword());
-        toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
-        toBeHashedString.append(rd.nextLong());
-
-        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
-        md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
-
-
-        byte[] md5hash = md.digest();
-        String hashString = new String(Hex.encodeHex(md5hash));
-
-        user.setPersonalURL(hashString);
+        user.setPersonalURL(User.createCode(user, newDate, request));
         user.setTimeout(newDate);
 
 
