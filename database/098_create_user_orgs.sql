@@ -28,3 +28,7 @@ ON
     
 ALTER TABLE users RENAME COLUMN organization TO main_organization;
 
+
+--ALTER TABLE users ADD COLUMN main_organization integer;
+--ALTER TABLE users ALTER COLUMN main_organization SET NOT NULL;
+--update users set main_organization = (select organization from users_orgs where users=users.id);
