@@ -1,4 +1,4 @@
-ALTER TABLE user_id_seq RENAME TO users_id_seq;
+ALTER TABLE _user_id_seq RENAME TO users_id_seq;
 
 select setval('client_request_id_seq', (select max(id) from client_request));
 select setval('dimensions_id_seq', (select max(id) from dimensions));
