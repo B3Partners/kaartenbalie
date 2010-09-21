@@ -134,16 +134,16 @@ public class CallWMSServlet extends HttpServlet {
 
         StringBuffer baseUrl = createBaseUrl(request);
         if (CAPABILITIES_DTD == null) {
-            CAPABILITIES_DTD = baseUrl.toString() +  "/dtd/capabilities_1_1_1.dtd";
+            CAPABILITIES_DTD = baseUrl.toString() + "/dtd/capabilities_1_1_1.dtd";
         }
         if (EXCEPTION_DTD == null) {
-            EXCEPTION_DTD = baseUrl.toString() +  "/dtd/exception_1_1_1.dtd";
-        } 
-        if (DESCRIBELAYER_DTD == null){
-        	DESCRIBELAYER_DTD = baseUrl.toString() + "/dtd/WMS_DescribeLayerResponse.dtd"; 
+            EXCEPTION_DTD = baseUrl.toString() + "/dtd/exception_1_1_1.dtd";
+        }
+        if (DESCRIBELAYER_DTD == null) {
+            DESCRIBELAYER_DTD = baseUrl.toString() + "/dtd/WMS_DescribeLayerResponse.dtd";
         }
 
-        DataWrapper data = new DataWrapper(request,response);
+        DataWrapper data = new DataWrapper(request, response);
 
         Object identity = null;
         EntityManager em = null;
@@ -157,16 +157,16 @@ public class CallWMSServlet extends HttpServlet {
 
             DataMonitoring rr = new DataMonitoring();
             data.setRequestReporting(rr);
-            
+
             String serviceName = OGCConstants.WMS_SERVICE_WMS;
 
             try {
                 OGCRequest ogcrequest = calcOGCRequest(request);
                 data.setOgcrequest(ogcrequest);
-                
+
                 String serviceParam = ogcrequest.getParameter(OGCConstants.SERVICE);
                 if (serviceParam != null || !"".equals(serviceParam)) {
-                	serviceName = serviceParam;
+                    serviceName = serviceParam;
                 }
 
                 String iUrl = ogcrequest.getUrl();
@@ -174,7 +174,7 @@ public class CallWMSServlet extends HttpServlet {
 
                 User user = checkLogin(request);
                 //if the request is not a proxy request
-                if (FormUtils.nullIfEmpty(request.getParameter(KBConfiguration.KB_PROXY_URL))==null){
+                if (FormUtils.nullIfEmpty(request.getParameter(KBConfiguration.KB_PROXY_URL)) == null) {
                     ogcrequest.checkRequestURL();
                 }
 
@@ -229,13 +229,13 @@ public class CallWMSServlet extends HttpServlet {
 
         StringBuffer baseUrl = createBaseUrl(request);
         String iUrl = completeUrl(baseUrl, request).toString();
- 
+
         if (request.getMethod().equalsIgnoreCase("GET")) {
             ogcrequest = new OGCRequest(iUrl);
             log.info("Incoming Get URL: " + iUrl);
-       } else if (request.getMethod().equalsIgnoreCase("POST") &&
-                request.getParameter(OGCConstants.SERVICE) != null &&
-                request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+        } else if (request.getMethod().equalsIgnoreCase("POST")
+                && request.getParameter(OGCConstants.SERVICE) != null
+                && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             ogcrequest = new OGCRequest(iUrl);
             Enumeration params = request.getParameterNames();
             while (params.hasMoreElements()) {
@@ -291,20 +291,20 @@ public class CallWMSServlet extends HttpServlet {
         int serverPort = request.getServerPort();
         String contextPath = KBConfiguration.KB_SERVICES_CONTEXT_PATH;
         if (contextPath == null || contextPath.length() == 0) {
-        	contextPath = request.getContextPath();
+            contextPath = request.getContextPath();
         }
 
         StringBuffer theUrl = new StringBuffer();
         if (KBConfiguration.KB_SERVICES_SERVER_URI != null && KBConfiguration.KB_SERVICES_SERVER_URI.length() > 5) {
-        	theUrl.append(KBConfiguration.KB_SERVICES_SERVER_URI);
+            theUrl.append(KBConfiguration.KB_SERVICES_SERVER_URI);
         } else {
-	        theUrl.append(scheme);
-	        theUrl.append("://");
-	        theUrl.append(serverName);
-	        if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
-	            theUrl.append(":");
-	            theUrl.append(serverPort);
-	        }
+            theUrl.append(scheme);
+            theUrl.append("://");
+            theUrl.append(serverName);
+            if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
+                theUrl.append(":");
+                theUrl.append(serverPort);
+            }
         }
         theUrl.append(contextPath);
         return theUrl;
@@ -322,9 +322,9 @@ public class CallWMSServlet extends HttpServlet {
         }
         return baseUrl;
     }
-    
+
     private StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
-    	baseUrl = requestUrl(baseUrl, request);
+        baseUrl = requestUrl(baseUrl, request);
         String queryString = request.getQueryString();
 
         if (queryString != null && queryString.length() != 0) {
@@ -337,12 +337,12 @@ public class CallWMSServlet extends HttpServlet {
     private String extractCode(HttpServletRequest request) {
         String code = request.getPathInfo();
         int pos = code.indexOf("/");
-        if (pos<0) {
+        if (pos < 0) {
             return code;
         }
-        code = code.substring(pos+1);
+        code = code.substring(pos + 1);
         pos = code.indexOf("/");
-        if (pos<0) {
+        if (pos < 0) {
             return code;
         }
         code = code.substring(0, pos);
@@ -355,8 +355,8 @@ public class CallWMSServlet extends HttpServlet {
         if (ogcrequest == null) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
-        } else if (ogcrequest.getParameter(OGCConstants.SERVICE) != null &&
-                ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
+        } else if (ogcrequest.getParameter(OGCConstants.SERVICE) != null
+                && ogcrequest.getParameter(OGCConstants.SERVICE).equals(OGCConstants.WFS_SERVICE_WFS)) {
             data.setContentType(OGCConstants.WMS_PARAM_EXCEPTION_XML);
             handleRequestExceptionAsXML(ex, data);
         } else {
@@ -368,13 +368,13 @@ public class CallWMSServlet extends HttpServlet {
             if (ogcrequest.containsParameter(OGCConstants.REQUEST)) {
                 requestparam = ogcrequest.getParameter(OGCConstants.REQUEST);
             }
-            if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap) ||
-                    requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) &&
-                    (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE) ||
-                    exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_SHORT_EXCEPTION_INIMAGE)) &&
-                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT) &&
-                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH) &&
-                    ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
+            if ((requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)
+                    || requestparam.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic))
+                    && (exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_INIMAGE)
+                    || exType.equalsIgnoreCase(OGCConstants.WMS_PARAM_SHORT_EXCEPTION_INIMAGE))
+                    && ogcrequest.containsParameter(OGCConstants.WMS_PARAM_FORMAT)
+                    && ogcrequest.containsParameter(OGCConstants.WMS_PARAM_WIDTH)
+                    && ogcrequest.containsParameter(OGCConstants.WMS_PARAM_HEIGHT)) {
                 data.setContentType(ogcrequest.getParameter(OGCConstants.WMS_PARAM_FORMAT));
                 handleRequestExceptionAsImage(ex, data);
             } else {
@@ -500,76 +500,30 @@ public class CallWMSServlet extends HttpServlet {
     protected User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        // eerst checken of user gewoon ingelogd is
-        User user = (User) request.getUserPrincipal();
-        // probeer preemptive basic login
-        if (user == null) {
-            // attempt to dig out authentication info only if the user has not yet been authenticated
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader != null) {
-                String decoded = decodeBasicAuthorizationString(authorizationHeader);
-                String username = parseUsername(decoded);
-                String password = parsePassword(decoded);
+        User user = null;
 
-                String encpw = null;
-                try {
-                    encpw = KBCrypter.encryptText(password);
-                } catch (Exception ex) {
-                    log.error("error encrypting password: ", ex);
-                }
-                try {
-                    try {
-                        user = (User) em.createQuery(
-                                "from User u where " +
-                                "lower(u.username) = lower(:username) " +
-                                "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
-                        em.flush();
-                    } catch (NoResultException nre) {
-                        log.debug("No results using encrypted password");
-                    }
+        // probeer eerst personal url, checken op token in url
+        try {
+            String code = extractCode(request);
+            log.debug("Check code for login: " + code);
+            user = (User) em.createQuery(
+                    "from User u where "
+                    + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
+            em.flush();
+        } catch (NoResultException nre) {
+            log.debug("Personal url not found, trying next method.");
+            user = null;
+        }
 
-                    if (user == null) {
-                        try {
-                            user = (User) em.createQuery(
-                                    "from User u where " +
-                                    "lower(u.username) = lower(:username) " +
-                                    "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
-
-                            // Volgende keer dus wel encrypted
-                            user.setPassword(encpw);
-                            em.merge(user);
-                            em.flush();
-                            log.debug("Cleartext password encrypted!");
-                        } catch (NoResultException nre) {
-                            log.debug("No results using cleartext password");
-                        }
-                    }
-                } catch (Exception ex) {
-                    throw new AccessDeniedException("Cannot contact login database!");
-                }
+        if (user != null) {
+            java.util.Date date = user.getTimeout();
+            if (date.compareTo(new java.util.Date()) <= 0) {
+                log.debug("Personal URL key has expired, trying next method.");
+                user = null;
             }
         }
 
-        // probeer personal url
-        if (user == null) {
-            // niet ingelogd dus, dan checken op token in url
-            try {
-                String code = extractCode(request);
-                log.info("check code: " + code);
-                user = (User) em.createQuery(
-                        "from User u where " +
-                        "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
-                em.flush();
-            } catch (NoResultException nre) {
-                throw new AccessDeniedException("Personal URL not found! Authorisation required for this service!");
-            }
-
-            java.util.Date date = user.getTimeout();
-
-            if (date.compareTo(new java.util.Date()) <= 0) {
-                throw new AccessDeniedException("Personal URL key has expired!");
-            }
-
+        if (user != null) {
             String remoteaddress = request.getRemoteAddr();
             boolean validip = false;
 
@@ -586,8 +540,72 @@ public class CallWMSServlet extends HttpServlet {
             }
 
             if (!validip) {
-                throw new AccessDeniedException("Personal URL not usuable for this IP address!");
+                log.debug("Personal URL not usuable for this IP address, trying next method");
+                user = null;
             }
+        }
+
+        // probeer preemptive basic login
+        if (user == null) {
+            // attempt to dig out authentication info only if the user has not yet been authenticated
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader != null) {
+                String decoded = decodeBasicAuthorizationString(authorizationHeader);
+                String username = parseUsername(decoded);
+                String password = parsePassword(decoded);
+
+                String encpw = null;
+                try {
+                    encpw = KBCrypter.encryptText(password);
+                } catch (Exception ex) {
+                    log.error("error encrypting password: ", ex);
+                }
+                try {
+                    user = (User) em.createQuery(
+                            "from User u where "
+                            + "lower(u.username) = lower(:username) "
+                            + "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                    em.flush();
+                } catch (NoResultException nre) {
+                    log.debug("No results using encrypted password, trying next method");
+                }
+
+                // extra check voor oude non-encrypted passwords
+                if (user == null) {
+                    try {
+                        user = (User) em.createQuery(
+                                "from User u where "
+                                + "lower(u.username) = lower(:username) "
+                                + "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
+
+                        // Volgende keer dus wel encrypted
+                        user.setPassword(encpw);
+                        em.merge(user);
+                        em.flush();
+                        log.debug("Cleartext password now encrypted!");
+                    } catch (NoResultException nre) {
+                        log.debug("No results using cleartext password, trying next method.");
+                    }
+                }
+                if (user != null) {
+                    log.info("Basic authentication accepted for login, username: " + user.getName());
+                }
+            }
+        } else {
+            log.info("Personal URL accepted for login, username: " + user.getName());
+        }
+
+        // tenslotte checken of user gewoon ingelogd is
+        if (user == null) {
+            user = (User) request.getUserPrincipal();
+            if (user != null) {
+                log.info("Cookie accepted for login, username: " + user.getName());
+            }
+        }
+
+        // hebben we nu een user?
+        if (user == null) {
+            throw new AccessDeniedException("Authorisation required for this service! No credentials found in Personal url, Authentication header or Cookie, Giving up! ");
         }
 
         return user;
@@ -625,8 +643,8 @@ public class CallWMSServlet extends HttpServlet {
                 requestHandler = new GetFeatureInfoRequestHandler();
             } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
                 requestHandler = new GetLegendGraphicRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)){
-            	requestHandler = new DescribeLayerRequestHandler();
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
+                requestHandler = new DescribeLayerRequestHandler();
             } else {
                 throw new UnsupportedOperationException("Request " + request + " is not suported!");
             }
@@ -731,8 +749,6 @@ public class CallWMSServlet extends HttpServlet {
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
     }
-
-
 
     public static void main(String[] args) throws UnsupportedEncodingException, IOException, ParserConfigurationException, SAXException {
         HttpClient client = new HttpClient();

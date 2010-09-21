@@ -68,8 +68,10 @@ public class KBImageTool {
         }
         String mimeType = getMimeType(mime);
         if (mimeType == null) {
-            log.error("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
-            throw new Exception("Response from server not understood (mime = " + mime + "): " + method.getResponseBodyAsString());
+            String message =  method.getResponseBodyAsString();
+            message = message.replaceAll("(\\r|\\n)", "");
+            log.error("Response from server not understood (mime = " + mime + "): " + message);
+            throw new Exception("Response from server not understood (mime = " + mime + "): " +message);
         }
 
         ImageReader ir = getReader(mimeType);

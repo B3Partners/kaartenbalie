@@ -51,23 +51,16 @@ public class ExceptionLayer extends BackgroundLayer {
             i = index.intValue();
         }
 
-//        Class type = (Class) parameterMap.get("type");
-//        StackTraceElement[] stacktrace = (StackTraceElement[]) parameterMap.get("stacktrace");
         Graphics2D g2 = (Graphics2D) bufImage.getGraphics();
 
         int paddingsides = 30;
         int w = bufImage.getWidth() - (paddingsides * 2);
+        int h = message.length()*120/w;
         if (message != null) {
             drawTitledMessageBox(g2,
                     TITLE, message,
-                    paddingsides, 80 + (i*50), w, 30);
+                    paddingsides, 80 + (i*(h+10)), w, h);
         }
-//        if (type != null) {
-//            int paddingbottom = 50;
-//            int y = 130;
-//            int h = bufImage.getHeight() - y - paddingbottom;
-//            drawMessageBox(g2, type.getCanonicalName(), paddingsides, y, w, h);
-//        }
         return bufImage;
     }
 }
