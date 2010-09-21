@@ -155,6 +155,8 @@ function doCustomSubmit(){
     <html:hidden property="currentAddress" />
     <html:hidden property="organizationName" />
     <html:hidden property="organizationTelephone" />
+
+    <html:hidden property="roleSelected" value="-1"/>
     
     <html:hidden property="registeredIP" styleId="registeredIP"/>
     <input type="hidden" id="hiddenSaveField"/>

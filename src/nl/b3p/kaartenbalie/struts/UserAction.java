@@ -582,14 +582,16 @@ public class UserAction extends KaartenbalieCrudAction {
         /* ingevulde rollen bewaren */
         Integer[] rolesSelected = (Integer[])dynaForm.get("roleSelected");
 
-        if (rolesSelected.length < 1) {
-            user.getRoles().clear();
-        } else {
-            List newRoles = em.createQuery("from Roles where id in (:ids)")
-                    .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
+        if (rolesSelected !=null && rolesSelected[0] != -1) {
+            if (rolesSelected.length < 1) {
+                user.getRoles().clear();
+            } else {
+                List newRoles = em.createQuery("from Roles where id in (:ids)")
+                        .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
 
-            user.getRoles().retainAll(newRoles);
-            user.getRoles().addAll(newRoles);
+                user.getRoles().retainAll(newRoles);
+                user.getRoles().addAll(newRoles);
+            }
         }
 
         String regip = dynaForm.getString("registeredIP");
