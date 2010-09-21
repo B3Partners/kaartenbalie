@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -510,6 +511,10 @@ public class CallWMSServlet extends HttpServlet {
                     "from User u where "
                     + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
             em.flush();
+
+        } catch (NonUniqueResultException nue) {
+            log.error("More than one person found for this url (to be fixed in database), trying next method.");
+            user = null;
         } catch (NoResultException nre) {
             log.debug("Personal url not found, trying next method.");
             user = null;
@@ -566,7 +571,11 @@ public class CallWMSServlet extends HttpServlet {
                             + "lower(u.username) = lower(:username) "
                             + "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
                     em.flush();
+                } catch (NonUniqueResultException nue) {
+                    log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
+                    user = null;
                 } catch (NoResultException nre) {
+                    user=null;
                     log.debug("No results using encrypted password, trying next method");
                 }
 
@@ -583,6 +592,9 @@ public class CallWMSServlet extends HttpServlet {
                         em.merge(user);
                         em.flush();
                         log.debug("Cleartext password now encrypted!");
+                    } catch (NonUniqueResultException nue) {
+                        log.error("More than one person found for these (cleartext) credentials (to be fixed in database), trying next method.");
+                        user = null;
                     } catch (NoResultException nre) {
                         log.debug("No results using cleartext password, trying next method.");
                     }
