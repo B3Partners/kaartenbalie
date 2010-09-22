@@ -1,24 +1,3 @@
-/*
- * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
- * for authentication/authorization, pricing and usage reporting.
- *
- * Copyright 2006, 2007, 2008 B3Partners BV
- * 
- * This file is part of B3P Kaartenbalie.
- * 
- * B3P Kaartenbalie is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * B3P Kaartenbalie is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
- */
 package nl.b3p.kaartenbalie.struts;
 
 import java.util.Iterator;
@@ -40,13 +19,10 @@ import org.apache.struts.validator.DynaValidatorForm;
 import org.hibernate.HibernateException;
 import org.json.JSONException;
 
-/**
- *
- * @author Jytte
- */
 public class RoleAction extends KaartenbalieCrudAction {
 
-    private static final Log log = LogFactory.getLog(RoleAction.class);
+    private static final Log logger = LogFactory.getLog(RoleAction.class);
+
     protected static final String ROLE_JOINED_MESSAGE_KEY = "beheer.role.user.joined";
     protected static final String ROLE_PROTECTED_MESSAGE_KEY = "beheer.role.protected";
     protected static final String ROLE_NOTFOUND_ERROR_KEY = "error.rolenotfound";
@@ -105,7 +81,7 @@ public class RoleAction extends KaartenbalieCrudAction {
      * @throws Exception, HibernateException
      */
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -159,13 +135,47 @@ public class RoleAction extends KaartenbalieCrudAction {
         Locale locale = getLocale(request);
         String roleJoinedMessage = messages.getMessage(locale, ROLE_JOINED_MESSAGE_KEY);
         String roleProtectedMessage = messages.getMessage(locale, ROLE_PROTECTED_MESSAGE_KEY);
-        StringBuffer strMessage = null;
 
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
-        List userList = em.createQuery("from User u join u.roles r where r.id = :roleid").setParameter("roleid", role.getId()).getResultList();
+        
+        List userList = em.createQuery("from User u join u.roles r where r.id = :roleid")
+                .setParameter("roleid", role.getId())
+                .getResultList();
+
+        StringBuilder strMessage = new StringBuilder();
+        
         if (userList != null && !userList.isEmpty()) {
-            addAlternateMessage(mapping, request, null, roleJoinedMessage);
+            String userName = "";
+            boolean notFirstUser = false;
+            
+            strMessage.append(roleJoinedMessage.toString());
+
+            Iterator iter = userList.iterator();
+            while (iter.hasNext()) {
+                Object[] user_roles = (Object[])iter.next();
+                User u = null;
+
+                if (user_roles != null)
+                    u = (User) user_roles[0];
+
+                if (u != null)
+                    userName = u.getUsername();
+
+                if (notFirstUser) {
+                    strMessage.append(", ");
+                } else {
+                    strMessage.append(": ");
+                    notFirstUser = true;
+                }
+
+                strMessage.append(userName);
+            }
+
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, strMessage.toString());
+            
+            return getDefaultForward(mapping, request);
         }
 
         if (role.isProtectedRole()) {
@@ -189,7 +199,7 @@ public class RoleAction extends KaartenbalieCrudAction {
      * @throws Exception, HibernateException
      */
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -262,7 +272,7 @@ public class RoleAction extends KaartenbalieCrudAction {
      */
     protected void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List roleslist = em.createQuery("from Roles").getResultList();
         request.setAttribute("roleslist", roleslist);
@@ -278,7 +288,7 @@ public class RoleAction extends KaartenbalieCrudAction {
      * @return an Organization object.
      */
     protected Roles getRole(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Roles role = null;
         Integer id = getID(dynaForm);
