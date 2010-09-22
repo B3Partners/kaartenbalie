@@ -93,7 +93,7 @@ body {
     padding-top: 0px;
     color: none;
     
-    width: 700px;
+    width: 750px;
     float: right;
     margin-top: 6px;
 }
@@ -114,7 +114,7 @@ body {
 }
 
 
-#nav-menu  a, #nav-menu  a:link, #nav-menu  a:active, #nav-menu  a:visited, #nav-menu  a:hover {
+#nav-menu a, #nav-menu  a:link, #nav-menu a:active, #nav-menu  a:visited, #nav-menu  a:hover {
   text-decoration: none;
   display: block;
   padding-top: 5px;
@@ -130,6 +130,25 @@ body {
   margin-left: 0px;
   float: left;
   font-weight: bold;
+}
+
+a.menulink, a.menulink:visited, a.menulink:active, a.activemenulink, a.activemenulink:visited, a.activemenulink:active {
+    display: block;
+    padding-top: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 21px;
+    border-bottom: 0px none White;
+    border-left: 1px solid #A0D9FF;
+    border-top: 1px solid #A0D9FF;
+    border-right: 1px solid #102F44;
+    color: #000;
+    float: right;
+}
+
+#nav-menu a.activemenulink, a.activemenulink:visited, a.activemenulink:active {  
+    background-color: #fff;
+    color: #000;
 }
 
 #nav-menu a:hover {
