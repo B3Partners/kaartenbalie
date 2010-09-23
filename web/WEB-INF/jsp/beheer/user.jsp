@@ -215,7 +215,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     tablepager(
                         'server_table',
                         '930',
-                        '14'
+                        '14',
+                        true
                     );
                 </script>
             </c:when>
