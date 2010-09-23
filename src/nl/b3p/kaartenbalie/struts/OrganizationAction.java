@@ -80,7 +80,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
 
         ExtendedMethodProperties crudProp = null;
 
-
         crudProp = new ExtendedMethodProperties(SAVE_RIGHTS);
         crudProp.setDefaultForwardName(RIGHTSFW);
         crudProp.setDefaultMessageKey("warning.crud.savedone");
@@ -205,19 +204,23 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     }
 
     public ActionForward saveRights(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        if (!isTokenValid(request)) {
-            prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
-            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
-            return getAlternateForward(mapping, request);
-        }
+
         Organization organization = getOrganization(dynaForm, request, false);
+
         if (null == organization) {
             prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
+        if (!isTokenValid(request)) {
+            populateOrganizationTree(organization, dynaForm, request);
+
+            prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
+            addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
+            return getAlternateForward(mapping, request);
+        }
+
         populateOrganizationLayers(dynaForm, organization);
 
         /**
@@ -228,12 +231,16 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }
 
+        log.debug("Getting entity manager ......");
+        EntityManager em = getEntityManager();
+
         em.merge(organization);
         em.flush();
 
         populateOrganizationTree(organization, dynaForm, request);
         prepareMethod(dynaForm, request, RIGHTSFW, RIGHTSFW);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+
         return getDefaultForward(mapping, request);
     }
 

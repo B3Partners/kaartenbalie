@@ -185,13 +185,16 @@
         <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
+        </action>
+        <action path="/rights" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">          
+            <forward name="success" path="base.beheer.organization"/>
+            <forward name="failure" path="base.beheer.organization"/>
             <forward name="rights" path="base.beheer.rights"/>
         </action>
         <action path="/role" name="roleForm" type="nl.b3p.kaartenbalie.struts.RoleAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.role"/>
             <forward name="failure" path="base.beheer.role"/>
         </action>
-        <action path="/rights" forward="/organization.do?listRights=t"/>
         <action path="/accounting" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.accounting"/>
             <forward name="failure" path="base.beheer.accounting"/>

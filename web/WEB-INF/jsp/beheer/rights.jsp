@@ -28,11 +28,13 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
-<html:form action="/organization">
+<html:form action="/rights">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
     <html:hidden property="name" />
+
+    <input type="hidden" name="saveRights" value="t" />
 
     <div class="containerdiv" style="float: left; clear: none;">
         <H1><fmt:message key="beheer.rights.title" /></H1>
@@ -52,12 +54,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         </thead>
                         <tbody>
                             <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                                <c:url var="link" value="/beheer/organization.do?editRights=submit&id=${nOrganization.id}" />
+                                <c:url var="link" value="/rights.do?editRights=submit&id=${nOrganization.id}" />
                                 <c:set var="id_selected" value='' />
                                 <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
                                 <tr onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});"${id_selected}>
                                     <td>
-                                        <html:link page="/organization.do?editRights=submit&id=${nOrganization.id}">
+                                        <html:link page="/rights.do?editRights=submit&id=${nOrganization.id}">
                                             <c:out value="${nOrganization.name}"/>
                                         </html:link>
                                         <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
