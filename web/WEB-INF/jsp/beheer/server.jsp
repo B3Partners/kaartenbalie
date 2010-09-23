@@ -89,7 +89,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         'server_table',
                         '930',
                         '14',
-                        true
+                        false
                     );
                 </script>
             </c:when>

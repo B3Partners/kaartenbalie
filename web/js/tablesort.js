@@ -1472,6 +1472,16 @@ jQuery.tablesorter.addParser({
     type: 'text'
 });
 
+getIEVersionNumber = function() {
+    var ua = navigator.userAgent;
+    var MSIEOffset = ua.indexOf("MSIE ");
+    if (MSIEOffset == -1) {
+        return -1;
+    } else {
+        return parseFloat(ua.substring(MSIEOffset + 5, ua.indexOf(";", MSIEOffset)));
+    }
+}
+var ieVersion = getIEVersionNumber();
 
 function tablepager(tableid, tablewidth, cellheight, displayselect) {
     // Load IE6 immediatly because of positioning of elements. For the rest of the browsers: wait until DOM tree is loaded
