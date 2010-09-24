@@ -110,7 +110,7 @@ public class WMSUrlCreatorAction extends KaartenbalieCrudAction {
         request.setAttribute("formatList", formats);
 
         Set userLayers = user.getLayers();
-        JSONObject root = createTree(userLayers);
+        JSONObject root = createTree("Kaartlagen", userLayers);
         request.setAttribute("layerList", root);
 
         LayerValidator lv = new LayerValidator(userLayers);

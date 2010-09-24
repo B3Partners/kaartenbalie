@@ -240,18 +240,18 @@ public class KaartenbalieCrudAction extends CrudAction {
        return false;
    }
 
-    protected JSONObject createTree() throws JSONException {
-        return createTree(null, false);
+    protected JSONObject createTree(String rootName) throws JSONException {
+        return createTree(rootName, null, false);
     }
 
-    protected JSONObject createTree(Set organizationLayers) throws JSONException {
-        return createTree(organizationLayers, true);
+    protected JSONObject createTree(String rootName, Set organizationLayers) throws JSONException {
+        return createTree(rootName, organizationLayers, true);
     }
 
-    private JSONObject createTree(Set organizationLayers, boolean checkLayers) throws JSONException {
+    private JSONObject createTree(String rootName, Set organizationLayers, boolean checkLayers) throws JSONException {
         JSONObject root = new JSONObject();
-        root.put("name", "root");
-        root.put("id", "wmsroot");
+        root.put("name", rootName);
+        root.put("id", "wms" + rootName);
         try {
             log.debug("Getting entity manager ......");
             EntityManager em = getEntityManager();

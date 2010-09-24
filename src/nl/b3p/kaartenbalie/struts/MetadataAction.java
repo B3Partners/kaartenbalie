@@ -573,7 +573,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             }
 
             Set userLayers = user.getLayers();
-            JSONObject root = this.createTree(userLayers);
+            JSONObject root = this.createTree("Kaartlagen", userLayers);
             request.setAttribute("layerList", root);
         } catch (Throwable e) {
             log.warn("Error creating EntityManager: ", e);

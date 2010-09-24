@@ -108,7 +108,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <html:hidden property="id" />
             <html:hidden property="name" />
             <html:hidden property="metadata" styleId="metadata"/>
-            <tiles:insert definition="actionMessages"/>
+            <tiles:insert definition="common.actionMessages"/>
             <div id="write-root"></div>
             <%--
             <input type="hidden" name="save" value="">

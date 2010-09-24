@@ -53,7 +53,7 @@ public abstract class PricingAction extends KaartenbalieCrudAction {
     }
 
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        JSONObject root = this.createTree();
+        JSONObject root = this.createTree("Kaartlagen");
         request.setAttribute("layerList", root);
         return mapping.findForward(SUCCESS);
     }

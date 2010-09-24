@@ -407,7 +407,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
 
-        JSONObject root = null;
         StringBuffer checkedLayers = new StringBuffer();
 
         Set wmsLayers = organization.getLayers();
@@ -416,8 +415,6 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             checkedLayers.append(",");
             checkedLayers.append(((Layer) wmsOrganizationLayer[i]).getUniqueName());
         }
-        root = this.createTree();
-        JSONArray rootArray = (JSONArray) root.get("children");
 
         Set wfsLayers = organization.getWfsLayers();
         Object[] wfsOrganizationLayer = wfsLayers.toArray();
@@ -427,21 +424,22 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             checkedLayers.append(((WfsLayer) wfsOrganizationLayer[i]).getUniqueName());
         }
 
-        JSONObject wfsRoot = this.createWfsTree("WFS Services");
-        JSONArray wfsRootArray = (JSONArray) wfsRoot.get("children");
-        if (wfsRootArray != null && wfsRootArray.length() > 0) {
-            if (rootArray == null || rootArray.length() == 0) {
-                root = new JSONObject();
-                root.put("name", "root");
-                root.put("children", wfsRootArray);
-            } else {
-                rootArray.put(wfsRoot);
-            }
-        }
-
         if (checkedLayers.length() > 0) {
             request.setAttribute("checkedLayers", checkedLayers.substring(1));
         }
+
+        JSONObject root = new JSONObject();
+        root.put("name", "All Services");
+        root.put("id", "allservices");
+        JSONArray rootArray = new JSONArray();
+        root.put("children", rootArray);
+
+        JSONObject wmsRoot = this.createTree("WMS Services");
+        rootArray.put(wmsRoot);
+
+        JSONObject wfsRoot = this.createWfsTree("WFS Services");
+        rootArray.put(wfsRoot);
+
         request.setAttribute("layerList", root);
     }
 
