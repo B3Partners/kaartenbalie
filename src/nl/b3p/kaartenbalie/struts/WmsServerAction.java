@@ -56,6 +56,8 @@ public class WmsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WmsServerAction.class);
 
+    protected static final String ABBR_WARN_KEY = "warning.abbr.changed";
+
     /* Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
@@ -163,6 +165,7 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -256,8 +259,20 @@ public class WmsServerAction extends ServerAction {
             }
         }
         dynaForm.set("id", null);
+
+        /* controleren of afkorting wordt aangepast, zo ja even de beheerder
+         * informeren van mogelijke gevolgen. Deze afkorting wordt namelijk gebruikt
+         * in WMS_LAYER_REAL ind e gisviewerConfig. De beheerder moet dus gekoppelde
+         * WMS layers opnieuw toewijzen */
+        String oldAbbr = oldServiceProvider.getAbbr();
+
+        if (!oldAbbr.equals(abbreviation)) {
+            //addAlternateMessage(mapping, request, ABBR_WARN_KEY);
+        }
+
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
