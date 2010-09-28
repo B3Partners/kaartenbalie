@@ -118,9 +118,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
                     <br />
                     <div class="knoppen">
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
-                            <fmt:message key="button.cancel"/>
-                        </html:cancel>
                         <c:choose>
                             <c:when test="${save || delete}">
                                 <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
@@ -141,6 +138,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 </html:submit>
                             </c:otherwise>
                         </c:choose>
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                            <fmt:message key="button.cancel"/>
+                        </html:cancel>
                     </div>
                 </div>
             </c:when>

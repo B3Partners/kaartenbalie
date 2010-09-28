@@ -120,11 +120,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </div>
             
             <div id="footer">
-                <!-- <div id=footertext>
-                    BEGIN footer
-                <tiles:insert name='footer'/>
-                    END footer
-                </div>-->
+                <!--[if IE 7]>
+                    <div id="footerholder">
+                <![endif]-->
+                
                 <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;">
                     <div id="initiatief">
                         <div id="footer_tekst_rechts" class="footer_tekst"><fmt:message key="templates.template.initiatief" /></div>
@@ -133,6 +132,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <div id="copyright">
                     <div id="footer_tekst_links" class="footer_tekst"><fmt:message key="templates.template.copyright" /></div>
                 </div>
+                
+                <!--[if IE 7]>
+                    </div>
+                <![endif]-->
             </div>
         </div>
         <tiles:insert definition="common.googleAnalytics"/>        

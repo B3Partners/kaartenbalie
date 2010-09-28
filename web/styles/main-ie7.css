@@ -7,9 +7,54 @@
     width: 760px;
 }
 
-#initiatief {
-    float: left;
+#footerholder {
+    width: 950px;
     left: 50%;
+    margin-left: -475px;
+    height: 50px;
+    position: absolute;
+
+}
+
+#copyright {
+    width: 180px;
+    height: 50px;
+    float: none;
+    position: absolute;
+    top: auto;
+    left: auto;
+    clear: none;
+    text-align: left;
+    margin: 0px;
+    margin-left: -950px;
+}
+
+#initiatief {
+    width: 334px;
+    height: 50px;
+    background-image: url(../images/kaartenbalie/initiatief.gif);
+    float: none;
+    position: absolute;
+    top: auto;
     right: auto;
-    margin-left: 160px;
+    clear: none;
+    text-align: left;
+    margin-left: -334px;
+}
+
+#footer_tekst_links {
+    margin-top: 18px;
+
+    position: static;
+    top: auto;
+    right: auto;
+}
+
+#footer_tekst_rechts {
+    margin-top: 18px;
+    margin-left: 35px;
+
+    position: static;
+    top: auto;
+    right: auto;
 }
