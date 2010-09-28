@@ -254,11 +254,13 @@ function doCustomSubmit(){
                         </tr>
                     </table>
                     
-                    <br /><div class="knoppen">
+                    <br />
+                    <div class="knoppen">
+                        <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.update"/>"/>
+                        
                         <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                             <fmt:message key="button.cancel"/>
                         </html:cancel>                    
-                        <input type="button" class="knop" onclick="javascript: doCustomSubmit()" name="save" value="<fmt:message key="button.update"/>"/>
                     </div>
                     
                 </div>

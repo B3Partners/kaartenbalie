@@ -21,7 +21,6 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -31,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -42,8 +40,6 @@ import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.wms.capabilities.Roles;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.ogc.utils.KBConfiguration;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -59,6 +55,7 @@ public class UserAction extends KaartenbalieCrudAction {
     protected static final String NON_UNIQUE_USERNAME_ERROR_KEY = "error.nonuniqueusername";
     protected static final String USER_NOTFOUND_ERROR_KEY = "error.usernotfound";
     protected static final String NONMATCHING_PASSWORDS_ERROR_KEY = "error.passwordmatch";
+    protected static final String NO_PASSWORDS_ERROR_KEY = "error.nopassword";
     protected static final String DELETE_ADMIN_ERROR_KEY = "error.deleteadmin";
     protected static final String DATE_PARSE_ERROR_KEY = "error.dateparse";
     protected static final String DATE_INPUT_ERROR_KEY = "error.dateinput";
@@ -225,6 +222,14 @@ public class UserAction extends KaartenbalieCrudAction {
 
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
+
+        /* wil nieuwe gebruiker aanmaken maar ww zijn niet ingevuld */
+        if (user.getId() == null && password == null) {
+            prepareMethod(dynaForm, request, EDIT, EDIT);
+            addAlternateMessage(mapping, request, NO_PASSWORDS_ERROR_KEY);
+
+            return getAlternateForward(mapping, request);
+        }
 
         if (password != null || repeatpassword != null) {
             if (password == null || !password.equals(repeatpassword)) {
@@ -542,6 +547,7 @@ public class UserAction extends KaartenbalieCrudAction {
 
         String password = FormUtils.nullIfEmpty(dynaForm.getString("password"));
         String repeatpassword = FormUtils.nullIfEmpty(dynaForm.getString("repeatpassword"));
+
         if (password != null && repeatpassword != null) {
             if (password.equals(repeatpassword)) {
                 String encpw = KBCrypter.encryptText(FormUtils.nullIfEmpty(dynaForm.getString("password")));
@@ -550,6 +556,7 @@ public class UserAction extends KaartenbalieCrudAction {
                 throw new Exception("New passwords do not match!");
             }
         }
+
         String mainOrgId = dynaForm.getString("mainOrganization");
         String[] orgSelected = dynaForm.getStrings("orgSelected");
         Set orgSelectedSet = new HashSet();
@@ -582,10 +589,14 @@ public class UserAction extends KaartenbalieCrudAction {
         /* ingevulde rollen bewaren */
         Integer[] rolesSelected = (Integer[])dynaForm.get("roleSelected");
 
-        if (rolesSelected !=null && rolesSelected[0] != -1) {
-            if (rolesSelected.length < 1) {
-                user.getRoles().clear();
-            } else {
+        /* zit op gebruiker form rolesSelected kan geen lengte hebben
+             * als je niets aanvinkt */
+        if (rolesSelected != null && rolesSelected.length == 0) {
+            user.getRoles().clear();
+        }
+
+        if (rolesSelected != null && rolesSelected.length > 0) {
+            if (rolesSelected[0] != -1) {
                 List newRoles = em.createQuery("from Roles where id in (:ids)")
                         .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
 
