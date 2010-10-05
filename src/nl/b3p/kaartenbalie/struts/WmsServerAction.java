@@ -264,10 +264,12 @@ public class WmsServerAction extends ServerAction {
          * informeren van mogelijke gevolgen. Deze afkorting wordt namelijk gebruikt
          * in WMS_LAYER_REAL ind e gisviewerConfig. De beheerder moet dus gekoppelde
          * WMS layers opnieuw toewijzen */
-        String oldAbbr = oldServiceProvider.getAbbr();
+        if (oldServiceProvider != null) {
+            String oldAbbr = oldServiceProvider.getAbbr();
 
-        if (!oldAbbr.equals(abbreviation)) {
-            //addAlternateMessage(mapping, request, ABBR_WARN_KEY);
+            if (!oldAbbr.equals(abbreviation)) {
+                //addAlternateMessage(mapping, request, ABBR_WARN_KEY);
+            }
         }
 
         prepareMethod(dynaForm, request, LIST, EDIT);
