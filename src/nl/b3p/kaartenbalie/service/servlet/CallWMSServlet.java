@@ -501,52 +501,77 @@ public class CallWMSServlet extends HttpServlet {
     protected User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
         User user = null;
+        String code = extractCode(request);
 
-        // probeer eerst personal url, checken op token in url
-        try {
-            String code = extractCode(request);
-            log.debug("Check code for login: " + code);
-            user = (User) em.createQuery(
-                    "from User u where "
-                    + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
-            em.flush();
-
-        } catch (NonUniqueResultException nue) {
-            log.error("More than one person found for this url (to be fixed in database), trying next method.");
-            user = null;
-        } catch (NoResultException nre) {
-            log.debug("Personal url not found, trying next method.");
-            user = null;
-        }
-
-        if (user != null) {
-            java.util.Date date = user.getTimeout();
-            if (date.compareTo(new java.util.Date()) <= 0) {
-                log.debug("Personal URL key has expired, trying next method.");
-                user = null;
+        // checken of user gewoon ingelogd is
+        if (user == null) {
+            user = (User) request.getUserPrincipal();
+            if (user != null) {
+                String userCode = user.getPersonalURL();
+                if (code != null && userCode != null && !code.equals(userCode)) {
+                    // verkeerde user
+                    user = null;
+                }
+            }
+            if (user != null) {
+                log.info("Cookie accepted for login, username: " + user.getName());
             }
         }
 
-        if (user != null) {
-            String remoteaddress = request.getRemoteAddr();
-            boolean validip = false;
 
-            Set ipaddresses = user.getIps();
-            Iterator it = ipaddresses.iterator();
-            while (it.hasNext()) {
-                String ipaddress = (String) it.next();
-                if (ipaddress.equalsIgnoreCase(remoteaddress)
-                        || ipaddress.equalsIgnoreCase("0.0.0.0")
-                        || ipaddress.equalsIgnoreCase("::")) {
-                    validip = true;
-                    break;
+        if (user == null) {
+
+            // probeer eerst personal url, checken op token in url
+            try {
+                log.debug("Check code for login: " + code);
+
+                user = (User) em.createQuery(
+                        "from User u where "
+                        + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
+                em.flush();
+
+
+            } catch (NonUniqueResultException nue) {
+                log.error("More than one person found for this url (to be fixed in database), trying next method.");
+                user = null;
+            } catch (NoResultException nre) {
+                log.debug("Personal url not found, trying next method.");
+                user = null;
+            }
+ 
+            if (user != null) {
+                java.util.Date date = user.getTimeout();
+                if (date.compareTo(new java.util.Date()) <= 0) {
+                    log.debug("Personal URL key has expired, trying next method.");
+                    user = null;
                 }
             }
 
-            if (!validip) {
-                log.debug("Personal URL not usuable for this IP address, trying next method");
-                user = null;
+            if (user != null) {
+                String remoteaddress = request.getRemoteAddr();
+                boolean validip = false;
+
+                Set ipaddresses = user.getIps();
+                Iterator it = ipaddresses.iterator();
+                while (it.hasNext()) {
+                    String ipaddress = (String) it.next();
+                    if (ipaddress.equalsIgnoreCase(remoteaddress)
+                            || ipaddress.equalsIgnoreCase("0.0.0.0")
+                            || ipaddress.equalsIgnoreCase("::")) {
+                        validip = true;
+                        break;
+                    }
+                }
+
+                if (!validip) {
+                    log.debug("Personal URL not usuable for this IP address, trying next method");
+                    user = null;
+                }
+            }
+            if (user != null) {
+                log.info("Personal URL accepted for login, username: " + user.getName());
             }
         }
 
@@ -575,7 +600,7 @@ public class CallWMSServlet extends HttpServlet {
                     log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
                     user = null;
                 } catch (NoResultException nre) {
-                    user=null;
+                    user = null;
                     log.debug("No results using encrypted password, trying next method");
                 }
 
@@ -599,19 +624,9 @@ public class CallWMSServlet extends HttpServlet {
                         log.debug("No results using cleartext password, trying next method.");
                     }
                 }
-                if (user != null) {
-                    log.info("Basic authentication accepted for login, username: " + user.getName());
-                }
             }
-        } else {
-            log.info("Personal URL accepted for login, username: " + user.getName());
-        }
-
-        // tenslotte checken of user gewoon ingelogd is
-        if (user == null) {
-            user = (User) request.getUserPrincipal();
             if (user != null) {
-                log.info("Cookie accepted for login, username: " + user.getName());
+                log.info("Basic authentication accepted for login, username: " + user.getName());
             }
         }
 
