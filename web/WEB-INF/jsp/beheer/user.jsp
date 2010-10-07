@@ -162,7 +162,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
                                 <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
                                 <th style="width: 30%;"><fmt:message key="beheer.user.table.rollen"/></th>
-                                <th class="{sorter: 'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                                <th class="{sorter:'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
                             </tr>
                         </thead>
                         <tbody>

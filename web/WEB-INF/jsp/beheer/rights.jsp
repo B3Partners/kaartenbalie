@@ -111,7 +111,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <div class="serverDetailsClass">
                 <table >
                     <tr>
-                        <td valign="top" rowspan="0" style="padding-left: 40px;">
+                        <td valign="top" style="padding-left: 40px;">
                             <b><fmt:message key="beheer.rights.rechten" /> <c:out value="${orgName}"/>:&nbsp;</b>
                             <html:submit property="saveRights" accesskey="s" styleClass="knop">
                                 <fmt:message key="button.update"/>
@@ -119,7 +119,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                         </td>
                     </tr>
                     <tr>
-                        <td valign="top" rowspan="0" style="padding-left: 40px;">
+                        <td valign="top" style="padding-left: 40px;">
                             <div id="treeContainerWide">
                                 <div class="treeHolderWide">
                                     <div id="tree"></div>
