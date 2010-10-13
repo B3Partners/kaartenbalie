@@ -98,7 +98,7 @@ white-space: nowrap;
 						</td>
 					</tr>
 					<tr>
-						<td>Organizatie</td>
+						<td>Groep</td>
 						<td>
 							<xsl:value-of select="organization"/>
 						</td>

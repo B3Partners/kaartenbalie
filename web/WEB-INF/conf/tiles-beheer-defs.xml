@@ -37,7 +37,7 @@
         <put name="content" value="/WEB-INF/jsp/beheer/wfsserver.jsp"/>
     </definition>
     <definition name="base.beheer.organization" extends="base.proxy">
-        <put name="title" value="Organizaties - Beheer" type="string"/>
+        <put name="title" value="Groepen - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/organization.jsp"/>
     </definition>
     <definition name="base.beheer.role" extends="base.proxy">
@@ -49,7 +49,7 @@
         <put name="content" value="/WEB-INF/jsp/beheer/rights.jsp"/>
     </definition>
     <definition name="base.beheer.wfsorganization" extends="base.proxy">
-        <put name="title" value="WFS Organizaties - Beheer" type="string"/>
+        <put name="title" value="WFS Groepen - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/wfsorganization.jsp"/>
     </definition>
     <definition name="base.beheer.metadata" extends="base.beheer">
