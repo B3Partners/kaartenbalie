@@ -1,24 +1,3 @@
-/*
- * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
- * for authentication/authorization, pricing and usage reporting.
- *
- * Copyright 2006, 2007, 2008 B3Partners BV
- * 
- * This file is part of B3P Kaartenbalie.
- * 
- * B3P Kaartenbalie is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * B3P Kaartenbalie is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
- */
 package nl.b3p.kaartenbalie.struts;
 
 import java.math.BigDecimal;
@@ -57,7 +36,7 @@ import org.json.JSONObject;
 
 /**
  *
- * @author Jytte
+ * @author B3Partners
  */
 public class OrganizationAction extends KaartenbalieCrudAction {
 
@@ -65,7 +44,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
     private final static String EDIT_RIGHTS = "editRights";
     private final static String LIST_RIGHTS = "listRights";
     private final static String RIGHTSFW = "rights";
-    private static final Log log = LogFactory.getLog(OrganizationAction.class);
+    private static final Log logger = LogFactory.getLog(OrganizationAction.class);
     protected static final String ORGANIZATION_LINKED_ERROR_KEY = "error.organizationstilllinked";
     protected static final String CAPABILITY_WARNING_KEY = "warning.saveorganization";
     protected static final String ORG_NOTFOUND_ERROR_KEY = "error.organizationnotfound";
@@ -111,6 +90,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
+    @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
@@ -134,6 +114,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception
      */
+    @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Organization organization = getOrganization(dynaForm, request, false);
         if (organization == null) {
@@ -169,8 +150,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception, HibernateException
      */
+    @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -231,7 +213,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, null, CAPABILITY_WARNING_KEY);
         }
 
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
         em.merge(organization);
@@ -244,8 +226,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         return getDefaultForward(mapping, request);
     }
 
+    @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = getOrganization(dynaForm, request, false);
         if (null == organization) {
@@ -315,8 +298,9 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws Exception, HibernateException
      */
+    @Override
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws HibernateException, Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
 
         EntityManager em = getEntityManager();
 
@@ -407,10 +391,12 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
 
-        StringBuffer checkedLayers = new StringBuffer();
+        StringBuilder checkedLayers = new StringBuilder();
 
         Set wmsLayers = organization.getLayers();
+
         Object[] wmsOrganizationLayer = wmsLayers.toArray();
+
         for (int i = 0; i < wmsOrganizationLayer.length; i++) {
             checkedLayers.append(",");
             checkedLayers.append(((Layer) wmsOrganizationLayer[i]).getUniqueName());
@@ -451,7 +437,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param selectedLayers String array with the selected layers for this organization
      */
     private void populateOrganizationObject(DynaValidatorForm dynaForm, Organization organization) throws Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         organization.setName(FormUtils.nullIfEmpty(dynaForm.getString("name")));
         organization.setStreet(FormUtils.nullIfEmpty(dynaForm.getString("street")));
@@ -469,7 +455,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         if (bbox != null) {
             String[] boxxvalues = bbox.split(",");
             if (boxxvalues.length != 4) {
-                log.error("BBOX wrong size: " + boxxvalues.length);
+                logger.error("BBOX wrong size: " + boxxvalues.length);
                 throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
             double minx = 0.0, miny = 0.0, maxx = -1.0, maxy = -1.0;
@@ -479,11 +465,11 @@ public class OrganizationAction extends KaartenbalieCrudAction {
                 maxx = Double.parseDouble(boxxvalues[2]);
                 maxy = Double.parseDouble(boxxvalues[3]);
                 if (minx > maxx || miny > maxy) {
-                    log.error("BBOX values out of range (minx, miny, maxx, maxy): " + minx + ", " + miny + ", " + maxx + ", " + maxy);
+                    logger.error("BBOX values out of range (minx, miny, maxx, maxy): " + minx + ", " + miny + ", " + maxx + ", " + maxy);
                     throw new Exception("BBOX values out of range (minx, miny, maxx, maxy): " + minx + ", " + miny + ", " + maxx + ", " + maxy);
                 }
             } catch (Exception e) {
-                log.error("BBOX error minx, miny, maxx, maxy: " + minx + ", " + miny + ", " + maxx + ", " + maxy);
+                logger.error("BBOX error minx, miny, maxx, maxy: " + minx + ", " + miny + ", " + maxx + ", " + maxy);
                 throw new Exception(KBConfiguration.BBOX_EXCEPTION + " Usage: minx,miny,maxx,maxy");
             }
         }
@@ -553,9 +539,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      *
      * @throws HibernateException, JSONException, Exception
      */
+    @Override
     protected void createLists(DynaValidatorForm form, HttpServletRequest request) throws HibernateException, JSONException, Exception {
         super.createLists(form, request);
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List organizationlist = em.createQuery("from Organization order by name").getResultList();
         request.setAttribute("organizationlist", organizationlist);
@@ -571,7 +558,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @return an Organization object.
      */
     protected Organization getOrganization(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
-        log.debug("Getting entity manager ......");
+        logger.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = getID(dynaForm);
