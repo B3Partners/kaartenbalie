@@ -1390,6 +1390,13 @@ $.fn.metadata = function( opts ){
 				renderTable(table,rows);
 			};
 
+                        this.moveToPage = function(pageid, table) {
+                            var c = table.config;
+                            c.page = pageid - 1;
+                            if(c.page < 0) c.page = 0;
+                            renderTable(table,c.rowsCopy);
+                        }
+
 			this.defaults = {
 				size: 10,
 				offset: 0,
@@ -1495,6 +1502,7 @@ function tablepager(tableid, tablewidth, cellheight, displayselect) {
 }
 
 var imageurl = "/kaartenbalie/images/icons/";
+var $table;
 function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
 
     var filters = [];
@@ -1507,7 +1515,7 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
 
     tableid = "#" + tableid;
 
-    var $table = jQuery(tableid);
+    $table = jQuery(tableid);
     var $parentdiv = $table.parent();
 
     $table.show();
@@ -1609,22 +1617,14 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
     $table.find(".tablefilterbox").trigger("keyup");
     if(hasCookie && cookieoptions.sorting) $table.trigger("sorton",[[cookieoptions.sorting]]);
 
-    counter = 1;
-    var childnr = 0;
     $table.find("tbody > tr").each(function(){
         if(jQuery(this).find("input[name=selected]").val() == "selected") {
-            childnr = counter;
             jQuery(this).addClass("selectedtr");
         }
-        counter++;
     });
 
-    // compute selected page (10 = standaard number of rows on a page), pages start at 0
-    var selectedpage = Math.ceil(childnr / 10) - 1;
-    if(selectedpage == -1) selectedpage = 0;
-
     // init pager
-    $table.tablesorterPager({container: jQuery("#pager"), positionFixed: false, page: selectedpage});
+    $table.tablesorterPager({container: jQuery("#pager"), positionFixed: false, page: 0});
 
     // set input widths
     $table.find(".filterrow td").each(function(index) {
@@ -1632,7 +1632,24 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
         jQuery(this).find("input").css("width", inputwidth + 'px');
     });
 
-    setTimeout(function() { jQuery("#tableoverlay").remove(); }, 1000);
+    setTimeout(function() { moveToSelectedPage(); jQuery("#tableoverlay").remove(); }, 1000);
+}
+
+function moveToSelectedPage() {
+    var counter = 1;
+    var childnr = 0;
+    var $rows = jQuery($table[0].config.rowsCopy);
+    $rows.each(function(){
+        if(jQuery(this).find("input[name=selected]").val() == "selected") {
+            childnr = counter;
+        }
+        counter++;
+    });
+
+    var selectedpage = Math.ceil(childnr / 10);
+    if(selectedpage == 0) selectedpage = 1;
+
+    jQuery.tablesorterPager.moveToPage(selectedpage,$table[0]);
 }
 
 function resetFilters(tableid) {
