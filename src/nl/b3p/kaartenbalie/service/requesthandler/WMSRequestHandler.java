@@ -544,10 +544,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     }
 
                     dw.setContentType(rhValue);
-                    if (!REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
+                    
+                    if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                        
                         dw.write(method.getResponseBodyAsStream());
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
-                    } else {
+                        
+                    } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
+                        
                         DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, method.getResponseBodyAsStream());
                         DescribeLayerData data = new DescribeLayerData(wmsRequest.getServiceProviderAbbreviation(), wmsResponse);
                         List<DescribeLayerData> dataList = new ArrayList<DescribeLayerData>();
@@ -560,7 +564,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         serializer.serialize(newResponse);
                         dw.write(baos);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
+                        
+                    } else {
+                        /* GetLegend, GetStyles, PutStyles */
+                        dw.write(method.getResponseBodyAsStream());
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                     }
+
+
                 } catch (HttpException e) {
                     log.error("Fatal protocol violation: " + e.getMessage());
                     throw new HttpException("Fatal protocol violation: " + e.getMessage());
@@ -592,6 +603,61 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
         // <!DOCTYPE WMS_DescribeLayerResponse SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_DescribeLayerResponse.dtd">
         // [ <WMS_DescribeLayerResponse version="1.1.1" > (...) </WMS_DescribeLayerResponse>]        
+        DocumentType dt = di.createDocumentType("WMS_DescribeLayerResponse", null, CallWMSServlet.DESCRIBELAYER_DTD);
+        Document dom = di.createDocument(null, "WMS_DescribeLayerResponse", dt);
+        Element rootElement = dom.getDocumentElement();
+        rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
+
+        String personalUrl = this.user.getPersonalURL(dw.getRequest());
+
+        Integer[] orgIds = this.user.getOrganizationIds();
+
+        WFSProviderDAO wfsProviderDao = new WFSProviderDAO();
+        String[] validLayerNames = wfsProviderDao.getAuthorizedFeatureTypeNames(orgIds, null, false);
+        //it is not possible to use getSeviceProviderURLS because that will call getValidObjects implementation of WMSRequestHandler
+        //therefore build spInfo here in loop
+        //also, B3PLayering is not relevant here, because describeLayer should not be subject to pricing
+        List spInfo = new ArrayList();
+        for (String name : validLayerNames) {
+            SpLayerSummary layerInfo = wfsProviderDao.getAuthorizedFeatureTypeSummary(name, orgIds, false);
+            if (layerInfo == null) {
+                continue;
+            }
+            spInfo.add(layerInfo);
+        }
+
+        for (DescribeLayerData resp : describeLayerData) {
+            for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
+                Element layerDescriptionElement = dom.createElement("LayerDescription");
+                layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(),descr.getName()));
+
+                descr.getOwsURL();
+
+                //additional info should only be returned for WMS layer that has corresponding WFS type that is served by Kaartenbalie
+                String wfsPrefix = getAuthorizedWFSPrefix(spInfo, descr);
+                if (wfsPrefix != null) {
+                    layerDescriptionElement.setAttribute("wfs", personalUrl);
+                    layerDescriptionElement.setAttribute("owsType", descr.getOwsType());
+                    layerDescriptionElement.setAttribute("owsURL", personalUrl);
+
+                    Element queryElement = dom.createElement("Query");
+                    queryElement.setAttribute("typeName", completeLayerName(wfsPrefix, descr.getName()) ); //this needs to be fixed
+                    layerDescriptionElement.appendChild(queryElement);
+                }
+                rootElement.appendChild(layerDescriptionElement);
+            }
+        }
+        return dom;
+    }
+
+    private Document createKBGetFeatureInfoResponse(DataWrapper dw,
+            List<DescribeLayerData> describeLayerData) throws Exception {
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(false);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        DOMImplementation di = db.getDOMImplementation();
+
         DocumentType dt = di.createDocumentType("WMS_DescribeLayerResponse", null, CallWMSServlet.DESCRIBELAYER_DTD);
         Document dom = di.createDocument(null, "WMS_DescribeLayerResponse", dt);
         Element rootElement = dom.getDocumentElement();

@@ -93,9 +93,13 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
                 //Say hello to B3P Layering!!
             } else {
                 firWrapper.setServiceProviderId(serviceProviderId);
+
+                String abbr = spInfo.getSpAbbr();
+                firWrapper.setServiceProviderAbbreviation(abbr);
+             
                 String layersList = spInfo.getLayersAsString();
 
-                StringBuffer url = new StringBuffer();
+                StringBuilder url = new StringBuilder();
                 url.append(spInfo.getSpUrl());
                 if (url.indexOf("?")!=url.length()-1 && url.indexOf("&")!= url.length()-1){
                     if (url.indexOf("?")>=0){
