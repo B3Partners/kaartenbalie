@@ -167,10 +167,24 @@ function doCustomSubmit(){
             <fmt:message key="viewer.createUrl.body" />
         </P>        
         <P>
+            <!-- Laatste stuk van persoonlijke url is de code.
+            Deze moet in de url erbij -->
+            <c:set var="personalURL" value="${form.map.personalURL}"/>
+            <c:set var="arr" value="${fn:split(personalURL,'/')}"/>
+            <c:set var="lastItemIndex" value="${fn:length(arr) -1}"/>
+
+            <c:if test="${lastItemIndex > 0}">
+                <c:set var="personalCode" value="${arr[lastItemIndex]}"/>
+            </c:if>
+
+            <c:if test="${lastItemIndex < 0}">
+                <c:set var="personalCode" value=""/>
+            </c:if>
+
             <fmt:message key="viewer.createUrl.getcapabilities" />
-            <html:link page="/services/?REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" module="" target="_blank"><fmt:message key="viewer.createUrl.wms" /></html:link>
+            <html:link page="/services/${personalCode}?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.1.1" module="" target="_blank"><fmt:message key="viewer.createUrl.wms" /></html:link>
             <fmt:message key="viewer.createUrl.en" />
-            <html:link page="/services/?SERVICE=WFS&REQUEST=GetCapabilities" module="" target="_blank"><fmt:message key="viewer.createUrl.wfs" /></html:link></P>
+            <html:link page="/services/${personalCode}?SERVICE=WFS&REQUEST=GetCapabilities" module="" target="_blank"><fmt:message key="viewer.createUrl.wfs" /></html:link></P>
         
         <H2><fmt:message key="viewer.createUrl.huidigegegevens" /></H2>
         <table>
