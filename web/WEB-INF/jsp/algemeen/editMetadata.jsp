@@ -78,7 +78,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
 
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/scriptaculous-js-1.7.0/lib/prototype.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
 
         <script type="text/javascript">
@@ -87,11 +86,21 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             /* ]]> */
         </script>	
 
+        <!-- jquery -->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.min.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-1.8.5.custom.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-1.8.5.custom.min.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery.ui.datepicker-nl/jquery.ui.datepicker-nl.js' module='' />"></script>
+
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/log.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
+
+        <link href="<html:rewrite page='/js/metadataEditor/styles/jquery-ui-1.8.5.custom.css' module='' />" rel="stylesheet" type="text/css" />
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css" />
-        <link href="<html:rewrite page='/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
-        <!--[if lte IE 7]> 
-            <link href="<html:rewrite page='/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" />
-        <![endif]-->
+        <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
+        <!--[if IE]> <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
+        <!--[if lte IE 7]> <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit-ie7.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
 
     </head>
     <body>
