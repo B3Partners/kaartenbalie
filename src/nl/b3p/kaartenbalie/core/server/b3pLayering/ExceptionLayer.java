@@ -44,6 +44,9 @@ public class ExceptionLayer extends BackgroundLayer {
     protected BufferedImage modifyBaseImage(BufferedImage bufImage, Map parameterMap) throws Exception {
 
         String message = (String) parameterMap.get("message");
+        if (message==null) {
+            message = "unkown message";
+        }
         // positie in scherm
         Integer index = (Integer) parameterMap.get("index");
         int i = 0;
