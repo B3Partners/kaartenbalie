@@ -387,19 +387,11 @@ public class CallWMSServlet extends HttpServlet {
 
     private void handleRequestExceptionAsImage(Exception ex, DataWrapper data) throws IOException {
         String message = ex.getMessage();
-        if (message==null) {
-            Throwable t = ex.getCause();
-            if (t!=null) {
-                message = t.getMessage();
-            }
-            if (message==null) {
-                message = "Unknown Exception";
-            }
-        }
         try {
             ExceptionLayer el = new ExceptionLayer();
             Map parameterMap = new HashMap();
             parameterMap.put("type", ex.getClass());
+            parameterMap.put("transparant", Boolean.TRUE);
             parameterMap.put("message", message);
             parameterMap.put("stacktrace", ex.getStackTrace());
             el.sendImage(data, el.drawImage(data.getOgcrequest(), parameterMap));

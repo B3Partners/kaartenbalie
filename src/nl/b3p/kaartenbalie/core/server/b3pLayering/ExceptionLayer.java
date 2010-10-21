@@ -58,7 +58,7 @@ public class ExceptionLayer extends BackgroundLayer {
 
         int paddingsides = 30;
         int w = bufImage.getWidth() - (paddingsides * 2);
-        int h = message.length()*120/w;
+        int h = message.length()*120/w + 15;
         if (message != null) {
             drawTitledMessageBox(g2,
                     TITLE, message,
