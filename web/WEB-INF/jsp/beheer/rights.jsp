@@ -121,8 +121,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <tr>
                         <td valign="top" style="padding-left: 40px;">
                             <div id="treeContainerWide">
-                                <div class="treeHolderWide">
-                                    <div id="tree"></div>
+                                <div class="treeHolderWide" id="tree">
+                                    
                                 </div>
                             </div>
                         </td>
@@ -130,6 +130,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 </table>
             </div>
         </div>
+                            <div id="scrollTOP" style="margin-top: 50px;">
+
+                            </div>
     </c:if>
 
     <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
@@ -265,5 +268,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </c:if>
         
         </c:if>
+        
     </script>
 </html:form>
