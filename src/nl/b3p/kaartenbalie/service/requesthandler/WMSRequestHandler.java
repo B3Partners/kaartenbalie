@@ -158,8 +158,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             dbUser = (User) em.createQuery("from User u where "
                     + "u.id = :userid").setParameter("userid", user.getId()).getSingleResult();
         } catch (NoResultException nre) {
-            log.error("No serviceprovider for user found.");
-            throw new Exception("No serviceprovider for user found.");
+            log.error("User not found in database.");
+            throw new Exception("User not found in database.");
         }
         Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
         Set serviceproviders = null;
@@ -494,7 +494,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
-         * BufferedImage. The data recieved from the url can be directly transported to the client.
+         * BufferedImage. The data received from the url can be directly transported to the client.
          */
         String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
@@ -546,37 +546,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     dw.setContentType(rhValue);
                     
                     if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                        
                         dw.write(method.getResponseBodyAsStream());
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
-
-                        /*
-                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                        dbf.setValidating(false);
-                        dbf.setNamespaceAware(true);
-                        dbf.setIgnoringElementContentWhitespace(true);
-
-                        DocumentBuilder builder = dbf.newDocumentBuilder();
-                        Document destination = builder.newDocument();
-                        Element rootElement = destination.createElement("msGMLOutput");
-                        destination.appendChild(rootElement);
-                        rootElement.setAttribute("xmlns:gml", "http://www.opengis.net/gml");
-                        rootElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-                        rootElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                        Document source = null;
-
-                        source = builder.parse(url);
-
-                        String abbr = wmsRequest.getServiceProviderAbbreviation();
-                        prefixElements(source, destination, abbr);
-                        
-                        OutputFormat format = new OutputFormat(destination, KBConfiguration.CHARSET, true);
-                        format.setIndenting(true);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        XMLSerializer serializer = new XMLSerializer(baos, format);
-                        serializer.serialize(destination);
-                        dw.write(baos);
-                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
-                        */
                                               
                     } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
                         

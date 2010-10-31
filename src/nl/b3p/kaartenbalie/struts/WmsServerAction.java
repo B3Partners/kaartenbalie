@@ -41,8 +41,13 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.wms.capabilities.LayerDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
@@ -55,8 +60,8 @@ import org.xml.sax.SAXException;
 public class WmsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WmsServerAction.class);
-
     protected static final String ABBR_WARN_KEY = "warning.abbr.changed";
+    protected static long maxResponseTime = 10000;
 
     /* Edit method which handles all editable requests.
      *
@@ -144,7 +149,7 @@ public class WmsServerAction extends ServerAction {
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         Integer oldId = null;
-        if (oldServiceProvider!=null) {
+        if (oldServiceProvider != null) {
             oldId = oldServiceProvider.getId();
         }
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
@@ -199,19 +204,19 @@ public class WmsServerAction extends ServerAction {
         }
         populateServerObject(dynaForm, newServiceProvider);
         // haal set op om vulling van set af te dwingen
-        Set testSet = newServiceProvider.getAllLayers();
+        Set layerSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
         em.flush();
-        Iterator dwIter = testSet.iterator();
+        Iterator dwIter = layerSet.iterator();
         while (dwIter.hasNext()) {
             Layer layer = (Layer) dwIter.next();
+            // Find old layer to be able to reuse metadata additions
+            Set topLayerSet = new HashSet();
+            topLayerSet.add(oldServiceProvider.getTopLayer());
+            Layer oldLayer = checkLayer(layer, topLayerSet);
+            setMetadataFromLayerSource(layer, oldLayer);
         }
-        /*
-         * All tests have been completed succesfully.
-         * We have now a newServiceProvider object and all we need to check
-         * is if this serviceprovider has been changed or newly added. The
-         * easiest way of doing so, is by checking the id.
-         */
+
         if (oldServiceProvider != null) {
             /* Then we need to call for a list with organizations.
              * We walk through this list and for each organization in the
@@ -260,18 +265,6 @@ public class WmsServerAction extends ServerAction {
         }
         dynaForm.set("id", null);
 
-        /* controleren of afkorting wordt aangepast, zo ja even de beheerder
-         * informeren van mogelijke gevolgen. Deze afkorting wordt namelijk gebruikt
-         * in WMS_LAYER_REAL ind e gisviewerConfig. De beheerder moet dus gekoppelde
-         * WMS layers opnieuw toewijzen */
-        if (oldServiceProvider != null) {
-            String oldAbbr = oldServiceProvider.getAbbr();
-
-            if (!oldAbbr.equals(abbreviation)) {
-                //addAlternateMessage(mapping, request, ABBR_WARN_KEY);
-            }
-        }
-
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
 
@@ -309,8 +302,8 @@ public class WmsServerAction extends ServerAction {
                 while (orgLayerIterator.hasNext()) {
                     Layer organizationLayer = (Layer) orgLayerIterator.next();
                     Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
-                    if (organizationLayerTopLayer != null &&
-                            organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
+                    if (organizationLayerTopLayer != null
+                            && organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
                         if (notFirstLayer) {
                             strMessage.append(", ");
                         } else {
@@ -416,8 +409,8 @@ public class WmsServerAction extends ServerAction {
                 while (orgLayerIterator.hasNext()) {
                     Layer organizationLayer = (Layer) orgLayerIterator.next();
                     Layer organizationLayerTopLayer = organizationLayer.getTopLayer();
-                    if (organizationLayerTopLayer != null &&
-                            organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
+                    if (organizationLayerTopLayer != null
+                            && organizationLayerTopLayer.getId() == serviceProviderTopLayer.getId()) {
                         clonedOrgLayers.remove(organizationLayer);
                     }
                 }
@@ -458,21 +451,21 @@ public class WmsServerAction extends ServerAction {
 // </editor-fold>
 /*
     public void createTreeview(DynaValidatorForm form, HttpServletRequest request) throws Exception {
-        //File dir = new File("/var/mapfiles/");
-        JSONObject root = new JSONObject();
-        DirectoryParser directoryParser = new DirectoryParser();
-        File dir = new File(MyEMFDatabase.getMapfiles());
-        String[] allowed_files = {".map"};
+    //File dir = new File("/var/mapfiles/");
+    JSONObject root = new JSONObject();
+    DirectoryParser directoryParser = new DirectoryParser();
+    File dir = new File(MyEMFDatabase.getMapfiles());
+    String[] allowed_files = {".map"};
 
-        if (dir.isDirectory()) {
-            root.put("id", "root");
-            root.put("children", directoryParser.stepIntoDirectory(dir, allowed_files));
-            root.put("title", "bestanden");
-        }
-
-        request.setAttribute("mapfiles", root.toString(4));
+    if (dir.isDirectory()) {
+    root.put("id", "root");
+    root.put("children", directoryParser.stepIntoDirectory(dir, allowed_files));
+    root.put("title", "bestanden");
     }
-*/
+
+    request.setAttribute("mapfiles", root.toString(4));
+    }
+     */
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
@@ -486,6 +479,7 @@ public class WmsServerAction extends ServerAction {
      * @return a service provider object.
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
+
     protected ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -547,12 +541,12 @@ public class WmsServerAction extends ServerAction {
         Iterator it = layers.iterator();
         while (it.hasNext()) {
             Layer layer = (Layer) it.next();
-            if (orgLayer.getName() == null && layer.getName() == null &&
-                    orgLayer.getTitle().equalsIgnoreCase(layer.getTitle())) {
+            if (orgLayer.getName() == null && layer.getName() == null
+                    && orgLayer.getTitle().equalsIgnoreCase(layer.getTitle())) {
                 return layer;
             }
-            if (orgLayer.getName() != null && layer.getName() != null &&
-                    orgLayer.getName().equalsIgnoreCase(layer.getName())) {
+            if (orgLayer.getName() != null && layer.getName() != null
+                    && orgLayer.getName().equalsIgnoreCase(layer.getName())) {
                 return layer;
             }
             Layer foundLayer = checkLayer(orgLayer, layer.getLayers());
@@ -566,22 +560,22 @@ public class WmsServerAction extends ServerAction {
 
     protected String checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
-        if (ogcrequest.containsParameter(OGCConstants.WMS_REQUEST) &&
-                !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
+        if (ogcrequest.containsParameter(OGCConstants.WMS_REQUEST)
+                && !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
             log.error(KBConfiguration.UNSUPPORTED_REQUEST);
             throw new Exception(KBConfiguration.UNSUPPORTED_REQUEST);
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_REQUEST, OGCConstants.WMS_REQUEST_GetCapabilities);
         }
-        if (ogcrequest.containsParameter(OGCConstants.WMS_SERVICE) &&
-                !OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_SERVICE))) {
+        if (ogcrequest.containsParameter(OGCConstants.WMS_SERVICE)
+                && !OGCConstants.WMS_SERVICE_WMS.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_SERVICE))) {
             log.error(KBConfiguration.UNSUPPORTED_SERVICE);
             throw new Exception(KBConfiguration.UNSUPPORTED_SERVICE);
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
         }
-        if (ogcrequest.containsParameter(OGCConstants.WMS_VERSION) &&
-                !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
+        if (ogcrequest.containsParameter(OGCConstants.WMS_VERSION)
+                && !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
             log.error(KBConfiguration.UNSUPPORTED_VERSION);
             throw new Exception(KBConfiguration.UNSUPPORTED_VERSION);
         } else {
@@ -590,4 +584,78 @@ public class WmsServerAction extends ServerAction {
         return ogcrequest.getUrl();
     }
 
+    private void setMetadataFromLayerSource(Layer layer, Layer oldLayer) {
+        String mdUrl = null;
+        Set ldrs = layer.getDomainResource();
+        if (ldrs != null && !ldrs.isEmpty()) {
+            LayerDomainResource ldr = null;
+            Iterator ldri = ldrs.iterator();
+            while (ldri.hasNext()) {
+                ldr = (LayerDomainResource) ldri.next();
+                if (LayerDomainResource.METADATA_DOMAIN.equalsIgnoreCase(ldr.getDomain())) {
+                    mdUrl = ldr.getUrl();
+                    break;
+                }
+            }
+        }
+
+        if (mdUrl == null || mdUrl.length() == 0) {
+            return; // no metadata at source
+        }
+
+        String newMetadata = null;
+        try {
+            newMetadata = collectMetadata(mdUrl);
+        } catch (Exception ex) {
+//            log.error("", ex);
+        }
+        String currentMetadata = null;
+        if (oldLayer!=null) {
+            currentMetadata = oldLayer.getMetadata();
+        }
+        layer.setMetadata(convertMetadata(newMetadata, currentMetadata));
+
+    }
+
+    private String convertMetadata(String newMetadata, String currentMetadata) {
+        if (currentMetadata != null && currentMetadata.length() > 0) {
+            //TODO update old with new info
+            return currentMetadata;
+        }
+        // TODO replace online resource urls to point to KB urls's
+        // TODO remove xsl
+        return newMetadata;
+    }
+
+    private String collectMetadata(String url) throws HttpException, IOException, Exception {
+
+        HttpClient client = new HttpClient();
+        GetMethod method = new GetMethod(url);
+        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+        String metadata = "";
+
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode != HttpStatus.SC_OK) {
+                log.error("Error connecting to server. Status code: " + statusCode);
+                throw new Exception("Error connecting to server. Status code: " + statusCode);
+            }
+
+            metadata = method.getResponseBodyAsString();
+
+        } catch (HttpException e) {
+            log.error("Fatal protocol violation: " + e.getMessage());
+            throw new HttpException("Fatal protocol violation: " + e.getMessage());
+        } catch (IOException e) {
+            log.error("Fatal transport error: " + e.getMessage());
+            throw new IOException("Fatal transport error: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("General error: " + e.getMessage());
+            throw e;
+        } finally {
+            method.releaseConnection();
+        }
+
+        return metadata;
+    }
 }

@@ -23,11 +23,9 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
@@ -40,7 +38,7 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.wms.capabilities.Roles;
+import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -369,11 +367,49 @@ public abstract class OGCRequestHandler implements RequestHandler {
     }
 
     protected String completeLayerName(String layerCode, String layerName) throws Exception {
-        if (layerCode==null || layerName==null) {
+        if (layerCode == null || layerName == null) {
             log.error("layer name or code not valid: " + layerCode + ", " + layerName);
             throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + layerCode + ", " + layerName);
         }
         return layerCode + "_" + layerName;
+    }
+
+    protected Layer getLayerByUniqueName(String uniqueName) throws Exception {
+        Object identity = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            log.debug("Getting entity manager ......");
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+
+            String[] layerCodeAndName = toCodeAndName(uniqueName);
+            String spAbbr = layerCodeAndName[0];
+            String layerName = layerCodeAndName[1];
+
+            String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
+            List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
+
+            if (ll == null || ll.isEmpty()) {
+                return null;
+            }
+            // Dit is nodig omdat mysql case insensitive selecteert
+            Iterator it = ll.iterator();
+            while (it.hasNext()) {
+                Layer l = (Layer) it.next();
+                String dbLayerName = l.getName();
+                String dbSpAbbr = l.getSpAbbr();
+                if (dbLayerName != null && dbSpAbbr != null) {
+                    if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
+                        return l;
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            log.warn("Error creating EntityManager: ", e);
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
+        }
+        return null;
     }
 
     /**

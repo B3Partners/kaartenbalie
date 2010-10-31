@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -113,7 +114,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         if (user != null) {
             s.setOrganizationCode(user.getOrganisationCodes());
         }
-        s.overwriteURL(url);
+        HashMap conversionValues = new HashMap();
+        conversionValues.put("url", url);
+        s.convertValues2KB(conversionValues);
 
         /*
          * Create a DocumentBuilderFactory from which a new document can be created

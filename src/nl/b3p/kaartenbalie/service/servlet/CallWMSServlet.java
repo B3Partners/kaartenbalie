@@ -61,6 +61,7 @@ import nl.b3p.kaartenbalie.service.requesthandler.GetCapabilitiesRequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.GetFeatureInfoRequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.GetLegendGraphicRequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.GetMapRequestHandler;
+import nl.b3p.kaartenbalie.service.requesthandler.MetadataRequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.ProxyRequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.RequestHandler;
 import nl.b3p.kaartenbalie.service.requesthandler.TextToImage;
@@ -174,10 +175,7 @@ public class CallWMSServlet extends HttpServlet {
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
                 User user = checkLogin(request);
-                //if the request is not a proxy request
-                if (FormUtils.nullIfEmpty(request.getParameter(KBConfiguration.KB_PROXY_URL)) == null) {
-                    ogcrequest.checkRequestURL();
-                }
+                ogcrequest.checkRequestURL();
 
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
@@ -656,12 +654,10 @@ public class CallWMSServlet extends HttpServlet {
         data.setOperation(request);
         data.setService(service);
 
-        if (request == null || request.length() == 0) {
-            // niet bekend, dus moet proxy zijn
+        if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_PROXY)) {
             requestHandler = new ProxyRequestHandler();
-        } else if (service == null || service.length() == 0) {
-            // niet bekend, dus moet proxy zijn
-            requestHandler = new ProxyRequestHandler();
+        } else if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_METADATA)) {
+            requestHandler = new MetadataRequestHandler();
         } else if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
             if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
                 requestHandler = new GetCapabilitiesRequestHandler();
