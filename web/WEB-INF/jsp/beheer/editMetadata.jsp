@@ -39,7 +39,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             var viewMode = "false";
             //var viewMode = "<c:out value="${metadataForm.map.viewMode}"/>";
             //var strictMode = "true";
-            var strictMode = "false";
+            var strictMode = "true";
             //var strictMode = "<c:out value="${metadataForm.map.strictMode}"/>";
 
             var layerId = "<c:out value="${metadataForm.map.id}"/>";
