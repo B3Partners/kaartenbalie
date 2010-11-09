@@ -17,7 +17,8 @@
             <form-property name="surname" type="java.lang.String"/>
             <form-property name="emailAddress" type="java.lang.String"/>
             <form-property name="username" type="java.lang.String"/>
-            <form-property name="selectedOrganization" type="java.lang.String"/>
+            <form-property name="mainOrganization" type="java.lang.String"/>
+            <form-property name="orgSelected" type="java.lang.String[]"/>
             <form-property name="password" type="java.lang.String"/>
             <form-property name="repeatpassword" type="java.lang.String"/>
             <form-property name="roleSelected" type="java.lang.Integer[]"/>
@@ -28,8 +29,8 @@
             <!-- organization form fields -->
             <form-property name="organizationName" type="java.lang.String"/>
             <form-property name="organizationTelephone" type="java.lang.String"/>
-         </form-bean>
-        
+        </form-bean>
+
         <form-bean name="voegurltoeForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="userid" type="java.lang.String"/>
@@ -50,7 +51,7 @@
             <form-property name="alt_action" type="java.lang.String"/>
             <!-- user form fields-->
             <form-property name="sortedDatasets" type="java.util.List"/>
-            <form-property name="minx" type="java.lang.String" initial="20000"/>   
+            <form-property name="minx" type="java.lang.String" initial="20000"/>
             <form-property name="miny" type="java.lang.String" initial="280000"/>
             <form-property name="maxx" type="java.lang.String" initial="280000"/>
             <form-property name="maxy" type="java.lang.String" initial="625000"/>
@@ -82,7 +83,7 @@
             <forward name="failure" path="base.demo.addUrl"/>
         </action>
         
-        <action path="/createPersonalURL" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">  
+        <action path="/createPersonalURL" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">
             <forward name="success" path="base.demo.createurl"/>
             <forward name="failure" path="base.demo.createurl"/>
         </action>
@@ -94,7 +95,7 @@
     
     <!-- ========================= Tiles plugin ===============================-->
     <plug-in className="org.apache.struts.tiles.TilesPlugin" >
-        <set-property property="definitions-config" value="/WEB-INF/conf/tiles-algemeen-defs.xml,/WEB-INF/conf/tiles-demo-defs.xml" />      
+        <set-property property="definitions-config" value="/WEB-INF/conf/tiles-algemeen-defs.xml,/WEB-INF/conf/tiles-demo-defs.xml" />
         <set-property property="moduleAware" value="true" />
     </plug-in>
     

@@ -486,15 +486,20 @@ public class UserAction extends KaartenbalieCrudAction {
 
         String[] orgSelected = null;
         Set orgs = user.getAllOrganizations();
-        ArrayList orgSet = new ArrayList(orgs);
+        ArrayList orgSet =new ArrayList(orgs);
+
         Organization mainOrg = user.getMainOrganization();
         orgSelected = new String[orgSet.size()];
         for (int i = 0; i < orgSet.size(); i++) {
             Organization org = (Organization) orgSet.get(i);
             orgSelected[i] = FormUtils.IntegerToString(org.getId());
         }
-        dynaForm.set("orgSelected", orgSelected);
-        dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
+        if (orgSelected.length>0) {
+            dynaForm.set("orgSelected", orgSelected);
+        }
+        if (mainOrg!=null) {
+            dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
+        }
 
         StringBuffer registeredIP = new StringBuffer();
         Set userips = user.getIps();

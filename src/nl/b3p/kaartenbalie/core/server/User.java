@@ -114,9 +114,13 @@ public class User implements Principal {
     }
 
     public Set getAllOrganizations() {
-        Set orgs = new HashSet(getOrganizations());
+        Set orgs = new HashSet();
+        Set lorgs = getOrganizations();
+        if (lorgs!=null && !lorgs.isEmpty()) {
+            orgs.addAll(lorgs);
+        }
         Organization mainOrg = getMainOrganization();
-        if (!orgs.contains(mainOrg)) {
+        if (mainOrg!=null && !orgs.contains(mainOrg)) {
             orgs.add(mainOrg);
         }
         return orgs;
@@ -326,8 +330,10 @@ public class User implements Principal {
 
     public static String createCode(User user, Date newDate, HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         Random rd = new Random();
-        StringBuffer toBeHashedString = new StringBuffer(user.getUsername());
-        toBeHashedString.append(user.getPassword());
+        StringBuffer toBeHashedString = new StringBuffer();
+        // TODO: username en wachtwoord zijn niet nodig, verwijderen uit hash?
+//        toBeHashedString.append(user.getUsername());
+//        toBeHashedString.append(user.getPassword());
         toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
         toBeHashedString.append(rd.nextLong());
 

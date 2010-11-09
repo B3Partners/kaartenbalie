@@ -22,6 +22,8 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.security.Principal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +56,10 @@ public class DemoRegistrationAction extends UserAction {
         User user = getUser(dynaForm, request, false);
         if (user == null) {
             user = new User();
+            Calendar gc = new GregorianCalendar();
+            gc.add(Calendar.MONTH, 1);
+            user.setPersonalURL(User.createCode(user, gc.getTime(), request));
+            user.setTimeout(gc.getTime());
         }
         populateUserForm(user, dynaForm, request);
         prepareMethod(dynaForm, request, LIST, LIST);
@@ -127,6 +133,7 @@ public class DemoRegistrationAction extends UserAction {
      * @param session Session object for the database.
      */
     // <editor-fold defaultstate="" desc="getStandardDemoLayerSet(HttpServletRequest request, Session session) method.">
+
     private Set getStandardDemoLayerSet(HttpServletRequest request) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
@@ -143,14 +150,15 @@ public class DemoRegistrationAction extends UserAction {
         ServiceProvider stdServiceProvider = null;
         try {
             stdServiceProvider = (ServiceProvider) em.createQuery(
-                    "from ServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", spAbbr).getSingleResult();
+                    "from ServiceProvider sp where "
+                    + "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", spAbbr).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
         return stdServiceProvider.getAllLayers();
     }
     // </editor-fold>
+
     /** Method that fills a user and organization object with the user input from the forms.
      *
      * @param request The HTTP Request we are processing.
