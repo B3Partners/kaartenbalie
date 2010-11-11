@@ -212,7 +212,8 @@ public class WmsServerAction extends ServerAction {
             Layer layer = (Layer) dwIter.next();
             // Find old layer to be able to reuse metadata additions
             Set topLayerSet = new HashSet();
-            topLayerSet.add(oldServiceProvider.getTopLayer());
+            if (oldServiceProvider!=null)
+                topLayerSet.add(oldServiceProvider.getTopLayer());
             Layer oldLayer = checkLayer(layer, topLayerSet);
             setMetadataFromLayerSource(layer, oldLayer);
         }
