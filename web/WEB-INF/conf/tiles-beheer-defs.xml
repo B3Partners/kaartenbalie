@@ -48,6 +48,10 @@
         <put name="title" value="Rechten - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/rights.jsp"/>
     </definition>
+    <definition name="base.beheer.rights2" extends="base.proxy">
+        <put name="title" value="Rechten - Beheer - 2" type="string"/>
+        <put name="content" value="/WEB-INF/jsp/beheer/rights2.jsp"/>
+    </definition>
     <definition name="base.beheer.wfsorganization" extends="base.proxy">
         <put name="title" value="WFS Groepen - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/wfsorganization.jsp"/>

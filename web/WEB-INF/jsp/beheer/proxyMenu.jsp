@@ -60,7 +60,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <c:if test="${requestJSP eq 'rights.do'}">
                 <c:set var="stijlklasse" value="activemenulink" />
             </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/rights.do?listRights=t' module='' />"><fmt:message key="beheer.menu.rechten"/></a>
+            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/rights2.do' module='' />"><fmt:message key="beheer.menu.rechten"/></a>
 
             <c:set var="stijlklasse" value="menulink" />
             <c:if test="${requestJSP eq 'user.do'}">

@@ -103,6 +103,17 @@
             <form-property name="code" type="java.lang.String"/>
             <form-property name="allow" type="java.lang.String"/>
         </form-bean>      
+        <form-bean name="rightsForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="orgId" type="java.lang.String"/>
+            <form-property name="orgName" type="java.lang.String"/>
+            <form-property name="type" type="java.lang.String"/>
+        </form-bean>
         <form-bean name="roleForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>
@@ -218,6 +229,10 @@
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
             <forward name="rights" path="base.beheer.rights"/>
+        </action>
+        <action path="/rights2" name="rightsForm" type="nl.b3p.kaartenbalie.struts.RightsAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.rights2"/>
+            <forward name="failure" path="base.beheer.rights2"/>
         </action>
         <action path="/role" name="roleForm" type="nl.b3p.kaartenbalie.struts.RoleAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.role"/>

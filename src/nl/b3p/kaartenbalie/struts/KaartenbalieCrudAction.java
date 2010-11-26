@@ -329,7 +329,7 @@ public class KaartenbalieCrudAction extends CrudAction {
      *
      * @throws JSONException
      */
-    private JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent, boolean checkLayers) throws JSONException {
+    protected JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent, boolean checkLayers) throws JSONException {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
@@ -352,7 +352,7 @@ public class KaartenbalieCrudAction extends CrudAction {
         return parent;
     }
 
-    private JSONObject createWfsTreeList(Set layers, JSONObject parent, Set organizationLayers, boolean checkLayers) throws JSONException {
+    protected JSONObject createWfsTreeList(Set layers, JSONObject parent, Set organizationLayers, boolean checkLayers) throws JSONException {
         Iterator layerIterator = layers.iterator();
         JSONArray parentArray = new JSONArray();
         while (layerIterator.hasNext()) {
