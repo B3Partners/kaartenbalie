@@ -8,6 +8,10 @@ ALTER TABLE transaction RENAME COLUMN type TO soort;
 ALTER TABLE _user_ips RENAME COLUMN _user TO users;
 ALTER TABLE _user_roles RENAME COLUMN _user TO users;
 
+-- Add kolommen
+alter table service_provider_request add column message_sent text;
+alter table service_provider_request add column message_received text;
+
 -- Rename tabellen
 ALTER TABLE "service_domain_resource_formats" rename to "service_domain_resource_fmts";
 ALTER TABLE "_user" rename to "users";
