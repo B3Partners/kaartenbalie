@@ -1,50 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/kaartenbalie" antiJARLocking="true">  
-  <Resource auth="Container" name="jdbc/kaartenbalie" type="javax.sql.DataSource"/>
-    	<ResourceParams name="jdbc/kaartenbalie">
-    	<parameter>
-    		<name>factory</name>
-    		<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-    	</parameter>
-    	<parameter>
-    		<name>maxActive</name>
-    		<value>100</value>
-    	</parameter>
-    	<parameter>
-    		<name>maxIdle</name>
-    		<value>30</value>
-    	</parameter>
-    	<parameter>
-    		<name>maxWait</name>
-    		<value>10000</value>
-    	</parameter>
-    	<parameter>
-    		<name>minEvictableIdleTimeMillis</name>
-    		<value>10000</value>
-    	</parameter>
-    	<parameter>
-    		<name>timeBetweenEvictionRunsMillis</name>
-    		<value>60000</value>
-    	</parameter>
-    	<parameter>
-    		<name>username</name>
-    		<value>digitree</value>
-    	</parameter>
-    	<parameter>
-    		<name>password</name>
-    		<value>04zIYpUKFLUgAU0op</value>
-    	</parameter>
-    	<parameter>
-    		<name>driverClassName</name>
-    		<value>org.postgresql.Driver</value>
-    	</parameter>
-    	<parameter>
-    		<name>url</name>
-    		<value>jdbc:postgresql://localhost:5432/digitree_kaartenbalie</value>
-    	</parameter>
-    	<parameter>
-    		<name>validationQuery</name>
-    		<value>SELECT 1</value>
-    	</parameter>
-  	</ResourceParams>
+<Context path="/kaartenbalie" antiJARLocking="true">
+    <!-- Postgres -->
+    <Resource
+		auth="Container"
+		driverClassName="org.postgresql.Driver"
+		logAbandoned="true"
+		maxActive="100"
+		maxIdle="30"
+		maxWait="10000"
+		name="jdbc/kaartenbalie"
+		username="digitree"
+		password="04zIYpUKFLUgAU0op"
+		removeAbandoned="true"
+		removeAbandonedTimeout="60"
+		type="javax.sql.DataSource"
+		url="jdbc:postgresql://localhost:5432/digitree_kaartenbalie"
+		validationQuery="select 1"
+		minEvictableIdleTimeMillis="10000"
+		timeBetweenEvictionRunsMillis="60000"
+    /> -->
 </Context>
+

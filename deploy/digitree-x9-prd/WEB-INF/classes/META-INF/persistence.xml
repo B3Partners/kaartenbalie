@@ -3,17 +3,11 @@
   <persistence-unit name="defaultKaartenbaliePU" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <properties>
-        
-      <!-- set correct datasource for Oracle or PG in context.xml -->
       <property name="hibernate.connection.datasource" value="java:comp/env/jdbc/kaartenbalie"/>
       
       <!-- PG -->
       <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
       <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.pg.xml"/>
-
-      <!-- Oracle
-      <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
-      <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.oracle.xml"/> -->
 
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
