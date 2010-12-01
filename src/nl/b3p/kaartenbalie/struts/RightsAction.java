@@ -241,9 +241,16 @@ public class RightsAction extends KaartenbalieCrudAction {
         List wmsDtoList = ServiceProviderDTO.createList(wmsSpList);
 
         List spDtoList = new ArrayList();
-        spDtoList.addAll(wmsDtoList);
-        spDtoList.addAll(wfsDtoList);
-        Collections.sort(spDtoList);
+
+        if (wmsDtoList != null)
+            spDtoList.addAll(wmsDtoList);
+
+        if (wfsDtoList != null)
+            spDtoList.addAll(wfsDtoList);
+
+        if (spDtoList.size() > 0)
+            Collections.sort(spDtoList);
+
         request.setAttribute("serviceproviderlist", spDtoList);
 
     }
