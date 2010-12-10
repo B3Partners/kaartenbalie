@@ -78,6 +78,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
 
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Math.uuid.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
 
         <script type="text/javascript">
@@ -128,6 +129,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             --%>
             <h4><fmt:message key="algemeen.editMetadata.title" /></h4>
             <table>
+                <tr>
+                    <td><b title="Metadata verzenden strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2. De attributen (FeatureCatalog) worden weggelaten.">Strict</b></td>
+                    <td><input type="checkbox" id="saveStrict" onclick="changeFlag(true);" checked="checked" title="Metadata verzenden strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2. De attributen (FeatureCatalog) worden weggelaten."/></td>
+                </tr>
                 <tr>
                     <td><B><fmt:message key="message.fullname"/></B></td>
                     <td><html:text property="fullname" size="22" /></td>

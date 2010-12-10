@@ -79,6 +79,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
 
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Math.uuid.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
 
         <script type="text/javascript">
@@ -123,6 +124,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <input type="hidden" id="save" name="save" value="" />
             <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
             <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
+            <div id="saveStrictBlock" style="display: none; margin-bottom: 10px">
+                <input type="checkbox" id="saveStrict" onclick="changeFlag(true);" checked="checked" />
+                <label onclick="changeFlag(true);" for="saveStrict">Metadata opslaan strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2</label>
+            </div>
             <input type="hidden" id="download" name="download" value="" />
             <html:button property="downloadButton" value="Downloaden" styleId="downloadButton" onclick="checkForm(this);"/> 
             <%--
