@@ -249,7 +249,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
          */
         boolean bAllowTransactions = true;
         Boolean bat = (Boolean) config.get(AllowTransactionsLayer.allowTransactions);
-        if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
+        String service = dw.getService();
+        if (service!=null && service.equals(OGCConstants.WMS_SERVICE_WMS)) {
             bAllowTransactions = bat == null ? false : bat.booleanValue();
         }
 
@@ -298,7 +299,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
          */
         boolean bFoundAllowTransactionsLayer = true;
         Boolean bfat = (Boolean) config.get(AllowTransactionsLayer.foundAllowTransactionsLayer);
-        if (dw.getOgcrequest().getParameter(OGCConstants.SERVICE).equals(OGCConstants.WMS_SERVICE_WMS)) {
+        if (service!=null && service.equals(OGCConstants.WMS_SERVICE_WMS)) {
             bFoundAllowTransactionsLayer = bfat == null ? false : bfat.booleanValue();
         }
 

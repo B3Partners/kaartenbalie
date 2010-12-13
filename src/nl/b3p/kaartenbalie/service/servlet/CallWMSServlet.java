@@ -648,50 +648,57 @@ public class CallWMSServlet extends HttpServlet {
      * @throws IOException
      */
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
-        RequestHandler requestHandler = null;
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
-        data.setOperation(request);
-        data.setService(service);
 
-        if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_PROXY)) {
-            requestHandler = new ProxyRequestHandler();
-        } else if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_METADATA)) {
-            requestHandler = new MetadataRequestHandler();
-        } else if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
-            if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
-                requestHandler = new GetCapabilitiesRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
-                requestHandler = new GetMapRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
-                requestHandler = new GetFeatureInfoRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
-                requestHandler = new GetLegendGraphicRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
-                requestHandler = new DescribeLayerRequestHandler();
-            } else {
-                throw new UnsupportedOperationException("Request " + request + " is not suported!");
+        RequestHandler requestHandler = null;
+        if (service != null && service.length() > 0) {
+            if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_PROXY)) {
+                requestHandler = new ProxyRequestHandler();
+            } else if (service.equalsIgnoreCase(OGCConstants.NONOGC_SERVICE_METADATA)) {
+                requestHandler = new MetadataRequestHandler();
+            } else if (service.equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
+                if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetCapabilities)) {
+                    requestHandler = new GetCapabilitiesRequestHandler();
+                }
+            } else if (service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)) {
+                if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)) {
+                    requestHandler = new WFSGetCapabilitiesRequestHandler();
+                }
             }
-        } else if (service.equalsIgnoreCase(OGCConstants.WFS_SERVICE_WFS)) {
-            if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetCapabilities)) {
-                requestHandler = new WFSGetCapabilitiesRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)) {
-                requestHandler = new WFSDescribeFeatureTypeRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)) {
-                requestHandler = new WFSGetFeatureRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)) {
-                requestHandler = new WFSTransactionRequestHandler();
-            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeatureWithLock)) {
-                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
-            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_LockFeature)) {
-                throw new UnsupportedOperationException("Request " + request + " is not suported yet!");
-            } else {
-                throw new UnsupportedOperationException("Request " + request + " is not suported!");
-            }
-        } else {
-            throw new UnsupportedOperationException("Service " + service + " is not suported!");
         }
 
+        if (requestHandler == null) {
+            if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)) {
+                requestHandler = new GetMapRequestHandler();
+                service = OGCConstants.WMS_SERVICE_WMS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
+                requestHandler = new GetFeatureInfoRequestHandler();
+                service = OGCConstants.WMS_SERVICE_WMS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetLegendGraphic)) {
+                requestHandler = new GetLegendGraphicRequestHandler();
+                service = OGCConstants.WMS_SERVICE_WMS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
+                requestHandler = new DescribeLayerRequestHandler();
+                service = OGCConstants.WMS_SERVICE_WMS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_DescribeFeatureType)) {
+                requestHandler = new WFSDescribeFeatureTypeRequestHandler();
+                service = OGCConstants.WFS_SERVICE_WFS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_GetFeature)) {
+                requestHandler = new WFSGetFeatureRequestHandler();
+                service = OGCConstants.WFS_SERVICE_WFS;
+            } else if (request.equalsIgnoreCase(OGCConstants.WFS_REQUEST_Transaction)) {
+                requestHandler = new WFSTransactionRequestHandler();
+                service = OGCConstants.WFS_SERVICE_WFS;
+            }
+        }
+
+        if (requestHandler == null) {
+            throw new UnsupportedOperationException("Request " + request + " is not suported!");
+        }
+
+        data.setOperation(request);
+        data.setService(service);
         requestHandler.getRequest(data, user);
     }
 
