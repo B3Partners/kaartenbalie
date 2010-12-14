@@ -542,7 +542,7 @@ public class CallWMSServlet extends HttpServlet {
  
             if (user != null) {
                 java.util.Date date = user.getTimeout();
-                if (date.compareTo(new java.util.Date()) <= 0) {
+                if (date.getTime() <= (new java.util.Date().getTime())) {
                     log.debug("Personal URL key has expired, trying next method.");
                     user = null;
                 }
