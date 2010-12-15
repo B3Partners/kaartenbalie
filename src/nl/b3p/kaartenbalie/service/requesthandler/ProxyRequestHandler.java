@@ -60,12 +60,27 @@ public class ProxyRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         }
         String encodedUrl = URLEncoder.encode(decodedUrl);
-        String purl = KBCrypter.decryptText(encodedUrl);
+        StringBuffer purl = new StringBuffer(KBCrypter.decryptText(encodedUrl));
+
+        String sld = ogcrequest.getParameter(OGCConstants.WMS_PARAM_SLD);
+        if (sld != null && sld.length() > 0) {
+            if (purl.indexOf("?") != purl.length() - 1 && purl.indexOf("&") != purl.length() - 1) {
+                if (purl.indexOf("?") >= 0) {
+                    purl.append("&");
+                } else {
+                    purl.append("?");
+                }
+            }
+            purl.append(OGCConstants.WMS_PARAM_SLD);
+            purl.append("=");
+            purl.append(sld);
+        }
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
-        proxyWrapper.setProviderRequestURI(purl);
+        proxyWrapper.setProviderRequestURI(purl.toString());
 
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);
         getOnlineData(dw, urlWrapper, false, KBConfiguration.KB_PROXY);
+
     }
 }
