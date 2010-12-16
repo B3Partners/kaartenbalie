@@ -21,7 +21,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<script type="text/javascript" src="<html:rewrite page='/dwr/interface/JStrutsSupport.js' module='' />"></script>
+<script type="text/javascript" src="<html:rewrite page='/dwr/interface/JRightsSupport.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/dwr/engine.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
@@ -161,11 +161,11 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         var orgid = document.forms[0].orgId.value;
         var spid = document.forms[0].id.value;
         var sptype = document.forms[0].type.value;
-        if(document.forms[0].selectedLayers) var selectedLayers = document.forms[0].selectedLayers.value;
+        //if(document.forms[0].selectedLayers) var selectedLayers = document.forms[0].selectedLayers.value;
         params["orgId"]=orgid;
         params["id"]=spid;
         params["type"]=sptype;
-        if(selectedLayers) params["selectedLayers"]=selectedLayers;
+        //if(selectedLayers) params["selectedLayers"]=selectedLayers;
         return params;
     }
 
@@ -173,19 +173,20 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         document.forms[0].id = spid;
         document.forms[0].type = type;
         var params = collectFormParams();
-        JStrutsSupport.getRightsTree(params, createRightsTree);
+        alert(params);
+        JRightsSupport.getRightsTree(params, createRightsTree);
     }
 
     function changeOrganization(orgid) {
         document.forms[0].orgId = orgid;
         var params = collectFormParams();
-        JStrutsSupport.getRightsTree(params, createRightsTree);
+        JRightsSupport.getRightsTree(params, createRightsTree);
     }
 
     function submitRightsForm() {
         var params = collectFormParams();
 //        alert(params);
-        JStrutsSupport.submitRightsForm(params, handleValidLayers);
+        JRightsSupport.submitRightsForm(params, handleValidLayers);
     }
 
     function handleValidLayers(validlayers) {

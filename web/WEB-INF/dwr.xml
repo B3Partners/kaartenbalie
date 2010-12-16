@@ -3,7 +3,7 @@
     "http://www.getahead.ltd.uk/dwr/dwr10.dtd">
 <dwr>
     <allow>
-        <create creator="new" javascript="JStrutsSupport">
+        <create creator="new" javascript="JRightsSupport">
             <param name="class" value="nl.b3p.kaartenbalie.dwr.RightsSupport"/>
         </create>
         <convert converter="bean" match="org.json.JSONObject"/>

@@ -37,17 +37,62 @@ public class RightsSupport {
     private static final Log log = LogFactory.getLog(RightsSupport.class);
 
     public JSONObject getRightsTree(Map params) {
+        WebContext ctx = WebContextFactory.get();
+        HttpServletRequest request = null;
+        if (ctx != null) {
+            request = ctx.getHttpServletRequest();
+        }
+        User user = (User) request.getUserPrincipal();
+        if (user == null || !user.checkRole(Roles.ADMIN)) {
+            return null;
+        }
+
         Integer orgId = FormUtils.StringToInteger((String) params.get("orgId"));
         Integer spId = FormUtils.StringToInteger((String) params.get("id"));
-        String type = (String) params.get("type");
-        Organization org = getOrganization(orgId);
-        ServiceProviderInterface sp = getServiceProvider(spId, type);
-        try {
-            return populateRightsTree(sp, org);
-        } catch (Exception ex) {
-            log.error("", ex);
+        String spType = (String) params.get("type");
+
+        if (orgId == null) {
+            return null;
         }
-        return null;
+        if (spId == null || spId.intValue() == 0) {
+            return null;
+        }
+        if (spType == null) {
+            return null;
+        }
+
+        JSONObject tree = null;
+        Object identity = null;
+        try {
+            identity = createEntityManager();
+            EntityManager em = getEntityManager();
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
+            try {
+                Organization org = (Organization) em.find(Organization.class, orgId);
+
+                ServiceProviderInterface sp = null;
+                if ("WMS".equalsIgnoreCase(spType)) {
+                    sp = (ServiceProviderInterface) em.find(ServiceProvider.class, new Integer(spId.intValue()));
+                } else if ("WFS".equalsIgnoreCase(spType)) {
+                    sp = (ServiceProviderInterface) em.find(WfsServiceProvider.class, new Integer(spId.intValue()));
+                }
+
+                tree = populateRightsTree(sp, org);
+                tx.commit();
+            } catch (Exception e) {
+                tx.rollback();
+                log.error("Exception occured, rollback", e);
+            }
+        } catch (Throwable e) {
+            log.error("Exception occured while getting EntityManager: ", e);
+        } finally {
+            closeEntityManager(identity);
+        }
+
+
+
+        return tree;
     }
 
     private JSONObject populateRightsTree(ServiceProviderInterface sp, Organization org) throws Exception {
@@ -90,7 +135,7 @@ public class RightsSupport {
             request = ctx.getHttpServletRequest();
         }
         User user = (User) request.getUserPrincipal();
-        if (user == null || user.checkRole(Roles.ADMIN)) {
+        if (user == null || !user.checkRole(Roles.ADMIN)) {
             return null;
         }
 
@@ -192,50 +237,6 @@ public class RightsSupport {
 
     }
 
-    private Organization getOrganization(Integer orgId) {
-        Organization org = null;
-        Object identity = null;
-        try {
-            identity = createEntityManager();
-            EntityManager em = getEntityManager();
-            if (orgId == null) {
-                return null;
-            }
-            org = (Organization) em.find(Organization.class, orgId);
-        } catch (Throwable e) {
-            log.error("Exception occured while getting EntityManager: ", e);
-        } finally {
-            closeEntityManager(identity);
-        }
-        return org;
-    }
-
-    private ServiceProviderInterface getServiceProvider(Integer spId, String type) {
-        ServiceProviderInterface serviceProvider = null;
-        Object identity = null;
-        try {
-            identity = createEntityManager();
-            EntityManager em = getEntityManager();
-
-            if (spId == null || spId.intValue() == 0) {
-                return null;
-            }
-            if (type == null) {
-                return null;
-            }
-            if ("WMS".equalsIgnoreCase(type)) {
-                serviceProvider = (ServiceProviderInterface) em.find(ServiceProvider.class, new Integer(spId.intValue()));
-            } else if ("WFS".equalsIgnoreCase(type)) {
-                serviceProvider = (ServiceProviderInterface) em.find(WfsServiceProvider.class, new Integer(spId.intValue()));
-            }
-        } catch (Throwable e) {
-            log.error("Exception occured while getting EntityManager: ", e);
-        } finally {
-            closeEntityManager(identity);
-        }
-        return serviceProvider;
-    }
-
     private Object createEntityManager() throws Exception {
         return MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
     }
@@ -248,37 +249,4 @@ public class RightsSupport {
         MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
     }
 
-    public List dummy(Integer id) {
-        WebContext ctx = WebContextFactory.get();
-        HttpServletRequest request = null;
-        if (ctx != null) {
-            request = ctx.getHttpServletRequest();
-        }
-        User user = (User) request.getUserPrincipal();
-        if (user == null || user.checkRole(Roles.ADMIN)) {
-            return null;
-        }
-
-        Object identity = null;
-        try {
-            identity = createEntityManager();
-            EntityManager em = getEntityManager();
-
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            try {
-                // doe iets
-                tx.commit();
-            } catch (Exception e) {
-                tx.rollback();
-                log.error("Exception occured, rollback", e);
-            }
-        } catch (Throwable e) {
-            log.error("Exception occured while getting EntityManager: ", e);
-        } finally {
-            closeEntityManager(identity);
-        }
-
-        return null;
-    }
 }
