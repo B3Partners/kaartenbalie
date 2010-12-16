@@ -1,0 +1,14 @@
+<!DOCTYPE dwr PUBLIC
+    "-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN"
+    "http://www.getahead.ltd.uk/dwr/dwr10.dtd">
+<dwr>
+    <allow>
+        <create creator="new" javascript="JStrutsSupport">
+            <param name="class" value="nl.b3p.kaartenbalie.dwr.RightsSupport"/>
+        </create>
+        <convert converter="bean" match="org.json.JSONObject"/>
+        <convert match="java.lang.Exception" converter="exception">
+            <param name='include' value='message,lineNumber'/>
+        </convert>
+    </allow>
+</dwr>

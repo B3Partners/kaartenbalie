@@ -52,6 +52,7 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.LayerTreeSupport;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -221,7 +222,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
                     log.error("Can not get layer " + layerUniqueName
                             + " for metadata, cause: " + exception.getLocalizedMessage());
                 }
-                if (layer != null && hasVisibility(layer, userLayers)) {
+                if (layer != null && LayerTreeSupport.hasVisibility(layer, userLayers)) {
                     metadata = layer.getMetadata();
                 }
             }

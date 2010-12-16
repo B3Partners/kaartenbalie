@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.service.LayerTreeSupport;
 import nl.b3p.ogc.ServiceProviderInterface;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
@@ -62,7 +61,7 @@ public class RightsAction extends KaartenbalieCrudAction {
         prepareMethod(dynaForm, request, EDIT, LIST);
         populateForm(sp, org, dynaForm, request);
 
-       if (sp == null || org == null) {
+        if (sp == null || org == null) {
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
@@ -149,25 +148,25 @@ public class RightsAction extends KaartenbalieCrudAction {
     }
 
     protected void populateForm(ServiceProviderInterface sp, Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
-         if (sp==null) {
-            List spDtoList = (List)request.getAttribute("serviceproviderlist");
-            if (spDtoList!=null && !spDtoList.isEmpty()) {
-                sp = (ServiceProviderInterface)spDtoList.get(0);
+        if (sp == null) {
+            List spDtoList = (List) request.getAttribute("serviceproviderlist");
+            if (spDtoList != null && !spDtoList.isEmpty()) {
+                sp = (ServiceProviderInterface) spDtoList.get(0);
             }
         }
-        if (organization==null) {
-            List organizationlist = (List)request.getAttribute("organizationlist");
-            if (organizationlist!=null && !organizationlist.isEmpty()) {
-                organization = (Organization)organizationlist.get(0);
+        if (organization == null) {
+            List organizationlist = (List) request.getAttribute("organizationlist");
+            if (organizationlist != null && !organizationlist.isEmpty()) {
+                organization = (Organization) organizationlist.get(0);
             }
         }
-        if (sp!=null) {
-        dynaForm.set("id", sp.getId().toString());
-        dynaForm.set("type", sp.getType());
+        if (sp != null) {
+            dynaForm.set("id", sp.getId().toString());
+            dynaForm.set("type", sp.getType());
         }
-        if (organization!=null) {
-        dynaForm.set("orgId", organization.getId().toString());
-        dynaForm.set("orgName", organization.getName());
+        if (organization != null) {
+            dynaForm.set("orgId", organization.getId().toString());
+            dynaForm.set("orgName", organization.getName());
         }
     }
 
@@ -199,7 +198,7 @@ public class RightsAction extends KaartenbalieCrudAction {
             Layer topLayer = ((ServiceProvider) sp).getTopLayer();
             if (topLayer != null) {
                 layerSet.add(topLayer);
-                root = createTreeList(layerSet, null, root, false);
+                root = LayerTreeSupport.createTreeList(layerSet, null, root, false);
             }
 
         } else if (sp instanceof WfsServiceProvider) {
@@ -213,7 +212,7 @@ public class RightsAction extends KaartenbalieCrudAction {
 
             Set layers = ((WfsServiceProvider) sp).getWfsLayers();
             layerSet.addAll(layers);
-            root = createWfsTreeList(layerSet, root, null, false);
+            root = LayerTreeSupport.createWfsTreeList(layerSet, null, root, false);
 
         }
 
@@ -224,11 +223,11 @@ public class RightsAction extends KaartenbalieCrudAction {
     }
 
     @Override
-    protected void createLists(DynaValidatorForm form, HttpServletRequest request)
+    protected void createLists(DynaValidatorForm dynaForm, HttpServletRequest request)
             throws HibernateException,
             JSONException,
             Exception {
-        super.createLists(form, request);
+        super.createLists(dynaForm, request);
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
 
@@ -242,18 +241,21 @@ public class RightsAction extends KaartenbalieCrudAction {
 
         List spDtoList = new ArrayList();
 
-        if (wmsDtoList != null)
+        if (wmsDtoList != null) {
             spDtoList.addAll(wmsDtoList);
+        }
 
-        if (wfsDtoList != null)
+        if (wfsDtoList != null) {
             spDtoList.addAll(wfsDtoList);
+        }
 
-        if (spDtoList.size() > 0)
+        if (spDtoList.size() > 0) {
             Collections.sort(spDtoList);
+        }
 
         request.setAttribute("serviceproviderlist", spDtoList);
 
-    }
+     }
 
     protected ServiceProviderInterface getServiceProvider(DynaValidatorForm dynaForm) throws Exception {
         log.debug("Getting entity manager ......");
@@ -280,7 +282,6 @@ public class RightsAction extends KaartenbalieCrudAction {
         EntityManager em = getEntityManager();
         Organization organization = null;
         Integer id = FormUtils.StringToInteger(dynaForm.getString("orgId"));
-        ;
 
         if (null != id) {
             organization = (Organization) em.find(Organization.class, id);

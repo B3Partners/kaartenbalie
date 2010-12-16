@@ -364,7 +364,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
-    protected void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException {
+    protected void populateOrganizationForm(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
         dynaForm.set("street", organization.getStreet());
@@ -387,7 +387,7 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         }
     }
 
-    protected void populateOrganizationTree(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws JSONException {
+    protected void populateOrganizationTree(Organization organization, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         dynaForm.set("id", organization.getId().toString());
         dynaForm.set("name", organization.getName());
 
@@ -420,10 +420,10 @@ public class OrganizationAction extends KaartenbalieCrudAction {
         JSONArray rootArray = new JSONArray();
         root.put("children", rootArray);
 
-        JSONObject wmsRoot = this.createTree("WMS Services");
+        JSONObject wmsRoot = createTree("WMS Services");
         rootArray.put(wmsRoot);
 
-        JSONObject wfsRoot = this.createWfsTree("WFS Services");
+        JSONObject wfsRoot = createWfsTree("WFS Services");
         rootArray.put(wfsRoot);
 
         request.setAttribute("layerList", root);

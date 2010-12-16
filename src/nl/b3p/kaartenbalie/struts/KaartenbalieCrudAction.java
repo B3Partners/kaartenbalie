@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.struts.CrudAction;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.LayerTreeSupport;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
@@ -134,294 +135,38 @@ public class KaartenbalieCrudAction extends CrudAction {
 
     public Layer getLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
-
-        // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-        }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
-
-        String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
-
-        if (ll == null || ll.isEmpty()) {
-            return null;
-        }
-        // Dit is nodig omdat mysql case insensitive selecteert
-        Iterator it = ll.iterator();
-        while (it.hasNext()) {
-            Layer l = (Layer) it.next();
-            String dbLayerName = l.getName();
-            String dbSpAbbr = l.getSpAbbr();
-            if (dbLayerName != null && dbSpAbbr != null) {
-                if (dbLayerName.equals(layerName) && dbSpAbbr.equals(spAbbr)) {
-                    return l;
-                }
-            }
-        }
-        return null;
+        return LayerTreeSupport.getLayerByUniqueName(em, uniqueName);
     }
 
     public WfsLayer getWfsLayerByUniqueName(String uniqueName) throws Exception {
         EntityManager em = getEntityManager();
-
-        // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-        }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
-
-        String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
-        List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
-
-        if (ll == null || ll.isEmpty()) {
-            return null;
-        }
-        return (WfsLayer) ll.get(0);
+        return LayerTreeSupport.getWfsLayerByUniqueName(em, uniqueName);
     }
 
     protected String getLayerID(DynaValidatorForm dynaForm) {
         return dynaForm.getString("id");
     }
 
-    /* Method which checks if a certain layer is allowed to be shown on the screen.
-     *
-     * @param layer Layer object that has to be checked
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     *
-     * @return boolean
-     */
-    protected boolean hasVisibility(Layer layer, Set organizationLayers) {
-        if (layer == null || organizationLayers == null) {
-            return false;
-        }
-        Iterator it = organizationLayers.iterator();
-        while (it.hasNext()) {
-            Layer organizationLayer = (Layer) it.next();
-            if (layer.getId().equals(organizationLayer.getId())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /* Method which checks if a certain layer is allowed to be shown on the screen.
-    *
-    * @param layer Layer object that has to be checked
-    * @param organizationLayers Set of restrictions which define the visible and non visible layers
-    *
-    * @return boolean
-    */
-   protected boolean hasVisibility(WfsLayer layer, Set organizationLayers) {
-       if (layer == null || organizationLayers == null) {
-           return false;
-       }
-       Iterator it = organizationLayers.iterator();
-       while (it.hasNext()) {
-           WfsLayer organizationLayer = (WfsLayer) it.next();
-           if (layer.getId() == organizationLayer.getId()) {
-               return true;
-           }
-       }
-       return false;
-   }
-
-    protected JSONObject createTree(String rootName) throws JSONException {
+    public static JSONObject createTree(String rootName) throws Exception {
         return createTree(rootName, null, false);
     }
 
-    protected JSONObject createTree(String rootName, Set organizationLayers) throws JSONException {
+    public static JSONObject createTree(String rootName, Set organizationLayers) throws Exception {
         return createTree(rootName, organizationLayers, true);
     }
 
-    private JSONObject createTree(String rootName, Set organizationLayers, boolean checkLayers) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("name", rootName);
-        root.put("id", "wms" + rootName);
-        try {
-            log.debug("Getting entity manager ......");
-            EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from ServiceProvider sp order by sp.abbr").getResultList();
-            JSONArray rootArray = new JSONArray();
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                ServiceProvider sp = (ServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-
-                HashSet set = new HashSet();
-                Layer topLayer = sp.getTopLayer();
-                if (topLayer != null) {
-                    set.add(topLayer);
-                    parentObj = createTreeList(set, organizationLayers, parentObj, checkLayers);
-                    if (parentObj.has("children")) {
-                        rootArray.put(parentObj);
-                    }
-                } else {
-                    String name = sp.getGivenName();
-                    if (name == null) {
-                        name = "onbekend";
-                    }
-                    log.debug("Toplayer is null voor serviceprovider: " + name);
-                }
-            }
-            root.put("children", rootArray);
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        }
-
-        return root;
+    public static JSONObject createTree(String rootName, Set organizationLayers, boolean checkLayers) throws Exception {
+        EntityManager em = getEntityManager();
+        return LayerTreeSupport.createTree(em, rootName, organizationLayers, checkLayers);
     }
 
-    protected JSONObject createWfsTree(String rootName) throws JSONException {
+    public static JSONObject createWfsTree(String rootName) throws Exception {
         return createWfsTree(rootName, null, false);
     }
-    
-    protected JSONObject createWfsTree(String rootName, Set organizationLayers, boolean checkLayers) throws JSONException {
-    	
-        JSONObject root = new JSONObject();
-        root.put("name", rootName);
-        root.put("id", "wfs" + rootName);
-        try {
-            log.debug("Getting entity manager ......");
-            EntityManager em = getEntityManager();
-            List serviceProviders = em.createQuery("from WfsServiceProvider sp order by sp.abbr").getResultList();
 
-            JSONArray rootArray = new JSONArray();
-            Iterator it = serviceProviders.iterator();
-            while (it.hasNext()) {
-                WfsServiceProvider sp = (WfsServiceProvider) it.next();
-                JSONObject parentObj = this.serviceProviderToJSON(sp);
-                HashSet set = new HashSet();
-                Set layers = sp.getWfsLayers();
-                set.addAll(layers);
-                parentObj = createWfsTreeList(set, parentObj, organizationLayers, checkLayers);
-                if (parentObj.has("children")) {
-                    rootArray.put(parentObj);
-                }
-            }
-            root.put("children", rootArray);
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
-        }
-        return root;
-    }
-
-    /* Creates a JSON tree list of a given set of Layers and a set of restrictions
-     * of which layer is visible and which isn't.
-     *
-     * @param layers Set of layers from which the part of the tree ahs to be build
-     * @param organizationLayers Set of restrictions which define the visible and non visible layers
-     * @param parent JSONObject which represents the parent object to which this set of layers should be added
-     *
-     * @throws JSONException
-     */
-    protected JSONObject createTreeList(Set layers, Set organizationLayers, JSONObject parent, boolean checkLayers) throws JSONException {
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            Layer layer = (Layer) layerIterator.next();
-            JSONObject layerObj = this.layerToJSON(layer);
-
-            Set childLayers = layer.getLayers();
-            if (childLayers != null && !childLayers.isEmpty()) {
-                layerObj = createTreeList(childLayers, organizationLayers, layerObj, checkLayers);
-            }
-
-            if (!checkLayers || hasVisibility(layer, organizationLayers) || layerObj.has("children")) {
-                parentArray.put(layerObj);
-            }
-
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-
-    protected JSONObject createWfsTreeList(Set layers, JSONObject parent, Set organizationLayers, boolean checkLayers) throws JSONException {
-        Iterator layerIterator = layers.iterator();
-        JSONArray parentArray = new JSONArray();
-        while (layerIterator.hasNext()) {
-            WfsLayer layer = (WfsLayer) layerIterator.next();
-            JSONObject layerObj = this.layerToJSON(layer);
-            if (!checkLayers || hasVisibility(layer, organizationLayers)) {
-            	parentArray.put(layerObj);
-            }
-        }
-        if (parentArray.length() > 0) {
-            parent.put("children", parentArray);
-        }
-        return parent;
-    }
-
-    /* Creates a JSON object from the ServiceProvider with its given name and id.
-     *
-     * @param serviceProvider The ServiceProvider object which has to be converted
-     *
-     * @return JSONObject
-     *
-     * @throws JSONException
-     */
-    private JSONObject serviceProviderToJSON(WfsServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", "wfs" + serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-
-    private JSONObject serviceProviderToJSON(ServiceProvider serviceProvider) throws JSONException {
-        JSONObject root = new JSONObject();
-        root.put("id", "wms" + serviceProvider.getId());
-        root.put("name", serviceProvider.getGivenName());
-        root.put("type", "serviceprovider");
-        return root;
-    }
-
-    private JSONObject layerToJSON(WfsLayer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("name", layer.getTitle());
-        String name = layer.getUniqueName();
-        if (name == null) {
-            String title = layer.getTitle();
-            jsonLayer.put("id", MyEMFDatabase.uniqueName(title, null));
-            jsonLayer.put("title", title);
-            jsonLayer.put("type", "placeholder");
-        } else {
-            jsonLayer.put("id", name);
-            jsonLayer.put("type", "layer");
-        }
-        return jsonLayer;
-    }
-
-    private JSONObject layerToJSON(Layer layer) throws JSONException {
-        JSONObject jsonLayer = new JSONObject();
-        jsonLayer.put("name", layer.getTitle());
-        String name = layer.getUniqueName();
-        if (name == null) {
-            String title = layer.getCompleteTitle();
-            jsonLayer.put("id", MyEMFDatabase.uniqueName(title, null));
-            jsonLayer.put("title", title);
-            jsonLayer.put("type", "placeholder");
-        } else {
-            jsonLayer.put("id", name);
-            jsonLayer.put("type", "layer");
-        }
-        return jsonLayer;
+    public static JSONObject createWfsTree(String rootName, Set organizationLayers, boolean checkLayers) throws Exception {
+        EntityManager em = getEntityManager();
+        return LayerTreeSupport.createWfsTree(em, rootName, organizationLayers, checkLayers);
     }
 
 }
