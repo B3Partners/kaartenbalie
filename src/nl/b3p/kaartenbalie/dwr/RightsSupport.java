@@ -36,7 +36,7 @@ public class RightsSupport {
 
     private static final Log log = LogFactory.getLog(RightsSupport.class);
 
-    public JSONObject getRightsTree(Map params) {
+    public String getRightsTree(Map params) {
         WebContext ctx = WebContextFactory.get();
         HttpServletRequest request = null;
         if (ctx != null) {
@@ -92,7 +92,7 @@ public class RightsSupport {
 
 
 
-        return tree;
+        return tree.toString();
     }
 
     private JSONObject populateRightsTree(ServiceProviderInterface sp, Organization org) throws Exception {

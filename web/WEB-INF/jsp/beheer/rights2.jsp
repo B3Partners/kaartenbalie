@@ -25,6 +25,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/dwr/engine.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
+<script type="text/javascript" src="<html:rewrite page='/js/json2.js' module='' />"></script>
 
 
 <c:set var="form" value="${rightsForm.map}"/>
@@ -90,63 +91,27 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <div class="serverDetailsClass">
             <table>
                 <tr>
-                    <td style="color: #196299;">
+                    <td valign="top" style="width: 360px; padding-right: 20px;">
                         <fmt:message key="beheer.rights2.set" />
-                    </td>
-                    <td colspan="3">
-                        <html:select property="orgId">
+                        <html:select property="orgId" onchange="changeOrganization();">
                             <c:forEach var="orgItem" items="${organizationlist}">
                                 <html:option value="${orgItem.id}">
                                     <c:out value="${orgItem.name}"/>
                                 </html:option>
                             </c:forEach>
                         </html:select>&nbsp;
-                        <html:button onclick="changeOrganization();" property="edit" styleClass="knop">
-                            <fmt:message key="button.change"/>
-                        </html:button>
+                        <div class="treeHolderWide" id="layerContainer" style="width: 360px;"></div>
                     </td>
-                </tr>
-                <tr>
-                    <td colspan="4" valign="top" style="padding-left: 40px;">
-                        <div id="treeContainerWide2">
-                            <div class="treeHolderWide" id="layerContainer"></div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
-        <div class="serverDetailsClass">
-            <table >
-                <tr>
-                    <td valign="top" style="padding-left: 40px;">
-                        <b><fmt:message key="beheer.rights2.rechten" /> <c:out value="${orgName}"/>:&nbsp;</b>
+                    <td valign="top" style="width: 380px;">
+                        <b><fmt:message key="beheer.rights2.rechten" />:&nbsp;</b>
                         <html:button property="save" onclick="submitRightsForm();" accesskey="s" styleClass="knop">
                             <fmt:message key="button.update"/>
                         </html:button>
-                    </td>
-                </tr>
-                <tr>
-                    <td valign="top" style="padding-left: 40px;">
-                        <div id="treeContainerWide">
-                            <div class="treeHolderWide" id="tree">
-
-                            </div>
-                        </div>
+                        <div class="treeHolderWide" id="tree" style="width: 380px;"></div>
                     </td>
                 </tr>
             </table>
         </div>
-    </div>
-    <div id="scrollTOP" style="margin-top: 50px;">
-
-    </div>
-
-
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
-        &nbsp;
     </div>
 
 </html:form>
@@ -161,50 +126,54 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         var orgid = document.forms[0].orgId.value;
         var spid = document.forms[0].id.value;
         var sptype = document.forms[0].type.value;
-        //if(document.forms[0].selectedLayers) var selectedLayers = document.forms[0].selectedLayers.value;
+        var selectedLayersStr = "";
+        if(document.forms[0].selectedLayers) {
+            var selectedLayers = document.forms[0].selectedLayers;
+            for (var i=0; i < selectedLayers.length; i++) {
+               if(selectedLayers[i].checked) selectedLayersStr += selectedLayers[i].value+",";
+            }
+        }
         params["orgId"]=orgid;
         params["id"]=spid;
         params["type"]=sptype;
-        //if(selectedLayers) params["selectedLayers"]=selectedLayers;
+        params["selectedLayers"]=selectedLayersStr;
         return params;
     }
 
     function changeService(spid, type) {
-        document.forms[0].id = spid;
-        document.forms[0].type = type;
+        document.forms[0].id.value = spid;
+        document.forms[0].type.value = type;
         var params = collectFormParams();
-        alert(params);
         JRightsSupport.getRightsTree(params, createRightsTree);
     }
 
     function changeOrganization(orgid) {
-        document.forms[0].orgId = orgid;
+        document.forms[0].orgId.value = orgid;
         var params = collectFormParams();
         JRightsSupport.getRightsTree(params, createRightsTree);
     }
 
     function submitRightsForm() {
         var params = collectFormParams();
-//        alert(params);
         JRightsSupport.submitRightsForm(params, handleValidLayers);
+        return false;
     }
 
     function handleValidLayers(validlayers) {
         // Create container
-        var layerContainer = $j('<div></div>').attr({
-            "id": "layersContainer",
+        var layerContainer = $('<div></div>').attr({
             "class": "layersContainer"
         });
         layerContainer.append("Kaartlagen");
 
-        var layerTable = $j('<table></table>');
-        var layerTableBody = $j('<tbody></tbody>');
+        var layerTable = $('<table></table>');
+        var layerTableBody = $('<tbody></tbody>');
 
         // Create table content
         if(validlayers) {
-            $j.each(validlayers, function(index, layer) {
-                var tr = $j('<tr></tr>');
-                var td = $j('<td></td>')
+            $.each(validlayers, function(index, layer) {
+                var tr = $('<tr></tr>');
+                var td = $('<td></td>')
                 .css({
                     "width": "150px"
                 });
@@ -215,14 +184,15 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         }
         layerContainer.append(layerTable.append(layerTableBody));
 
-        $j('#layerContainer').append(layerContainer);
+        $('#layerContainer').html('').append(layerContainer);
     }
 
     function createRightsTree(rtree) {
-        // eerst verwijderen?
+        $("#tree").html('');
+        var treeobj = JSON.parse(rtree);
         treeview_create({
             "id": "tree",
-            "root": rtree,
+            "root": treeobj,
             "rootChildrenAsRoots": true,
             "itemLabelCreatorFunction": createLabel,
             "toggleImages": {
@@ -230,8 +200,8 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 "expanded": "<html:rewrite page='/images/treeview/minus.gif' module=''/>",
                 "leaf": "<html:rewrite page='/images/treeview/leaft.gif' module=''/>"
             },
-            "saveExpandedState": true,
-            "saveScrollState": true,
+            "saveExpandedState": false,
+            "saveScrollState": false,
             "expandAll": true
         });
     }
@@ -260,7 +230,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             vink.id=item.id;
             vink.layerType=item.type;
             vink.className="layerVink " + currentParent;
-            container.appendChild(vink);
+            label.appendChild(vink);
         }
 
         div.onclick = function() {
@@ -269,8 +239,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         div.appendChild(document.createTextNode(item.name));
         label.title=item.id;
         label.appendChild(div);
+        label.style.whiteSpace = 'nowrap';
+        label.style.width = 'auto';
         container.appendChild(label);
-        if (item.children){
+        if (item.children) {
             var d=document.createElement("a");
             d.href="#";
             d.onclick= function(){setAllTrue(this);};
