@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.Organization;
@@ -36,61 +35,14 @@ public class RightsSupport {
 
     private static final Log log = LogFactory.getLog(RightsSupport.class);
 
-    public String getRightsTree(Map params) {
-        WebContext ctx = WebContextFactory.get();
-        HttpServletRequest request = null;
-        if (ctx != null) {
-            request = ctx.getHttpServletRequest();
-        }
-        User user = (User) request.getUserPrincipal();
-        if (user == null || !user.checkRole(Roles.ADMIN)) {
+    public String getRightsTree(Map params) throws Exception {
+        if (!checkAccess()) {
             return null;
         }
 
-        Integer orgId = FormUtils.StringToInteger((String) params.get("orgId"));
-        Integer spId = FormUtils.StringToInteger((String) params.get("id"));
-        String spType = (String) params.get("type");
-
-        if (orgId == null) {
-            return null;
-        }
-        if (spId == null || spId.intValue() == 0) {
-            return null;
-        }
-        if (spType == null) {
-            return null;
-        }
-
-        JSONObject tree = null;
-        Object identity = null;
-        try {
-            identity = createEntityManager();
-            EntityManager em = getEntityManager();
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            try {
-                Organization org = (Organization) em.find(Organization.class, orgId);
-
-                ServiceProviderInterface sp = null;
-                if ("WMS".equalsIgnoreCase(spType)) {
-                    sp = (ServiceProviderInterface) em.find(ServiceProvider.class, new Integer(spId.intValue()));
-                } else if ("WFS".equalsIgnoreCase(spType)) {
-                    sp = (ServiceProviderInterface) em.find(WfsServiceProvider.class, new Integer(spId.intValue()));
-                }
-
-                tree = populateRightsTree(sp, org);
-                tx.commit();
-            } catch (Exception e) {
-                tx.rollback();
-                log.error("Exception occured, rollback", e);
-            }
-        } catch (Throwable e) {
-            log.error("Exception occured while getting EntityManager: ", e);
-        } finally {
-            closeEntityManager(identity);
-        }
-
-
+        Organization org = getOrganization(params);
+        ServiceProviderInterface sp = getServiceProvider(params);
+        JSONObject tree = populateRightsTree(sp, org);
 
         return tree.toString();
     }
@@ -128,108 +80,93 @@ public class RightsSupport {
         return header;
     }
 
-    public List submitRightsForm(Map params) {
-        WebContext ctx = WebContextFactory.get();
-        HttpServletRequest request = null;
-        if (ctx != null) {
-            request = ctx.getHttpServletRequest();
-        }
-        User user = (User) request.getUserPrincipal();
-        if (user == null || !user.checkRole(Roles.ADMIN)) {
+    public List submitRightsForm(Map params) throws Exception {
+        if (!checkAccess()) {
             return null;
         }
 
-        Integer orgId = FormUtils.StringToInteger((String) params.get("orgId"));
-        Integer spId = FormUtils.StringToInteger((String) params.get("id"));
-        String spType = (String) params.get("type");
+        Organization org = getOrganization(params);
+        ServiceProviderInterface sp = getServiceProvider(params);
         String selectedLayers = (String) params.get("selectedLayers");
 
-        if (orgId == null) {
-            return null;
+        List layers = new ArrayList();
+        Set wmsLayers = new HashSet();
+        Set wfsLayers = new HashSet();
+
+        // add layers from other sp's
+        Set<Layer> orgWmsLayerSet = org.getLayers();
+        if (orgWmsLayerSet != null) {
+            for (Layer l : orgWmsLayerSet) {
+                ServiceProvider layerSp = l.getServiceProvider();
+                if (!layerSp.getAbbr().equals(sp.getAbbr())) {
+                    wmsLayers.add(l);
+                    String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
+                    layers.add(lname);
+                }
+            }
         }
-        if (spId == null || spId.intValue() == 0) {
-            return null;
+        Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
+        if (orgWfsLayerSet != null) {
+            for (WfsLayer l : orgWfsLayerSet) {
+                WfsServiceProvider layerSp = l.getWfsServiceProvider();
+                if (!layerSp.getAbbr().equals(sp.getAbbr())) {
+                    wfsLayers.add(l);
+                    String lname = l.getName() + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
+                    layers.add(lname);
+                }
+            }
         }
-        if (spType == null) {
+
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.DWR_EM);
+        // add selected layers from current sp
+        String[] selectedLayersArray = selectedLayers.split(",");
+        int size = selectedLayersArray.length;
+        for (int i = 0; i < size; i++) {
+            String layerName = selectedLayersArray[i];
+            WfsLayer wfsl = LayerTreeSupport.getWfsLayerByUniqueName(em, layerName);
+            if (wfsl != null) {
+                wfsLayers.add(wfsl);
+                String lname = wfsl.getName() + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
+                layers.add(lname);
+            }
+            Layer wmsl = LayerTreeSupport.getLayerByUniqueName(em, layerName);
+            if (wmsl != null) {
+                wmsLayers.add(wmsl);
+                String lname = wmsl.getName() + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
+                layers.add(lname);
+            }
+        }
+
+        org.setWfsLayers(wfsLayers);
+        org.setLayers(wmsLayers);
+
+        Collections.sort(layers);
+        return layers;
+
+    }
+
+    public List getValidLayers(Map params) throws Exception {
+        if (!checkAccess()) {
             return null;
         }
 
         List layers = new ArrayList();
 
-        Object identity = null;
-        try {
-            identity = createEntityManager();
-            EntityManager em = getEntityManager();
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            try {
-                // doe iets
-                Organization org = (Organization) em.find(Organization.class, orgId);
-
-                ServiceProviderInterface sp = null;
-                if ("WMS".equalsIgnoreCase(spType)) {
-                    sp = (ServiceProviderInterface) em.find(ServiceProvider.class, new Integer(spId.intValue()));
-                } else if ("WFS".equalsIgnoreCase(spType)) {
-                    sp = (ServiceProviderInterface) em.find(WfsServiceProvider.class, new Integer(spId.intValue()));
-                }
-
-                Set wmsLayers = new HashSet();
-                Set wfsLayers = new HashSet();
-
-                // add layers from other sp's
-                Set<Layer> orgWmsLayerSet = org.getLayers();
-                if (orgWmsLayerSet != null) {
-                    for (Layer l : orgWmsLayerSet) {
-                        ServiceProvider layerSp = l.getServiceProvider();
-                        if (!layerSp.getAbbr().equals(sp.getAbbr())) {
-                            wmsLayers.add(l);
-                            String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
-                            layers.add(lname);
-                        }
-                    }
-                }
-                Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
-                if (orgWfsLayerSet != null) {
-                    for (WfsLayer l : orgWfsLayerSet) {
-                        WfsServiceProvider layerSp = l.getWfsServiceProvider();
-                        if (!layerSp.getAbbr().equals(sp.getAbbr())) {
-                            wfsLayers.add(l);
-                            String lname = l.getName() + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
-                            layers.add(lname);
-                        }
-                    }
-                }
-
-                // add selected layers from current sp
-                String[] selectedLayersArray = selectedLayers.split(",");
-                int size = selectedLayersArray.length;
-                for (int i = 0; i < size; i++) {
-                    String layerName = selectedLayersArray[i];
-                    WfsLayer wfsl = LayerTreeSupport.getWfsLayerByUniqueName(em, layerName);
-                    if (wfsl != null) {
-                        wfsLayers.add(wfsl);
-                        String lname = wfsl.getName() + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
-                        layers.add(lname);
-                    }
-                    Layer wmsl = LayerTreeSupport.getLayerByUniqueName(em, layerName);
-                    if (wmsl != null) {
-                        wmsLayers.add(wmsl);
-                        String lname = wmsl.getName() + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
-                        layers.add(lname);
-                    }
-                }
-
-                org.setWfsLayers(wfsLayers);
-                org.setLayers(wmsLayers);
-                tx.commit();
-            } catch (Exception e) {
-                tx.rollback();
-                log.error("Exception occured, rollback", e);
+        Organization org = getOrganization(params);
+        Set<Layer> orgWmsLayerSet = org.getLayers();
+        if (orgWmsLayerSet != null) {
+            for (Layer l : orgWmsLayerSet) {
+                ServiceProvider layerSp = l.getServiceProvider();
+                String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
+                layers.add(lname);
             }
-        } catch (Throwable e) {
-            log.error("Exception occured while getting EntityManager: ", e);
-        } finally {
-            closeEntityManager(identity);
+        }
+        Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
+        if (orgWfsLayerSet != null) {
+            for (WfsLayer l : orgWfsLayerSet) {
+                String lname = l.getName() + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
+                layers.add(lname);
+            }
         }
 
         Collections.sort(layers);
@@ -237,16 +174,47 @@ public class RightsSupport {
 
     }
 
-    private Object createEntityManager() throws Exception {
-        return MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+    private Organization getOrganization(Map params) throws Exception {
+        Integer orgId = FormUtils.StringToInteger((String) params.get("orgId"));
+        if (orgId == null) {
+            return null;
+        }
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.DWR_EM);
+        return (Organization) em.find(Organization.class, orgId);
     }
 
-    private EntityManager getEntityManager() throws Exception {
-        return MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
+    private ServiceProviderInterface getServiceProvider(Map params) throws Exception {
+        Integer spId = FormUtils.StringToInteger((String) params.get("id"));
+        String spType = (String) params.get("type");
+        if (spId == null || spId.intValue() == 0) {
+            return null;
+        }
+        if (spType == null) {
+            return null;
+        }
+
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.DWR_EM);
+
+        ServiceProviderInterface sp = null;
+        if ("WMS".equalsIgnoreCase(spType)) {
+            sp = (ServiceProviderInterface) em.find(ServiceProvider.class, new Integer(spId.intValue()));
+        } else if ("WFS".equalsIgnoreCase(spType)) {
+            sp = (ServiceProviderInterface) em.find(WfsServiceProvider.class, new Integer(spId.intValue()));
+        }
+
+        return sp;
     }
 
-    private void closeEntityManager(Object identity) {
-        MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
+    private boolean checkAccess() {
+        WebContext ctx = WebContextFactory.get();
+        HttpServletRequest request = null;
+        if (ctx != null) {
+            request = ctx.getHttpServletRequest();
+        }
+        User user = (User) request.getUserPrincipal();
+        if (user == null || !user.checkRole(Roles.ADMIN)) {
+            return false;
+        }
+        return true;
     }
-
 }

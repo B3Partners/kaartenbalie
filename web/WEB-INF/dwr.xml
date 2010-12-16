@@ -4,9 +4,9 @@
 <dwr>
     <allow>
         <create creator="new" javascript="JRightsSupport">
+            <filter class="nl.b3p.kaartenbalie.service.DwrTransactionFilter"/>
             <param name="class" value="nl.b3p.kaartenbalie.dwr.RightsSupport"/>
         </create>
-        <convert converter="bean" match="org.json.JSONObject"/>
         <convert match="java.lang.Exception" converter="exception">
             <param name='include' value='message,lineNumber'/>
         </convert>

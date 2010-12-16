@@ -28,9 +28,6 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 <script type="text/javascript" src="<html:rewrite page='/js/json2.js' module='' />"></script>
 
 
-<c:set var="form" value="${rightsForm.map}"/>
-<c:set var="orgName" value="${form.orgName}"/>
-
 <html:form action="/rights2">
     <html:hidden property="id" />
     <html:hidden property="type" />
@@ -92,7 +89,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <table>
                 <tr>
                     <td valign="top" style="width: 360px; padding-right: 20px;">
-                        <fmt:message key="beheer.rights2.set" />
+                        <b><fmt:message key="beheer.rights2.set" />:&nbsp;</b>
                         <html:select property="orgId" onchange="changeOrganization();">
                             <c:forEach var="orgItem" items="${organizationlist}">
                                 <html:option value="${orgItem.id}">
@@ -145,12 +142,14 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         document.forms[0].type.value = type;
         var params = collectFormParams();
         JRightsSupport.getRightsTree(params, createRightsTree);
+        JRightsSupport.getValidLayers(params, handleValidLayers);
     }
 
     function changeOrganization(orgid) {
         document.forms[0].orgId.value = orgid;
         var params = collectFormParams();
         JRightsSupport.getRightsTree(params, createRightsTree);
+        JRightsSupport.getValidLayers(params, handleValidLayers);
     }
 
     function submitRightsForm() {
@@ -164,25 +163,19 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         var layerContainer = $('<div></div>').attr({
             "class": "layersContainer"
         });
-        layerContainer.append("Kaartlagen");
+        //layerContainer.append("Kaartlagen");
 
-        var layerTable = $('<table></table>');
-        var layerTableBody = $('<tbody></tbody>');
-
+        var layerList = $('<ol></ol>');
+ 
         // Create table content
         if(validlayers) {
             $.each(validlayers, function(index, layer) {
-                var tr = $('<tr></tr>');
-                var td = $('<td></td>')
-                .css({
-                    "width": "150px"
-                });
-                td.html(layer);
-                tr.append(td);
-                layerTableBody.append(tr);
+                var li = $('<li></li>');
+                li.html(layer);
+                 layerList.append(li);
             });
         }
-        layerContainer.append(layerTable.append(layerTableBody));
+        layerContainer.append(layerList);
 
         $('#layerContainer').html('').append(layerContainer);
     }
