@@ -38,17 +38,17 @@
 
     create table contact_information (
         id int4 not null,
-        contact_person varchar(50),
-        contact_position varchar(50),
-        address varchar(50),
-        address_type varchar(50),
+        contact_person varchar(80),
+        contact_position varchar(255),
+        address varchar(80),
+        address_type varchar(80),
         postcode varchar(50),
-        city varchar(50),
-        state_or_province varchar(50),
-        country varchar(50),
-        voice_telephone varchar(50),
-        fascimile_telephone varchar(50),
-        email_address varchar(50),
+        city varchar(80),
+        state_or_province varchar(80),
+        country varchar(255),
+        voice_telephone varchar(80),
+        fascimile_telephone varchar(80),
+        email_address varchar(255),
         primary key (id)
     );
 
@@ -311,7 +311,7 @@
     create table style (
         id  serial not null,
         layer int4 not null,
-        name varchar(50) not null,
+        name varchar(255) not null,
         title varchar(255) not null,
         abstracts text,
         primary key (id)

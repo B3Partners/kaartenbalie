@@ -42,17 +42,17 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       </generator>
     </id>
     <one-to-one class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true" name="serviceProvider"/>
-    <property length="50" name="contactPerson"/>
-    <property length="50" name="contactPosition"/>
-    <property length="50" name="address"/>
-    <property length="50" name="addressType"/>
+    <property length="80" name="contactPerson"/>
+    <property length="255" name="contactPosition"/>
+    <property length="80" name="address"/>
+    <property length="80" name="addressType"/>
     <property length="50" name="postcode"/>
-    <property length="50" name="city"/>
-    <property length="50" name="stateOrProvince"/>
-    <property length="50" name="country"/>
-    <property length="50" name="voiceTelephone"/>
-    <property length="50" name="fascimileTelephone"/>
-    <property length="50" name="emailAddress"/>
+    <property length="80" name="city"/>
+    <property length="80" name="stateOrProvince"/>
+    <property length="255" name="country"/>
+    <property length="80" name="voiceTelephone"/>
+    <property length="80" name="fascimileTelephone"/>
+    <property length="255" name="emailAddress"/>
   </class>
   <class name="nl.b3p.wms.capabilities.Dimensions">
     <id name="id">
@@ -251,7 +251,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
       <key column="style"/>
       <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
     </set>
-    <property length="50" name="name" not-null="true"/>
+    <property length="255" name="name" not-null="true"/>
     <property length="255" name="title" not-null="true"/>
     <property name="abstracts" type="text"/>
   </class>

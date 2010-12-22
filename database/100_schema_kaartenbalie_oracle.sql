@@ -38,17 +38,17 @@
 
     create table contact_information (
         id number(10,0) not null,
-        contact_person varchar2(50 char),
-        contact_position varchar2(50 char),
-        address varchar2(50 char),
-        address_type varchar2(50 char),
+        contact_person varchar2(80 char),
+        contact_position varchar2(255 char),
+        address varchar2(80 char),
+        address_type varchar2(80 char),
         postcode varchar2(50 char),
-        city varchar2(50 char),
-        state_or_province varchar2(50 char),
-        country varchar2(50 char),
-        voice_telephone varchar2(50 char),
-        fascimile_telephone varchar2(50 char),
-        email_address varchar2(50 char),
+        city varchar2(80 char),
+        state_or_province varchar2(80 char),
+        country varchar2(255 char),
+        voice_telephone varchar2(80 char),
+        fascimile_telephone varchar2(80 char),
+        email_address varchar2(255 char),
         primary key (id)
     );
 
@@ -311,7 +311,7 @@
     create table style (
         id number(10,0) not null,
         layer number(10,0) not null,
-        name varchar2(50 char) not null,
+        name varchar2(255 char) not null,
         title varchar2(255 char) not null,
         abstracts clob,
         primary key (id)
