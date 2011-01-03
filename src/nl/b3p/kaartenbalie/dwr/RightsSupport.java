@@ -35,7 +35,7 @@ public class RightsSupport {
 
     private static final Log log = LogFactory.getLog(RightsSupport.class);
 
-    public String getRightsTree(Map params) throws Exception {
+    public String getRightsTree(Map<String, String> params) throws Exception {
         if (!checkAccess()) {
             return null;
         }
@@ -55,11 +55,19 @@ public class RightsSupport {
         JSONArray headerArray = new JSONArray();
         header.put("children", headerArray);
 
+        if (sp==null) {
+            return header;
+        }
+
         JSONObject root = new JSONObject();
         root.put("name", sp.getGivenName());
         root.put("id", "ogc" + sp.getId().toString());
         root.put("type", "serviceprovider");
         headerArray.put(root);
+
+        if (org==null) {
+            return header;
+        }
 
         Set layerSet = new HashSet();
         if (sp instanceof ServiceProvider) {
@@ -80,16 +88,19 @@ public class RightsSupport {
         return header;
     }
 
-    public List submitRightsForm(Map params) throws Exception {
+    public List<String> submitRightsForm(Map<String, String> params) throws Exception {
         if (!checkAccess()) {
             return null;
         }
 
         Organization org = getOrganization(params);
         ServiceProviderInterface sp = getServiceProvider(params);
-        String selectedLayers = (String) params.get("selectedLayers");
+        String selectedLayers = params.get("selectedLayers");
 
-        List layers = new ArrayList();
+        List<String> layers = new ArrayList<String>();
+        if (org==null) {
+            return layers;
+        }
         Set wmsLayers = new HashSet();
         Set wfsLayers = new HashSet();
 
@@ -145,18 +156,21 @@ public class RightsSupport {
 
     }
 
-    public List getValidLayers(Map params) throws Exception {
+    public List<String> getValidLayers(Map<String, String> params) throws Exception {
         if (!checkAccess()) {
             return null;
         }
 
-        List layers = new ArrayList();
+        List<String> layers = new ArrayList<String>();
 
         Organization org = getOrganization(params);
+        if (org==null) {
+            return layers;
+        }
+        
         Set<Layer> orgWmsLayerSet = org.getLayers();
         if (orgWmsLayerSet != null) {
             for (Layer l : orgWmsLayerSet) {
-                ServiceProvider layerSp = l.getServiceProvider();
                 String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
                 layers.add(lname);
             }
@@ -174,8 +188,8 @@ public class RightsSupport {
 
     }
 
-    private Organization getOrganization(Map params) throws Exception {
-        Integer orgId = FormUtils.StringToInteger((String) params.get("orgId"));
+    private Organization getOrganization(Map<String, String> params) throws Exception {
+        Integer orgId = FormUtils.StringToInteger(params.get("orgId"));
         if (orgId == null) {
             return null;
         }
@@ -183,9 +197,9 @@ public class RightsSupport {
         return (Organization) em.find(Organization.class, orgId);
     }
 
-    private ServiceProviderInterface getServiceProvider(Map params) throws Exception {
-        Integer spId = FormUtils.StringToInteger((String) params.get("id"));
-        String spType = (String) params.get("type");
+    private ServiceProviderInterface getServiceProvider(Map<String, String> params) throws Exception {
+        Integer spId = FormUtils.StringToInteger(params.get("id"));
+        String spType = params.get("type");
         if (spId == null || spId.intValue() == 0) {
             return null;
         }

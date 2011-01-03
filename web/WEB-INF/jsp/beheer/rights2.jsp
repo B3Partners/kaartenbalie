@@ -145,8 +145,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         JRightsSupport.getValidLayers(params, handleValidLayers);
     }
 
-    function changeOrganization(orgid) {
-        document.forms[0].orgId.value = orgid;
+    function changeOrganization() {
         var params = collectFormParams();
         JRightsSupport.getRightsTree(params, createRightsTree);
         JRightsSupport.getValidLayers(params, handleValidLayers);
