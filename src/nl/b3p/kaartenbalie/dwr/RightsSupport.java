@@ -130,21 +130,23 @@ public class RightsSupport {
 
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.DWR_EM);
         // add selected layers from current sp
-        String[] selectedLayersArray = selectedLayers.split(",");
-        int size = selectedLayersArray.length;
-        for (int i = 0; i < size; i++) {
-            String layerName = selectedLayersArray[i];
-            WfsLayer wfsl = LayerTreeSupport.getWfsLayerByUniqueName(em, layerName);
-            if (wfsl != null) {
-                wfsLayers.add(wfsl);
-                String lname = wfsl.getName() + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
-                layers.add(lname);
-            }
-            Layer wmsl = LayerTreeSupport.getLayerByUniqueName(em, layerName);
-            if (wmsl != null) {
-                wmsLayers.add(wmsl);
-                String lname = wmsl.getName() + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
-                layers.add(lname);
+        if (selectedLayers!=null && selectedLayers.length()> 0){
+            String[] selectedLayersArray = selectedLayers.split(",");
+            int size = selectedLayersArray.length;
+            for (int i = 0; i < size; i++) {
+                String layerName = selectedLayersArray[i];
+                WfsLayer wfsl = LayerTreeSupport.getWfsLayerByUniqueName(em, layerName);
+                if (wfsl != null) {
+                    wfsLayers.add(wfsl);
+                    String lname = wfsl.getName() + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
+                    layers.add(lname);
+                }
+                Layer wmsl = LayerTreeSupport.getLayerByUniqueName(em, layerName);
+                if (wmsl != null) {
+                    wmsLayers.add(wmsl);
+                    String lname = wmsl.getName() + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
+                    layers.add(lname);
+                }
             }
         }
 
