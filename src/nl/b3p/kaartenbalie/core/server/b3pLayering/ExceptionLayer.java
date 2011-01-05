@@ -45,7 +45,7 @@ public class ExceptionLayer extends BackgroundLayer {
 
         String message = (String) parameterMap.get("message");
         if (message==null) {
-            message = "unkown message";
+            message = "unknown message";
         }
         // positie in scherm
         Integer index = (Integer) parameterMap.get("index");
