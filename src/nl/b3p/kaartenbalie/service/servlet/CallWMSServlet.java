@@ -335,17 +335,21 @@ public class CallWMSServlet extends HttpServlet {
 
     private String extractCode(HttpServletRequest request) {
         String code = request.getPathInfo();
-        int pos = code.indexOf("/");
-        if (pos < 0) {
+        if(code == null){
+            return null;
+        }else{
+            int pos = code.indexOf("/");
+            if (pos < 0) {
+                return code;
+            }
+            code = code.substring(pos + 1);
+            pos = code.indexOf("/");
+            if (pos < 0) {
+                return code;
+            }
+            code = code.substring(0, pos);
             return code;
         }
-        code = code.substring(pos + 1);
-        pos = code.indexOf("/");
-        if (pos < 0) {
-            return code;
-        }
-        code = code.substring(0, pos);
-        return code;
     }
 
     private void handleRequestException(Exception ex, DataWrapper data) throws IOException {
