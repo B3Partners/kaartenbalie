@@ -117,6 +117,18 @@
             <param-value>nl.b3p.kaartenbalie.core.webdav.MetadataResourceFactory</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SelectCSS</servlet-name>
         <url-pattern>/styles/selectcss</url-pattern>
