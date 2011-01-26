@@ -214,9 +214,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         }
         if (item.id && item.type == "layer") {
             vink.type="checkbox";
+
             if (item.visible == "true") {
-                vink.checked=true;
+                //vink.setAttribute("checked", true);
+                vink.checked = "true";
             }
+            
             vink.value=item.id;
             vink.name="selectedLayers";
             vink.id=item.id;
