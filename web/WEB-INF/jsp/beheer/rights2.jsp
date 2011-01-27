@@ -205,26 +205,47 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 
     function createLabel(container, item) {
         var div = document.createElement("div");
-        var vink= document.createElement("input");
-        var label= document.createElement("label");
+        var label = document.createElement("label");
 
         div.className = item.type == "layer" ? "layerLabel" : "serviceproviderLabel";
         if(div.className == 'serviceproviderLabel') {
             currentParent = container.id;
         }
-        if (item.id && item.type == "layer") {
-            vink.type="checkbox";
 
-            if (item.visible == "true") {
-                //vink.setAttribute("checked", true);
-                vink.checked = "true";
+        var vink;
+        if (item.id && item.type == "layer") {           
+            /* Voor IE7 */
+            if (navigator.appName=="Microsoft Internet Explorer") {
+                var vinkStr = '<input type="checkbox" id="' + item.id + '"';
+
+                if (item.visible == "true") {
+                    vinkStr += ' checked="checked"';
+                }
+                
+                vinkStr += ' name="selectedLayers"';
+                vinkStr += '>';
+
+                vink = document.createElement(vinkStr);
+
+                vink.value = item.id;
+                vink.className = "layerVink " + currentParent;
+                vink.layerType = item.type;
+            } else {
+
+                vink = document.createElement("input");
+                
+                if (item.visible == "true") {
+                    vink.checked = true;
+                }
+
+                vink.type = "checkbox";
+                vink.value=item.id;
+                vink.name="selectedLayers";
+                vink.id=item.id;
+                vink.layerType=item.type;
+                vink.className="layerVink " + currentParent;
             }
             
-            vink.value=item.id;
-            vink.name="selectedLayers";
-            vink.id=item.id;
-            vink.layerType=item.type;
-            vink.className="layerVink " + currentParent;
             label.appendChild(vink);
         }
 
