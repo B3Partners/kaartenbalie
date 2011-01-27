@@ -154,6 +154,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     function submitRightsForm() {
         var params = collectFormParams();
         JRightsSupport.submitRightsForm(params, handleValidLayers);
+
+        alert("De rechten zijn succesvol opgeslagen.");
+
         return false;
     }
 
