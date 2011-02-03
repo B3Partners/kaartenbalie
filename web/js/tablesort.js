@@ -958,9 +958,13 @@ eval(function(p,a,c,k,e,r){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a
         var allRows = table.config.cache.row;
         var resultRows = [];
 
-        var allRowsCount = allRows.length;
-        for (var i=0; i < allRowsCount; i++) {
-          allRows[i].each ( search_text );
+        if(filterCount == 0) {
+            resultRows = allRows;
+        } else {
+            var allRowsCount = allRows.length;
+            for (var i=0; i < allRowsCount; i++) {
+              allRows[i].each ( search_text );
+            }
         }
 
         // Clear the table
@@ -1526,9 +1530,10 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
             var curhtml = jQuery(this).html();
             jQuery(this).html('<div style="height: '+cellheight+'px; overflow: hidden;">' + curhtml + '</div>');
     });
-
+    
     // Add extra tr for inputfilters
     var trCode = '<tr class="filterrow">';
+    var filtertrigger = "";
     var addedinputfilters = false;
     $table.find("th").each(function(index) {
             if(!jQuery(this).hasClass("no-filter")) {
@@ -1536,7 +1541,12 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
                     var value = "";
                     if(hasCookie && cookieoptions.filtering) {
                         jQuery.each(cookieoptions.filtering, function(index, val) {
-                            if(val.col == id) value = val.val;
+                            if(val.col == id)
+                            {
+                                value = val.val;
+                                if(filtertrigger != "") filtertrigger += ",";
+                                filtertrigger += "#"+id;
+                            }
                         });
                     }
                     trCode += '<td><input class="tablefilterbox" value="'+value+'" type="text" name="filter" id="'+id+'" /></td>';
@@ -1564,11 +1574,14 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
             var link = jQuery(this).find("input[name=link]").val();
             if(link != undefined && link != '') window.location.href=link;
         });
+        if(jQuery(this).find("input[name=selected]").val() == "selected") {
+            jQuery(this).addClass("selectedtr");
+        }
         counter++;
     });
 
     $parentdiv.css("height", height + 'px');
-
+    
     var $overlay = jQuery('<div id="tableoverlay"></div>').css({
         "position": "absolute",
         "background-color": "#ffffff",
@@ -1588,7 +1601,7 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
     $table.before($overlay);
 
     // add pager controls
-    $parentdiv.after(createPagercontrols(displayselect));
+    $parentdiv.after(createPagercontrols(displayselect));  
 
     jQuery(".refreshtable").click(function() {
         resetFilters(tableid);
@@ -1614,14 +1627,8 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
 
     // init filter
     $table.tablesorterFilter(filters);
-    $table.find(".tablefilterbox").trigger("keyup");
+    if(filtertrigger != "") $table.trigger("doFilter");
     if(hasCookie && cookieoptions.sorting) $table.trigger("sorton",[[cookieoptions.sorting]]);
-
-    $table.find("tbody > tr").each(function(){
-        if(jQuery(this).find("input[name=selected]").val() == "selected") {
-            jQuery(this).addClass("selectedtr");
-        }
-    });
 
     // init pager
     $table.tablesorterPager({container: jQuery("#pager"), positionFixed: false, page: 0});
