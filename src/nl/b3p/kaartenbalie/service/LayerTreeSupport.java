@@ -21,10 +21,12 @@
  */
 
 package nl.b3p.kaartenbalie.service;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
@@ -135,7 +137,27 @@ public class LayerTreeSupport {
         if (parentArray.length() > 0) {
             parent.put("children", parentArray);
         }
+
+        alphabetizeWfsRightsTree(parent);
+        
         return parent;
+    }
+
+    private static void alphabetizeWfsRightsTree(JSONObject treeObject) throws JSONException {
+        if (!treeObject.isNull("children")) {
+            JSONArray childArray = treeObject.getJSONArray("children");
+            TreeMap tm = new TreeMap();
+            for (int i = 0; i < childArray.length(); i++) {
+                JSONObject childObject = childArray.getJSONObject(i);
+                alphabetizeWfsRightsTree(childObject);
+                String title = childObject.getString("name");
+                tm.put(title, childObject);
+            }
+            Collection c = tm.values();
+            treeObject.put("children", c);
+        }
+
+        return;
     }
 
     /* Creates a JSON object from the ServiceProvider with its given name and id.
