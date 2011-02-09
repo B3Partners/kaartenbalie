@@ -103,6 +103,10 @@ public class DirectoryParser {
         SortedMap<String, File> mapDirs = new TreeMap();
         SortedMap<String, File> mapFiles = new TreeMap();
 
+        if (files == null || files.length < 1) {
+            return new File[0];
+        }
+
         // Split and sort
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
