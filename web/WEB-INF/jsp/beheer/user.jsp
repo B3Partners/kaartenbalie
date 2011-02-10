@@ -314,10 +314,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                                 <div class="orgsHolder">
                                             <table cellpadding="0px;">
                                                 <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
-                                                    <tr>
-                                                        <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
-                                                        <td><c:out value="${nOrg.name}" /></td>
-                                                    </tr>
+                                                    <c:if test="${nOrg.id !=form.map.mainOrganization}">
+                                                        <tr>
+                                                            <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
+                                                            <td><c:out value="${nOrg.name}" /></td>
+                                                        </tr>
+                                                    </c:if>
                                                 </c:forEach>
                                             </table>
                                 </div>
