@@ -218,7 +218,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         var vink;
         if (item.id && item.type == "layer") {           
             /* Voor IE7 */
-            if (navigator.appName=="Microsoft Internet Explorer") {
+            if (ieVersion <= 7 && ieVersion != -1) {
                 var vinkStr = '<input type="checkbox" id="' + item.id + '"';
 
                 if (item.visible == "true") {
