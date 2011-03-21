@@ -387,8 +387,14 @@ tbody, td {
 
 #footer_tekst_links {
     position: relative;
-    left: -50px;
     top: 18px;
+    left: -50px;
+    width: 450px;
+}
+
+#footer_tekst_links a.gpl_link {
+    color: #7891A5;
+    text-decoration: underline;
 }
 
 #footer_tekst_rechts {

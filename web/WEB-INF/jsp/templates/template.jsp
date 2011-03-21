@@ -2,22 +2,22 @@
 B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
 for authentication/authorization, pricing and usage reporting.
 
-Copyright 2006, 2007, 2008 B3Partners BV
+Copyright 2007-2011 B3Partners BV.
 
-This file is part of B3P Kaartenbalie.
+This program is distributed under the terms
+of the GNU General Public License.
 
-B3P Kaartenbalie is free software: you can redistribute it and/or modify
+You should have received a copy of the GNU General Public License
+along with this software. If not, see http://www.gnu.org/licenses/gpl.html
+
+This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-B3P Kaartenbalie is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <tiles:importAttribute/>
@@ -124,13 +124,12 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                     <div id="footerholder">
                 <![endif]-->
                 
-                <a href="http://www.b3p.nl/b3partners/webPages.do?pageid=203015" style="cursor: hand;">
-                    <div id="initiatief">
-                        <div id="footer_tekst_rechts" class="footer_tekst"><fmt:message key="templates.template.initiatief" /></div>
-                    </div>
-                </a>
+                
+                <div id="initiatief">
+                        <div id="footer_tekst_rechts" class="footer_tekst">Kaartenbalie 3.0</div>
+                </div>
                 <div id="copyright">
-                    <div id="footer_tekst_links" class="footer_tekst"><fmt:message key="templates.template.copyright" /></div>
+                    <div id="footer_tekst_links" class="footer_tekst">This program is distributed under the terms of the <a class="gpl_link" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a></div>
                 </div>
                 
                 <!--[if IE 7]>
