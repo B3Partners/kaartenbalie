@@ -19,94 +19,115 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <tiles:importAttribute/>
 
-<html:html xhtml="true">
+<html>
     <head>
+        <!--title>B3Partners Metadata Editor</title-->
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta http-equiv="pragma" content="no-cache" />
-        
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/defaults.js' module='' />"></script>
-        <script type="text/javascript">
-            /* <![CDATA[ */
-            //var debugMode = true;
-            var debugMode = false;
-            //var viewMode = "true";
-            var viewMode = "false";
-            //var viewMode = "<c:out value="${metadataForm.map.viewMode}"/>";
-            //var strictMode = "true";
-            var strictMode = "true";
-            //var strictMode = "<c:out value="${metadataForm.map.strictMode}"/>";
 
-            var layerId = "<c:out value="${metadataForm.map.id}"/>";
-            var layerName = "<c:out value="${metadataForm.map.name}"/>";
-            var metadataXML = "<c:out value="${metadataForm.map.metadata}" escapeXml='false'/>";
-
-            var baseURL = "<html:rewrite page='' module='' />";//document.URL.substring(0, document.URL.lastIndexOf("<html:rewrite page='' module='' />"));
-            var baseFullPath = "<html:rewrite page='/js/metadataEditor/' module='' />";
-            var preprocessorXslFullPath = baseFullPath + "preprocessors/metadataEditPreprocessor.xsl";
-
-            // path to root of ISO metadata element MD_Metadata, required for add/delete menu
-            var pathToRoot;
-            var basicMetadataXML;
-            var mainXslFullPath;
-            if (strictMode != "true") {
-                pathToRoot = Defaults.Loose.pathToRoot;
-                basicMetadataXML = Defaults.Loose.basicMetadataXML;
-                mainXslFullPath = baseFullPath + Defaults.Loose.mainXsl;
-            } else {
-                pathToRoot = Defaults.Strict.pathToRoot;
-                basicMetadataXML = Defaults.Strict.basicMetadataXML;
-                mainXslFullPath = baseFullPath + Defaults.Strict.mainXsl;
-            }
-            /* ]]> */
-        </script>	
-        
-        <title><fmt:message key="beheer.metadataeditor.title" /> - <c:out value="${metadataForm.map.name}"/></title>
-        
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/StringBuffer.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/crossBrowser.js' module='' />"></script>		
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEdit.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditBrowser.js' module='' />"></script>
-        
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_dhtml.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/generic_edit.js' module='' />"></script>
-        
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/nczXMLDOMWrapper.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/XML.Transformer.js' module='' />"></script>
-
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Math.uuid.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
-
-        <script type="text/javascript">
-            /* <![CDATA[ */
-            addLoadEvent(initWithXmlString);
-            /* ]]> */
-        </script>	
-        
-        <!-- jquery -->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.js' module='' />"></script>
-        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.min.js' module='' />"></script-->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-1.8.5.custom.js' module='' />"></script>
-        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-1.8.5.custom.min.js' module='' />"></script-->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery.ui.datepicker-nl/jquery.ui.datepicker-nl.js' module='' />"></script>
-
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/log.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
-
-        <link href="<html:rewrite page='/js/metadataEditor/styles/jquery-ui-1.8.5.custom.css' module='' />" rel="stylesheet" type="text/css" />
-        <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css" />
+        <link href="<html:rewrite page='/js/metadataEditor/styles/jquery-ui-latest.custom.css' module='' />" rel="stylesheet" type="text/css" />
+        <link href="<html:rewrite page='/js/metadataEditor/styles/standalone.css' module='' />" rel="stylesheet" type="text/css" />
         <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit.css' module='' />" rel="stylesheet" type="text/css" />
         <!--[if IE]> <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit-ie.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
         <!--[if lte IE 7]> <link href="<html:rewrite page='/js/metadataEditor/styles/metadataEdit-ie7.css' module='' />" rel="stylesheet" type="text/css" /> <![endif]-->
+        <style type="text/css">
+            #error {
+                border: 1px solid red;
+                background: #fff5f5 url(<html:rewrite page='/images/siteImages/warning.jpg' module='' />) no-repeat;
+                background-position: 10px 11px;
+                padding: 12px;
+                padding-left: 30px;
+                margin: 10px;
+                margin-left: 0px;
+            }
+            #acknowledge {
+                border: 1px solid #357EBF;
+                background: #E0E1FF url(<html:rewrite page='/images/icons/information.png' module='' />) no-repeat;
+                background-position: 10px 11px;
+                padding: 12px;
+                padding-left: 30px;
+                margin: 10px;
+                margin-left: 0px;
+            }
+        </style>
+
+        <!-- jquery -->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery/jquery-latest.min.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-latest.custom.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery-ui/jquery-ui-latest.custom.min.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/jquery.ui.datepicker-nl/jquery.ui.datepicker-nl.js' module='' />"></script>
+
+        <!-- mde dependencies -->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/sarissa/sarissa.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/sarissa/sarissa-compressed.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/sarissa/sarissa_ieemu_xpath.js' module='' />"></script>
+        <!--script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/sarissa/sarissa_ieemu_xpath-compressed.js' module='' />"></script-->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/Math.uuid.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/wiki2html.js' module='' />"></script>
+
+        <!-- organisations database. should be filled by customer data. -->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
+        <!-- mde -->
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $.mde.logMode = true;
+
+                $("#metadataEditor").mde({
+                    xml: Sarissa.unescape($("#md-placeholder").text()),
+                    baseFullPath: "<html:rewrite page='/js/metadataEditor/' module='' />",
+                    profile: "nl_md_1.2_with_fc",
+                    changed: function(changed) {
+                        $("#saveButton").attr("disabled", !changed);
+                    }
+                });
+
+                $("#saveButton").click(function(event) {
+                    $("#metadata").val(Sarissa.escape($("#metadataEditor").mde("save", {
+                        profile: $("#saveStrict").is(":checked") ? "nl_md_1.2" : "nl_md_1.2_with_fc"
+                    })));
+                    $("#metadataForm").submitAsEvent("save");
+                });
+
+                $("#downloadButton").click(function(event) {
+                    $("#metadata").val(Sarissa.escape($("#metadataEditor").mde("save", {
+                        profile: $("#saveStrict").is(":checked") ? "nl_md_1.2" : "nl_md_1.2_with_fc"
+                    })));
+                    $("#metadataForm").submitAsEvent("download");
+                });
+
+             });
+
+            (function($) {
+                $.fn.submitAsEvent = function(eventName) {
+                    return this.each(function() {
+                        var $this = $(this);
+                        var input = $("<input>").attr({
+                            type: "hidden",
+                            name: eventName
+                        }).val("t");
+                        $this.append(input);
+                        $this.submit();
+                        input.remove();
+                    });
+                }
+            })(jQuery);
+        </script>
 
     </head>
     <body>
-        <html:form action="/editmetadata">
+        <div id="md-placeholder" style="display: none"><c:out value="${metadataForm.map.metadata}" escapeXml="true"/></div>
+
+        <tiles:insert definition="common.actionMessages"/>
+
+        <html:form styleId="metadataForm" action="/editmetadata" enctype="multipart/form-data">
             <html:hidden property="action"/>
             <html:hidden property="alt_action"/>
             <html:hidden property="from" value="info@b3partners.nl"/>
@@ -115,78 +136,24 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             <c:set var="body"><fmt:message key="beheer.metadataeditor.body" /></c:set>
             <html:hidden property="subject" value="${subject}" />
             <html:hidden property="body" value="${body}" />
-            
+
+            <!-- auto-filled by Struts(?) -->
             <html:hidden property="id" />
             <html:hidden property="name" />
+
             <html:hidden property="metadata" styleId="metadata"/>
-            <tiles:insert definition="common.actionMessages"/>
-            <div id="write-root"></div>
-            <input type="hidden" id="save" name="save" value="" />
-            <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton" onclick="checkForm(this);"/> 
+
+            <html:button property="saveButton" value="Opslaan" disabled="true" styleId="saveButton"/>
+
             <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
-            <div id="saveStrictBlock" style="display: none; margin-bottom: 10px">
-                <input type="checkbox" id="saveStrict" onclick="changeFlag(true);" checked="checked" />
-                <label onclick="changeFlag(true);" for="saveStrict">Metadata opslaan strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2</label>
+            <div id="saveStrictBlock" style="margin-bottom: 10px">
+                <input type="checkbox" id="saveStrict" checked="checked" />
+                <label for="saveStrict">Download strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2</label>
             </div>
-            <input type="hidden" id="download" name="download" value="" />
-            <html:button property="downloadButton" value="Downloaden" styleId="downloadButton" onclick="checkForm(this);"/> 
-            <%--
-            <h4><fmt:message key="beheer.metadataeditor.email" /></h4>
-            <table>
-                <tr>
-                    <td><B><fmt:message key="message.fullname"/></B></td>
-                    <td><html:text property="fullname" size="22" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.company"/></B></td>
-                    <td><html:text property="company" size="22" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.address"/></B></td>
-                    <td><html:text property="address" size="50" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.zipcode"/></B></td>
-                    <td><html:text property="zipcode" size="8" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.city"/></B></td>
-                    <td><html:text property="city" size="22" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.country"/></B></td>
-                    <td><html:text property="country" size="22" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.phone"/></B></td>
-                    <td><html:text property="phone" size="15" /></td>
-                </tr>
-                <tr>
-                    <td><B><fmt:message key="message.fax"/></B></td>
-                    <td><html:text property="fax" size="15" /></td>
-                </tr>
-                <tr>
-                    <td>
-                        <B><fmt:message key="message.to"/></B>
-                    </td>
-                    <td>
-                        <html:text property="to" size="50"/>
-                        <input type="hidden" name="send" value="">
-                        <html:button property="sendButton" value="<fmt:message key="beheer.metadataeditor.email.verzenden" />" disabled="true" styleId="sendButton" onclick="checkForm(this);"/> 
-                    </td>
-                </tr>
-            </table>
-            --%>
+            <html:button property="downloadButton" value="Downloaden" disabled="false" styleId="downloadButton"/>
         </html:form>
-        
-        <div class="hidden">
-            <!-- plus/minus images used for expanding/collapsing sections -->
-            <img id="plus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_plus.gif' module='' />"></img>
-            <img id="minus_img" class="plus-minus" src="<html:rewrite page='/js/metadataEditor/images/xp_minus.gif' module='' />"></img>
-        </div>
+
+        <div id="metadataEditor"></div>
+
     </body>
-    <!-- another head: prevents IE cache bug/feature -->
-    <head>
-        <meta http-equiv="pragma" content="no-cache" />
-    </head>
-</html:html>
+</html>

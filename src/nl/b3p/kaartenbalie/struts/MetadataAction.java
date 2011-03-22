@@ -520,38 +520,6 @@ public class MetadataAction extends KaartenbalieCrudAction {
     private void populateMetadataEditorForm(String id, String name, String metadata, DynaValidatorForm dynaForm, HttpServletRequest request) {
         dynaForm.set("id", id);
         dynaForm.set("name", name);
-        try {
-            if (metadata != null && metadata.length() != 0) {
-                SAXBuilder builder = new SAXBuilder();
-
-                org.jdom.Document document = builder.build(new StringReader(metadata));
-                Format format = Format.getRawFormat();
-                format = format.setLineSeparator(METADATA_LINE_SEPARATOR);
-
-                metadata = new XMLOutputter(format).outputString(document);
-
-                //log.debug("md:\n" + metadata);
-
-                metadata = metadata.replace("\\", "\\\\");
-
-                /*
-                // we assume utf-8. TODO: for utf-16+ we have to interpret the byte order mark.
-                // remove byte-order mark (e.g. "&#65279;" after escaping (without quotes))
-                metadata = metadata.trim();
-                if (!metadata.startsWith("<")) {
-                metadata = metadata.substring(1);
-                }*/
-
-                // the above should be robust enough to deal with all valid xml input that is encoded in utf-8.
-                metadata = StringEscapeUtils.escapeXml(metadata);
-                log.debug("escaped md to jsp:\n" + metadata);
-            }
-        } catch (JDOMException ex) {
-            log.error("Could not build an xml document from the metadata.\nResponse: " + metadata, ex);
-        } catch (IOException ex) {
-            log.error("Could not build an xml document from the metadata.\nResponse: " + metadata, ex);
-        }
-
         dynaForm.set("metadata", metadata);
     }
     //-------------------------------------------------------------------------------------------------------
