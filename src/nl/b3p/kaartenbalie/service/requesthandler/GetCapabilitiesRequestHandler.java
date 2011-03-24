@@ -113,6 +113,9 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
         if (user != null) {
             s.setOrganizationCode(user.getOrganisationCodes());
+            s.setExpireDate(user.getTimeout());
+            s.setUserName(user.getName());
+            s.setPersonalCode(user.getPersonalURL());
         }
         HashMap conversionValues = new HashMap();
         conversionValues.put("url", url);

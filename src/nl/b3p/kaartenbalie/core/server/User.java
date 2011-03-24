@@ -143,8 +143,12 @@ public class User implements Principal {
                 codes.append(",");
             }
             Organization org = (Organization) it.next();
-            codes.append(org.getCode());
+            
+            if (org.getCode() != null) {
+                codes.append(org.getCode());
+            }
         }
+
         return codes.toString();
     }
 
