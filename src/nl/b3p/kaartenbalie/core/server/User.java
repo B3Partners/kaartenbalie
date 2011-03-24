@@ -136,12 +136,14 @@ public class User implements Principal {
 
     public String getOrganisationCodes() {
         Set orgs = getAllOrganizations();
-        StringBuffer codes = new StringBuffer();
+        StringBuilder codes = new StringBuilder();
         Iterator it = orgs.iterator();
+
         while (it.hasNext()) {
-            if (codes.length() != 0) {
+            if (codes.length() > 0) {
                 codes.append(",");
             }
+
             Organization org = (Organization) it.next();
             
             if (org.getCode() != null) {
