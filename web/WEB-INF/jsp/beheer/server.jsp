@@ -42,13 +42,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
-                <div style="325px;">
+                <div style="width: 325px;">
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 60%;"><fmt:message key="beheer.server.table.naam" /></th>
-                                <th style="width: 20%;"><fmt:message key="beheer.server.table.afkorting" /></th>
-                                <th style="width: 20%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
+                                <th style="width: 10%;">Test Status</th>
+                                <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
+                                <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
+                                <th style="width: 15%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,6 +58,22 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 <c:set var="id_selected" value='' />
                                 <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
                                 <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
+                                    <!-- status weergeven TODO: met link naar verzoek -->
+                                    <c:if test="${nServiceProvider.status == 'GOED'}">
+                                    <td>
+                                        <span style="color: green;">
+                                            <c:out value="${nServiceProvider.status}"/>
+                                        </span>
+                                    </td>    
+                                    </c:if>
+                                    <c:if test="${nServiceProvider.status == 'FOUT'}">
+                                    <td>
+                                        <span style="color: red;">
+                                            <c:out value="${nServiceProvider.status}"/>
+                                        </span>
+                                    </td>    
+                                    </c:if>
+
                                     <td>
                                         <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
                                             <c:out value="${nServiceProvider.givenName}"/>
@@ -153,6 +170,31 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <fmt:message key="button.new"/>
                     </html:submit>
                 </div>
+
+                <h2>Batch update</h2>
+                <p>
+                    Klik op Testen om de status van alle services bij te werken. Vul eventueel
+                    het veld in om een stuk uit de huidige service url te vervangen. Gebruik dit als
+                    je dezelfde services wilt gaan gebruiken in een andere omgeving. Bijvoorbeeld
+                    van acceptatie naar productie.
+                </p>
+
+                <table>
+                    <tr>
+                        <td>Expressie</td>
+                        <td><html:text property="regexp" size="60" maxlength="255"/></td>
+                    </tr>
+                    <tr>
+                        <td>Vervangen door:</td>
+                        <td><html:text property="replacement" size="60" maxlength="80"/></td>
+                    </tr>
+                </table>
+
+                <p>
+                    <html:submit property="test" accesskey="t" styleClass="knop" onclick="bCancel=true">
+                        Testen
+                    </html:submit>
+                </p>
             </c:otherwise>
         </c:choose>
     </div>

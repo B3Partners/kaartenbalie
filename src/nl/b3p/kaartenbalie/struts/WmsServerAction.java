@@ -24,16 +24,21 @@ package nl.b3p.kaartenbalie.struts;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -60,8 +65,26 @@ import org.xml.sax.SAXException;
 public class WmsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WmsServerAction.class);
+
     protected static final String ABBR_WARN_KEY = "warning.abbr.changed";
+    protected static final String MAPPING_TEST = "test";
+
     protected static long maxResponseTime = 10000;
+
+    @Override
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(MAPPING_TEST);
+
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.wms.test.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.wms.test.failed");
+
+        map.put(MAPPING_TEST, crudProp);
+
+        return map;
+    }
 
     /* Edit method which handles all editable requests.
      *
@@ -272,6 +295,59 @@ public class WmsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
+    public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        EntityManager em = getEntityManager();
+
+        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
+        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
+
+        try {
+            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider")
+                    .getResultList();
+
+            for (ServiceProvider sp : wmsServices) {
+                String newUrl = sp.getUrl();
+
+                if (regexp != null && replacement != null && !regexp.isEmpty()
+                        && !replacement.isEmpty()) {
+                    newUrl = newUrl.replaceAll(regexp, replacement);
+                }
+                
+                String status = getStatusServiceProvider(newUrl);
+                sp.setStatus(status);
+            }
+
+            em.flush();
+        } catch (Exception ex) {
+            log.error("Er iets iets fout gegaan tijdens het testen van de WMS Services: " + ex);
+        }
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);        
+
+        return getDefaultForward(mapping, request);
+    }
+
+    private String getStatusServiceProvider(String url) throws Exception {
+        /* WMS GetCap Url opbouwen */
+        String newUrl = checkWmsUrl(url);
+
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+
+        try {
+            ServiceProvider sp = wms.getProvider(newUrl.trim());
+        } catch (IOException ioex) {
+            return "FOUT";
+        } catch (SAXException saxex) {
+            return "FOUT";
+        } catch (Exception ex) {
+            return "FOUT";
+        }
+
+        return "GOED";
+    }
 
     @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {

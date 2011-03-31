@@ -78,7 +78,10 @@
             <form-property name="url" type="java.lang.String"/>
             <form-property name="updatedDate" type="java.lang.String"/>
             <form-property name="abbr" type="java.lang.String"/>
+            <form-property name="regexp" type="java.lang.String"/>
+            <form-property name="replacement" type="java.lang.String"/>
         </form-bean>
+
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
             <!-- hidden -->
             <form-property name="id" type="java.lang.String"/>

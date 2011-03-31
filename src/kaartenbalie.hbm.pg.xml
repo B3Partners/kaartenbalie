@@ -53,6 +53,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property length="80" name="voiceTelephone"/>
     <property length="80" name="fascimileTelephone"/>
     <property length="255" name="emailAddress"/>
+    <property length="80" name="status" not-null="false"/>
   </class>
   <class name="nl.b3p.wms.capabilities.Dimensions">
     <id name="id">
@@ -228,6 +229,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property length="4000" name="url" not-null="true"/>
     <property name="updatedDate" not-null="true"/>
     <property length="50" name="wmsVersion" not-null="true"/>
+    <property length="80" name="status" not-null="false"/>
   </class>
   <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
     <id name="id">
