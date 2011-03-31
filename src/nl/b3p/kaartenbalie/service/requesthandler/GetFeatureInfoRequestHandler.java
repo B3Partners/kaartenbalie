@@ -53,8 +53,8 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
-        dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
-
+        //Waarom de Content-Disposition header setten? Je weet niet of het .xml is.
+        //dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         OGCRequest ogcrequest = dw.getOgcrequest();
         String value = "";
         if (ogcrequest.containsParameter(OGCConstants.FEATURE_INFO_FORMAT)) {
