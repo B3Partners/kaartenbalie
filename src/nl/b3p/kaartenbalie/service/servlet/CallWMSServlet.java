@@ -47,7 +47,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
@@ -83,7 +82,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
@@ -555,17 +553,33 @@ public class CallWMSServlet extends HttpServlet {
             if (user != null) {
                 String remoteaddress = request.getRemoteAddr();
                 boolean validip = false;
-
+                
+                /* remoteaddress controleren tegen ip adressen van user.
+                 * Ip ranges mogen ook via een asterisk */
                 Set ipaddresses = user.getIps();
                 Iterator it = ipaddresses.iterator();
                 while (it.hasNext()) {
                     String ipaddress = (String) it.next();
+
+                    if (ipaddress.indexOf("*") != -1) {
+                        if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress) ) {
+                            validip = true;
+                            break;
+                        }
+                    }
+
                     if (ipaddress.equalsIgnoreCase(remoteaddress)
                             || ipaddress.equalsIgnoreCase("0.0.0.0")
                             || ipaddress.equalsIgnoreCase("::")) {
                         validip = true;
                         break;
                     }
+                }
+
+                /* lokale verzoeken mogen ook */
+                String localAddress = request.getLocalAddr();
+                if (remoteaddress.equalsIgnoreCase(localAddress)) {
+                    validip = true;
                 }
 
                 if (!validip) {
@@ -639,6 +653,34 @@ public class CallWMSServlet extends HttpServlet {
         }
 
         return user;
+    }
+
+    /* This function should only be called when ip contains an asterisk. This
+     is the case when someone has given an ip to a user with an asterisk
+     eq. 10.0.0.*  */
+    private boolean isRemoteAddressWithinIpRange(String ip, String remote) {
+        if (ip == null || remote == null) {
+            return false;
+        }
+
+        String[] arrIp = ip.split("\\.");
+        String[] arrRemote = remote.split("\\.");
+
+        if (arrIp == null || arrIp.length < 1 || arrRemote == null || arrRemote.length < 1) {
+            return false;
+        }
+
+        /* kijken of het niet asteriks gedeelte overeenkomt met
+         hetzelfde gedeelte uit remote address */
+        for (int i=0; i < arrIp.length; i++) {
+            if (!arrIp[i].equalsIgnoreCase("*")) {
+                if (!arrIp[i].equalsIgnoreCase(arrRemote[i])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /** Parses any incoming request and redirects this request to the right handler.
