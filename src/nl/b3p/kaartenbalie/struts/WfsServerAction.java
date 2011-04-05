@@ -29,11 +29,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -47,12 +49,46 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.xml.sax.SAXException;
 
 public class WfsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WfsServerAction.class);
+    
+    protected static final String MAPPING_TEST = "test";
+    protected static final String MAPPING_BATCH_UPDATE = "batchUpdate";
+    
+    private static final String SERVICE_STATUS_ERROR = "FOUT";
+    private static final String SERVICE_STATUS_OK = "GOED";
+
+    private String SERVICE_TEST_FOUT = "beheer.wms.test.fout";
+    private String SERVICE_BATCH_UPDATE_FOUT = "beheer.wms.batchupdate.fout";
+
+    @Override
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = null;
+
+        crudProp = new ExtendedMethodProperties(MAPPING_TEST);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.wfs.test.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.wfs.test.failed");
+        map.put(MAPPING_TEST, crudProp);
+
+        crudProp = new ExtendedMethodProperties(MAPPING_BATCH_UPDATE);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.wfs.batchupdate.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.wfs.batchupdate.failed");
+        map.put(MAPPING_BATCH_UPDATE, crudProp);
+
+        return map;
+    }
 
     /* Edit method which handles all editable requests.
      *
@@ -256,6 +292,185 @@ public class WfsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
+    public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        EntityManager em = getEntityManager();
+
+        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
+        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
+
+        int fout = 0;
+
+        try {
+            List<WfsServiceProvider> wmsServices = em.createQuery("from WfsServiceProvider")
+                    .getResultList();
+
+            for (WfsServiceProvider sp : wmsServices) {
+                String newUrl = sp.getUrl();
+
+                if (regexp != null && replacement != null && !regexp.isEmpty()
+                        && !replacement.isEmpty()) {
+                    newUrl = newUrl.replaceAll(regexp, replacement);
+                }
+
+                WfsServiceProvider newSp = getTestServiceProvider(newUrl);
+
+                if (newSp != null) {
+                    sp.setStatus(SERVICE_STATUS_OK);
+                } else {
+                    sp.setStatus(SERVICE_STATUS_ERROR);
+                    fout++;
+                }
+            }
+
+            em.flush();
+        } catch (Exception ex) {
+            log.error("Er iets iets fout gegaan tijdens het testen van de WFS Services: " + ex);
+        }
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+
+        if (fout > 0) {
+            ActionMessages messages = getMessages(request);
+            ActionMessage message = new ActionMessage(SERVICE_TEST_FOUT, fout);
+
+            messages.add(ActionMessages.GLOBAL_MESSAGE, message);
+            saveMessages(request, messages);
+        }
+
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+
+        return getDefaultForward(mapping, request);
+    }
+
+    public ActionForward batchUpdate(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        EntityManager em = getEntityManager();
+
+        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
+        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
+
+        int fout = 0;
+
+        try {
+            List<WfsServiceProvider> wmsServices = em.createQuery("from WfsServiceProvider")
+                    .getResultList();
+
+            for (WfsServiceProvider oldServiceProvider : wmsServices) {
+                String newUrl = oldServiceProvider.getUrl();
+
+                if (regexp != null && replacement != null && !regexp.isEmpty()
+                        && !replacement.isEmpty()) {
+                    newUrl = newUrl.replaceAll(regexp, replacement);
+                }
+
+                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl);
+
+                if (newServiceProvider != null) {
+                    newServiceProvider.setStatus(SERVICE_STATUS_OK);
+                } else {
+                    oldServiceProvider.setStatus(SERVICE_STATUS_ERROR);
+                    fout++;
+                }
+
+                /* indien newServiceProvider ok dan bijwerken */
+                if (newServiceProvider != null) {
+                    updateServiceProvider(oldServiceProvider, newServiceProvider);
+                }
+            }
+
+            em.flush();
+        } catch (Exception ex) {
+            log.error("Er iets iets fout gegaan tijdens de batch update van de WFS Services: " + ex);
+        }
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+
+        if (fout > 0) {
+            ActionMessages messages = getMessages(request);
+            ActionMessage message = new ActionMessage(SERVICE_BATCH_UPDATE_FOUT, fout);
+
+            messages.add(ActionMessages.GLOBAL_MESSAGE, message);
+            saveMessages(request, messages);
+        }
+
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+
+        return getDefaultForward(mapping, request);
+    }
+
+    private void updateServiceProvider(WfsServiceProvider oldServiceProvider,
+            WfsServiceProvider newServiceProvider) throws Exception {
+
+        EntityManager em = getEntityManager();
+
+        newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
+        newServiceProvider.setUpdatedDate(new Date());
+        newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
+
+        Set testSet = newServiceProvider.getWfsLayers();
+        em.persist(newServiceProvider);
+        em.flush();
+
+        Iterator dwIter = testSet.iterator();
+        while (dwIter.hasNext()) {
+            WfsLayer layer = (WfsLayer) dwIter.next();
+        }
+
+        try {
+            List orgList = em.createQuery("from Organization").getResultList();
+            Iterator orgit = orgList.iterator();
+            while (orgit.hasNext()) {
+                Set newOrganizationLayer = new HashSet();
+                Organization org = (Organization) orgit.next();
+                Set orgLayers = org.getWfsLayers();
+                Iterator layerit = orgLayers.iterator();
+                while (layerit.hasNext()) {
+                    WfsLayer organizationLayer = (WfsLayer) layerit.next();
+                    WfsServiceProvider orgLayerServiceProvider = organizationLayer.getWfsServiceProvider();
+                    if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
+                        WfsLayer newLayer = checkLayer(organizationLayer, newServiceProvider.getWfsLayers());
+                        if (newLayer != null) {
+                            newOrganizationLayer.add(newLayer);
+                        }
+                    } else {
+                        newOrganizationLayer.add(organizationLayer);
+                    }
+                }
+                //vervang de oude set met layers in de organisatie voor de nieuwe set
+                org.setWfsLayers(newOrganizationLayer);
+                em.flush();
+            }
+            Set oldLayers = oldServiceProvider.getWfsLayers();
+            Iterator oldLayersIter = oldLayers.iterator();
+            while (oldLayersIter.hasNext()) {
+                WfsLayer oldLayer = (WfsLayer) oldLayersIter.next();
+            }
+            em.remove(oldServiceProvider);
+            em.flush();
+        } catch (Exception e) {
+            log.error("Fout tijdens verwijderen oude serviceprovider", e);
+        }
+    }
+
+    private WfsServiceProvider getTestServiceProvider(String url) throws Exception {
+        WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
+        WfsServiceProvider sp = null;
+
+        try {
+            sp = wfs.getProvider(url.trim());
+        } catch (IOException ioex) {
+            return null;
+        } catch (SAXException saxex) {
+            return null;
+        } catch (Exception ex) {
+            return null;
+        }
+
+        return sp;
+    }
+
     @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.debug("Getting entity manager ......");

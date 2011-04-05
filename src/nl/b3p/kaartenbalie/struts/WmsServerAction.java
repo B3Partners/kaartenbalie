@@ -24,7 +24,6 @@ package nl.b3p.kaartenbalie.struts;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,8 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,6 +55,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
@@ -67,21 +66,36 @@ public class WmsServerAction extends ServerAction {
     private static final Log log = LogFactory.getLog(WmsServerAction.class);
 
     protected static final String ABBR_WARN_KEY = "warning.abbr.changed";
+
     protected static final String MAPPING_TEST = "test";
+    protected static final String MAPPING_BATCH_UPDATE = "batchUpdate";
 
     protected static long maxResponseTime = 10000;
+
+    private static final String SERVICE_STATUS_ERROR = "FOUT";
+    private static final String SERVICE_STATUS_OK = "GOED";
+
+    private String WMS_SERVICE_TEST_FOUT = "beheer.wms.test.fout";
+    private String WMS_SERVICE_BATCH_UPDATE_FOUT = "beheer.wms.batchupdate.fout";
 
     @Override
     protected Map getActionMethodPropertiesMap() {
         Map map = super.getActionMethodPropertiesMap();
-        ExtendedMethodProperties crudProp = new ExtendedMethodProperties(MAPPING_TEST);
+        ExtendedMethodProperties crudProp = null;
 
+        crudProp = new ExtendedMethodProperties(MAPPING_TEST);
         crudProp.setDefaultForwardName(SUCCESS);
         crudProp.setDefaultMessageKey("beheer.wms.test.succes");
         crudProp.setAlternateForwardName(FAILURE);
         crudProp.setAlternateMessageKey("beheer.wms.test.failed");
-
         map.put(MAPPING_TEST, crudProp);
+
+        crudProp = new ExtendedMethodProperties(MAPPING_BATCH_UPDATE);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.wms.batchupdate.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.wms.batchupdate.failed");
+        map.put(MAPPING_BATCH_UPDATE, crudProp);
 
         return map;
     }
@@ -302,6 +316,8 @@ public class WmsServerAction extends ServerAction {
         String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
         String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
 
+        int fout = 0;
+
         try {
             List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider")
                     .getResultList();
@@ -314,8 +330,14 @@ public class WmsServerAction extends ServerAction {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
                 
-                String status = getStatusServiceProvider(newUrl);
-                sp.setStatus(status);
+                ServiceProvider newSp = getTestServiceProvider(newUrl);
+                
+                if (newSp != null) {
+                    sp.setStatus(SERVICE_STATUS_OK);
+                } else {
+                    sp.setStatus(SERVICE_STATUS_ERROR);
+                    fout++;
+                }
             }
 
             em.flush();
@@ -325,28 +347,162 @@ public class WmsServerAction extends ServerAction {
 
         dynaForm.initialize(mapping);
         prepareMethod(dynaForm, request, LIST, EDIT);
-        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);        
+
+        if (fout > 0) {
+            ActionMessages messages = getMessages(request);
+            ActionMessage message = new ActionMessage(WMS_SERVICE_TEST_FOUT, fout);
+
+            messages.add(ActionMessages.GLOBAL_MESSAGE, message);
+            saveMessages(request, messages);
+        }
+        
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
 
         return getDefaultForward(mapping, request);
     }
 
-    private String getStatusServiceProvider(String url) throws Exception {
+    public ActionForward batchUpdate(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        EntityManager em = getEntityManager();
+
+        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
+        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
+
+        int fout = 0;
+
+        try {
+            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider")
+                    .getResultList();
+
+            for (ServiceProvider oldServiceProvider : wmsServices) {
+                String newUrl = oldServiceProvider.getUrl();
+
+                if (regexp != null && replacement != null && !regexp.isEmpty()
+                        && !replacement.isEmpty()) {
+                    newUrl = newUrl.replaceAll(regexp, replacement);
+                }
+
+                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl);
+                
+                if (newServiceProvider != null) {
+                    newServiceProvider.setStatus(SERVICE_STATUS_OK);
+                } else {
+                    oldServiceProvider.setStatus(SERVICE_STATUS_ERROR);
+                    fout++;
+                }
+
+                /* indien newServiceProvider ok dan bijwerken */
+                if (newServiceProvider != null) {
+                    updateServiceProvider(oldServiceProvider, newServiceProvider);
+                }
+            }
+
+            em.flush();
+        } catch (Exception ex) {
+            log.error("Er iets iets fout gegaan tijdens de batch update van de WMS Services: " + ex);
+        }
+
+        dynaForm.initialize(mapping);
+        prepareMethod(dynaForm, request, LIST, EDIT);
+
+        if (fout > 0) {
+            ActionMessages messages = getMessages(request);
+            ActionMessage message = new ActionMessage(WMS_SERVICE_BATCH_UPDATE_FOUT, fout);
+
+            messages.add(ActionMessages.GLOBAL_MESSAGE, message);
+            saveMessages(request, messages);
+        }
+
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+
+        return getDefaultForward(mapping, request);
+    }
+
+    private void updateServiceProvider(ServiceProvider oldServiceProvider,
+            ServiceProvider newServiceProvider) throws Exception {
+
+        EntityManager em = getEntityManager();
+
+        newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
+        newServiceProvider.setUpdatedDate(new Date());
+        newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
+
+        Set layerSet = newServiceProvider.getAllLayers();
+        em.persist(newServiceProvider);
+        em.flush();
+        Iterator dwIter = layerSet.iterator();
+        while (dwIter.hasNext()) {
+            Layer layer = (Layer) dwIter.next();
+            // Find old layer to be able to reuse metadata additions
+            Set topLayerSet = new HashSet();
+            if (oldServiceProvider!=null)
+                topLayerSet.add(oldServiceProvider.getTopLayer());
+            Layer oldLayer = checkLayer(layer, topLayerSet);
+            setMetadataFromLayerSource(layer, oldLayer);
+        }
+
+        if (oldServiceProvider != null) {
+            /* Then we need to call for a list with organizations.
+             * We walk through this list and for each organization in the
+             * list we need to check if this organization has connections
+             * with the old serviceprovider.
+             */
+            List orgList = em.createQuery("from Organization").getResultList();
+            Iterator orgit = orgList.iterator();
+            while (orgit.hasNext()) {
+                Set newOrganizationLayer = new HashSet();
+                Organization org = (Organization) orgit.next();
+                Set orgLayers = org.getLayers();
+                Iterator layerit = orgLayers.iterator();
+                while (layerit.hasNext()) {
+                    Layer organizationLayer = (Layer) layerit.next();
+                    ServiceProvider orgLayerServiceProvider = organizationLayer.getServiceProvider();
+                    if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
+                        Set topLayerSet = new HashSet();
+                        topLayerSet.add(newServiceProvider.getTopLayer());
+                        Layer newLayer = checkLayer(organizationLayer, topLayerSet);
+                        if (newLayer != null) {
+                            newOrganizationLayer.add(newLayer);
+                        }
+                    } else {
+                        newOrganizationLayer.add(organizationLayer);
+                    }
+                }
+                //vervang de oude set met layers in de organisatie voor de nieuwe set
+                org.setLayers(newOrganizationLayer);
+                em.flush();
+            }
+            try {
+                Set oldLayers = oldServiceProvider.getAllLayers();
+                Iterator oldLayersIter = oldLayers.iterator();
+                while (oldLayersIter.hasNext()) {
+                    Layer oldLayer = (Layer) oldLayersIter.next();
+                }
+                em.remove(oldServiceProvider);
+                em.flush();
+            } catch (Exception e) {
+                log.error("Fout tijdens verwijderen oude serviceprovider", e);
+            }
+        }
+    }
+
+    private ServiceProvider getTestServiceProvider(String url) throws Exception {
         /* WMS GetCap Url opbouwen */
         String newUrl = checkWmsUrl(url);
 
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+        ServiceProvider sp = null;
 
         try {
-            ServiceProvider sp = wms.getProvider(newUrl.trim());
+            sp = wms.getProvider(newUrl.trim());
         } catch (IOException ioex) {
-            return "FOUT";
+            return null;
         } catch (SAXException saxex) {
-            return "FOUT";
+            return null;
         } catch (Exception ex) {
-            return "FOUT";
+            return null;
         }
 
-        return "GOED";
+        return sp;
     }
 
     @Override

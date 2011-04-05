@@ -46,7 +46,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 10%;">Test Status</th>
+                                <th style="width: 10%;">Teststatus</th>
                                 <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
                                 <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
                                 <th style="width: 15%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
@@ -72,6 +72,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                             <c:out value="${nServiceProvider.status}"/>
                                         </span>
                                     </td>    
+                                    </c:if>
+                                    <c:if test="${empty nServiceProvider.status}">
+                                    <td>&nbsp;</td>
                                     </c:if>
 
                                     <td>
@@ -171,12 +174,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     </html:submit>
                 </div>
 
+                <br/>
                 <h2>Batch update</h2>
                 <p>
                     Klik op Testen om de status van alle services bij te werken. Vul eventueel
                     het veld in om een stuk uit de huidige service url te vervangen. Gebruik dit als
                     je dezelfde services wilt gaan gebruiken in een andere omgeving. Bijvoorbeeld
-                    van acceptatie naar productie.
+                    van acceptatie naar productie. Let op: Tijdens het testen wordt de aangepaste
+                    service url niet daadwerkelijk opgeslagen. Er wordt alleen gecontroleerd
+                    of de service werkt met de vernieuwde url.
                 </p>
 
                 <table>
@@ -193,6 +199,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <p>
                     <html:submit property="test" accesskey="t" styleClass="knop" onclick="bCancel=true">
                         Testen
+                    </html:submit>
+
+                    <html:submit property="batchUpdate" accesskey="b" styleClass="knop" onclick="bCancel=true">
+                        Batch Update
                     </html:submit>
                 </p>
             </c:otherwise>
