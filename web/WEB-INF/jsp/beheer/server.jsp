@@ -42,7 +42,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
-                <div style="width: 325px;">
+                <div style="height: 325px;">
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
@@ -175,40 +175,43 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 </div>
 
                 <br/>
-                <h2>Batch update</h2>
-                <p>
-                    Klik op Testen om de status van alle services bij te werken. Vul eventueel
-                    het veld in om een stuk uit de huidige service url te vervangen. Gebruik dit als
-                    je dezelfde services wilt gaan gebruiken in een andere omgeving. Bijvoorbeeld
-                    van acceptatie naar productie. Let op: Tijdens het testen wordt de aangepaste
-                    service url niet daadwerkelijk opgeslagen. Er wordt alleen gecontroleerd
-                    of de service werkt met de vernieuwde url.
-                </p>
 
-                <table>
-                    <tr>
-                        <td>Expressie</td>
-                        <td><html:text property="regexp" size="60" maxlength="255"/></td>
-                    </tr>
-                    <tr>
-                        <td>Vervangen door:</td>
-                        <td><html:text property="replacement" size="60" maxlength="80"/></td>
-                    </tr>
-                </table>
+                <div id="batchUpdate" style="height: 300px;">
+                    <h2>Batch update</h2>
+                    <p>
+                        Klik op Testen om de status van alle services bij te werken. Vul eventueel
+                        het veld in om een stuk uit de huidige service url te vervangen. Gebruik dit als
+                        je dezelfde services wilt gaan gebruiken in een andere omgeving. Bijvoorbeeld
+                        van acceptatie naar productie. Let op: Tijdens het testen wordt de aangepaste
+                        service url niet daadwerkelijk opgeslagen. Er wordt alleen gecontroleerd
+                        of de service werkt met de vernieuwde url.
+                    </p>
 
-                <p>
-                    <html:submit property="test" accesskey="t" styleClass="knop" onclick="bCancel=true">
-                        Testen
-                    </html:submit>
+                    <table>
+                        <tr>
+                            <td>Expressie</td>
+                            <td><html:text property="regexp" size="60" maxlength="255"/></td>
+                        </tr>
+                        <tr>
+                            <td>Vervangen door:</td>
+                            <td><html:text property="replacement" size="60" maxlength="80"/></td>
+                        </tr>
+                    </table>
 
-                    <html:submit property="batchUpdate" accesskey="b" styleClass="knop" onclick="bCancel=true">
-                        Batch Update
-                    </html:submit>
-                </p>
+                    <p>
+                        <html:submit property="test" accesskey="t" styleClass="knop" onclick="bCancel=true">
+                            Testen
+                        </html:submit>
+
+                        <html:submit property="batchUpdate" accesskey="b" styleClass="knop" onclick="bCancel=true">
+                            Batch Update
+                        </html:submit>
+                    </p>
+                </div>
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 50px;" class="containerdiv">
         &nbsp;
     </div>
 </html:form>
