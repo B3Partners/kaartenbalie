@@ -252,7 +252,7 @@ public class WmsServerAction extends ServerAction {
             if (oldServiceProvider!=null)
                 topLayerSet.add(oldServiceProvider.getTopLayer());
             Layer oldLayer = checkLayer(layer, topLayerSet);
-            setMetadataFromLayerSource(layer, oldLayer);
+            //setMetadataFromLayerSource(layer, oldLayer);
         }
 
         if (oldServiceProvider != null) {
@@ -437,7 +437,7 @@ public class WmsServerAction extends ServerAction {
             if (oldServiceProvider!=null)
                 topLayerSet.add(oldServiceProvider.getTopLayer());
             Layer oldLayer = checkLayer(layer, topLayerSet);
-            setMetadataFromLayerSource(layer, oldLayer);
+            //setMetadataFromLayerSource(layer, oldLayer);
         }
 
         if (oldServiceProvider != null) {
