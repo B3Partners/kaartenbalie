@@ -286,12 +286,62 @@ public class WfsServerAction extends ServerAction {
              * It can't be checked in an if-statment, because integers can't be checked if they are null.
              */
         }
+
+        /* geef rechten op alle layers voor aangevinkte groepen */
+        String[] orgSelected = dynaForm.getStrings("orgSelected");
+        addRightsForAllLayers(orgSelected, newServiceProvider);
+
         dynaForm.set("id", null);
-         prepareMethod(dynaForm, request, LIST, EDIT);
+        prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
+    public void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp) throws Exception {
+        if (orgSelected == null || sp == null) {
+            return;
+        }
+
+        EntityManager em = getEntityManager();
+
+        for (int i=0; i < orgSelected.length; i++) {
+            Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
+
+            addAllLayersToGroup(org, sp);
+        }
+    }
+
+    public void addAllLayersToGroup(Organization org, WfsServiceProvider sp) throws Exception {
+        log.info("Updating WFS rights for :" + org.getName());
+
+        EntityManager em = getEntityManager();
+
+        Set wfsLayers = new HashSet();
+
+        Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
+        for (WfsLayer l : orgWfsLayerSet) {
+            WfsServiceProvider layerSp = l.getWfsServiceProvider();
+
+            if (!layerSp.getAbbr().equals(sp.getAbbr())) {
+                wfsLayers.add(l);
+
+                log.info("Org wfs layer :" + l.getName());
+            }
+        }
+
+        Set<WfsLayer> selectedLayers = sp.getWfsLayers();
+        for (WfsLayer l : selectedLayers) {
+            wfsLayers.add(l);
+
+            log.info("Wfs layer :" + l.getName());
+        }
+
+        org.setWfsLayers(wfsLayers);
+
+        em.merge(org);
+        em.flush();
+    }
 
     public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
@@ -656,6 +706,9 @@ public class WfsServerAction extends ServerAction {
         EntityManager em = getEntityManager();
         List serviceproviderlist = em.createQuery("from WfsServiceProvider order by given_name").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
+
+        List organizationlist = em.createQuery("from Organization order by name").getResultList();
+        request.setAttribute("organizationlist", organizationlist);
     }
     // </editor-fold>
     //-------------------------------------------------------------------------------------------------------

@@ -136,9 +136,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <td><html:text property="url" size="75" /></td>
                         </tr>
                     </table>
-
-                    <br />
+                        
                     <div class="knoppen">
+
+                        <p>Selecteer groep(en) om deze rechten te geven op alle
+                            layers van deze service.</p>
+                        <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
+                            <tr>
+                                <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
+                                <td><c:out value="${nOrg.name}" /></td>
+                            </tr>
+                        </c:forEach><br/><br/>
                         
                         <c:choose>
                             <c:when test="${save || delete}">

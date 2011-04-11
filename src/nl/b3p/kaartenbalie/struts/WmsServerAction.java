@@ -44,7 +44,6 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.LayerDomainResource;
-import nl.b3p.wms.capabilities.LayerMetadata;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.httpclient.HttpClient;
@@ -60,7 +59,6 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.hibernate.Hibernate;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -304,6 +302,12 @@ public class WmsServerAction extends ServerAction {
                 return getAlternateForward(mapping, request);
             }
         }
+
+        /* geef rechten op alle layers voor aangevinkte groepen */
+        String[] orgSelected = dynaForm.getStrings("orgSelected");
+
+        addRightsForAllLayers(orgSelected, newServiceProvider);
+
         dynaForm.set("id", null);
 
         prepareMethod(dynaForm, request, LIST, EDIT);
@@ -312,6 +316,45 @@ public class WmsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
+    public void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp) throws Exception {
+        if (orgSelected == null || sp == null) {
+            return;
+        }
+
+        EntityManager em = getEntityManager();
+
+        for (int i=0; i < orgSelected.length; i++) {
+            Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
+
+            addAllLayersToGroup(org, sp);
+        }
+    }
+
+    public void addAllLayersToGroup(Organization org, ServiceProvider sp) throws Exception {
+        EntityManager em = getEntityManager();
+
+        Set wmsLayers = new HashSet();
+
+        Set<Layer> orgWmsLayerSet = org.getLayers();
+        for (Layer l : orgWmsLayerSet) {
+            ServiceProvider layerSp = l.getServiceProvider();
+
+            if (!layerSp.getAbbr().equals(sp.getAbbr())) {
+                wmsLayers.add(l);
+            }
+        }
+
+        Set<Layer> selectedLayers = sp.getAllLayers();
+        for (Layer l : selectedLayers) {
+            wmsLayers.add(l);
+        }
+
+        org.setLayers(wmsLayers);
+
+        em.merge(org);
+        em.flush();
+    }
 
     public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         EntityManager em = getEntityManager();
@@ -682,6 +725,9 @@ public class WmsServerAction extends ServerAction {
         // Only shows WMS servers for now
         List serviceproviderlist = em.createQuery("from ServiceProvider order by given_name").getResultList();
         request.setAttribute("serviceproviderlist", serviceproviderlist);
+
+        List organizationlist = em.createQuery("from Organization order by name").getResultList();
+        request.setAttribute("organizationlist", organizationlist);
 
         //createTreeview(form, request);
     }
