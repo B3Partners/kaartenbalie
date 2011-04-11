@@ -122,8 +122,24 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
     <property length="50" name="fixedHeight"/>
     <property length="50" name="scaleHintMin"/>
     <property length="50" name="scaleHintMax"/>
+    <property column="metadata" name="oldMetadata" type="text"/>
+    <set cascade="all" inverse="true" lazy="true" name="layerMetadata">
+      <key column="layer"/>
+      <one-to-many class="nl.b3p.wms.capabilities.LayerMetadata"/>
+    </set>
+  </class>
+
+  <class name="nl.b3p.wms.capabilities.LayerMetadata">
+    <id name="id">
+      <column name="id"/>
+      <generator class="sequence">
+        <param name="sequence">layer_metadata_id_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="layer" not-null="true"/>
     <property name="metadata" type="text"/>
   </class>
+  
   <class name="nl.b3p.wms.capabilities.LayerDomainResource">
     <id name="id">
       <generator class="identity"/>

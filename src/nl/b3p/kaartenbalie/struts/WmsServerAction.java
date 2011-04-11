@@ -44,6 +44,7 @@ import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.LayerDomainResource;
+import nl.b3p.wms.capabilities.LayerMetadata;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.httpclient.HttpClient;
@@ -59,6 +60,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.hibernate.Hibernate;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -252,7 +254,8 @@ public class WmsServerAction extends ServerAction {
             if (oldServiceProvider!=null)
                 topLayerSet.add(oldServiceProvider.getTopLayer());
             Layer oldLayer = checkLayer(layer, topLayerSet);
-            //setMetadataFromLayerSource(layer, oldLayer);
+
+            setMetadataFromLayerSource(layer, oldLayer);
         }
 
         if (oldServiceProvider != null) {
@@ -437,7 +440,8 @@ public class WmsServerAction extends ServerAction {
             if (oldServiceProvider!=null)
                 topLayerSet.add(oldServiceProvider.getTopLayer());
             Layer oldLayer = checkLayer(layer, topLayerSet);
-            //setMetadataFromLayerSource(layer, oldLayer);
+            
+            setMetadataFromLayerSource(layer, oldLayer);
         }
 
         if (oldServiceProvider != null) {
@@ -846,8 +850,8 @@ public class WmsServerAction extends ServerAction {
         if (oldLayer!=null) {
             currentMetadata = oldLayer.getMetadata();
         }
-        layer.setMetadata(convertMetadata(newMetadata, currentMetadata));
 
+        layer.setMetadata(convertMetadata(newMetadata, currentMetadata));
     }
 
     private String convertMetadata(String newMetadata, String currentMetadata) {
