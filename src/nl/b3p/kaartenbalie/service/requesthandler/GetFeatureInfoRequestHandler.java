@@ -57,12 +57,26 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         //dw.setHeader("Content-Disposition", "inline; filename=\"GetFeatureInfo.xml\";");
         OGCRequest ogcrequest = dw.getOgcrequest();
         String value = "";
-        if (ogcrequest.containsParameter(OGCConstants.FEATURE_INFO_FORMAT)) {
+        if (ogcrequest.containsParameter(OGCConstants.WMS_PARAM_INFO_FORMAT)) {
+            String fileName=null;
             value = ogcrequest.getParameter(OGCConstants.FEATURE_INFO_FORMAT);
             if (value != null && value.length() > 0) {
                 dw.setContentType(value);
+                if (value.equalsIgnoreCase(OGCConstants.WMS_PARAM_WMS_HTML)){
+                    fileName="GetFeature.htm";
+                }else if (value.equalsIgnoreCase(OGCConstants.WMS_PARAM_WMS_GML) ||
+                        value.equalsIgnoreCase(OGCConstants.WMS_PARAM_GML)){
+                    fileName="GetFeature.gml";
+                }else if (value.equalsIgnoreCase(OGCConstants.WMS_PARAM_WMS_XML) ||
+                        value.equalsIgnoreCase(OGCConstants.WMS_PARAM_XML)){
+                    fileName="GetFeature.xml";
+                }
             } else {
                 dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
+                fileName="GetFeature.xml";
+            }
+            if (fileName!=null){
+                dw.setHeader("Content-Disposition", "inline; filename=\""+fileName+"\";");
             }
         }
 
