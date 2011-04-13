@@ -126,7 +126,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 
                 
                 <div id="initiatief">
-                        <div id="footer_tekst_rechts" class="footer_tekst">Kaartenbalie 3.5</div>
+                        <div id="footer_tekst_rechts" class="footer_tekst">B3P GIS Suite 3.5</div>
                 </div>
                 <div id="copyright">
                     <div id="footer_tekst_links" class="footer_tekst">This program is distributed under the terms of the <a class="gpl_link" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a></div>
