@@ -139,8 +139,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         
                     <div class="knoppen">
 
-                        <p>Selecteer groep(en) om deze rechten te geven op alle
-                            layers van deze service.</p>
+                        <p>
+                            <fmt:message key="service.rechten.groups"/>
+                        </p>
                         <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
                             <div style="float: left; width: 185px; margin-right: 5px; overflow: hidden;" class="orgDiv">
                                 <html:multibox value="${nOrg.id}" property="orgSelected" styleId="group${nOrg.id}" />
