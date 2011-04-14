@@ -118,7 +118,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 150px;">
+    <div id="serverDetails" class="containerdiv" style="clear: left; padding-top: 15px; min-height: 150px;">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass"> 
@@ -142,12 +142,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <p>Selecteer groep(en) om deze rechten te geven op alle
                             layers van deze service.</p>
                         <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
-                            <tr>
-                                <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
-                                <td><c:out value="${nOrg.name}" /></td>
-                            </tr>
-                        </c:forEach><br/><br/>
-                        
+                            <div style="float: left; width: 185px; margin-right: 5px; overflow: hidden;" class="orgDiv">
+                                <html:multibox value="${nOrg.id}" property="orgSelected" styleId="group${nOrg.id}" />
+                                <label for="group${nOrg.id}" style="float: none; padding-right: 0px; text-align: left;"><c:out value="${nOrg.name}" /></label>
+                            </div>
+                        </c:forEach>
+                        <div style="clear: both;"></div>
+                        <br/><br/>
                         <c:choose>
                             <c:when test="${save || delete}">
                                 <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
@@ -218,8 +219,5 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 </div>
             </c:otherwise>
         </c:choose>
-    </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 50px;" class="containerdiv">
-        &nbsp;
     </div>
 </html:form>
