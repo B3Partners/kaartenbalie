@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.DirectoryParser;
 import nl.b3p.kaartenbalie.service.MapParser;
@@ -54,6 +55,22 @@ public class MapServerAction extends KaartenbalieCrudAction {
     protected static final String MAPFILE_SIZE_ERRORKEY = "error.mapserver.size";
     protected static final String MAPFILE_FORMAT_ERRORKEY = "error.mapserver.format";
     protected static final String MAPFILE_EXISTS_ERRORKEY = "error.mapserver.exists";
+    protected static final String MAPPING_ARCHIVE = "archive";
+
+    @Override
+    protected Map getActionMethodPropertiesMap() {
+        Map map = super.getActionMethodPropertiesMap();
+        ExtendedMethodProperties crudProp = null;
+
+        crudProp = new ExtendedMethodProperties(MAPPING_ARCHIVE);
+        crudProp.setDefaultForwardName(SUCCESS);
+        crudProp.setDefaultMessageKey("beheer.mapserver.archive.succes");
+        crudProp.setAlternateForwardName(FAILURE);
+        crudProp.setAlternateMessageKey("beheer.mapserver.archive.failed");
+        map.put(MAPPING_ARCHIVE, crudProp);
+
+        return map;
+    }
 
     @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -121,7 +138,7 @@ public class MapServerAction extends KaartenbalieCrudAction {
             }
         }
         Map md = collectMetadata(targetFile, 9999);
-        if (md==null) {
+        if (md == null) {
             targetFile.delete();
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MAPFILE_FORMAT_ERRORKEY);
@@ -164,6 +181,7 @@ public class MapServerAction extends KaartenbalieCrudAction {
     protected Map collectMetadata(File mapPath, int index) throws IOException {
         MapParser mapParser = new MapParser(mapPath);
         mapParser.parse();
+
         Map md = mapParser.getWebMetadata();
         String url = (String) md.get("wms_onlineresource");
         if (url == null || url.length() == 0) {
@@ -188,6 +206,9 @@ public class MapServerAction extends KaartenbalieCrudAction {
         } catch (Exception ex) {
             log.error("", ex);
         }
+
+        md.put("fileName", mapPath.getName());
+
         return md;
     }
 
@@ -198,8 +219,8 @@ public class MapServerAction extends KaartenbalieCrudAction {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List serviceproviderlist = em.createQuery(
-                "from ServiceProvider sp where " +
-                "lower(sp.url) = lower(:url) ").setParameter("url", url.trim()).getResultList();
+                "from ServiceProvider sp where "
+                + "lower(sp.url) = lower(:url) ").setParameter("url", url.trim()).getResultList();
         if (serviceproviderlist == null || serviceproviderlist.isEmpty()) {
             return null;
         }
@@ -214,12 +235,34 @@ public class MapServerAction extends KaartenbalieCrudAction {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
         List serviceproviderlist = em.createQuery(
-                "from WfsServiceProvider sp where " +
-                "lower(sp.url) = lower(:url) ").setParameter("url", url.trim()).getResultList();
+                "from WfsServiceProvider sp where "
+                + "lower(sp.url) = lower(:url) ").setParameter("url", url.trim()).getResultList();
         if (serviceproviderlist == null || serviceproviderlist.isEmpty()) {
             return null;
         }
         WfsServiceProvider sp = (WfsServiceProvider) serviceproviderlist.get(0);
         return sp.getId();
+    }
+
+    public ActionForward archive(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        String mapdir = MyEMFDatabase.getMapfiles();
+        String fileName = (String) request.getParameter("file");
+        File targetFile = new File(mapdir, fileName);
+
+        File dir = new File(mapdir, "/archief");
+
+        boolean success = targetFile.renameTo(new File(dir, fileName));
+        
+        if (!success) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, FAILURE);
+
+            return getAlternateForward(mapping, request);
+        }
+
+        prepareMethod(dynaForm, request, LIST, EDIT);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return getDefaultForward(mapping, request);
     }
 }

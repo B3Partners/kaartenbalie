@@ -38,10 +38,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
-                                <th style="width: 19%;"><fmt:message key="beheer.mapserver.table.titel" /></th>
-                                <th style="width: 69%;"><fmt:message key="beheer.mapserver.table.url" /></th>
+                                <th style="width: 14%;"><fmt:message key="beheer.mapserver.table.titel" /></th>
+                                <th style="width: 64%;"><fmt:message key="beheer.mapserver.table.url" /></th>
                                 <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wms" /></th>
                                 <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wfs" /></th>
+                                <th style="width: 10%;">Archief</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,6 +84,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                                 </html:link>
                                             </c:otherwise>
                                         </c:choose>
+                                    </td>
+                                    <td>
+                                        <html:link page='/mapserver.do?archive=t&file=${nMapfile["fileName"]}'>
+                                            Verplaatsen
+                                        </html:link>
                                     </td>
                                 </tr>
                             </c:forEach>
