@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
 <!--
 B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
 for authentication/authorization, pricing and usage reporting.
@@ -21,66 +24,67 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
+
 <hibernate-mapping>
-  <class name="nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest">
-    <comment>Monitoring module</comment>
-		    <id name="id">
-		      <generator class="identity"/>
-		    </id>
-    <set name="serviceProviderRequests">
-      <key column="client_request" not-null="false" update="true"/>
-      <one-to-many class="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest"/>
-    </set>
-    <set name="requestOperations">
-      <key column="client_request" not-null="false" update="true"/>
-      <one-to-many class="nl.b3p.kaartenbalie.core.server.monitoring.Operation"/>
-    </set>
-    <property column="client_request_uri" length="4000" name="clientRequestURI"/>
-    <property name="timestamp"/>
-    <property name="userId"/>
-    <property name="method"/>
-    <property name="clientIp"/>
-    <property name="service"/>
-    <property name="operation"/>
-    <property name="organizationId"/>
-    <property name="exceptionClass"/>
-    <property length="4000" name="exceptionMessage"/>
-  </class>
-  <class name="nl.b3p.kaartenbalie.core.server.monitoring.Operation">
-    <comment>Monitoring module</comment>
-		    <id name="id">
-		      <generator class="identity"/>
-		    </id>
-    <many-to-one column="client_request" name="clientRequest" update="true"/>
-    <property name="type" column="soort"/>
-    <property name="duration"/>
-    <property name="msSinceRequestStart"/>
-    <property name="numberOfImages"/>
-    <property name="dataSize"/>
-    <property name="bytesReceivedFromUser"/>
-    <property name="bytesSentToUser"/>
-  </class>
-  <class name="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest">
-    <comment>Monitoring module</comment>
-		    <id name="id">
-		      <generator class="identity"/>
-		    </id>
-    <many-to-one column="client_request" name="clientRequest" update="true"/>
-    <property name="bytesSent"/>
-    <property name="bytesReceived"/>
-    <property name="messageSent" type="text"/>
-    <property name="messageReceived" type="text"/>
-    <property name="responseStatus"/>
-    <property column="provider_request_uri" length="4000" name="providerRequestURI"/>
-    <property name="requestResponseTime"/>
-    <property name="msSinceRequestStart"/>
-    <property name="exceptionClass"/>
-    <property length="4000" name="exceptionMessage"/>
-    <property name="wmsVersion"/>
-    <property name="serviceProviderId"/>
-    <property name="srs"/>
-    <property name="width"/>
-    <property name="height"/>
-    <property name="format"/>
-  </class>
+    <class name="nl.b3p.kaartenbalie.core.server.monitoring.ClientRequest">
+        <comment>Monitoring module</comment>
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <set name="serviceProviderRequests">
+            <key column="client_request" not-null="false" update="true"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest"/>
+        </set>
+        <set name="requestOperations">
+            <key column="client_request" not-null="false" update="true"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.monitoring.Operation"/>
+        </set>
+        <property column="client_request_uri" length="4000" name="clientRequestURI"/>
+        <property name="timestamp"/>
+        <property name="userId"/>
+        <property name="method"/>
+        <property name="clientIp"/>
+        <property name="service"/>
+        <property name="operation"/>
+        <property name="organizationId"/>
+        <property name="exceptionClass"/>
+        <property length="4000" name="exceptionMessage"/>
+    </class>
+    <class name="nl.b3p.kaartenbalie.core.server.monitoring.Operation">
+        <comment>Monitoring module</comment>
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="client_request" name="clientRequest" update="true"/>
+        <property name="type" column="soort"/>
+        <property name="duration"/>
+        <property name="msSinceRequestStart"/>
+        <property name="numberOfImages"/>
+        <property name="dataSize"/>
+        <property name="bytesReceivedFromUser"/>
+        <property name="bytesSentToUser"/>
+    </class>
+    <class name="nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest">
+        <comment>Monitoring module</comment>
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="client_request" name="clientRequest" update="true"/>
+        <property name="bytesSent"/>
+        <property name="bytesReceived"/>
+        <property name="messageSent" type="materialized_clob"/>
+        <property name="messageReceived" type="materialized_clob"/>
+        <property name="responseStatus"/>
+        <property column="provider_request_uri" length="4000" name="providerRequestURI"/>
+        <property name="requestResponseTime"/>
+        <property name="msSinceRequestStart"/>
+        <property name="exceptionClass"/>
+        <property length="4000" name="exceptionMessage"/>
+        <property name="wmsVersion"/>
+        <property name="serviceProviderId"/>
+        <property name="srs"/>
+        <property name="width"/>
+        <property name="height"/>
+        <property name="format"/>
+    </class>
 </hibernate-mapping>

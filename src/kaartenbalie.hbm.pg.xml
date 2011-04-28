@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
 <!--
 B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
 for authentication/authorization, pricing and usage reporting.
@@ -21,322 +24,323 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<hibernate-mapping>
-  <class name="nl.b3p.wms.capabilities.Attribution">
-    <id name="id">
-      <generator class="foreign">
-        <param name="property">layer</param>
-      </generator>
-    </id>
-    <one-to-one class="nl.b3p.wms.capabilities.Layer" constrained="true" name="layer"/>
-    <property length="50" name="title"/>
-    <property column="attribution_url" length="4000" name="attributionURL"/>
-    <property column="logo_url" length="4000" name="logoURL"/>
-    <property length="50" name="logoWidth"/>
-    <property length="50" name="logoHeight"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.ContactInformation">
-    <id name="id">
-      <generator class="foreign">
-        <param name="property">serviceProvider</param>
-      </generator>
-    </id>
-    <one-to-one class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true" name="serviceProvider"/>
-    <property length="80" name="contactPerson"/>
-    <property length="255" name="contactPosition"/>
-    <property length="80" name="address"/>
-    <property length="80" name="addressType"/>
-    <property length="50" name="postcode"/>
-    <property length="80" name="city"/>
-    <property length="80" name="stateOrProvince"/>
-    <property length="255" name="country"/>
-    <property length="80" name="voiceTelephone"/>
-    <property length="80" name="fascimileTelephone"/>
-    <property length="255" name="emailAddress"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.Dimensions">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="layer" not-null="true"/>
-    <property length="50" name="dimensionsName"/>
-    <property length="50" name="dimensionsUnit"/>
-    <property length="50" name="dimensionsUnitSymbol"/>
-    <property length="50" name="extentName"/>
-    <property length="50" name="extentDefaults"/>
-    <property length="50" name="extentNearestValue"/>
-    <property length="50" name="extentMultipleValues"/>
-    <property length="50" name="extentCurrent"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.Identifier">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="layer" not-null="true"/>
-    <property length="50" name="authorityName" not-null="true"/>
-    <property column="authority_url" length="50" name="authorityURL" not-null="true"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.Layer">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
-    <many-to-one class="nl.b3p.wms.capabilities.Layer" name="parent"/>
-    <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
-      <key column="parent"/>
-      <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
-    </set>
-    <set cascade="all" inverse="true" name="dimensions">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
-    </set>
-    <set cascade="all" name="keywordList">
-      <key column="layer"/>
-      <element column="keyword" length="50" not-null="true" type="string"/>
-    </set>
-    <set cascade="all" inverse="true" name="styles">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.Style"/>
-    </set>
-    <set cascade="all" inverse="true" name="domainResource">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
-    </set>
-    <set cascade="all" inverse="true" name="identifiers">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
-    </set>
-    <set cascade="all" inverse="true" lazy="false" name="srsbb">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
-    </set>
-    <one-to-one cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false" name="attribution"/>
-    <property length="200" name="name"/>
-    <property name="title" not-null="true"/>
-    <property name="abstracts" type="text"/>
-    <property length="50" name="queryable"/>
-    <property length="50" name="cascaded"/>
-    <property length="50" name="opaque"/>
-    <property length="50" name="nosubsets"/>
-    <property length="50" name="fixedWidth"/>
-    <property length="50" name="fixedHeight"/>
-    <property length="50" name="scaleHintMin"/>
-    <property length="50" name="scaleHintMax"/>
-    <property column="metadata" name="oldMetadata" type="text"/>
-    <set cascade="all" inverse="true" lazy="true" name="layerMetadata">
-      <key column="layer"/>
-      <one-to-many class="nl.b3p.wms.capabilities.LayerMetadata"/>
-    </set>
-  </class>
 
-  <class name="nl.b3p.wms.capabilities.LayerMetadata">
-    <id name="id">
-      <column name="id"/>
-      <generator class="sequence">
-        <param name="sequence">layer_metadata_id_seq</param>
-      </generator>
-    </id>
-    <many-to-one name="layer" not-null="true"/>
-    <property name="metadata" type="text"/>
-  </class>
+<hibernate-mapping>
+    <class name="nl.b3p.wms.capabilities.Attribution">
+        <id name="id">
+            <generator class="foreign">
+                <param name="property">layer</param>
+            </generator>
+        </id>
+        <one-to-one class="nl.b3p.wms.capabilities.Layer" constrained="true" name="layer"/>
+        <property length="50" name="title"/>
+        <property column="attribution_url" length="4000" name="attributionURL"/>
+        <property column="logo_url" length="4000" name="logoURL"/>
+        <property length="50" name="logoWidth"/>
+        <property length="50" name="logoHeight"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.ContactInformation">
+        <id name="id">
+            <generator class="foreign">
+                <param name="property">serviceProvider</param>
+            </generator>
+        </id>
+        <one-to-one class="nl.b3p.wms.capabilities.ServiceProvider" constrained="true" name="serviceProvider"/>
+        <property length="80" name="contactPerson"/>
+        <property length="255" name="contactPosition"/>
+        <property length="80" name="address"/>
+        <property length="80" name="addressType"/>
+        <property length="50" name="postcode"/>
+        <property length="80" name="city"/>
+        <property length="80" name="stateOrProvince"/>
+        <property length="255" name="country"/>
+        <property length="80" name="voiceTelephone"/>
+        <property length="80" name="fascimileTelephone"/>
+        <property length="255" name="emailAddress"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Dimensions">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="layer" not-null="true"/>
+        <property length="50" name="dimensionsName"/>
+        <property length="50" name="dimensionsUnit"/>
+        <property length="50" name="dimensionsUnitSymbol"/>
+        <property length="50" name="extentName"/>
+        <property length="50" name="extentDefaults"/>
+        <property length="50" name="extentNearestValue"/>
+        <property length="50" name="extentMultipleValues"/>
+        <property length="50" name="extentCurrent"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Identifier">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="layer" not-null="true"/>
+        <property length="50" name="authorityName" not-null="true"/>
+        <property column="authority_url" length="50" name="authorityURL" not-null="true"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Layer">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
+        <many-to-one class="nl.b3p.wms.capabilities.Layer" name="parent"/>
+        <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
+            <key column="parent"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
+        </set>
+        <set cascade="all" inverse="true" name="dimensions">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Dimensions"/>
+        </set>
+        <set cascade="all" name="keywordList">
+            <key column="layer"/>
+            <element column="keyword" length="50" not-null="true" type="string"/>
+        </set>
+        <set cascade="all" inverse="true" name="styles">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Style"/>
+        </set>
+        <set cascade="all" inverse="true" name="domainResource">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.LayerDomainResource"/>
+        </set>
+        <set cascade="all" inverse="true" name="identifiers">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
+        </set>
+        <set cascade="all" inverse="true" lazy="false" name="srsbb">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
+        </set>
+        <one-to-one cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false" name="attribution"/>
+        <property length="200" name="name"/>
+        <property name="title" not-null="true"/>
+        <property name="abstracts" type="materialized_clob"/>
+        <property length="50" name="queryable"/>
+        <property length="50" name="cascaded"/>
+        <property length="50" name="opaque"/>
+        <property length="50" name="nosubsets"/>
+        <property length="50" name="fixedWidth"/>
+        <property length="50" name="fixedHeight"/>
+        <property length="50" name="scaleHintMin"/>
+        <property length="50" name="scaleHintMax"/>
+        <property column="metadata" name="oldMetadata" type="materialized_clob"/>
+        <set cascade="all" inverse="true" lazy="true" name="layerMetadata">
+            <key column="layer"/>
+            <one-to-many class="nl.b3p.wms.capabilities.LayerMetadata"/>
+        </set>
+    </class>
+
+    <class name="nl.b3p.wms.capabilities.LayerMetadata">
+        <id name="id">
+            <column name="id"/>
+            <generator class="sequence">
+                <param name="sequence">layer_metadata_id_seq</param>
+            </generator>
+        </id>
+        <many-to-one name="layer" not-null="true"/>
+        <property name="metadata" type="materialized_clob"/>
+    </class>
   
-  <class name="nl.b3p.wms.capabilities.LayerDomainResource">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="layer" not-null="true"/>
-    <set name="formats">
-      <key column="layer_domain_resource" not-null="true"/>
-      <element column="format" length="100" not-null="true" type="string"/>
-    </set>
-    <property length="50" name="domain" not-null="true"/>
-    <property length="4000" name="url" not-null="true"/>
-  </class>
-  <class name="nl.b3p.kaartenbalie.core.server.Organization">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <set lazy="false" name="layers" order-by="layer ASC">
-      <key column="organization"/>
-      <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
-    </set>
-    <set lazy="false" name="wfsLayers" order-by="layer ASC">
-      <key column="organization"/>
-      <many-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer" column="layer" lazy="false"/>
-    </set>
-    <set cascade="all-delete-orphan" inverse="true" name="reports">
-      <key column="organization"/>
-      <one-to-many class="nl.b3p.kaartenbalie.reporting.Report"/>
-    </set>
-    <set cascade="all-delete-orphan" inverse="true" name="mainUsers">
-      <key column="mainOrganization"/>
-      <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
-    </set>
-    <set lazy="false" name="users" table="users_orgs" inverse="true" cascade="save-update">
-      <key column="organization"/>
-      <many-to-many class="nl.b3p.kaartenbalie.core.server.User" column="users"/>
-    </set>
-    <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
-    <property length="50" name="name" not-null="true"/>
-    <property length="50" name="street"/>
-    <property column="streetnumber" length="5" name="number"/>
-    <property length="10" name="addition"/>
-    <property length="45" name="postalcode"/>
-    <property length="50" name="province"/>
-    <property length="50" name="country"/>
-    <property length="50" name="postbox"/>
-    <property length="50" name="billingAddress"/>
-    <property length="50" name="visitorsAddress"/>
-    <property length="50" name="telephone"/>
-    <property length="50" name="fax"/>
-    <property name="hasValidGetCapabilities" not-null="true"/>
-    <property length="50" name="bbox"/>
-    <property length="50" name="code"/>
-    <property name="allowAccountingLayers" not-null="true"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.Roles">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <property length="45" name="role" not-null="true"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.ServiceDomainResource">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
-    <set lazy="false" name="formats" table="service_domain_resource_fmts">
-      <key column="service_domain_resource" not-null="true"/>
-      <element column="format" length="100" not-null="true" type="string"/>
-    </set>
-    <property length="50" name="domain" not-null="true"/>
-    <property length="4000" name="getUrl"/>
-    <property length="4000" name="postUrl"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.ServiceProvider">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
-    <set cascade="all" inverse="true" name="layers" order-by="title">
-      <key column="service_provider"/>
-      <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
-    </set>
-    <set cascade="all" name="serviceProviderKeywordList" table="service_provider_keyword_list">
-      <key column="service_provider"/>
-      <element column="keyword" length="50" not-null="true" type="string"/>
-    </set>
-    <set cascade="all" inverse="true" name="domainResource">
-      <key column="service_provider"/>
-      <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
-    </set>
-    <set cascade="all" name="exceptions" table="service_provider_exceptions">
-      <key column="service_provider"/>
-      <element column="format" length="50" not-null="true" type="string"/>
-    </set>
-    <property length="60" name="name" not-null="true"/>
-    <property length="60" name="abbr" not-null="true"/>
-    <property length="255" name="title" not-null="true"/>
-    <property name="abstracts" type="text"/>
-    <property name="fees" type="text"/>
-    <property name="accessConstraints" type="text"/>
-    <property length="50" name="givenName" not-null="true"/>
-    <property length="4000" name="url" not-null="true"/>
-    <property name="updatedDate" not-null="true"/>
-    <property length="50" name="wmsVersion" not-null="true"/>
-    <property length="80" name="status" not-null="false"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one column="layer" name="layer" not-null="true"/>
-    <property length="150" name="srs"/>
-    <property length="50" name="minx"/>
-    <property length="50" name="maxx"/>
-    <property length="50" name="miny"/>
-    <property length="50" name="maxy"/>
-    <property length="50" name="resx"/>
-    <property length="50" name="resy"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.Style">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="layer" not-null="true"/>
-    <set cascade="all" inverse="true" name="domainResource">
-      <key column="style"/>
-      <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
-    </set>
-    <property length="255" name="name" not-null="true"/>
-    <property length="255" name="title" not-null="true"/>
-    <property name="abstracts" type="text"/>
-  </class>
-  <class name="nl.b3p.wms.capabilities.StyleDomainResource">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="style" not-null="true"/>
-    <set name="formats">
-      <key column="style_domain_resource" not-null="true"/>
-      <element column="format" length="45" not-null="true" type="string"/>
-    </set>
-    <property length="45" name="domain" not-null="true"/>
-    <property length="4000" name="url" not-null="true"/>
-    <property length="45" name="width"/>
-    <property length="45" name="height"/>
-  </class>
-  <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one name="mainOrganization" lazy="false" not-null="true"/>
-    <set lazy="false" name="organizations" table="users_orgs" cascade="save-update">
-      <key column="users"/>
-      <many-to-many class="nl.b3p.kaartenbalie.core.server.Organization"
+    <class name="nl.b3p.wms.capabilities.LayerDomainResource">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="layer" not-null="true"/>
+        <set name="formats">
+            <key column="layer_domain_resource" not-null="true"/>
+            <element column="format" length="100" not-null="true" type="string"/>
+        </set>
+        <property length="50" name="domain" not-null="true"/>
+        <property length="4000" name="url" not-null="true"/>
+    </class>
+    <class name="nl.b3p.kaartenbalie.core.server.Organization">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <set lazy="false" name="layers" order-by="layer ASC">
+            <key column="organization"/>
+            <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
+        </set>
+        <set lazy="false" name="wfsLayers" order-by="layer ASC">
+            <key column="organization"/>
+            <many-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer" column="layer" lazy="false"/>
+        </set>
+        <set cascade="all-delete-orphan" inverse="true" name="reports">
+            <key column="organization"/>
+            <one-to-many class="nl.b3p.kaartenbalie.reporting.Report"/>
+        </set>
+        <set cascade="all-delete-orphan" inverse="true" name="mainUsers">
+            <key column="mainOrganization"/>
+            <one-to-many class="nl.b3p.kaartenbalie.core.server.User"/>
+        </set>
+        <set lazy="false" name="users" table="users_orgs" inverse="true" cascade="save-update">
+            <key column="organization"/>
+            <many-to-many class="nl.b3p.kaartenbalie.core.server.User" column="users"/>
+        </set>
+        <one-to-one cascade="all" class="nl.b3p.kaartenbalie.core.server.accounting.entity.Account" fetch="join" lazy="false" name="account"/>
+        <property length="50" name="name" not-null="true"/>
+        <property length="50" name="street"/>
+        <property column="streetnumber" length="5" name="number"/>
+        <property length="10" name="addition"/>
+        <property length="45" name="postalcode"/>
+        <property length="50" name="province"/>
+        <property length="50" name="country"/>
+        <property length="50" name="postbox"/>
+        <property length="50" name="billingAddress"/>
+        <property length="50" name="visitorsAddress"/>
+        <property length="50" name="telephone"/>
+        <property length="50" name="fax"/>
+        <property name="hasValidGetCapabilities" not-null="true"/>
+        <property length="50" name="bbox"/>
+        <property length="50" name="code"/>
+        <property name="allowAccountingLayers" not-null="true"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Roles">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <property length="45" name="role" not-null="true"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.ServiceDomainResource">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
+        <set lazy="false" name="formats" table="service_domain_resource_fmts">
+            <key column="service_domain_resource" not-null="true"/>
+            <element column="format" length="100" not-null="true" type="string"/>
+        </set>
+        <property length="50" name="domain" not-null="true"/>
+        <property length="4000" name="getUrl"/>
+        <property length="4000" name="postUrl"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.ServiceProvider">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <one-to-one cascade="all" class="nl.b3p.wms.capabilities.ContactInformation" name="contactInformation"/>
+        <set cascade="all" inverse="true" name="layers" order-by="title">
+            <key column="service_provider"/>
+            <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
+        </set>
+        <set cascade="all" name="serviceProviderKeywordList" table="service_provider_keyword_list">
+            <key column="service_provider"/>
+            <element column="keyword" length="50" not-null="true" type="string"/>
+        </set>
+        <set cascade="all" inverse="true" name="domainResource">
+            <key column="service_provider"/>
+            <one-to-many class="nl.b3p.wms.capabilities.ServiceDomainResource"/>
+        </set>
+        <set cascade="all" name="exceptions" table="service_provider_exceptions">
+            <key column="service_provider"/>
+            <element column="format" length="50" not-null="true" type="string"/>
+        </set>
+        <property length="60" name="name" not-null="true"/>
+        <property length="60" name="abbr" not-null="true"/>
+        <property length="255" name="title" not-null="true"/>
+        <property name="abstracts" type="materialized_clob"/>
+        <property name="fees" type="materialized_clob"/>
+        <property name="accessConstraints" type="materialized_clob"/>
+        <property length="50" name="givenName" not-null="true"/>
+        <property length="4000" name="url" not-null="true"/>
+        <property name="updatedDate" not-null="true"/>
+        <property length="50" name="wmsVersion" not-null="true"/>
+        <property length="80" name="status" not-null="false"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="layer" name="layer" not-null="true"/>
+        <property length="150" name="srs"/>
+        <property length="50" name="minx"/>
+        <property length="50" name="maxx"/>
+        <property length="50" name="miny"/>
+        <property length="50" name="maxy"/>
+        <property length="50" name="resx"/>
+        <property length="50" name="resy"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.Style">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="layer" not-null="true"/>
+        <set cascade="all" inverse="true" name="domainResource">
+            <key column="style"/>
+            <one-to-many class="nl.b3p.wms.capabilities.StyleDomainResource"/>
+        </set>
+        <property length="255" name="name" not-null="true"/>
+        <property length="255" name="title" not-null="true"/>
+        <property name="abstracts" type="materialized_clob"/>
+    </class>
+    <class name="nl.b3p.wms.capabilities.StyleDomainResource">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="style" not-null="true"/>
+        <set name="formats">
+            <key column="style_domain_resource" not-null="true"/>
+            <element column="format" length="45" not-null="true" type="string"/>
+        </set>
+        <property length="45" name="domain" not-null="true"/>
+        <property length="4000" name="url" not-null="true"/>
+        <property length="45" name="width"/>
+        <property length="45" name="height"/>
+    </class>
+    <class name="nl.b3p.kaartenbalie.core.server.User" table="users">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="mainOrganization" lazy="false" not-null="true"/>
+        <set lazy="false" name="organizations" table="users_orgs" cascade="save-update">
+            <key column="users"/>
+            <many-to-many class="nl.b3p.kaartenbalie.core.server.Organization"
         column="organization"/>
-    </set>
-    <set lazy="false" name="roles">
-      <key column="users"/>
-      <many-to-many class="nl.b3p.wms.capabilities.Roles" column="role" lazy="false"/>
-    </set>
-    <set cascade="all" lazy="false" name="ips">
-      <key column="users"/>
-      <element column="ipaddress" length="45" not-null="true" type="string"/>
-    </set>
-    <property length="50" name="firstName"/>
-    <property length="50" name="surname"/>
-    <property length="50" name="emailAddress"/>
-    <property length="50" name="username" not-null="true"/>
-    <property length="50" name="password" not-null="true"/>
-    <property length="4000" name="personalURL"/>
-    <property name="timeout"/>
-    <property length="4000" name="defaultGetMap"/>
-  </class>
-  <class name="nl.b3p.ogc.wfs.v110.WfsLayer">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <many-to-one column="wfs_service_provider" name="wfsServiceProvider" not-null="true"/>
-    <property length="200" name="name"/>
-    <property length="255" name="title" not-null="true"/>
-    <property name="metadata" type="text"/>
-  </class>
-  <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider">
-    <id name="id">
-      <generator class="identity"/>
-    </id>
-    <set cascade="all" inverse="true" name="wfsLayers">
-      <key column="wfs_service_provider"/>
-      <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
-    </set>
-    <property length="80" name="name" not-null="true"/>
-    <property length="80" name="abbr" not-null="true"/>
-    <property length="255" name="title"/>
-    <property length="50" name="givenName" not-null="true"/>
-    <property length="4000" name="url" not-null="true"/>
-    <property name="updatedDate" not-null="true"/>
-    <property length="50" name="wfsVersion" not-null="true"/>
-    <property length="80" name="status" not-null="false"/>
-  </class>
+        </set>
+        <set lazy="false" name="roles">
+            <key column="users"/>
+            <many-to-many class="nl.b3p.wms.capabilities.Roles" column="role" lazy="false"/>
+        </set>
+        <set cascade="all" lazy="false" name="ips">
+            <key column="users"/>
+            <element column="ipaddress" length="45" not-null="true" type="string"/>
+        </set>
+        <property length="50" name="firstName"/>
+        <property length="50" name="surname"/>
+        <property length="50" name="emailAddress"/>
+        <property length="50" name="username" not-null="true"/>
+        <property length="50" name="password" not-null="true"/>
+        <property length="4000" name="personalURL"/>
+        <property name="timeout"/>
+        <property length="4000" name="defaultGetMap"/>
+    </class>
+    <class name="nl.b3p.ogc.wfs.v110.WfsLayer">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one column="wfs_service_provider" name="wfsServiceProvider" not-null="true"/>
+        <property length="200" name="name"/>
+        <property length="255" name="title" not-null="true"/>
+        <property name="metadata" type="materialized_clob"/>
+    </class>
+    <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <set cascade="all" inverse="true" name="wfsLayers">
+            <key column="wfs_service_provider"/>
+            <one-to-many class="nl.b3p.ogc.wfs.v110.WfsLayer"/>
+        </set>
+        <property length="80" name="name" not-null="true"/>
+        <property length="80" name="abbr" not-null="true"/>
+        <property length="255" name="title"/>
+        <property length="50" name="givenName" not-null="true"/>
+        <property length="4000" name="url" not-null="true"/>
+        <property name="updatedDate" not-null="true"/>
+        <property length="50" name="wfsVersion" not-null="true"/>
+        <property length="80" name="status" not-null="false"/>
+    </class>
 </hibernate-mapping>

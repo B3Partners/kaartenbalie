@@ -46,7 +46,7 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>F:\lalalala\1/</param-value>
+            <param-value>C:\maps</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
 <!--
 B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
 for authentication/authorization, pricing and usage reporting.
@@ -21,19 +24,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
 -->
+
 <hibernate-mapping>
-  <class name="nl.b3p.kaartenbalie.reporting.Report">
-    <comment>Reporting module</comment>
-		    <id name="id">
-		      <generator class="identity"/>
-		    </id>
-    <many-to-one name="organization"/>
-    <property name="reportDate"/>
-    <property name="processingTime"/>
-    <property name="startDate"/>
-    <property name="endDate"/>
-    <property column="report_xml" name="reportXML" type="text"/>
-    <property name="name"/>
-    <property name="reportMime"/>
-  </class>
+    <class name="nl.b3p.kaartenbalie.reporting.Report">
+        <comment>Reporting module</comment>
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <many-to-one name="organization"/>
+        <property name="reportDate"/>
+        <property name="processingTime"/>
+        <property name="startDate"/>
+        <property name="endDate"/>
+        <property column="report_xml" name="reportXML" type="materialized_clob"/>
+        <property name="name"/>
+        <property name="reportMime"/>
+    </class>
 </hibernate-mapping>
