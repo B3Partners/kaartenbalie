@@ -28,7 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -250,9 +252,13 @@ public class MapServerAction extends KaartenbalieCrudAction {
         String fileName = (String) request.getParameter("file");
         File targetFile = new File(mapdir, fileName);
 
-        File dir = new File(mapdir, "/archief");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        String datum = df.format(now);
 
-        boolean success = targetFile.renameTo(new File(dir, fileName));
+        String append = "_" + datum + ".archive";
+
+        boolean success = targetFile.renameTo(new File(mapdir, fileName + append));
         
         if (!success) {
             prepareMethod(dynaForm, request, EDIT, LIST);

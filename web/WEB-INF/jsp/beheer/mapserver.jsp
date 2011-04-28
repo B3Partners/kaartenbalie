@@ -27,6 +27,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
     <div class="containerdiv" style="float: left; clear: none;">
         <H1><fmt:message key="beheer.mapserver.title" /></H1>
+
+        <p>
+            <fmt:message key="beheer.mapserver.archive.uitleg" />
+        </p>
         
         <c:choose>
             <c:when test="${!empty mapfiles}">
@@ -42,7 +46,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 <th style="width: 64%;"><fmt:message key="beheer.mapserver.table.url" /></th>
                                 <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wms" /></th>
                                 <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wfs" /></th>
-                                <th style="width: 10%;">Archief</th>
+                                <th style="width: 10%;" class="{sorter: false} no-filter">&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,7 +91,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                     </td>
                                     <td>
                                         <html:link page='/mapserver.do?archive=t&file=${nMapfile["fileName"]}'>
-                                            Verplaatsen
+                                            <fmt:message key="beheer.mapserver.archive.label" />
                                         </html:link>
                                     </td>
                                 </tr>
@@ -117,7 +121,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 400px;" class="containerdiv">
         <div class="serverDetailsClass">
             <table>
                 <tr>
