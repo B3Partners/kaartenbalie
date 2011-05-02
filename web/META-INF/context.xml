@@ -1,24 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-<!-- Resource PG b3p-demo
-<Resource
-    auth="Container"
-    driverClassName="org.postgresql.Driver"
-    logAbandoned="true"
-    maxActive="100"
-    maxIdle="30"
-    maxWait="10000"
-    name="jdbc/kaartenbalie"
-    username="dev"
-    password="b3p"
-    removeAbandoned="true"
-    removeAbandonedTimeout="60"
-    type="javax.sql.DataSource"
-    url="jdbc:postgresql://b3p-demoserver/barneveld_kaartenbalie"
-    validationQuery="select 1"
-    minEvictableIdleTimeMillis="10000"
-    timeBetweenEvictionRunsMillis="60000"
-/> -->
 
 <!-- Resource Oracle b3p-demo -->
 <Resource
@@ -38,4 +19,44 @@
     minEvictableIdleTimeMillis="10000"
     timeBetweenEvictionRunsMillis="60000"
 />
+
+<!-- boy lokaal postgres
+<Resource
+    auth="Container"
+    driverClassName="org.postgresql.Driver"
+    logAbandoned="true"
+    maxActive="100"
+    maxIdle="30"
+    maxWait="10000"
+    name="jdbc/kaartenbalie"
+    username="postgres"
+    password="***REMOVED***"
+    removeAbandoned="true"
+    removeAbandonedTimeout="60"
+    type="javax.sql.DataSource"
+    url="jdbc:postgresql://localhost:5432/kaartenbalie"
+    validationQuery="select 1"
+    minEvictableIdleTimeMillis="10000"
+    timeBetweenEvictionRunsMillis="60000"
+/> -->
+
+<!-- Boy MySQL Test
+<Resource
+    auth="Container"
+    driverClassName="com.mysql.jdbc.Driver"
+    logAbandoned="true"
+    maxActive="100"
+    maxIdle="30"
+    maxWait="10000"
+    name="jdbc/kaartenbalie"
+    username="root"
+    password="***REMOVED***"
+    removeAbandoned="true"
+    removeAbandonedTimeout="60"
+    type="javax.sql.DataSource"
+    url="jdbc:mysql://localhost:3306/kaartenbalie?useUnicode=true&amp;characterEncoding=utf8"
+    validationQuery="select 1"
+    minEvictableIdleTimeMillis="10000"
+    timeBetweenEvictionRunsMillis="60000"
+/> -->
 </Context>
