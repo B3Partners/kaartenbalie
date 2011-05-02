@@ -117,7 +117,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <one-to-one cascade="all" class="nl.b3p.wms.capabilities.Attribution" fetch="join" lazy="false" name="attribution"/>
         <property length="200" name="name"/>
         <property name="title" not-null="true"/>
-        <property name="abstracts" type="materialized_clob"/>
+        <property name="abstracts" type="text"/>
         <property length="50" name="queryable"/>
         <property length="50" name="cascaded"/>
         <property length="50" name="opaque"/>
@@ -126,7 +126,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="50" name="fixedHeight"/>
         <property length="50" name="scaleHintMin"/>
         <property length="50" name="scaleHintMax"/>
-        <property column="metadata" name="oldMetadata" type="materialized_clob"/>
+        <property column="metadata" name="oldMetadata" type="text"/>
         <set cascade="all" inverse="true" lazy="true" name="layerMetadata">
             <key column="layer"/>
             <one-to-many class="nl.b3p.wms.capabilities.LayerMetadata"/>
@@ -141,7 +141,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </generator>
         </id>
         <many-to-one name="layer" not-null="true"/>
-        <property name="metadata" type="materialized_clob"/>
+        <property name="metadata" type="text"/>
     </class>
   
     <class name="nl.b3p.wms.capabilities.LayerDomainResource">
@@ -241,9 +241,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="60" name="name" not-null="true"/>
         <property length="60" name="abbr" not-null="true"/>
         <property length="255" name="title" not-null="true"/>
-        <property name="abstracts" type="materialized_clob"/>
-        <property name="fees" type="materialized_clob"/>
-        <property name="accessConstraints" type="materialized_clob"/>
+        <property name="abstracts" type="text"/>
+        <property name="fees" type="text"/>
+        <property name="accessConstraints" type="text"/>
         <property length="50" name="givenName" not-null="true"/>
         <property length="4000" name="url" not-null="true"/>
         <property name="updatedDate" not-null="true"/>
@@ -274,7 +274,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         </set>
         <property length="255" name="name" not-null="true"/>
         <property length="255" name="title" not-null="true"/>
-        <property name="abstracts" type="materialized_clob"/>
+        <property name="abstracts" type="text"/>
     </class>
     <class name="nl.b3p.wms.capabilities.StyleDomainResource">
         <id name="id">
@@ -324,7 +324,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <many-to-one column="wfs_service_provider" name="wfsServiceProvider" not-null="true"/>
         <property length="200" name="name"/>
         <property length="255" name="title" not-null="true"/>
-        <property name="metadata" type="materialized_clob"/>
+        <property name="metadata" type="text"/>
     </class>
     <class name="nl.b3p.ogc.wfs.v110.WfsServiceProvider">
         <id name="id">

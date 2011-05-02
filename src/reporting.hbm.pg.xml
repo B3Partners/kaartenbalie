@@ -36,7 +36,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property name="processingTime"/>
         <property name="startDate"/>
         <property name="endDate"/>
-        <property column="report_xml" name="reportXML" type="materialized_clob"/>
+        <property column="report_xml" name="reportXML" type="text"/>
         <property name="name"/>
         <property name="reportMime"/>
     </class>
