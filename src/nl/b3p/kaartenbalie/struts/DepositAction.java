@@ -47,16 +47,19 @@ public class DepositAction extends KaartenbalieCrudAction {
     private static final Log log = LogFactory.getLog(DepositAction.class);
     protected static final String BACK = "back";
 
+    @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, LIST, LIST);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return mapping.findForward(SUCCESS);
     }
 
+    @Override
     public ActionForward cancelled(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         return mapping.findForward(FAILURE);
     }
 
+    @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         if (!isTokenValid(request)) {
@@ -106,21 +109,26 @@ public class DepositAction extends KaartenbalieCrudAction {
         }
         Organization organization = getOrganization(dynaForm, request);
         AccountManager am = AccountManager.getAccountManager(organization.getId());
-        Transaction tpd =  am.prepareTransaction(Transaction.DEPOSIT, tdesc.toString());
-        /*
-         * Prijs, koers, conversie.
-         */
-        tpd.setBillingAmount(billing);
-        BigDecimal creditAlt = billing.multiply(new BigDecimal(exchangeRate.intValue()));
-        tpd.setCreditAlteration(creditAlt);
-        tpd.setTxExchangeRate(exchangeRate);
-        am.commitTransaction(tpd, (User) request.getUserPrincipal());
+
+        /* Er komt null terug als accounting uit staat in AccountManager.java */
+        Transaction tpd = am.prepareTransaction(Transaction.DEPOSIT, tdesc.toString());
+
+        /* Prijs, koers, conversie */
+        if (tpd != null) {
+            tpd.setBillingAmount(billing);
+            BigDecimal creditAlt = billing.multiply(new BigDecimal(exchangeRate.intValue()));
+            tpd.setCreditAlteration(creditAlt);
+            tpd.setTxExchangeRate(exchangeRate);
+            am.commitTransaction(tpd, (User) request.getUserPrincipal());
+        }
 
         ActionRedirect redirect = new ActionRedirect(mapping.findForward(BACK));
         redirect.addParameter("selectedOrganization", organization.getId().toString());
+
         return redirect;
     }
 
+    @Override
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
         super.createLists(form, request);
         request.setAttribute("exchangeRate", Transaction.getExchangeRate());
