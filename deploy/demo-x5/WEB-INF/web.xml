@@ -46,7 +46,7 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>/srv/maps/demo/</param-value>
+            <param-value>/srv/maps/demo-prd/</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -135,7 +135,7 @@
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
-    
+
     <!-- EINDE Select CSS Servlet -->
     <servlet-mapping>
         <servlet-name>action</servlet-name>

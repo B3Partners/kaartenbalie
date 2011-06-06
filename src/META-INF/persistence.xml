@@ -7,15 +7,15 @@
             <property name="hibernate.connection.datasource" value="java:comp/env/jdbc/kaartenbalie"/>      
             <property name="hibernate.globally_quoted_identifiers" value="false"/>
       
-            <!-- PG
+            <!-- PG -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.pg.xml"/>
-            <property name="hibernate.jdbc.use_streams_for_binary" value="false"/> -->
+            <property name="hibernate.jdbc.use_streams_for_binary" value="false"/>
 
-            <!-- Oracle -->
+            <!-- Oracle
             <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
             <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
-            <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.oracle.xml"/>
+            <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.oracle.xml"/> -->
 
             <!-- Mysql
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>

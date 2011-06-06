@@ -99,13 +99,13 @@
           <form-logout-page>/logout.do</form-logout-page>
         </form-login-config>
         <cookie-auth-token-config>
-            <!-- LET OP: De secret-key en extra-hash-string moeten voor elke installatie ANDERS zijn! -->
-            <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
-            <!-- deze waardes zijn voor (HOU DEZE INFORMATIE UP-TO-DATE!): www.kaartenbalie.nl 81BF677C3015E66FE5F2A71DDA21160B Extra hash: s6AWd5MYe39B5NP3UaLl4 -->
-            <secret-key>81BF677C3015E66FE5F2A71DDA21160B</secret-key>
-            <extra-hash-string>s6AWd5MYe39B5NP3UaLl4</extra-hash-string>
+            <!-- https://www.grc.com/passwords.htm -->
+            <!-- hexadecimal 32 characters -->
+            <secret-key>DE00677C3015E66FE5F2A71DDA21160B</secret-key>
+            <!-- alpha-nuemric lengte haalt niet zoveel uit -->
+            <extra-hash-string>DeMod5MYe39B5NP3UaLl4</extra-hash-string>
             <cookie-expire>28800</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
