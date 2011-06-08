@@ -501,6 +501,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             } else {
                 //Get data for GetFeatureInfo and DescribeLayer (and GetLegend?)
                 HttpClient client = new HttpClient();
+
+                // TODO: Wel goed doen
+                url = url.replaceAll(" ", "%20");
+
                 GetMethod method = new GetMethod(url);
                 client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
                 String rhValue = "";
