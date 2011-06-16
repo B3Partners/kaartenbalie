@@ -75,23 +75,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
         <!-- mde -->
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/commonOptions.js' module='' />"></script>
 
         <script type="text/javascript">
             $(document).ready(function() {
-                $.mde.logMode = true;
-
                 $("#metadataEditor").mde({
                     xml: Sarissa.unescape($("#md-placeholder").text()),
-                    baseFullPath: "<html:rewrite page='/js/metadataEditor/' module='' />",
-                    profile: "nl_md_1.2_with_fc",
-                    changed: function(changed) {
+                    fcMode: true,
+                    logMode: true,
+                    richTextMode: true,
+                    organisations: organisations,
+                    change: function(changed) {
                     }
                 });
 
                 $("#sendButton").click(function(event) {
-                    $("#metadata").val(Sarissa.escape($("#metadataEditor").mde("save", {
-                        profile: $("#saveStrict").is(":checked") ? "nl_md_1.2" : "nl_md_1.2_with_fc"
-                    })));
+                    var xpath = $("#saveStrict").is(":checked") ? "/metadata/gmd:MD_Metadata" : "/metadata";
+                    var savedMD = $("#metadataEditor").mde("save", {
+                        xpath: xpath
+                    });
+                    $("#metadata").val(Sarissa.escape(savedMD));
                     $("#metadataForm").submitAsEvent("send");
                 });
              });
