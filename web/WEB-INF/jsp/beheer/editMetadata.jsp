@@ -80,7 +80,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         <script type="text/javascript">
             $(document).ready(function() {
                 $("#metadataEditor").mde({
-                    xml: Sarissa.unescape($("#md-placeholder").text()),
+                    xml: $("#md-placeholder").text(),
                     fcMode: true,
                     logMode: true,
                     richTextMode: true,
