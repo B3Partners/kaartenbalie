@@ -191,6 +191,16 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                     </td>
                                     <td>
                                         <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
+
+                                        <c:forEach var="invalidId" varStatus="status" items="${invalidUserIds}">
+                                            <c:if test="${nUser.id == invalidId}">
+                                                <img src="<html:rewrite page='/images/siteImages/invalid.png' module='' />"
+                                                 title="Gebruiker ongeldig en mag niet inloggen."
+                                                 alt="Gebruiker ongeldig en mag niet inloggen."
+                                                 width="16"
+                                                 height="16"/>
+                                            </c:if>
+                                        </c:forEach>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -215,7 +225,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     tablepager(
                         'server_table',
                         '930',
-                        '14',
+                        '18',
                         false
                     );
                 </script>

@@ -344,6 +344,7 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="createLists(DynaValidatorForm form, HttpServletRequest request) method.">
 
+    @Override
     public void createLists(DynaValidatorForm form, HttpServletRequest request) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -351,6 +352,18 @@ public class UserAction extends KaartenbalieCrudAction {
         super.createLists(form, request);
         List userList = em.createQuery("from User order by username").getResultList();
         request.setAttribute("userlist", userList);
+
+        Date now = new Date();
+        List<User> invalidUsers = em.createQuery("from User where timeout < :date")
+                .setParameter("date", now)
+                .getResultList();
+
+        List<Integer> invalidUserIds = new ArrayList();
+        for (User u : invalidUsers) {
+            invalidUserIds.add(u.getId());
+        }
+
+        request.setAttribute("invalidUserIds", invalidUserIds);
 
         List organizationlist = em.createQuery("from Organization order by name").getResultList();
         request.setAttribute("organizationlist", organizationlist);
