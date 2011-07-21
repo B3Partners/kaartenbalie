@@ -1627,7 +1627,6 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
 
     // init filter
     $table.tablesorterFilter(filters);
-    if(filtertrigger != "") $table.trigger("doFilter");
     if(hasCookie && cookieoptions.sorting) $table.trigger("sorton",[[cookieoptions.sorting]]);
 
     // init pager
@@ -1639,7 +1638,11 @@ function tablepagerfunc(tableid, tablewidth, cellheight, displayselect) {
         jQuery(this).find("input").css("width", inputwidth + 'px');
     });
 
-    setTimeout(function() { moveToSelectedPage(); jQuery("#tableoverlay").remove(); }, 1000);
+    setTimeout(function() {
+		moveToSelectedPage();
+		if(filtertrigger != "") $table.trigger("doFilter");
+		jQuery("#tableoverlay").remove();
+	}, 1000);
 }
 
 function moveToSelectedPage() {
