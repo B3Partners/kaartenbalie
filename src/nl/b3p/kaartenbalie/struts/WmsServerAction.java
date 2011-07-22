@@ -42,6 +42,7 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.LayerDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -59,6 +60,11 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.styling.SLDParser;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
+import org.geotools.styling.StyleFactory2;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -183,6 +189,7 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
+
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         Integer oldId = null;
@@ -196,12 +203,14 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
         if (!isAlphaNumeric(abbreviation)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
         if (abbreviation.equalsIgnoreCase(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
@@ -234,17 +243,30 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
+
         if (!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
+        
+        /* Styles uit Sld ophalen */
+        String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
+        
+        if (sldUrl != null && !sldUrl.equals("")) {
+            SldReader sldReader = new SldReader();
+            List<String> layers = sldReader.getNamedLayers(sldUrl);
+        }
+
         populateServerObject(dynaForm, newServiceProvider);
+
         // haal set op om vulling van set af te dwingen
         Set layerSet = newServiceProvider.getAllLayers();
+
         em.persist(newServiceProvider);
         em.flush();
         Iterator dwIter = layerSet.iterator();
+
         while (dwIter.hasNext()) {
             Layer layer = (Layer) dwIter.next();
             // Find old layer to be able to reuse metadata additions
@@ -287,6 +309,7 @@ public class WmsServerAction extends ServerAction {
                 org.setLayers(newOrganizationLayer);
                 em.flush();
             }
+
             try {
                 Set oldLayers = oldServiceProvider.getAllLayers();
                 Iterator oldLayersIter = oldLayers.iterator();
@@ -787,6 +810,12 @@ public class WmsServerAction extends ServerAction {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
+
+        String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
+
+        if (sldUrl != null && !sldUrl.equals("")) {
+            serviceProvider.setSldUrl(sldUrl);
+        }
     }
     // </editor-fold>
     //-------------------------------------------------------------------------------------------------------
@@ -806,6 +835,7 @@ public class WmsServerAction extends ServerAction {
         dynaForm.set("url", serviceProvider.getUrl());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
+        dynaForm.set("sldUrl", serviceProvider.getSldUrl());
     }
     // </editor-fold>
     /* Tries to find a specified layer given for a certain ServiceProvider.

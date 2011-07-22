@@ -81,6 +81,7 @@
             <form-property name="regexp" type="java.lang.String"/>
             <form-property name="replacement" type="java.lang.String"/>
             <form-property name="orgSelected" type="java.lang.String[]"/>
+            <form-property name="sldUrl" type="java.lang.String"/>
         </form-bean>
 
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">

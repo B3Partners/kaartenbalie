@@ -135,6 +135,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
                             <td><html:text property="url" size="75" /></td>
                         </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.sldUrl"/>:</B></td>
+                            <td><html:text property="sldUrl" size="75" /></td>
+                        </tr>
                     </table>
                         
                     <div class="knoppen">

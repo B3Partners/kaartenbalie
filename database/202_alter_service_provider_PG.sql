@@ -1,0 +1,1 @@
+alter table SERVICE_PROVIDER add column sld_url varchar(255);
