@@ -60,11 +60,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.styling.SLDParser;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
-import org.geotools.styling.StyleFactory2;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -255,7 +251,7 @@ public class WmsServerAction extends ServerAction {
         
         if (sldUrl != null && !sldUrl.equals("")) {
             SldReader sldReader = new SldReader();
-            List<String> layers = sldReader.getNamedLayers(sldUrl);
+            List<Node> layers = sldReader.getNamedLayers(sldUrl);
         }
 
         populateServerObject(dynaForm, newServiceProvider);
