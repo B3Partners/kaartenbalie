@@ -42,7 +42,10 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
+import nl.b3p.ogc.sld.SldUserStyle;
+import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.LayerDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
@@ -60,7 +63,6 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class WmsServerAction extends ServerAction {
@@ -251,7 +253,20 @@ public class WmsServerAction extends ServerAction {
         
         if (sldUrl != null && !sldUrl.equals("")) {
             SldReader sldReader = new SldReader();
-            List<Node> layers = sldReader.getNamedLayers(sldUrl);
+            SldWriter writer = new SldWriter();
+
+            String xml = "";
+            SldNamedLayer[] namedLayers = sldReader.getNamedLayers(sldUrl);
+            for (int i=0; i < namedLayers.length; i++) {
+                SldNamedLayer layer = namedLayers[i];
+                SldUserStyle[] userStyles = sldReader.getUserStyles(layer);
+
+                /* Get the Strings of the named layers you want */
+                //xml += writer.createNamedLayerStringForSld(userStyles, layer.getName());
+            }
+
+            /* Output an SLD to browser */
+            //writer.createSld(xml, response);
         }
 
         populateServerObject(dynaForm, newServiceProvider);
