@@ -163,6 +163,17 @@ public class GetMapRequestHandler extends WMSRequestHandler {
     }
 
     private StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc) {
+
+        /* TODO:
+         * Check if the layer styles contain an Sld part. If so add &sld to this
+         * url that refers to the kaartenbalie sld servlet. The servlet will combine
+         * the parts to form the needed sld.
+        */
+
+        /* TODO:
+         * Check if there are spaces allowed in &LAYER param. Layer A ?
+         */
+
         StringBuffer returnValue = new StringBuffer();
         String layersString = spInfo.getLayersAsString();
         List layersList = spInfo.getLayers();
