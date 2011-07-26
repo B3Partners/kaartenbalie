@@ -1,0 +1,1 @@
+alter table style add column sld_part text;

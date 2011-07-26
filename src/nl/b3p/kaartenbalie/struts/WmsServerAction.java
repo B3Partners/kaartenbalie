@@ -49,6 +49,7 @@ import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.LayerDomainResource;
 import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.wms.capabilities.Style;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -68,17 +69,12 @@ import org.xml.sax.SAXException;
 public class WmsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WmsServerAction.class);
-
     protected static final String ABBR_WARN_KEY = "warning.abbr.changed";
-
     protected static final String MAPPING_TEST = "test";
     protected static final String MAPPING_BATCH_UPDATE = "batchUpdate";
-
     protected static long maxResponseTime = 10000;
-
     private static final String SERVICE_STATUS_ERROR = "FOUT";
     private static final String SERVICE_STATUS_OK = "GOED";
-
     private String WMS_SERVICE_TEST_FOUT = "beheer.wms.test.fout";
     private String WMS_SERVICE_BATCH_UPDATE_FOUT = "beheer.wms.batchupdate.fout";
 
@@ -247,27 +243,6 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
-        /* Styles uit Sld ophalen */
-        String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
-        
-        if (sldUrl != null && !sldUrl.equals("")) {
-            SldReader sldReader = new SldReader();
-            SldWriter writer = new SldWriter();
-
-            String xml = "";
-            SldNamedLayer[] namedLayers = sldReader.getNamedLayers(sldUrl);
-            for (int i=0; i < namedLayers.length; i++) {
-                SldNamedLayer layer = namedLayers[i];
-                SldUserStyle[] userStyles = sldReader.getUserStyles(layer);
-
-                /* Get the Strings of the named layers you want */
-                //xml += writer.createNamedLayerStringForSld(userStyles, layer.getName());
-            }
-
-            /* Output an SLD to browser */
-            //writer.createSld(xml, response);
-        }
 
         populateServerObject(dynaForm, newServiceProvider);
 
@@ -276,14 +251,32 @@ public class WmsServerAction extends ServerAction {
 
         em.persist(newServiceProvider);
         em.flush();
+
+        /* NamedLayers uit Sld ophalen */
+        String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
+        SldNamedLayer[] namedLayers = null;
+        if (sldUrl != null && !sldUrl.equals("")) {
+            SldReader sldReader = new SldReader();
+            namedLayers = sldReader.getNamedLayers(sldUrl);
+        }
+
         Iterator dwIter = layerSet.iterator();
 
         while (dwIter.hasNext()) {
             Layer layer = (Layer) dwIter.next();
+
+            /* Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
+             * voorkomen. Zo ja, deze als Style opslaan in database */
+            if (namedLayers != null && namedLayers.length > 0) {
+                Set<Style> styles = getSldStylesSet(namedLayers, layer);
+                layer.setStyles(styles);
+            }
+
             // Find old layer to be able to reuse metadata additions
             Set topLayerSet = new HashSet();
-            if (oldServiceProvider!=null)
+            if (oldServiceProvider != null) {
                 topLayerSet.add(oldServiceProvider.getTopLayer());
+            }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
             setMetadataFromLayerSource(layer, oldLayer);
@@ -358,7 +351,7 @@ public class WmsServerAction extends ServerAction {
 
         EntityManager em = getEntityManager();
 
-        for (int i=0; i < orgSelected.length; i++) {
+        for (int i = 0; i < orgSelected.length; i++) {
             Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
 
             addAllLayersToGroup(org, sp);
@@ -399,8 +392,7 @@ public class WmsServerAction extends ServerAction {
         int fout = 0;
 
         try {
-            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider")
-                    .getResultList();
+            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider").getResultList();
 
             for (ServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
@@ -409,9 +401,9 @@ public class WmsServerAction extends ServerAction {
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
-                
+
                 ServiceProvider newSp = getTestServiceProvider(newUrl);
-                
+
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
                 } else {
@@ -435,7 +427,7 @@ public class WmsServerAction extends ServerAction {
             messages.add(ActionMessages.GLOBAL_MESSAGE, message);
             saveMessages(request, messages);
         }
-        
+
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
 
         return getDefaultForward(mapping, request);
@@ -450,8 +442,7 @@ public class WmsServerAction extends ServerAction {
         int fout = 0;
 
         try {
-            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider")
-                    .getResultList();
+            List<ServiceProvider> wmsServices = em.createQuery("from ServiceProvider").getResultList();
 
             for (ServiceProvider oldServiceProvider : wmsServices) {
                 String newUrl = oldServiceProvider.getUrl();
@@ -462,7 +453,7 @@ public class WmsServerAction extends ServerAction {
                 }
 
                 ServiceProvider newServiceProvider = getTestServiceProvider(newUrl);
-                
+
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
                 } else {
@@ -514,10 +505,11 @@ public class WmsServerAction extends ServerAction {
             Layer layer = (Layer) dwIter.next();
             // Find old layer to be able to reuse metadata additions
             Set topLayerSet = new HashSet();
-            if (oldServiceProvider!=null)
+            if (oldServiceProvider != null) {
                 topLayerSet.add(oldServiceProvider.getTopLayer());
+            }
             Layer oldLayer = checkLayer(layer, topLayerSet);
-            
+
             setMetadataFromLayerSource(layer, oldLayer);
         }
 
@@ -934,7 +926,7 @@ public class WmsServerAction extends ServerAction {
 //            log.error("", ex);
         }
         String currentMetadata = null;
-        if (oldLayer!=null) {
+        if (oldLayer != null) {
             currentMetadata = oldLayer.getMetadata();
         }
 
@@ -981,5 +973,34 @@ public class WmsServerAction extends ServerAction {
         }
 
         return metadata;
+    }
+
+    private Set<Style> getSldStylesSet(SldNamedLayer[] namedLayers, Layer layer)
+            throws Exception {
+
+        Set<Style> styles = new HashSet<Style>();
+        SldReader sldReader = new SldReader();
+
+        for (int i = 0; i < namedLayers.length; i++) {
+            SldNamedLayer namedLayer = namedLayers[i];
+
+            if (namedLayer.getName().equals(layer.getName())) {
+                SldUserStyle[] userStyles = sldReader.getUserStyles(namedLayer);
+
+                for (int j = 0; j < userStyles.length; j++) {
+                    SldUserStyle userStyle = userStyles[j];
+
+                    Style style = new Style();
+                    style.setLayer(layer);
+                    style.setName(userStyle.getName());
+                    style.setTitle(userStyle.getName());
+                    style.setSldPart(userStyle.getSldPart());
+
+                    styles.add(style);
+                }
+            }
+        }
+
+        return styles;
     }
 }

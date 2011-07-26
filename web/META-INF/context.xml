@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
 
-<!-- Resource Oracle b3p-demo -->
+<!-- Resource Oracle b3p-demo
 <Resource
     auth="Container"
     driverClassName="oracle.jdbc.driver.OracleDriver"
@@ -18,9 +18,9 @@
     url="jdbc:oracle:thin:@b3p-demoserver:1521:ORCL"
     minEvictableIdleTimeMillis="10000"
     timeBetweenEvictionRunsMillis="60000"
-/> 
+/> -->
 
-<!-- boy lokaal postgres 
+<!-- boy lokaal postgres -->
 <Resource
     auth="Container"
     driverClassName="org.postgresql.Driver"
@@ -38,7 +38,7 @@
     validationQuery="select 1"
     minEvictableIdleTimeMillis="10000"
     timeBetweenEvictionRunsMillis="60000"
-/> -->
+/>
 
 <!-- Boy MySQL Test
 <Resource

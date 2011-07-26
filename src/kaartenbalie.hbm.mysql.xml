@@ -250,6 +250,7 @@
         <property length="255" name="name" not-null="true"/>
         <property length="255" name="title" not-null="true"/>
         <property name="abstracts" type="text"/>
+        <property name="sldPart" type="text"/>
     </class>
     <class name="nl.b3p.wms.capabilities.StyleDomainResource">
         <id name="id">
