@@ -253,10 +253,10 @@ public class WmsServerAction extends ServerAction {
         em.flush();
 
         /* NamedLayers uit Sld ophalen */
+        SldReader sldReader = new SldReader();
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
-        SldNamedLayer[] namedLayers = null;
-        if (sldUrl != null && !sldUrl.equals("")) {
-            SldReader sldReader = new SldReader();
+        List<SldNamedLayer> namedLayers = null;
+        if (sldUrl != null && !sldUrl.equals("")) {            
             namedLayers = sldReader.getNamedLayers(sldUrl);
         }
 
@@ -267,9 +267,12 @@ public class WmsServerAction extends ServerAction {
 
             /* Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
              * voorkomen. Zo ja, deze als Style opslaan in database */
-            if (namedLayers != null && namedLayers.length > 0) {
-                Set<Style> styles = getSldStylesSet(namedLayers, layer);
-                layer.setStyles(styles);
+            if (namedLayers != null && namedLayers.size() > 0) {
+                Set<Style> styles = getSldStylesSet(namedLayers,layer);
+                if (layer.getStyles()!=null)
+                    layer.getStyles().addAll(styles);
+                else
+                    layer.setStyles(styles);
             }
 
             // Find old layer to be able to reuse metadata additions
@@ -975,32 +978,26 @@ public class WmsServerAction extends ServerAction {
         return metadata;
     }
 
-    private Set<Style> getSldStylesSet(SldNamedLayer[] namedLayers, Layer layer)
+    private Set<Style> getSldStylesSet(List<SldNamedLayer> allNamedLayers,Layer layer)
             throws Exception {
 
         Set<Style> styles = new HashSet<Style>();
         SldReader sldReader = new SldReader();
+        //get only the named layers for this layer
+        List<SldNamedLayer> namedLayers=sldReader.getNamedLayers(allNamedLayers, layer.getName());
+        
+        for (SldNamedLayer namedLayer : namedLayers) {
+            List<SldUserStyle> userStyles = sldReader.getUserStyles(namedLayer);
 
-        for (int i = 0; i < namedLayers.length; i++) {
-            SldNamedLayer namedLayer = namedLayers[i];
-
-            if (namedLayer.getName().equals(layer.getName())) {
-                SldUserStyle[] userStyles = sldReader.getUserStyles(namedLayer);
-
-                for (int j = 0; j < userStyles.length; j++) {
-                    SldUserStyle userStyle = userStyles[j];
-
-                    Style style = new Style();
-                    style.setLayer(layer);
-                    style.setName(userStyle.getName());
-                    style.setTitle(userStyle.getName());
-                    style.setSldPart(userStyle.getSldPart());
-
-                    styles.add(style);
-                }
-            }
+            for (SldUserStyle userStyle : userStyles) {
+                Style style = new Style();
+                style.setLayer(layer);
+                style.setName(userStyle.getName());
+                style.setTitle(userStyle.getName());
+                style.setSldPart(userStyle.getSldPart());
+                styles.add(style);
+            }            
         }
-
         return styles;
     }
 }
