@@ -15,3 +15,5 @@ insert into users_roles (users, role) values (1,1);
 insert into users_roles (users, role) values (1,2);
 
 insert into users_orgs (organization, users) values (1,1);
+
+insert into users_ips (users, ipaddress) values (1, '0.0.0.0');
