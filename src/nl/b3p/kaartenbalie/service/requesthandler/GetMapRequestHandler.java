@@ -212,6 +212,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                         while (it.hasNext()) {
                                             String l = (String) it.next();
                                             String completeName = completeLayerName(spInfo.getSpAbbr(), l);
+                                            //TODO: Moet het toegevoegd worden als Style= of als sld
                                             if (completeName.equals(layersArray[j])) {
                                                 String style = stylesArray[j];
                                                 if (stylesString.length() != 0) {
