@@ -41,6 +41,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="timeout" />
     <html:hidden property="organizationName" />
     <html:hidden property="organizationTelephone" />
+    <html:hidden property="roleSelected" value="-1"/>
     
     <div class="containerdiv" style="float: left; clear: none;">
         <H1><fmt:message key="viewer.profile.title" /></H1>
