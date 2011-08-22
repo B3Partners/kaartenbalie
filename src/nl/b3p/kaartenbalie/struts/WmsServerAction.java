@@ -268,11 +268,22 @@ public class WmsServerAction extends ServerAction {
             /* Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
              * voorkomen. Zo ja, deze als Style opslaan in database */
             if (namedLayers != null && namedLayers.size() > 0) {
-                Set<Style> styles = getSldStylesSet(namedLayers,layer);
-                if (layer.getStyles()!=null)
-                    layer.getStyles().addAll(styles);
-                else
-                    layer.setStyles(styles);
+                Set<Style> styles = getSldStylesSet(namedLayers,layer);                                
+                Iterator<Style> styleIt = styles.iterator();
+                while(styleIt.hasNext()){
+                    Style style = styleIt.next();
+                    //een style moet een name hebben om aan te roepen
+                    if(style.getName()==null ||
+                            style.getName().length()==0)
+                        style.setName(layer.getName()+"_SLD");
+                    
+                    if (layer.getStyles()==null){
+                        layer.setStyles(new HashSet<Style>());
+                    }                    
+                    String newStyleName=getUniqueStyleName(layer.getStyles(),style.getName());
+                    style.setName(newStyleName);
+                    layer.getStyles().add(style);
+                }
             }
 
             // Find old layer to be able to reuse metadata additions
@@ -999,5 +1010,32 @@ public class WmsServerAction extends ServerAction {
             }            
         }
         return styles;
+    }
+
+    private String getUniqueStyleName(Set<Style> styles, String name) throws Exception {        
+        return getUniqueStyleName(styles,name,null);
+    }
+    private String getUniqueStyleName(Set<Style> styles, String name, Integer tries) throws Exception {    
+        if (tries!=null && tries==10)
+            throw new Exception("Can't create unique name for style");
+                
+        String newName=name;
+        if (tries!=null)
+            newName+=tries;
+        
+        Iterator<Style> it = styles.iterator();
+        boolean unique=true;
+        while (it.hasNext()&& unique){
+            Style s= it.next();
+            if (s.getName().equals(newName))
+                unique=false;
+        }
+        if (!unique){
+            if (tries==null)
+                tries= new Integer("0");
+            tries++;            
+            return getUniqueStyleName(styles, name, tries);
+        }
+        return newName;
     }
 }
