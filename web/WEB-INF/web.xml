@@ -27,18 +27,19 @@
         <filter-name>Security Filter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
     <!-- Init ManagedPersistence to get a hibernate EntityManagerFactory -->
     <servlet>
         <servlet-name>managedpersistence</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>enabled</param-value> <!-- enabled/disabled -->
+            <param-value>enabled</param-value>
+            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value>
+            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>cache</param-name>
@@ -83,7 +84,6 @@
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>
-    
     <servlet>
         <servlet-name>MiltonServlet</servlet-name>
         <servlet-class>com.bradmcevoy.http.MiltonServlet</servlet-class>
@@ -92,7 +92,6 @@
             <param-value>nl.b3p.kaartenbalie.core.webdav.MetadataResourceFactory</param-value>
         </init-param>
     </servlet>
-    
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
@@ -101,12 +100,14 @@
             <param-value>true</param-value>
         </init-param>
     </servlet>
-
+    <servlet>
+        <servlet-name>CreateSLDServlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CreateSLDServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
-
     <servlet-mapping>
         <servlet-name>action</servlet-name>
         <url-pattern>*.do</url-pattern>
@@ -118,6 +119,10 @@
     <servlet-mapping>
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CreateSLDServlet</servlet-name>
+        <url-pattern>/CreateSLD/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

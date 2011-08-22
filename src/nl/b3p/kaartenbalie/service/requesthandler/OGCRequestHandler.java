@@ -111,7 +111,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                         layerName,
                         KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
                         KBConfiguration.SERVICEPROVIDER_BASE_ABBR,
-                        null);
+                        null,null);
                 return layerInfo;
             }
             return null;
@@ -316,7 +316,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                         AllowTransactionsLayer.NAME,
                         KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
                         KBConfiguration.SERVICEPROVIDER_BASE_ABBR,
-                        null);
+                        null,null);
                 addToServerProviderList(cleanedSpList, layerInfo);
             }
         }

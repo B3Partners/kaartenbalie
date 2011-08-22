@@ -24,8 +24,10 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.Style;
 
 /**
  *
@@ -39,7 +41,8 @@ public class SpLayerSummary {
     private String spUrl = null;
     private String spAbbr = null;
     private String queryable = null;
-    private List layers = null;
+    private List<String> layers = null;
+    private Set<Style> styles=null;
 
     public SpLayerSummary(
             Integer serviceproviderId,
@@ -47,13 +50,14 @@ public class SpLayerSummary {
             String layerName,
             String spUrl,
             String spAbbr,
-            String queryable) {
+            String queryable, Set<Style> styles) {
         this.serviceproviderId = serviceproviderId;
         this.layerId = layerId;
         this.layerName = layerName;
         this.spUrl = spUrl;
         this.spAbbr = spAbbr;
         this.queryable = queryable;
+        this.styles=styles;
     }
 
     public SpLayerSummary(Layer l, String queryable) {
@@ -62,7 +66,19 @@ public class SpLayerSummary {
                 l.getName(),
                 l.getServiceProvider().getUrl(),
                 l.getServiceProvider().getAbbr(),
-                queryable);
+                queryable,l.getStyles());
+        //add styles.
+        /*if (l.getStyles()!=null){
+            Set styles= l.getStyles();
+            ArrayList<Style> clonedStyles= new ArrayList<Style>();        
+            Iterator<Style> it=styles.iterator();
+            while(it.hasNext()){
+                clonedStyles.add((Style) it.next().clone());
+            }
+            this.styles=clonedStyles;
+        }*/
+        
+        
     }
 
     public SpLayerSummary(WfsLayer l, String queryable) {
@@ -71,7 +87,7 @@ public class SpLayerSummary {
                 l.getName(),
                 l.getWfsServiceProvider().getUrl(),
                 l.getWfsServiceProvider().getAbbr(),
-                queryable);
+                queryable,null);
     }
 
     public SpLayerSummary() {
@@ -117,17 +133,17 @@ public class SpLayerSummary {
         this.spAbbr = spAbbr;
     }
 
-    public List getLayers() {
+    public List<String> getLayers() {
         return layers;
     }
 
-    public void setLayers(List layers) {
+    public void setLayers(List<String> layers) {
         this.layers = layers;
     }
 
     public void addLayer(String layerName) {
         if (layers == null) {
-            layers = new ArrayList();
+            layers = new ArrayList<String>();
         }
         layers.add(layerName);
     }
@@ -154,5 +170,29 @@ public class SpLayerSummary {
 
     public void setQueryable(String queryable) {
         this.queryable = queryable;
+    }
+
+    public Set<Style> getStyles() {
+        return styles;
+    }
+
+    public void setStyles(Set<Style> styles) {
+        this.styles = styles;
+    }
+    /**
+     * Get the style with the given stylename
+     * @return Returns null if no style with the given name is found.
+     */
+    public Style getStyle(String styleName){
+        if (styleName==null)
+            return null;
+        Iterator<Style> it=styles.iterator();
+        while(it.hasNext()){
+            Style s= it.next();
+            if (styleName.equals(s.getName())){
+                return s;
+            }
+        }
+        return null;
     }
 }

@@ -114,7 +114,7 @@ public class WFSProviderDAO extends BaseDAO {
                         layerName,
                         KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
                         KBConfiguration.SERVICEPROVIDER_BASE_ABBR,
-                        null);
+                        null,null);
                 return layerInfo;
             }
             return null;

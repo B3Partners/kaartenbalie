@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,10 +33,12 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.service.servlet.CreateSLDServlet;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
+import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -122,10 +125,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             gmrWrapper.setBoundingBox(ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
 
             Integer serviceProviderId = spInfo.getServiceproviderId();
-
+            String kbSldUrl = dw.getRequest().getRequestURL().toString();
+            kbSldUrl=kbSldUrl.replace("/services/", "/CreateSLD/");
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
-                //Say hello to B3P Layering!!
-                StringBuffer url = createOnlineUrl(spInfo, ogc);
+                //Say hello to B3P Layering!!                
+                StringBuffer url = createOnlineUrl(spInfo, ogc,kbSldUrl);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
 
@@ -150,8 +154,9 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                     throw new Exception(KBConfiguration.SRS_EXCEPTION);
                 }
 
-
-                StringBuffer url = createOnlineUrl(spInfo, ogc);
+                //String sldUrl=dw.getRequest().getRequestURL().
+                
+                StringBuffer url = createOnlineUrl(spInfo, ogc,kbSldUrl);
                 gmrWrapper.setProviderRequestURI(url.toString());
                 urlWrapper.add(gmrWrapper);
             }
@@ -162,7 +167,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         getOnlineData(dw, urlWrapper, true, OGCConstants.WMS_REQUEST_GetMap);
     }
 
-    private StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc) {
+    private StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc, String kbSldUrl) {
 
         /* TODO:
          * Check if the layer styles contain an Sld part. If so add &sld to this
@@ -175,6 +180,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
          */
 
         StringBuffer returnValue = new StringBuffer();
+        List<Integer> sldStyleIds= new ArrayList<Integer>();
         String layersString = spInfo.getLayersAsString();
         List layersList = spInfo.getLayers();
         returnValue.append(spInfo.getSpUrl());
@@ -205,26 +211,55 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                             if (layersParameter != null && layersParameter.length() > 0) {
                                 String[] layersArray = layersParameter.split(",");
                                 if (stylesArray.length == layersArray.length) {
-                                    StringBuffer stylesString = new StringBuffer();
-
+                                    //StringBuffer stylesString = new StringBuffer();
+                                    List<String> providerStyles= new ArrayList<String>();
                                     for (int j = 0; j < layersArray.length; j++) {
                                         Iterator it = layersList.iterator();
                                         while (it.hasNext()) {
                                             String l = (String) it.next();
                                             String completeName = completeLayerName(spInfo.getSpAbbr(), l);
-                                            //TODO: Moet het toegevoegd worden als Style= of als sld
+                                            //TODO: Moet het toegevoegd worden als Style= of als sld                                            
                                             if (completeName.equals(layersArray[j])) {
-                                                String style = stylesArray[j];
-                                                if (stylesString.length() != 0) {
-                                                    stylesString.append(",");
+                                                String style = stylesArray[j];                                                
+                                                //als er een style is gekozen met een SLDpart 
+                                                //niet de style meenemen maar een sld bouwen
+                                                Style s=spInfo.getStyle(style);
+                                                if (s!=null && s.getSldPart()!=null){
+                                                    providerStyles.add("");
+                                                    sldStyleIds.add(s.getId());                                                    
+                                                }else{
+                                                    providerStyles.add(style);
                                                 }
-                                                stylesString.append(style);
                                                 break;
                                             }
                                         }
                                     }
- 
+                                    String stylesString="";
+                                    for (int p=0; p < providerStyles.size(); p++){
+                                        if (p!=0)
+                                            stylesString+=",";
+                                        stylesString+=providerStyles.get(p);
+                                    }
                                     returnValue.append(stylesString);
+                                    if (sldStyleIds.size()>0){
+                                        
+                                        String styleIdParam="";
+                                        for (Integer sldStyleId:sldStyleIds){
+                                            if (styleIdParam.length()>0)
+                                                styleIdParam+=",";
+                                            styleIdParam+=sldStyleId;
+                                        }
+                                        returnValue.append(returnValue.indexOf("?")>0 ? "&" : "?");
+                                        returnValue.append(OGCConstants.WMS_PARAM_SLD);
+                                        returnValue.append("=");
+                                        StringBuffer sldUrl= new StringBuffer();
+                                        sldUrl.append(kbSldUrl);
+                                        sldUrl.append(kbSldUrl.indexOf("?")>0 ? "&" : "?");
+                                        sldUrl.append(CreateSLDServlet.STYLES_PARAM);
+                                        sldUrl.append("=");
+                                        sldUrl.append(styleIdParam);
+                                        returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));
+                                    }
                                 }
                             }
                         }
