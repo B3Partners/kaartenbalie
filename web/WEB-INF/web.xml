@@ -104,6 +104,10 @@
         <servlet-name>CreateSLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CreateSLDServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProxySLDServlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
@@ -123,6 +127,10 @@
     <servlet-mapping>
         <servlet-name>CreateSLDServlet</servlet-name>
         <url-pattern>/CreateSLD/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProxySLDServlet</servlet-name>
+        <url-pattern>/ProxySLD/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

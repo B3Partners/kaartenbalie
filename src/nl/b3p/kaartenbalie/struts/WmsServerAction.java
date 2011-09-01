@@ -257,7 +257,7 @@ public class WmsServerAction extends ServerAction {
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
         List<SldNamedLayer> namedLayers = null;
         if (sldUrl != null && !sldUrl.equals("")) {            
-            namedLayers = sldReader.getNamedLayers(sldUrl);
+            namedLayers = sldReader.getNamedLayersByUrl(sldUrl);
         }
 
         Iterator dwIter = layerSet.iterator();
@@ -998,7 +998,7 @@ public class WmsServerAction extends ServerAction {
         List<SldNamedLayer> namedLayers=sldReader.getNamedLayers(allNamedLayers, layer.getName());
         
         for (SldNamedLayer namedLayer : namedLayers) {
-            List<SldUserStyle> userStyles = sldReader.getUserStyles(namedLayer);
+            List<SldUserStyle> userStyles = namedLayer.getUserStyles();//sldReader.getUserStyles(namedLayer);
 
             for (SldUserStyle userStyle : userStyles) {
                 Style style = new Style();

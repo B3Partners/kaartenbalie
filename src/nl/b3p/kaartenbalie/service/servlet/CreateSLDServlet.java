@@ -24,18 +24,13 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Roy
  */
-public class CreateSLDServlet extends CallWMSServlet {
+public class CreateSLDServlet extends AbstractSimpleKbService {
 
-    private static Log log = null;
+    
     public static final String STYLES_PARAM="styles";
     public static final String mimeType = "application/xml";
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        // Zet de logger
-        log = LogFactory.getLog(this.getClass());
-        log.info("Initializing Create SLD Servlet");
-    }
+    
+    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
@@ -43,58 +38,26 @@ public class CreateSLDServlet extends CallWMSServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response,PrintWriter out)
+            throws ServletException, IOException, Exception {
         
-        Object identity = null;
-        EntityManager em = null;
-        EntityTransaction tx = null;
-        PrintWriter out = response.getWriter();
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            log.debug("Getting entity manager ......");
-            em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-            tx = em.getTransaction();
-            tx.begin();           
-            //check login.
-            User user = checkLogin(request);
-            //maak van de parameter een Integer array.
-            String styleString=request.getParameter(STYLES_PARAM);
-            String[] styleStringTokens=styleString.split(",");
-            Integer[] styleIds= new Integer[styleStringTokens.length];
-            for (int i=0; i < styleStringTokens.length; i++){
-                styleIds[i]= new Integer(styleStringTokens[i]);
-            }
-            //haal de styles op.
-            List<Style> styles= em.createQuery("from Style where id in ("+styleString+")")
-                    .getResultList();
-            
-            
-            SldWriter sldFact = new SldWriter();
-            String xml = sldFact.createSLD(styles);
-            
-            response.setContentType(mimeType);            
-            out.write(xml);
-           
-        } catch (Exception ex) {
-            log.error("Error creating SLD: ", ex);
-            try {
-                tx.rollback();
-            } catch (Exception ex2) {
-                log.error("Error trying to rollback: ", ex2);
-            }            
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
-            out.close();
+        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.SLD_EM);
+        String styleString=request.getParameter(STYLES_PARAM);
+        String[] styleStringTokens=styleString.split(",");
+        Integer[] styleIds= new Integer[styleStringTokens.length];
+        for (int i=0; i < styleStringTokens.length; i++){
+            styleIds[i]= new Integer(styleStringTokens[i]);
         }
-        /*response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
+        //haal de styles op.
+        List<Style> styles= em.createQuery("from Style where id in ("+styleString+")")
+                .getResultList();
 
-        } finally {            
-            out.close();
-        }*/
+
+        SldWriter sldFact = new SldWriter();
+        String xml = sldFact.createSLDWithKBStyles(styles);
+
+        response.setContentType(mimeType);            
+        out.write(xml);           
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

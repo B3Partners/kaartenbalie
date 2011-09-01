@@ -349,7 +349,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @return straing array met 2 strings: abbr en layer
      * @throws java.lang.Exception fout in format lange layer naam
      */
-    protected String[] toCodeAndName(String completeLayerName) throws Exception {
+    public static String[] toCodeAndName(String completeLayerName) throws Exception {
         // TODO: dit gaat eigenlijk niet goed omdat net als bij wfs
         // de namespace er weer voor gezet moet worden.
         // Check of layers[i] juiste format heeft

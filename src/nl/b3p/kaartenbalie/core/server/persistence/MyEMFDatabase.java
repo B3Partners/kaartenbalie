@@ -48,6 +48,7 @@ public class MyEMFDatabase extends HttpServlet {
     public static final String INIT_EM = "initEM";
     public static final String REALM_EM = "realmEM";
     public static final String DWR_EM = "dwrEM";
+    public static final String SLD_EM = "sldEM";
     private static EntityManagerFactory emf = null;
     private static ThreadLocal tlMap = new ThreadLocal();
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";

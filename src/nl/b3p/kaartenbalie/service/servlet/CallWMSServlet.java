@@ -486,7 +486,7 @@ public class CallWMSServlet extends HttpServlet {
         return newParameterMap;
     }
     // </editor-fold>
-
+    
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -499,9 +499,12 @@ public class CallWMSServlet extends HttpServlet {
      * @throws AccessDeniedException
      * @throws Exception
      */
-    protected User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
-        log.debug("Getting entity manager ......");
+    private User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        return checkLogin(request,em);
+    }
+    protected User checkLogin(HttpServletRequest request, EntityManager em ) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
+        log.debug("Getting entity manager ......");
 
         User user = null;
         String code = extractCode(request);
