@@ -64,13 +64,6 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.SLD_EM);
             out.close();
         }
-        /*response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
-        try {
-
-        } finally {            
-            out.close();
-        }*/
     }
     
     protected abstract void processRequest(HttpServletRequest request, HttpServletResponse response, PrintWriter out)

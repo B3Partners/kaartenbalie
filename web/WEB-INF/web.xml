@@ -101,10 +101,6 @@
         </init-param>
     </servlet>
     <servlet>
-        <servlet-name>CreateSLDServlet</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CreateSLDServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
     </servlet>
@@ -123,10 +119,6 @@
     <servlet-mapping>
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>CreateSLDServlet</servlet-name>
-        <url-pattern>/CreateSLD/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>

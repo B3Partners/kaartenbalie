@@ -34,7 +34,6 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
-import nl.b3p.kaartenbalie.service.servlet.CreateSLDServlet;
 import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -180,9 +179,9 @@ public class GetMapRequestHandler extends WMSRequestHandler {
          */
         
         StringBuffer returnValue = new StringBuffer();
+        List<String> newSldParams= new ArrayList<String>();
         List<Integer> sldStyleIds= new ArrayList<Integer>();
         String layersString = spInfo.getLayersAsString();
-        String kbSldUrl=serviceUrl.replace("/services/", "/CreateSLD/");
         String kbProxySldUrl=serviceUrl.replace("/services/", "/ProxySLD/");
         List layersList = spInfo.getLayers();
         returnValue.append(spInfo.getSpUrl());
@@ -254,24 +253,18 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                         stylesString+=providerStyles.get(p);
                                     }
                                     returnValue.append(stylesString);
-                                    if (sldStyleIds.size()>0){
-
+                                    if (sldStyleIds.size()>0){                                        
                                         String styleIdParam="";
                                         for (Integer sldStyleId:sldStyleIds){
                                             if (styleIdParam.length()>0)
                                                 styleIdParam+=",";
                                             styleIdParam+=sldStyleId;
                                         }
-                                        returnValue.append(returnValue.indexOf("?")>0 ? "&" : "?");
-                                        returnValue.append(OGCConstants.WMS_PARAM_SLD);
-                                        returnValue.append("=");
-                                        StringBuffer sldUrl= new StringBuffer();
-                                        sldUrl.append(kbSldUrl);
-                                        sldUrl.append(kbSldUrl.indexOf("?")>0 ? "&" : "?");
-                                        sldUrl.append(CreateSLDServlet.STYLES_PARAM);
+                                        StringBuffer sldUrl= new StringBuffer();                                                                                
+                                        sldUrl.append(ProxySLDServlet.PARAM_STYLES);
                                         sldUrl.append("=");
                                         sldUrl.append(styleIdParam);
-                                        returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));
+                                        newSldParams.add(sldUrl.toString());                                        
                                     }
                                 }
                             }
@@ -286,30 +279,42 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 //als SLD= dan url alvast cachen.
                 if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD))
                     ProxySLDServlet.addSLDToCache(keyValuePair[1]);
-                //altijd een sld=. Ook sld_body zodat we kunnen opsplitsen
-                returnValue.append(OGCConstants.WMS_PARAM_SLD);
-                returnValue.append("=");
-                //make a new SLD url to the proxySldServlet.
-                StringBuffer sldUrl= new StringBuffer();
-                sldUrl.append(kbProxySldUrl);
-                sldUrl.append("?");
+                //SLD of SLD Body
+                StringBuffer sldParam= new StringBuffer();
                 if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD)){
-                    sldUrl.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_URL);
+                    sldParam.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_URL);
                 }else{
-                    sldUrl.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_BODY);
+                    sldParam.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_BODY);
                 }
-                sldUrl.append("=");
-                //sldUrl.append(keyValuePair[1]);
-                sldUrl.append(URLEncoder.encode(keyValuePair[1], "utf-8"));
-                sldUrl.append("&");
-                sldUrl.append(ProxySLDServlet.PARAM_SERVICEPROVIDER_ID);
-                sldUrl.append("=");
-                sldUrl.append(spInfo.getServiceproviderId());
-                sldUrl.append("&");
-                returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));    
+                sldParam.append("=");
+                sldParam.append(URLEncoder.encode(keyValuePair[1], "utf-8"));
+                newSldParams.add(sldParam.toString());
+                //service provider ID
+                StringBuffer serviceProviderIds= new StringBuffer();
+                serviceProviderIds.append(ProxySLDServlet.PARAM_SERVICEPROVIDER_ID);
+                serviceProviderIds.append("=");
+                serviceProviderIds.append(spInfo.getServiceproviderId());
+                newSldParams.add(serviceProviderIds.toString());
+                
             }else {
                 returnValue.append(params[i]);
             }
+            returnValue.append("&");
+        }
+        if (newSldParams.size()>0){
+            
+            //make a new SLD url to the proxySldServlet.
+            StringBuffer sldUrl= new StringBuffer();
+            sldUrl.append(kbProxySldUrl);
+            sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
+            for (String param : newSldParams){
+                sldUrl.append(param);
+                sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
+            }            
+            //altijd een sld=. Ook sld_body zodat we kunnen opsplitsen                
+            returnValue.append(OGCConstants.WMS_PARAM_SLD);
+            returnValue.append("=");
+            returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8")); 
             returnValue.append("&");
         }
         return returnValue;

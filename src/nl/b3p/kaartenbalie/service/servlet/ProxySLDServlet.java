@@ -20,6 +20,7 @@ import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.wms.capabilities.ServiceProvider;
+import nl.b3p.wms.capabilities.Style;
 
 /**
  *
@@ -28,58 +29,75 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 public class ProxySLDServlet extends AbstractSimpleKbService {
     public static final String PARAM_ORIGINAL_SLD_URL="oriSldUrl";
     public static final String PARAM_ORIGINAL_SLD_BODY="oriSldBody";
-    public static final String PARAM_SERVICEPROVIDER_ID="servProvId";
+    public static final String PARAM_SERVICEPROVIDER_ID="servProvId";    
+    public static final String PARAM_STYLES="styles";
     public static final String mimeType = "application/xml";
     
     private static final URLCache cache= new URLCache(60000);
     
     @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, PrintWriter out) throws ServletException, IOException, InterruptedException, Exception {
+        List<SldNamedLayer> returnedNamedLayers=new ArrayList<SldNamedLayer>();        
+        EntityManager em = getEntityManager();
+        SldWriter sldFact = new SldWriter(); 
+            
         String oriSldUrl=request.getParameter(PARAM_ORIGINAL_SLD_URL);
         String oriSldBody=request.getParameter(PARAM_ORIGINAL_SLD_BODY);
-        
-        if ((oriSldUrl==null || oriSldUrl.length()==0) && 
-                (oriSldBody==null || oriSldBody.length()==0))
-            throw new Exception("No param "+PARAM_ORIGINAL_SLD_URL+" or "+PARAM_ORIGINAL_SLD_BODY+" provided");
-        String sld=null;
-        if (oriSldUrl!=null && oriSldUrl.length()>0)
-            sld= cache.getFromCache(oriSldUrl);    
-        else
-            sld=oriSldBody;
-        
-        if (sld==null){
-            throw new Exception("Error while getting SLD. Check the log for details");
-        }
-        Integer servProvId=null;
-        try{
-            servProvId=new Integer(request.getParameter(PARAM_SERVICEPROVIDER_ID));
-        }catch(Exception e){
-            throw new Exception ("No param "+PARAM_SERVICEPROVIDER_ID+" provided or not a number",e);
-        }
-        EntityManager em = getEntityManager();
-        ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
-        //TODO: moet beter. Char set bepalen niet meegeven.
-        SldReader sldReader = new SldReader();
-        List<SldNamedLayer> namedLayers=sldReader.getNamedLayersBySld(sld,"UTF-8");
-        
-        List<SldNamedLayer> returnedNamedLayers=new ArrayList<SldNamedLayer>();
-        Iterator<SldNamedLayer> it =namedLayers.iterator();
-        while(it.hasNext()){
-            SldNamedLayer nl= it.next();
+        String styleString=request.getParameter(PARAM_STYLES);
+                
+        if ((oriSldUrl!=null && oriSldUrl.length()>0) || 
+                (oriSldBody!=null && oriSldBody.length()>0)){
+            
+            String sld=null;
+            if (oriSldUrl!=null && oriSldUrl.length()>0)
+                sld= cache.getFromCache(oriSldUrl);    
+            else
+                sld=oriSldBody;
+
+            if (sld==null){
+                throw new Exception("Error while getting SLD. Check the log for details");
+            }
+            Integer servProvId=null;
             try{
-                String[] codeAndName=OGCRequestHandler.toCodeAndName(nl.getName());
-                if (codeAndName[0].equals(sp.getAbbr())){
-                    nl.setName(codeAndName[1]);
-                    returnedNamedLayers.add(nl);
-                }
+                servProvId=new Integer(request.getParameter(PARAM_SERVICEPROVIDER_ID));
             }catch(Exception e){
-                log.error("Fout bij maken SLD",e);
+                throw new Exception ("No param "+PARAM_SERVICEPROVIDER_ID+" provided or not a number",e);
+            }
+            ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
+            //TODO: moet beter. Char set bepalen niet meegeven.
+            SldReader sldReader = new SldReader();
+            List<SldNamedLayer> namedLayers=sldReader.getNamedLayersBySld(sld,"UTF-8");
+
+            Iterator<SldNamedLayer> it =namedLayers.iterator();
+            while(it.hasNext()){
+                SldNamedLayer nl= it.next();
+                try{
+                    String[] codeAndName=OGCRequestHandler.toCodeAndName(nl.getName());
+                    if (codeAndName[0].equals(sp.getAbbr())){
+                        nl.setName(codeAndName[1]);
+                        returnedNamedLayers.add(nl);
+                    }
+                }catch(Exception e){
+                    log.error("Fout bij maken SLD",e);
+                }
             }
         }
-        SldWriter sldFact = new SldWriter();       
+        /**/
+        if (styleString!=null && styleString.length()>0){
+            String[] styleStringTokens=styleString.split(",");
+            Integer[] styleIds= new Integer[styleStringTokens.length];
+            for (int i=0; i < styleStringTokens.length; i++){
+                styleIds[i]= new Integer(styleStringTokens[i]);
+            }
+            //haal de styles op.
+            List<Style> styles= em.createQuery("from Style where id in ("+styleString+")")
+                    .getResultList();
+            
+            returnedNamedLayers.addAll(sldFact.createNamedLayersWithKBStyles(styles));
+        }
+        /**/
         String xml = "";
         xml=sldFact.createSLD(returnedNamedLayers);
-        
         response.setContentType(mimeType);            
         out.write(xml);           
                 
