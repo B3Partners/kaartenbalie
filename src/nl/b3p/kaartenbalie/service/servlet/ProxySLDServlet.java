@@ -27,6 +27,7 @@ import nl.b3p.wms.capabilities.ServiceProvider;
  */
 public class ProxySLDServlet extends AbstractSimpleKbService {
     public static final String PARAM_ORIGINAL_SLD_URL="oriSldUrl";
+    public static final String PARAM_ORIGINAL_SLD_BODY="oriSldBody";
     public static final String PARAM_SERVICEPROVIDER_ID="servProvId";
     public static final String mimeType = "application/xml";
     
@@ -35,9 +36,17 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
     @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, PrintWriter out) throws ServletException, IOException, InterruptedException, Exception {
         String oriSldUrl=request.getParameter(PARAM_ORIGINAL_SLD_URL);
-        if (oriSldUrl==null || oriSldUrl.length()==0)
-            throw new Exception("No param "+PARAM_ORIGINAL_SLD_URL+" provided");
-        String sld= cache.getFromCache(oriSldUrl);        
+        String oriSldBody=request.getParameter(PARAM_ORIGINAL_SLD_BODY);
+        
+        if ((oriSldUrl==null || oriSldUrl.length()==0) && 
+                (oriSldBody==null || oriSldBody.length()==0))
+            throw new Exception("No param "+PARAM_ORIGINAL_SLD_URL+" or "+PARAM_ORIGINAL_SLD_BODY+" provided");
+        String sld=null;
+        if (oriSldUrl!=null && oriSldUrl.length()>0)
+            sld= cache.getFromCache(oriSldUrl);    
+        else
+            sld=oriSldBody;
+        
         if (sld==null){
             throw new Exception("Error while getting SLD. Check the log for details");
         }
@@ -76,7 +85,7 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
                 
     }
     public static void addSLDToCache(String sldUrl){
-        cache.cacheUrl(sldUrl, true);
+        cache.cacheUrl(sldUrl, false);
     }
     public static void clearCache(){
         cache.clearCache();

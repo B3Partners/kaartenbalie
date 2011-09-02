@@ -195,96 +195,109 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         }
         String[] params = ogc.getParametersArray();
         for (int i = 0; i < params.length; i++) {
-            String[] keyValuePair = params[i].split("=");
+            //In SLD_BODY zitten = tekens. Dus niet splitten
+            String[] keyValuePair = new String[2];
+            int indexOfIs=params[i].indexOf("=");
+            if (indexOfIs==-1)
+                continue;
+            keyValuePair[0]=params[i].substring(0,indexOfIs);
+            if (indexOfIs+1<params[i].length())
+                keyValuePair[1]=params[i].substring(indexOfIs+1);
+            else
+                keyValuePair[1]="";
+            
             if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
                 returnValue.append(OGCConstants.WMS_PARAM_LAYERS);
                 returnValue.append("=");
                 returnValue.append(layersString);
-                returnValue.append("&");
             } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_STYLES)) {
                 returnValue.append(OGCConstants.WMS_PARAM_STYLES);
                 returnValue.append("=");
                 //maak alleen de styles goed als er geen sld= of sld_body= parameter aanwezig is.
-                if (ogc.getParameter(OGCConstants.WMS_PARAM_SLD)==null && ogc.getParameter(OGCConstants.WMS_PARAM_SLD_BODY)==null){
-                    try {
-                        if (layersList != null && layersList.size() > 0) {
-                            String stylesParameter = ogc.getParameter(OGCConstants.WMS_PARAM_STYLES);
-                            if (stylesParameter != null && stylesParameter.length() > 0) {
-                                String[] stylesArray = stylesParameter.split(",");
-                                String layersParameter = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS);
-                                if (layersParameter != null && layersParameter.length() > 0) {
-                                    String[] layersArray = layersParameter.split(",");
-                                    if (stylesArray.length == layersArray.length) {
-                                        //StringBuffer stylesString = new StringBuffer();
-                                        List<String> providerStyles= new ArrayList<String>();
-                                        for (int j = 0; j < layersArray.length; j++) {
-                                            Iterator it = layersList.iterator();
-                                            while (it.hasNext()) {
-                                                String l = (String) it.next();
-                                                String completeName = completeLayerName(spInfo.getSpAbbr(), l);
-                                                //TODO: Moet het toegevoegd worden als Style= of als sld                                            
-                                                if (completeName.equals(layersArray[j])) {
-                                                    String style = stylesArray[j];                                                
-                                                    //als er een style is gekozen met een SLDpart 
-                                                    //niet de style meenemen maar een sld bouwen
-                                                    Style s=spInfo.getStyle(style);
-                                                    if (s!=null && s.getSldPart()!=null){
-                                                        providerStyles.add("");
-                                                        sldStyleIds.add(s.getId());                                                    
-                                                    }else{
-                                                        providerStyles.add(style);
-                                                    }
-                                                    break;
+                
+                try {
+                    if (layersList != null && layersList.size() > 0) {
+                        String stylesParameter = ogc.getParameter(OGCConstants.WMS_PARAM_STYLES);
+                        if (stylesParameter != null && stylesParameter.length() > 0) {
+                            String[] stylesArray = stylesParameter.split(",");
+                            String layersParameter = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS);
+                            if (layersParameter != null && layersParameter.length() > 0) {
+                                String[] layersArray = layersParameter.split(",");
+                                if (stylesArray.length == layersArray.length) {
+                                    //StringBuffer stylesString = new StringBuffer();
+                                    List<String> providerStyles= new ArrayList<String>();
+                                    for (int j = 0; j < layersArray.length; j++) {
+                                        Iterator it = layersList.iterator();
+                                        while (it.hasNext()) {
+                                            String l = (String) it.next();
+                                            String completeName = completeLayerName(spInfo.getSpAbbr(), l);
+                                            //TODO: Moet het toegevoegd worden als Style= of als sld                                            
+                                            if (completeName.equals(layersArray[j])) {
+                                                String style = stylesArray[j];                                                
+                                                //als er een style is gekozen met een SLDpart 
+                                                //niet de style meenemen maar een sld bouwen
+                                                Style s=spInfo.getStyle(style);
+                                                if (s!=null && s.getSldPart()!=null){
+                                                    providerStyles.add("");
+                                                    sldStyleIds.add(s.getId());                                                    
+                                                }else{
+                                                    providerStyles.add(style);
                                                 }
+                                                break;
                                             }
                                         }
-                                        String stylesString="";
-                                        for (int p=0; p < providerStyles.size(); p++){
-                                            if (p!=0)
-                                                stylesString+=",";
-                                            stylesString+=providerStyles.get(p);
-                                        }
-                                        returnValue.append(stylesString);
-                                        if (sldStyleIds.size()>0){
+                                    }
+                                    String stylesString="";
+                                    for (int p=0; p < providerStyles.size(); p++){
+                                        if (p!=0)
+                                            stylesString+=",";
+                                        stylesString+=providerStyles.get(p);
+                                    }
+                                    returnValue.append(stylesString);
+                                    if (sldStyleIds.size()>0){
 
-                                            String styleIdParam="";
-                                            for (Integer sldStyleId:sldStyleIds){
-                                                if (styleIdParam.length()>0)
-                                                    styleIdParam+=",";
-                                                styleIdParam+=sldStyleId;
-                                            }
-                                            returnValue.append(returnValue.indexOf("?")>0 ? "&" : "?");
-                                            returnValue.append(OGCConstants.WMS_PARAM_SLD);
-                                            returnValue.append("=");
-                                            StringBuffer sldUrl= new StringBuffer();
-                                            sldUrl.append(kbSldUrl);
-                                            sldUrl.append(kbSldUrl.indexOf("?")>0 ? "&" : "?");
-                                            sldUrl.append(CreateSLDServlet.STYLES_PARAM);
-                                            sldUrl.append("=");
-                                            sldUrl.append(styleIdParam);
-                                            returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));
+                                        String styleIdParam="";
+                                        for (Integer sldStyleId:sldStyleIds){
+                                            if (styleIdParam.length()>0)
+                                                styleIdParam+=",";
+                                            styleIdParam+=sldStyleId;
                                         }
+                                        returnValue.append(returnValue.indexOf("?")>0 ? "&" : "?");
+                                        returnValue.append(OGCConstants.WMS_PARAM_SLD);
+                                        returnValue.append("=");
+                                        StringBuffer sldUrl= new StringBuffer();
+                                        sldUrl.append(kbSldUrl);
+                                        sldUrl.append(kbSldUrl.indexOf("?")>0 ? "&" : "?");
+                                        sldUrl.append(CreateSLDServlet.STYLES_PARAM);
+                                        sldUrl.append("=");
+                                        sldUrl.append(styleIdParam);
+                                        returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));
                                     }
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        // so no styles param
-                        log.debug(e);
                     }
+                } catch (Exception e) {
+                    // so no styles param
+                    log.debug(e);
                 }
-                returnValue.append("&");
-            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD)) {
-                ProxySLDServlet.addSLDToCache(keyValuePair[1]);
-                //TODO: try to ad it as sld_body=
-                
-                returnValue.append(keyValuePair[0]);
+            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD) ||
+                    keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD_BODY)) {
+                //als SLD= dan url alvast cachen.
+                if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD))
+                    ProxySLDServlet.addSLDToCache(keyValuePair[1]);
+                //altijd een sld=. Ook sld_body zodat we kunnen opsplitsen
+                returnValue.append(OGCConstants.WMS_PARAM_SLD);
                 returnValue.append("=");
                 //make a new SLD url to the proxySldServlet.
                 StringBuffer sldUrl= new StringBuffer();
                 sldUrl.append(kbProxySldUrl);
                 sldUrl.append("?");
-                sldUrl.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_URL);
+                if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD)){
+                    sldUrl.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_URL);
+                }else{
+                    sldUrl.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_BODY);
+                }
                 sldUrl.append("=");
                 //sldUrl.append(keyValuePair[1]);
                 sldUrl.append(URLEncoder.encode(keyValuePair[1], "utf-8"));
@@ -293,16 +306,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 sldUrl.append("=");
                 sldUrl.append(spInfo.getServiceproviderId());
                 sldUrl.append("&");
-                returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));
-            }else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD_BODY)) {
-                //TODO: filter alles er uit wat niet nodig is. Haal ook de prefixen er af.
-                
-                returnValue.append(params[i]);
-                returnValue.append("&");
+                returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8"));    
             }else {
                 returnValue.append(params[i]);
-                returnValue.append("&");
             }
+            returnValue.append("&");
         }
         return returnValue;
     }
