@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class SpLayerSummary {
     private String spAbbr = null;
     private String queryable = null;
     private List<String> layers = null;
-    private Set<Style> styles=null;
+    private HashMap<String,Set<Style>> styles=null;
 
     public SpLayerSummary(
             Integer serviceproviderId,
@@ -57,7 +58,7 @@ public class SpLayerSummary {
         this.spUrl = spUrl;
         this.spAbbr = spAbbr;
         this.queryable = queryable;
-        this.styles=styles;
+        this.addStyles(layerName,styles);
     }
 
     public SpLayerSummary(Layer l, String queryable) {
@@ -172,21 +173,27 @@ public class SpLayerSummary {
         this.queryable = queryable;
     }
 
-    public Set<Style> getStyles() {
-        return styles;
+    public Set<Style> getStyles(String layerName){
+        if (this.styles==null)
+            return null;
+        return this.styles.get(layerName);
     }
 
-    public void setStyles(Set<Style> styles) {
-        this.styles = styles;
+    public void setStyles(String layerName,Set<Style> styles) {
+        if(this.styles==null){
+            this.styles=new HashMap<String,Set<Style>>();
+        }
+        this.styles.put(layerName, styles);
     }
     /**
      * Get the style with the given stylename
      * @return Returns null if no style with the given name is found.
      */
-    public Style getStyle(String styleName){
-        if (styleName==null)
+    public Style getStyle(String layerName,String styleName){
+        if (styleName==null || this.styles==null || this.styles.get(layerName)==null)
             return null;
-        Iterator<Style> it=styles.iterator();
+        Set<Style> layerStyles = this.styles.get(layerName);
+        Iterator<Style> it=layerStyles.iterator();
         while(it.hasNext()){
             Style s= it.next();
             if (styleName.equals(s.getName())){
@@ -194,5 +201,16 @@ public class SpLayerSummary {
             }
         }
         return null;
+    }
+
+    public void addStyles(String layerName, Set<Style> styles) {
+        if (this.styles==null){
+            this.styles = new HashMap<String,Set<Style>>();
+        }
+        if (this.styles.get(layerName)==null){
+            this.styles.put(layerName, styles);
+        }else{
+            this.styles.get(layerName).addAll(styles);
+        }        
     }
 }

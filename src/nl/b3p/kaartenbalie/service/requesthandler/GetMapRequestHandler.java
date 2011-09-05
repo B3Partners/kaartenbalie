@@ -218,11 +218,32 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                     if (layersList != null && layersList.size() > 0) {
                         String stylesParameter = ogc.getParameter(OGCConstants.WMS_PARAM_STYLES);
                         if (stylesParameter != null && stylesParameter.length() > 0) {
-                            String[] stylesArray = stylesParameter.split(",");
+                            //splitten werkt niet. Een lege string (tussen 2 komma's) wordt dan niet gezien als waarde
+                            //String[] stylesArray = stylesParameter.split(",");                            
+                            String tempStyles = ""+stylesParameter;
+                            List<String> styles= new ArrayList<String>();
+                            while (tempStyles!=null){
+                                if (tempStyles.length()==0){
+                                    styles.add("");
+                                    tempStyles=null;
+                                    break;
+                                }
+                                int kommaIndex= tempStyles.indexOf(",");
+                                if(kommaIndex<0){
+                                    kommaIndex=tempStyles.length();
+                                    styles.add(tempStyles.substring(0));
+                                    tempStyles=null;
+                                    break;
+                                }else{
+                                    styles.add(tempStyles.substring(0,kommaIndex));                                
+                                    tempStyles=tempStyles.substring(kommaIndex+1,tempStyles.length());                                
+                                }
+                            }
+                            
                             String layersParameter = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS);
                             if (layersParameter != null && layersParameter.length() > 0) {
                                 String[] layersArray = layersParameter.split(",");
-                                if (stylesArray.length == layersArray.length) {
+                                if (styles.size() == layersArray.length) {
                                     //StringBuffer stylesString = new StringBuffer();
                                     List<String> providerStyles= new ArrayList<String>();
                                     for (int j = 0; j < layersArray.length; j++) {
@@ -232,10 +253,10 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                             String completeName = completeLayerName(spInfo.getSpAbbr(), l);
                                             //TODO: Moet het toegevoegd worden als Style= of als sld                                            
                                             if (completeName.equals(layersArray[j])) {
-                                                String style = stylesArray[j];                                                
+                                                String style = styles.get(j);                                                
                                                 //als er een style is gekozen met een SLDpart 
                                                 //niet de style meenemen maar een sld bouwen
-                                                Style s=spInfo.getStyle(style);
+                                                Style s=spInfo.getStyle(l,style);
                                                 if (s!=null && s.getSldPart()!=null){
                                                     providerStyles.add("");
                                                     sldStyleIds.add(s.getId());                                                    

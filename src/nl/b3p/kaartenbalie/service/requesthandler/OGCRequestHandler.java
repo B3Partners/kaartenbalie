@@ -449,6 +449,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
 
         spInfo.addLayer(layerInfo.getLayerName());
+        spInfo.addStyles(layerInfo.getLayerName(),layerInfo.getStyles(layerInfo.getLayerName()));
     }
 
     /**
