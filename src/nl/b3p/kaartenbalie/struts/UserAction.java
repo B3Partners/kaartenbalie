@@ -251,6 +251,7 @@ public class UserAction extends KaartenbalieCrudAction {
         return null;
     }
 
+    @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -302,6 +303,7 @@ public class UserAction extends KaartenbalieCrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         log.debug("Getting entity manager ......");
@@ -326,6 +328,21 @@ public class UserAction extends KaartenbalieCrudAction {
             addAlternateMessage(mapping, request, DELETE_ADMIN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+
+        /* 
+         * Als je een gebruiker probeert te verwijderen waarvan de main organization
+         * null is geeft hij een fout. Wellicht als in het verleden handmatig een
+         * aanpassing is gedaan in de database. Tijdelijk even op de beheerder org zetten
+         * waarna de gebruiker gewist kan worden.
+         *
+         * TODO: Nagaan op welke plekken die main org null zou kunnen worden.
+        */
+        if (user.getMainOrganization() == null) {
+            user.setMainOrganization(sessionUser.getMainOrganization());
+            em.merge(user);
+            em.flush();
+        }
+
         em.remove(user);
         em.flush();
 
@@ -514,7 +531,7 @@ public class UserAction extends KaartenbalieCrudAction {
             dynaForm.set("mainOrganization", FormUtils.IntegerToString(mainOrg.getId()));
         }
 
-        StringBuffer registeredIP = new StringBuffer();
+        StringBuilder registeredIP = new StringBuilder();
         Set userips = user.getIps();
         if (userips != null && !userips.isEmpty()) {
             Iterator it = userips.iterator();
@@ -578,9 +595,11 @@ public class UserAction extends KaartenbalieCrudAction {
         String mainOrgId = dynaForm.getString("mainOrganization");
         String[] orgSelected = dynaForm.getStrings("orgSelected");
         Set orgSelectedSet = new HashSet();
+
         for (int i = 0; i < orgSelected.length; i++) {
             orgSelectedSet.add(orgSelected[i]);
         }
+
         if (!orgSelectedSet.contains(mainOrgId)) {
             // main org is always selected
             orgSelectedSet.add(mainOrgId);
