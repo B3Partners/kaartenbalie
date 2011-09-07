@@ -21,6 +21,8 @@ import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -34,6 +36,7 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
     public static final String mimeType = "application/xml";
     
     private static final URLCache cache= new URLCache(60000);
+    private static final Log log = LogFactory.getLog(ProxySLDServlet.class);
     
     @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response, PrintWriter out) throws ServletException, IOException, InterruptedException, Exception {

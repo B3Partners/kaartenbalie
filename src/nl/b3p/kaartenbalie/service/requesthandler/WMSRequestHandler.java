@@ -347,6 +347,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         ArrayList swaplist = new ArrayList(size);
         for (int i = size - 1; i >= 0; i--) {
             swaplist.add(urlWrapper.get(i));
+            log.debug("Outgoing url: "+((ServiceProviderRequest)urlWrapper.get(i)).getProviderRequestURI());
         }
         urlWrapper = swaplist;
 

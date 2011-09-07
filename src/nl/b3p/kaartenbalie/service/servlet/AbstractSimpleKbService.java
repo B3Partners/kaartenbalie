@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractSimpleKbService extends CallWMSServlet{
     
-    protected static Log log = null;
+    private static Log log = null;
     
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -36,7 +36,13 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
     
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        if (log.isDebugEnabled()){
+            String url=request.getRequestURL().toString();
+            if (request.getQueryString()!=null){
+                url+=request.getQueryString();
+            }
+            log.debug("Incoming request: "+url);
+        }
         Object identity = null;
         EntityManager em = null;
         EntityTransaction tx = null;
