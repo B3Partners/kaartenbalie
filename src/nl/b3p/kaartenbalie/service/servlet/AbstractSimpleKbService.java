@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -24,16 +25,14 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class AbstractSimpleKbService extends CallWMSServlet{
     
-    private static Log log = null;
+    private static Log log = LogFactory.getLog(AbstractSimpleKbService.class);
     
     @Override
     public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        // Zet de logger
-        log = LogFactory.getLog(this.getClass());
         log.info("Initializing "+this.getClass().getName());
     }
     
+    @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         if (log.isDebugEnabled()){
@@ -48,8 +47,8 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
         EntityTransaction tx = null;
         PrintWriter out = response.getWriter();
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.SLD_EM);
-            log.debug("Getting entity manager ......");
+            log.debug("Create entity manager ......");
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.SLD_EM);            
             em = getEntityManager();
             tx = em.getTransaction();
             tx.begin();           
@@ -57,7 +56,7 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
             User user = checkLogin(request,em);
             //maak van de parameter een Integer array.            
             processRequest(request,response,out);
-            
+            tx.commit();            
         } catch (Exception ex) {
             log.error("Error: ", ex);
             try {
@@ -76,7 +75,6 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
             throws ServletException, IOException, Exception;
     
     protected static EntityManager getEntityManager() throws Exception {
-        log.debug("Getting entity manager ......");
         return MyEMFDatabase.getEntityManager(MyEMFDatabase.SLD_EM);
     }
 
