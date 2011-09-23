@@ -208,12 +208,19 @@ public class User implements Principal {
      * @return
      */
     public String getPersonalURL(HttpServletRequest request) {
+
+        if (personalURL == null) {
+            return null;
+        }
+
         if (personalURL.startsWith("http")) {
             return personalURL;
         }
+
         StringBuffer baseUrl = CallWMSServlet.createBaseUrl(request);
         baseUrl.append("/services/");
         baseUrl.append(personalURL);
+
         return baseUrl.toString();
     }
 
