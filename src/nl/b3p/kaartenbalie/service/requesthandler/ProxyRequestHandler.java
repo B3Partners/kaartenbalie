@@ -60,7 +60,7 @@ public class ProxyRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         }
         String encodedUrl = URLEncoder.encode(decodedUrl);
-        StringBuffer purl = new StringBuffer(KBCrypter.decryptText(encodedUrl));
+        StringBuilder purl = new StringBuilder(KBCrypter.decryptText(encodedUrl));
 
         String sld = ogcrequest.getParameter(OGCConstants.WMS_PARAM_SLD);
         if (sld != null && sld.length() > 0) {

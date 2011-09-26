@@ -567,6 +567,10 @@ public class CallWMSServlet extends HttpServlet {
                     if (ipaddress.indexOf("*") != -1) {
                         if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress) ) {
                             validip = true;
+
+                            log.debug("Request within ip range for remote ip " + remoteaddress +
+                                    " for user " + user.getUsername() + " with code " + code);
+
                             break;
                         }
                     }
@@ -583,6 +587,9 @@ public class CallWMSServlet extends HttpServlet {
                 String localAddress = request.getLocalAddr();
                 if (remoteaddress.equalsIgnoreCase(localAddress)) {
                     validip = true;
+
+                    log.debug("Local request from ip: " + localAddress + " for user " +
+                            user.getUsername() + " with code " + code);
                 }
 
                 if (!validip) {
