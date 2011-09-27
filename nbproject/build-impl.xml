@@ -749,8 +749,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.b3p-commons-core.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${reference.b3p-commons-gis.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${reference.milton-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
-        <copyfiles files="${reference.securityfilter-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${reference.commons-mail-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.securityfilter-b3p.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${libs.GeotoolsCommon2.5.5.classpath}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${libs.GeotoolsOgc2.5.5.classpath}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${libs.DWR.classpath}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
@@ -771,8 +771,8 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.b3p-commons-core.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.b3p-commons-gis.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.milton-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${reference.securityfilter-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.commons-mail-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.securityfilter-b3p.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.GeotoolsCommon2.5.5.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.GeotoolsOgc2.5.5.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.DWR.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
