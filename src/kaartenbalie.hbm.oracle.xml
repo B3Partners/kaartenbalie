@@ -33,7 +33,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             </generator>
         </id>
         <one-to-one class="nl.b3p.wms.capabilities.Layer" constrained="true" name="layer"/>
-        <property length="50" name="title"/>
+        <property length="255" name="title"/>
         <property column="attribution_url" length="4000" name="attributionURL"/>
         <property column="logo_url" length="4000" name="logoURL"/>
         <property length="50" name="logoWidth"/>

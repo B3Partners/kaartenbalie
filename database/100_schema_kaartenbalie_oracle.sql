@@ -10,7 +10,7 @@
 
     create table attribution (
         id number(10,0) not null,
-        title varchar2(50 char),
+        title varchar2(255 char),
         attribution_url varchar2(4000 char),
         logo_url varchar2(4000 char),
         logo_width varchar2(50 char),
