@@ -73,6 +73,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
         <!-- organisations database. should be filled by customer data. -->
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-nl.js' module='' />"></script>
         <!-- mde -->
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/commonOptions.js' module='' />"></script>
