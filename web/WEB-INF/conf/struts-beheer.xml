@@ -18,7 +18,7 @@
             <form-property name="selectedLayers" type="java.lang.String[]"/>
             <form-property name="name" type="java.lang.String"/>
             <form-property name="metadata" type="java.lang.String"/>
-            <form-property name="mailhost" type="java.lang.String" initial="mail.b3partners.nl"/>
+            <form-property name="mailhost" type="java.lang.String" initial="kmail.b3partners.nl"/>
             <form-property name="xsl" type="java.lang.String"/>
             <form-property name="to" type="java.lang.String"/>
             <form-property name="from" type="java.lang.String"/>
