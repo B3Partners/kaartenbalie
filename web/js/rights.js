@@ -67,25 +67,6 @@ function handleValidLayers(validlayers) {
     $('#layerContainer').html('').append(layerContainer);
 }
 
-function createRightsTree(rtree) {
-    $("#tree").html('');
-    var treeobj = JSON.parse(rtree);
-    treeview_create({
-        "id": "tree",
-        "root": treeobj,
-        "rootChildrenAsRoots": true,
-        "itemLabelCreatorFunction": createLabel,
-        "toggleImages": {
-            "collapsed": "<html:rewrite page='/images/treeview/plus.gif' module=''/>",
-            "expanded": "<html:rewrite page='/images/treeview/minus.gif' module=''/>",
-            "leaf": "<html:rewrite page='/images/treeview/leaft.gif' module=''/>"
-        },
-        "saveExpandedState": false,
-        "saveScrollState": false,
-        "expandAll": true
-    });
-}
-
 function itemClick(item) {
     var DOMItemId = treeview_getDOMItemId(globalTreeOptions["tree"], item.id);
     treeview_toggleItemChildren(DOMItemId);

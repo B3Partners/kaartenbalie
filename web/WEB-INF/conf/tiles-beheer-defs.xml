@@ -44,10 +44,6 @@
         <put name="title" value="Rollen - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/role.jsp"/>
     </definition>
-    <definition name="base.beheer.rights" extends="base.proxy">
-        <put name="title" value="Rechten - Beheer" type="string"/>
-        <put name="content" value="/WEB-INF/jsp/beheer/rights.jsp"/>
-    </definition>
     <definition name="base.beheer.rights2" extends="base.proxy">
         <put name="title" value="Rechten - Beheer - 2" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/rights2.jsp"/>

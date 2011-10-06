@@ -113,4 +113,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 </html:form>
 
+<script type="text/javascript">
+function createRightsTree(rtree) {
+    $("#tree").html('');
+    var treeobj = JSON.parse(rtree);
+
+    treeview_create({
+        "id": "tree",
+        "root": treeobj,
+        "rootChildrenAsRoots": true,
+        "itemLabelCreatorFunction": createLabel,
+        "toggleImages": {
+            "collapsed": "<html:rewrite page='/images/treeview/plus.gif' module=''/>",
+            "expanded": "<html:rewrite page='/images/treeview/minus.gif' module=''/>",
+            "leaf": "<html:rewrite page='/images/treeview/leaft.gif' module=''/>"
+        },
+        "saveExpandedState": false,
+        "saveScrollState": false,
+        "expandAll": true
+    });
+}
+</script>
+
 <script type="text/javascript" src="<html:rewrite page='/js/rights.js' module='' />"></script>

@@ -230,11 +230,6 @@
             <forward name="success" path="base.beheer.organization"/>
             <forward name="failure" path="base.beheer.organization"/>
         </action>
-        <action path="/rights" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">          
-            <forward name="success" path="base.beheer.organization"/>
-            <forward name="failure" path="base.beheer.organization"/>
-            <forward name="rights" path="base.beheer.rights"/>
-        </action>
         <action path="/rights2" name="rightsForm" type="nl.b3p.kaartenbalie.struts.RightsAction" scope="request" validate="false">
             <forward name="success" path="base.beheer.rights2"/>
             <forward name="failure" path="base.beheer.rights2"/>
