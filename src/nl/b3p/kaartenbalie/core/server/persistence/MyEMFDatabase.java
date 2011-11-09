@@ -57,7 +57,8 @@ public class MyEMFDatabase extends HttpServlet {
     private static String mapfiles = null;
 
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
-        log.info("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
+        log.debug("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
+        
         if (emf != null) {
             log.warn("EntityManagerFactory already initialized: " + emf.toString());
             return;
@@ -74,7 +75,7 @@ public class MyEMFDatabase extends HttpServlet {
             log.fatal("Cannot initialize EntityManagerFactory");
             throw new Exception("Cannot initialize EntityManagerFactory");
         }
-        log.info("EntityManagerFactory initialized: " + emf.toString());
+        log.debug("EntityManagerFactory initialized: " + emf.toString());
     }
 
     public static EntityManagerFactory getEntityManagerFactory() throws Exception {
@@ -89,6 +90,7 @@ public class MyEMFDatabase extends HttpServlet {
      * to call the method openEntityManagerFactory from anywhere else unless you're out of the
      * servlet context (testing, etc..).
      */
+    @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
@@ -135,7 +137,7 @@ public class MyEMFDatabase extends HttpServlet {
         try {
             checkFile = new File(getMapfiles());
             if (!checkFile.isDirectory()) {
-                log.info("creating: " + checkFile.getCanonicalPath());
+                log.debug("Creating folder for mapfiles: " + checkFile.getCanonicalPath());
                 checkFile.mkdirs();
             }
         } catch (IOException ex) {
@@ -147,7 +149,7 @@ public class MyEMFDatabase extends HttpServlet {
         // Make sure HttpClient respects proxy settings from Java VM.
         HttpClientParams.getDefaultParams().setParameter(HttpClientParams.CONNECTION_MANAGER_CLASS,
         		nl.b3p.kaartenbalie.service.AutoProxyHttpConnectionManager.class);
-        log.info("Connection Manager set to: " + HttpClientParams.getDefaultParams().getParameter(HttpClientParams.CONNECTION_MANAGER_CLASS));
+        log.debug("Connection Manager set to: " + HttpClientParams.getDefaultParams().getParameter(HttpClientParams.CONNECTION_MANAGER_CLASS));
     }
 
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
@@ -155,7 +157,7 @@ public class MyEMFDatabase extends HttpServlet {
         if (tmpval == null || tmpval.trim().length() == 0) {
             tmpval = defaultValue;
         }
-        log.info("ManagedPersistence.getConfigValue(config, " + parameter + ", " + tmpval + ")");
+        log.debug("ManagedPersistence.getConfigValue(config, " + parameter + ", " + tmpval + ")");
         return tmpval.trim();
     }
     /** The constants for describing the ownerships **/
