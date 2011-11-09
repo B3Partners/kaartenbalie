@@ -176,8 +176,10 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        try {
-            url = checkWmsUrl(url.trim());
+        
+        String inputUrl = url.trim();
+        try {     
+            url = checkWmsUrl(url.trim());       
         } catch (Exception e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, null, e.getMessage());
@@ -243,6 +245,13 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, UNSUPPORTED_WMSVERSION_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
+        
+        /* TODO: Kunnen we na bovenstaande checks de ingevoerde url gebruiken 
+         * als service provider url i.p.v. degene uit de online resource ?
+         * Dit geeft namelijk bij het toevoegen van externe wms services waar 
+         * dit verkeerd staat welke je niet zelf kunt wijzigen problemen.
+        */
+        newServiceProvider.setUrl(inputUrl);
 
         populateServerObject(dynaForm, newServiceProvider);
 
