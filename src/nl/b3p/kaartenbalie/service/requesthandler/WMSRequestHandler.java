@@ -67,6 +67,8 @@ import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.wms.capabilities.Switcher;
 
+import nl.b3p.wms.capabilities.TileSet;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -164,6 +166,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
+        Set<TileSet> tileSets = null;
 
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
 
@@ -181,7 +184,36 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
                 ServiceProvider sp = layer.getServiceProvider();
                 if (!serviceproviders.contains(sp)) {
-                    serviceproviders.add(sp);
+                    serviceproviders.add(sp);                    
+                }                
+            }
+            Iterator spIt = serviceproviders.iterator();
+            while(spIt.hasNext()){
+                ServiceProvider sp = (ServiceProvider) spIt.next();
+                if (sp.getTileSets()!=null){
+                    Iterator<TileSet> tileSetIt= sp.getTileSets().iterator();
+                    while(tileSetIt.hasNext()){
+                        TileSet ts=tileSetIt.next();
+                        if (ts.getLayers()!=null){
+                            Iterator<Layer> layerIt = ts.getLayers().iterator();
+                            boolean hasRight=false;
+                            while(layerIt.hasNext()){
+                                Layer l = layerIt.next();
+                                if (!organizationLayers.contains(l)){
+                                    hasRight=false;
+                                    break;
+                                }else{
+                                    hasRight=true;
+                                }
+                            }
+                            if (hasRight){
+                                if (tileSets==null){
+                                    tileSets=new HashSet<TileSet>();
+                                }
+                                tileSets.add(ts);
+                            }                            
+                        }
+                    }
                 }
             }
 
@@ -305,6 +337,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Roles role = (Roles) roleIt.next();
                 validServiceProvider.addRole(role);
             }
+        }
+        //if tileSets then add!
+        if (tileSets!=null){
+            validServiceProvider.setTileSets(tileSets);
         }
         return validServiceProvider;
     }
@@ -532,7 +568,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     }
 
                     dw.setContentType(rhValue);
-                    
                     if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
                         
                         dw.write(method.getResponseBodyAsStream());
@@ -553,10 +588,24 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         dw.write(baos);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                         
-                    } else {
+                    } else {                        
                         /* GetLegend, GetStyles, PutStyles */
+                        Header cacheControl = method.getResponseHeader("Cache-Control");
+                        Header expires = method.getResponseHeader("Expires");
+                        Header pragma = method.getResponseHeader("Pragma");
+                        
+                        if (cacheControl != null) {
+                            dw.setHeader(cacheControl.getName(), cacheControl.getValue());
+                        }
+                        if (expires != null) {
+                            dw.setHeader(expires.getName(), expires.getValue());
+                        }
+                        if (pragma != null) {
+                            dw.setHeader(pragma.getName(), pragma.getValue());
+                        }
+                        
                         dw.write(method.getResponseBodyAsStream());
-                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                     
                     }
 
 

@@ -262,6 +262,10 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <key column="service_provider"/>
             <element column="format" length="50" not-null="true" type="string"/>
         </set>
+        <set cascade="all" inverse="true" name="tileSets" order-by="id">
+            <key column="service_provider"/>
+            <one-to-many class="nl.b3p.wms.capabilities.TileSet"/>
+        </set>
         <property length="60" name="name" not-null="true"/>
         <property length="60" name="abbr" not-null="true"/>
         <property length="255" name="title" not-null="true"/>
@@ -282,7 +286,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <param name="sequence">srs_bounding_box_id_seq</param>
             </generator>
         </id>
-        <many-to-one column="layer" name="layer" not-null="true"/>
+        <many-to-one column="layer" name="layer"/>
         <property length="150" name="srs"/>
         <property length="50" name="minx"/>
         <property length="50" name="maxx"/>
@@ -386,5 +390,25 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property name="updatedDate" not-null="true"/>
         <property length="50" name="wfsVersion" not-null="true"/>
         <property length="80" name="status" not-null="false"/>
+    </class>    
+    <class name="nl.b3p.wms.capabilities.TileSet">
+        <id name="id">
+            <column name="id"/>
+            <generator class="sequence">
+                <param name="sequence">tile_set_id_seq</param>
+            </generator>
+        </id>      
+        <many-to-one class="nl.b3p.wms.capabilities.SrsBoundingBox" name="boundingBox" cascade="all"/>
+        <property length="50" name="srs"/>
+        <property name="resolutions" type="materialized_clob"/>
+        <property name="width"/>
+        <property name="height"/>
+        <property length="50" name="format"/>
+        <property length="255" name="styles"/>
+        <set lazy="false" name="layers" order-by="layer ASC">
+            <key column="tileset"/>
+            <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
+        </set>        
+        <many-to-one column="service_provider" name="serviceProvider"/>      
     </class>
 </hibernate-mapping>
