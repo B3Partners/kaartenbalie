@@ -604,10 +604,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                             dw.setHeader(pragma.getName(), pragma.getValue());
                         }
                         
+                        dw.setHeader("Keep-Alive", "timeout=15, max=100");
+                        dw.setHeader("Connection", "Keep-Alive");
+                        
                         dw.write(method.getResponseBodyAsStream());
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                     
                     }
-
 
                 } catch (HttpException e) {
                     log.error("Fatal protocol violation: " + e.getMessage());
