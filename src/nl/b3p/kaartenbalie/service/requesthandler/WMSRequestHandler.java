@@ -511,7 +511,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
+    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {      
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data received from the url can be directly transported to the client.
@@ -588,7 +588,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         dw.write(baos);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                         
-                    } else {                        
+                    } else {
+                        
                         /* GetLegend, GetStyles, PutStyles */
                         Header cacheControl = method.getResponseHeader("Cache-Control");
                         Header expires = method.getResponseHeader("Expires");
@@ -606,9 +607,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         
                         dw.setHeader("Keep-Alive", "timeout=15, max=100");
                         dw.setHeader("Connection", "Keep-Alive");
+                        //dw.setHeader("Transfer-Encoding", "chunked");
                         
-                        dw.write(method.getResponseBodyAsStream());
-                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                     
+                        dw.write(method.getResponseBodyAsStream());                        
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                     }
 
                 } catch (HttpException e) {

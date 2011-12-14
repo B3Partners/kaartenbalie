@@ -177,7 +177,7 @@ public class CallWMSServlet extends HttpServlet {
 
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
-
+                
                 parseRequestAndData(data, user);
 
             } catch (ProviderException pex) {
@@ -205,7 +205,7 @@ public class CallWMSServlet extends HttpServlet {
             }
             handleRequestException(ex, data);
         } finally {
-            log.debug("Closing entity manager .....");
+            //log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
@@ -229,7 +229,7 @@ public class CallWMSServlet extends HttpServlet {
 
         if (request.getMethod().equalsIgnoreCase("GET")) {
             ogcrequest = new OGCRequest(iUrl);
-            log.info("Incoming Get URL: " + iUrl);
+            log.debug("Incoming Get URL: " + iUrl);
         } else if (request.getMethod().equalsIgnoreCase("POST")
                 && request.getParameter(OGCConstants.SERVICE) != null
                 && request.getParameter(OGCConstants.SERVICE).equalsIgnoreCase(OGCConstants.WMS_SERVICE_WMS)) {
@@ -259,16 +259,9 @@ public class CallWMSServlet extends HttpServlet {
                 }
                 ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
             }
-            log.info("Incoming POST converted to GET URL: " + ogcrequest.getUrlWithNonOGCparams());
+            log.debug("Incoming POST converted to GET URL: " + ogcrequest.getUrlWithNonOGCparams());
         } else {
-            log.info("Incoming POST URL (content follows): " + iUrl);
-
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            int bytesRead = 0;
-//            while ((bytesRead = request.getInputStream().read()) != -1) {
-//                baos.write(bytesRead);
-//            }
-//            log.info("Incoming POST content: \n" + baos.toString());
+            log.debug("Incoming POST URL (content follows): " + iUrl);
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
@@ -276,7 +269,7 @@ public class CallWMSServlet extends HttpServlet {
             DocumentBuilder builder = dbf.newDocumentBuilder();
             Document doc = builder.parse(request.getInputStream());
             ogcrequest = new OGCRequest(doc.getDocumentElement(), baseUrl.toString());
-            log.info("Incoming POST content: \n" + OgcWfsClient.elementToString(doc.getDocumentElement()));
+            log.debug("Incoming POST content: \n" + OgcWfsClient.elementToString(doc.getDocumentElement()));
         }
         ogcrequest.setHttpMethod(request.getMethod());
         return ogcrequest;
@@ -704,6 +697,9 @@ public class CallWMSServlet extends HttpServlet {
      * @throws IOException
      */
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
+        
+        log.info("Begin parseRequestAndData");
+        
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
 
@@ -756,6 +752,8 @@ public class CallWMSServlet extends HttpServlet {
         data.setOperation(request);
         data.setService(service);
         requestHandler.getRequest(data, user);
+        
+        log.info("End parseRequestAndData");
     }
 
     /** Handles the HTTP <code>GET</code> method.
