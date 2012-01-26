@@ -40,5 +40,4 @@ alter table tile_set_layers
         
 create sequence tile_set_id_seq;
 
-ALTER TABLE srs_bounding_box
-ALTER COLUMN layer DROP NOT NULL;
+alter table srs_bounding_box modify layer number(10,0) null
