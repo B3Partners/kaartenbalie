@@ -1,6 +1,8 @@
 package general;
 
 
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -10,7 +12,7 @@ package general;
  *
  * @author rachelle
  */
-public class UserStumb {
+public class UserStub {
     public static nl.b3p.kaartenbalie.core.server.User generateServerUser(){
         nl.b3p.kaartenbalie.core.server.User user   = new nl.b3p.kaartenbalie.core.server.User();
         //user.setId(1);

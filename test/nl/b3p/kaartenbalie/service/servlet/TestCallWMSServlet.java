@@ -1,10 +1,10 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
-import general.*;
+import general.ConfigStub;
+import general.HttpServletRequestStub;
+import general.HttpServletResponseStub;
+import general.UserStub;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
@@ -15,12 +15,9 @@ import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
  */
 public class TestCallWMSServlet extends TestCase {
     private ServletConfig configStumb;
-    private ServletConfig badConfigStumb;
-    private HttpServletRequest requestStumb;
-    private HttpServletResponse responseStumb;
-    
-    private User user;
-    
+    private HttpServletRequestStub requestStumb;
+    private HttpServletResponseStub responseStumb;    
+    private User user;    
     private CallWMSServlet servlet;
     
     public TestCallWMSServlet(String name){
@@ -29,9 +26,10 @@ public class TestCallWMSServlet extends TestCase {
     
     @Override
     public void setUp(){
-        this.user           = UserStumb.generateServerUser();
-        this.configStumb    = new ConfigStumb();
-        
+        this.user           = UserStub.generateServerUser();
+        this.configStumb    = new ConfigStub();
+        this.requestStumb   = new HttpServletRequestStub();
+        this.responseStumb  = new HttpServletResponseStub();
         
         servlet             = new CallWMSServlet();        
     }
@@ -49,21 +47,11 @@ public class TestCallWMSServlet extends TestCase {
             
             assertTrue(true);
         }
-        catch(ServletException e){
+        catch(Exception e){
+            e.printStackTrace();
             fail("Init failed");
             
             assertTrue(false);
-        }
-        
-        try {
-            this.servlet.init(this.badConfigStumb);
-            
-            assertTrue(false);
-        }
-        catch(ServletException e){
-            fail("Init failed");
-            
-            assertTrue(true);
         }
     }
     

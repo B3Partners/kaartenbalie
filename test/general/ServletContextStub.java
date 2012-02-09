@@ -1,5 +1,7 @@
 package general;
 
+
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,13 +18,13 @@ import javax.servlet.ServletException;
  *
  * @author rachelle
  */
-class ServletContextStumb implements ServletContext {
+class ServletContextStub implements ServletContext {
     private ServerDetailEnumeration serverNames;
     private final String logFile    = "ServletTestLog.log";
     private HashMap<String,String> initParameters;
     private HashMap<String,Object> attributes;
     
-    public ServletContextStumb() {
+    public ServletContextStub() {
         this.serverNames    = new ServerDetailEnumeration();
         
         this.initParameters = new HashMap<String,String>();

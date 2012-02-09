@@ -1,5 +1,7 @@
 package general;
 
+
+
 import java.util.Enumeration;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -8,11 +10,11 @@ import javax.servlet.ServletContext;
  *
  * @author rachelle
  */
-public class ConfigStumb implements ServletConfig {
+public class ConfigStub implements ServletConfig {
     private ServletContext context;
     
-    public ConfigStumb(){
-        this.context    = new ServletContextStumb();
+    public ConfigStub(){
+        this.context    = new ServletContextStub();
     }
     
     public String getServletName() {
