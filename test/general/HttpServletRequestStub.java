@@ -2,6 +2,7 @@ package general;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.text.ParseException;
@@ -19,36 +20,44 @@ import javax.servlet.http.HttpSession;
  */
 public class HttpServletRequestStub implements HttpServletRequest {
     private Cookie[] cookies;
-    private ArrayList<String> headerNames;
-    private ArrayList<String> headers;
+    private MultikeyHashMap headers;
     private String method;
     private String context;
     private final String seperator  = System.getProperty("file.separator");
     private String server;
+    private String serverIP;
     private String pathInfo;
     private String query;
     private nl.b3p.kaartenbalie.core.server.User user;
     private String filename;
-    private int port;
+    private int serverPort;
+    private int clientPort;
     private String protocol;
     private HttpSessionStub currentSession;
     private String requestedSessionID;
     private HashMap<String,Object> attributes;
+    private MultikeyHashMap parameters;
     private String characterEncoding;
     private ServletInputStreamStub inputStream;
+    private String remoteAddress;
+    private ArrayList<Locale> clientLocales;
+    private Locale serverLocale;
+    private ServletContextStub servletContext;
     
     public HttpServletRequestStub(){
         this.cookies        = new Cookie[10];
-        this.headerNames    = new ArrayList<String>();
-        this.headers        = new ArrayList<String>();
+        this.headers        = new MultikeyHashMap();
         this.attributes     = new HashMap<String,Object>();
+        this.parameters     = new MultikeyHashMap();
         
         this.protocol           = "http://";
-        this.port               = 80;
+        this.serverPort         = 80;
+        this.clientPort         = 4000;
         this.method             = "GET";
         this.filename           = "";
         this.context            = "";
         this.server             = "localhost";
+        this.serverIP           = "127.0.0.1";
         this.pathInfo           = null;
         this.query              = null;
         this.user               = null;
@@ -56,33 +65,9 @@ public class HttpServletRequestStub implements HttpServletRequest {
         this.requestedSessionID = "";
         this.characterEncoding  = null;
         this.inputStream        = null;
-    }
-    
-    /**
-     * Finds a header name from the begin
-     * 
-     * @param key  The head name
-     * @return  The position or -1 if the header name does not exist.
-     */
-    private int findHeader(String key){
-        return this.findHeader(key, 0);
-    }
-    
-    /**
-     * Finds a header name from the given position
-     * 
-     * @param   key     The head name
-     * @param   offPos  The position to search from
-     * @return  The position or -1 if the header name does not (more) exist.
-     */
-    private int findHeader(String key,int offPos){
-        for(int i=offPos; i<this.headerNames.size(); i++){
-            if( this.headerNames.get(i).equals(key) ){
-                return i;
-            }
-        }
-        
-        return -1;
+        this.remoteAddress      = "127.0.0.1";
+        this.clientLocales      = new ArrayList<Locale>();
+        this.serverLocale       = Locale.ENGLISH;
     }
     
     /**
@@ -96,14 +81,34 @@ public class HttpServletRequestStub implements HttpServletRequest {
     }
     
     /**
-     * Sets the port
+     * Sets the port from the server
      * 
      * @param port The port
      */
-    public void setPort(int port){
+    public void setServerPort(int port){
         if( port > 0 ){
-            this.port   = port;
+            this.serverPort   = port;
         }
+    }
+    
+    /**
+     * Sets the port from the client
+     * 
+     * @param port The port
+     */
+    public void setClientPort(int port){
+        if( port > 0 ){
+            this.clientPort   = port;
+        }
+    }
+    
+    /**
+     * Sets the ip from the client
+     * 
+     * @param ip    The ip address
+     */
+    public void setClientAddress(String ip){
+        this.remoteAddress  = ip;
     }
     
     /**
@@ -114,6 +119,15 @@ public class HttpServletRequestStub implements HttpServletRequest {
     public void setFilename(String filename){
         if( filename != null && !filename.equals("") )
             this.filename   = filename;
+    }
+    
+    /**
+     * Sets the server locale setting
+     * 
+     * @param locale The locale setting
+     */
+    public void setServerLocale(Locale locale){
+        this.serverLocale    = locale;
     }
     
     /**
@@ -135,6 +149,24 @@ public class HttpServletRequestStub implements HttpServletRequest {
         
         return this.cookies;
     }
+    
+    /**
+     * Sets a client header
+     * 
+     * @param name      The name of the header
+     * @param value     The value of the header
+     */
+    public void setHeader(String name,String value){
+        name    = name.toLowerCase();
+        
+        this.headers.add(name, value);
+        
+        if( name.equals("accept-language") ){
+            String[] languages  = value.split(",");
+            for(int i=0; i<languages.length; i++)
+                this.clientLocales.add(new Locale(languages[i].trim()) );
+        }
+    }
 
     /**
      * Returns the value of the specified request header as a long value that represents a Date object. Use this method with headers that contain dates, such as If-Modified-Since
@@ -144,13 +176,12 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @throws IllegalArgumentException             If the header value can't be converted to a date
      */
     public long getDateHeader(String name) throws IllegalArgumentException {
-        name    = name.toLowerCase();
-        int pos = this.findHeader(name);
-        if( pos == -1 )     return -1;
+        String header   = this.headers.get(name.toLowerCase(), 0);
+        if( header == null )     return -1;
         
         try {
             SimpleDateFormat format   = new SimpleDateFormat();
-            return format.parse(this.headers.get(pos)).getTime();
+            return format.parse(header).getTime();
         }
         catch(ParseException e){
             throw new IllegalArgumentException("Header "+name+" is not a date");
@@ -164,12 +195,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @return  a String containing the value of the requested header, or null if the request does not have a header of that name
      */
     public String getHeader(String name) {
-        name    = name.toLowerCase();
-        int pos = this.findHeader(name);
-        
-        if( pos == -1 )   return null;
-        
-        return this.headers.get(pos);
+        return this.headers.get(name.toLowerCase(), 0);
     }
 
     /**
@@ -184,10 +210,10 @@ public class HttpServletRequestStub implements HttpServletRequest {
         
         int pos = 0;
         while( true ){            
-            pos = this.findHeader(name, pos);            
+            pos = this.headers.findKey(name, pos);            
             if( pos == -1 ) break; // no more items
             
-            headernames.addName(this.headers.get(pos));
+            headernames.addName(this.headers.get(name,pos));
         }
         
         return headernames;        
@@ -199,13 +225,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @return an enumeration of all the header names sent with this request. if the request has no headers, an empty enumeration
      */
     public Enumeration getHeaderNames() {
-        ServerDetailEnumeration headernames = new ServerDetailEnumeration();
-        
-        for(int i=0; i<this.headerNames.size(); i++){
-            headernames.addName(this.headerNames.get(i));
-        }
-        
-        return headernames;
+        return this.headers.getKeys();
     }
 
     /**
@@ -216,12 +236,11 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @throws  NumberFormatException If the header value can't be converted to an int
      */
     public int getIntHeader(String name) throws NumberFormatException{
-        name    = name.toLowerCase();
-        int pos = this.findHeader(name);
+        String header   = this.headers.get(name.toLowerCase(), 0);
         
-        if( pos == -1 ) return -1;
+        if( header == null ) return -1;
         
-        return Integer.parseInt(this.headers.get(pos));
+        return Integer.parseInt(header);
     }
     
     /**
@@ -268,10 +287,12 @@ public class HttpServletRequestStub implements HttpServletRequest {
     /**
      * Sets the server address
      * 
-     * @param server    The server address
+     * @param server    The server hostname
+     * @param IP        The server ip address
      */
-    public void setServer(String server){
+    public void setServer(String server,String IP){
         if( server != null )    this.server     = server;
+        if( IP != null )        this.serverIP   = IP;
     }
 
     /**
@@ -402,7 +423,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
      */
     public StringBuffer getRequestURL() {
         StringBuffer uri = new StringBuffer(this.protocol+this.server);
-        if( this.port != 80 )       uri.append(":").append(this.port);
+        if( this.serverPort != 80 ) uri.append(":").append(this.serverPort);
         if( this.context != null )  uri.append("/").append(this.context);
         
         return uri.append("/").append(this.filename);
@@ -415,7 +436,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
      */
     public String getServletPath() {
         StringBuilder uri = new StringBuilder(this.protocol+this.server);
-        if( this.port != 80 )       uri.append(":").append(this.port);
+        if( this.serverPort != 80 ) uri.append(":").append(this.serverPort);
         if( this.context != null )  uri.append("/").append(this.context);
         
         return uri.append("/").append(this.filename).toString();
@@ -591,95 +612,260 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @throws  IOException             if an input or output exception occurred
      */
     public ServletInputStream getInputStream() throws IOException {
+        if( this.inputStream == null )  throw new IOException("Stream loading failed");
+        
+        if( this.inputStream.isRead() ) throw new IllegalStateException("Stream is allready been read.");
+        
         return this.inputStream;
     }
-
-    public String getParameter(String string) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    
+    /**
+     * Adds a parameter
+     * 
+     * @param name      a String specifying the name of the parameter
+     * @param value     a String representing the single value of the parameter
+     */
+    public void addParameter(String name,String value){
+        this.parameters.add(name, value);
     }
 
+    /**
+     * Returns the value of a request parameter as a String, or null if the parameter does not exist. Request parameters are extra information sent with the request. For HTTP servlets, parameters are contained in the query string or posted form data. 
+     * 
+     * @param name      a String specifying the name of the parameter 
+     * @return          a String representing the single value of the parameter
+     */
+    public String getParameter(String name) {
+        return this.parameters.get(name, 0);
+    }
+
+    /**
+     * Returns an Enumeration of String objects containing the names of the parameters contained in this request. If the request has no parameters, the method returns an empty Enumeration. 
+     * 
+     * @return an Enumeration of String objects, each String containing the name of a request parameter; or an empty Enumeration if the request has no parameters
+     */
     public Enumeration getParameterNames() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.parameters.getKeys();
     }
 
-    public String[] getParameterValues(String string) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Returns an array of String objects containing all of the values the given request parameter has, or null if the parameter does not exist. 
+     * 
+     * @param   name      a String containing the name of the parameter whose value is requested 
+     * @return  an array of String objects containing the parameter's values
+     */
+    public String[] getParameterValues(String name) {
+        int pos = 0;
+        ArrayList<String> values    = new ArrayList<String>();
+        
+        while(true){
+            pos = this.parameters.findKey(name, pos);
+            if( pos == -1 ) break;
+            
+            values.add(this.parameters.get(name, pos));
+        }
+        
+        if( values.isEmpty() )    return null;
+        
+        return (String[]) values.toArray();
     }
 
+    /**
+     * Returns a java.util.Map of the parameters of this request. 
+     * 
+     * @return  an immutable java.util.Map containing parameter names as keys and parameter values as map values. The keys in the parameter map are of type String. The values in the parameter map are of type String array.
+     */
     public Map getParameterMap() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.parameters.toMap();
     }
 
+    /**
+     * Returns the name and version of the protocol the request uses in the form protocol/majorVersion.minorVersion, for example, HTTP/1.1.
+     * 
+     * @return a String containing the protocol name and version number
+     */
     public String getProtocol() {
-        return this.protocol;
+        return this.protocol+"/1.1";
     }
 
+    /**
+     * Returns the name of the scheme used to make this request, for example, http, https, or ftp. Different schemes have different rules for constructing URLs, as noted in RFC 1738. 
+     * 
+     * @return a String containing the name of the scheme used to make this request
+     */
     public String getScheme() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.protocol.replace("://", "").replace(":","");
     }
 
+    /**
+     * Returns the host name of the server to which the request was sent. It is the value of the part before ":" in the Host header value, if any, or the resolved server name, or the server IP address.
+     * 
+     * @return  a String containing the name of the server
+     */
     public String getServerName() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.server;
     }
 
+    /**
+     * Returns the port number to which the request was sent. It is the value of the part after ":" in the Host header value, if any, or the server port where the client connection was accepted on.
+     * 
+     * @return an integer specifying the port number
+     */
     public int getServerPort() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.serverPort;
     }
 
-    public BufferedReader getReader() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Retrieves the body of the request as character data using a BufferedReader. The reader translates the character data according to the character encoding used on the body. Either this method or getInputStream() may be called to read the body, not both. 
+     * 
+     * @return  a BufferedReader containing the body of the request 
+     * @throws UnsupportedEncodingException     if the character set encoding used is not supported and the text cannot be decoded 
+     * @throws IOException                      if an input or output exception occurred
+     * @throws IllegalStateException            if getInputStream() method has been called on this request 
+     */
+    public BufferedReader getReader() throws UnsupportedEncodingException, IOException, IllegalStateException {
+        if( this.inputStream == null )  throw new IOException("Stream loading failed");
+        
+        if( this.inputStream.isRead() ) throw new IllegalStateException("Stream is allready been read.");
+        
+        return new BufferedReader(new InputStreamReader(this.inputStream) );
     }
 
+    /**
+     * Returns the Internet Protocol (IP) address of the client or last proxy that sent the request. 
+     * 
+     * @return a String containing the IP address of the client that sent the request
+     */
     public String getRemoteAddr() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.remoteAddress;
     }
 
+    /**
+     * Returns the fully qualified name of the client or the last proxy that sent the request. If the engine cannot or chooses not to resolve the hostname (to improve performance), this method returns the dotted-string form of the IP address. 
+     * 
+     * @return         a String containing the fully qualified name of the client
+     */
     public String getRemoteHost() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.getRemoteAddr();
     }
 
-    public void setAttribute(String string, Object o) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Stores an attribute in this request. Attributes are reset between requests. This method is most often used in conjunction with RequestDispatcher. 
+     * 
+     * @param name      a String specifying the name of the attribute
+     * @param o         the Object to be stored
+     */
+    public void setAttribute(String name, Object o) {
+        if( o == null ){
+            this.removeAttribute(name);
+        }
+        else {
+            this.attributes.put(name, o);
+        }
     }
 
-    public void removeAttribute(String string) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Removes an attribute from this request. This method is not generally needed as attributes only persist as long as the request is being handled. 
+     * 
+     * @param name  a String specifying the name of the attribute 
+     */
+    public void removeAttribute(String name) {
+        this.attributes.remove(name);
     }
 
+    /**
+     * Returns the preferred Locale that the client will accept content in, based on the Accept-Language header. If the client request doesn't provide an Accept-Language header, this method returns the default locale for the server. 
+     * 
+     * @return the preferred Locale for the client
+     */
     public Locale getLocale() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if( this.clientLocales.isEmpty() )  return this.serverLocale;
+        
+        return this.clientLocales.get(0);
     }
 
-    public Enumeration getLocales() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Returns an Enumeration of Locale objects indicating, in decreasing order starting with the preferred locale, the locales that are acceptable to the client based on the Accept-Language header. If the client request doesn't provide an Accept-Language header, this method returns an Enumeration containing one Locale, the default locale for the server. 
+     * 
+     * @return an Enumeration of preferred Locale objects for the client
+     */
+    public Enumeration getLocales(){
+        ServerLocaleEnumeration locales = new ServerLocaleEnumeration();
+        
+        if( this.clientLocales.size() > 0 ){
+            for(int i=0; i<this.clientLocales.size(); i++){
+                locales.addLocale(this.clientLocales.get(i));
+            }
+        }
+        else {
+            locales.addLocale(this.serverLocale);
+        }
+        
+        return locales;
     }
 
+    /**
+     * Returns a boolean indicating whether this request was made using a secure channel, such as HTTPS.
+     * 
+     * @return a boolean indicating if the request was made using a secure channel
+     */
     public boolean isSecure() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.protocol.contains("https");
     }
 
+    /**
+     * Returns a RequestDispatcher object that acts as a wrapper for the resource located at the given path.
+     * 
+     * @param string    a String specifying the pathname to the resource. If it is relative, it must be relative against the current servlet. 
+     * @return  a RequestDispatcher object that acts as a wrapper for the resource at the specified path, or null if the servlet container cannot return a RequestDispatcher
+     */
     public RequestDispatcher getRequestDispatcher(String string) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
-    public String getRealPath(String string) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * @deprecated As of Version 2.1 of the Java Servlet API, use ServletContext#getRealPath instead.
+     */
+    public String getRealPath(String path) {
+        System.err.println("Use of deprecated function getRealPath. Use ServletContext.getRealPath instead.");
+        
+        return this.servletContext.getRealPath(path);
     }
 
+    /**
+     * Returns the Internet Protocol (IP) source port of the client or last proxy that sent the request.
+     * 
+     * @return an integer specifying the port number
+     */
     public int getRemotePort() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.clientPort;
     }
 
+    /**
+     * Returns the host name of the Internet Protocol (IP) interface on which the request was received.
+     * 
+     * @return a String containing the host name of the IP on which the request was received.
+     */
     public String getLocalName() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.server;
     }
 
+    /**
+     * Returns the Internet Protocol (IP) address of the interface on which the request was received. 
+     * 
+     * @return  a String containing the IP address on which the request was received.
+     */
     public String getLocalAddr() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.serverIP;
     }
 
+    /**
+     * Returns the Internet Protocol (IP) port number of the interface on which the request was received.
+     * 
+     * @return an integer specifying the port number
+     */
     public int getLocalPort() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return this.getServerPort();
     }
 
 }

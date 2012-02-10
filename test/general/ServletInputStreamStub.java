@@ -7,12 +7,15 @@ import javax.servlet.ServletInputStream;
  *
  * @author rachelle
  */
-public class ServletInputStreamStub extends ServletInputStream{
-    private int length  = 0;
+public class ServletInputStreamStub extends ServletInputStream {
+    private int pointer = 0;
     private String contentType;
+    private byte[] content;
 
     @Override
     public int read() throws IOException {
+        this.pointer++;
+        
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
@@ -26,13 +29,14 @@ public class ServletInputStreamStub extends ServletInputStream{
      */
     @Override
     public int readLine(byte[] b,int off,int len) throws java.io.IOException {
-        int read    = -1;
+        int read        = -1;
+        this.pointer    += (off + len);
         
         return read;
     }
     
     public int getLength(){
-        return this.length;
+        return this.content.length;
     }
     
     /**
@@ -42,5 +46,18 @@ public class ServletInputStreamStub extends ServletInputStream{
      */
     public String getContentType(){
         return this.contentType;
+    }
+
+    public boolean isRead() {
+        return this.pointer != 0;
+    }
+    
+    @Override
+    public void reset() throws IOException {
+        if( this.pointer == 0 ) throw new IOException("Reset failed");
+        
+        this.pointer    = 0;
+        
+        
     }
 }

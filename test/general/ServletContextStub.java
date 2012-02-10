@@ -5,6 +5,7 @@ package general;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,8 +142,15 @@ class ServletContextStub implements ServletContext {
         if( !path.startsWith("/") ) throw new MalformedURLException("Path must start with a /");
         URL url = new URL(path);
        
-        
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            URLConnection connection = url.openConnection();
+            connection = null;
+            return url;
+            
+        }
+        catch(IOException e){
+            throw new MalformedURLException("Resource "+path+" does not exist");
+        }
     }
 
     /**
