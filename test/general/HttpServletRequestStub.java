@@ -73,10 +73,10 @@ public class HttpServletRequestStub implements HttpServletRequest {
     /**
      * Sets the protocol
      * 
-     * @param protocol    The protocol (http://|https://)
+     * @param protocol    The protocol (http://|https://|file:)
      */
     public void setProtocol(String protocol){
-        if( protocol.equals("http://") || protocol.equals("https://") )
+        if( protocol.equals("http://") || protocol.equals("https://") || protocol.equals("file:") )
             this.protocol = protocol;
     }
     
@@ -208,9 +208,9 @@ public class HttpServletRequestStub implements HttpServletRequest {
         name    = name.toLowerCase();
         ServerDetailEnumeration headernames = new ServerDetailEnumeration();
         
-        int pos = 0;
+        int pos = -1;
         while( true ){            
-            pos = this.headers.findKey(name, pos);            
+            pos = this.headers.findKey(name, pos+1);            
             if( pos == -1 ) break; // no more items
             
             headernames.addName(this.headers.get(name,pos));
@@ -614,9 +614,9 @@ public class HttpServletRequestStub implements HttpServletRequest {
     public ServletInputStream getInputStream() throws IOException {
         if( this.inputStream == null )  throw new IOException("Stream loading failed");
         
-        if( this.inputStream.isRead() ) throw new IllegalStateException("Stream is allready been read.");
+        if( this.inputStream.hasLoaded() ) throw new IllegalStateException("Stream is allready been read.");
         
-        return this.inputStream;
+        return this.inputStream.getStream();
     }
     
     /**
@@ -655,11 +655,11 @@ public class HttpServletRequestStub implements HttpServletRequest {
      * @return  an array of String objects containing the parameter's values
      */
     public String[] getParameterValues(String name) {
-        int pos = 0;
+        int pos = -1;
         ArrayList<String> values    = new ArrayList<String>();
         
         while(true){
-            pos = this.parameters.findKey(name, pos);
+            pos = this.parameters.findKey(name, pos+1);
             if( pos == -1 ) break;
             
             values.add(this.parameters.get(name, pos));
@@ -726,9 +726,9 @@ public class HttpServletRequestStub implements HttpServletRequest {
     public BufferedReader getReader() throws UnsupportedEncodingException, IOException, IllegalStateException {
         if( this.inputStream == null )  throw new IOException("Stream loading failed");
         
-        if( this.inputStream.isRead() ) throw new IllegalStateException("Stream is allready been read.");
+        if( this.inputStream.hasLoaded() ) throw new IllegalStateException("Stream is allready been read.");
         
-        return new BufferedReader(new InputStreamReader(this.inputStream) );
+        return new BufferedReader(new InputStreamReader(this.inputStream.getStream()) );
     }
 
     /**

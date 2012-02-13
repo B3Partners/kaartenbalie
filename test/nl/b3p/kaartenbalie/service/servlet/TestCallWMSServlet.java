@@ -70,6 +70,7 @@ public class TestCallWMSServlet extends TestCase {
             assertTrue(true);
         }
         catch(Exception e){
+            e.printStackTrace();
             assertTrue(false);
         }
     }

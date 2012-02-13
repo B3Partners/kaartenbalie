@@ -66,6 +66,23 @@ public class MultikeyHashMap {
         }
     }
     
+    public void addUnique(String key,String value){
+        int pos = this.find(key, 0);
+        while( pos != -1 ){
+            this.delete(key, pos);
+            
+            pos = this.find(key,pos);
+        }
+        
+        this.add(key, value);
+    }
+    
+    public void update(String key,String value,int offset){
+        
+        
+        this.add(key, value);
+    }
+    
     public void delete(String key,int offset){
         int pos = this.find(key,offset);
         if( pos != -1 ){

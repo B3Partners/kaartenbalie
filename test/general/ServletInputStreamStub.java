@@ -1,6 +1,7 @@
 package general;
 
 import java.io.IOException;
+import java.io.InputStream;
 import javax.servlet.ServletInputStream;
 
 /**
@@ -11,6 +12,7 @@ public class ServletInputStreamStub extends ServletInputStream {
     private int pointer = 0;
     private String contentType;
     private byte[] content;
+    private boolean hasLoaded   = false;
 
     @Override
     public int read() throws IOException {
@@ -51,13 +53,15 @@ public class ServletInputStreamStub extends ServletInputStream {
     public boolean isRead() {
         return this.pointer != 0;
     }
+
     
-    @Override
-    public void reset() throws IOException {
-        if( this.pointer == 0 ) throw new IOException("Reset failed");
+    public ServletInputStream getStream() {
+        this.hasLoaded  = true;
         
-        this.pointer    = 0;
-        
-        
+        return this;
+    }
+
+    public boolean hasLoaded() {
+        return this.hasLoaded;
     }
 }
