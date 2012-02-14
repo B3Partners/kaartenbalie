@@ -2,7 +2,7 @@ create table tile_set (
         id number(10,0) not null,
         bounding_box number(10,0),
         srs varchar2(50 char),
-        resolutions long,
+        resolutions clob,
         width number(10,0),
         height number(10,0),
         format varchar2(50 char),
