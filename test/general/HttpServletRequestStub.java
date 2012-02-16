@@ -461,7 +461,7 @@ public class HttpServletRequestStub implements HttpServletRequest {
         if( this.currentSession != null )   return this.currentSession;
         
         if( create ){
-            this.currentSession = new HttpSessionStub();
+            this.currentSession = new HttpSessionStub(true,this.servletContext);
             this.currentSession.setAttribute("username", this.user.getUsername());
             
             return this.currentSession;

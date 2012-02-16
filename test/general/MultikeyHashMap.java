@@ -19,6 +19,9 @@ public class MultikeyHashMap {
         this.values = new ArrayList<String>(50);
     }
     
+    /**
+     * Clears the HashMap
+     */
     public void clear(){
         this.names.clear();
         this.values.clear();
@@ -28,30 +31,44 @@ public class MultikeyHashMap {
     }
     
     /**
-     * Finds the key position from the given position
+     * Finds the key position from the given key
      * 
-     * @param   key     The head name
+     * @param   key     The key to search on
      * @param   offset  The position to search from
+     * 
      * @return  The position or -1 if the key does not (more) exist.
      */
     public int findKey(String key,int offset){
-        return this.find(key, offset);
+        if( offset < 0 )    offset = 0;
+        
+        for(int i=offset; i<this.lastPosition; i++){
+            if( this.names.get(i).equals(key) ) return i;
+        }
+        
+        return -1;
     }
     
+    /**
+     * Returns the requested value
+     * 
+     * @param key       The key to search on
+     * @param offset    The position to search from
+     * 
+     * @return The value or null if the key is not present
+     */
     public String get(String key,int offset){
-        int pos = this.find(key,offset);
+        int pos = this.findKey(key,offset);
         if( pos == -1 ) return null;
         
         return this.values.get(pos);
     }
-    
-    private int find(String key,int offset) throws IllegalArgumentException {
-        for(int i=offset; i<this.lastPosition; i++){
-            if( this.names.get(i).equals(key) ) return i;
-        }
-        return -1;
-    }
-    
+        
+    /**
+     * Adds a new value to the HashMap
+     * 
+     * @param key       The key
+     * @param value     The value
+     */
     public void add(String key,String value){
         this.names.add(key);
         this.values.add(value);
@@ -66,25 +83,50 @@ public class MultikeyHashMap {
         }
     }
     
+    /**
+     * Adds a new value to the HashMap
+     * Deletes the old values if the key is already present
+     * 
+     * @param key       The key
+     * @param value     The value
+     */
     public void addUnique(String key,String value){
-        int pos = this.find(key, 0);
+        int pos = this.findKey(key, 0);
         while( pos != -1 ){
             this.delete(key, pos);
             
-            pos = this.find(key,pos);
+            pos = this.findKey(key,pos);
         }
         
         this.add(key, value);
     }
     
+    /**
+     * Updates the given key with the given value.
+     * The value will be added if the key does not exist.
+     * 
+     * @param key       The key
+     * @param value     The value
+     * @param offset    The position to search from
+     */
     public void update(String key,String value,int offset){
-        
-        
-        this.add(key, value);
+        int pos = this.findKey(key, offset);
+        if( pos != -1 ){
+            this.values.set(pos, value);
+        }
+        else {
+            this.add(key, value);
+        }
     }
     
+    /**
+     * Deletes the value with the given key
+     * 
+     * @param   key     The key to search on
+     * @param   offset  The position to search from
+     */
     public void delete(String key,int offset){
-        int pos = this.find(key,offset);
+        int pos = this.findKey(key,offset);
         if( pos != -1 ){
             this.names.set(pos, null);
             this.values.set(pos,null);
@@ -107,11 +149,21 @@ public class MultikeyHashMap {
         
         return headernames;
     }
-    
+
+    /**
+     * Returns the number of elements 
+     * 
+     * @return The number of elements
+     */
     public int size(){
         return this.counter;
     }
 
+    /**
+     * Returns a map representing the HashMap
+     * 
+     * @return  The map
+     */
     public Map toMap() {
         ArrayList<String> namesTemp     = new ArrayList<String>();
         ArrayList<String> valuesTemp    = new ArrayList<String>();

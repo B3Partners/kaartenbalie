@@ -1,6 +1,7 @@
 package general;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import javax.servlet.ServletOutputStream;
@@ -21,6 +22,8 @@ class ServletOutputStreamStub extends ServletOutputStream {
     private int bufferSize;
     private StringBuffer output;
     private int status;
+    private ArrayList<Byte> content;
+    private int contentPointer;
     
     public ServletOutputStreamStub() {
         this.hasLoaded      = false;
@@ -41,7 +44,7 @@ class ServletOutputStreamStub extends ServletOutputStream {
         this.hasWritten     = false;
         this.redict         = null;
         this.status         = 200;
-        
+                
         this.resetBuffer();
     }
     
@@ -50,17 +53,229 @@ class ServletOutputStreamStub extends ServletOutputStream {
      */
     public void resetBuffer(){
         this.output         = new StringBuffer();
+        this.content        = new ArrayList<Byte>();
+        this.contentPointer = 0;
     }
-
+    
     /**
-     * Writes a int
+     * Writes a boolean value to the client, with no carriage return-line feed (CRLF) character at the end.
      * 
-     * @param i         The int to write
-     * @throws IOException 
+     * @param b     The boolean value to send to the client
+     * @throws IOException  If a input or output exception occurred
      */
     @Override
-    public void write(int i) throws IOException {
+    public void print(boolean b) throws IOException{
+        this.print(String.valueOf(b));
+    }
+    
+    /**
+     * Writes a character to the client, with no carriage return-line feed (CRLF) at the end.
+     * 
+     * @param c the character to send to the client
+     * @throws IOException  If a input or output exception occurred
+     */
+    @Override
+    public void print(char c) throws IOException{
+        this.print(String.valueOf(c));
+    }
+    
+    /**
+     * Writes a double value to the client, with no carriage return-line feed (CRLF) at the end.
+     * 
+     * @param d the double value to send to the client
+     * @throws IOException  If a input or output exception occurred
+     */
+    @Override
+    public void print(double d) throws IOException{
+        this.print(String.valueOf(d));
+    }
+    
+    /**
+     * Writes a float value to the client, with no carriage return-line feed (CRLF) at the end.
+     * 
+     * @param f the float value to send to the client
+     * @throws IOException  If a input or output exception occurred
+     */
+    @Override
+    public void print(float f) throws IOException{
+        this.print(String.valueOf(f));
+    }
+    
+    /**
+     * Writes an int to the client, with no carriage return-line feed (CRLF) at the end.
+     * 
+     * @param i the int to send to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void print(int i) throws IOException{
+        this.write(i);
+    }
+    
+    /**
+     * Writes a long value to the client, with no carriage return-line feed (CRLF) at the end.
+     * 
+     * @param l the long value to send to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void print(long l) throws IOException{
+        this.print(String.valueOf(l));
+    }
+    
+    /**
+     * Writes a String to the client, without a carriage return-line feed (CRLF) character at the end.
+     * 
+     * @param s     the String to send to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void print(String s) throws IOException{
+        this.write(s.getBytes(),0,s.length());
+    }
+    
+    /**
+     * Writes a carriage return-line feed (CRLF) to the client.
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println() throws IOException{
+        String value    = "\n";
         
+        this.write(value.getBytes(),0,value.length());
+    }
+    
+    /**
+     * Writes a boolean value to the client, followed by a carriage return-line feed (CRLF).
+     * @param b the boolean value to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(boolean b) throws IOException{
+        this.println(String.valueOf(b));
+    }
+    
+    /**
+     * Writes a character to the client, followed by a carriage return-line feed (CRLF).
+     * 
+     * @param c the character to send to the client
+     * @throws IOException  If a input or output exception occurred
+     */
+    @Override
+    public void println(char c) throws IOException{
+        this.println(String.valueOf(c));
+    }
+    
+    /**
+     * Writes a double value to the client, followed by a carriage return-line feed (CRLF).
+     * 
+     * @param d the double value to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(double d) throws IOException{
+        this.println(String.valueOf(d));
+    }
+    
+    /**
+     * Writes a float value to the client, followed by a carriage return-line feed (CRLF).
+     * 
+     * @param f  the float value to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(float f) throws IOException{
+        this.println(String.valueOf(f));
+    }
+    
+    /**
+     * Writes an int to the client, followed by a carriage return-line feed (CRLF) character.
+     * 
+     * @param i the int to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(int i) throws IOException{
+        this.println(String.valueOf(i));
+    }
+    
+    /**
+     * Writes a long value to the client, followed by a carriage return-line feed (CRLF).
+     * 
+     * @param l the long value to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(long l) throws IOException{
+        this.println(String.valueOf(l));
+    }
+    
+    /**
+     * Writes a String to the client, followed by a carriage return-line feed (CRLF).
+     * 
+     * @param s the String to write to the client
+     * @throws IOException if an input or output exception occurred
+     */
+    @Override
+    public void println(String s) throws IOException{
+         s  = s + "\n";
+         
+         
+         this.write(s.getBytes(), 0, s.length());
+   }
+
+    /**
+     * Writes a int to the client
+     * 
+     * @param i         The int to write
+     */
+    @Override
+    public void write(int i ) throws IOException{
+        this.content.set(this.contentPointer++,(byte) i);
+    }
+    
+    /**
+     * Writes b.length bytes from the specified byte array to this output stream.
+     * 
+     * @param   b the data. 
+     * @throws  IOException             if an I/O error occurs.
+     * @throws  NullPointerException    If b is null
+     */
+    @Override
+    public void write(byte[] b) throws IOException, NullPointerException{
+        this.write(b,0,b.length);
+    }
+    
+    /**
+     * Writes len bytes from the specified byte array starting at offset off to this output stream. The general contract for write(b, off, len) is that some of the bytes in the array b are written to the output stream in order; element b[off] is the first byte written and b[off+len-1] is the last byte written by this operation.
+     * 
+     * @param b     the data
+     * @param off   the start offset in the data
+     * @param len   the number of bytes to write
+     * @throws IOException              if an I/O error occurs. In particular, an IOException is thrown if the output stream is closed
+     * @throws NullPointerException     If b is null
+     */
+    @Override
+    public void write(byte[] b,int off,int len) throws IOException, NullPointerException{
+        if( b == null ) throw new NullPointerException("No data to write");
+        
+        for(int i=off; i<len; i++){
+            this.content.set(this.contentPointer++,b[i]);
+        }
+    }
+    
+    /**
+     * The flush method of ServletOutputStreamStub does nothing. 
+     */
+    @Override
+    public void flush(){
+    }
+    
+    /**
+     * The close method of ServletOutputStreamStub does nothing 
+     */
+    @Override
+    public void close(){
     }
     
     /**

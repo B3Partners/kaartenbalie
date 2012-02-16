@@ -17,18 +17,39 @@ public class ConfigStub implements ServletConfig {
         this.context    = new ServletContextStub();
     }
     
+    /**
+     * Returns the name of this servlet instance. The name may be provided via server administration, assigned in the web application deployment descriptor, or for an unregistered (and thus unnamed) servlet instance it will be the servlet's class name.
+     * 
+     * @return the name of the servlet instance
+     */
     public String getServletName() {
         return "B3Partners testing Servlet Config";
     }
 
+    /**
+     * Returns a reference to the ServletContext in which the caller is executing.
+     * 
+     * @return a ServletContext object, used by the caller to interact with its servlet container
+     */
     public ServletContext getServletContext() {
         return this.context;
     }
 
-    public String getInitParameter(String value) {
-        return this.context.getInitParameter(value);
+    /**
+     * Returns a String containing the value of the named initialization parameter, or null if the parameter does not exist.
+     * 
+     * @param name  a String specifying the name of the initialization parameter
+     * @return a String containing the value of the initialization parameter
+     */
+    public String getInitParameter(String name) {
+        return this.context.getInitParameter(name);
     }
 
+    /**
+     * Returns the names of the servlet's initialization parameters as an Enumeration of String objects, or an empty Enumeration if the servlet has no initialization parameters.
+     * 
+     * @return     an Enumeration of String objects containing the names of the servlet's initialization parameters
+     */
     public Enumeration getInitParameterNames() {
         return this.context.getInitParameterNames();
     }    

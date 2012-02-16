@@ -71,6 +71,7 @@ public class TestCallWMSServlet extends TestCase {
         }
         catch(Exception e){
             e.printStackTrace();
+            fail("Exception "+e.getLocalizedMessage());
             assertTrue(false);
         }
     }
