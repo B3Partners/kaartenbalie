@@ -439,7 +439,14 @@ public class HttpServletRequestStub implements HttpServletRequest {
         if( this.serverPort != 80 ) uri.append(":").append(this.serverPort);
         if( this.context != null )  uri.append("/").append(this.context);
         
-        return uri.append("/").append(this.filename).toString();
+        uri.append("/").append(this.filename);
+        
+        String path = uri.toString();
+        while( path.endsWith("/") ){
+            path    = path.substring(0,(path.lastIndexOf("/")));
+        }
+        
+        return path;
     }
 
     /**
