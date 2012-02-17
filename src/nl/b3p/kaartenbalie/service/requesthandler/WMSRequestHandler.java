@@ -68,13 +68,18 @@ import nl.b3p.wms.capabilities.SrsBoundingBox;
 import nl.b3p.wms.capabilities.Switcher;
 
 import nl.b3p.wms.capabilities.TileSet;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.geotools.data.ows.LayerDescription;
@@ -374,7 +379,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-    protected void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
+    protected void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage[] bi = null;
 
@@ -511,7 +516,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
      *
      * @throws Exception
      */
-    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {      
+    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {        
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data received from the url can be directly transported to the client.
@@ -519,7 +524,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         String url = wmsRequest.getProviderRequestURI();
         DataMonitoring rr = dw.getRequestReporting();
         wmsRequest.setBytesSent(new Long(url.getBytes().length));
+        
         long startTime = System.currentTimeMillis();
+        
         try {
             if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)
                     && url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
@@ -536,32 +543,50 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
                 wmsRequest.setRequestResponseTime(new Long(time));
             } else {
-                //Get data for GetFeatureInfo and DescribeLayer (and GetLegend?)
-                HttpClient client = new HttpClient();
-
+                HttpClient client = new DefaultHttpClient();
+                HttpParams params = new BasicHttpParams();
+                
+                client.getParams().setParameter("http.socket.timeout", new Integer(10000));
+                client.getParams().setParameter("http.connection.stalecheck", false);
+                client.getParams().setParameter("http.connection.timeout", new Integer(60000));
+                        
                 // TODO: Wel goed doen
                 url = url.replaceAll(" ", "%20");
-
-                GetMethod method = new GetMethod(url);
-                client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+                
+                HttpGet httpget = new HttpGet(url);
+                
                 String rhValue = "";
-
+                InputStream instream = null;
                 try {
-                    int statusCode = client.executeMethod(method);
+                    HttpResponse response = client.execute(httpget);
+                    
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    
                     long time = System.currentTimeMillis() - startTime;
+                    
                     dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
+                    
                     wmsRequest.setResponseStatus(new Integer(statusCode));
                     wmsRequest.setRequestResponseTime(new Long(time));
+                    
                     if (statusCode != HttpStatus.SC_OK) {
                         log.error("Error connecting to server. Status code: " + statusCode);
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
+                    }                    
+                    
+                    HttpEntity entity = response.getEntity();                    
+                    if (entity != null) {
+                        instream = entity.getContent();
                     }
-
-                    rhValue = method.getResponseHeader("Content-Type").getValue();
+                    
+                    Header h1 = response.getFirstHeader("Content-Type");
+                    if (h1 != null && h1.equals("")) {
+                        rhValue = h1.getValue();
+                    }
 
                     if (rhValue.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
                         log.error("xml error response for request: " + dw.getOgcrequest().toString());
-                        InputStream is = method.getResponseBodyAsStream();
+                        InputStream is = instream; //method.getResponseBodyAsStream();
                         String body = getServiceException(is);
                         log.debug("error xml body: " + body);
                         throw new Exception(body);
@@ -569,13 +594,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                     dw.setContentType(rhValue);
                     if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
-                        
-                        dw.write(method.getResponseBodyAsStream());
+                        dw.write(instream);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                                               
                     } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
-                        
-                        DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, method.getResponseBodyAsStream());
+                        DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, instream);
                         DescribeLayerData data = new DescribeLayerData(wmsRequest.getServiceProviderAbbreviation(), wmsResponse);
                         List<DescribeLayerData> dataList = new ArrayList<DescribeLayerData>();
                         dataList.add(data);
@@ -586,14 +609,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         XMLSerializer serializer = new XMLSerializer(baos, format);
                         serializer.serialize(newResponse);
                         dw.write(baos);
-                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
-                        
-                    } else {
-                        
-                        /* GetLegend, GetStyles, PutStyles */
-                        Header cacheControl = method.getResponseHeader("Cache-Control");
-                        Header expires = method.getResponseHeader("Expires");
-                        Header pragma = method.getResponseHeader("Pragma");
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                        
+                    } else {                
+                        Header cacheControl = (Header) response.getFirstHeader("Cache-Control");
+                        Header expires = (Header) response.getFirstHeader("Expires");
+                        Header pragma = (Header) response.getFirstHeader("Pragma");
                         
                         if (cacheControl != null) {
                             dw.setHeader(cacheControl.getName(), cacheControl.getValue());
@@ -607,9 +627,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         
                         dw.setHeader("Keep-Alive", "timeout=15, max=100");
                         dw.setHeader("Connection", "Keep-Alive");
-                        //dw.setHeader("Transfer-Encoding", "chunked");
                         
-                        dw.write(method.getResponseBodyAsStream());                        
+                        dw.write(instream);
+                        
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                     }
 
@@ -622,7 +642,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 } catch (Exception e) {
                     throw e;
                 } finally {
-                    method.releaseConnection();
+                    if (instream != null) {
+                        instream.close();
+                    }                    
                 }
             }
         } catch (Exception e) {

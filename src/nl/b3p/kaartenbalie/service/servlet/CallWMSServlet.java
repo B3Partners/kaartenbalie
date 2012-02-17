@@ -117,7 +117,7 @@ public class CallWMSServlet extends HttpServlet {
         super.init(config);
         // Zet de logger
         log = LogFactory.getLog(this.getClass());
-        log.info("Initializing Call WMS Servlet");
+        log.debug("Initializing Call WMS Servlet");
     }
     // </editor-fold>
 
@@ -591,7 +591,7 @@ public class CallWMSServlet extends HttpServlet {
                 }
             }
             if (user != null) {
-                log.info("Personal URL accepted for login, username: " + user.getName());
+                log.debug("Personal URL accepted for login, username: " + user.getName());
             }
         }
 
@@ -696,10 +696,7 @@ public class CallWMSServlet extends HttpServlet {
      * @throws UnsupportedOperationException
      * @throws IOException
      */
-    public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
-        
-        log.info("Begin parseRequestAndData");
-        
+    public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {        
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
 
@@ -752,8 +749,6 @@ public class CallWMSServlet extends HttpServlet {
         data.setOperation(request);
         data.setService(service);
         requestHandler.getRequest(data, user);
-        
-        log.info("End parseRequestAndData");
     }
 
     /** Handles the HTTP <code>GET</code> method.
