@@ -52,8 +52,9 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
             em = getEntityManager();
             tx = em.getTransaction();
             tx.begin();           
-            //check login.
+            //check login.            
             User user = checkLogin(request,em);
+            
             //maak van de parameter een Integer array.            
             processRequest(request,response,out);
             tx.commit();            

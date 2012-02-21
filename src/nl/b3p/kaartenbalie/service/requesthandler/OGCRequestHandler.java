@@ -97,7 +97,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {        
         String[] layerCodeAndName = toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
@@ -118,12 +118,21 @@ public abstract class OGCRequestHandler implements RequestHandler {
         } else if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             return null;
         }
-
+        
+        log.debug("BEGIN query getValidLayerObjects");
+        
+        long startTime = System.currentTimeMillis();
+        
         List result = em.createQuery(query).
                 setParameter("orgIds", Arrays.asList(orgIds)).
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();
+        
+        long endTime = System.currentTimeMillis();
+        long dur = endTime - startTime;
+        
+        log.debug(dur + "ms: END query getValidLayerObjects");
 
         if (result == null || result.isEmpty()) {
             log.error("layer not valid or no rights, name: " + layer);

@@ -119,7 +119,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <key column="layer"/>
             <one-to-many class="nl.b3p.wms.capabilities.Identifier"/>
         </set>
-        <set cascade="all" inverse="true" lazy="false" name="srsbb">
+        <set cascade="all" inverse="true" lazy="true" name="srsbb">
             <key column="layer"/>
             <one-to-many class="nl.b3p.wms.capabilities.SrsBoundingBox"/>
         </set>
@@ -175,9 +175,9 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
                 <param name="sequence">organization_id_seq</param>
             </generator>
         </id>
-        <set lazy="false" name="layers" order-by="layer ASC">
+        <set lazy="true" name="layers" order-by="layer ASC">
             <key column="organization"/>
-            <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
+            <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="proxy"/>
         </set>
         <set lazy="false" name="wfsLayers" order-by="layer ASC">
             <key column="organization"/>

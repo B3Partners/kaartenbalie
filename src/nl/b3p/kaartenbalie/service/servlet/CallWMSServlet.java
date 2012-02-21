@@ -494,11 +494,10 @@ public class CallWMSServlet extends HttpServlet {
      */
     private User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+        
         return checkLogin(request,em);
     }
-    protected User checkLogin(HttpServletRequest request, EntityManager em ) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
-        log.debug("Getting entity manager ......");
-
+    protected User checkLogin(HttpServletRequest request, EntityManager em ) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {      
         User user = null;
         String code = extractCode(request);
 
@@ -522,13 +521,22 @@ public class CallWMSServlet extends HttpServlet {
 
             // probeer eerst personal url, checken op token in url
             try {
-                log.debug("Check code for login: " + code);
-
+                //log.debug("Check code for login: " + code);
+                
+                log.debug("BEGIN query checkLogin");
+        
+                long start = System.currentTimeMillis();
+                
                 user = (User) em.createQuery(
                         "from User u where "
                         + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
+                                
+                long end = System.currentTimeMillis();
+                long durUser = end - start;
+        
+                log.debug(durUser + "ms: END query checkLogin");
+        
                 em.flush();
-
 
             } catch (NonUniqueResultException nue) {
                 log.error("More than one person found for this url (to be fixed in database), trying next method.");
