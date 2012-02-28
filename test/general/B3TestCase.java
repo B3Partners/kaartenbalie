@@ -1,20 +1,35 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package general;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import junit.framework.TestCase;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author rachelle
  */
 public class B3TestCase extends TestCase {
+    protected static Logger root   = null;
+    
     public B3TestCase(String name){
         super(name);
     }
     
+    public void setUp() throws Exception{
+        super.setUp();
+        
+        Log4jConfigurator.configure();
+    }
+    
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        
+        Log4jConfigurator.shutdown();
+    }
+        
     /**
      * Checks if the string values are the same. Use this function for Strings instead of assertEquals()
      * 

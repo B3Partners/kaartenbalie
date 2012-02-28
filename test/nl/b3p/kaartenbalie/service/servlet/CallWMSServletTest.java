@@ -3,6 +3,7 @@ package nl.b3p.kaartenbalie.service.servlet;
 import general.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletConfig;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -14,7 +15,7 @@ import nl.b3p.ogc.utils.OGCRequest;
  *
  * @author rachelle
  */
-public class TestCallWMSServlet extends B3TestCase {
+public class CallWMSServletTest extends B3TestCase {
     private ServletConfig configStumb;
     private HttpServletRequestStub requestStumb;
     private HttpServletResponseStub responseStumb;    
@@ -22,12 +23,14 @@ public class TestCallWMSServlet extends B3TestCase {
     private CallWMSServlet servlet;
     private String layerName    = "testLayer";
     
-    public TestCallWMSServlet(String name){
+    public CallWMSServletTest(String name){
         super(name);
     }
     
     @Override
-    public void setUp(){
+    public void setUp() throws Exception{
+        super.setUp();
+        
         this.user           = UserStub.generateServerUser();
         this.configStumb    = new ConfigStub();
         this.requestStumb   = new HttpServletRequestStub();
@@ -37,7 +40,9 @@ public class TestCallWMSServlet extends B3TestCase {
     }
     
     @Override
-    public void tearDown(){
+    public void tearDown() throws Exception{
+        super.tearDown();
+        
         this.user           = null;
         this.configStumb    = null;
         this.servlet        = null;
