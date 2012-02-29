@@ -258,9 +258,12 @@ class ServletOutputStreamStub extends ServletOutputStream {
     @Override
     public void write(byte[] b,int off,int len) throws IOException, NullPointerException{
         if( b == null ) throw new NullPointerException("No data to write");
+        if( off > b.length )    throw new NullPointerException("offset "+off+" bigger then buffer size");
+        if( len > b.length )    throw new NullPointerException("length "+len+" bigger then buffer size");
         
         for(int i=off; i<len; i++){
-            this.content.set(this.contentPointer++,b[i]);
+            this.content.add(b[i]);
+            this.contentPointer++;
         }
     }
     

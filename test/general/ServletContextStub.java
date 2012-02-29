@@ -282,6 +282,16 @@ class ServletContextStub implements ServletContext {
         }
         return null;
     }
+    
+    /**
+     * Sets the initialization parameter with the given name and value
+     * 
+     * @param name      a String specifying the name of the initialization parameter
+     * @param value     a String specifying the value of the initialization parameter
+     */
+    public void setInitParameter(String name,String value){
+        this.initParameters.put(name, value);
+    }
 
     /**
      * Returns the names of the context's initialization parameters as an Enumeration of String objects, or an empty Enumeration if the context has no initialization parameters.

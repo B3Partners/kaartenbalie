@@ -1,9 +1,6 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import general.*;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletConfig;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -45,21 +42,18 @@ public class CallWMSServletTest extends B3TestCase {
         
         this.user           = null;
         this.configStumb    = null;
+        this.requestStumb   = null;
+        this.responseStumb  = null;
         this.servlet        = null;
     }
     
     /**
      * Log directory misses
      */
-    public void testInit(){
+    public void testCallWMSServlet_Init(){
         try {
             this.servlet.init(this.configStumb);
             
-            /* check for login file */
-            File file = new File("/logs/kaartenbalie.log");
-            if( !file.exists() ){
-                throw new IOException("Logfile /logs/kaartenbalie.log does not exist");
-            }
             assertTrue(true);
         }
         catch(Exception e){
@@ -70,13 +64,13 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testCreateBaseUrl(){
+    public void testCallWMSServlet_CreateBaseUrl(){
          StringBuffer baseUrl = this.servlet.createBaseUrl(this.requestStumb);
         
          assertStringEquals(baseUrl.toString(),this.requestStumb.getServletPath());
     }
     
-    public void testParseRequestAndData_Proxy(){
+    public void testCallWMSServlet_ParseRequestAndData_Proxy(){
         /* Proxy */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -97,7 +91,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_MetaData(){
+    public void testCallWMSServlet_ParseRequestAndData_MetaData(){
         /* Meta data */        
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -119,7 +113,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_WMS(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS(){
         /* WMS */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -143,7 +137,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_WFS(){
+    public void testCallWMSServlet_ParseRequestAndData_WFS(){
         /* WFS */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -170,7 +164,7 @@ public class CallWMSServletTest extends B3TestCase {
     /**
      * EntityManager mainEM can not be loaded
      */
-    public void testParseRequestAndData_WMS_GetMap(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS_GetMap(){
         /* WMS GetMap */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -190,7 +184,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_WMS_GetLegendGraphic(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS_GetLegendGraphic(){
         /* WMS GetMap */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -212,7 +206,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_WMS_DescribeLayer(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS_DescribeLayer(){
         /* WMS DescribeLayer */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -221,7 +215,7 @@ public class CallWMSServletTest extends B3TestCase {
             ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_DescribeLayer);
             data.setOgcrequest(ogRequest);
             
-            this.servlet.parseRequestAndData(data, user);
+            this.servlet.parseRequestAndData(data, this.user);
             
             assertTrue(true);
         }
@@ -232,7 +226,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testParseRequestAndData_WMS_DescribeFeatureType(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS_DescribeFeatureType(){
         /* WMS DescribeFeatureType */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -252,7 +246,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-     public void testParseRequestAndData_WMS_GetFeature(){
+     public void testCallWMSServlet_ParseRequestAndData_WMS_GetFeature(){
         /* WMS GetFeature */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -272,7 +266,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
      
-    public void testParseRequestAndData_WMS_Transaction(){
+    public void testCallWMSServlet_ParseRequestAndData_WMS_Transaction(){
         /* WMS Transaction */
         try {
             DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
@@ -292,7 +286,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-    public void testGetServletInfo(){
+    public void testCallWMSServlet_GetServletInfo(){
         assertEquals(this.servlet.getServletInfo(),"CallWMSServlet info");
     }
 }

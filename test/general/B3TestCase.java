@@ -12,15 +12,29 @@ import org.apache.log4j.Logger;
  */
 public class B3TestCase extends TestCase {
     protected static Logger root   = null;
+    protected static boolean configurated  = false;
     
     public B3TestCase(String name){
         super(name);
     }
     
+    public static void setUpClass() throws Exception {
+        System.out.println("configurating class");
+          
+        Log4jConfigurator.configure();
+          
+        configurated = true;
+    }
+
+    public static void tearDownClass() throws Exception {
+    }
+    
     public void setUp() throws Exception{
         super.setUp();
         
-        Log4jConfigurator.configure();
+        if( !configurated ){
+            setUpClass();
+        }
     }
     
     @Override

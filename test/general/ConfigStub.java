@@ -11,7 +11,7 @@ import javax.servlet.ServletContext;
  * @author rachelle
  */
 public class ConfigStub implements ServletConfig {
-    private ServletContext context;
+    private ServletContextStub context;
     
     public ConfigStub(){
         this.context    = new ServletContextStub();
@@ -53,4 +53,14 @@ public class ConfigStub implements ServletConfig {
     public Enumeration getInitParameterNames() {
         return this.context.getInitParameterNames();
     }    
+    
+    /**
+     * Sets the initialization parameter with the given name and value
+     * 
+     * @param name      a String specifying the name of the initialization parameter
+     * @param value     a String specifying the value of the initialization parameter
+     */
+    public void setInitParameter(String name,String value){
+        this.context.setInitParameter(name,value);
+    }
 }
