@@ -3,9 +3,9 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import general.B3TestCase;
 import general.ByteArrayInputStreamStub;
 import general.LocatorStub;
-import java.io.ByteArrayInputStream;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 

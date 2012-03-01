@@ -339,6 +339,15 @@ class ServletOutputStreamStub extends ServletOutputStream {
     public void writeStatus(int sc) {
         this.status = sc;
     }
+    
+    /**
+     * Gets the http-status code
+     * 
+     * @return       the status code
+     */
+    public int getStatus() {
+        return this.status;
+    }
 
     /**
      * Sets the content type of the response being sent to the client, if the response has not been committed yet. The given content type may include a character encoding specification, for example, text/html;charset=UTF-8. 
@@ -381,7 +390,8 @@ class ServletOutputStreamStub extends ServletOutputStream {
      * @param env   String containing the name of the character encoding. 
      */
     void setCharacterEncoding(String env) {
-        if( env.equals("") || !env.matches("^[a-zA-Z0-9]") || !env.matches("^[a-zA-Z0-9-:_]+$") )
+        System.out.println("Encoding : "+env);
+        if( env.equals("") || !env.matches("^[a-zA-Z0-9-:_]+$") )
             return;
         
         this.characterEncoding  = env;
@@ -493,5 +503,11 @@ class ServletOutputStreamStub extends ServletOutputStream {
         else {
             this.headers.add(name, value);
         }
+    }
+
+    public String getHeader(String name,int offset) {
+        if( !this.containsHeader(name) )    return null;
+        
+        return this.headers.get(name,offset);
     }
 }

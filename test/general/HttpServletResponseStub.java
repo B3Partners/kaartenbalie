@@ -36,6 +36,7 @@ public class HttpServletResponseStub implements HttpServletResponse{
         this.locale             = new Locale("nl");
         
         this.writer             = new ServletOutputStreamStub();
+        this.writer.setContentType("text/html");
     }
     
     /**
@@ -129,6 +130,26 @@ public class HttpServletResponseStub implements HttpServletResponse{
     public void addDateHeader(String name, long date) {
         this.writer.addHeader(name, String.valueOf(date),true);
     }   
+    
+    /**
+     * Gets the date-value from the response header with the given name. The date is specified in terms of milliseconds since the epoch. If the header had already been set, the new value overwrites the previous one. 
+     * 
+     * @param name      the name of the header to set
+     * @return the additional date value or null if the header does not exist
+     */
+    public long getDateHeader(String name){
+        return new Long(this.writer.getHeader(name,0));
+    }
+    
+    /**
+     * Gets the value from the response header with the given name. 
+     * 
+     * @param name      the name of the header
+     * @return      the header value If it contains octet string, it should be encoded according to RFC 2047 (http://www.ietf.org/rfc/rfc2047.txt) or null if the header does not exists.
+     */
+    public String getheader(String name){
+        return this.writer.getHeader(name, 0);
+    }
 
     /**
      * Sets a response header with the given name and integer value. If the header had already been set, the new value overwrites the previous one. The containsHeader method can be used to test for the presence of a header before setting its value. 
@@ -148,6 +169,18 @@ public class HttpServletResponseStub implements HttpServletResponse{
      */
     public void addIntHeader(String name, int value) {
         this.writer.addHeader(name, String.valueOf(value),true);
+    }
+    
+    /**
+     * Gets the response header with the given name.
+     * 
+     * @param name      the name of the header
+     * @return          the assigned integer value or -1 if the header does not exist.
+     */
+    public int getIntHeader(String name){
+        if( !this.writer.containsHeader(name) ) return -1;
+        
+        return Integer.parseInt(this.writer.getHeader(name, 0));
     }
 
     /**
@@ -308,6 +341,15 @@ public class HttpServletResponseStub implements HttpServletResponse{
     }
     
     /**
+     * Gets the status code for this response.
+     * 
+     * @return       the status code
+     */
+    public int getStatus(){
+        return this.writer.getStatus();
+    }
+    
+    /**
      * Overrides the name of the character encoding used in the body of this request. This method must be called prior to reading request parameters or reading input using getReader(). Otherwise, it has no effect. 
      * 
      * @param env   String containing the name of the character encoding. 
@@ -350,6 +392,24 @@ public class HttpServletResponseStub implements HttpServletResponse{
     /**
      * Returns a ServletOutputStream suitable for writing binary data in the response. The servlet container does not encode the binary data.
      * 
+     * This method is for unit-testing only. For the rest use getOutputStream()
+     * 
+     * Calling flush() on the ServletOutputStream commits the response. Either this method or getWriter() may be called to write the body, not both. 
+     * 
+     * @return  a ServletOutputStream for writing binary data 
+     * @throws IOException           if the getWriter method has been called on this response 
+     * @throws IllegalStateException if an input or output exception occurred
+     */
+    public ServletOutputStream getOutputStream(boolean test) throws IOException, IllegalStateException {
+        if( this.writer == null )               throw new IOException("Error loading stream");
+        if( this.writer.hasLoaded() && !test )  throw new IllegalStateException("Stream allready called");
+        
+        return this.writer.getStream();
+    }
+    
+    /**
+     * Returns a ServletOutputStream suitable for writing binary data in the response. The servlet container does not encode the binary data.
+     * 
      * Calling flush() on the ServletOutputStream commits the response. Either this method or getWriter() may be called to write the body, not both. 
      * 
      * @return  a ServletOutputStream for writing binary data 
@@ -357,10 +417,7 @@ public class HttpServletResponseStub implements HttpServletResponse{
      * @throws IllegalStateException if an input or output exception occurred
      */
     public ServletOutputStream getOutputStream() throws IOException, IllegalStateException {
-        if( this.writer == null )       throw new IOException("Error loading stream");
-        if( this.writer.hasLoaded() )  throw new IllegalStateException("Stream allready called");
-        
-        return this.writer.getStream();
+        return this.getOutputStream(false);
     }
 
     /**
