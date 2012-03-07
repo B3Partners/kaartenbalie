@@ -18,7 +18,7 @@ public class ByteArrayOutputStreamStub extends ByteArrayOutputStream {
      * Creates a new byte array output stream. The buffer capacity is initially 32 bytes, though its size increases if necessary. 
      */
     public ByteArrayOutputStreamStub(){
-        super(32);
+        this(32);
     }
     
     /**
