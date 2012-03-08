@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import junit.framework.TestCase;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import org.apache.log4j.Logger;
 
 /**
@@ -22,6 +23,10 @@ public class B3TestCase extends TestCase {
         System.out.println("configurating class");
           
         Log4jConfigurator.configure();
+        
+        ConfigStub config    = new ConfigStub();
+        MyEMFDatabase DB     = new MyEMFDatabase();
+        DB.init(config);
           
         configurated = true;
     }
