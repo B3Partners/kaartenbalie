@@ -173,7 +173,9 @@ public class CallWMSServlet extends HttpServlet {
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
                 User user = checkLogin(request);
-                ogcrequest.checkRequestURL();
+                
+                if (ogcrequest != null)
+                    ogcrequest.checkRequestURL();
 
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
