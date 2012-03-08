@@ -15,6 +15,10 @@ public class ConfigStub implements ServletConfig {
     
     public ConfigStub(){
         this.context    = new ServletContextStub();
+        
+        String homedir      = System.getProperty("user.home");
+        String separator    = System.getProperty("file.separator");
+        this.setInitParameter("mapfiles", homedir+separator+"mapfiles");
     }
     
     /**

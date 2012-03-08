@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 public class B3TestCase extends TestCase {
     protected static Logger root   = null;
     protected static boolean configurated  = false;
+    protected static MyEMFDatabase DB;
     
     public B3TestCase(String name){
         super(name);
@@ -25,8 +26,9 @@ public class B3TestCase extends TestCase {
         Log4jConfigurator.configure();
         
         ConfigStub config    = new ConfigStub();
-        MyEMFDatabase DB     = new MyEMFDatabase();
+        DB                  = new MyEMFDatabase();
         DB.init(config);
+        DB.createEntityManager(MyEMFDatabase.MAIN_EM);
           
         configurated = true;
     }
