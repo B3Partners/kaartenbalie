@@ -1,9 +1,13 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import general.*;
+import java.io.IOException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletConfig;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -18,7 +22,6 @@ public class CallWMSServletTest extends B3TestCase {
     private HttpServletResponseStub responseStumb;    
     private User user;    
     private CallWMSServlet servlet;
-    private String layerName    = "testLayer";
     
     public CallWMSServletTest(String name){
         super(name);
@@ -50,6 +53,7 @@ public class CallWMSServletTest extends B3TestCase {
     /**
      * Log directory misses
      */
+    @Test
     public void testCallWMSServlet_Init(){
         try {
             this.servlet.init(this.configStumb);
@@ -64,6 +68,7 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_CreateBaseUrl(){
          StringBuffer baseUrl = this.servlet.createBaseUrl(this.requestStumb);
         
@@ -73,9 +78,9 @@ public class CallWMSServletTest extends B3TestCase {
     public void testCallWMSServlet_ParseRequestAndData_Proxy(){
         /* Proxy */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
+            OGCRequest ogRequest  = this.getOGCRequest();
             ogRequest.addOrReplaceParameters(OGCConstants.PROXY_URL+"=http://localhost:8000&"+OGCConstants.SERVICE+"="+OGCConstants.NONOGC_SERVICE_PROXY);
             data.setOgcrequest(ogRequest);
             
@@ -91,12 +96,13 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_MetaData(){
         /* Meta data */        
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
+            OGCRequest ogRequest  = this.getOGCRequest();
             ogRequest.addOrReplaceParameters(OGCConstants.PROXY_URL+"=http://localhost:8000&"+OGCConstants.SERVICE+"="+OGCConstants.NONOGC_SERVICE_METADATA+"&"+OGCConstants.METADATA_LAYER+"="+layerName);
             data.setOgcrequest(ogRequest);
             
@@ -113,12 +119,13 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS(){
         /* WMS */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
+            OGCRequest ogRequest  = this.getOGCRequest();
             ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_GetCapabilities+"&"+OGCConstants.SERVICE+"="+OGCConstants.NONOGC_SERVICE_METADATA+"&"+OGCConstants.METADATA_LAYER+"="+layerName);
             data.setOgcrequest(ogRequest);
             
@@ -137,12 +144,13 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WFS(){
         /* WFS */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
+            OGCRequest ogRequest  = this.getOGCRequest();
             ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_GetCapabilities+"&"+OGCConstants.SERVICE+"="+OGCConstants.NONOGC_SERVICE_METADATA+"&"+OGCConstants.METADATA_LAYER+"="+layerName);
             data.setOgcrequest(ogRequest);
             
@@ -164,13 +172,14 @@ public class CallWMSServletTest extends B3TestCase {
     /**
      * EntityManager mainEM can not be loaded
      */
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS_GetMap(){
         /* WMS GetMap */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
-            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_GetMap);
+            OGCRequest ogRequest  = this.getOGCRequest();
+            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_GetMap+"&"+OGCConstants.WMS_PARAM_LAYERS+"="+this.layerName);
             data.setOgcrequest(ogRequest);
             
             this.servlet.parseRequestAndData(data, user);
@@ -184,12 +193,13 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS_GetLegendGraphic(){
         /* WMS GetMap */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
+            OGCRequest ogRequest  = this.getOGCRequest();
             ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+
                     OGCConstants.WMS_REQUEST_GetLegendGraphic+"&"+
                     OGCConstants.WMS_PARAM_LAYER+"="+this.layerName);
@@ -206,13 +216,14 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS_DescribeLayer(){
         /* WMS DescribeLayer */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
-            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_DescribeLayer);
+            OGCRequest ogRequest  = this.getOGCRequest();
+            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WMS_REQUEST_DescribeLayer+"&"+OGCConstants.WMS_PARAM_LAYERS+"="+this.layerNames);
             data.setOgcrequest(ogRequest);
             
             this.servlet.parseRequestAndData(data, this.user);
@@ -226,13 +237,15 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS_DescribeFeatureType(){
         /* WMS DescribeFeatureType */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
-            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_DescribeFeatureType);
+            OGCRequest ogRequest  = this.getOGCRequest();
+            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_DescribeFeatureType+"&"+OGCConstants.WFS_PARAM_TYPENAME+"="+this.layerNames);
+            
             data.setOgcrequest(ogRequest);
             
             this.servlet.parseRequestAndData(data, user);
@@ -246,14 +259,17 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
     
-     public void testCallWMSServlet_ParseRequestAndData_WMS_GetFeature(){
+    @Test
+    public void testCallWMSServlet_ParseRequestAndData_WMS_GetFeature(){
         /* WMS GetFeature */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
-            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_GetFeature);
-            data.setOgcrequest(ogRequest);
+            OGCRequest ogRequest  = this.getOGCRequest();
+            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_GetFeature+"&"+OGCConstants.WFS_PARAM_TYPENAME+"="+this.layerNames);
+            ogRequest.setHttpMethod("GET");
+            data.setOgcrequest(ogRequest);            
+            
             
             this.servlet.parseRequestAndData(data, user);
             
@@ -266,27 +282,51 @@ public class CallWMSServletTest extends B3TestCase {
         }
     }
      
+    @Test
     public void testCallWMSServlet_ParseRequestAndData_WMS_Transaction(){
         /* WMS Transaction */
         try {
-            DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+            DataWrapper data    = this.getWrapper();
             
-            OGCRequest ogRequest  = new OGCRequest();
-            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_Transaction);
+            OGCRequest ogRequest  = this.getOGCRequest();
+            ogRequest.addOrReplaceParameters(OGCConstants.REQUEST+"="+OGCConstants.WFS_REQUEST_Transaction+"&"+OGCConstants.WFS_PARAM_OPERATION+"=true");
+            //ogRequest.addElementToTransactionList("polygon", "testwaarde");
             data.setOgcrequest(ogRequest);
             
             this.servlet.parseRequestAndData(data, user);
             
             assertTrue(true);
         }
+        catch(UnsupportedOperationException e){
+            /* Expected
+             * Don't want the database to be changed
+             */
+            assertTrue(true);
+        }
         catch(Exception e){
-            e.printStackTrace();
-            fail("Exception "+e.getLocalizedMessage());
+            fail("Exception Expected UnsupportedOperationException. Check on transactionlist incorrect?");
             assertTrue(false);
         }
     }
     
+    @Test
     public void testCallWMSServlet_GetServletInfo(){
         assertEquals(this.servlet.getServletInfo(),"CallWMSServlet info");
+    }
+    
+    private DataWrapper getWrapper() throws IOException{
+        DataWrapper data    = new DataWrapper(this.requestStumb,this.responseStumb);
+        
+        DataMonitoring monitoring   = new DataMonitoring();
+        data.setRequestReporting(monitoring);
+        
+        return data;
+    }
+    
+    private OGCRequest getOGCRequest(){
+        OGCRequest ogRequest  = new OGCRequest();
+        ogRequest.setHttpHost(this.requestStumb.getServerName());
+        
+        return ogRequest;
     }
 }

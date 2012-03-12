@@ -46,18 +46,24 @@ public class GetCapabilitiesRequestHandlerTest extends B3TestCase {
      * Test of getRequest method, of class GetCapabilitiesRequestHandler.
      */
     @Test
-    public void testGetCapabilitiesRequestHandlerTest_GetRequest() throws Exception {
-        DataWrapper wrapper = new DataWrapper(this.request,this.response);
-        User user           = UserStub.generateServerUser();
-        user.setPersonalURL("http://example.com/personal");
-        
-        OGCRequest OGrequest  = new OGCRequest();
-        OGrequest.addOrReplaceParameters("VIEWER_CONFIG=false");
-        wrapper.setOgcrequest(OGrequest);
-        
+    public void testGetCapabilitiesRequestHandlerTest_GetRequest(){
         try {
+            DataWrapper wrapper = new DataWrapper(this.request,this.response);
+            User user           = UserStub.generateServerUser();
+            user.setPersonalURL("http://example.com/personal");
+
+            OGCRequest OGrequest  = new OGCRequest();
+            OGrequest.addOrReplaceParameters("VIEWER_CONFIG=false");
+            wrapper.setOgcrequest(OGrequest);
+        
             this.instance.getRequest(wrapper, user);
             
+            assertTrue(true);
+        }
+        catch(IllegalArgumentException e){
+            /* Expected
+             * Unknow user
+             */
             assertTrue(true);
         }
         catch(Exception e){

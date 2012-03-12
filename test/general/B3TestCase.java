@@ -1,9 +1,8 @@
 package general;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import org.apache.log4j.Logger;
 
@@ -12,12 +11,17 @@ import org.apache.log4j.Logger;
  * @author rachelle
  */
 public class B3TestCase extends TestCase {
+    protected static String className;
     protected static Logger root   = null;
     protected static boolean configurated  = false;
     protected static MyEMFDatabase DB;
+    protected String layerName    = "testLayer";
+    protected String layerNames   = "testLayer1,testLayer2,testLayer3";
     
     public B3TestCase(String name){
         super(name);
+        
+        className   = name;
     }
     
     public static void setUpClass() throws Exception {
@@ -66,4 +70,9 @@ public class B3TestCase extends TestCase {
             assertTrue(true);
         }
     }
+    
+    /*
+   public static Test suite(){
+        throw new UnsupportedOperationException("Suit() should be overwritten in test classes");
+    } */
 }

@@ -135,9 +135,14 @@ public class DataWrapperTest extends B3TestCase{
         assertEquals(0,this.wrapper.getContentLength());
     }
     
+    /**
+     * Test of correct reading from the content length of class DataWrapper
+     * Every int takes 4 bytes.
+     */
     public void testDataWrapperTest_SetContentLength(){
         ByteArrayOutputStreamStub stub  = new ByteArrayOutputStreamStub();
-        for( int i=1; i<= this.contentLength; i++){
+        int end = this.contentLength/4;
+        for( int i=1; i<= end; i++){
             stub.write(34);
         }
         try {
