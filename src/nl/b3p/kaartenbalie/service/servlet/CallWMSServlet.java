@@ -563,7 +563,7 @@ public class CallWMSServlet extends HttpServlet {
                     remoteaddress = forwardedFor;
                 }
                 String remoteAddressDesc = remoteaddress + 
-                        (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr());
+                        (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr() + ")");
                 
                 boolean validip = false;
                 
@@ -779,9 +779,7 @@ public class CallWMSServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        log.debug("doGet: " + request.getRemoteAddr());
-        
+            throws ServletException, IOException {        
         processRequest(request, response);
     }
 
@@ -791,10 +789,7 @@ public class CallWMSServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        log.debug("doPost: " + request.getRemoteAddr());
-        
+            throws ServletException, IOException {        
         processRequest(request, response);
     }
 
