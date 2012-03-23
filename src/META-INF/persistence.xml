@@ -12,7 +12,7 @@
             <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.pg.xml"/>
             <property name="hibernate.jdbc.use_streams_for_binary" value="false"/>
 
-            <!-- Oracle
+            <!-- Oracle 
             <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
             <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
             <property name="hibernate.ejb.cfgfile" value="hibernate.cfg.oracle.xml"/> -->
