@@ -558,6 +558,13 @@ public class CallWMSServlet extends HttpServlet {
 
             if (user != null) {
                 String remoteaddress = request.getRemoteAddr();
+                String forwardedFor = request.getHeader("X-Forwarded-For");
+                if(forwardedFor != null) {
+                    remoteaddress = forwardedFor;
+                }
+                String remoteAddressDesc = remoteaddress + 
+                        (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr());
+                
                 boolean validip = false;
                 
                 /* remoteaddress controleren tegen ip adressen van user.
@@ -567,11 +574,13 @@ public class CallWMSServlet extends HttpServlet {
                 while (it.hasNext()) {
                     String ipaddress = (String) it.next();
 
+                    log.debug("Checking ip: " + ipaddress + " against: " + remoteAddressDesc);
+                            
                     if (ipaddress.indexOf("*") != -1) {
                         if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress) ) {
                             validip = true;
 
-                            log.debug("Request within ip range for remote ip " + remoteaddress +
+                            log.debug("Request within ip range for remote ip " + remoteAddressDesc +
                                     " for user " + user.getUsername() + " with code " + code);
 
                             break;
@@ -588,6 +597,9 @@ public class CallWMSServlet extends HttpServlet {
 
                 /* lokale verzoeken mogen ook */
                 String localAddress = request.getLocalAddr();
+                
+                log.debug("Checking local: " + localAddress + " against: " + remoteAddressDesc);
+                
                 if (remoteaddress.equalsIgnoreCase(localAddress)) {
                     validip = true;
 
@@ -768,6 +780,8 @@ public class CallWMSServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        log.debug("doGet: " + request.getRemoteAddr());
+        
         processRequest(request, response);
     }
 
@@ -778,6 +792,9 @@ public class CallWMSServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        log.debug("doPost: " + request.getRemoteAddr());
+        
         processRequest(request, response);
     }
 
