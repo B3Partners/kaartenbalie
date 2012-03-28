@@ -1,5 +1,6 @@
-package general;
+package stubs;
 
+import general.ServerDetailEnumeration;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

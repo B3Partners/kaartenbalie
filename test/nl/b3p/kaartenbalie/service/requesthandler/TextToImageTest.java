@@ -1,14 +1,12 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 import general.B3TestCase;
-import general.HttpServletRequestStub;
-import general.HttpServletResponseStub;
-import general.UserStub;
-import java.io.IOException;
-import nl.b3p.kaartenbalie.core.server.User;
+import stubs.HttpServletRequestStub;
+import stubs.HttpServletResponseStub;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *

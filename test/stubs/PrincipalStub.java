@@ -1,4 +1,4 @@
-package general;
+package stubs;
 
 import java.security.Principal;
 

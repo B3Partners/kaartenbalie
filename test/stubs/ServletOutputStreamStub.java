@@ -1,5 +1,6 @@
-package general;
+package stubs;
 
+import general.MultikeyHashMap;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;

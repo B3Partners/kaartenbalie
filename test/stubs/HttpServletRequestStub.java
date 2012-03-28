@@ -1,5 +1,8 @@
-package general;
+package stubs;
 
+import general.MultikeyHashMap;
+import general.ServerDetailEnumeration;
+import general.ServerLocaleEnumeration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

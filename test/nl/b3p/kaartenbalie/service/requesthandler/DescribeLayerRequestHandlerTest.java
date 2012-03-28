@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import general.B3TestCase;
-import general.HttpServletRequestStub;
-import general.HttpServletResponseStub;
-import general.UserStub;
+import stubs.HttpServletRequestStub;
+import stubs.HttpServletResponseStub;
+import stubs.UserStub;
 import java.util.Date;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;

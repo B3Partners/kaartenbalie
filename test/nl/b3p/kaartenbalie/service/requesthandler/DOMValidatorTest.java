@@ -1,8 +1,8 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import general.B3TestCase;
-import general.ByteArrayInputStreamStub;
-import general.LocatorStub;
+import stubs.ByteArrayInputStreamStub;
+import stubs.LocatorStub;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

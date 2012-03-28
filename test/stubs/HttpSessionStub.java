@@ -1,5 +1,6 @@
-package general;
+package stubs;
 
+import general.ServerDetailEnumeration;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;

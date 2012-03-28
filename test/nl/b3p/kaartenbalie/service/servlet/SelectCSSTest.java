@@ -5,9 +5,9 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import general.B3TestCase;
-import general.ConfigStub;
-import general.HttpServletRequestStub;
-import general.HttpServletResponseStub;
+import stubs.ConfigStub;
+import stubs.HttpServletRequestStub;
+import stubs.HttpServletResponseStub;
 import javax.servlet.ServletException;
 import org.junit.After;
 import org.junit.Before;

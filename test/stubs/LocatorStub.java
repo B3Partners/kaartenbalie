@@ -1,4 +1,4 @@
-package general;
+package stubs;
 
 import org.xml.sax.Locator;
 

@@ -29,10 +29,10 @@ public class B3TestCase extends TestCase {
           
         Log4jConfigurator.configure();
         
-        ConfigStub config    = new ConfigStub();
-        DB                  = new MyEMFDatabase();
-        DB.init(config);
-        DB.createEntityManager(MyEMFDatabase.MAIN_EM);
+        //ConfigStub config    = new ConfigStub();
+        //DB                  = new MyEMFDatabase();
+        //DB.init(config);
+        //DB.createEntityManager(MyEMFDatabase.MAIN_EM);
           
         configurated = true;
     }

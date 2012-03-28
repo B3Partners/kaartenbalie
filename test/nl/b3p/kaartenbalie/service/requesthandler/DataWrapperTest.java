@@ -1,5 +1,9 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import stubs.InputStreamStub;
+import stubs.HttpServletResponseStub;
+import stubs.HttpServletRequestStub;
+import stubs.ByteArrayOutputStreamStub;
 import general.*;
 import java.io.IOException;
 import java.util.*;
