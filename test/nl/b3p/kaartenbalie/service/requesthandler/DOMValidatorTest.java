@@ -1,19 +1,19 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import general.B3TestCase;
-import stubs.ByteArrayInputStreamStub;
-import stubs.LocatorStub;
+import general.KaartenbalieTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import nl.b3p.servletAPI.ByteArrayInputStreamStub;
+import nl.b3p.servletAPI.LocatorStub;
 
 /**
  *
  * @author rachelle
  */
-public class DOMValidatorTest extends B3TestCase {    
+public class DOMValidatorTest extends KaartenbalieTestCase {    
     private ByteArrayInputStreamStub byteArrayInputStreamStub;
     private DOMValidator validator;
     private SAXParseException exception;

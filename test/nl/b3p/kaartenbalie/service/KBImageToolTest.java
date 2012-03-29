@@ -1,21 +1,21 @@
 package nl.b3p.kaartenbalie.service;
 
-import general.B3TestCase;
-import stubs.GetMethodStub;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
+import general.KaartenbalieTestCase;
 import java.awt.image.BufferedImage;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.*;
-import static org.junit.Assert.*;
+import nl.b3p.servletAPI.GetMethodStub;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *
  * @author rachelle
  */
-public class KBImageToolTest extends B3TestCase {    
+public class KBImageToolTest extends KaartenbalieTestCase {    
     private HttpServletRequestStub request;
     private HttpServletResponseStub response;
     private DataWrapper wrapper;

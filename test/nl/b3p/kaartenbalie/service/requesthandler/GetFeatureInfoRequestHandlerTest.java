@@ -1,9 +1,9 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import general.B3TestCase;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
-import stubs.UserStub;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletAPI.UserStub;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -16,7 +16,7 @@ import org.junit.Test;
  *
  * @author rachelle
  */
-public class GetFeatureInfoRequestHandlerTest extends B3TestCase {
+public class GetFeatureInfoRequestHandlerTest extends KaartenbalieTestCase {
     private HttpServletRequestStub request;
     private HttpServletResponseStub response;
     private GetFeatureInfoRequestHandler instance;
@@ -33,7 +33,7 @@ public class GetFeatureInfoRequestHandlerTest extends B3TestCase {
         
         this.request        = new HttpServletRequestStub();
         this.response       = new HttpServletResponseStub();
-        this.user           = UserStub.generateServerUser();
+        this.user           = this.generateUser();
         this.instance       = new GetFeatureInfoRequestHandler();
     }
     

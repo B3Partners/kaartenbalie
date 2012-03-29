@@ -1,10 +1,11 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import stubs.InputStreamStub;
-import stubs.HttpServletResponseStub;
-import stubs.HttpServletRequestStub;
-import stubs.ByteArrayOutputStreamStub;
-import general.*;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.InputStreamStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.ByteArrayOutputStreamStub;
+import nl.b3p.testStreet.*;
 import java.io.IOException;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import org.junit.Test;
  *
  * @author rachelle
  */
-public class DataWrapperTest extends B3TestCase{
+public class DataWrapperTest extends KaartenbalieTestCase{
     private HttpServletRequestStub request;
     private HttpServletResponseStub response;
     private DataWrapper wrapper;

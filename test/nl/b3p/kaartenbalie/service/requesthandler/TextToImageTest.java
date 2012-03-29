@@ -1,7 +1,7 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
-import general.B3TestCase;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.junit.After;
@@ -12,7 +12,7 @@ import org.junit.Test;
  *
  * @author rachelle
  */
-public class TextToImageTest extends B3TestCase {
+public class TextToImageTest extends KaartenbalieTestCase {
     private HttpServletRequestStub request;
     private HttpServletResponseStub response;
     private DataWrapper wrapper;

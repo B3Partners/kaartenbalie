@@ -1,9 +1,9 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import general.B3TestCase;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
-import stubs.UserStub;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletAPI.UserStub;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.junit.*;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  *
  * @author rachelle
  */
-public class GetCapabilitiesRequestHandlerTest extends B3TestCase {
+public class GetCapabilitiesRequestHandlerTest extends KaartenbalieTestCase {
     private GetCapabilitiesRequestHandler instance;
     private HttpServletRequestStub request;
     private HttpServletResponseStub response;
@@ -49,7 +49,7 @@ public class GetCapabilitiesRequestHandlerTest extends B3TestCase {
     public void testGetCapabilitiesRequestHandlerTest_GetRequest(){
         try {
             DataWrapper wrapper = new DataWrapper(this.request,this.response);
-            User user           = UserStub.generateServerUser();
+            User user           = this.generateUser();
             user.setPersonalURL("http://example.com/personal");
 
             OGCRequest OGrequest  = new OGCRequest();

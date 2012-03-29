@@ -1,9 +1,8 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import general.B3TestCase;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
-import stubs.UserStub;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
 import java.util.Date;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
@@ -16,10 +15,9 @@ import static org.junit.Assert.*;
  *
  * @author rachelle
  */
-public class DescribeLayerRequestHandlerTest extends B3TestCase {   
+public class DescribeLayerRequestHandlerTest extends KaartenbalieTestCase {   
     private HttpServletRequestStub httpServletRequestStub;
     private HttpServletResponseStub httpServletResponseStub;
-    private User user; 
     private DescribeLayerRequestHandler instance;
     
     public DescribeLayerRequestHandlerTest(String name){
@@ -34,7 +32,6 @@ public class DescribeLayerRequestHandlerTest extends B3TestCase {
         this.httpServletRequestStub     = new HttpServletRequestStub();
         this.httpServletResponseStub    = new HttpServletResponseStub();
         this.instance                   = new DescribeLayerRequestHandler();
-        this.user                       = UserStub.generateServerUser();
     }
     
     @After
@@ -45,7 +42,6 @@ public class DescribeLayerRequestHandlerTest extends B3TestCase {
         this.httpServletRequestStub     = null;
         this.httpServletResponseStub    = null;
         this.instance                   = null;
-        this.user                       = null;
     }
 
     /**
@@ -58,6 +54,7 @@ public class DescribeLayerRequestHandlerTest extends B3TestCase {
         DataMonitoring monitoring   = new DataMonitoring();
         Date date                   = new Date();
         monitoring.startClientRequest("index.jsp",64, date.getTime(), "127.0.0.1", "http");
+        User user   = this.generateUser();
         
         wrapper.setRequestReporting(monitoring);
         
@@ -66,7 +63,7 @@ public class DescribeLayerRequestHandlerTest extends B3TestCase {
         wrapper.setOgcrequest(request);
         
         try {
-            this.instance.getRequest(wrapper, this.user);
+            this.instance.getRequest(wrapper, this.generateUser());
             
             fail("Function schould fail. need real content server");
             assertTrue(false);

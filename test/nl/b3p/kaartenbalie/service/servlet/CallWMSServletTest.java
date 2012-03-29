@@ -1,10 +1,10 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
-import stubs.UserStub;
-import stubs.HttpServletResponseStub;
-import stubs.HttpServletRequestStub;
-import stubs.ConfigStub;
-import general.*;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.ConfigStub;
+import nl.b3p.testStreet.*;
 import java.io.IOException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.servlet.ServletConfig;
@@ -20,7 +20,7 @@ import nl.b3p.ogc.utils.OGCRequest;
  *
  * @author rachelle
  */
-public class CallWMSServletTest extends B3TestCase {
+public class CallWMSServletTest extends KaartenbalieTestCase {
     private ServletConfig configStumb;
     private HttpServletRequestStub requestStumb;
     private HttpServletResponseStub responseStumb;    
@@ -35,7 +35,7 @@ public class CallWMSServletTest extends B3TestCase {
     public void setUp() throws Exception{
         super.setUp();
         
-        this.user           = UserStub.generateServerUser();
+        this.user           = this.generateUser();
         this.configStumb    = new ConfigStub();
         this.requestStumb   = new HttpServletRequestStub();
         this.responseStumb  = new HttpServletResponseStub();

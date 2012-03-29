@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.b3p.kaartenbalie.service.servlet;
 
-import general.B3TestCase;
-import stubs.ConfigStub;
-import stubs.HttpServletRequestStub;
-import stubs.HttpServletResponseStub;
+import general.KaartenbalieTestCase;
+import nl.b3p.servletAPI.ConfigStub;
+import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletAPI.HttpServletResponseStub;
 import javax.servlet.ServletException;
 import org.junit.After;
 import org.junit.Before;
@@ -17,7 +13,7 @@ import org.junit.Test;
  *
  * @author rachelle
  */
-public class SelectCSSTest extends B3TestCase {   
+public class SelectCSSTest extends KaartenbalieTestCase {   
     private ConfigStub configStub;
     private SelectCSS servlet;
     private HttpServletRequestStub httpServletRequestStub;
