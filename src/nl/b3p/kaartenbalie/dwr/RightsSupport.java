@@ -109,7 +109,7 @@ public class RightsSupport {
         if (orgWmsLayerSet != null) {
             for (Layer l : orgWmsLayerSet) {
                 ServiceProvider layerSp = l.getServiceProvider();
-                if (!layerSp.getAbbr().equals(sp.getAbbr())) {
+                if (sp != null && layerSp != null && !layerSp.getAbbr().equals(sp.getAbbr())) {
                     wmsLayers.add(l);
                     String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
                     layers.add(lname);

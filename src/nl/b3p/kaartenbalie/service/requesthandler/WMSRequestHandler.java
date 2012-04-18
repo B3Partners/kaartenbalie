@@ -570,6 +570,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     wmsRequest.setRequestResponseTime(new Long(time));
                     
                     if (statusCode != HttpStatus.SC_OK) {
+                        log.debug(statusCode + " URL: " + url);
+                        
                         log.error("Error connecting to server. Status code: " + statusCode);
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
                     }                    
