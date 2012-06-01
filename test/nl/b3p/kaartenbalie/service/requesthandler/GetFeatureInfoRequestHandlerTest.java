@@ -66,12 +66,10 @@ public class GetFeatureInfoRequestHandlerTest extends KaartenbalieTestCase {
             
             this.instance.getRequest(wrapper, this.user);
             
-            assertTrue(true);
+            assertTrue(false);
         } 
         catch (Exception ex) {
-            fail("Exception : "+ex.getLocalizedMessage());
-            
-            assertTrue(false);
+            this.checkNotMapped(ex);
         }  
     }
     
@@ -93,12 +91,10 @@ public class GetFeatureInfoRequestHandlerTest extends KaartenbalieTestCase {
             
             this.instance.getRequest(wrapper, this.user);
             
-            assertTrue(true);
+            assertTrue(false);
         } 
         catch (Exception ex) {
-            fail("Exception : "+ex.getLocalizedMessage());
-            
-            assertTrue(false);
+            this.checkNotMapped(ex);
         }  
     }
     
@@ -120,12 +116,10 @@ public class GetFeatureInfoRequestHandlerTest extends KaartenbalieTestCase {
             
             this.instance.getRequest(wrapper, this.user);
             
-            assertTrue(true);
+            assertTrue(false);
         } 
         catch (Exception ex) {
-            fail("Exception : "+ex.getLocalizedMessage());
-            
-            assertTrue(false);
+            this.checkNotMapped(ex);
         }  
     }
     
@@ -147,12 +141,10 @@ public class GetFeatureInfoRequestHandlerTest extends KaartenbalieTestCase {
             
             this.instance.getRequest(wrapper, this.user);
             
-            assertTrue(true);
+            assertTrue(false);
         } 
         catch (Exception ex) {
-            fail("Exception : "+ex.getLocalizedMessage());
-            
-            assertTrue(false);
+            this.checkNotMapped(ex);
         }  
     }
 }
