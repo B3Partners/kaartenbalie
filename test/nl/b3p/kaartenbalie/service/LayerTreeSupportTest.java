@@ -2,7 +2,7 @@ package nl.b3p.kaartenbalie.service;
 
 import general.KaartenbalieTestCase;
 import general.LayerTest;
-import general.ServiceProviderTest;
+import general.ServiceProviderOverwrite;
 import java.util.HashSet;
 import java.util.Set;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
@@ -126,7 +126,7 @@ public class LayerTreeSupportTest extends KaartenbalieTestCase {
      */
     @Test
     public void testServiceProviderToJSON_ServiceProvider() {
-        ServiceProviderTest serviceProvider = new ServiceProviderTest();
+        ServiceProviderOverwrite serviceProvider = new ServiceProviderOverwrite();
         serviceProvider.setTestId(1);
         serviceProvider.setGivenName("test service provider");
 
