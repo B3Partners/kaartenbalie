@@ -305,15 +305,4 @@ public class LayerPricingTest extends KaartenbalieTestCase {
         instance.setProjection(projection);
         assertStringEquals(projection, instance.getProjection());
     }
-
-    /**
-     * Generates a date object
-     *
-     * @return a date object
-     */
-    private Date generateDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(112, 1, 1);
-        return calendar.getTime();
-    }
 }

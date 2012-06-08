@@ -36,8 +36,10 @@ public class KaartenbalieTestCase extends B3TestCase {
     }
 
     protected nl.b3p.kaartenbalie.core.server.User generateUser() {
-        nl.b3p.kaartenbalie.core.server.User user = new nl.b3p.kaartenbalie.core.server.User();
-        user.setUsername("Beheerder");
+        UserOverwrite user = new UserOverwrite();
+        
+        user.setIdTest(new Integer(1));
+        user.setUsername("beheerder");
         user.setPassword("dsfdes23423");
         user.setFirstName("Beheerder");
         user.setSurname("Beheerders");

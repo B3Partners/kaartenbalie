@@ -200,12 +200,4 @@ public class ReportTest extends KaartenbalieTestCase {
         instance.setName(name);
         assertStringEquals(name,instance.getName());
     }
-    
-    private Date generateDate(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(112,1,1);
-        Date dateCheck  = calendar.getTime();
-        
-        return dateCheck;
-    }
 }
