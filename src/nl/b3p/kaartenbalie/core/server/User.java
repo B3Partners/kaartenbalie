@@ -65,7 +65,7 @@ public class User implements Principal {
         return id;
     }
 
-    private void setId(Integer id) {
+    protected void setId(Integer id) {
         this.id = id;
     }
 
