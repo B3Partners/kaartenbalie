@@ -552,6 +552,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         
                 // TODO: Wel goed doen
                 url = url.replaceAll(" ", "%20");
+                url = url.replaceAll("\\\\+", "/");
                 
                 HttpGet httpget = new HttpGet(url);
                 
