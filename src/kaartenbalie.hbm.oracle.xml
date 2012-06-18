@@ -278,6 +278,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="50" name="wmsVersion" not-null="true"/>
         <property length="80" name="status" not-null="false"/>
         <property length="255" name="sldUrl" not-null="false"/>
+        <property column="ignore_resource" type="boolean" name="ignoreResource"/>
     </class>
     <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
         <id name="id">

@@ -211,8 +211,7 @@ public class WmsServerAction extends ServerAction {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
-        }
-
+        }        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -221,8 +220,17 @@ public class WmsServerAction extends ServerAction {
          * specifications. Or there can be an other exception during the process.
          * Either way we need to inform the user about the error which occured.
          */
+        
+        Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
+        
         try {
-            newServiceProvider = wms.getProvider(url.trim());
+            if (ignoreResource != null && ignoreResource) {
+                String getCap = "&service=WMS&request=GetCapabilities";
+                newServiceProvider = wms.getProvider(inputUrl + getCap);
+            } else {
+                newServiceProvider = wms.getProvider(url.trim());
+            }
+            
         } catch (IOException e) {
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -251,8 +259,13 @@ public class WmsServerAction extends ServerAction {
          * Dit geeft namelijk bij het toevoegen van externe wms services waar 
          * dit verkeerd staat welke je niet zelf kunt wijzigen problemen.
         */
-        newServiceProvider.setUrl(inputUrl);
-
+        
+        if (ignoreResource != null && ignoreResource) {
+            newServiceProvider.setUrl(inputUrl);
+        } else {
+            newServiceProvider.setUrl(url);
+        }        
+        
         populateServerObject(dynaForm, newServiceProvider);
 
         // haal set op om vulling van set af te dwingen
@@ -842,6 +855,14 @@ public class WmsServerAction extends ServerAction {
         if (sldUrl != null && !sldUrl.equals("")) {
             serviceProvider.setSldUrl(sldUrl);
         }
+        
+        /* set ignoreResource */
+        Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
+        if (ignoreResource != null && ignoreResource) {
+            serviceProvider.setIgnoreResource(ignoreResource);  
+        } else {
+            serviceProvider.setIgnoreResource(false);  
+        }
     }
     // </editor-fold>
     //-------------------------------------------------------------------------------------------------------
@@ -862,6 +883,8 @@ public class WmsServerAction extends ServerAction {
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
         dynaForm.set("sldUrl", serviceProvider.getSldUrl());
+        
+        dynaForm.set("ignoreResource", serviceProvider.getIgnoreResource());
     }
     // </editor-fold>
     /* Tries to find a specified layer given for a certain ServiceProvider.

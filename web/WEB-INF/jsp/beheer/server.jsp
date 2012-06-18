@@ -132,9 +132,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <td><html:text property="abbr" size="16" maxlength="50"/></td>
                         </tr>
                         <tr>
-                            <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
-                            <td><html:text property="url" size="75" /></td>
+                            <td colspan="2"><b><fmt:message key="beheer.ignoreResource"/></b><html:checkbox property="ignoreResource" /></td>
                         </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
+                            <td>
+                                <html:text property="url" size="75" />                        
+                            </td>
+                        </tr>                        
                         <tr>
                             <td><B><fmt:message key="beheer.sldUrl"/>:</B></td>
                             <td><html:text property="sldUrl" size="75" /></td>
