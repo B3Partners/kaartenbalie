@@ -161,6 +161,16 @@ public class WfsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
+        
+        /* Check username and password setting */
+        String username = dynaForm.getString("username");
+        String password = dynaForm.getString("password");
+        if( (!username.equals("") && password.equals("") ) || (username.equals("") && !password.equals("")) ){
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_CREDENTIALS_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
+        
         /*
          * First we need to check if the given url is realy an url.
          */
@@ -197,6 +207,12 @@ public class WfsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        
+        if( username.equals("") ){
+            username    = null;
+            password    = null;
+        }
+        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -206,9 +222,10 @@ public class WfsServerAction extends ServerAction {
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wfs.getProvider(url.trim());
+            newServiceProvider = wfs.getProvider(url.trim(),username,password);
             newServiceProvider.setAbbr(dynaForm.getString("abbr"));
             newServiceProvider.setGivenName(dynaForm.getString("givenName"));
+            
         } catch (IOException e) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
@@ -357,13 +374,15 @@ public class WfsServerAction extends ServerAction {
 
             for (WfsServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
+                String username = sp.getUsername();
+                String password = sp.getPassword();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                WfsServiceProvider newSp = getTestServiceProvider(newUrl);
+                WfsServiceProvider newSp = getTestServiceProvider(newUrl,username,password);
 
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
@@ -408,13 +427,15 @@ public class WfsServerAction extends ServerAction {
 
             for (WfsServiceProvider oldServiceProvider : wmsServices) {
                 String newUrl = oldServiceProvider.getUrl();
+                String username = oldServiceProvider.getUsername();
+                String password = oldServiceProvider.getPassword();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl);
+                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl,username,password);
 
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
@@ -504,12 +525,12 @@ public class WfsServerAction extends ServerAction {
         }
     }
 
-    private WfsServiceProvider getTestServiceProvider(String url) throws Exception {
+    private WfsServiceProvider getTestServiceProvider(String url,String username,String password) throws Exception {
         WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
         WfsServiceProvider sp = null;
 
         try {
-            sp = wfs.getProvider(url.trim());
+            sp = wfs.getProvider(url.trim(),username,password);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {
@@ -763,6 +784,8 @@ public class WfsServerAction extends ServerAction {
         dynaForm.set("id", serviceProvider.getId() + "");
         dynaForm.set("givenName", serviceProvider.getGivenName());
         dynaForm.set("url", serviceProvider.getUrl());
+        dynaForm.set("username", serviceProvider.getUsername());
+        dynaForm.set("password", serviceProvider.getPassword());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
     }

@@ -100,6 +100,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <strong><fmt:message key="beheer.server.table.naam" />:</strong> ${nServiceProvider.givenName}<br />
                     <strong><fmt:message key="beheer.server.table.afkorting" />:</strong> ${nServiceProvider.abbr}<br />
                     <strong><fmt:message key="beheer.server.infolabel.url" />:</strong> ${nServiceProvider.url}<br />
+                    <strong><fmt:message key="beheer.server.infolabel.username" />:</strong> ${nServiceProvider.username}<br />
+                    <strong><fmt:message key="beheer.server.infolabel.password" />:</strong> ${nServiceProvider.password}<br />
                     <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                 </div>
                 </c:forEach>
@@ -143,6 +145,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <tr>
                             <td><B><fmt:message key="beheer.sldUrl"/>:</B></td>
                             <td><html:text property="sldUrl" size="75" /></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.username"/>:</B></td>
+                            <td><html:text property="username" size="35" /></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.password"/>:</B></td>
+                            <td><html:text property="password" size="35" /></td>
                         </tr>
                     </table>
                         

@@ -97,6 +97,8 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
         dynaForm.set("url", request.getParameter("url"));
         dynaForm.set("updatedDate", request.getParameter("updatedDate"));
         dynaForm.set("abbr", request.getParameter("abbr"));
+        dynaForm.set("username", request.getParameter("username"));
+        dynaForm.set("password", request.getParameter("password"));
 
         prepareMethod(dynaForm, request, EDIT, LIST);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
