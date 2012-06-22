@@ -185,6 +185,15 @@ public class WmsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, null, e.getMessage());
             return getAlternateForward(mapping, request);
         }
+        
+        /* Check username and password setting */
+        String username = dynaForm.getString("username");
+        String password = dynaForm.getString("password");
+        if( (!username.equals("") && password.equals("") ) || (username.equals("") && !password.equals("")) ){
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, MALFORMED_CREDENTIALS_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        }
 
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
@@ -211,7 +220,8 @@ public class WmsServerAction extends ServerAction {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
-        }        
+        }
+        
         /*
          * This request can lead to several problems.
          * The server can be down or the url given isn't right. This means that the url
@@ -223,12 +233,17 @@ public class WmsServerAction extends ServerAction {
         
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
         
+        if( username.equals("") ){
+            username    = null;
+            password    = null;
+        }
         try {
             if (ignoreResource != null && ignoreResource) {
                 String getCap = "&service=WMS&request=GetCapabilities";
-                newServiceProvider = wms.getProvider(inputUrl + getCap);
+                
+                newServiceProvider = wms.getProvider(inputUrl + getCap,username,password);
             } else {
-                newServiceProvider = wms.getProvider(url.trim());
+                newServiceProvider = wms.getProvider(url.trim(),username,password);
             }
             
         } catch (IOException e) {
@@ -264,7 +279,13 @@ public class WmsServerAction extends ServerAction {
             newServiceProvider.setUrl(inputUrl);
         } else {
             newServiceProvider.setUrl(url);
-        }        
+        }       
+        
+        if( username != null ){
+            /* Save username and password */
+            newServiceProvider.setUserName(username);
+            newServiceProvider.setPassword(password);
+        }
         
         populateServerObject(dynaForm, newServiceProvider);
 
@@ -432,13 +453,15 @@ public class WmsServerAction extends ServerAction {
 
             for (ServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
+                String username = sp.getUserName();
+                String password = sp.getPassword();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newSp = getTestServiceProvider(newUrl);
+                ServiceProvider newSp = getTestServiceProvider(newUrl,username,password);
 
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
@@ -482,13 +505,15 @@ public class WmsServerAction extends ServerAction {
 
             for (ServiceProvider oldServiceProvider : wmsServices) {
                 String newUrl = oldServiceProvider.getUrl();
+                String username = oldServiceProvider.getUserName();
+                String password = oldServiceProvider.getPassword();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl);
+                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl,username,password);
 
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
@@ -532,6 +557,8 @@ public class WmsServerAction extends ServerAction {
         newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
         newServiceProvider.setUpdatedDate(new Date());
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
+        newServiceProvider.setUserName(oldServiceProvider.getUserName());
+        newServiceProvider.setPassword(oldServiceProvider.getPassword());
 
         Set layerSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
@@ -594,7 +621,7 @@ public class WmsServerAction extends ServerAction {
         }
     }
 
-    private ServiceProvider getTestServiceProvider(String url) throws Exception {
+    private ServiceProvider getTestServiceProvider(String url,String username,String password) throws Exception {
         /* WMS GetCap Url opbouwen */
         String newUrl = checkWmsUrl(url);
 
@@ -602,7 +629,7 @@ public class WmsServerAction extends ServerAction {
         ServiceProvider sp = null;
 
         try {
-            sp = wms.getProvider(newUrl.trim());
+            sp = wms.getProvider(newUrl.trim(),username,password);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {
@@ -849,6 +876,8 @@ public class WmsServerAction extends ServerAction {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
+        serviceProvider.setUserName(dynaForm.getString("username"));
+        serviceProvider.setPassword(dynaForm.getString("password"));
 
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
 
@@ -880,6 +909,8 @@ public class WmsServerAction extends ServerAction {
         dynaForm.set("id", serviceProvider.getId().toString());
         dynaForm.set("givenName", serviceProvider.getGivenName());
         dynaForm.set("url", serviceProvider.getUrl());
+        dynaForm.set("username", serviceProvider.getUserName());
+        dynaForm.set("password", serviceProvider.getPassword());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
         dynaForm.set("sldUrl", serviceProvider.getSldUrl());

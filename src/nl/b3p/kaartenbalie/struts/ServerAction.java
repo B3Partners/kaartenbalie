@@ -46,6 +46,7 @@ public abstract class ServerAction extends KaartenbalieCrudAction {
 
     protected static final String SERVER_CONNECTION_ERRORKEY = "error.serverconnection";
     protected static final String MALFORMED_URL_ERRORKEY = "error.malformedurl";
+    protected static final String MALFORMED_CREDENTIALS_ERRORKEY = "error.malformedcredentials";
     protected static final String MALFORMED_CAPABILITY_ERRORKEY = "error.malformedcapability";
     protected static final String SERVICE_LINKED_ERROR_KEY = "error.servicestilllinked";
     protected static final String UNSUPPORTED_WMSVERSION_ERRORKEY = "error.wmsversion";
