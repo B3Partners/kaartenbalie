@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -208,9 +209,15 @@ public class WfsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         
+        B3PCredentials credentials  = new B3PCredentials();
+        
         if( username.equals("") ){
             username    = null;
             password    = null;
+        }
+        else {
+            credentials.setUserName(username);
+            credentials.setPassword(password);
         }
         
         /*
@@ -222,7 +229,7 @@ public class WfsServerAction extends ServerAction {
          * Either way we need to inform the user about the error which occured.
          */
         try {
-            newServiceProvider = wfs.getProvider(url.trim(),username,password);
+            newServiceProvider = wfs.getProvider(url.trim(),credentials);
             newServiceProvider.setAbbr(dynaForm.getString("abbr"));
             newServiceProvider.setGivenName(dynaForm.getString("givenName"));
             
@@ -374,15 +381,14 @@ public class WfsServerAction extends ServerAction {
 
             for (WfsServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
-                String username = sp.getUsername();
-                String password = sp.getPassword();
+                B3PCredentials credentials  = sp.getCredentials();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                WfsServiceProvider newSp = getTestServiceProvider(newUrl,username,password);
+                WfsServiceProvider newSp = getTestServiceProvider(newUrl,credentials);
 
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
@@ -427,15 +433,15 @@ public class WfsServerAction extends ServerAction {
 
             for (WfsServiceProvider oldServiceProvider : wmsServices) {
                 String newUrl = oldServiceProvider.getUrl();
-                String username = oldServiceProvider.getUsername();
-                String password = oldServiceProvider.getPassword();
+                
+                B3PCredentials credentials  = oldServiceProvider.getCredentials();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl,username,password);
+                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl,credentials);
 
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
@@ -525,12 +531,12 @@ public class WfsServerAction extends ServerAction {
         }
     }
 
-    private WfsServiceProvider getTestServiceProvider(String url,String username,String password) throws Exception {
+    private WfsServiceProvider getTestServiceProvider(String url,B3PCredentials credentials) throws Exception {
         WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
         WfsServiceProvider sp = null;
 
         try {
-            sp = wfs.getProvider(url.trim(),username,password);
+            sp = wfs.getProvider(url.trim(),credentials);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {

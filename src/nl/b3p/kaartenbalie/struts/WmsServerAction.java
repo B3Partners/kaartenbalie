@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
@@ -234,17 +235,24 @@ public class WmsServerAction extends ServerAction {
         
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
         
+        B3PCredentials credentials  = new B3PCredentials();
+        
         if( username.equals("") ){
             username    = null;
             password    = null;
         }
+        else {
+            credentials.setUserName(username);
+            credentials.setPassword(password);
+        }
+        
         try {
             if (ignoreResource != null && ignoreResource) {
                 String getCap = "&service=WMS&request=GetCapabilities";
                 
-                newServiceProvider = wms.getProvider(inputUrl + getCap,username,password);
+                newServiceProvider = wms.getProvider(inputUrl + getCap,credentials);
             } else {
-                newServiceProvider = wms.getProvider(url.trim(),username,password);
+                newServiceProvider = wms.getProvider(url.trim(),credentials);
             }
             
         } catch (IOException e) {
@@ -301,7 +309,7 @@ public class WmsServerAction extends ServerAction {
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
         List<SldNamedLayer> namedLayers = null;
         if (sldUrl != null && !sldUrl.equals("")) {            
-            namedLayers = sldReader.getNamedLayersByUrl(sldUrl,username,password);
+            namedLayers = sldReader.getNamedLayersByUrl(sldUrl,credentials);
         }
 
         Iterator dwIter = layerSet.iterator();
@@ -337,7 +345,7 @@ public class WmsServerAction extends ServerAction {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer,username,password);
+            setMetadataFromLayerSource(layer, oldLayer,credentials);
         }
 
         if (oldServiceProvider != null) {
@@ -454,6 +462,7 @@ public class WmsServerAction extends ServerAction {
 
             for (ServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
+                B3PCredentials credentials  = sp.getCredentials();
                 String username = sp.getUserName();
                 String password = sp.getPassword();
 
@@ -462,7 +471,7 @@ public class WmsServerAction extends ServerAction {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newSp = getTestServiceProvider(newUrl,username,password);
+                ServiceProvider newSp = getTestServiceProvider(newUrl,credentials);
 
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
@@ -506,7 +515,7 @@ public class WmsServerAction extends ServerAction {
 
             for (ServiceProvider oldServiceProvider : wmsServices) {
                 String newUrl = oldServiceProvider.getUrl();
-                String username = oldServiceProvider.getUserName();
+                B3PCredentials credentials = oldServiceProvider.getCredentials();
                 String password = oldServiceProvider.getPassword();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
@@ -514,7 +523,7 @@ public class WmsServerAction extends ServerAction {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl,username,password);
+                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl,credentials);
 
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
@@ -562,6 +571,8 @@ public class WmsServerAction extends ServerAction {
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
         newServiceProvider.setUserName(username);
         newServiceProvider.setPassword(password);
+        
+        B3PCredentials credentials  = oldServiceProvider.getCredentials();
 
         Set layerSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
@@ -576,7 +587,7 @@ public class WmsServerAction extends ServerAction {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer,username,password);
+            setMetadataFromLayerSource(layer, oldLayer,credentials);
         }
 
         if (oldServiceProvider != null) {
@@ -624,7 +635,7 @@ public class WmsServerAction extends ServerAction {
         }
     }
 
-    private ServiceProvider getTestServiceProvider(String url,String username,String password) throws Exception {
+    private ServiceProvider getTestServiceProvider(String url,B3PCredentials credentials) throws Exception {
         /* WMS GetCap Url opbouwen */
         String newUrl = checkWmsUrl(url);
 
@@ -632,7 +643,7 @@ public class WmsServerAction extends ServerAction {
         ServiceProvider sp = null;
 
         try {
-            sp = wms.getProvider(newUrl.trim(),username,password);
+            sp = wms.getProvider(newUrl.trim(),credentials);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {
@@ -980,7 +991,7 @@ public class WmsServerAction extends ServerAction {
         return ogcrequest.getUrl();
     }
 
-    private void setMetadataFromLayerSource(Layer layer, Layer oldLayer,String username,String password) {
+    private void setMetadataFromLayerSource(Layer layer, Layer oldLayer,B3PCredentials credentials) {
         String mdUrl = null;
         Set ldrs = layer.getDomainResource();
         if (ldrs != null && !ldrs.isEmpty()) {
@@ -1001,7 +1012,7 @@ public class WmsServerAction extends ServerAction {
 
         String newMetadata = null;
         try {
-            newMetadata = collectMetadata(mdUrl,username,password);
+            newMetadata = collectMetadata(mdUrl,credentials);
         } catch (Exception ex) {
 //            log.error("", ex);
         }
@@ -1034,9 +1045,9 @@ public class WmsServerAction extends ServerAction {
      * @throws IOException
      * @throws Exception 
      */
-    private String collectMetadata(String url,String username,String password) throws HttpException, IOException, Exception {
+    private String collectMetadata(String url,B3PCredentials credentials) throws HttpException, IOException, Exception {
 
-        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(username,password);
+        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials);
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         String metadata = "";
