@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -300,7 +301,7 @@ public class WmsServerAction extends ServerAction {
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
         List<SldNamedLayer> namedLayers = null;
         if (sldUrl != null && !sldUrl.equals("")) {            
-            namedLayers = sldReader.getNamedLayersByUrl(sldUrl);
+            namedLayers = sldReader.getNamedLayersByUrl(sldUrl,username,password);
         }
 
         Iterator dwIter = layerSet.iterator();
@@ -336,7 +337,7 @@ public class WmsServerAction extends ServerAction {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer);
+            setMetadataFromLayerSource(layer, oldLayer,username,password);
         }
 
         if (oldServiceProvider != null) {
@@ -554,11 +555,13 @@ public class WmsServerAction extends ServerAction {
 
         EntityManager em = getEntityManager();
 
+        String username = oldServiceProvider.getUserName();
+        String password = oldServiceProvider.getPassword();
         newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
         newServiceProvider.setUpdatedDate(new Date());
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
-        newServiceProvider.setUserName(oldServiceProvider.getUserName());
-        newServiceProvider.setPassword(oldServiceProvider.getPassword());
+        newServiceProvider.setUserName(username);
+        newServiceProvider.setPassword(password);
 
         Set layerSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
@@ -573,7 +576,7 @@ public class WmsServerAction extends ServerAction {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer);
+            setMetadataFromLayerSource(layer, oldLayer,username,password);
         }
 
         if (oldServiceProvider != null) {
@@ -977,7 +980,7 @@ public class WmsServerAction extends ServerAction {
         return ogcrequest.getUrl();
     }
 
-    private void setMetadataFromLayerSource(Layer layer, Layer oldLayer) {
+    private void setMetadataFromLayerSource(Layer layer, Layer oldLayer,String username,String password) {
         String mdUrl = null;
         Set ldrs = layer.getDomainResource();
         if (ldrs != null && !ldrs.isEmpty()) {
@@ -998,7 +1001,7 @@ public class WmsServerAction extends ServerAction {
 
         String newMetadata = null;
         try {
-            newMetadata = collectMetadata(mdUrl);
+            newMetadata = collectMetadata(mdUrl,username,password);
         } catch (Exception ex) {
 //            log.error("", ex);
         }
@@ -1020,9 +1023,20 @@ public class WmsServerAction extends ServerAction {
         return newMetadata;
     }
 
-    private String collectMetadata(String url) throws HttpException, IOException, Exception {
+    /**
+     * Collects the meta data
+     * 
+     * @param url               The server URL
+     * @param username          The username, null for none
+     * @param password          The password, null for none
+     * @return                  The meta data
+     * @throws HttpException    
+     * @throws IOException
+     * @throws Exception 
+     */
+    private String collectMetadata(String url,String username,String password) throws HttpException, IOException, Exception {
 
-        HttpClient client = new HttpClient();
+        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(username,password);
         GetMethod method = new GetMethod(url);
         client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
         String metadata = "";
