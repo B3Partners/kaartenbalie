@@ -100,7 +100,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <strong><fmt:message key="beheer.server.table.naam" />:</strong> ${nServiceProvider.givenName}<br />
                     <strong><fmt:message key="beheer.server.table.afkorting" />:</strong> ${nServiceProvider.abbr}<br />
                     <strong><fmt:message key="beheer.server.infolabel.url" />:</strong> ${nServiceProvider.url}<br />
-                    <strong><fmt:message key="beheer.server.infolabel.username" />:</strong> ${nServiceProvider.username}<br />
+                    <strong><fmt:message key="beheer.server.infolabel.username" />:</strong> ${nServiceProvider.userName}<br />
                     <strong><fmt:message key="beheer.server.infolabel.password" />:</strong> ${nServiceProvider.password}<br />
                     <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                 </div>
