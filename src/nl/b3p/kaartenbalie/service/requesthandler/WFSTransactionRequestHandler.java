@@ -72,7 +72,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
 
             /* Check if alle actions are on the same serviceprovider */
             String[] spList = ogcrequest.getTransactionSpList();
-            if (spList == null && ogcrequest.getParameter(OGCConstants.WFS_PARAM_OPERATION) != null) {
+            if (spList.length == 0 && ogcrequest.getParameter(OGCConstants.WFS_PARAM_OPERATION) != null) {
                 throw new UnsupportedOperationException("Transaction request with Key value Pairs is not suported yet!");
             } else if (spList.length > 1 || spList == null) {
                 throw new UnsupportedOperationException("Transaction request for more then one serviceprovider is not suported yet!");
