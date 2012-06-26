@@ -39,8 +39,7 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.kaartenbalie.service.scriptinghandler.ScriptingHandler;
-import nl.b3p.kaartenbalie.service.scriptinghandler.UpdateServicesHandler;
+import nl.b3p.kaartenbalie.service.scriptinghandler.*;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
@@ -163,12 +162,12 @@ public class CallScriptingServlet extends GeneralServlet {
 
     /**
      * Parses the incoming request
-     * 
-     * @param data      The DataWrapper
-     * @param user      The authenticated user
+     *
+     * @param data The DataWrapper
+     * @param user The authenticated user
      * @throws UnsupportedOperationException if operation is not supported
-     * @throws IOException 
-     * @throws Exception 
+     * @throws IOException
+     * @throws Exception
      */
     @Override
     public void parseRequestAndData(DataWrapper data, User user) throws UnsupportedOperationException, IOException, Exception {
@@ -179,8 +178,12 @@ public class CallScriptingServlet extends GeneralServlet {
 
         ScriptingHandler requestHandler = null;
 
-        if (command.equalsIgnoreCase(OGCScriptingRequest.UPDATE_SERVICES)) {
-            requestHandler = new UpdateServicesHandler();
+        if (command.equalsIgnoreCase(OGCScriptingRequest.UPDATE_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE)) {
+            if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
+                requestHandler = new UpdateWMSHandler();
+            } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
+                requestHandler = new UpdateWFSHandler();
+            }
         }
 
         if (requestHandler == null) {
@@ -194,8 +197,8 @@ public class CallScriptingServlet extends GeneralServlet {
 
     /**
      * Creates a OGCScriptingRequest from the incoming request
-     * 
-     * @param request       The incoming request
+     *
+     * @param request The incoming request
      * @return OGCScriptingRequest
      * @throws java.io.UnsupportedEncodingException
      * @throws javax.xml.parsers.ParserConfigurationException
@@ -221,14 +224,14 @@ public class CallScriptingServlet extends GeneralServlet {
 
     /**
      * Checks the login session or credentials
-     * 
-     * @param request       The incoming request
-     * @param em            The entityManager
-     * @return      The user Principal
+     *
+     * @param request The incoming request
+     * @param em The entityManager
+     * @return The user Principal
      * @throws AccessDeniedException if the user can not be authenticated
      */
     @Override
-    protected User checkLogin(HttpServletRequest request, EntityManager em) throws AccessDeniedException  {
+    protected User checkLogin(HttpServletRequest request, EntityManager em) throws AccessDeniedException {
         User user = (User) request.getUserPrincipal();
 
         if (user != null) {
@@ -253,9 +256,10 @@ public class CallScriptingServlet extends GeneralServlet {
             }
             try {
                 user = (User) em.createQuery(
-                        "from User u where "
-                        + "lower(u.username) = lower(:username) "
-                        + "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                        "from User u INNER JOIN users_roles ul ON u.id = ul.users"
+                        + "where lower(u.username) = lower(:username) "
+                        + "and u.password = :password"
+                        + "and u.role = 1").setParameter("username", username).setParameter("password", encpw).getSingleResult();
                 em.flush();
             } catch (NonUniqueResultException nue) {
                 log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
@@ -269,14 +273,19 @@ public class CallScriptingServlet extends GeneralServlet {
             if (user == null) {
                 try {
                     user = (User) em.createQuery(
-                            "from User u where "
-                            + "lower(u.username) = lower(:username) "
-                            + "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
+                            "from User u INNER JOIN users_roles ul ON u.id = ul.users"
+                            + "where lower(u.username) = lower(:username) "
+                            + "and u.password = :password"
+                            + "and u.role = 1").setParameter("username", username).setParameter("password", encpw).getSingleResult();
 
                     // Volgende keer dus wel encrypted
                     user.setPassword(encpw);
                     em.merge(user);
                     em.flush();
+
+                    if (!user.checkRole("beheerder")) {
+                        throw new NoResultException("Not a admin");
+                    }
                     log.debug("Cleartext password now encrypted!");
                 } catch (NonUniqueResultException nue) {
                     log.error("More than one person found for these (cleartext) credentials (to be fixed in database), trying next method.");
@@ -300,10 +309,10 @@ public class CallScriptingServlet extends GeneralServlet {
     }
 
     /**
-     * Checks the IP from the incoming request
-     * Only connections from localhost are allowed
-     * 
-     * @param request       The incoming request
+     * Checks the IP from the incoming request Only connections from localhost
+     * are allowed
+     *
+     * @param request The incoming request
      * @throws AccessDeniedException if the remote IP is not localhost
      */
     private void checkRemoteIP(HttpServletRequest request) throws AccessDeniedException {

@@ -21,32 +21,47 @@
  */
 package nl.b3p.kaartenbalie.service.scriptinghandler;
 
-import java.io.IOException;
-import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.reporting.castor.ServiceProvider;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
 
 /**
+ *
  * @author Rachelle Scheijen
  */
-abstract public class ScriptingHandler {
-    protected final EntityManager em;
-    protected DataWrapper dw;
-    protected User user;
-    protected OGCScriptingRequest ogcrequest;
-    protected StringBuffer notices;
-    
-    public ScriptingHandler() throws Exception{
-        this.em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        
-        notices = new StringBuffer();
+public class UpdateWMSHandler extends ScriptingHandler {   
+    public UpdateWMSHandler() throws Exception{
+        super();
     }
     
-    abstract public void getRequest(DataWrapper dw, User user) throws IOException, Exception;
-    
-    protected void mailAllAdmins(){
+    public void getRequest(DataWrapper dw, User user) throws IllegalArgumentException, IllegalStateException {
+        this.ogcrequest = (OGCScriptingRequest) dw.getOgcrequest();
+        this.dw         = dw;
+        this.user       = user;
         
+        checkFields();
+    }
+    
+    private void checkFields() throws IllegalArgumentException, IllegalStateException {       
+        String service          = ogcrequest.getParameter(OGCScriptingRequest.SERVICE);
+        if( service.equals("") ){
+            updateAllServices();
+        }
+        else {
+            updateServices(service);
+        }
+    }
+    
+    private void updateAllServices(){
+        /* Alle services ophalen */
+    }
+    
+    private void updateServices(String service) throws IllegalStateException, IllegalArgumentException{
+        /* Alle services ophalen met deze prefix (abbr) */
+    }
+
+    private void procesService(ServiceProvider provider){
+
     }
 }
