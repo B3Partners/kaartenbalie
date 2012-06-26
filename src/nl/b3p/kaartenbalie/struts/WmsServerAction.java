@@ -248,11 +248,11 @@ public class WmsServerAction extends ServerAction {
         
         try {
             if (ignoreResource != null && ignoreResource) {
-                String getCap = "&service=WMS&request=GetCapabilities";
+                String getCap = "&service=WMS&request=GetCapabilities&version=1.1.1";
                 
-                newServiceProvider = wms.getProvider(inputUrl + getCap,credentials);
+                newServiceProvider = wms.getProvider(inputUrl.trim() + getCap, credentials);
             } else {
-                newServiceProvider = wms.getProvider(url.trim(),credentials);
+                newServiceProvider = wms.getProvider(url.trim(), credentials);
             }
             
         } catch (IOException e) {
