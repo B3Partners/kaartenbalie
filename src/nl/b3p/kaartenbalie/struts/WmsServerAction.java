@@ -197,13 +197,22 @@ public class WmsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
 
+        B3PCredentials credentials  = new B3PCredentials();
+        
+        if( username.equals("") ){
+            username    = null;
+            password    = null;
+        } else {
+            credentials.setUserName(username);
+            credentials.setPassword(password);
+        }
+        
         ServiceProvider newServiceProvider = null;
         ServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
         Integer oldId = null;
         if (oldServiceProvider != null) {
             oldId = oldServiceProvider.getId();
         }
-        WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
 
         if (!isAbbrUnique(oldId, dynaForm, em)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -235,26 +244,17 @@ public class WmsServerAction extends ServerAction {
         
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
         
-        B3PCredentials credentials  = new B3PCredentials();
-        
-        if( username.equals("") ){
-            username    = null;
-            password    = null;
-        }
-        else {
-            credentials.setUserName(username);
-            credentials.setPassword(password);
-        }
-        
         try {
+            String serviceUrl = null;
             if (ignoreResource != null && ignoreResource) {
                 String getCap = "&service=WMS&request=GetCapabilities&version=1.1.1";
+                serviceUrl = inputUrl.trim() + getCap;
                 
-                newServiceProvider = wms.getProvider(inputUrl.trim() + getCap, credentials);
             } else {
-                newServiceProvider = wms.getProvider(url.trim(), credentials);
+                serviceUrl = url.trim();
             }
-            
+            String givenName = FormUtils.nullIfEmpty(dynaForm.getString("givenName"));
+            newServiceProvider = saveServiceProvider(serviceUrl,credentials,givenName, abbreviation,em);
         } catch (IOException e) {
             log.error("Error saving server", e);
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -298,9 +298,6 @@ public class WmsServerAction extends ServerAction {
         
         populateServerObject(dynaForm, newServiceProvider);
 
-        // haal set op om vulling van set af te dwingen
-        Set layerSet = newServiceProvider.getAllLayers();
-
         em.persist(newServiceProvider);
         em.flush();
 
@@ -312,6 +309,7 @@ public class WmsServerAction extends ServerAction {
             namedLayers = sldReader.getNamedLayersByUrl(sldUrl,credentials);
         }
 
+        Set layerSet = newServiceProvider.getAllLayers();
         Iterator dwIter = layerSet.iterator();
 
         while (dwIter.hasNext()) {
@@ -399,7 +397,7 @@ public class WmsServerAction extends ServerAction {
         /* geef rechten op alle layers voor aangevinkte groepen */
         String[] orgSelected = dynaForm.getStrings("orgSelected");
 
-        addRightsForAllLayers(orgSelected, newServiceProvider);
+        addRightsForAllLayers(orgSelected, newServiceProvider,em);
 
         dynaForm.set("id", null);
 
@@ -410,23 +408,36 @@ public class WmsServerAction extends ServerAction {
     }
     // </editor-fold>
 
-    public void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp) throws Exception {
+    public static ServiceProvider saveServiceProvider(String url, B3PCredentials credentials,String givenName, String abbreviation,EntityManager em) throws Exception{
+        
+        WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
+        ServiceProvider serviceProvider = wms.getProvider(url, credentials);
+        serviceProvider.setGivenName(givenName);
+        serviceProvider.setAbbr(abbreviation);
+        serviceProvider.setUpdatedDate(new Date());
+        serviceProvider.setUserName("");
+        serviceProvider.setPassword("");
+        // haal set op om vulling van set af te dwingen
+        Set layerSet = serviceProvider.getAllLayers();
+
+        em.persist(serviceProvider);
+        em.flush();
+        return serviceProvider;
+    }
+    
+    public static void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp, EntityManager em) throws Exception {
         if (orgSelected == null || sp == null) {
             return;
         }
 
-        EntityManager em = getEntityManager();
-
         for (int i = 0; i < orgSelected.length; i++) {
             Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
 
-            addAllLayersToGroup(org, sp);
+            addAllLayersToGroup(org, sp,em);
         }
     }
 
-    public void addAllLayersToGroup(Organization org, ServiceProvider sp) throws Exception {
-        EntityManager em = getEntityManager();
-
+    public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
         Set wmsLayers = new HashSet();
 
         Set<Layer> orgWmsLayerSet = org.getLayers();
@@ -887,9 +898,7 @@ public class WmsServerAction extends ServerAction {
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
 
     protected void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
-        serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
         serviceProvider.setUpdatedDate(new Date());
-        serviceProvider.setAbbr(dynaForm.getString("abbr"));
         serviceProvider.setUserName(dynaForm.getString("username"));
         serviceProvider.setPassword(dynaForm.getString("password"));
 
