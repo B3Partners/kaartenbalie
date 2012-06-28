@@ -21,53 +21,39 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
-import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.ogc.utils.KBConfiguration;
-import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.ogc.wfs.v110.WfsCapabilitiesReader;
-import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.service.WFSParser;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionErrors;
-import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
-import org.apache.struts.util.MessageResources;
+import org.apache.struts.action.*;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.xml.sax.SAXException;
 
 public class WfsServerAction extends ServerAction {
 
     private static final Log log = LogFactory.getLog(WfsServerAction.class);
-    
     protected static final String MAPPING_TEST = "test";
     protected static final String MAPPING_BATCH_UPDATE = "batchUpdate";
-    
     private static final String SERVICE_STATUS_ERROR = "FOUT";
     private static final String SERVICE_STATUS_OK = "GOED";
-
     private String SERVICE_TEST_FOUT = "beheer.wms.test.fout";
     private String SERVICE_BATCH_UPDATE_FOUT = "beheer.wms.batchupdate.fout";
+    protected WFSParser parser;
+
+    public WfsServerAction() {
+        parser = new WFSParser();
+    }
 
     @Override
     protected Map getActionMethodPropertiesMap() {
@@ -91,7 +77,8 @@ public class WfsServerAction extends ServerAction {
         return map;
     }
 
-    /* Edit method which handles all editable requests.
+    /**
+     * Edit method which handles all editable requests.
      *
      * @param mapping The ActionMapping used to select this instance.
      * @param form The DynaValidatorForm bean for this request.
@@ -105,7 +92,7 @@ public class WfsServerAction extends ServerAction {
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        WfsServiceProvider serviceprovider = getServiceProvider(dynaForm, request, false);
+        WfsServiceProvider serviceprovider = parser.getServiceProvider(dynaForm, false);
         if (serviceprovider == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SP_NOTFOUND_ERROR_KEY);
@@ -117,6 +104,7 @@ public class WfsServerAction extends ServerAction {
         return getDefaultForward(mapping, request);
     }
     // </editor-fold>
+
     @Override
     public ActionForward unspecified(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         prepareMethod(dynaForm, request, EDIT, LIST);
@@ -124,10 +112,11 @@ public class WfsServerAction extends ServerAction {
         return mapping.findForward(SUCCESS);
     }
 
-    /* Method for saving a new service provider from input of a user.
+    /**
+     * Method for saving a new service provider from input of a user.
      *
      * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
+     * @param dynaForm The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      * @param response The HTTP Response we are processing.
      *
@@ -138,11 +127,9 @@ public class WfsServerAction extends ServerAction {
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     @Override
     public ActionForward save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
         /*
-         * Change DataWarehousing mode to performance as this is a very complicated process which will
-         * otherwise consume a lot of time.
+         * Change DataWarehousing mode to performance as this is a very
+         * complicated process which will otherwise consume a lot of time.
          */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
@@ -157,21 +144,23 @@ public class WfsServerAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
-        if (url==null) {
+        if (url == null) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
-        /* Check username and password setting */
+
+        /*
+         * Check username and password setting
+         */
         String username = dynaForm.getString("username");
         String password = dynaForm.getString("password");
-        if( (!username.equals("") && password.equals("") ) || (username.equals("") && !password.equals("")) ){
+        if ((!username.equals("") && password.equals("")) || (username.equals("") && !password.equals(""))) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_CREDENTIALS_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        
+
         /*
          * First we need to check if the given url is realy an url.
          */
@@ -182,138 +171,39 @@ public class WfsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, MALFORMED_URL_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
-        // tot hier het zelfde
-        WfsServiceProvider newServiceProvider = null;
-        WfsServiceProvider oldServiceProvider = getServiceProvider(dynaForm, request, false);
-        Integer oldId = null;
-        if (oldServiceProvider!=null) {
-            oldId = oldServiceProvider.getId();
-        }
-        WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
 
-        if (!isAbbrUnique(oldId, dynaForm, em)) {
+        String code = parser.saveProvider(request, dynaForm);
+
+        if (code.equals(NON_UNIQUE_ABBREVIATION_ERROR_KEY)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_UNIQUE_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
-        if (!isAlphaNumeric(abbreviation)) {
+        if (code.equals(NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, NON_ALPHANUMERIC_ABBREVIATION_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-
-        if (abbreviation.equalsIgnoreCase(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
+        if (code.equals(ABBR_RESERVED_ERROR_KEY)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        
-        B3PCredentials credentials  = new B3PCredentials();
-        
-        if( username.equals("") ){
-            username    = null;
-            password    = null;
-        }
-        else {
-            credentials.setUserName(username);
-            credentials.setPassword(password);
-        }
-        
-        /*
-         * This request can lead to several problems.
-         * The server can be down or the url given isn't right. This means that the url
-         * is correct according to the specification but is leading to the wrong address.
-         * Or the address is OK, but the Capabilities of the provider do not comply the
-         * specifications. Or there can be an other exception during the process.
-         * Either way we need to inform the user about the error which occured.
-         */
-        try {
-            newServiceProvider = wfs.getProvider(url.trim(),credentials);
-            newServiceProvider.setAbbr(dynaForm.getString("abbr"));
-            newServiceProvider.setGivenName(dynaForm.getString("givenName"));
-            
-        } catch (IOException e) {
+        if (code.equals(SERVER_CONNECTION_ERRORKEY)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
             return getAlternateForward(mapping, request);
-        } catch (Exception e) {
-            log.error("Error saving server", e);
+        }
+        if (code.equals(WFSParser.SAVE_ERRORKEY)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, null, e.getMessage());
+            addAlternateMessage(mapping, request, null, parser.getException().getMessage());
             return getAlternateForward(mapping, request);
         }
-        populateServerObject(dynaForm, newServiceProvider);
-        // haal set op om vulling van set af te dwingen
-        Set testSet = newServiceProvider.getWfsLayers();
-        em.persist(newServiceProvider);
-        em.flush();
-        Iterator dwIter = testSet.iterator();
-        while (dwIter.hasNext()) {
-            WfsLayer layer = (WfsLayer) dwIter.next();
+        if (code.equals(WFSParser.ERROR_DELETE_OLD_PROVIDER)) {
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, parser.getException().getMessage());
+            return getAlternateForward(mapping, request);
         }
-        /*
-         * All tests have been completed succesfully.
-         * We have now a newServiceProvider object and all we need to check
-         * is if this serviceprovider has been changed or newly added. The
-         * easiest way of doing so, is by checking the id.
-         */
-        try {
-            int id = oldServiceProvider.getId();
-            /*
-             * The serviceProviderId already existed so the old serviceprovide has to removed from the database.
-             */
-            try {
-                List orgList = em.createQuery("from Organization").getResultList();
-                Iterator orgit = orgList.iterator();
-                while (orgit.hasNext()) {
-                    Set newOrganizationLayer = new HashSet();
-                    Organization org = (Organization) orgit.next();
-                    Set orgLayers = org.getWfsLayers();
-                    Iterator layerit = orgLayers.iterator();
-                    while (layerit.hasNext()) {
-                        WfsLayer organizationLayer = (WfsLayer) layerit.next();
-                        WfsServiceProvider orgLayerServiceProvider = organizationLayer.getWfsServiceProvider();
-                        if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
-                            WfsLayer newLayer = checkLayer(organizationLayer, newServiceProvider.getWfsLayers());
-                            if (newLayer != null) {
-                                newOrganizationLayer.add(newLayer);
-                            }
-                        } else {
-                            newOrganizationLayer.add(organizationLayer);
-                        }
-                    }
-                    //vervang de oude set met layers in de organisatie voor de nieuwe set
-                    org.setWfsLayers(newOrganizationLayer);
-                    em.flush();
-                }
-                Set oldLayers = oldServiceProvider.getWfsLayers();
-                Iterator oldLayersIter = oldLayers.iterator();
-                while (oldLayersIter.hasNext()) {
-                    WfsLayer oldLayer = (WfsLayer) oldLayersIter.next();
-                }
-                em.remove(oldServiceProvider);
-                em.flush();
-            } catch (Exception e) {
-                log.error("Error deleting the old serviceprovider", e);
-                prepareMethod(dynaForm, request, EDIT, LIST);
-                addAlternateMessage(mapping, request, null, e.getMessage());
-                return getAlternateForward(mapping, request);
-            }
-        } catch (Exception e) {
-            /*
-             * If he failed to get a serviceProviderId from the form on the website it means
-             * that the user was adding a new server.
-             * The new serviceProvide has been saved in the database and nothing has to be
-             * done here.
-             *
-             * It can't be checked in an if-statment, because integers can't be checked if they are null.
-             */
-        }
-
-        /* geef rechten op alle layers voor aangevinkte groepen */
-        String[] orgSelected = dynaForm.getStrings("orgSelected");
-        addRightsForAllLayers(orgSelected, newServiceProvider);
 
         dynaForm.set("id", null);
         prepareMethod(dynaForm, request, LIST, EDIT);
@@ -323,85 +213,15 @@ public class WfsServerAction extends ServerAction {
     // </editor-fold>
 
     public void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp) throws Exception {
-        if (orgSelected == null || sp == null) {
-            return;
-        }
-
-        EntityManager em = getEntityManager();
-
-        for (int i=0; i < orgSelected.length; i++) {
-            Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
-
-            addAllLayersToGroup(org, sp);
-        }
+        parser.addRightsForAllLayers(orgSelected, sp);
     }
 
     public void addAllLayersToGroup(Organization org, WfsServiceProvider sp) throws Exception {
-        log.info("Updating WFS rights for :" + org.getName());
-
-        EntityManager em = getEntityManager();
-
-        Set wfsLayers = new HashSet();
-
-        Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
-        for (WfsLayer l : orgWfsLayerSet) {
-            WfsServiceProvider layerSp = l.getWfsServiceProvider();
-
-            if (!layerSp.getAbbr().equals(sp.getAbbr())) {
-                wfsLayers.add(l);
-
-                log.info("Org wfs layer :" + l.getName());
-            }
-        }
-
-        Set<WfsLayer> selectedLayers = sp.getWfsLayers();
-        for (WfsLayer l : selectedLayers) {
-            wfsLayers.add(l);
-
-            log.info("Wfs layer :" + l.getName());
-        }
-
-        org.setWfsLayers(wfsLayers);
-
-        em.merge(org);
-        em.flush();
+        parser.addAllLayersToGroup(org, sp);
     }
 
     public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        EntityManager em = getEntityManager();
-
-        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
-        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
-
-        int fout = 0;
-
-        try {
-            List<WfsServiceProvider> wmsServices = em.createQuery("from WfsServiceProvider")
-                    .getResultList();
-
-            for (WfsServiceProvider sp : wmsServices) {
-                String newUrl = sp.getUrl();
-                B3PCredentials credentials  = sp.getCredentials();
-
-                if (regexp != null && replacement != null && !regexp.isEmpty()
-                        && !replacement.isEmpty()) {
-                    newUrl = newUrl.replaceAll(regexp, replacement);
-                }
-
-                WfsServiceProvider newSp = getTestServiceProvider(newUrl,credentials);
-
-                if (newSp != null) {
-                    sp.setStatus(SERVICE_STATUS_OK);
-                } else {
-                    sp.setStatus(SERVICE_STATUS_ERROR);
-                    fout++;
-                }
-            }
-
-            em.flush();
-        } catch (Exception ex) {
-            log.error("Er iets iets fout gegaan tijdens het testen van de WFS Services: " + ex);
-        }
+        int fout = parser.test(dynaForm);
 
         dynaForm.initialize(mapping);
         prepareMethod(dynaForm, request, LIST, EDIT);
@@ -420,243 +240,50 @@ public class WfsServerAction extends ServerAction {
     }
 
     public ActionForward batchUpdate(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        EntityManager em = getEntityManager();
-
-        String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
-        String replacement = FormUtils.nullIfEmpty(dynaForm.getString("replacement"));
-
-        int fout = 0;
-
-        try {
-            List<WfsServiceProvider> wmsServices = em.createQuery("from WfsServiceProvider")
-                    .getResultList();
-
-            for (WfsServiceProvider oldServiceProvider : wmsServices) {
-                String newUrl = oldServiceProvider.getUrl();
-                
-                B3PCredentials credentials  = oldServiceProvider.getCredentials();
-
-                if (regexp != null && replacement != null && !regexp.isEmpty()
-                        && !replacement.isEmpty()) {
-                    newUrl = newUrl.replaceAll(regexp, replacement);
-                }
-
-                WfsServiceProvider newServiceProvider = getTestServiceProvider(newUrl,credentials);
-
-                if (newServiceProvider != null) {
-                    newServiceProvider.setStatus(SERVICE_STATUS_OK);
-                } else {
-                    oldServiceProvider.setStatus(SERVICE_STATUS_ERROR);
-                    fout++;
-                }
-
-                /* indien newServiceProvider ok dan bijwerken */
-                if (newServiceProvider != null) {
-                    updateServiceProvider(oldServiceProvider, newServiceProvider);
-                }
-            }
-
-            em.flush();
-        } catch (Exception ex) {
-            log.error("Er iets iets fout gegaan tijdens de batch update van de WFS Services: " + ex);
-        }
+        int fout    = parser.batchUpdate(dynaForm);
 
         dynaForm.initialize(mapping);
         prepareMethod(dynaForm, request, LIST, EDIT);
 
         if (fout > 0) {
-            ActionMessages messages = getMessages(request);
+            ActionMessages messages2 = getMessages(request);
             ActionMessage message = new ActionMessage(SERVICE_BATCH_UPDATE_FOUT, fout);
 
-            messages.add(ActionMessages.GLOBAL_MESSAGE, message);
-            saveMessages(request, messages);
+            messages2.add(ActionMessages.GLOBAL_MESSAGE, message);
+            saveMessages(request, messages2);
         }
 
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
 
         return getDefaultForward(mapping, request);
-    }
-
-    private void updateServiceProvider(WfsServiceProvider oldServiceProvider,
-            WfsServiceProvider newServiceProvider) throws Exception {
-
-        EntityManager em = getEntityManager();
-
-        newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
-        newServiceProvider.setUpdatedDate(new Date());
-        newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
-
-        Set testSet = newServiceProvider.getWfsLayers();
-        em.persist(newServiceProvider);
-        em.flush();
-
-        Iterator dwIter = testSet.iterator();
-        while (dwIter.hasNext()) {
-            WfsLayer layer = (WfsLayer) dwIter.next();
-        }
-
-        try {
-            List orgList = em.createQuery("from Organization").getResultList();
-            Iterator orgit = orgList.iterator();
-            while (orgit.hasNext()) {
-                Set newOrganizationLayer = new HashSet();
-                Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getWfsLayers();
-                Iterator layerit = orgLayers.iterator();
-                while (layerit.hasNext()) {
-                    WfsLayer organizationLayer = (WfsLayer) layerit.next();
-                    WfsServiceProvider orgLayerServiceProvider = organizationLayer.getWfsServiceProvider();
-                    if (orgLayerServiceProvider.getId() == oldServiceProvider.getId()) {
-                        WfsLayer newLayer = checkLayer(organizationLayer, newServiceProvider.getWfsLayers());
-                        if (newLayer != null) {
-                            newOrganizationLayer.add(newLayer);
-                        }
-                    } else {
-                        newOrganizationLayer.add(organizationLayer);
-                    }
-                }
-                //vervang de oude set met layers in de organisatie voor de nieuwe set
-                org.setWfsLayers(newOrganizationLayer);
-                em.flush();
-            }
-            Set oldLayers = oldServiceProvider.getWfsLayers();
-            Iterator oldLayersIter = oldLayers.iterator();
-            while (oldLayersIter.hasNext()) {
-                WfsLayer oldLayer = (WfsLayer) oldLayersIter.next();
-            }
-            em.remove(oldServiceProvider);
-            em.flush();
-        } catch (Exception e) {
-            log.error("Fout tijdens verwijderen oude serviceprovider", e);
-        }
-    }
-
-    private WfsServiceProvider getTestServiceProvider(String url,B3PCredentials credentials) throws Exception {
-        WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
-        WfsServiceProvider sp = null;
-
-        try {
-            sp = wfs.getProvider(url.trim(),credentials);
-        } catch (IOException ioex) {
-            return null;
-        } catch (SAXException saxex) {
-            return null;
-        } catch (Exception ex) {
-            return null;
-        }
-
-        return sp;
     }
 
     @Override
     public ActionForward deleteConfirm(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        WfsServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
-        if (null == serviceProvider) {
+        String code = parser.deleteConfirm(dynaForm, request);
+        
+        if( code.equals(NOTFOUND_ERROR_KEY) ){
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
+        
         prepareMethod(dynaForm, request, DELETE, EDIT);
 
-        Set serviceLayers = serviceProvider.getWfsLayers();
-        if (serviceLayers.size() > 0) {
-            //Check if layers are bound to organizations
-            MessageResources messages = getResources(request);
-            Locale locale = getLocale(request);
-            String orgJoinedMessage = messages.getMessage(locale, ORG_JOINED_KEY);
-            String layerJoinedMessage = messages.getMessage(locale, LAYER_JOINED_KEY);
-            StringBuffer strMessage = new StringBuffer();
-
-            List orgList = em.createQuery("from Organization").getResultList();
-            Iterator orgit = orgList.iterator();
-            boolean notFirstOrg = false;
-            while (orgit.hasNext()) {
-                Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getWfsLayers();
-                if (orgLayers.size() > 0) {
-                    Iterator orgLayerIterator = orgLayers.iterator();
-                    boolean notFirstLayer = false;
-
-                    while (orgLayerIterator.hasNext()) {
-                        WfsLayer orgLayer = (WfsLayer) orgLayerIterator.next();
-                        Iterator serviceLayerIter = serviceLayers.iterator();
-                        while (serviceLayerIter.hasNext()) {
-                            WfsLayer serviceLayer = (WfsLayer) serviceLayerIter.next();
-                            if (orgLayer.equals(serviceLayer)) {
-                                if (notFirstLayer) {
-                                    strMessage.append(", ");
-                                } else {
-                                    if (notFirstOrg) {
-                                        strMessage.append(", ");
-                                    } else {
-                                        strMessage.append(orgJoinedMessage);
-                                        strMessage.append(": ");
-                                        notFirstOrg = true;
-                                    }
-                                    strMessage.append(org.getName());
-
-                                    strMessage.append(" [");
-                                    strMessage.append(layerJoinedMessage);
-                                    strMessage.append(": ");
-                                    notFirstLayer = true;
-                                }
-                                strMessage.append(orgLayer.getName());
-                            }
-                        }
-                    }
-                    if (notFirstLayer) {
-                        strMessage.append("]");
-                    }
-                }
-            }
-            // Small check so it doesn't show empty warning boxes
-            if ((strMessage.toString() == null ? "" != null : !strMessage.toString().equals("")) && strMessage != null && strMessage.length() > 0) {
-                addAlternateMessage(mapping, request, null, strMessage.toString());
-            //Check if current pricing is bound to this provider
-            }
-            List lpList = null;
-            LayerCalculator lc = new LayerCalculator();
-            try {
-                lpList = lc.getSpLayerPricingList(serviceProvider.getAbbr(), new Date(), OGCConstants.WFS_SERVICE_WFS);
-            } finally {
-                lc.closeEntityManager();
-            }
-            if (lpList != null) {
-                Iterator lpit = lpList.iterator();
-                strMessage = new StringBuffer();
-                String pricingJoinedMessage = messages.getMessage(locale, PRICING_JOINED_KEY);
-                boolean notFirstPrice = false;
-                while (lpit.hasNext()) {
-                    LayerPricing lp = (LayerPricing) lpit.next();
-                    String ln = lp.getLayerName(); // unieke naam
-                    if (strMessage.indexOf(ln) == -1) {
-                        if (notFirstPrice) {
-                            strMessage.append(", ");
-                        } else {
-                            strMessage.append(pricingJoinedMessage);
-                            strMessage.append(": ");
-                            notFirstPrice = true;
-                        }
-                        strMessage.append(ln);
-                    }
-
-                }
-                // Small check so it doesn't show empty warning boxes
-                if ((strMessage.toString() == null ? "" != null : !strMessage.toString().equals("")) && strMessage != null && strMessage.length() > 0) {
-                    addAlternateMessage(mapping, request, null, strMessage.toString());
-                }
-            }
+        ArrayList<String> parseMessages  = parser.getMessages();
+        for(String message : parseMessages){
+            addAlternateMessage(mapping, request, null, message);
         }
+        
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
-    /* Method for deleting a serviceprovider selected by a user.
+    /**
+     * Method for deleting a serviceprovider selected by a user.
      *
      * @param mapping The ActionMapping used to select this instance.
-     * @param form The DynaValidatorForm bean for this request.
+     * @param dynaForm The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      * @param response The HTTP Response we are processing.
      *
@@ -666,59 +293,32 @@ public class WfsServerAction extends ServerAction {
      */
     @Override
     public ActionForward delete(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
         /*
-         * Change DataWarehousing mode to performance as this is a very complicated process which will
-         * otherwise consume a lot of time.
+         * Change DataWarehousing mode to performance as this is a very
+         * complicated process which will otherwise consume a lot of time.
          */
         if (!isTokenValid(request)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, TOKEN_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        WfsServiceProvider serviceProvider = getServiceProvider(dynaForm, request, false);
-        if (null == serviceProvider) {
+        
+        String code = parser.delete(dynaForm, request);
+        
+        if (code.equals(NOTFOUND_ERROR_KEY) ) {
             prepareMethod(dynaForm, request, LIST, EDIT);
             addAlternateMessage(mapping, request, NOTFOUND_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        Set serviceProviderLayers = serviceProvider.getWfsLayers();
-        if (serviceProviderLayers.size() > 0) {
-            List orgList = em.createQuery("from Organization").getResultList();
-            Iterator orgit = orgList.iterator();
-            while (orgit.hasNext()) {
-                Organization org = (Organization) orgit.next();
-                Set orgLayers = org.getWfsLayers();
-                HashSet clonedOrgLayers = new HashSet();
-                clonedOrgLayers.addAll(orgLayers);
-                Iterator orgLayerIterator = orgLayers.iterator();
-                while (orgLayerIterator.hasNext()) {
-                    WfsLayer organizationLayer = (WfsLayer) orgLayerIterator.next();
-                    Iterator serviceLayerIter = serviceProviderLayers.iterator();
-                    while (serviceLayerIter.hasNext()) {
-                        WfsLayer serviceProviderLayer = (WfsLayer) serviceLayerIter.next();
-                        if (organizationLayer != null && organizationLayer.getId() == serviceProviderLayer.getId()) {
-                            clonedOrgLayers.remove(organizationLayer);
-                        }
-                    }
-                }
-                if (orgLayers.size() != clonedOrgLayers.size()) {
-                    org.setWfsLayers(clonedOrgLayers);
-                    em.merge(org);
-                }
-            }
-        }
-        em.remove(serviceProvider);
-        em.flush();
-
+        
         dynaForm.initialize(mapping);
         prepareMethod(dynaForm, request, LIST, EDIT);
         addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
         return getDefaultForward(mapping, request);
     }
 
-    /* Creates a list of all the service providers in the database.
+    /**
+     * Creates a list of all the service providers in the database.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
@@ -741,30 +341,11 @@ public class WfsServerAction extends ServerAction {
     //-------------------------------------------------------------------------------------------------------
     // PROTECTED METHODS -- Will be used in the demo by ServerActioDemo
     //-------------------------------------------------------------------------------------------------------
-    /* Method which returns the service provider with a specified id or a new object if no id is given.
-     *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param createNew A boolean which indicates if a new object has to be created.
-     * @param id An Integer indicating which organization id has to be searched for.
-     *
-     * @return a service provider object.
-     */
-    // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-    protected WfsServiceProvider getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew) throws Exception {
-        log.debug("Getting entity manager ......");
-        EntityManager em = getEntityManager();
-        WfsServiceProvider serviceProvider = null;
-        Integer id = getID(dynaForm);
-        if (null == id && createNew) {
-            serviceProvider = new WfsServiceProvider();
-        } else if (null != id) {
-            serviceProvider = (WfsServiceProvider) em.find(WfsServiceProvider.class, new Integer(id.intValue()));
-        }
-        return serviceProvider;
-    }
+
     // </editor-fold>
-    /* Method that fills a serive provider object with the user input from the forms.
+    /**
+     * Method that fills a serive provider object with the user input from the
+     * forms.
      *
      * @param form The DynaValidatorForm bean for this request.
      * @param serviceProvider ServiceProvider object that to be filled
@@ -779,9 +360,13 @@ public class WfsServerAction extends ServerAction {
     //-------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //-------------------------------------------------------------------------------------------------------
-    /* Method which will fill the JSP form with the data of a given service provider.
+
+    /**
+     * Method which will fill the JSP form with the data of a given service
+     * provider.
      *
-     * @param serviceProvider ServiceProvider object from which the information has to be printed.
+     * @param serviceProvider ServiceProvider object from which the information
+     * has to be printed.
      * @param form The DynaValidatorForm bean for this request.
      * @param request The HTTP Request we are processing.
      */
@@ -794,34 +379,6 @@ public class WfsServerAction extends ServerAction {
         dynaForm.set("password", serviceProvider.getPassword());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
-    }
-    // </editor-fold>
-    /* Tries to find a specified layer given for a certain ServiceProvider.
-     *
-     * @param layers the set with layers which the method has to surch through
-     * @param orgLayer the layer to be found
-     *
-     * @return layer if found.
-     */
-    // <editor-fold defaultstate="" desc="checkLayer(Layer orgLayer, Set layers) method.">
-    private WfsLayer checkLayer(WfsLayer orgLayer, Set layers) {
-        if (layers == null || layers.isEmpty()) {
-            return null;
-        }
-        Iterator it = layers.iterator();
-        while (it.hasNext()) {
-            WfsLayer layer = (WfsLayer) it.next();
-
-            if (orgLayer.getName() == null && layer.getName() == null &&
-                    orgLayer.getTitle().equalsIgnoreCase(layer.getTitle())) {
-                return layer;
-            }
-            if (orgLayer.getName() != null && layer.getName() != null &&
-                    orgLayer.getName().equalsIgnoreCase(layer.getName())) {
-                return layer;
-            }
-        }
-        return null;
     }
     // </editor-fold>
 }

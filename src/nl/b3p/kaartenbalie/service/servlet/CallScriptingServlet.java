@@ -179,11 +179,14 @@ public class CallScriptingServlet extends GeneralServlet {
         ScriptingHandler requestHandler = null;
 
         if (command.equalsIgnoreCase(OGCScriptingRequest.UPDATE_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE)) {
+            UpdateHandler handler = new UpdateHandler();
             if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
-                requestHandler = new UpdateWMSHandler();
+                handler.setWMS();
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
-                requestHandler = new UpdateWFSHandler();
+                handler.setWFS();
             }
+            
+            requestHandler  = handler;
         }
 
         if (requestHandler == null) {

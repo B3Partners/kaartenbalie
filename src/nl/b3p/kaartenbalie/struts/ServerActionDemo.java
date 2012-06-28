@@ -227,7 +227,7 @@ public class ServerActionDemo extends WmsServerAction {
         /*
          * Now we first need to save this serviceprovider.
          */
-        populateServerObject(dynaForm, newServiceProvider);
+        parser.populateServerObject(dynaForm, newServiceProvider);
         if (newServiceProvider.getId() == null) {
             // haal set op om vulling van set af te dwingen
             Set testSet = newServiceProvider.getAllLayers();

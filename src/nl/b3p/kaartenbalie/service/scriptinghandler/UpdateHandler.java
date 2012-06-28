@@ -18,50 +18,59 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Rachelle Scheijen
  */
 package nl.b3p.kaartenbalie.service.scriptinghandler;
 
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.reporting.castor.ServiceProvider;
+import nl.b3p.kaartenbalie.service.WFSParser;
+import nl.b3p.kaartenbalie.service.WMSParser;
+import nl.b3p.kaartenbalie.service.WmsWfsParser;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
+import org.apache.struts.validator.DynaValidatorForm;
 
-/**
- *
- * @author Rachelle Scheijen
- */
-public class UpdateWMSHandler extends ScriptingHandler {   
-    public UpdateWMSHandler() throws Exception{
+public class UpdateHandler extends ScriptingHandler { 
+    private WmsWfsParser parser;
+    private String type;
+    
+    public UpdateHandler() throws Exception{
         super();
     }
     
-    public void getRequest(DataWrapper dw, User user) throws IllegalArgumentException, IllegalStateException {
+    public void setWFS(){
+        parser  = new WFSParser();
+        type    = "WFS";
+    }
+    
+    public void setWMS(){
+        parser  = new WMSParser();
+        type    = "WMS";
+    }
+    
+    public void getRequest(DataWrapper dw, User user) throws Exception {
         this.ogcrequest = (OGCScriptingRequest) dw.getOgcrequest();
         this.dw         = dw;
         this.user       = user;
         
-        checkFields();
+        batchUpdate();
     }
     
-    private void checkFields() throws IllegalArgumentException, IllegalStateException {       
+    private void batchUpdate() throws Exception {       
         String service          = ogcrequest.getParameter(OGCScriptingRequest.SERVICE);
+        notices.append(type).append("Batch update van");
         if( service.equals("") ){
-            updateAllServices();
+            notices.append(" alle services");
         }
         else {
-            updateServices(service);
+            notices.append(" services met de prefix ").append(service);
         }
-    }
-    
-    private void updateAllServices(){
-        /* Alle services ophalen */
-    }
-    
-    private void updateServices(String service) throws IllegalStateException, IllegalArgumentException{
-        /* Alle services ophalen met deze prefix (abbr) */
-    }
-
-    private void procesService(ServiceProvider provider){
-
+        
+        DynaValidatorForm dynaForm  = new DynaValidatorForm();
+        int errors  = parser.batchUpdate(dynaForm,service);
+        notices.append(".\n Tijdens het updaten zijn er ").append(errors).append("opgetreden.");
+        
+        mailAllAdmins();
     }
 }
