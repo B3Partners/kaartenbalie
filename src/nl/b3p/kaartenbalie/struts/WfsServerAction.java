@@ -189,7 +189,7 @@ public class WfsServerAction extends ServerAction {
             addAlternateMessage(mapping, request, ABBR_RESERVED_ERROR_KEY);
             return getAlternateForward(mapping, request);
         }
-        if (code.equals(SERVER_CONNECTION_ERRORKEY)) {
+        if (code.equals(WFSParser.SERVER_CONNECTION_ERROR)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
             return getAlternateForward(mapping, request);

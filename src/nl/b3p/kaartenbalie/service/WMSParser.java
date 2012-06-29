@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service;
 import java.io.IOException;
 import java.util.*;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.gis.B3PCredentials;
@@ -35,6 +36,7 @@ import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
@@ -81,7 +83,7 @@ public class WMSParser extends WmsWfsParser {
             oldId = oldServiceProvider.getId();
         }
         
-        if (!isAbbrUnique(oldId, dynaForm, em)) {
+        if (!isAbbrUnique(oldId, dynaForm, em) ) {
             return NON_UNIQUE_ABBREVIATION_ERROR_KEY;
         }
         
@@ -119,10 +121,10 @@ public class WMSParser extends WmsWfsParser {
             newServiceProvider = saveServiceProvider(serviceUrl,credentials,givenName, abbreviation,em);
         } catch (IOException e) {
             log.error("Error saving server", e);
-            return SERVER_CONNECTION_ERRORKEY;
+            return SERVER_CONNECTION_ERROR;
         } catch (SAXException e) {
             log.error("Error saving server", e);
-            return MALFORMED_CAPABILITY_ERRORKEY;
+            return MALFORMED_CAPABILITY_ERROR;
         } catch (Exception e) {
             log.error("Error saving server", e);
             this.exception  = e;
@@ -342,6 +344,7 @@ public class WMSParser extends WmsWfsParser {
             em.flush();
         } catch (Exception ex) {
             log.error("Er iets iets fout gegaan tijdens de batch update van de WMS Services: " + ex);
+            this.exception  = ex;
         }
         
         return fout;
@@ -724,5 +727,28 @@ public class WMSParser extends WmsWfsParser {
     
     public ServiceProvider getOldServiceProvider(){
         return this.oldServiceProvider;
+    }
+
+    /**
+     * Checks if the abbr exists
+     * 
+     * @param abbr The abbr
+     * @param em    The entity manager
+     * @return  True if the abbr exists
+     */
+    @Override
+    public boolean abbrExists(String abbr,EntityManager em) {
+        try {
+            ServiceProvider dbSp = (ServiceProvider) em.createQuery(
+                    "from ServiceProvider sp where " +
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", abbr).getSingleResult();
+
+            if (dbSp != null) {
+                return true;
+            }
+            return false;
+        } catch (NoResultException nre) {
+            return false;
+        }
     }
 }

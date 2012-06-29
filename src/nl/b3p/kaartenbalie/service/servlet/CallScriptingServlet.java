@@ -18,12 +18,13 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * @author Rachelle Scheijen
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -39,18 +40,18 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.kaartenbalie.service.scriptinghandler.*;
+import nl.b3p.kaartenbalie.service.scriptinghandler.AddHandler;
+import nl.b3p.kaartenbalie.service.scriptinghandler.ScriptingHandler;
+import nl.b3p.kaartenbalie.service.scriptinghandler.UpdateHandler;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
-/**
- *
- * @author Rachelle Scheijen
- */
 public class CallScriptingServlet extends GeneralServlet {
+    private HttpServletRequest httpRequest;
+    
 
     /**
      * Initializes the servlet. Turns the logging of the servlet on.
@@ -130,6 +131,7 @@ public class CallScriptingServlet extends GeneralServlet {
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
 
+                this.httpRequest    = request;
                 parseRequestAndData(data, user);
 
             } catch (AccessDeniedException adex) {
@@ -188,6 +190,16 @@ public class CallScriptingServlet extends GeneralServlet {
             
             requestHandler  = handler;
         }
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_SERVICE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.NAME) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) && ogcrequest.containsParameter(OGCScriptingRequest.URL) && ogcrequest.containsParameter(OGCScriptingRequest.SLD) && ogcrequest.containsParameter(OGCScriptingRequest.UPDATE) && ogcrequest.containsParameter(OGCScriptingRequest.GROUPS)){
+            AddHandler handler = new AddHandler();
+            if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
+                handler.setWMS();
+            } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
+                handler.setWFS();
+            }
+            
+            requestHandler  = handler;
+        }
 
         if (requestHandler == null) {
             throw new UnsupportedOperationException("Request " + request + " is not suported!");
@@ -195,7 +207,7 @@ public class CallScriptingServlet extends GeneralServlet {
 
         data.setOperation(request);
         data.setService(command);
-        requestHandler.getRequest(data, user);
+        requestHandler.getRequest(this.httpRequest,data, user);
     }
 
     /**
@@ -320,7 +332,7 @@ public class CallScriptingServlet extends GeneralServlet {
      */
     private void checkRemoteIP(HttpServletRequest request) throws AccessDeniedException {
         String ip = request.getRemoteAddr();
-
+System.err.println("IP : "+ip);
         /**
          * IPv4 localhost => 127.0.0.1 IPv6 localhost => ::1
          */

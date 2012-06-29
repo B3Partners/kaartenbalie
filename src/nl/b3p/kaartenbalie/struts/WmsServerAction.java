@@ -205,9 +205,9 @@ public class WmsServerAction extends ServerAction {
              * Error saving server
              */
             prepareMethod(dynaForm, request, EDIT, LIST);
-            addAlternateMessage(mapping, request, SERVER_CONNECTION_ERRORKEY);
+            addAlternateMessage(mapping, request, WMSParser.SERVER_CONNECTION_ERROR);
             return getAlternateForward(mapping, request);
-        } else if (code.equals(MALFORMED_CAPABILITY_ERRORKEY)) {
+        } else if (code.equals(WMSParser.MALFORMED_CAPABILITY_ERROR)) {
             /*
              * data mallformed
              */

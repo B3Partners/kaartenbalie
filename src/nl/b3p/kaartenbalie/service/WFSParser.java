@@ -26,6 +26,7 @@ package nl.b3p.kaartenbalie.service;
 import java.io.IOException;
 import java.util.*;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.gis.B3PCredentials;
@@ -103,7 +104,7 @@ public class WFSParser extends WmsWfsParser {
             newServiceProvider.setGivenName(dynaForm.getString("givenName"));
             
         } catch (IOException e) {
-            return SERVER_CONNECTION_ERRORKEY;
+            return SERVER_CONNECTION_ERROR;
         } catch (Exception e) {
             exception   = e;
             log.error("Error saving server", e);
@@ -277,6 +278,7 @@ public class WFSParser extends WmsWfsParser {
             em.flush();
         } catch (Exception ex) {
             log.error("Er iets iets fout gegaan tijdens de batch update van de WFS Services: " + ex);
+            this.exception  = ex;
         }
         
         return fout;
@@ -599,5 +601,28 @@ public class WFSParser extends WmsWfsParser {
         }
 
         return sp;
+    }
+    
+    /**
+     * Checks if the abbr exists
+     * 
+     * @param abbr The abbr
+     * @param em    The entity manager
+     * @return  True if the abbr exists
+     */
+    @Override
+    public boolean abbrExists(String abbr,EntityManager em) {
+        try {
+            WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
+                    "from WfsServiceProvider sp where " +
+                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", abbr).getSingleResult();
+
+            if (dbSp != null) {
+                return true;
+            }
+            return false;
+        } catch (NoResultException nre) {
+            return false;
+        }
     }
 }

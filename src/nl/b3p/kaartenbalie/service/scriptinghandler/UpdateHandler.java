@@ -23,33 +23,29 @@
  */
 package nl.b3p.kaartenbalie.service.scriptinghandler;
 
+import javax.servlet.http.HttpServletRequest;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.service.WFSParser;
-import nl.b3p.kaartenbalie.service.WMSParser;
-import nl.b3p.kaartenbalie.service.WmsWfsParser;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
-import org.apache.struts.validator.DynaValidatorForm;
 
-public class UpdateHandler extends ScriptingHandler { 
-    private WmsWfsParser parser;
-    private String type;
-    
+public class UpdateHandler extends WmsWfsHandler {    
     public UpdateHandler() throws Exception{
         super();
     }
     
-    public void setWFS(){
-        parser  = new WFSParser();
-        type    = "WFS";
-    }
-    
-    public void setWMS(){
-        parser  = new WMSParser();
-        type    = "WMS";
-    }
-    
-    public void getRequest(DataWrapper dw, User user) throws Exception {
+    /**
+     * Processes the parameters and creates the specified urls from the given parameters.
+     * Each url will be used to recieve the data from the ServiceProvider this url is refering to.
+     *
+     * @param request       The incoming request
+     * @param dw DataWrapper which contains all information that has to be sent to the client
+     * @param user User the user which invoked the request
+     *
+     * @throws Exception
+     */
+    @Override
+    public void getRequest(HttpServletRequest request,DataWrapper dw, User user) throws Exception {
+        this.request    = request;
         this.ogcrequest = (OGCScriptingRequest) dw.getOgcrequest();
         this.dw         = dw;
         this.user       = user;
@@ -67,7 +63,9 @@ public class UpdateHandler extends ScriptingHandler {
             notices.append(" services met de prefix ").append(service);
         }
         
-        DynaValidatorForm dynaForm  = new DynaValidatorForm();
+        B3PDynaValidatorForm dynaForm  = new B3PDynaValidatorForm();
+        dynaForm.set("regexp", "");
+        dynaForm.set("replacement","");
         int errors  = parser.batchUpdate(dynaForm,service);
         notices.append(".\n Tijdens het updaten zijn er ").append(errors).append("opgetreden.");
         

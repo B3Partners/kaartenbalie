@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.service;
 
 import java.io.IOException;
 import java.util.*;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
@@ -57,8 +58,11 @@ abstract public class WmsWfsParser extends ServerAction {
     public static final String ERROR_DELETE_OLD_PROVIDER = "Error_deleting_old_provider";
     protected Exception exception;
     public static final String ERROR_INVALID_URL = "Not a WMS URL";
-    protected static final String SERVICE_STATUS_ERROR = "FOUT";
-    protected static final String SERVICE_STATUS_OK = "GOED";
+    public static final String SERVICE_STATUS_ERROR = "FOUT";
+    public static final String SERVICE_STATUS_OK = "GOED";
+    public static final String SERVER_CONNECTION_ERROR = SERVER_CONNECTION_ERRORKEY;
+    public static final String MALFORMED_CAPABILITY_ERROR = MALFORMED_CAPABILITY_ERRORKEY;
+    public static final String UNSUPPORTED_WMSVERSION_ERROR = UNSUPPORTED_WMSVERSION_ERRORKEY;
     protected ArrayList<String> parseMessages;
     
     public WmsWfsParser(){
@@ -278,4 +282,13 @@ abstract public class WmsWfsParser extends ServerAction {
     public ArrayList<String> getMessages(){
         return this.parseMessages;
     }
+
+    /**
+     * Checks if the abbr exists
+     * 
+     * @param abbr The abbr
+     * @param em    The entity manager
+     * @return  True if the abbr exists
+     */
+    abstract public boolean abbrExists(String abbr,EntityManager em);
 }
