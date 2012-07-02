@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
@@ -42,8 +41,6 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
 
 /**
@@ -64,9 +61,11 @@ abstract public class WmsWfsParser extends ServerAction {
     public static final String MALFORMED_CAPABILITY_ERROR = MALFORMED_CAPABILITY_ERRORKEY;
     public static final String UNSUPPORTED_WMSVERSION_ERROR = UNSUPPORTED_WMSVERSION_ERRORKEY;
     protected ArrayList<String> parseMessages;
+    protected GroupParser groupParser;
     
     public WmsWfsParser(){
         parseMessages    = new ArrayList<String>();
+        groupParser     = new GroupParser();
     }
     
     /** 
@@ -291,4 +290,28 @@ abstract public class WmsWfsParser extends ServerAction {
      * @return  True if the abbr exists
      */
     abstract public boolean abbrExists(String abbr,EntityManager em);
+    
+    /**
+     * Sets the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    abstract public void addAllowedService(String url,EntityManager em);
+    
+    /**
+     * 
+     * Removes the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    abstract public void deleteAllowedService(String url,EntityManager em);
+    
+    /**
+     * Clears the allowed services list
+     * 
+     * @param em    The entityManager
+     */
+    abstract public void deleteAllAllowedServices(EntityManager em);
 }

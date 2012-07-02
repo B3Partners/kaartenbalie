@@ -252,8 +252,7 @@ public class WMSParser extends WmsWfsParser {
         /* geef rechten op alle layers voor aangevinkte groepen */
         String[] orgSelected = dynaForm.getStrings("orgSelected");
 
-        addRightsForAllLayers(orgSelected, newServiceProvider,em);
-        
+        GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider,em);        
         
         return WMSParser.OK;
     }
@@ -416,41 +415,6 @@ public class WMSParser extends WmsWfsParser {
         em.persist(serviceProvider);
         em.flush();
         return serviceProvider;
-    }
-    
-    public static void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp, EntityManager em) throws Exception {
-        if (orgSelected == null || sp == null) {
-            return;
-        }
-
-        for (int i = 0; i < orgSelected.length; i++) {
-            Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
-
-            addAllLayersToGroup(org, sp,em);
-        }
-    }
-
-    public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
-        Set wmsLayers = new HashSet();
-
-        Set<Layer> orgWmsLayerSet = org.getLayers();
-        for (Layer l : orgWmsLayerSet) {
-            ServiceProvider layerSp = l.getServiceProvider();
-
-            if (!layerSp.getAbbr().equals(sp.getAbbr())) {
-                wmsLayers.add(l);
-            }
-        }
-
-        Set<Layer> selectedLayers = sp.getAllLayers();
-        for (Layer l : selectedLayers) {
-            wmsLayers.add(l);
-        }
-
-        org.setLayers(wmsLayers);
-
-        em.merge(org);
-        em.flush();
     }
     
     /* Method that fills a serive provider object with the user input from the forms.
@@ -749,6 +713,81 @@ public class WMSParser extends WmsWfsParser {
             return false;
         } catch (NoResultException nre) {
             return false;
+        }
+    }
+    
+    public static void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp, EntityManager em) throws Exception {
+        GroupParser.addRightsForAllLayers(orgSelected,sp,em);
+    }
+    
+    public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
+        GroupParser.addAllLayersToGroup(org, sp, em);
+    }
+    
+    /**
+     * Returns all the allowed services
+     * 
+     * @param em    The entityManager
+     * @return  The allowed services
+     */
+    public List<WfsServiceProvider> getAllowedServices(EntityManager em){
+        return null;
+    }
+    
+    /**
+     * Sets the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    public void addAllowedService(String url,EntityManager em){
+        ServiceProvider sp  = this.getProviderByUrl(url,em);
+        if( sp != null ){
+            
+        }
+    }
+    
+    /**
+     * 
+     * Removes the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    public void deleteAllowedService(String url,EntityManager em){
+        ServiceProvider sp  = this.getProviderByUrl(url,em);
+        if( sp != null ){
+            
+        }        
+    }
+    
+    /**
+     * Clears the allowed services list
+     * 
+     * @param em    The entityManager
+     */
+    public void deleteAllAllowedServices(EntityManager em){
+        
+    }
+    
+    /**
+     * Searches the ServiceProvider with the given URL
+     * 
+     * @param url       The url to search on
+     * @param em        The entityManager
+     * @return          The found ServiceProvider, otherwise null
+     */
+    private ServiceProvider getProviderByUrl(String url,EntityManager em){
+        try {
+            ServiceProvider dbSp = (ServiceProvider) em.createQuery(
+                    "from ServiceProvider sp where " +
+                    "url = :url ").setParameter("url", url).getSingleResult();
+
+            return dbSp;
+        }
+        catch(Exception ex){
+            log.error("error locating ServiceProvider",ex);
+            return null;
         }
     }
 }

@@ -212,12 +212,12 @@ public class WfsServerAction extends ServerAction {
     }
     // </editor-fold>
 
-    public void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp) throws Exception {
-        parser.addRightsForAllLayers(orgSelected, sp);
+    public static void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp,EntityManager em) throws Exception {
+        WFSParser.addRightsForAllLayers(orgSelected, sp,em);
     }
 
-    public void addAllLayersToGroup(Organization org, WfsServiceProvider sp) throws Exception {
-        parser.addAllLayersToGroup(org, sp);
+    public static void addAllLayersToGroup(Organization org, WfsServiceProvider sp,EntityManager em) throws Exception {
+        WFSParser.addAllLayersToGroup(org, sp,em);
     }
 
     public ActionForward test(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {

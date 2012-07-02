@@ -169,7 +169,7 @@ public class WFSParser extends WmsWfsParser {
 
         /* geef rechten op alle layers voor aangevinkte groepen */
         String[] orgSelected = dynaForm.getStrings("orgSelected");
-        addRightsForAllLayers(orgSelected, newServiceProvider);
+        GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider,em);
         
         return OK;
     }
@@ -539,52 +539,7 @@ public class WFSParser extends WmsWfsParser {
             }
         }
         return null;
-    }
-    
-    public void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp) throws Exception {
-        if (orgSelected == null || sp == null) {
-            return;
-        }
-
-        EntityManager em = getEntityManager();
-
-        for (int i=0; i < orgSelected.length; i++) {
-            Organization org = (Organization) em.find(Organization.class, new Integer(orgSelected[i]));
-
-            addAllLayersToGroup(org, sp);
-        }
-    }
-    
-    public void addAllLayersToGroup(Organization org, WfsServiceProvider sp) throws Exception {
-        log.info("Updating WFS rights for :" + org.getName());
-
-        EntityManager em = getEntityManager();
-
-        Set wfsLayers = new HashSet();
-
-        Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
-        for (WfsLayer l : orgWfsLayerSet) {
-            WfsServiceProvider layerSp = l.getWfsServiceProvider();
-
-            if (!layerSp.getAbbr().equals(sp.getAbbr())) {
-                wfsLayers.add(l);
-
-                log.info("Org wfs layer :" + l.getName());
-            }
-        }
-
-        Set<WfsLayer> selectedLayers = sp.getWfsLayers();
-        for (WfsLayer l : selectedLayers) {
-            wfsLayers.add(l);
-
-            log.info("Wfs layer :" + l.getName());
-        }
-
-        org.setWfsLayers(wfsLayers);
-
-        em.merge(org);
-        em.flush();
-    }
+    }    
     
     private WfsServiceProvider getTestServiceProvider(String url, B3PCredentials credentials) throws Exception {
         WfsCapabilitiesReader wfs = new WfsCapabilitiesReader();
@@ -623,6 +578,81 @@ public class WFSParser extends WmsWfsParser {
             return false;
         } catch (NoResultException nre) {
             return false;
+        }
+    }
+    
+    public static void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp,EntityManager em) throws Exception {
+        GroupParser.addRightsForAllLayers(orgSelected, sp,em);
+    }
+
+    public static void addAllLayersToGroup(Organization org, WfsServiceProvider sp,EntityManager em) throws Exception {
+        GroupParser.addAllLayersToGroup(org, sp,em);
+    }
+    
+    /**
+     * Returns all the allowed services
+     * 
+     * @param em    The entityManager
+     * @return  The allowed services
+     */
+    public List<WfsServiceProvider> getAllowedServices(EntityManager em){
+        return null;
+    }
+    
+    /**
+     * Sets the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    public void addAllowedService(String url,EntityManager em){
+        WfsServiceProvider sp  = this.getProviderByUrl(url,em);
+        if( sp != null ){
+            
+        }
+    }
+    
+    /**
+     * 
+     * Removes the service with the given url as allowed
+     * 
+     * @param url   The url
+     * @param em    The entityManager
+     */
+    public void deleteAllowedService(String url,EntityManager em){
+        WfsServiceProvider sp  = this.getProviderByUrl(url,em);
+        if( sp != null ){
+            
+        }        
+    }
+    
+    /**
+     * Clears the allowed services list
+     * 
+     * @param em    The entityManager
+     */
+    public void deleteAllAllowedServices(EntityManager em){
+        
+    }
+    
+    /**
+     * Searches the ServiceProvider with the given URL
+     * 
+     * @param url       The url to search on
+     * @param em        The entityManager
+     * @return          The found WfsServiceProvider, otherwise null
+     */
+    private WfsServiceProvider getProviderByUrl(String url,EntityManager em){
+        try {
+            WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
+                    "from WfsServiceProvider sp where " +
+                    "url = :url ").setParameter("url", url).getSingleResult();
+
+            return dbSp;
+        }
+        catch(Exception ex){
+            log.error("error locating WfsServiceProvider",ex);
+            return null;
         }
     }
 }
