@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>/tmp/</param-value>
+        <param-value>/opt/data/kaartenbalie-acc/maps/uploads/</param-value>
     </context-param>
     <context-param>
         <description>
@@ -61,7 +61,7 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>/tmp/</param-value>
+            <param-value>/opt/data/kaartenbalie-acc/maps/</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
