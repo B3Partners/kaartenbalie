@@ -176,6 +176,117 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             fail("Exception : "+e.getLocalizedMessage());
         }
     }
+    
+    /**
+     * Test of parseRequestAndData method, of class CallScriptingServlet.
+     * Adding a allowed service
+     */
+    @Test
+    public void testParseRequestAndData_Add_allowed_services(){
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.ADD_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+        
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.ADD_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+    }
+    
+    /**
+     * Test of parseRequestAndData method, of class CallScriptingServlet.
+     * Deleting a allowed service
+     */
+    @Test
+    public void testParseRequestAndData_delete_allowed_services(){
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+        
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+    }
+    
+    /**
+     * Test of parseRequestAndData method, of class CallScriptingServlet.
+     * Deleting all allowed services
+     */
+    @Test
+    public void testParseRequestAndData_delete_all_allowed_services(){
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+        
+        try {
+            this.requestStumb.setClientAddress("127.0.0.1");
+            DataWrapper data = this.getWrapper();
+            OGCRequest ogRequest = this.getOGCRequest();
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            data.setOgcrequest(ogRequest);
+            
+            instance.parseRequestAndData(data, user);
+        }
+        catch(Exception e){
+            fail("Exception : "+e.getLocalizedMessage());
+        }
+    }
 
     /**
      * Test of getServletInfo method, of class CallScriptingServlet.

@@ -40,9 +40,7 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.kaartenbalie.service.scriptinghandler.AddHandler;
-import nl.b3p.kaartenbalie.service.scriptinghandler.ScriptingHandler;
-import nl.b3p.kaartenbalie.service.scriptinghandler.UpdateHandler;
+import nl.b3p.kaartenbalie.service.scriptinghandler.*;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
@@ -192,6 +190,38 @@ public class CallScriptingServlet extends GeneralServlet {
         }
         else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_SERVICE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.NAME) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) && ogcrequest.containsParameter(OGCScriptingRequest.URL) && ogcrequest.containsParameter(OGCScriptingRequest.SLD) && ogcrequest.containsParameter(OGCScriptingRequest.UPDATE) && ogcrequest.containsParameter(OGCScriptingRequest.GROUPS)){
             AddHandler handler = new AddHandler();
+            if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
+                handler.setWMS();
+            } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
+                handler.setWFS();
+            }
+            
+            requestHandler  = handler;
+        }
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.URL) ){
+            AddAllowedHandler handler = new AddAllowedHandler();
+            if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
+                handler.setWMS();
+            } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
+                handler.setWFS();
+            }
+            
+            requestHandler  = handler;
+        }
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.URL) ){
+            DeleteAllowedHandler handler = new DeleteAllowedHandler();
+            handler.setType(DeleteAllowedHandler.DELETE_SINGLE);
+            if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
+                handler.setWMS();
+            } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
+                handler.setWFS();
+            }
+            
+            requestHandler  = handler;
+        }
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES) ){
+            DeleteAllowedHandler handler = new DeleteAllowedHandler();
+            handler.setType(DeleteAllowedHandler.DELETE_ALL);
             if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
                 handler.setWMS();
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
