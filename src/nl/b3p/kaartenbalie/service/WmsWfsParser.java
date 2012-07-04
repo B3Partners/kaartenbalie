@@ -297,7 +297,7 @@ abstract public class WmsWfsParser extends ServerAction {
      * @param url   The url
      * @param em    The entityManager
      */
-    abstract public void addAllowedService(String url,EntityManager em);
+    abstract public void addAllowedService(String url,EntityManager em)  throws Exception ;
     
     /**
      * 
@@ -306,7 +306,7 @@ abstract public class WmsWfsParser extends ServerAction {
      * @param url   The url
      * @param em    The entityManager
      */
-    abstract public void deleteAllowedService(String url,EntityManager em);
+    abstract public void deleteAllowedService(String url,EntityManager em) throws Exception ;
     
     /**
      * Clears the allowed services list

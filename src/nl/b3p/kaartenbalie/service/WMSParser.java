@@ -49,10 +49,11 @@ import org.xml.sax.SAXException;
  *
  * @author rachelle
  */
-public class WMSParser extends WmsWfsParser {    
+public class WMSParser extends WmsWfsParser {
+
     private ServiceProvider oldServiceProvider = null;
-    
-    /** 
+
+    /**
      * Method for saving a new service provider from input of a user.
      *
      * @param request The HTTP Request we are processing.
@@ -61,64 +62,69 @@ public class WMSParser extends WmsWfsParser {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
-    public String saveProvider(HttpServletRequest request,DynaValidatorForm dynaForm) throws Exception{
+    public String saveProvider(HttpServletRequest request, DynaValidatorForm dynaForm) throws Exception {
         EntityManager em = getEntityManager();
-        
-        /* Check URL */
+
+        /*
+         * Check URL
+         */
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
         String inputUrl = url.trim();
-        try {     
-            url = checkWmsUrl(url.trim());       
+        try {
+            url = checkWmsUrl(url.trim());
         } catch (Exception e) {
-            exception   = e;
+            exception = e;
             return ERROR_INVALID_URL;
         }
-        
-        /* Check service provider */
+
+        /*
+         * Check service provider
+         */
         ServiceProvider newServiceProvider = null;
-        oldServiceProvider = getServiceProvider(dynaForm,false);
-        
+        oldServiceProvider = getServiceProvider(dynaForm, false);
+
         Integer oldId = null;
         if (oldServiceProvider != null) {
             oldId = oldServiceProvider.getId();
         }
-        
-        if (!isAbbrUnique(oldId, dynaForm, em) ) {
+
+        if (!isAbbrUnique(oldId, dynaForm, em)) {
             return NON_UNIQUE_ABBREVIATION_ERROR_KEY;
         }
-        
-        B3PCredentials credentials  = new B3PCredentials();
+
+        B3PCredentials credentials = new B3PCredentials();
         String username = dynaForm.getString("username");
         String password = dynaForm.getString("password");
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
-        
-        if( !username.equals("") ){
+
+        if (!username.equals("")) {
             credentials.setUserName(username);
             credentials.setPassword(password);
         }
-        
+
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
-        
+
         /*
-         * This request can lead to several problems.
-         * The server can be down or the url given isn't right. This means that the url
-         * is correct according to the specification but is leading to the wrong address.
-         * Or the address is OK, but the Capabilities of the provider do not comply the
-         * specifications. Or there can be an other exception during the process.
-         * Either way we need to inform the user about the error which occured.
+         * This request can lead to several problems. The server can be down or
+         * the url given isn't right. This means that the url is correct
+         * according to the specification but is leading to the wrong address.
+         * Or the address is OK, but the Capabilities of the provider do not
+         * comply the specifications. Or there can be an other exception during
+         * the process. Either way we need to inform the user about the error
+         * which occured.
          */
         try {
             String serviceUrl = null;
             if (ignoreResource != null && ignoreResource) {
                 String getCap = "&service=WMS&request=GetCapabilities&version=1.1.1";
                 serviceUrl = inputUrl.trim() + getCap;
-                
+
             } else {
                 serviceUrl = url.trim();
             }
-            
+
             String givenName = FormUtils.nullIfEmpty(dynaForm.getString("givenName"));
-            newServiceProvider = saveServiceProvider(serviceUrl,credentials,givenName, abbreviation,em);
+            newServiceProvider = saveServiceProvider(serviceUrl, credentials, givenName, abbreviation, em);
         } catch (IOException e) {
             log.error("Error saving server", e);
             return SERVER_CONNECTION_ERROR;
@@ -127,43 +133,48 @@ public class WMSParser extends WmsWfsParser {
             return MALFORMED_CAPABILITY_ERROR;
         } catch (Exception e) {
             log.error("Error saving server", e);
-            this.exception  = e;
+            this.exception = e;
             return SAVE_ERRORKEY;
         }
 
         if (!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
             return UNSUPPORTED_WMSVERSION_ERRORKEY;
         }
-        
-        /* TODO: Kunnen we na bovenstaande checks de ingevoerde url gebruiken 
-         * als service provider url i.p.v. degene uit de online resource ?
-         * Dit geeft namelijk bij het toevoegen van externe wms services waar 
-         * dit verkeerd staat welke je niet zelf kunt wijzigen problemen.
-        */        
-        
+
+        /*
+         * TODO: Kunnen we na bovenstaande checks de ingevoerde url gebruiken
+         * als service provider url i.p.v. degene uit de online resource ? Dit
+         * geeft namelijk bij het toevoegen van externe wms services waar dit
+         * verkeerd staat welke je niet zelf kunt wijzigen problemen.
+         */
+
         if (ignoreResource != null && ignoreResource) {
             newServiceProvider.setUrl(inputUrl);
         } else {
             newServiceProvider.setUrl(url);
-        }       
-        
-        if( username != null ){
-            /* Save username and password */
+        }
+
+        if (username != null) {
+            /*
+             * Save username and password
+             */
             newServiceProvider.setUserName(username);
             newServiceProvider.setPassword(password);
         }
-        
+
         populateServerObject(dynaForm, newServiceProvider);
 
         em.persist(newServiceProvider);
         em.flush();
 
-        /* NamedLayers uit Sld ophalen */
+        /*
+         * NamedLayers uit Sld ophalen
+         */
         SldReader sldReader = new SldReader();
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
         List<SldNamedLayer> namedLayers = null;
-        if (sldUrl != null && !sldUrl.equals("")) {            
-            namedLayers = sldReader.getNamedLayersByUrl(sldUrl,credentials);
+        if (sldUrl != null && !sldUrl.equals("")) {
+            namedLayers = sldReader.getNamedLayersByUrl(sldUrl, credentials);
         }
 
         Set layerSet = newServiceProvider.getAllLayers();
@@ -172,22 +183,25 @@ public class WMSParser extends WmsWfsParser {
         while (dwIter.hasNext()) {
             Layer layer = (Layer) dwIter.next();
 
-            /* Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
-             * voorkomen. Zo ja, deze als Style opslaan in database */
+            /*
+             * Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
+             * voorkomen. Zo ja, deze als Style opslaan in database
+             */
             if (namedLayers != null && namedLayers.size() > 0) {
-                Set<Style> styles = getSldStylesSet(namedLayers,layer);                                
+                Set<Style> styles = getSldStylesSet(namedLayers, layer);
                 Iterator<Style> styleIt = styles.iterator();
-                while(styleIt.hasNext()){
+                while (styleIt.hasNext()) {
                     Style style = styleIt.next();
                     //een style moet een name hebben om aan te roepen
-                    if(style.getName()==null ||
-                            style.getName().length()==0)
-                        style.setName(layer.getName()+"_SLD");
-                    
-                    if (layer.getStyles()==null){
+                    if (style.getName() == null
+                            || style.getName().length() == 0) {
+                        style.setName(layer.getName() + "_SLD");
+                    }
+
+                    if (layer.getStyles() == null) {
                         layer.setStyles(new HashSet<Style>());
-                    }                    
-                    String newStyleName=getUniqueStyleName(layer.getStyles(),style.getName());
+                    }
+                    String newStyleName = getUniqueStyleName(layer.getStyles(), style.getName());
                     style.setName(newStyleName);
                     layer.getStyles().add(style);
                 }
@@ -200,14 +214,15 @@ public class WMSParser extends WmsWfsParser {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer,credentials);
+            setMetadataFromLayerSource(layer, oldLayer, credentials);
         }
 
         if (oldServiceProvider != null) {
-            /* Then we need to call for a list with organizations.
-             * We walk through this list and for each organization in the
-             * list we need to check if this organization has connections
-             * with the old serviceprovider.
+            /*
+             * Then we need to call for a list with organizations. We walk
+             * through this list and for each organization in the list we need
+             * to check if this organization has connections with the old
+             * serviceprovider.
              */
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
@@ -244,19 +259,21 @@ public class WMSParser extends WmsWfsParser {
                 em.remove(oldServiceProvider);
                 em.flush();
             } catch (Exception e) {
-                this.exception  = e;
+                this.exception = e;
                 return ERROR_DELETE_OLD_PROVIDER;
             }
         }
 
-        /* geef rechten op alle layers voor aangevinkte groepen */
+        /*
+         * geef rechten op alle layers voor aangevinkte groepen
+         */
         String[] orgSelected = dynaForm.getStrings("orgSelected");
 
-        GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider,em);        
-        
+        GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider, em);
+
         return WMSParser.OK;
     }
-    
+
     public int test(DynaValidatorForm dynaForm) throws Exception {
         EntityManager em = getEntityManager();
 
@@ -270,14 +287,14 @@ public class WMSParser extends WmsWfsParser {
 
             for (ServiceProvider sp : wmsServices) {
                 String newUrl = sp.getUrl();
-                B3PCredentials credentials  = sp.getCredentials();
+                B3PCredentials credentials = sp.getCredentials();
 
                 if (regexp != null && replacement != null && !regexp.isEmpty()
                         && !replacement.isEmpty()) {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newSp = getTestServiceProvider(newUrl,credentials);
+                ServiceProvider newSp = getTestServiceProvider(newUrl, credentials);
 
                 if (newSp != null) {
                     sp.setStatus(SERVICE_STATUS_OK);
@@ -291,15 +308,15 @@ public class WMSParser extends WmsWfsParser {
         } catch (Exception ex) {
             log.error("Er iets iets fout gegaan tijdens het testen van de WMS Services: " + ex);
         }
-        
+
         return fout;
     }
-    
+
     public int batchUpdate(DynaValidatorForm dynaForm) throws Exception {
-        return batchUpdate(dynaForm,"");
+        return batchUpdate(dynaForm, "");
     }
-    
-    public int batchUpdate(DynaValidatorForm dynaForm,String prefix) throws Exception {
+
+    public int batchUpdate(DynaValidatorForm dynaForm, String prefix) throws Exception {
         EntityManager em = getEntityManager();
 
         String regexp = FormUtils.nullIfEmpty(dynaForm.getString("regexp"));
@@ -309,10 +326,9 @@ public class WMSParser extends WmsWfsParser {
 
         try {
             List<ServiceProvider> wmsServices;
-            if( prefix.equals("") ){
+            if (prefix.equals("")) {
                 wmsServices = em.createQuery("from ServiceProvider").getResultList();
-            }
-            else {
+            } else {
                 wmsServices = em.createQuery("from ServiceProvider WHERE abbr=:abbr").setParameter("abbr", prefix).getResultList();
             }
 
@@ -325,7 +341,7 @@ public class WMSParser extends WmsWfsParser {
                     newUrl = newUrl.replaceAll(regexp, replacement);
                 }
 
-                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl,credentials);
+                ServiceProvider newServiceProvider = getTestServiceProvider(newUrl, credentials);
 
                 if (newServiceProvider != null) {
                     newServiceProvider.setStatus(SERVICE_STATUS_OK);
@@ -334,7 +350,9 @@ public class WMSParser extends WmsWfsParser {
                     fout++;
                 }
 
-                /* indien newServiceProvider ok dan bijwerken */
+                /*
+                 * indien newServiceProvider ok dan bijwerken
+                 */
                 if (newServiceProvider != null) {
                     updateServiceProvider(serviceProvider, newServiceProvider);
                 }
@@ -343,12 +361,12 @@ public class WMSParser extends WmsWfsParser {
             em.flush();
         } catch (Exception ex) {
             log.error("Er iets iets fout gegaan tijdens de batch update van de WMS Services: " + ex);
-            this.exception  = ex;
+            this.exception = ex;
         }
-        
+
         return fout;
     }
-    
+
     protected String checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
         if (ogcrequest.containsParameter(OGCConstants.WMS_REQUEST)
@@ -374,34 +392,35 @@ public class WMSParser extends WmsWfsParser {
         }
         return ogcrequest.getUrl();
     }
-    
-     /* Method which returns the service provider with a specified id or a new object if no id is given.
+
+    /*
+     * Method which returns the service provider with a specified id or a new
+     * object if no id is given.
      *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param request The HTTP Request we are processing.
-     * @param createNew A boolean which indicates if a new object has to be created.
-     * @param id An Integer indicating which organization id has to be searched for.
+     * @param form The DynaValidatorForm bean for this request. @param request
+     * The HTTP Request we are processing. @param createNew A boolean which
+     * indicates if a new object has to be created. @param id An Integer
+     * indicating which organization id has to be searched for.
      *
      * @return a service provider object.
      */
     // <editor-fold defaultstate="" desc="getServiceProvider(DynaValidatorForm dynaForm, HttpServletRequest request, boolean createNew, Integer id) method.">
-
     public ServiceProvider getServiceProvider(DynaValidatorForm dynaForm, boolean createNew) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = getEntityManager();
-        Integer id = getInt(dynaForm,"id");
+        Integer id = getInt(dynaForm, "id");
         ServiceProvider serviceProvider = null;
         if (null == id && createNew) {
             serviceProvider = new ServiceProvider();
         } else if (null != id) {
             serviceProvider = (ServiceProvider) em.find(ServiceProvider.class, new Integer(id.intValue()));
         }
-        
+
         return serviceProvider;
     }
-    
-    public static ServiceProvider saveServiceProvider(String url, B3PCredentials credentials,String givenName, String abbreviation,EntityManager em) throws Exception{
-        
+
+    public static ServiceProvider saveServiceProvider(String url, B3PCredentials credentials, String givenName, String abbreviation, EntityManager em) throws Exception {
+
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider serviceProvider = wms.getProvider(url, credentials);
         serviceProvider.setGivenName(givenName);
@@ -416,14 +435,15 @@ public class WMSParser extends WmsWfsParser {
         em.flush();
         return serviceProvider;
     }
-    
-    /* Method that fills a serive provider object with the user input from the forms.
+
+    /*
+     * Method that fills a serive provider object with the user input from the
+     * forms.
      *
-     * @param form The DynaValidatorForm bean for this request.
-     * @param serviceProvider ServiceProvider object that to be filled
+     * @param form The DynaValidatorForm bean for this request. @param
+     * serviceProvider ServiceProvider object that to be filled
      */
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
-
     public void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setUserName(dynaForm.getString("username"));
@@ -434,16 +454,18 @@ public class WMSParser extends WmsWfsParser {
         if (sldUrl != null && !sldUrl.equals("")) {
             serviceProvider.setSldUrl(sldUrl);
         }
-        
-        /* set ignoreResource */
+
+        /*
+         * set ignoreResource
+         */
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
         if (ignoreResource != null && ignoreResource) {
-            serviceProvider.setIgnoreResource(ignoreResource);  
+            serviceProvider.setIgnoreResource(ignoreResource);
         } else {
-            serviceProvider.setIgnoreResource(false);  
+            serviceProvider.setIgnoreResource(false);
         }
     }
-    
+
     private void updateServiceProvider(ServiceProvider oldServiceProvider,
             ServiceProvider newServiceProvider) throws Exception {
 
@@ -456,8 +478,8 @@ public class WMSParser extends WmsWfsParser {
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
         newServiceProvider.setUserName(username);
         newServiceProvider.setPassword(password);
-        
-        B3PCredentials credentials  = oldServiceProvider.getCredentials();
+
+        B3PCredentials credentials = oldServiceProvider.getCredentials();
 
         Set layerSet = newServiceProvider.getAllLayers();
         em.persist(newServiceProvider);
@@ -472,14 +494,15 @@ public class WMSParser extends WmsWfsParser {
             }
             Layer oldLayer = checkLayer(layer, topLayerSet);
 
-            setMetadataFromLayerSource(layer, oldLayer,credentials);
+            setMetadataFromLayerSource(layer, oldLayer, credentials);
         }
 
         if (oldServiceProvider != null) {
-            /* Then we need to call for a list with organizations.
-             * We walk through this list and for each organization in the
-             * list we need to check if this organization has connections
-             * with the old serviceprovider.
+            /*
+             * Then we need to call for a list with organizations. We walk
+             * through this list and for each organization in the list we need
+             * to check if this organization has connections with the old
+             * serviceprovider.
              */
             List orgList = em.createQuery("from Organization").getResultList();
             Iterator orgit = orgList.iterator();
@@ -519,16 +542,18 @@ public class WMSParser extends WmsWfsParser {
             }
         }
     }
-    
-    private ServiceProvider getTestServiceProvider(String url,B3PCredentials credentials) throws Exception {
-        /* WMS GetCap Url opbouwen */
+
+    private ServiceProvider getTestServiceProvider(String url, B3PCredentials credentials) throws Exception {
+        /*
+         * WMS GetCap Url opbouwen
+         */
         String newUrl = checkWmsUrl(url);
 
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider sp = null;
 
         try {
-            sp = wms.getProvider(newUrl.trim(),credentials);
+            sp = wms.getProvider(newUrl.trim(), credentials);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {
@@ -539,17 +564,17 @@ public class WMSParser extends WmsWfsParser {
 
         return sp;
     }
-    
+
     public String deleteConfirm(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
         log.debug("Getting entity manager ......");
-        
+
         this.parseMessages.clear();
         EntityManager em = getEntityManager();
         ServiceProvider serviceProvider = getServiceProvider(dynaForm, false);
         if (null == serviceProvider) {
             return NOTFOUND_ERROR_KEY;
         }
-        
+
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
         if (serviceProviderTopLayer != null) {
             //Check if layers are bound to organizations
@@ -628,16 +653,16 @@ public class WMSParser extends WmsWfsParser {
                     parseMessages.add(strMessage.toString());
                 }
             }
-        }        
-        
+        }
+
         return ACKNOWLEDGE_MESSAGES;
     }
-    
+
     /**
      * Method for deleting a serviceprovider.
      *
-     * @param dynaForm The DynaValidatorForm bean for this request. 
-     * @param request The HTTP Request we are processing. 
+     * @param dynaForm The DynaValidatorForm bean for this request.
+     * @param request The HTTP Request we are processing.
      *
      * @return the status code
      *
@@ -653,12 +678,12 @@ public class WMSParser extends WmsWfsParser {
         if (!isTokenValid(request)) {
             return TOKEN_ERROR_KEY;
         }
-        
+
         ServiceProvider serviceProvider = getServiceProvider(dynaForm, false);
         if (null == serviceProvider) {
             return NOTFOUND_ERROR_KEY;
         }
-        
+
         Layer serviceProviderTopLayer = serviceProvider.getTopLayer();
         if (serviceProviderTopLayer != null) {
             List orgList = em.createQuery("from Organization").getResultList();
@@ -685,27 +710,27 @@ public class WMSParser extends WmsWfsParser {
         }
         em.remove(serviceProvider);
         em.flush();
-        
+
         return OK;
     }
-    
-    public ServiceProvider getOldServiceProvider(){
+
+    public ServiceProvider getOldServiceProvider() {
         return this.oldServiceProvider;
     }
 
     /**
      * Checks if the abbr exists
-     * 
+     *
      * @param abbr The abbr
-     * @param em    The entity manager
-     * @return  True if the abbr exists
+     * @param em The entity manager
+     * @return True if the abbr exists
      */
     @Override
-    public boolean abbrExists(String abbr,EntityManager em) {
+    public boolean abbrExists(String abbr, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider) em.createQuery(
-                    "from ServiceProvider sp where " +
-                    "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", abbr).getSingleResult();
+                    "from ServiceProvider sp where "
+                    + "lower(sp.abbr) = lower(:abbr) ").setParameter("abbr", abbr).getSingleResult();
 
             if (dbSp != null) {
                 return true;
@@ -715,78 +740,99 @@ public class WMSParser extends WmsWfsParser {
             return false;
         }
     }
-    
+
     public static void addRightsForAllLayers(String[] orgSelected, ServiceProvider sp, EntityManager em) throws Exception {
-        GroupParser.addRightsForAllLayers(orgSelected,sp,em);
+        GroupParser.addRightsForAllLayers(orgSelected, sp, em);
     }
-    
+
     public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
         GroupParser.addAllLayersToGroup(org, sp, em);
     }
-    
+
     /**
      * Returns all the allowed services
-     * 
-     * @param em    The entityManager
-     * @return  The allowed services
+     *
+     * @param em The entityManager
+     * @return The allowed services
      */
-    public List<WfsServiceProvider> getAllowedServices(EntityManager em){
-        return null;
+    public List<ServiceProvider> getAllowedServices(EntityManager em) {
+        try {
+            List<ServiceProvider> providers = em.createQuery(
+                    "from allowedServiceProviders").getResultList();
+
+            return providers;
+        } catch (Exception ex) {
+            log.error("error collecting allowed ServiceProviders", ex);
+            return null;
+        }
     }
-    
+
     /**
      * Sets the service with the given url as allowed
-     * 
-     * @param url   The url
-     * @param em    The entityManager
+     *
+     * @param url The url
+     * @param em The entityManager
      */
-    public void addAllowedService(String url,EntityManager em){
-        ServiceProvider sp  = this.getProviderByUrl(url,em);
-        if( sp != null ){
-            
+    public void addAllowedService(String url, EntityManager em) throws Exception {
+        ServiceProvider sp = this.getProviderByUrl(url, em);
+        if (sp == null) {
+            throw new Exception("Adding unknown WMS service with url " + url);
+        }
+        
+        try {
+            em.createQuery("from allowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).getSingleResult();
+
+            throw new Exception("Trying to add the service " + sp.getAbbr() + " wich is allready added.");
+        } catch (NoResultException nre) {
+            em.createQuery("INSERT INTO allowedServiceProviders (id,abbr) VALUES (:id,:abbr)").setParameter("id",sp.getId().toString()).setParameter("abbr", sp.getAbbr());
         }
     }
-    
+
     /**
-     * 
+     *
      * Removes the service with the given url as allowed
-     * 
-     * @param url   The url
-     * @param em    The entityManager
+     *
+     * @param url The url
+     * @param em The entityManager
      */
-    public void deleteAllowedService(String url,EntityManager em){
-        ServiceProvider sp  = this.getProviderByUrl(url,em);
-        if( sp != null ){
-            
-        }        
+    public void deleteAllowedService(String url, EntityManager em) throws Exception {
+        ServiceProvider sp = this.getProviderByUrl(url, em);
+        if (sp == null) {
+            throw new Exception("Deleting unknown WMS service with url " + url);
+        }
+        
+        int deleted = em.createQuery("DELETE FROM allowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).executeUpdate();
+        
+        if( deleted == 0 ){
+            throw new Exception("Trying to delete the service " + sp.getAbbr() + " wich is not added.");
+        }
     }
-    
+
     /**
      * Clears the allowed services list
-     * 
-     * @param em    The entityManager
+     *
+     * @param em The entityManager
      */
-    public void deleteAllAllowedServices(EntityManager em){
-        
+    public void deleteAllAllowedServices(EntityManager em) {
+        em.createQuery("TRUNCATE TABLE allowedServiceProviders").executeUpdate();
     }
-    
+
     /**
      * Searches the ServiceProvider with the given URL
-     * 
-     * @param url       The url to search on
-     * @param em        The entityManager
-     * @return          The found ServiceProvider, otherwise null
+     *
+     * @param url The url to search on
+     * @param em The entityManager
+     * @return The found ServiceProvider, otherwise null
      */
-    private ServiceProvider getProviderByUrl(String url,EntityManager em){
+    private ServiceProvider getProviderByUrl(String url, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider) em.createQuery(
-                    "from ServiceProvider sp where " +
-                    "url = :url ").setParameter("url", url).getSingleResult();
+                    "from ServiceProvider sp where "
+                    + "url = :url ").setParameter("url", url).getSingleResult();
 
             return dbSp;
-        }
-        catch(Exception ex){
-            log.error("error locating ServiceProvider",ex);
+        } catch (Exception ex) {
+            log.error("error locating ServiceProvider", ex);
             return null;
         }
     }

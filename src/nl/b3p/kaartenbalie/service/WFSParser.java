@@ -591,48 +591,70 @@ public class WFSParser extends WmsWfsParser {
     
     /**
      * Returns all the allowed services
-     * 
-     * @param em    The entityManager
-     * @return  The allowed services
+     *
+     * @param em The entityManager
+     * @return The allowed services
      */
-    public List<WfsServiceProvider> getAllowedServices(EntityManager em){
-        return null;
-    }
-    
-    /**
-     * Sets the service with the given url as allowed
-     * 
-     * @param url   The url
-     * @param em    The entityManager
-     */
-    public void addAllowedService(String url,EntityManager em){
-        WfsServiceProvider sp  = this.getProviderByUrl(url,em);
-        if( sp != null ){
-            
+    public List<ServiceProvider> getAllowedServices(EntityManager em) {
+        try {
+            List<ServiceProvider> providers = em.createQuery(
+                    "from wfsAllowedServiceProviders").getResultList();
+
+            return providers;
+        } catch (Exception ex) {
+            log.error("error collecting allowed ServiceProviders", ex);
+            return null;
         }
     }
-    
+
     /**
-     * 
-     * Removes the service with the given url as allowed
-     * 
-     * @param url   The url
-     * @param em    The entityManager
+     * Sets the service with the given url as allowed
+     *
+     * @param url The url
+     * @param em The entityManager
      */
-    public void deleteAllowedService(String url,EntityManager em){
-        WfsServiceProvider sp  = this.getProviderByUrl(url,em);
-        if( sp != null ){
-            
-        }        
+    public void addAllowedService(String url, EntityManager em) throws Exception {
+        WfsServiceProvider sp = this.getProviderByUrl(url, em);
+        if (sp == null) {
+            throw new Exception("Adding unknown WFS service with url " + url);
+        }
+        
+        try {
+            em.createQuery("from wfsAllowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).getSingleResult();
+
+            throw new Exception("Trying to add the service " + sp.getAbbr() + " wich is allready added.");
+        } catch (NoResultException nre) {
+            em.createQuery("INSERT INTO wfsAllowedServiceProviders (id,abbr) VALUES (:id,:abbr)").setParameter("id",sp.getId().toString()).setParameter("abbr", sp.getAbbr());
+        }
     }
-    
+
+    /**
+     *
+     * Removes the service with the given url as allowed
+     *
+     * @param url The url
+     * @param em The entityManager
+     */
+    public void deleteAllowedService(String url, EntityManager em) throws Exception {
+        WfsServiceProvider sp = this.getProviderByUrl(url, em);
+        if (sp == null) {
+            throw new Exception("Deleting unknown WFS service with url " + url);
+        }
+        
+        int deleted = em.createQuery("DELETE FROM wfsAllowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).executeUpdate();
+        
+        if( deleted == 0 ){
+            throw new Exception("Trying to delete the service " + sp.getAbbr() + " wich is not added.");
+        }
+    }
+
     /**
      * Clears the allowed services list
-     * 
-     * @param em    The entityManager
+     *
+     * @param em The entityManager
      */
-    public void deleteAllAllowedServices(EntityManager em){
-        
+    public void deleteAllAllowedServices(EntityManager em) {
+        em.createQuery("TRUNCATE TABLE wfsAllowedServiceProviders").executeUpdate();
     }
     
     /**
