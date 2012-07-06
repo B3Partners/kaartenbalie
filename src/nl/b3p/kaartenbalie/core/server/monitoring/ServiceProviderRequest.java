@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.core.server.monitoring;
 
 import javax.persistence.EntityManager;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.wms.capabilities.ServiceProvider;
 
 /**
@@ -50,6 +51,7 @@ public class ServiceProviderRequest {
     private Integer height;
     private String format;
     private String boundingBox;
+    private B3PCredentials credentials;
 
     public ServiceProviderRequest() {
     }
@@ -57,6 +59,14 @@ public class ServiceProviderRequest {
     public ServiceProviderRequest(ClientRequest clientRequest) {
         this();
         this.setClientRequest(clientRequest);
+    }
+    
+    public void setCredentials(B3PCredentials credentials){
+        this.credentials    = credentials;
+    }
+    
+    public B3PCredentials getCredentials(){
+        return this.credentials;
     }
 
     public Integer getId() {
@@ -164,6 +174,7 @@ public class ServiceProviderRequest {
             serviceProviderId = null;
         } else {
             this.serviceProviderId = serviceProvider.getId();
+            this.credentials    = serviceProvider.getCredentials();
         }
     }
 

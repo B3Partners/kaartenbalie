@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import nl.b3p.commons.xml.IgnoreEntityResolver;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -40,6 +42,7 @@ import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Switcher;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,12 +70,15 @@ public class ImageCollector extends Thread {
     private ServiceProviderRequest wmsRequest;
     private DataWrapper dw;
     private int index;
+    private B3PCredentials credentials;
 
     public ImageCollector(ServiceProviderRequest wmsRequest, DataWrapper dw, int index) {
         this.wmsRequest = wmsRequest;
         this.dw = dw;
         this.index = index;
         this.setMessage("Request started ...");
+        
+        this.credentials    = this.wmsRequest.getCredentials();
     }
 
     public void processNew() throws InterruptedException {
@@ -86,8 +92,9 @@ public class ImageCollector extends Thread {
             handleRequestException(new Exception("Provider did not respond in due time!"));
             getWmsRequest().setRequestResponseTime(new Long(maxResponseTime));
         }
-    }
+    }    
 
+    @Override
     public void run() {
         Date operationStart = new Date();
         Date operationEnd = null;
@@ -103,9 +110,10 @@ public class ImageCollector extends Thread {
                 handleRequestException(ex);
             }
         } else {
-            HttpClient client = new HttpClient();
+            HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
+            
             GetMethod method = new GetMethod(getUrl());
-            client.getHttpConnectionManager().getParams().setConnectionTimeout(maxResponseTime);
+            
             try {
                 int statusCode = client.executeMethod(method);
                 getWmsRequest().setBytesSent(new Long(url.getBytes().length));

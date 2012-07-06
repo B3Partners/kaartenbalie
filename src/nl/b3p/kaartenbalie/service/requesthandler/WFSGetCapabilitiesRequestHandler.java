@@ -35,6 +35,8 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -47,6 +49,7 @@ import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -135,13 +138,12 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 spLayers.add(layer);
             }
         }
-        if (spLayers == null || spLayers.size() == 0) {
+        if (spLayers == null || spLayers.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
 
         HttpMethod method = null;
-        HttpClient client = new HttpClient();
-        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+            
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
         // TODO body cleanen
@@ -164,6 +166,12 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             if (servers.contains(sp.getSpAbbr())) {
                 continue;
             }
+            B3PCredentials credentials = new B3PCredentials();
+            credentials.setUserName(sp.getUsername());
+            credentials.setPassword(sp.getPassword());
+            
+        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
+            
             servers.add(sp.getSpAbbr());
             lurl = sp.getSpUrl();
             prefix = sp.getSpAbbr();
@@ -178,6 +186,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             if (WFSVersionUsed != null) {
                 or.addOrReplaceParameter(OGCConstants.VERSION, WFSVersionUsed);
             }
+            
             method = new GetMethod(or.getUrl());
             int status = client.executeMethod(method);
             if (status != HttpStatus.SC_OK) {

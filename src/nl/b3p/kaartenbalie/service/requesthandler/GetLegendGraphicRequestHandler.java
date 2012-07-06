@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -94,6 +95,11 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
             //Say hello to B3P Layering!!
         } else {
+            B3PCredentials credentials  = new B3PCredentials();
+            credentials.setUserName(spInfo.getUsername());
+            credentials.setPassword(spInfo.getPassword());
+            lgrWrapper.setCredentials(credentials);
+            
             lgrWrapper.setServiceProviderId(serviceProviderId);
             StringBuffer url = new StringBuffer();
             url.append(spInfo.getSpUrl());

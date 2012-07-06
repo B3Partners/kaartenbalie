@@ -33,6 +33,8 @@ import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathExpressionException;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -122,8 +124,9 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         Integer spId = null;
         String spurl = null;
         Iterator spIt = spInfo.iterator();
+        SpLayerSummary sp = new SpLayerSummary();
         while (spIt.hasNext()) {
-            SpLayerSummary sp = (SpLayerSummary) spIt.next();
+            sp = (SpLayerSummary) spIt.next();
             Integer tSpId = sp.getServiceproviderId();
             if (spId != null && tSpId != null && tSpId.compareTo(spId) != 0) {
                 log.error("More then 1 service provider addressed. Not supported (yet)");
@@ -139,8 +142,12 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
 
         HttpMethod method = null;
-        HttpClient client = new HttpClient();
-        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+
+        B3PCredentials credentials = new B3PCredentials();
+        credentials.setUserName(sp.getUsername());
+        credentials.setPassword(sp.getPassword());
+        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
+        
         OutputStream os = data.getOutputStream();
         String body = ogcrequest.getXMLBody();
         // TODO body cleanen

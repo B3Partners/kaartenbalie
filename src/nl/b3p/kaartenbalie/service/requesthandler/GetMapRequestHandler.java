@@ -24,17 +24,14 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.persistence.EntityManager;
-import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
@@ -126,12 +123,16 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             gmrWrapper.setBoundingBox(ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
 
             Integer serviceProviderId = spInfo.getServiceproviderId();
+            B3PCredentials credentials  = new B3PCredentials();
+            credentials.setUserName(spInfo.getUsername());
+            credentials.setPassword(spInfo.getPassword());
+            
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!                
                 StringBuffer url = createOnlineUrl(spInfo, ogc,dw.getRequest().getRequestURL().toString());
                 gmrWrapper.setProviderRequestURI(url.toString());
+                gmrWrapper.setCredentials(credentials);
                 urlWrapper.add(gmrWrapper);
-
             } else {
                 gmrWrapper.setServiceProviderId(serviceProviderId);
 
@@ -157,6 +158,8 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 
                 StringBuffer url = createOnlineUrl(spInfo, ogc,dw.getRequest().getRequestURL().toString());
                 gmrWrapper.setProviderRequestURI(url.toString());
+                
+                gmrWrapper.setCredentials(credentials);
                 urlWrapper.add(gmrWrapper);
             }
         }

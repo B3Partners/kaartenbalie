@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -145,9 +147,8 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();
 
-        HttpClient client = new HttpClient();
-        client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_0);
-        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+        HttpClient client;
+        B3PCredentials credentials;
         OutputStream os = data.getOutputStream();
 
         String spUrl = null;
@@ -178,6 +179,12 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, spUrl, sp.getServiceproviderId(), 0l);
+            
+            credentials = new B3PCredentials();
+            credentials.setUserName(sp.getUsername());
+            credentials.setPassword(sp.getPassword());
+            
+            client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime, HttpVersion.HTTP_1_0);
 
             HttpMethod  method = null;
             if (spOgcReq.getHttpMethod().equalsIgnoreCase("POST")) {

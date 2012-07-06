@@ -33,6 +33,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -111,8 +113,9 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
 
             List spLayers = new ArrayList();
             Iterator iter = spUrls.iterator();
+            SpLayerSummary sp = new SpLayerSummary();
             while (iter.hasNext()) {
-                SpLayerSummary sp = (SpLayerSummary) iter.next();
+                sp = (SpLayerSummary) iter.next();
                 List tlayers = sp.getLayers();
                 url = sp.getSpUrl();
                 prefix = sp.getSpAbbr();
@@ -190,8 +193,11 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 throw new UnsupportedOperationException("No Serviceprovider for this service available!");
             }
             PostMethod method = null;
-            HttpClient client = new HttpClient();
-            client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
+            B3PCredentials credentials  = new B3PCredentials();
+            credentials.setUserName(sp.getUsername());
+            credentials.setPassword(sp.getPassword());
+            HttpClient client   = CredentialsParser.CommonsHttpClientCredentials(credentials,url,CredentialsParser.PORT,(int)maxResponseTime);
+            
             OutputStream os = data.getOutputStream();
             String oldBody = data.getOgcrequest().getXMLBody();
             String body = "";

@@ -42,6 +42,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import nl.b3p.commons.xml.IgnoreEntityResolver;
+import nl.b3p.gis.B3PCredentials;
+import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
@@ -75,7 +77,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -543,16 +544,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 }
                 wmsRequest.setRequestResponseTime(new Long(time));
             } else {
-                HttpClient client = new DefaultHttpClient();
-                HttpParams params = new BasicHttpParams();
-                
-                client.getParams().setParameter("http.socket.timeout", new Integer(10000));
-                client.getParams().setParameter("http.connection.stalecheck", false);
-                client.getParams().setParameter("http.connection.timeout", new Integer(60000));
-                        
                 // TODO: Wel goed doen
                 url = url.replaceAll(" ", "%20");
                 url = url.replaceAll("\\\\+", "/");
+                
+                B3PCredentials credentials = wmsRequest.getCredentials();
+                DefaultHttpClient client = CredentialsParser.HttpClientCredentials(credentials, url, CredentialsParser.PORT, new Integer(60000));
+                HttpParams params = new BasicHttpParams();
+                client.getParams().setParameter("http.socket.timeout", new Integer(10000));
+                client.getParams().setParameter("http.connection.stalecheck", false);
                 
                 HttpGet httpget = new HttpGet(url);
                 
@@ -758,14 +758,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String query = "select distinct new "
-                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable) "
+                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable,sp) "
                 + "from Layer l, Organization o, ServiceProvider sp join o.layers ol "
                 + "where l = ol and "
                 + "l.serviceProvider = sp and "
                 + "o.id in (:orgIds) and "
                 + "l.name = :layerName and "
                 + "sp.abbr = :layerCode";
-
+        
         return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
     }
 

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import nl.b3p.gis.B3PCredentials;
 
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -111,8 +112,13 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
             	//B3P layering necessary for DescribeLayer?
             	// when is Id < -1 ?
             } else {
+                B3PCredentials credentials  = new B3PCredentials();
+                credentials.setUserName(spLayerSummary.getUsername());
+                credentials.setPassword(spLayerSummary.getPassword());
             	dlrWrapper.setServiceProviderId(serviceProviderId);
             	dlrWrapper.setServiceProviderAbbreviation(spLayerSummary.getSpAbbr());
+                dlrWrapper.setCredentials(credentials);
+                
             	String layersList = spLayerSummary.getLayersAsString(); //
             	
                 StringBuffer url = new StringBuffer();

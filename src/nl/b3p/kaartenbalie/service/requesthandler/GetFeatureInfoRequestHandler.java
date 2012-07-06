@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
@@ -110,6 +111,12 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
 
                 String abbr = spInfo.getSpAbbr();
                 firWrapper.setServiceProviderAbbreviation(abbr);
+                
+                B3PCredentials credentials  = new B3PCredentials();
+                credentials.setUserName(spInfo.getUsername());
+                credentials.setPassword(spInfo.getPassword());
+                firWrapper.setCredentials(credentials);
+                
              
                 String layersList = spInfo.getLayersAsString();
 

@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
+import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.Style;
 
@@ -41,6 +43,8 @@ public class SpLayerSummary {
     private String layerName = null;
     private String spUrl = null;
     private String spAbbr = null;
+    private String username = null;
+    private String password = null;
     private String queryable = null;
     private List<String> layers = null;
     private HashMap<String,Set<Style>> styles=null;
@@ -52,6 +56,18 @@ public class SpLayerSummary {
             String spUrl,
             String spAbbr,
             String queryable, Set<Style> styles) {
+        this(serviceproviderId,layerId,layerName,spUrl,spAbbr,queryable,styles,null,null);
+    }
+    
+    public SpLayerSummary(
+            Integer serviceproviderId,
+            Integer layerId,
+            String layerName,
+            String spUrl,
+            String spAbbr,
+            String queryable, Set<Style> styles,
+            String username,
+            String password) {
         this.serviceproviderId = serviceproviderId;
         this.layerId = layerId;
         this.layerName = layerName;
@@ -59,6 +75,8 @@ public class SpLayerSummary {
         this.spAbbr = spAbbr;
         this.queryable = queryable;
         this.addStyles(layerName,styles);
+        this.username   = username;
+        this.password   = password;
     }
 
     public SpLayerSummary(Layer l, String queryable) {
@@ -67,7 +85,7 @@ public class SpLayerSummary {
                 l.getName(),
                 l.getServiceProvider().getUrl(),
                 l.getServiceProvider().getAbbr(),
-                queryable,l.getStyles());
+                queryable,l.getStyles(),l.getServiceProvider().getUserName(),l.getServiceProvider().getPassword());
         //add styles.
         /*if (l.getStyles()!=null){
             Set styles= l.getStyles();
@@ -88,7 +106,31 @@ public class SpLayerSummary {
                 l.getName(),
                 l.getWfsServiceProvider().getUrl(),
                 l.getWfsServiceProvider().getAbbr(),
-                queryable,null);
+                queryable,null,l.getWfsServiceProvider().getUsername(),l.getWfsServiceProvider().getPassword());
+    }
+    
+    public SpLayerSummary(WfsLayer l, String queryable,ServiceProvider sp) {
+        this(l,queryable);
+        
+        setServiceProvider(sp);
+    }
+    
+    public SpLayerSummary(WfsLayer l, String queryable,WfsServiceProvider sp) {
+        this(l,queryable);
+        
+        setServiceProvider(sp);
+    }
+    
+    public SpLayerSummary(Layer l, String queryable,ServiceProvider sp) {
+        this(l,queryable);
+        
+        setServiceProvider(sp);
+    }
+    
+    public SpLayerSummary(Layer l, String queryable,WfsServiceProvider sp) {
+        this(l,queryable);
+        
+        setServiceProvider(sp);
     }
 
     public SpLayerSummary() {
@@ -128,6 +170,25 @@ public class SpLayerSummary {
 
     public String getSpAbbr() {
         return spAbbr;
+    }
+    
+    public void setServiceProvider(WfsServiceProvider sp){
+        this.username   = sp.getUsername();
+        this.password   = sp.getPassword();
+    }
+    
+    public void setServiceProvider(ServiceProvider sp){
+        if( sp == null )    return;
+        this.username   = sp.getUserName();
+        this.password   = sp.getPassword();
+    }
+    
+    public String getUsername(){
+        return username;
+    }
+    
+    public String getPassword(){
+        return password;
     }
 
     public void setSpAbbr(String spAbbr) {

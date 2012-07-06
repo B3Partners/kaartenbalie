@@ -39,6 +39,7 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
+import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -72,7 +73,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String query = "select distinct new "
-                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') "
+                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true',sp) "
                 + "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol "
                 + "where l = ol and "
                 + "l.wfsServiceProvider = sp and "

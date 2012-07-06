@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
+import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
@@ -43,6 +44,7 @@ public class ImageManager {
         if (urlWrapper == null || urlWrapper.isEmpty()) {
             return;
         }
+        
         for (int i = 0; i<urlWrapper.size(); i++) {
             ServiceProviderRequest wmsRequest = (ServiceProviderRequest) urlWrapper.get(i);
             ImageCollector ic = new ImageCollector(wmsRequest, dw, i);
