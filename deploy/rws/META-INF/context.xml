@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/kaartenbalie">
+<Resource
+  	auth="Container"
+  	driverClassName="oracle.jdbc.driver.OracleDriver"
+  	logAbandoned="true"
+  	maxActive="100"
+  	maxIdle="30"
+  	maxWait="10000"
+  	name="KaartenbalieDS"
+  	username="KAARTENBALIE"
+  	password="KRTB_TGEOS"
+  	removeAbandoned="true"
+  	removeAbandonedTimeout="60"
+  	type="javax.sql.DataSource"
+  	url="jdbc:oracle:thin:@145.50.148.33:1526:TGEOS"
+	minEvictableIdleTimeMillis="10000"
+	timeBetweenEvictionRunsMillis="60000"
+  />
+  
+<!--
+<Resource
+  	auth="Container"
+  	driverClassName="org.postgresql.Driver"
+  	logAbandoned="true"
+  	maxActive="100"
+  	maxIdle="30"
+  	maxWait="10000"
+  	name="jdbc/kaartenbalie"
+  	username="kaartenbalie"
+  	password="kaartenbalie"
+  	removeAbandoned="true"
+  	removeAbandonedTimeout="60"
+  	type="javax.sql.DataSource"
+  	url="jdbc:postgresql://localhost:5432/kaartenbalie"
+  	validationQuery="select 1"
+	minEvictableIdleTimeMillis="10000"
+	timeBetweenEvictionRunsMillis="60000"
+  />
+-->
+</Context>
