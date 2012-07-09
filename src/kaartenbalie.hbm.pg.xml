@@ -371,4 +371,16 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         </set>      
         <many-to-one column="service_provider" name="serviceProvider"/>       
     </class>
+    <class name="nl.b3p.wms.capabilities.AllowedServiceProviders">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <property length="60" name="name" not-null="true"/>
+    </class>
+    <class name="nl.b3p.ogc.wfs.v110.WfsAllowedServiceProviders">
+        <id name="id">
+            <generator class="identity"/>
+        </id>
+        <property length="60" name="name" not-null="true"/>
+    </class>
 </hibernate-mapping>
