@@ -9,7 +9,7 @@ insert into roles (id, role) values (roles_id_seq.nextval, 'beheerder');
 insert into roles (id, role) values (roles_id_seq.nextval, 'gebruiker');
 
 insert into users (id, main_organization, first_name, surname, email_address, username, password, personalurl)
-	values (users_id_seq.nextval, 1, 'beheerder', 'beheerder', 'info@b3partners.nl', 'beheerder', 'JMzUf6QkCdc%3D','6c3916be182da4c736091f1f73c590b7');
+	values (users_id_seq.nextval, 1, 'beheerder', 'beheerder', 'info@b3partners.nl', 'beheerder', '1ZkPjF0ZNpQOXRr0TImwog%3D%3D','6c3916be182da4c736091f1f73c590b7');
 
 insert into users_roles (users, role) values (1,1);
 insert into users_roles (users, role) values (1,2);
