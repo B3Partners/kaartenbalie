@@ -73,5 +73,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <c:set var="stijlklasse" value="activemenulink" />
             </c:if>
             <a class="${stijlklasse}" href="<html:rewrite page='/beheer/role.do' module='' />"><fmt:message key="beheer.menu.rollen"/></a>
+            
+            <c:set var="stijlklasse" value="menulink" />
+            <c:if test="${requestJSP eq 'allowedWMS.do'}">
+                <c:set var="stijlklasse" value="activemenulink" />
+            </c:if>
+            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWMS.do' module='' />"><fmt:message key="beheer.menu.allowedWMS"/></a>
+            <c:set var="stijlklasse" value="menulink" />
+            
+            <c:if test="${requestJSP eq 'allowedWFS.do'}">
+                <c:set var="stijlklasse" value="activemenulink" />
+            </c:if>
+            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWFS.do' module='' />"><fmt:message key="beheer.menu.allowedWFS"/></a>
         </div>
 </div>

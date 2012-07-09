@@ -510,6 +510,7 @@ public class WFSParser extends WmsWfsParser {
         } else if (null != id) {
             serviceProvider = (WfsServiceProvider) em.find(WfsServiceProvider.class, new Integer(id.intValue()));
         }
+        
         return serviceProvider;
     }
     
@@ -590,19 +591,37 @@ public class WFSParser extends WmsWfsParser {
     }
     
     /**
+     * Returns all the not allowed services
+     *
+     * @param em The entityManager
+     * @return The allowed services
+     */
+    public List<WfsServiceProvider> getNotAllowedServices(EntityManager em) {
+        try {
+            List<WfsServiceProvider> providers = em.createQuery(
+                    "from WfsServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",false).getResultList();
+
+            return providers;
+        } catch (Exception ex) {
+            log.error("error collecting allowed WfsServiceProviders", ex);
+            return null;
+        }
+    }
+
+    /**
      * Returns all the allowed services
      *
      * @param em The entityManager
      * @return The allowed services
      */
-    public List<ServiceProvider> getAllowedServices(EntityManager em) {
+    public List<WfsServiceProvider> getAllowedServices(EntityManager em) {
         try {
-            List<ServiceProvider> providers = em.createQuery(
-                    "from wfsAllowedServiceProviders").getResultList();
+            List<WfsServiceProvider> providers = em.createQuery(
+                    "from WfsServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",true).getResultList();
 
             return providers;
         } catch (Exception ex) {
-            log.error("error collecting allowed ServiceProviders", ex);
+            log.error("error collecting allowed WfsServiceProviders", ex);
             return null;
         }
     }
@@ -619,13 +638,14 @@ public class WFSParser extends WmsWfsParser {
             throw new Exception("Adding unknown WFS service with url " + url);
         }
         
-        try {
-            em.createQuery("from wfsAllowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).getSingleResult();
-
+        if( sp.getAllowed() ){
             throw new Exception("Trying to add the service " + sp.getAbbr() + " wich is allready added.");
-        } catch (NoResultException nre) {
-            em.createQuery("INSERT INTO wfsAllowedServiceProviders (id,abbr) VALUES (:id,:abbr)").setParameter("id",sp.getId().toString()).setParameter("abbr", sp.getAbbr());
         }
+        
+        sp.setAllowed(true);
+        
+        em.persist(sp);
+        em.flush();
     }
 
     /**
@@ -641,11 +661,13 @@ public class WFSParser extends WmsWfsParser {
             throw new Exception("Deleting unknown WFS service with url " + url);
         }
         
-        int deleted = em.createQuery("DELETE FROM wfsAllowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).executeUpdate();
-        
-        if( deleted == 0 ){
+        if( !sp.getAllowed() ){
             throw new Exception("Trying to delete the service " + sp.getAbbr() + " wich is not added.");
         }
+        
+        sp.setAllowed(false);
+        em.persist(sp);
+        em.flush();
     }
 
     /**
@@ -654,26 +676,25 @@ public class WFSParser extends WmsWfsParser {
      * @param em The entityManager
      */
     public void deleteAllAllowedServices(EntityManager em) {
-        em.createQuery("TRUNCATE TABLE wfsAllowedServiceProviders").executeUpdate();
+        em.createQuery("UPDATE WfsServiceProvider SET allowed=false").executeUpdate();
     }
-    
+
     /**
-     * Searches the ServiceProvider with the given URL
-     * 
-     * @param url       The url to search on
-     * @param em        The entityManager
-     * @return          The found WfsServiceProvider, otherwise null
+     * Searches the WfsServiceProvider with the given URL
+     *
+     * @param url The url to search on
+     * @param em The entityManager
+     * @return The found WfsServiceProvider, otherwise null
      */
-    private WfsServiceProvider getProviderByUrl(String url,EntityManager em){
+    private WfsServiceProvider getProviderByUrl(String url, EntityManager em) {
         try {
             WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
-                    "from WfsServiceProvider sp where " +
-                    "url = :url ").setParameter("url", url).getSingleResult();
+                    "from WfsServiceProvider sp where "
+                    + "sp.url=:url ").setParameter("url", url).getSingleResult();
 
             return dbSp;
-        }
-        catch(Exception ex){
-            log.error("error locating WfsServiceProvider",ex);
+        } catch (Exception ex) {
+            log.error("error locating WfsServiceProvider", ex);
             return null;
         }
     }

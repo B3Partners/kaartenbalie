@@ -748,6 +748,24 @@ public class WMSParser extends WmsWfsParser {
     public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
         GroupParser.addAllLayersToGroup(org, sp, em);
     }
+    
+    /**
+     * Returns all the not allowed services
+     *
+     * @param em The entityManager
+     * @return The allowed services
+     */
+    public List<ServiceProvider> getNotAllowedServices(EntityManager em) {
+        try {
+            List<ServiceProvider> providers = em.createQuery(
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",false).getResultList();
+
+            return providers;
+        } catch (Exception ex) {
+            log.error("error collecting allowed ServiceProviders", ex);
+            return null;
+        }
+    }
 
     /**
      * Returns all the allowed services
@@ -758,7 +776,7 @@ public class WMSParser extends WmsWfsParser {
     public List<ServiceProvider> getAllowedServices(EntityManager em) {
         try {
             List<ServiceProvider> providers = em.createQuery(
-                    "from allowedServiceProviders").getResultList();
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",true).getResultList();
 
             return providers;
         } catch (Exception ex) {
@@ -779,13 +797,14 @@ public class WMSParser extends WmsWfsParser {
             throw new Exception("Adding unknown WMS service with url " + url);
         }
         
-        try {
-            em.createQuery("from allowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).getSingleResult();
-
+        if( sp.getAllowed() ){
             throw new Exception("Trying to add the service " + sp.getAbbr() + " wich is allready added.");
-        } catch (NoResultException nre) {
-            em.createQuery("INSERT INTO allowedServiceProviders (id,abbr) VALUES (:id,:abbr)").setParameter("id",sp.getId().toString()).setParameter("abbr", sp.getAbbr());
         }
+        
+        sp.setAllowed(true);
+        
+        em.persist(sp);
+        em.flush();
     }
 
     /**
@@ -801,11 +820,13 @@ public class WMSParser extends WmsWfsParser {
             throw new Exception("Deleting unknown WMS service with url " + url);
         }
         
-        int deleted = em.createQuery("DELETE FROM allowedServiceProviders WHERE id=:id AND abbr=:abbr").setParameter("id", sp.getId().toString()).setParameter("abbr", sp.getAbbr()).executeUpdate();
-        
-        if( deleted == 0 ){
+        if( !sp.getAllowed() ){
             throw new Exception("Trying to delete the service " + sp.getAbbr() + " wich is not added.");
         }
+        
+        sp.setAllowed(false);
+        em.persist(sp);
+        em.flush();
     }
 
     /**
@@ -814,7 +835,7 @@ public class WMSParser extends WmsWfsParser {
      * @param em The entityManager
      */
     public void deleteAllAllowedServices(EntityManager em) {
-        em.createQuery("TRUNCATE TABLE allowedServiceProviders").executeUpdate();
+        em.createQuery("UPDATE ServiceProvider SET allowed=false").executeUpdate();
     }
 
     /**
@@ -828,7 +849,7 @@ public class WMSParser extends WmsWfsParser {
         try {
             ServiceProvider dbSp = (ServiceProvider) em.createQuery(
                     "from ServiceProvider sp where "
-                    + "url = :url ").setParameter("url", url).getSingleResult();
+                    + "sp.url=:url ").setParameter("url", url).getSingleResult();
 
             return dbSp;
         } catch (Exception ex) {

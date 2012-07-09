@@ -86,6 +86,7 @@
             <form-property name="password" type="java.lang.String"/>
             
             <form-property name="ignoreResource" type="java.lang.Boolean"/>
+            <form-property name="providerId" type="java.lang.String"/>
         </form-bean>
 
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
@@ -299,7 +300,14 @@
             <forward name="success" path="base.beheer.editmetadata"/>
             <forward name="failure" path="base.beheer.editmetadata"/>
         </action>
-        
+        <action path="/allowedWMS" name="serverForm" type="nl.b3p.kaartenbalie.struts.AllowedWMSAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.allowedWMS"/>
+            <forward name="failure" path="base.beheer.allowedWMS"/>
+        </action>
+        <action path="/allowedWFS" name="serverForm" type="nl.b3p.kaartenbalie.struts.AllowedWFSAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.allowedWFS"/>
+            <forward name="failure" path="base.beheer.allowedWFS"/>
+        </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

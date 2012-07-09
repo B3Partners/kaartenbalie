@@ -257,6 +257,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property column="user_name" length="255" name="userName" />
         <property length="255" name="password" />
         <property column="ignore_resource" type="boolean" name="ignoreResource"/>
+        <property type="boolean" name="allowed"/>
     </class>
     <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
         <id name="id">
@@ -353,6 +354,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="80" name="status" not-null="false"/>
         <property column="user_name" length="255" name="username" />
         <property length="255" name="password" />
+        <property type="boolean" name="allowed"/>
     </class>
     <class name="nl.b3p.wms.capabilities.TileSet">
         <id name="id">
@@ -370,17 +372,5 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
             <many-to-many class="nl.b3p.wms.capabilities.Layer" column="layer" lazy="false"/>
         </set>      
         <many-to-one column="service_provider" name="serviceProvider"/>       
-    </class>
-    <class name="nl.b3p.wms.capabilities.AllowedServiceProviders">
-        <id name="id">
-            <generator class="identity"/>
-        </id>
-        <property length="60" name="name" not-null="true"/>
-    </class>
-    <class name="nl.b3p.ogc.wfs.v110.WfsAllowedServiceProviders">
-        <id name="id">
-            <generator class="identity"/>
-        </id>
-        <property length="60" name="name" not-null="true"/>
     </class>
 </hibernate-mapping>

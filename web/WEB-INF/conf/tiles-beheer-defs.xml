@@ -100,6 +100,13 @@
         <put name="title" value="Transacties - Beheer" type="string"/>
         <put name="content" value="/WEB-INF/jsp/beheer/transaction.jsp"/>
     </definition>
-    
+    <definition name="base.beheer.allowedWMS" extends="base.proxy">
+        <put name="title" value="WMS lijst beheer" type="string"/>
+        <put name="content" value="/WEB-INF/jsp/beheer/allowedWMS.jsp"/>
+    </definition>
+    <definition name="base.beheer.allowedWFS" extends="base.proxy">
+        <put name="title" value="WFS lijst beheer" type="string"/>
+        <put name="content" value="/WEB-INF/jsp/beheer/allowedWFS.jsp"/>
+    </definition>
     
 </tiles-definitions>
