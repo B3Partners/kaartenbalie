@@ -79,7 +79,8 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 + "l.wfsServiceProvider = sp and "
                 + "o.id in (:orgIds) and "
                 + "l.name = :layerName and "
-                + "sp.abbr = :layerCode";
+                + "sp.abbr = :layerCode and "
+                + "sp.allowed = true";
 
         return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
     }

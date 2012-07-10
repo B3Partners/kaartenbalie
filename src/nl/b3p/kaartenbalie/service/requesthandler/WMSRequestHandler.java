@@ -26,24 +26,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
+import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import nl.b3p.commons.xml.IgnoreEntityResolver;
 import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
+import nl.b3p.gis.CredentialsHttpParser;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
@@ -62,14 +52,7 @@ import nl.b3p.kaartenbalie.service.persistence.WFSProviderDAO;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.wms.capabilities.ElementHandler;
-import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.Roles;
-import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.wms.capabilities.SrsBoundingBox;
-import nl.b3p.wms.capabilities.Switcher;
-
-import nl.b3p.wms.capabilities.TileSet;
+import nl.b3p.wms.capabilities.*;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
@@ -85,12 +68,7 @@ import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.geotools.data.ows.LayerDescription;
 import org.geotools.data.wms.response.DescribeLayerResponse;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -549,7 +527,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 url = url.replaceAll("\\\\+", "/");
                 
                 B3PCredentials credentials = wmsRequest.getCredentials();
-                DefaultHttpClient client = CredentialsParser.HttpClientCredentials(credentials, url, CredentialsParser.PORT, new Integer(60000));
+                DefaultHttpClient client = CredentialsHttpParser.HttpClientCredentials(credentials, url, CredentialsHttpParser.PORT, new Integer(60000));
                 HttpParams params = new BasicHttpParams();
                 client.getParams().setParameter("http.socket.timeout", new Integer(10000));
                 client.getParams().setParameter("http.connection.stalecheck", false);
@@ -764,7 +742,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 + "l.serviceProvider = sp and "
                 + "o.id in (:orgIds) and "
                 + "l.name = :layerName and "
-                + "sp.abbr = :layerCode";
+                + "sp.abbr = :layerCode and "
+                + "sp.allowed = true";
         
         return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
     }
