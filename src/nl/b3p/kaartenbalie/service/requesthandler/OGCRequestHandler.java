@@ -21,11 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
@@ -182,6 +178,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         Map config = dw.getLayeringParameterMap();
+        String serviceName  = dw.getOgcrequest().getServiceName();
 
         configB3pLayering(layers, config);
 
@@ -189,7 +186,11 @@ public abstract class OGCRequestHandler implements RequestHandler {
         boolean b3pLayering = false;
         for (int i = 0; i < layers.length; i++) {
             SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
-            if (layerInfo == null) {
+            if (layerInfo == null ) {
+                continue;
+            }
+            
+            if ( serviceName != null && !layerInfo.getSpAbbr().equalsIgnoreCase(serviceName) ) {
                 continue;
             }
 
@@ -208,7 +209,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 continue;
             }
             if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerInfo.getLayerName())) {
-                config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, new Boolean(true));
+                config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, Boolean.TRUE);
             }
             addToServerProviderList(eventualSPList, layerInfo);
         }
@@ -315,7 +316,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         if (AccountManager.isEnableAccounting() && tlu.getCreditAlteration().doubleValue() > 0) {
             config.put(AllowTransactionsLayer.creditMutation, tlu.getCreditAlteration());
             config.put(AllowTransactionsLayer.pricedLayers, tlu.getPricedLayerNames());
-            config.put(AllowTransactionsLayer.transactionsNeeded, new Boolean(true));
+            config.put(AllowTransactionsLayer.transactionsNeeded, Boolean.TRUE);
             if (!bAllowTransactions) {
                 am.endTLU();
             }

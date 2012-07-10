@@ -106,8 +106,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
         String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin);
 
+        String serviceName  = data.getOgcrequest().getServiceName();
         if (isAdmin) {
-            spInfo = getLayerSummaries(layerNames);
+            spInfo = getLayerSummaries(layerNames,serviceName);
         } else {
             spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
         }

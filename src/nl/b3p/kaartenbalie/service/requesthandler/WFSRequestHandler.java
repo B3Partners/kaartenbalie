@@ -51,7 +51,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     private static final Log log = LogFactory.getLog(WFSRequestHandler.class);
 
-    /** Creates a new instance of WFSRequestHandler */
+    /**
+     * Creates a new instance of WFSRequestHandler
+     */
     public WFSRequestHandler() {
     }
 
@@ -62,8 +64,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             throw new Exception("Operation can not be null");
         }
         String projection = dw.getOgcrequest().getParameter(OGCConstants.WFS_PARAM_SRSNAME); // todo klopt dit?
-        /* De srs parameter word nu alleen gevult met null. Hier moet misschien nog naar gekeken worden, maar
-        nu werk het zo wel. */
+        /*
+         * De srs parameter word nu alleen gevult met null. Hier moet misschien
+         * nog naar gekeken worden, maar nu werk het zo wel.
+         */
         BigDecimal scale = (new BigDecimal(dw.getOgcrequest().calcScale())).setScale(2, BigDecimal.ROUND_HALF_UP);
         int planType = LayerPricing.PAY_PER_REQUEST;
         String service = OGCConstants.WFS_SERVICE_WFS;
@@ -129,7 +133,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     /**
      * Get version from ogcrequest otherwise return 1.1.0.
-     * 
+     *
      * @param ogcrequest
      * @return
      */
@@ -146,8 +150,8 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
     }
 
     /**
-     * Create a URI from the ogcrequest with provided URL, by adding
-     * the request parameters.
+     * Create a URI from the ogcrequest with provided URL, by adding the request
+     * parameters.
      *
      * @param ogcrequest
      * @param lurl
@@ -206,6 +210,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
     }
 
     protected List getLayerSummaries(String[] layers) throws Exception {
+        return getLayerSummaries(layers, null);
+    }
+
+    protected List getLayerSummaries(String[] layers, String serviceName) throws Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         List spList = new ArrayList();
@@ -216,10 +224,16 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             String abbr = layerAndCode[0];
             String name = layerAndCode[1];
 
+            if (serviceName != null && !abbr.equalsIgnoreCase(serviceName)) {
+                continue;
+            }
+
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
 
             if (matchingLayers.isEmpty()) {
-                /* XXX "or no rights" ?? No rights are checked... */
+                /*
+                 * XXX "or no rights" ?? No rights are checked...
+                 */
                 log.error("layer not found: " + layer);
                 throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + layer);
             }
@@ -237,21 +251,21 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     static protected String cleanPrefixInBody(String body, String prefix, String nsUrl, String ns) {
         String old = "";
-        if (nsUrl!=null) {
+        if (nsUrl != null) {
             old += nsUrl;
         }
-        if (prefix!=null) {
+        if (prefix != null) {
             old += prefix;
         }
-        if (old.length()==0) {
+        if (old.length() == 0) {
             return body;
         }
         String nsnew = "";
-        if (ns!=null) {
+        if (ns != null) {
             nsnew += ns;
         }
         StringBuffer bBody = new StringBuffer(body);
-        for (int start = bBody.indexOf(old); start >=0; ) {
+        for (int start = bBody.indexOf(old); start >= 0;) {
             bBody.replace(start, start + old.length(), nsnew);
         }
         return bBody.toString();

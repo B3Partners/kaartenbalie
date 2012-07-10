@@ -52,6 +52,7 @@ public class ServiceProviderRequest {
     private String format;
     private String boundingBox;
     private B3PCredentials credentials;
+    private String serviceName;
 
     public ServiceProviderRequest() {
     }
@@ -254,5 +255,13 @@ public class ServiceProviderRequest {
 
     public void setServiceProviderAbbreviation(String abbreviation) {
         this.serviceProviderAbbreviation = abbreviation;
+    }
+    
+    public String getServiceName(){
+        return this.serviceName;
+    }
+    
+    public void setServiceName(String serviceName){
+        this.serviceName    = serviceName;
     }
 }

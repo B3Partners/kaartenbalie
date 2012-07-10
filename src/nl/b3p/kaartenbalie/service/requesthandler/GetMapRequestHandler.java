@@ -121,7 +121,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             gmrWrapper.setSrs(null);
             gmrWrapper.setFormat(ogc.getParameter(OGCConstants.WMS_PARAM_FORMAT));
             gmrWrapper.setBoundingBox(ogc.getParameter(OGCConstants.WMS_PARAM_BBOX));
-
+            
             Integer serviceProviderId = spInfo.getServiceproviderId();
             B3PCredentials credentials  = new B3PCredentials();
             credentials.setUserName(spInfo.getUsername());

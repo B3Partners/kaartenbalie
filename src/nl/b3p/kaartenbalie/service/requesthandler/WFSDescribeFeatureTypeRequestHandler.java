@@ -111,9 +111,10 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             }
         }
 
+        String serviceName  = data.getOgcrequest().getServiceName();
         List spInfo = null;
         if (isAdmin) {
-            spInfo = getLayerSummaries(spLayerNames);
+            spInfo = getLayerSummaries(spLayerNames,serviceName);
         } else {
             spInfo = getSeviceProviderURLS(spLayerNames, orgIds, false, data);
         }
