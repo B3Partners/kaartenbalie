@@ -20,9 +20,9 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
-
-<script type="text/javascript" src="<html:rewrite page='/dwr/interface/JRightsSupport.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/dwr/engine.js' module='' />"></script>
+<script type="text/javascript" src="<html:rewrite page='/dwr/interface/JRightsSupport.js' module='' />"></script>
+
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 <script type="text/javascript" src="<html:rewrite page='/js/json2.js' module='' />"></script>
@@ -90,21 +90,28 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <tr>
                     <td valign="top" style="width: 360px; padding-right: 20px;">
                         <b><fmt:message key="beheer.rights2.set" />:&nbsp;</b>
+                        <div class="treeHolderWide" id="layerContainer" style="width: 360px;"></div>
+                    </td>
+                    <td valign="top" style="width: 380px;">
+                        <b><fmt:message key="beheer.rights2.rechten" />:&nbsp;</b>                      
+                        <div class="treeHolderWide" id="tree" style="width: 380px;"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" style="width: 360px; padding-right: 20px;">
+                        <b><fmt:message key="beheer.rights2.groups" />:&nbsp;</b>
                         <html:select property="orgId" onchange="changeOrganization();">
                             <c:forEach var="orgItem" items="${organizationlist}">
                                 <html:option value="${orgItem.id}">
                                     <c:out value="${orgItem.name}"/>
                                 </html:option>
                             </c:forEach>
-                        </html:select>&nbsp;
-                        <div class="treeHolderWide" id="layerContainer" style="width: 360px;"></div>
+                        </html:select>
                     </td>
                     <td valign="top" style="width: 380px;">
-                        <b><fmt:message key="beheer.rights2.rechten" />:&nbsp;</b>
                         <html:button property="save" onclick="submitRightsForm();" accesskey="s" styleClass="knop">
                             <fmt:message key="button.update"/>
                         </html:button>
-                        <div class="treeHolderWide" id="tree" style="width: 380px;"></div>
                     </td>
                 </tr>
             </table>
