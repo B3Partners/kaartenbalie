@@ -25,65 +25,81 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <center><B><fmt:message key="beheer.proxyMenu.title" /></B></center><br>
     
         <div id="nav-menu">
+			<ul class="sf-menu">
 
-            <c:set var="requestURI" value="${fn:split(requestScope['javax.servlet.forward.request_uri'], '/')}" />
-            <c:set var="requestJSP" value="${requestURI[fn:length(requestURI) - 1]}" />
+				<c:set var="requestURI" value="${fn:split(requestScope['javax.servlet.forward.request_uri'], '/')}" />
+				<c:set var="requestJSP" value="${requestURI[fn:length(requestURI) - 1]}" />
 
-            <c:set var="stijlklasse" value="menulink" />
-            <a class="${stijlklasse}" href="<html:rewrite page='/index.do' module='' />"><fmt:message key="beheer.menu.home"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/index.do' module='' />"><fmt:message key="beheer.menu.home"/></a></li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'mapserver.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="beheer.menu.mapserver"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'mapserver.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/mapserver.do' module='' />"><fmt:message key="beheer.menu.mapserver"/></a></li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'server.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.menu.wmsservices"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'server.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li>
+					<a class="${stijlklasse}" href="<html:rewrite page='/beheer/server.do' module='' />"><fmt:message key="beheer.menu.wmsservices"/></a>
+					<ul>
+						<c:set var="stijlklasse" value="menulink" />
+						<c:if test="${requestJSP eq 'allowedWMS.do'}">
+							<c:set var="stijlklasse" value="activemenulink" />
+						</c:if>
+						<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWMS.do' module='' />"><fmt:message key="beheer.menu.allowedWMS"/></a></li>
+					</ul>
+				</li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'wfsserver.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.menu.wfsservices"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'wfsserver.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li>
+					<a class="${stijlklasse}" href="<html:rewrite page='/beheer/wfsserver.do' module='' />"><fmt:message key="beheer.menu.wfsservices"/></a>
+					<ul>
+						<c:set var="stijlklasse" value="menulink" />
+						<c:if test="${requestJSP eq 'allowedWFS.do'}">
+							<c:set var="stijlklasse" value="activemenulink" />
+						</c:if>
+						<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWFS.do' module='' />"><fmt:message key="beheer.menu.allowedWFS"/></a></li>
+					</ul>
+				</li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'organization.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/organization.do' module='' />"><fmt:message key="beheer.menu.groepen"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'organization.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/organization.do' module='' />"><fmt:message key="beheer.menu.groepen"/></a></li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'rights.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/rights2.do' module='' />"><fmt:message key="beheer.menu.rechten"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'rights.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/rights2.do' module='' />"><fmt:message key="beheer.menu.rechten"/></a></li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'user.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="beheer.menu.gebruikers"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'user.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="beheer.menu.gebruikers"/></a></li>
 
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'role.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/role.do' module='' />"><fmt:message key="beheer.menu.rollen"/></a>
-            
-            <c:set var="stijlklasse" value="menulink" />
-            <c:if test="${requestJSP eq 'allowedWMS.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWMS.do' module='' />"><fmt:message key="beheer.menu.allowedWMS"/></a>
-            <c:set var="stijlklasse" value="menulink" />
-            
-            <c:if test="${requestJSP eq 'allowedWFS.do'}">
-                <c:set var="stijlklasse" value="activemenulink" />
-            </c:if>
-            <a class="${stijlklasse}" href="<html:rewrite page='/beheer/allowedWFS.do' module='' />"><fmt:message key="beheer.menu.allowedWFS"/></a>
+				<c:set var="stijlklasse" value="menulink" />
+				<c:if test="${requestJSP eq 'role.do'}">
+					<c:set var="stijlklasse" value="activemenulink" />
+				</c:if>
+				<li><a class="${stijlklasse}" href="<html:rewrite page='/beheer/role.do' module='' />"><fmt:message key="beheer.menu.rollen"/></a></li>
+			
+			</ul>
         </div>
 </div>
+<script type="text/javascript">
+	$("ul.sf-menu").superfish({
+		dropShadows: false,
+		speed: 'fast',
+		animation: {opacity:'show',height:'show'}
+	}).find('ul').bgIframe({opacity:false});
+</script>

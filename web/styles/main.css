@@ -304,69 +304,6 @@ div.smallTableContainer {
     font-style: inherit;
     text-align: left;
 }
-
-#nav-menu ul 
-{  
-list-style: none;
-padding: 0;
-margin: 0;
-}
-
-#nav-menu ul li {
-  position: relative;
-  float: left;
-  width: 175px;
-  height: 23px;
-  background-color: #1C6CA7;
-  border-bottom: 1px solid #ffffff;
-  color: #ffffff;
-  overflow: hidden;
-  clear: left;
-} 
-
-#nav-menu ul li a, #nav-menu ul li a:link, #nav-menu ul li a:active, #nav-menu ul li a:visited, #nav-menu ul li a:hover {
-  display: block;
-  text-align: left;
-  vertical-align: middle;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: bold;
-  text-decoration: none;
-  padding-left: 10px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  background-image: url(../images/siteImages/navigbol.gif);
-  background-position: right center;
-  background-repeat: no-repeat;
-}
-
-#nav-menu ul li a:hover {
-    color: #1C6CA7; 
-    background-color: #FFD96B;
- }
-
-.intellitextLink {
-    text-decoration: none;
-    border-bottom: green 1px solid;
-    padding-bottom: 0px;
-    color: green;
-    background-color: transparent;
-    float: inherit;
-    clear: none;
-}
-
-.intellitxtTooltip {
-    border: none;
-    border-style: none;
-    padding: 0px 0px 0px 0px;
-    margin: 0px 0px 0px 0px;
-    background-color: transparent;
-} 
-
-
-/* Fix IE. Hide from IE Mac \*/
-* html #nav-menu ul li { float: left; height: 1%; }
-* html #nav-menu ul li a { height: 1%; }
  
 /*------------*/
 .containerdiv {

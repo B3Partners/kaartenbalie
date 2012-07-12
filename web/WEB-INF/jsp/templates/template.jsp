@@ -34,17 +34,24 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
         <link href="<html:rewrite page='/styles/b3p.css' module='' />" type="text/css" rel="stylesheet" />
         <link href="<html:rewrite page='/styles/tablesorter-style.css' module='' />" type="text/css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/styles/superfish.css' module='' />"/>
         <!--[if IE 6]>
         <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
         <!--[if IE 7]>
         <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
         <![endif]-->
+		<!--[if IE 8]>
+        <link href="<html:rewrite page='/styles/main-ie8.css' module='' />" rel="stylesheet" type="text/css">
+        <![endif]-->
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/tabcontainer.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/jquery-1.3.2.min.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/tablesort.js' module=''/>"></script>
+		<script type="text/javascript" src="<html:rewrite page='/js/hoverIntent.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/jquery.bgiframe.min.js' module=''/>"></script>
+		<script type="text/javascript" src="<html:rewrite page='/js/superfish.js' module=''/>"></script>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {
