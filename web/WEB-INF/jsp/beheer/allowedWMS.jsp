@@ -77,7 +77,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </p>
             <html:select property="providerId">
                 <c:forEach var="sp" items="${otherServiceslist}">
-                    <html:option value="${sp.url}">
+                    <html:option value="${sp.abbr}">
                         <c:out value="${sp.givenName}-${sp.abbr}"/>
                     </html:option>
                 </c:forEach>
@@ -99,7 +99,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </p>
             <html:select property="providerId">
                 <c:forEach var="sp" items="${currentServiceslist}">
-                    <html:option value="${sp.url}">
+                    <html:option value="${sp.abbr}">
                         <c:out value="${sp.givenName}-${sp.abbr}"/>
                     </html:option>
                 </c:forEach>

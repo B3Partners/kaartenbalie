@@ -189,7 +189,7 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.ADD_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.ABBR,"tester");
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);
@@ -204,7 +204,7 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.ADD_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.ABBR,"tester");
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);
@@ -226,7 +226,7 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.ABBR,"tester");
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);
@@ -241,7 +241,7 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
+            ogRequest.addOrReplaceParameter(OGCScriptingRequest.ABBR,"tester");
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);
@@ -263,7 +263,6 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);
@@ -278,7 +277,6 @@ public class CallScriptingServletTest extends KaartenbalieTestCase {
             OGCRequest ogRequest = this.getOGCRequest();
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.COMMAND,OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES);
             ogRequest.addOrReplaceParameter(OGCScriptingRequest.SERVICE_TYPE,"WMS");
-            ogRequest.addOrReplaceParameter(OGCScriptingRequest.URL,sourceURI);
             data.setOgcrequest(ogRequest);
             
             instance.parseRequestAndData(data, user);

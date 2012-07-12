@@ -786,15 +786,15 @@ public class WMSParser extends WmsWfsParser {
     }
 
     /**
-     * Sets the service with the given url as allowed
+     * Sets the service with the given abbr as allowed
      *
-     * @param url The url
+     * @param abbr The abbr to search on
      * @param em The entityManager
      */
-    public void addAllowedService(String url, EntityManager em) throws Exception {
-        ServiceProvider sp = this.getProviderByUrl(url, em);
+    public void addAllowedService(String abbr, EntityManager em) throws Exception {
+        ServiceProvider sp = this.getProviderByUrl(abbr, em);
         if (sp == null) {
-            throw new Exception("Adding unknown WMS service with url " + url);
+            throw new Exception("Adding unknown WMS service with name " + abbr);
         }
         
         if( sp.getAllowed() ){
@@ -809,15 +809,15 @@ public class WMSParser extends WmsWfsParser {
 
     /**
      *
-     * Removes the service with the given url as allowed
+     * Removes the service with the given abbr as allowed
      *
-     * @param url The url
+     * @param abbr The abbr to search on
      * @param em The entityManager
      */
-    public void deleteAllowedService(String url, EntityManager em) throws Exception {
-        ServiceProvider sp = this.getProviderByUrl(url, em);
+    public void deleteAllowedService(String abbr, EntityManager em) throws Exception {
+        ServiceProvider sp = this.getProviderByUrl(abbr, em);
         if (sp == null) {
-            throw new Exception("Deleting unknown WMS service with url " + url);
+            throw new Exception("Deleting unknown WMS service with name " + abbr);
         }
         
         if( !sp.getAllowed() ){
@@ -839,17 +839,17 @@ public class WMSParser extends WmsWfsParser {
     }
 
     /**
-     * Searches the ServiceProvider with the given URL
+     * Searches the ServiceProvider with the given abbr
      *
-     * @param url The url to search on
+     * @param abbr The abbr to search on
      * @param em The entityManager
      * @return The found ServiceProvider, otherwise null
      */
-    private ServiceProvider getProviderByUrl(String url, EntityManager em) {
+    private ServiceProvider getProviderByUrl(String abbr, EntityManager em) {
         try {
             ServiceProvider dbSp = (ServiceProvider) em.createQuery(
                     "from ServiceProvider sp where "
-                    + "sp.url=:url ").setParameter("url", url).getSingleResult();
+                    + "sp.abbr=:abbr ").setParameter("abbr", abbr).getSingleResult();
 
             return dbSp;
         } catch (Exception ex) {

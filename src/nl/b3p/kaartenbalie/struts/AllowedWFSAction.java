@@ -91,17 +91,16 @@ public class AllowedWFSAction extends ServerAction {
             return getAlternateForward(mapping, request);
         }
         
-        String url = FormUtils.getString(dynaForm.getString("providerId"));
+        String abbr = FormUtils.getString(dynaForm.getString("providerId"));
         String action = FormUtils.getString(dynaForm.getString("action"));
-        log.error("test save.  url : "+url);
         
         if( action.equalsIgnoreCase("delete") ){
             /* Delete service from list */
-            this.parser.deleteAllowedService(url, em);
+            this.parser.deleteAllowedService(abbr, em);
         }
         else {
             /* Add service to list */
-            this.parser.addAllowedService(url, em);
+            this.parser.addAllowedService(abbr, em);
         }
         
         dynaForm.initialize(mapping);

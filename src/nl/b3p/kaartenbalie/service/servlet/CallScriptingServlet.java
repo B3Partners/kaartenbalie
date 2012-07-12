@@ -198,7 +198,7 @@ public class CallScriptingServlet extends GeneralServlet {
             
             requestHandler  = handler;
         }
-        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.URL) ){
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) ){
             AddAllowedHandler handler = new AddAllowedHandler();
             if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
                 handler.setWMS();
@@ -208,7 +208,7 @@ public class CallScriptingServlet extends GeneralServlet {
             
             requestHandler  = handler;
         }
-        else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.URL) ){
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) ){
             DeleteAllowedHandler handler = new DeleteAllowedHandler();
             handler.setType(DeleteAllowedHandler.DELETE_SINGLE);
             if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {

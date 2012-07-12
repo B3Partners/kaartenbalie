@@ -50,13 +50,13 @@ public class DeleteAllowedHandler extends WmsWfsHandler {
         this.ogcrequest = (OGCScriptingRequest) dw.getOgcrequest();
         this.dw = dw;
         this.user = user;
-        String url  = "";
+        String abbr  = "";
         
         try {
             if( this.typeDelete.equals(DELETE_SINGLE) ){
-                url = this.ogcrequest.getParameter(OGCScriptingRequest.URL);
+                abbr = this.ogcrequest.getParameter(OGCScriptingRequest.ABBR);
                 
-                this.parser.deleteAllowedService(url, em);
+                this.parser.deleteAllowedService(abbr, em);
             }
             else {
                 this.parser.deleteAllAllowedServices(em);
@@ -67,7 +67,7 @@ public class DeleteAllowedHandler extends WmsWfsHandler {
                 this.notices.append("Excepting during deleting all ").append(this.type).append(" services.\n Exception : ").append(ex.getLocalizedMessage());
             }
             else {
-                this.notices.append("Excepting during deleting ").append(this.type).append(" service with url ").append(url).append(".\n Exception : ").append(ex.getLocalizedMessage());
+                this.notices.append("Excepting during deleting ").append(this.type).append(" service with abbr ").append(abbr).append(".\n Exception : ").append(ex.getLocalizedMessage());
             }
             
             this.mailAllAdmins();

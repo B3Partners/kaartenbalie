@@ -38,7 +38,6 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.wfs.v110.WfsCapabilitiesReader;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
@@ -627,15 +626,15 @@ public class WFSParser extends WmsWfsParser {
     }
 
     /**
-     * Sets the service with the given url as allowed
+     * Sets the service with the given abbr as allowed
      *
-     * @param url The url
+     * @param abbr The abbr to search on
      * @param em The entityManager
      */
-    public void addAllowedService(String url, EntityManager em) throws Exception {
-        WfsServiceProvider sp = this.getProviderByUrl(url, em);
+    public void addAllowedService(String abbr, EntityManager em) throws Exception {
+        WfsServiceProvider sp = this.getProviderByUrl(abbr, em);
         if (sp == null) {
-            throw new Exception("Adding unknown WFS service with url " + url);
+            throw new Exception("Adding unknown WFS service with " + abbr);
         }
         
         if( sp.getAllowed() ){
@@ -650,15 +649,15 @@ public class WFSParser extends WmsWfsParser {
 
     /**
      *
-     * Removes the service with the given url as allowed
+     * Removes the service with the given abbr as allowed
      *
-     * @param url The url
+     * @param abbr The abbr to search on
      * @param em The entityManager
      */
-    public void deleteAllowedService(String url, EntityManager em) throws Exception {
-        WfsServiceProvider sp = this.getProviderByUrl(url, em);
+    public void deleteAllowedService(String abbr, EntityManager em) throws Exception {
+        WfsServiceProvider sp = this.getProviderByUrl(abbr, em);
         if (sp == null) {
-            throw new Exception("Deleting unknown WFS service with url " + url);
+            throw new Exception("Deleting unknown WFS service with name " + abbr);
         }
         
         if( !sp.getAllowed() ){
@@ -680,17 +679,17 @@ public class WFSParser extends WmsWfsParser {
     }
 
     /**
-     * Searches the WfsServiceProvider with the given URL
+     * Searches the WfsServiceProvider with the given abbr
      *
-     * @param url The url to search on
+     * @param abbr The abbr to search on
      * @param em The entityManager
      * @return The found WfsServiceProvider, otherwise null
      */
-    private WfsServiceProvider getProviderByUrl(String url, EntityManager em) {
+    private WfsServiceProvider getProviderByUrl(String abbr, EntityManager em) {
         try {
             WfsServiceProvider dbSp = (WfsServiceProvider) em.createQuery(
                     "from WfsServiceProvider sp where "
-                    + "sp.url=:url ").setParameter("url", url).getSingleResult();
+                    + "sp.abbr=:abbr ").setParameter("abbr", abbr).getSingleResult();
 
             return dbSp;
         } catch (Exception ex) {

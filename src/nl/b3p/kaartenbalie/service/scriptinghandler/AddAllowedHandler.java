@@ -41,13 +41,13 @@ public class AddAllowedHandler extends WmsWfsHandler {
         this.dw = dw;
         this.user = user;
         
-        String url = this.ogcrequest.getParameter(OGCScriptingRequest.URL);
+        String abbr = this.ogcrequest.getParameter(OGCScriptingRequest.ABBR);
         
         try {
-            this.parser.addAllowedService(url, em);
+            this.parser.addAllowedService(abbr, em);
         }
         catch(Exception ex){
-            this.notices.append("Excepting during adding ").append(this.type).append(" service with url ").append(url).append(".\n Exception : ").append(ex.getLocalizedMessage());
+            this.notices.append("Excepting during adding ").append(this.type).append(" service with abbr ").append(abbr).append(".\n Exception : ").append(ex.getLocalizedMessage());
             
             this.mailAllAdmins();
         }
