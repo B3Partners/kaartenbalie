@@ -89,17 +89,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             <table>
                 <tr>
                     <td valign="top" style="width: 360px; padding-right: 20px;">
-                        <b><fmt:message key="beheer.rights2.set" />:&nbsp;</b>
-                        <div class="treeHolderWide" id="layerContainer" style="width: 360px;"></div>
-                    </td>
-                    <td valign="top" style="width: 380px;">
-                        <b><fmt:message key="beheer.rights2.rechten" />:&nbsp;</b>                      
-                        <div class="treeHolderWide" id="tree" style="width: 380px;"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td valign="top" style="width: 360px; padding-right: 20px;">
-                        <b><fmt:message key="beheer.rights2.groups" />:&nbsp;</b>
+                        <b><fmt:message key="beheer.rights2.groups" />:</b>
                         <html:select property="orgId" onchange="changeOrganization();">
                             <c:forEach var="orgItem" items="${organizationlist}">
                                 <html:option value="${orgItem.id}">
@@ -113,7 +103,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <fmt:message key="button.update"/>
                         </html:button>
                     </td>
-                </tr>
+                </tr>                
+                <tr>
+                    <td valign="top" style="width: 360px; padding-right: 20px;">
+                        <b><fmt:message key="beheer.rights2.set" />:&nbsp;</b>
+                        <div class="treeHolderWide" id="layerContainer" style="width: 360px;"></div>
+                    </td>
+                    <td valign="top" style="width: 380px;">
+                        <b><fmt:message key="beheer.rights2.rechten" />:&nbsp;</b>                      
+                        <div class="treeHolderWide" id="tree" style="width: 380px;"></div>
+                    </td>
+                </tr>                
             </table>
         </div>
     </div>
