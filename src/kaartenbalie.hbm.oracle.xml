@@ -281,6 +281,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property column="user_name" length="255" name="userName" />
         <property length="255" name="password" />
         <property column="ignore_resource" type="boolean" name="ignoreResource"/>
+        <property type="boolean" name="allowed"/>
     </class>
     <class name="nl.b3p.wms.capabilities.SrsBoundingBox">
         <id name="id">
@@ -395,6 +396,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="80" name="status" not-null="false"/>
         <property column="user_name" length="255" name="username" />
         <property length="255" name="password" />
+        <property type="boolean" name="allowed"/>
     </class>    
     <class name="nl.b3p.wms.capabilities.TileSet">
         <id name="id">
