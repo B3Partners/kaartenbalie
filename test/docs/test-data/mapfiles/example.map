@@ -1,0 +1,7 @@
+MAP
+	WEB
+		METADATA
+			wms_title "title"
+			wms_onlineresource "resource"
+			wms_srs "source"
+		END
