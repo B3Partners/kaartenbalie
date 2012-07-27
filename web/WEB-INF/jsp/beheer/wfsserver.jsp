@@ -31,7 +31,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 
-<html:form action="/wfsserver" onsubmit="return validateServerForm(this)" focus="givenName">
+<html:form action="/wfsserver" onsubmit="return validateServerForm(this)" focus="givenName" enctype="multipart/form-data">
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
@@ -138,6 +138,24 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <td><B><fmt:message key="beheer.serverURL"/>:</B></td>
                             <td><html:text property="url" size="75" /></td>
                         </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.oploadfile" />:</B></td>
+                            <td><html:file size="80" property="uploadFile"/></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.mapserver.overschrijven" />:</B></td>
+                            <td><html:checkbox property="overwrite"/></td>
+                        </tr>
+                        <c:if test="${! empty fileNames}">
+                        <tr>
+                            <td><B><fmt:message key="beheer.oploadfile.bestaand" />:</B></td>
+                            <td>
+                                <c:forEach var="file" items="${fileNames}">
+                                    <c:out value="${file}"/><br/>
+                                </c:forEach>
+                            </td>
+                        </tr>
+                        </c:if>
                         <tr>
                             <td><B><fmt:message key="beheer.username"/>:</B></td>
                             <td><html:text property="username" size="35" /></td>

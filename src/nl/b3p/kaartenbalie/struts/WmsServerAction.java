@@ -21,9 +21,11 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -33,6 +35,8 @@ import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.DirectoryParser;
 import nl.b3p.kaartenbalie.service.WMSParser;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
@@ -234,6 +238,27 @@ public class WmsServerAction extends ServerAction {
              */
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, null, parser.getException().getMessage());
+            return getAlternateForward(mapping, request);
+        } else if (code.equals(WMSParser.UPLOADFILE_SIZE_ERRORKEY)) {
+            /*
+             * Error file to big
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WMSParser.UPLOADFILE_SIZE_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } else if (code.equals(WMSParser.UPLOADFILE_FORMAT_ERRORKEY)) {
+            /*
+             * Error wrong file format
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WMSParser.UPLOADFILE_FORMAT_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } else if (code.equals(WMSParser.UPLOADFILE_EXISTS_ERRORKEY)) {
+            /*
+             * Error file already exists
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WMSParser.UPLOADFILE_EXISTS_ERRORKEY);
             return getAlternateForward(mapping, request);
         } else {
             /*
@@ -445,6 +470,26 @@ public class WmsServerAction extends ServerAction {
         dynaForm.set("sldUrl", serviceProvider.getSldUrl());
 
         dynaForm.set("ignoreResource", serviceProvider.getIgnoreResource());
+        
+        // Haal geuploaden files van deze service op
+        String uploaddir = MyEMFDatabase.getUpload()+"\\"+serviceProvider.getAbbr();
+        List uploadFiles = new ArrayList();
+        List<String> fileNames = new ArrayList<String>();
+        File dir = new File(uploaddir);
+        if (dir.isDirectory()) {
+            DirectoryParser directoryParser = new DirectoryParser();
+            String[] allowed_files = MyEMFDatabase.getAllowedUploadFiles();
+            uploadFiles = directoryParser.parse2List(dir, allowed_files);
+            
+            if(uploadFiles != null && !uploadFiles.isEmpty()){
+                for(Iterator it = uploadFiles.iterator(); it.hasNext();){
+                    String file = it.next().toString();
+                    int i = file.lastIndexOf("\\");
+                    fileNames.add(file.substring(i+1));
+                }
+                request.setAttribute("fileNames", fileNames);
+            }
+        }
     }
 
     protected String checkWmsUrl(String url) throws Exception {

@@ -63,6 +63,14 @@
             <param-name>mapfiles</param-name>
             <param-value>C:\maps</param-value>
         </init-param>
+        <init-param>
+            <param-name>upload</param-name>
+            <param-value>C:\upload</param-value>
+        </init-param>
+        <init-param>
+            <param-name>allowed_upload_files</param-name>
+            <param-value>.sld,.png,.jpg</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>

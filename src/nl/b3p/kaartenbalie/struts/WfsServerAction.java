@@ -21,10 +21,12 @@
  */
 package nl.b3p.kaartenbalie.struts;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.EntityManager;
@@ -33,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.Organization;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.DirectoryParser;
 import nl.b3p.kaartenbalie.service.WFSParser;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import org.apache.commons.logging.Log;
@@ -202,6 +206,30 @@ public class WfsServerAction extends ServerAction {
         if (code.equals(WFSParser.ERROR_DELETE_OLD_PROVIDER)) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, null, parser.getException().getMessage());
+            return getAlternateForward(mapping, request);
+        }
+        if (code.equals(WFSParser.UPLOADFILE_SIZE_ERRORKEY)) {
+            /*
+             * Error file to big
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WFSParser.UPLOADFILE_SIZE_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } 
+        if (code.equals(WFSParser.UPLOADFILE_FORMAT_ERRORKEY)) {
+            /*
+             * Error wrong file format
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WFSParser.UPLOADFILE_FORMAT_ERRORKEY);
+            return getAlternateForward(mapping, request);
+        } 
+        if (code.equals(WFSParser.UPLOADFILE_EXISTS_ERRORKEY)) {
+            /*
+             * Error file already exists
+             */
+            prepareMethod(dynaForm, request, EDIT, LIST);
+            addAlternateMessage(mapping, request, null, WFSParser.UPLOADFILE_EXISTS_ERRORKEY);
             return getAlternateForward(mapping, request);
         }
 
@@ -379,6 +407,26 @@ public class WfsServerAction extends ServerAction {
         dynaForm.set("password", serviceProvider.getPassword());
         dynaForm.set("updatedDate", serviceProvider.getUpdatedDate().toString());
         dynaForm.set("abbr", serviceProvider.getAbbr());
+        
+        // Haal geuploaden files van deze service op
+        String uploaddir = MyEMFDatabase.getUpload()+"\\"+serviceProvider.getAbbr();
+        List uploadFiles = new ArrayList();
+        List<String> fileNames = new ArrayList<String>();
+        File dir = new File(uploaddir);
+        if (dir.isDirectory()) {
+            DirectoryParser directoryParser = new DirectoryParser();
+            String[] allowed_files = MyEMFDatabase.getAllowedUploadFiles();
+            uploadFiles = directoryParser.parse2List(dir, allowed_files);
+            
+            if(uploadFiles != null && !uploadFiles.isEmpty()){
+                for(Iterator it = uploadFiles.iterator(); it.hasNext();){
+                    String file = it.next().toString();
+                    int i = file.lastIndexOf("\\");
+                    fileNames.add(file.substring(i+1));
+                }
+                request.setAttribute("fileNames", fileNames);
+            }
+        }
     }
     // </editor-fold>
 }

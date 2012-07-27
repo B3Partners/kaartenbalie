@@ -38,6 +38,7 @@ import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.wfs.v110.WfsCapabilitiesReader;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
+import org.apache.struts.upload.FormFile;
 import org.apache.struts.util.MessageResources;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.xml.sax.SAXException;
@@ -165,10 +166,25 @@ public class WFSParser extends WmsWfsParser {
                 return ERROR_DELETE_OLD_PROVIDER;
             }
         } 
+        
+        /*
+         * Upload geselecteerde file
+         */
+        FormFile thisFile = (FormFile) dynaForm.get("uploadFile");
+        Boolean overwrite = (Boolean) dynaForm.get("overwrite");
+        String uploadError = null;
+        if(thisFile != null){
+            uploadError = uploadFile(thisFile, overwrite, abbreviation);
+            
+        }
 
         /* geef rechten op alle layers voor aangevinkte groepen */
         String[] orgSelected = dynaForm.getStrings("orgSelected");
         GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider,em);
+        
+        if(!uploadError.equals(OK)){
+            return uploadError;
+        }
         
         return OK;
     }

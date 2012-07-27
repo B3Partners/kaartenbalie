@@ -21,13 +21,18 @@
  */
 package nl.b3p.kaartenbalie.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.struts.ServerAction;
 import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
@@ -41,6 +46,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.struts.upload.FormFile;
 import org.apache.struts.validator.DynaValidatorForm;
 
 /**
@@ -60,6 +66,9 @@ abstract public class WmsWfsParser extends ServerAction {
     public static final String SERVER_CONNECTION_ERROR = SERVER_CONNECTION_ERRORKEY;
     public static final String MALFORMED_CAPABILITY_ERROR = MALFORMED_CAPABILITY_ERRORKEY;
     public static final String UNSUPPORTED_WMSVERSION_ERROR = UNSUPPORTED_WMSVERSION_ERRORKEY;
+    public static final String UPLOADFILE_SIZE_ERRORKEY = "Het bestand is niet opgeslagen, omdat deze te groot is.";
+    public static final String UPLOADFILE_FORMAT_ERRORKEY = "Het bestand is niet opgeslagen, omdat deze niet van het type .jpg .png of .sld is.";
+    public static final String UPLOADFILE_EXISTS_ERRORKEY = "Het bestand is niet opgeslagen, omdat het reeds bestaat.";
     protected ArrayList<String> parseMessages;
     protected GroupParser groupParser;
     
@@ -158,6 +167,68 @@ abstract public class WmsWfsParser extends ServerAction {
     
     protected String getUniqueStyleName(Set<Style> styles, String name) throws Exception {        
         return getUniqueStyleName(styles,name,null);
+    }
+    
+    /*
+     * Method to upload a file for a serviceprovider. A folder is made (if it doesn't exists)
+     * with the abbreviation of the serviceprovider as name.
+     */
+    protected String uploadFile(FormFile thisFile, Boolean overwrite, String abbreviation) throws Exception {
+        String[] allowed_files = MyEMFDatabase.getAllowedUploadFiles();
+        List<String> allowed = new ArrayList<String>();
+        allowed.addAll(Arrays.asList(allowed_files));
+        
+        
+        int fileSize = (int) thisFile.getFileSize();
+        if (fileSize > (1024 * 1024)) {
+            return UPLOADFILE_SIZE_ERRORKEY;
+        }
+        String fileName = thisFile.getFileName();
+        int point = fileName.indexOf(".");
+        String extention = fileName.substring(point);
+        if (fileName == null || !allowed.contains(extention.toLowerCase())) {
+            return UPLOADFILE_FORMAT_ERRORKEY;
+        }
+        String uploaddir = MyEMFDatabase.getUpload()+"\\"+abbreviation;
+        File dir = new File(uploaddir);
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+        }
+        
+        File targetFile = new File(uploaddir, fileName);
+        boolean exists = targetFile.exists();
+        boolean doOverwrite = false;
+        if (overwrite != null && overwrite.booleanValue()) {
+            doOverwrite = true;
+        }
+        if (exists && !doOverwrite) {
+            return UPLOADFILE_EXISTS_ERRORKEY;
+        }
+        
+        InputStream stream = null;
+        try {
+            //retrieve the file data
+            stream = thisFile.getInputStream();
+            OutputStream bos = null;
+            try {
+                bos = new FileOutputStream(targetFile);
+                int bytesRead = 0;
+                byte[] buffer = new byte[8192];
+                while ((bytesRead = stream.read(buffer, 0, 8192)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+            } finally {
+                if (bos != null) {
+                    bos.close();
+                }
+            }
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
+        
+        return OK;
     }
     
     protected String getUniqueStyleName(Set<Style> styles, String name, Integer tries) throws Exception {    

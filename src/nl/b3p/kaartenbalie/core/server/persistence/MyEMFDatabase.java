@@ -55,6 +55,8 @@ public class MyEMFDatabase extends HttpServlet {
     private static String cachePath = null;
     private static Random rg = null;
     private static String mapfiles = null;
+    private static String upload = null;
+    private static String[] allowedUploadFiles = null;
 
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
         log.debug("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
@@ -142,6 +144,32 @@ public class MyEMFDatabase extends HttpServlet {
             }
         } catch (IOException ex) {
             throw new ServletException(ex);
+        }
+        
+        // upload path for Beheer->services
+        File checkUpload = null;
+
+        String valueUpload = config.getInitParameter("upload");
+        if (valueUpload != null && valueUpload.length() > 0) {
+            upload = valueUpload;
+        }
+        if (getUpload() == null) {
+            upload = getServletContext().getRealPath("/upload/");
+        }
+
+        try {
+            checkUpload = new File(getUpload());
+            if (!checkUpload.isDirectory()) {
+                log.debug("Creating folder for upload: " + checkFile.getCanonicalPath());
+                checkUpload.mkdirs();
+            }
+        } catch (IOException ex) {
+            throw new ServletException(ex);
+        }
+        
+        String allowedUpload = config.getInitParameter("allowed_upload_files");
+        if(allowedUpload != null && allowedUpload.length() > 0){
+            allowedUploadFiles = allowedUpload.split(",");
         }
 
         // configure kb via properties
@@ -317,5 +345,13 @@ public class MyEMFDatabase extends HttpServlet {
 
     public static String getMapfiles() {
         return mapfiles;
+    }
+    
+    public static String getUpload() {
+        return upload;
+    }
+
+    public static String[] getAllowedUploadFiles() {
+        return allowedUploadFiles;
     }
 }
