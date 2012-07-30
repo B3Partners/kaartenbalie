@@ -271,9 +271,8 @@ public class WMSParser extends WmsWfsParser {
         FormFile thisFile = (FormFile) dynaForm.get("uploadFile");
         Boolean overwrite = (Boolean) dynaForm.get("overwrite");
         String uploadError = null;
-        if(thisFile != null){
+        if(thisFile != null && thisFile.getFileName() != null && !thisFile.getFileName().equals("")){
             uploadError = uploadFile(thisFile, overwrite, abbreviation);
-            
         }
 
         /*
@@ -283,7 +282,7 @@ public class WMSParser extends WmsWfsParser {
 
         GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider, em);
         
-        if(!uploadError.equals(OK)){
+        if(uploadError != null && !uploadError.equals(OK)){
             return uploadError;
         }
 
