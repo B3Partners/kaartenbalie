@@ -237,6 +237,9 @@ public class WFSParser extends WmsWfsParser {
         serviceProvider.setGivenName(FormUtils.nullIfEmpty(dynaForm.getString("givenName")));
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
+        
+        serviceProvider.setUsername(dynaForm.getString("username"));
+        serviceProvider.setPassword(dynaForm.getString("password"));
     }
 
     @Override
