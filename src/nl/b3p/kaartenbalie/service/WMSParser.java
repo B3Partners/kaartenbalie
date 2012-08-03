@@ -461,8 +461,8 @@ public class WMSParser extends WmsWfsParser {
     // <editor-fold defaultstate="" desc="populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) method.">
     public void populateServerObject(DynaValidatorForm dynaForm, ServiceProvider serviceProvider) {
         serviceProvider.setUpdatedDate(new Date());
-        serviceProvider.setUserName(dynaForm.getString("username"));
-        serviceProvider.setPassword(dynaForm.getString("password"));
+        serviceProvider.setUserName(FormUtils.nullIfEmpty(dynaForm.getString("username")));
+        serviceProvider.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
 
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
 

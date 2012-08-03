@@ -238,8 +238,8 @@ public class WFSParser extends WmsWfsParser {
         serviceProvider.setUpdatedDate(new Date());
         serviceProvider.setAbbr(dynaForm.getString("abbr"));
         
-        serviceProvider.setUsername(dynaForm.getString("username"));
-        serviceProvider.setPassword(dynaForm.getString("password"));
+        serviceProvider.setUsername(FormUtils.nullIfEmpty(dynaForm.getString("username")));
+        serviceProvider.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
     }
 
     @Override
