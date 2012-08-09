@@ -96,7 +96,8 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                     + "from Organization o "
                     + "join o.wfsLayers l "
                     + "join l.wfsServiceProvider sp "
-                    + "where o.id in (:orgIds)";
+                    + "where o.id in (:orgIds) "
+                    + "and sp.allowed = true";
             if (version != null) {
                 query += " and sp.wfsVersion = :version";
             }

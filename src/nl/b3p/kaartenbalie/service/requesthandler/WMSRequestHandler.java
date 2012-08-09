@@ -163,13 +163,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer layer = (Layer) it.next();
                 orgLayerIds.add(layer.getId());
                 Layer topLayer = layer.getTopLayer();
-                if (!topLayers.contains(topLayer)) {
-                    topLayers.add(topLayer);
-                }
                 ServiceProvider sp = layer.getServiceProvider();
-                if (!serviceproviders.contains(sp)) {
+                if (!serviceproviders.contains(sp) && sp.getAllowed()) {
                     serviceproviders.add(sp);                    
-                }                
+                
+                    if (!topLayers.contains(topLayer)) {
+                        topLayers.add(topLayer);
+                    }
+                }              
             }
             Iterator spIt = serviceproviders.iterator();
             while(spIt.hasNext()){
