@@ -148,11 +148,12 @@ public class WMSParser extends WmsWfsParser {
          * geeft namelijk bij het toevoegen van externe wms services waar dit
          * verkeerd staat welke je niet zelf kunt wijzigen problemen.
          */
-
         if (ignoreResource != null && ignoreResource) {
-            newServiceProvider.setUrl(inputUrl);
+            String[] providerUrl = inputUrl.split("\\?");            
+            newServiceProvider.setUrl(providerUrl[0] + "?");
         } else {
-            newServiceProvider.setUrl(url);
+            String[] providerUrl = url.split("\\?");            
+            newServiceProvider.setUrl(providerUrl[0] + "?");
         }
 
         if (username != null) {
@@ -398,6 +399,7 @@ public class WMSParser extends WmsWfsParser {
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
         }
+        
         if (ogcrequest.containsParameter(OGCConstants.WMS_VERSION)
                 && !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
             log.error(KBConfiguration.UNSUPPORTED_VERSION);
@@ -405,6 +407,7 @@ public class WMSParser extends WmsWfsParser {
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_VERSION, OGCConstants.WMS_VERSION_111);
         }
+        
         return ogcrequest.getUrl();
     }
 
@@ -438,6 +441,7 @@ public class WMSParser extends WmsWfsParser {
 
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider serviceProvider = wms.getProvider(url, credentials);
+        
         serviceProvider.setGivenName(givenName);
         serviceProvider.setAbbr(abbreviation);
         serviceProvider.setUpdatedDate(new Date());

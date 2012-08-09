@@ -562,7 +562,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     }
                     
                     Header h1 = response.getFirstHeader("Content-Type");
-                    if (h1 != null && h1.equals("")) {
+                    if (h1 != null && !h1.equals("")) {
                         rhValue = h1.getValue();
                     }
 
