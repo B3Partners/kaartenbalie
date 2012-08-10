@@ -33,6 +33,8 @@
         -->
     </security-constraint>
 
+    <!-- gebruiker rol uitgecomment zodat een ingelogde gebruiker
+    via gisviewer niet het profiel kan wijzigen via kaartenbalie url -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -44,16 +46,8 @@
         </web-resource-collection>
         <auth-constraint>
             <role-name>beheerder</role-name>
-            <role-name>gebruiker</role-name>
+            <!-- <role-name>gebruiker</role-name> -->
         </auth-constraint>
-
-
-        <!--
-        <user-data-constraint>
-        <description>SSL not required</description>
-        <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-        -->
     </security-constraint>
 
     <!-- dit aanzetten indien geen demo

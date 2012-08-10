@@ -32,7 +32,9 @@
         </user-data-constraint>
         -->
     </security-constraint>
-
+    
+    <!-- gebruiker rol uitgecomment zodat een ingelogde gebruiker
+    via gisviewer niet het profiel kan wijzigen via kaartenbalie url -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -44,19 +46,11 @@
         </web-resource-collection>
         <auth-constraint>
             <role-name>beheerder</role-name>
-            <role-name>gebruiker</role-name>
+            <!-- <role-name>gebruiker</role-name> -->
         </auth-constraint>
-
-
-        <!--
-        <user-data-constraint>
-        <description>SSL not required</description>
-        <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-        -->
     </security-constraint>
 
-    <!-- dit aanzetten indien geen demo
+    <!-- dit aanzetten indien geen demo -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -70,8 +64,8 @@
             <role-name>beheerder</role-name>
         </auth-constraint>
     </security-constraint>
-    -->
-    <!-- en deze uitzetten indien geen demo -->
+    
+    <!-- en deze uitzetten indien geen demo 
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -88,7 +82,7 @@
             <role-name>demogebruiker</role-name>
         </auth-constraint>
     </security-constraint>
-
+    -->
 
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
