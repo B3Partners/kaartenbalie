@@ -777,7 +777,7 @@ public class WMSParser extends WmsWfsParser {
     public List<ServiceProvider> getNotAllowedServices(EntityManager em) {
         try {
             List<ServiceProvider> providers = em.createQuery(
-                    "from ServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",false).getResultList();
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed",false).getResultList();
 
             return providers;
         } catch (Exception ex) {
@@ -795,7 +795,7 @@ public class WMSParser extends WmsWfsParser {
     public List<ServiceProvider> getAllowedServices(EntityManager em) {
         try {
             List<ServiceProvider> providers = em.createQuery(
-                    "from ServiceProvider sp WHERE sp.allowed=:allowed").setParameter("allowed",true).getResultList();
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed",true).getResultList();
 
             return providers;
         } catch (Exception ex) {
