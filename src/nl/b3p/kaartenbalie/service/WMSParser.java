@@ -497,6 +497,7 @@ public class WMSParser extends WmsWfsParser {
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
         newServiceProvider.setUserName(username);
         newServiceProvider.setPassword(password);
+        newServiceProvider.setAllowed(oldServiceProvider.getAllowed());
 
         B3PCredentials credentials = oldServiceProvider.getCredentials();
 

@@ -309,6 +309,7 @@ public class WFSParser extends WmsWfsParser {
         newServiceProvider.setGivenName(oldServiceProvider.getGivenName());
         newServiceProvider.setUpdatedDate(new Date());
         newServiceProvider.setAbbr(oldServiceProvider.getAbbr());
+        newServiceProvider.setAllowed(oldServiceProvider.getAllowed());
 
         Set testSet = newServiceProvider.getWfsLayers();
         em.persist(newServiceProvider);
