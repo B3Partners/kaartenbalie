@@ -54,10 +54,11 @@ public class UpdateHandler extends WmsWfsHandler {
     }
     
     private void batchUpdate() throws Exception {       
-        String service          = ogcrequest.getParameter(OGCScriptingRequest.SERVICE);
+        String service = ogcrequest.getParameter(OGCScriptingRequest.SERVICE);
         notices.append(type).append("Batch update van");
-        if( service.equals("") ){
+        if( service == null || service.equals("") ){
             notices.append(" alle services");
+            service = "";
         }
         else {
             notices.append(" services met de prefix ").append(service);
