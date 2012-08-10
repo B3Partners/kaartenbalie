@@ -148,13 +148,29 @@ public class WMSParser extends WmsWfsParser {
          * geeft namelijk bij het toevoegen van externe wms services waar dit
          * verkeerd staat welke je niet zelf kunt wijzigen problemen.
          */
+        String newUrl = "";
+        String[] tempUrl = null;
         if (ignoreResource != null && ignoreResource) {
-            String[] providerUrl = inputUrl.split("\\?");            
-            newServiceProvider.setUrl(providerUrl[0] + "?");
+            tempUrl = inputUrl.split("\\?");
         } else {
-            String[] providerUrl = url.split("\\?");            
-            newServiceProvider.setUrl(providerUrl[0] + "?");
+            tempUrl = url.split("\\?");
         }
+        
+        if(tempUrl.length > 1){
+            String map = "";
+            if(tempUrl[1].contains("map=")){
+                String[] tempMap = tempUrl[1].split("&");
+                for(int i = 0; i < tempMap.length; i++){
+                    if(tempMap[i].contains("map=")){
+                        map = tempMap[i];
+                    }
+                }
+            }
+            newUrl = tempUrl[0] + "?" + map;
+        }else{
+            newUrl = tempUrl[0] + "?";
+        }
+        newServiceProvider.setUrl(newUrl);
 
         if (username != null) {
             /*
