@@ -36,7 +36,6 @@ import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
@@ -53,6 +52,11 @@ import org.xml.sax.SAXException;
 public class WMSParser extends WmsWfsParser {
 
     private ServiceProvider oldServiceProvider = null;
+    private static final String[] KNOWN_PROVIDER_PARAMS = new String[]{
+        "SERVICE",
+        "REQUEST",
+        "VERSION"
+    };
 
     /**
      * Method for saving a new service provider from input of a user.
@@ -65,22 +69,21 @@ public class WMSParser extends WmsWfsParser {
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public String saveProvider(HttpServletRequest request, DynaValidatorForm dynaForm) throws Exception {
         EntityManager em = getEntityManager();
-
-        /*
-         * Check URL
-         */
+        
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
-        String inputUrl = url.trim();
+        Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
+
+        /* Get url from form and check ogc parameters */
+        String serviceUrl;
         try {
-            url = checkWmsUrl(url.trim());
+            serviceUrl = checkWmsUrl(url.trim());            
         } catch (Exception e) {
             exception = e;
             return ERROR_INVALID_URL;
         }
 
-        /*
-         * Check service provider
-         */
+        /* Check if service provider exists otherwise a new ServiceProvider
+         object is created */
         ServiceProvider newServiceProvider = null;
         oldServiceProvider = getServiceProvider(dynaForm, false);
 
@@ -89,6 +92,7 @@ public class WMSParser extends WmsWfsParser {
             oldId = oldServiceProvider.getId();
         }
 
+        /* Check if abbr is unique within all wms/wfs service providers */
         if (!isAbbrUnique(oldId, dynaForm, em)) {
             return NON_UNIQUE_ABBREVIATION_ERROR_KEY;
         }
@@ -103,8 +107,6 @@ public class WMSParser extends WmsWfsParser {
             credentials.setPassword(password);
         }
 
-        Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
-
         /*
          * This request can lead to several problems. The server can be down or
          * the url given isn't right. This means that the url is correct
@@ -115,15 +117,6 @@ public class WMSParser extends WmsWfsParser {
          * which occured.
          */
         try {
-            String serviceUrl = null;
-            if (ignoreResource != null && ignoreResource) {
-                String getCap = "&service=WMS&request=GetCapabilities&version=1.1.1";
-                serviceUrl = inputUrl.trim() + getCap;
-
-            } else {
-                serviceUrl = url.trim();
-            }
-
             String givenName = FormUtils.nullIfEmpty(dynaForm.getString("givenName"));
             newServiceProvider = saveServiceProvider(serviceUrl, credentials, givenName, abbreviation, em);
         } catch (IOException e) {
@@ -138,44 +131,14 @@ public class WMSParser extends WmsWfsParser {
             return SAVE_ERRORKEY;
         }
 
-        if (!newServiceProvider.getWmsVersion().equalsIgnoreCase(OGCConstants.WMS_VERSION_111)) {
-            return UNSUPPORTED_WMSVERSION_ERRORKEY;
-        }
-
-        /*
-         * TODO: Kunnen we na bovenstaande checks de ingevoerde url gebruiken
-         * als service provider url i.p.v. degene uit de online resource ? Dit
-         * geeft namelijk bij het toevoegen van externe wms services waar dit
-         * verkeerd staat welke je niet zelf kunt wijzigen problemen.
-         */
-        String newUrl = "";
-        String[] tempUrl = null;
+        /* Remove known parameters from url before saving. Only if user
+         checked the box to use own url instead of the one from the service */
         if (ignoreResource != null && ignoreResource) {
-            tempUrl = inputUrl.split("\\?");
-        } else {
-            tempUrl = url.split("\\?");
-        }
-        
-        if(tempUrl.length > 1){
-            String map = "";
-            if(tempUrl[1].contains("map=")){
-                String[] tempMap = tempUrl[1].split("&");
-                for(int i = 0; i < tempMap.length; i++){
-                    if(tempMap[i].contains("map=")){
-                        map = tempMap[i];
-                    }
-                }
-            }
-            newUrl = tempUrl[0] + "?" + map;
-        }else{
-            newUrl = tempUrl[0] + "?";
-        }
-        newServiceProvider.setUrl(newUrl);
+            newServiceProvider.setUrl(removeKnownParametersFromUrl(serviceUrl));
+        }        
 
+        /* Save username and password */
         if (username != null) {
-            /*
-             * Save username and password
-             */
             newServiceProvider.setUserName(username);
             newServiceProvider.setPassword(password);
         }
@@ -281,14 +244,14 @@ public class WMSParser extends WmsWfsParser {
                 return ERROR_DELETE_OLD_PROVIDER;
             }
         }
-        
+
         /*
          * Upload geselecteerde file
          */
         FormFile thisFile = (FormFile) dynaForm.get("uploadFile");
         Boolean overwrite = (Boolean) dynaForm.get("overwrite");
         String uploadError = null;
-        if(thisFile != null && thisFile.getFileName() != null && !thisFile.getFileName().equals("")){
+        if (thisFile != null && thisFile.getFileName() != null && !thisFile.getFileName().equals("")) {
             uploadError = uploadFile(thisFile, overwrite, abbreviation);
         }
 
@@ -298,8 +261,8 @@ public class WMSParser extends WmsWfsParser {
         String[] orgSelected = dynaForm.getStrings("orgSelected");
 
         GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider, em);
-        
-        if(uploadError != null && !uploadError.equals(OK)){
+
+        if (uploadError != null && !uploadError.equals(OK)) {
             return uploadError;
         }
 
@@ -415,7 +378,7 @@ public class WMSParser extends WmsWfsParser {
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_SERVICE, OGCConstants.WMS_SERVICE_WMS);
         }
-        
+
         if (ogcrequest.containsParameter(OGCConstants.WMS_VERSION)
                 && !OGCConstants.WMS_VERSION_111.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_VERSION))) {
             log.error(KBConfiguration.UNSUPPORTED_VERSION);
@@ -423,7 +386,7 @@ public class WMSParser extends WmsWfsParser {
         } else {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_VERSION, OGCConstants.WMS_VERSION_111);
         }
-        
+
         return ogcrequest.getUrl();
     }
 
@@ -457,7 +420,7 @@ public class WMSParser extends WmsWfsParser {
 
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider serviceProvider = wms.getProvider(url, credentials);
-        
+
         serviceProvider.setGivenName(givenName);
         serviceProvider.setAbbr(abbreviation);
         serviceProvider.setUpdatedDate(new Date());
@@ -784,7 +747,7 @@ public class WMSParser extends WmsWfsParser {
     public static void addAllLayersToGroup(Organization org, ServiceProvider sp, EntityManager em) throws Exception {
         GroupParser.addAllLayersToGroup(org, sp, em);
     }
-    
+
     /**
      * Returns all the not allowed services
      *
@@ -794,7 +757,7 @@ public class WMSParser extends WmsWfsParser {
     public List<ServiceProvider> getNotAllowedServices(EntityManager em) {
         try {
             List<ServiceProvider> providers = em.createQuery(
-                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed",false).getResultList();
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed", false).getResultList();
 
             return providers;
         } catch (Exception ex) {
@@ -812,7 +775,7 @@ public class WMSParser extends WmsWfsParser {
     public List<ServiceProvider> getAllowedServices(EntityManager em) {
         try {
             List<ServiceProvider> providers = em.createQuery(
-                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed",true).getResultList();
+                    "from ServiceProvider sp WHERE sp.allowed=:allowed order by givenName asc").setParameter("allowed", true).getResultList();
 
             return providers;
         } catch (Exception ex) {
@@ -832,13 +795,13 @@ public class WMSParser extends WmsWfsParser {
         if (sp == null) {
             throw new Exception("Adding unknown WMS service with name " + abbr);
         }
-        
-        if( sp.getAllowed() ){
+
+        if (sp.getAllowed()) {
             throw new Exception("Trying to add the service " + sp.getAbbr() + " wich is allready added.");
         }
-        
+
         sp.setAllowed(true);
-        
+
         em.persist(sp);
         em.flush();
     }
@@ -855,11 +818,11 @@ public class WMSParser extends WmsWfsParser {
         if (sp == null) {
             throw new Exception("Deleting unknown WMS service with name " + abbr);
         }
-        
-        if( !sp.getAllowed() ){
+
+        if (!sp.getAllowed()) {
             throw new Exception("Trying to delete the service " + sp.getAbbr() + " wich is not added.");
         }
-        
+
         sp.setAllowed(false);
         em.persist(sp);
         em.flush();
@@ -892,5 +855,19 @@ public class WMSParser extends WmsWfsParser {
             log.error("error locating ServiceProvider", ex);
             return null;
         }
+    }
+    
+    private String removeKnownParametersFromUrl(String url) {
+        OGCRequest ogcrequest = new OGCRequest(url);
+
+        for (int i = 0; i < KNOWN_PROVIDER_PARAMS.length; i++) {
+            String param = KNOWN_PROVIDER_PARAMS[i];
+
+            if (ogcrequest.containsParameter(param)) {
+                ogcrequest.removeParameter(param);
+            }
+        }
+
+        return ogcrequest.getUrl();
     }
 }

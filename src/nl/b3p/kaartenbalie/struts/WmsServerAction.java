@@ -471,6 +471,11 @@ public class WmsServerAction extends ServerAction {
 
         dynaForm.set("ignoreResource", serviceProvider.getIgnoreResource());
         
+        /* TODO: Bij opslaan orgSelected bewaren zodat de vinkjes
+         * bij bewerken alvast gezet kunnen worden */
+        //String[] orgSelected = new String[] {"1","3"};
+        //dynaForm.set("orgSelected", orgSelected);        
+        
         // Haal geuploaden files van deze service op
         String uploaddir = MyEMFDatabase.getUpload()+"\\"+serviceProvider.getAbbr();
         List uploadFiles = new ArrayList();
