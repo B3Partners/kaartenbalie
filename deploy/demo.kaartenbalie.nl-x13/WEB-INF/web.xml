@@ -34,7 +34,7 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>enabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
@@ -46,7 +46,7 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>/srv/maps/demo/</param-value>
+            <param-value>/srv/maps/demo-prd/</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -92,13 +92,13 @@
             <param-value>nl.b3p.kaartenbalie.core.webdav.MetadataResourceFactory</param-value>
         </init-param>
     </servlet>
-
+    
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
         <init-param>
             <param-name>debug</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
 
@@ -106,7 +106,6 @@
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
-    
     <servlet-mapping>
         <servlet-name>action</servlet-name>
         <url-pattern>*.do</url-pattern>

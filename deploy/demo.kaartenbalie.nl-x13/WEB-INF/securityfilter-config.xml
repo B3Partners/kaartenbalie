@@ -25,12 +25,6 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
-        <!--
-        <user-data-constraint>
-        <description>SSL not required</description>
-        <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-        -->
     </security-constraint>
 
     <!-- gebruiker rol uitgecomment zodat een ingelogde gebruiker
@@ -50,7 +44,7 @@
         </auth-constraint>
     </security-constraint>
 
-    <!-- dit aanzetten indien geen demo
+    <!-- dit aanzetten indien geen demo -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -64,25 +58,6 @@
             <role-name>beheerder</role-name>
         </auth-constraint>
     </security-constraint>
-    -->
-    <!-- en deze uitzetten indien geen demo -->
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>
-                kaartenbalie Collection 2
-            </web-resource-name>
-            <url-pattern>/demo/createPersonalURL.do</url-pattern>
-            <url-pattern>/demo/voegurltoe.do</url-pattern>
-            <http-method>POST</http-method>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>beheerder</role-name>
-            <role-name>gebruiker</role-name>
-            <role-name>demogebruiker</role-name>
-        </auth-constraint>
-    </security-constraint>
-
 
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
@@ -98,8 +73,8 @@
             <set-cookies>false</set-cookies>
             <accept-cookie>true</accept-cookie>
             <!-- deze waardes zijn voor (HOU DEZE INFORMATIE UP-TO-DATE!): www.kaartenbalie.nl 81BF677C3015E66FE5F2A71DDA21160B Extra hash: s6AWd5MYe39B5NP3UaLl4 -->
-            <secret-key>F34FA8FAD051C2929F2DEEFF3DF22E2A</secret-key>
-            <extra-hash-string>O46Ko9jiHP4nVPZbPuPUn</extra-hash-string>
+            <secret-key>DE00677C3015E66FE5F2A71DDA21160B</secret-key>
+            <extra-hash-string>DeMod5MYe39B5NP3UaLl4</extra-hash-string>
             <cookie-expire>28800</cookie-expire>
         </cookie-auth-token-config>
     </login-config>
