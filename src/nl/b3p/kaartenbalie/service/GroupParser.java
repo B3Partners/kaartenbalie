@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class GroupParser extends KaartenbalieCrudAction {
 
@@ -58,7 +59,7 @@ public class GroupParser extends KaartenbalieCrudAction {
      * @return The organizations
      */
     public List<Organization> getGroups() {
-        List<Organization> groups = em.createQuery("from Organization").getResultList();
+        List<Organization> groups = em.createQuery("from Organization order by id asc").getResultList();
 
         return groups;
     }
@@ -94,30 +95,12 @@ public class GroupParser extends KaartenbalieCrudAction {
             Document doc = docBuilder.newDocument();
             Element rootElement = doc.createElement("Organizations");
             doc.appendChild(rootElement);
-
-            Element organization;
-            Element id;
-            Element name;
-            Element code;
+            
             for (Organization org : groups) {
-                organization = doc.createElement("organization");
-                rootElement.appendChild(organization);
-
-                id = doc.createElement("id");
-                id.appendChild(doc.createTextNode(org.getId().toString()));
-                organization.appendChild(id);
-
-                name = doc.createElement("name");
-                name.appendChild(doc.createTextNode(org.getName()));
-                organization.appendChild(name);
-
-                code = doc.createElement("code");
-                code.appendChild(doc.createTextNode(org.getCode()));
-                organization.appendChild(code);
+                rootElement.appendChild(toXml(doc, org));
             }
 
             // write the content into xml file
-            
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -132,6 +115,15 @@ public class GroupParser extends KaartenbalieCrudAction {
             log.error("Error creating XML-document", ex);
             return null;
         }
+    }
+    
+    public Element toXml(Document doc, Organization org){
+        Element orgNode = doc.createElement("organization");
+        if (org.getId()!=null)
+            orgNode.setAttribute("id",org.getId().toString());
+        orgNode.setAttribute("name", org.getName());
+        orgNode.setAttribute("code", org.getCode());
+        return orgNode;
     }
     
     public static void addRightsForAllLayers(String[] orgSelected, WfsServiceProvider sp,EntityManager em) throws Exception {

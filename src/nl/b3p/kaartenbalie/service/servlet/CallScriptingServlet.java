@@ -39,6 +39,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
+import nl.b3p.kaartenbalie.service.GroupParser;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.kaartenbalie.service.scriptinghandler.*;
 import nl.b3p.ogc.utils.KBCrypter;
@@ -130,7 +131,19 @@ public class CallScriptingServlet extends GeneralServlet {
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
 
                 this.httpRequest    = request;
-                parseRequestAndData(data, user);
+                
+                if(ogcrequest.getParameter(OGCScriptingRequest.COMMAND).equalsIgnoreCase(OGCScriptingRequest.GET_GROUP_XML)){
+                    String location = ogcrequest.getParameter(OGCScriptingRequest.LOCATION);
+                    GroupParser groupParser = new GroupParser();
+
+                    if(location != null){
+                        groupParser.getGroupsAsXML(location);
+                    }else{
+                        groupParser.getGroupsAsXML();
+                    }
+                }else{
+                    parseRequestAndData(data, user);
+                }
 
             } catch (AccessDeniedException adex) {
                 log.error("Error while logging in: " + adex.getLocalizedMessage());
@@ -229,7 +242,7 @@ public class CallScriptingServlet extends GeneralServlet {
             }
             
             requestHandler  = handler;
-        }
+        } 
 
         if (requestHandler == null) {
             throw new UnsupportedOperationException("Request " + request + " is not suported!");
