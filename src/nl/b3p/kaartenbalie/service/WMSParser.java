@@ -541,13 +541,13 @@ public class WMSParser extends WmsWfsParser {
         /*
          * WMS GetCap Url opbouwen
          */
-        String newUrl = checkWmsUrl(url);
+        OGCRequest ogcu = checkWmsUrl(url.trim());
 
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider sp = null;
 
         try {
-            sp = wms.getProvider(newUrl.trim(), credentials);
+            sp = wms.getProvider(ogcu.getUrl(), credentials);
         } catch (IOException ioex) {
             return null;
         } catch (SAXException saxex) {
