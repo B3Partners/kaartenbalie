@@ -30,6 +30,9 @@ import nl.b3p.kaartenbalie.service.WMSParser;
 import nl.b3p.kaartenbalie.service.WmsWfsParser;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
+import org.apache.struts.action.DynaActionFormClass;
+import org.apache.struts.config.FormBeanConfig;
+import org.apache.struts.config.FormPropertyConfig;
 import org.apache.struts.validator.DynaValidatorForm;
 
 public class AddHandler extends WmsWfsHandler {
@@ -64,7 +67,7 @@ public class AddHandler extends WmsWfsHandler {
     /**
      * Parses the add request
      */
-    private void parseRequest() {
+    private void parseRequest() throws IllegalAccessException, InstantiationException {
         String name = this.ogcrequest.getParameter(OGCScriptingRequest.NAME);
         String abbr = this.ogcrequest.getParameter(OGCScriptingRequest.ABBR);
         this.url = this.ogcrequest.getParameter(OGCScriptingRequest.URL);
@@ -74,22 +77,105 @@ public class AddHandler extends WmsWfsHandler {
          * Check for existing service
          */
         Boolean exists = parser.abbrExists(abbr, em);
+        
+        FormBeanConfig config = new FormBeanConfig();
+        
+        config.setName("serverForm");
+        config.setType(DynaValidatorForm .class.getName());
+        
+        FormPropertyConfig property1 = new FormPropertyConfig();
+        property1.setName("givenName");
+        property1.setType("java.lang.String");
+        
+        FormPropertyConfig property2 = new FormPropertyConfig();
+        property2.setName("abbr");
+        property2.setType("java.lang.String");
+        
+        FormPropertyConfig property3 = new FormPropertyConfig();
+        property3.setName("url");
+        property3.setType("java.lang.String");
+        
+        FormPropertyConfig property4 = new FormPropertyConfig();
+        property4.setName("sldUrl");
+        property4.setType("java.lang.String");
+        
+        FormPropertyConfig property5 = new FormPropertyConfig();
+        property5.setName("username");
+        property5.setType("java.lang.String");
+        
+        FormPropertyConfig property6 = new FormPropertyConfig();
+        property6.setName("password");
+        property6.setType("java.lang.String");
+        
+        FormPropertyConfig property7 = new FormPropertyConfig();
+        property7.setName("orgSelected");
+        property7.setType("java.lang.String[]");
+        
+        FormPropertyConfig property8 = new FormPropertyConfig();
+        property8.setName("ignoreResource");
+        property8.setType("java.lang.Boolean");
+        
+        FormPropertyConfig property9 = new FormPropertyConfig();
+        property9.setName("id");
+        property9.setType("java.lang.String");
+        
+        FormPropertyConfig property10 = new FormPropertyConfig();
+        property10.setName("updatedDate");
+        property10.setType("java.lang.String");
+        
+        FormPropertyConfig property11 = new FormPropertyConfig();
+        property11.setName("regexp");
+        property11.setType("java.lang.String");
+        
+        FormPropertyConfig property12 = new FormPropertyConfig();
+        property12.setName("replacement");
+        property12.setType("java.lang.String");
+        
+        FormPropertyConfig property13 = new FormPropertyConfig();
+        property13.setName("providerId");
+        property13.setType("java.lang.String");
+        
+        FormPropertyConfig property14 = new FormPropertyConfig();
+        property14.setName("overwrite");
+        property14.setType("java.lang.Boolean");
+        
+        FormPropertyConfig property15 = new FormPropertyConfig();
+        property15.setName("uploadFile");
+        property15.setType("org.apache.struts.upload.FormFile");
 
-        DynaValidatorForm dynaForm = new DynaValidatorForm();
-        dynaForm.set("givenName", name);
-        dynaForm.set("abbr", abbr);
-        dynaForm.set("url", url);
-        dynaForm.set("sldUrl", this.ogcrequest.getParameter(OGCScriptingRequest.SLD));
-        dynaForm.set("username", this.ogcrequest.getParameter(OGCScriptingRequest.USERNAME));
-        dynaForm.set("password", this.ogcrequest.getParameter(OGCScriptingRequest.PASSWORD));
-        dynaForm.set("orgSelected", this.ogcrequest.getParameter(OGCScriptingRequest.GROUPS).split(","));
+        config.addFormPropertyConfig(property1);
+        config.addFormPropertyConfig(property2);
+        config.addFormPropertyConfig(property3);
+        config.addFormPropertyConfig(property4);
+        config.addFormPropertyConfig(property5);
+        config.addFormPropertyConfig(property6);
+        config.addFormPropertyConfig(property7);
+        config.addFormPropertyConfig(property8);
+        config.addFormPropertyConfig(property9);
+        config.addFormPropertyConfig(property10);
+        config.addFormPropertyConfig(property11);
+        config.addFormPropertyConfig(property12);
+        config.addFormPropertyConfig(property13);
+        config.addFormPropertyConfig(property14);
+        config.addFormPropertyConfig(property15);
 
+        DynaActionFormClass dynaClass = DynaActionFormClass.createDynaActionFormClass(config);
+        DynaValidatorForm form = (DynaValidatorForm) dynaClass.newInstance();
+        
+        form.set("givenName", name);
+        form.set("abbr", abbr);
+        form.set("url", url);
+        form.set("sldUrl", this.ogcrequest.getParameter(OGCScriptingRequest.SLD));
+        form.set("username", this.ogcrequest.getParameter(OGCScriptingRequest.USERNAME));
+        form.set("password", this.ogcrequest.getParameter(OGCScriptingRequest.PASSWORD));
+        form.set("orgSelected", this.ogcrequest.getParameter(OGCScriptingRequest.GROUPS).split(","));
+        
         if (exists) {
             if (!update) {
                 this.notices.append("Fout : ").append(type).append(" service ").append(name).append(" bestaat al en overschrijven is false.");
             } else {
                 try {
-                    updateService(dynaForm);
+                    updateService(form);
                     
                     this.notices.append(type).append(" Service ").append(name).append(" is bijgewerkt.");
                 }
@@ -99,7 +185,7 @@ public class AddHandler extends WmsWfsHandler {
             }
         } else {
             try {
-                addService(dynaForm);
+                addService(form);
 
                 this.notices.append(type).append(" Service ").append(name).append(" is toegevoegd.");
             } catch (Exception e) {

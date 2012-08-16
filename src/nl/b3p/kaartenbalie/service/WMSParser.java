@@ -97,7 +97,7 @@ public class WMSParser extends WmsWfsParser {
         String password = dynaForm.getString("password");
         String abbreviation = FormUtils.nullIfEmpty(dynaForm.getString("abbr"));
 
-        if (!username.equals("")) {
+        if (username != null && !username.equals("")) {
             credentials.setUserName(username);
             credentials.setPassword(password);
         }
