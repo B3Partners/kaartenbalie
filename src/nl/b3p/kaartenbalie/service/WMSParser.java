@@ -52,11 +52,6 @@ import org.xml.sax.SAXException;
 public class WMSParser extends WmsWfsParser {
 
     private ServiceProvider oldServiceProvider = null;
-    private static final String[] KNOWN_PROVIDER_PARAMS = new String[]{
-        "SERVICE",
-        "REQUEST",
-        "VERSION"
-    };
 
     /**
      * Method for saving a new service provider from input of a user.
@@ -74,9 +69,9 @@ public class WMSParser extends WmsWfsParser {
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
 
         /* Get url from form and check ogc parameters */
-        String serviceUrl;
+        OGCRequest ogcu;
         try {
-            serviceUrl = checkWmsUrl(url.trim());            
+            ogcu = checkWmsUrl(url.trim());            
         } catch (Exception e) {
             exception = e;
             return ERROR_INVALID_URL;
@@ -118,7 +113,7 @@ public class WMSParser extends WmsWfsParser {
          */
         try {
             String givenName = FormUtils.nullIfEmpty(dynaForm.getString("givenName"));
-            newServiceProvider = saveServiceProvider(serviceUrl, credentials, givenName, abbreviation, em);
+            newServiceProvider = saveServiceProvider(ogcu.getUrl(), credentials, givenName, abbreviation, em);
         } catch (IOException e) {
             log.error("Error saving server", e);
             return SERVER_CONNECTION_ERROR;
@@ -134,7 +129,7 @@ public class WMSParser extends WmsWfsParser {
         /* Remove known parameters from url before saving. Only if user
          checked the box to use own url instead of the one from the service */
         if (ignoreResource != null && ignoreResource) {
-            newServiceProvider.setUrl(removeKnownParametersFromUrl(serviceUrl));
+            newServiceProvider.setUrl(ogcu.getUrlWithNonOGCparams());
         }        
 
         /* Save username and password */
@@ -362,7 +357,7 @@ public class WMSParser extends WmsWfsParser {
         return fout;
     }
 
-    protected String checkWmsUrl(String url) throws Exception {
+    protected OGCRequest checkWmsUrl(String url) throws Exception {
         OGCRequest ogcrequest = new OGCRequest(url);
         if (ogcrequest.containsParameter(OGCConstants.WMS_REQUEST)
                 && !OGCConstants.WMS_REQUEST_GetCapabilities.equalsIgnoreCase(ogcrequest.getParameter(OGCConstants.WMS_REQUEST))) {
@@ -387,7 +382,7 @@ public class WMSParser extends WmsWfsParser {
             ogcrequest.addOrReplaceParameter(OGCConstants.WMS_VERSION, OGCConstants.WMS_VERSION_111);
         }
 
-        return ogcrequest.getUrl();
+        return ogcrequest;
     }
 
     /*
@@ -855,19 +850,5 @@ public class WMSParser extends WmsWfsParser {
             log.error("error locating ServiceProvider", ex);
             return null;
         }
-    }
-    
-    private String removeKnownParametersFromUrl(String url) {
-        OGCRequest ogcrequest = new OGCRequest(url);
-
-        for (int i = 0; i < KNOWN_PROVIDER_PARAMS.length; i++) {
-            String param = KNOWN_PROVIDER_PARAMS[i];
-
-            if (ogcrequest.containsParameter(param)) {
-                ogcrequest.removeParameter(param);
-            }
-        }
-
-        return ogcrequest.getUrl();
     }
 }
