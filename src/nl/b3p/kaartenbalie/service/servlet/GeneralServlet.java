@@ -93,7 +93,7 @@ abstract public class GeneralServlet extends HttpServlet {
         if(code == null){
             return null;
         }else{
-            int pos = code.indexOf("/");
+            int pos = code.lastIndexOf("/");
             if (pos < 0) {
                 return code;
             }
@@ -105,6 +105,28 @@ abstract public class GeneralServlet extends HttpServlet {
             code = code.substring(0, pos);
             return code;
         }
+    }
+    
+    protected String getServiceProviderCode(HttpServletRequest request){
+        String code = request.getPathInfo();
+        String serviceProviderCode = null;
+        if(code == null){
+            return null;
+        }else{
+            String usercode = extractCode(request);
+
+            String[] codes = code.split("/");
+            if(codes.length <= 1){
+                return null;
+            }else{
+                for(int i = 0; i < codes.length; i++){
+                    if(!codes[i].equals(usercode)){
+                        serviceProviderCode = codes[i];
+                    }
+                }
+            }
+        }
+        return serviceProviderCode;
     }
     
     /** Checks if an user is allowed to make any requests.
