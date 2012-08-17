@@ -25,6 +25,8 @@ package nl.b3p.kaartenbalie.service.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -45,6 +47,7 @@ import nl.b3p.kaartenbalie.service.scriptinghandler.*;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
@@ -373,16 +376,9 @@ public class CallScriptingServlet extends GeneralServlet {
      * @param request The incoming request
      * @throws AccessDeniedException if the remote IP is not localhost
      */
-    private void checkRemoteIP(HttpServletRequest request) throws AccessDeniedException {
-        String ip = request.getRemoteAddr();
-System.err.println("IP : "+ip);
-        /**
-         * IPv4 localhost => 127.0.0.1 IPv6 localhost => ::1
-         */
-        if (!ip.equals("127.0.0.1") && !ip.equals("::1")) {
-            /*
-             * Only connections from localhost are allowed
-             */
+    private void checkRemoteIP(HttpServletRequest request) throws AccessDeniedException, UnknownHostException {
+        InetAddress addr = InetAddress.getByName(request.getRemoteAddr());
+        if(!addr.isLoopbackAddress()) {
             throw new AccessDeniedException("Only connections from localhost are allowed");
         }
     }
