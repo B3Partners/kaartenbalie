@@ -314,10 +314,10 @@ public class CallScriptingServlet extends GeneralServlet {
             }
             try {
                 user = (User) em.createQuery(
-                        "from User u INNER JOIN users_roles ul ON u.id = ul.users"
-                        + "where lower(u.username) = lower(:username) "
-                        + "and u.password = :password"
-                        + "and u.role = 1").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                        "from User "
+                        + "where lower(username) = lower(:username) "
+                        + "and password = :password "
+                        ).setParameter("username", username).setParameter("password", encpw).getSingleResult();
                 em.flush();
             } catch (NonUniqueResultException nue) {
                 log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
@@ -331,10 +331,10 @@ public class CallScriptingServlet extends GeneralServlet {
             if (user == null) {
                 try {
                     user = (User) em.createQuery(
-                            "from User u INNER JOIN users_roles ul ON u.id = ul.users"
-                            + "where lower(u.username) = lower(:username) "
-                            + "and u.password = :password"
-                            + "and u.role = 1").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                        "from User "
+                        + "where lower(username) = lower(:username) "
+                        + "and password = :password "
+                        ).setParameter("username", username).setParameter("password", encpw).getSingleResult();
 
                     // Volgende keer dus wel encrypted
                     user.setPassword(encpw);
@@ -353,7 +353,7 @@ public class CallScriptingServlet extends GeneralServlet {
                 }
             }
         }
-        if (user != null) {
+        if (user != null && user.checkRole("beheerder")) {
             log.info("Basic authentication accepted for login, username: " + user.getName());
             return user;
         } else {
