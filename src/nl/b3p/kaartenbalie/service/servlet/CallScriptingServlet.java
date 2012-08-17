@@ -201,7 +201,7 @@ public class CallScriptingServlet extends GeneralServlet {
             
             requestHandler  = handler;
         }
-        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_SERVICE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.NAME) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) && ogcrequest.containsParameter(OGCScriptingRequest.URL) && ogcrequest.containsParameter(OGCScriptingRequest.SLD) && ogcrequest.containsParameter(OGCScriptingRequest.UPDATE) && ogcrequest.containsParameter(OGCScriptingRequest.GROUPS)){
+        else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_SERVICE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.NAME) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) && ogcrequest.containsParameter(OGCScriptingRequest.URL)){
             AddHandler handler = new AddHandler();
             if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WMS") ) {
                 handler.setWMS();

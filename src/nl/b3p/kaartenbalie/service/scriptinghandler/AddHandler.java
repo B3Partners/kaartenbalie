@@ -168,7 +168,11 @@ public class AddHandler extends WmsWfsHandler {
         form.set("sldUrl", this.ogcrequest.getParameter(OGCScriptingRequest.SLD));
         form.set("username", this.ogcrequest.getParameter(OGCScriptingRequest.USERNAME));
         form.set("password", this.ogcrequest.getParameter(OGCScriptingRequest.PASSWORD));
-        form.set("orgSelected", this.ogcrequest.getParameter(OGCScriptingRequest.GROUPS).split(","));
+        
+        String groups = this.ogcrequest.getParameter(OGCScriptingRequest.GROUPS);
+        if(groups != null && groups.length() > 0){
+            form.set("orgSelected", groups.split(","));
+        }
         
         if (exists) {
             if (!update) {
