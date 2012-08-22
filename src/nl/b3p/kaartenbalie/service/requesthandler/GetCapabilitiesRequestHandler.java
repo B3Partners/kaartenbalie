@@ -79,7 +79,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
         ByteArrayOutputStream output = null;
         this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest());
+        this.url = user.getPersonalURL(dw.getRequest(),dw.getServiceProviderCode());
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }
@@ -109,13 +109,16 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             forceFetch(dw, isAdmin);
         }
 
-        ServiceProvider s = getServiceProvider(isAdmin);
+        ServiceProvider s = getServiceProvider(isAdmin, dw.getServiceProviderCode());
 
         if (user != null) {
             s.setOrganizationCode(user.getOrganisationCodes());
             s.setExpireDate(user.getTimeout());
             s.setUserName(user.getName());
             s.setPersonalCode(user.getPersonalURL());
+        }
+        if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
+            s.setUrlServiceProvideCode(true);
         }
         HashMap conversionValues = new HashMap();
         conversionValues.put("url", url);

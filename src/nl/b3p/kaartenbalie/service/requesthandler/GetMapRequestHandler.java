@@ -64,7 +64,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest());
+        this.url = user.getPersonalURL(dw.getRequest(), dw.getServiceProviderCode());
         Integer[] orgIds = user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 

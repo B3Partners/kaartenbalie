@@ -84,7 +84,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
 
         this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest());
+        this.url = user.getPersonalURL(dw.getRequest(), dw.getServiceProviderCode());
         Integer[] orgIds = this.user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 

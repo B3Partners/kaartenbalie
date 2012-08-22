@@ -136,7 +136,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return serviceproviders;
     }
 
-    public ServiceProvider getServiceProvider(boolean isAdmin) throws Exception {
+    public ServiceProvider getServiceProvider(boolean isAdmin, String ServiceProviderCode) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         User dbUser = null;
@@ -165,11 +165,19 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer topLayer = layer.getTopLayer();
                 ServiceProvider sp = layer.getServiceProvider();
                 if (!serviceproviders.contains(sp) && sp.getAllowed()) {
-                    serviceproviders.add(sp);                    
-                
-                    if (!topLayers.contains(topLayer)) {
-                        topLayers.add(topLayer);
-                    }
+                    if(ServiceProviderCode != null && ServiceProviderCode.equals(sp.getAbbr())){
+                        serviceproviders.add(sp);                    
+
+                        if (!topLayers.contains(topLayer)) {
+                            topLayers.add(topLayer);
+                        }
+                    }else if(ServiceProviderCode == null || ServiceProviderCode.equals("")){
+                        serviceproviders.add(sp);                    
+
+                        if (!topLayers.contains(topLayer)) {
+                            topLayers.add(topLayer);
+                        }
+                    } 
                 }              
             }
             Iterator spIt = serviceproviders.iterator();
@@ -653,7 +661,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
 
-        String personalUrl = this.user.getPersonalURL(dw.getRequest());
+        String personalUrl = this.user.getPersonalURL(dw.getRequest(), dw.getServiceProviderCode());
 
         Integer[] orgIds = this.user.getOrganizationIds();
 

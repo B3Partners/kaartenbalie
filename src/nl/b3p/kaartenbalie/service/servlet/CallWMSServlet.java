@@ -131,6 +131,7 @@ public class CallWMSServlet extends GeneralServlet {
 
                 User user = checkLogin(request);
                 String serviceProviderCode = getServiceProviderCode(request);
+                data.setServiceProviderCode(serviceProviderCode);
                 
                 if (ogcrequest != null)
                     ogcrequest.checkRequestURL();

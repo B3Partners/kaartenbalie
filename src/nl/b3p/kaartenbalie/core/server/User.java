@@ -198,6 +198,11 @@ public class User implements Principal {
     public String getName() {
         return username;
     }
+    
+    
+    public String getPersonalURL(HttpServletRequest request){
+        return getPersonalURL(request, null);
+    }
 
     /**
      * creates full personal url from code and request info.
@@ -207,7 +212,7 @@ public class User implements Principal {
      * @param request
      * @return
      */
-    public String getPersonalURL(HttpServletRequest request) {
+    public String getPersonalURL(HttpServletRequest request, String serviceProviderCode) {
 
         if (personalURL == null) {
             return null;
@@ -219,6 +224,9 @@ public class User implements Principal {
 
         StringBuffer baseUrl = CallWMSServlet.createBaseUrl(request);
         baseUrl.append("/services/");
+        if(serviceProviderCode != null && !serviceProviderCode.equals("")){
+            baseUrl.append(serviceProviderCode+"/");
+        }
         baseUrl.append(personalURL);
 
         return baseUrl.toString();

@@ -179,8 +179,10 @@ public abstract class OGCRequestHandler implements RequestHandler {
 
         Map config = dw.getLayeringParameterMap();
         String serviceName  = dw.getOgcrequest().getServiceName();
+        
+        String serviceProvideCode = dw.getServiceProviderCode();
 
-        configB3pLayering(layers, config);
+        configB3pLayering(layers, config, serviceProvideCode);
 
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
@@ -476,11 +478,19 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @param config map met configuratie info
      * @throws java.lang.Exception fout bij configureren
      */
-    protected void configB3pLayering(String[] layers, Map config) throws Exception {
+    protected void configB3pLayering(String[] layers, Map config, String serviceProviderCode) throws Exception {
         for (int i = 0; i < layers.length; i++) {
-            String[] layerCodeAndName = toCodeAndName(layers[i]);
-            String layerCode = layerCodeAndName[0];
-            String layerName = layerCodeAndName[1];
+            String layerCode = "";
+            String layerName = "";
+            if(serviceProviderCode != null && !serviceProviderCode.equals("") && !layers[i].contains("_")){
+                layerCode = serviceProviderCode;
+                layerName = layers[i];
+                layers[i] = layerCode+"_"+layerName;
+            }else{
+                String[] layerCodeAndName = toCodeAndName(layers[i]);
+                layerCode = layerCodeAndName[0];
+                layerName = layerCodeAndName[1];
+            }
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 ConfigLayer cl = ConfigLayer.forName(layerName);
                 if (cl == null) {
