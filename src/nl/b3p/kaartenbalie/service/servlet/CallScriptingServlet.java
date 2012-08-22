@@ -47,7 +47,6 @@ import nl.b3p.kaartenbalie.service.scriptinghandler.*;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCScriptingRequest;
-import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 
@@ -136,14 +135,9 @@ public class CallScriptingServlet extends GeneralServlet {
                 this.httpRequest    = request;
                 
                 if(ogcrequest.getParameter(OGCScriptingRequest.COMMAND).equalsIgnoreCase(OGCScriptingRequest.GET_GROUP_XML)){
-                    String location = ogcrequest.getParameter(OGCScriptingRequest.LOCATION);
                     GroupParser groupParser = new GroupParser();
-
-                    if(location != null){
-                        groupParser.getGroupsAsXML(location);
-                    }else{
-                        groupParser.getGroupsAsXML();
-                    }
+                    
+                    groupParser.getGroupsAsXML(response, data.getOutputStream());
                 }else{
                     parseRequestAndData(data, user);
                 }

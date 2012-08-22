@@ -18,11 +18,14 @@
  */
 package nl.b3p.kaartenbalie.service;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -39,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class GroupParser extends KaartenbalieCrudAction {
 
@@ -70,13 +72,13 @@ public class GroupParser extends KaartenbalieCrudAction {
      *
      * @return The organizations as XML file
      */
-    public File getGroupsAsXML() {
+    /*public File getGroupsAsXML() {
         String tempDir = System.getProperty("java.io.tmpdir");
         String sep = System.getProperty("file.separator");
         String targetLocation = tempDir+sep+"groups.xml";
         
         return getGroupsAsXML(targetLocation);
-    }
+    }*/
     
     /**
      * Returns all the organizations as a XML file.
@@ -84,7 +86,9 @@ public class GroupParser extends KaartenbalieCrudAction {
      * @param  targetLocation  The target location on the disk
      * @return The organizations as XML file
      */
-    public File getGroupsAsXML(String targetLocation) {
+    public void getGroupsAsXML(HttpServletResponse response, OutputStream sos) throws IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        
         try {
             List<Organization> groups = this.getGroups();
 
@@ -105,15 +109,16 @@ public class GroupParser extends KaartenbalieCrudAction {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            File file = new File(targetLocation);
-            StreamResult result = new StreamResult(file);
-
-            transformer.transform(source, result);
-
-            return file;
+            response.setContentType("text/xml");
+            
+            transformer.transform(source, new StreamResult(sos));
         } catch (Exception ex) {
             log.error("Error creating XML-document", ex);
-            return null;
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter pw = new PrintWriter(sos);
+            pw.write(ex.getMessage());
+        }finally {
+            sos.close();
         }
     }
     
