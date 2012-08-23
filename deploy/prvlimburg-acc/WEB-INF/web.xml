@@ -10,7 +10,7 @@
         <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
         <param-value>nl</param-value>
     </context-param>
-	<context-param>
+    <context-param>
         <description>
             Configure in which directory the mapfilescanner must listen.
         </description>
@@ -63,6 +63,14 @@
             <param-name>mapfiles</param-name>
             <param-value>/opt/data/kaartenbalie-acc/maps/</param-value>
         </init-param>
+        <init-param>
+            <param-name>upload</param-name>
+            <param-value>C:\upload</param-value>
+        </init-param>
+        <init-param>
+            <param-name>allowed_upload_files</param-name>
+            <param-value>.sld,.png,.jpg</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
@@ -93,6 +101,10 @@
             <param-value>2</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>CallScriptingServlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallScriptingServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CallWMSServlet</servlet-name>
@@ -127,6 +139,10 @@
         <url-pattern>*.do</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>CallScriptingServlet</servlet-name>
+        <url-pattern>/scripts/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>CallWMSServlet</servlet-name>
         <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
@@ -138,9 +154,10 @@
         <servlet-name>ProxySLDServlet</servlet-name>
         <url-pattern>/ProxySLD/*</url-pattern>
     </servlet-mapping>
-	<listener>
+    <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>
+
     <session-config>
         <session-timeout>
             480
