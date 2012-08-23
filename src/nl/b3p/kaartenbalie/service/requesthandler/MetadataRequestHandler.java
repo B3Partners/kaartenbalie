@@ -59,6 +59,12 @@ public class MetadataRequestHandler extends WMSRequestHandler {
         dw.setContentType(OGCConstants.METADATA_XML);
 
         this.user = user;
+        
+        // check on ServiceProvideCode in url
+        if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
+            mdLayer = dw.getServiceProviderCode()+"_"+mdLayer;
+        }
+        
         // TODO checken op rechten
         Layer layer = getLayerByUniqueName(mdLayer);
         if (layer == null) {

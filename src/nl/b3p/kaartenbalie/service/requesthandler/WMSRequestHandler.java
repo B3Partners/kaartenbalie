@@ -682,8 +682,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         for (DescribeLayerData resp : describeLayerData) {
             for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
                 Element layerDescriptionElement = dom.createElement("LayerDescription");
-                layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(),descr.getName()));
-
+                if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
+                    layerDescriptionElement.setAttribute("name", descr.getName());
+                }else{
+                    layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(),descr.getName()));
+                }
                 descr.getOwsURL();
 
                 //additional info should only be returned for WMS layer that has corresponding WFS type that is served by Kaartenbalie
