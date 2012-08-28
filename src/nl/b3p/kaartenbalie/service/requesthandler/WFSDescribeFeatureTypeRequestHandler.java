@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.util.List;
 import java.util.Iterator;
@@ -70,6 +71,8 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 
         OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
         Integer[] orgIds = user.getOrganizationIds();
+        
+        String serviceProviderCode = data.getServiceProviderCode();
 
         String layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
         String[] allLayers = layers.split(",");
@@ -80,7 +83,14 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             if (layerMapList == null) {
                 layerMapList = new ArrayList();
             }
-            Map layerMap = ogcrequest.splitLayerInParts(allLayers[i]);
+            Map layerMap = new HashMap();
+            if(serviceProviderCode != null && !serviceProviderCode.equals("")){
+                layerMap = ogcrequest.splitLayerInParts(allLayers[i], false);
+                layerMap.put("spAbbr", serviceProviderCode);
+            }else{
+                layerMap = ogcrequest.splitLayerInParts(allLayers[i]);
+            }
+            
             layerMapList.add(layerMap);
 
             spLayerNames[i] = (String) layerMap.get("spLayerName");

@@ -182,7 +182,11 @@ public abstract class OGCRequestHandler implements RequestHandler {
         
         String serviceProvideCode = dw.getServiceProviderCode();
 
-        configB3pLayering(layers, config, serviceProvideCode);
+        if(dw.getService().equalsIgnoreCase("WFS") && dw.getOperation().equals("GetCapabilities")){
+            configB3pLayering(layers, config, "");
+        }else{
+            configB3pLayering(layers, config, serviceProvideCode);
+        }
 
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
@@ -482,7 +486,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         for (int i = 0; i < layers.length; i++) {
             String layerCode = "";
             String layerName = "";
-            if(serviceProviderCode != null && !serviceProviderCode.equals("") && !layers[i].contains("_")){
+            if(serviceProviderCode != null && !serviceProviderCode.equals("")){
                 layerCode = serviceProviderCode;
                 layerName = layers[i];
                 layers[i] = layerCode+"_"+layerName;

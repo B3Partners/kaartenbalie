@@ -93,10 +93,24 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         if (allLayers.length < 1) {
             throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported!");
         }
-
+        
+        String serviceProviderCode = data.getServiceProviderCode();
+        boolean hasServiceProviderCode = false;
+        if(serviceProviderCode != null && !serviceProviderCode.equals("")){
+            hasServiceProviderCode = true;
+        }
+        
         List requestLayers = new ArrayList();
         for (int i = 0; i < allLayers.length; i++) {
-             requestLayers.add(ogcrequest.splitLayerInParts(allLayers[i], true));
+            Map splitLayer;
+            
+            if(hasServiceProviderCode){
+                splitLayer = ogcrequest.splitLayerInParts(allLayers[i], false); 
+                splitLayer.put("spAbbr", serviceProviderCode);
+            }else{
+                splitLayer = ogcrequest.splitLayerInParts(allLayers[i], true);
+            }
+            requestLayers.add(splitLayer);
         }
 
         String[] layerNames = new String[requestLayers.size()];
@@ -124,7 +138,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             if (tlayers == null) {
                 String layerName = sp.getLayerName();
                 HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
+                if(!hasServiceProviderCode){
+                    layer.put("spAbbr", spAbbr);
+                }else{
+                    layer.put("spAbbr", ""); 
+                }
                 layer.put("layer", layerName);
                 spLayers.add(layer);
                 continue;
@@ -133,7 +151,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             while (it2.hasNext()) {
                 String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
+                if(!hasServiceProviderCode){
+                    layer.put("spAbbr", spAbbr);
+                }else{
+                    layer.put("spAbbr", ""); 
+                }
                 layer.put("layer", layerName);
                 spLayers.add(layer);
             }
@@ -290,7 +312,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, prefix);
+                    if(hasServiceProviderCode){
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, "");
+                    }else{
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, prefix);
+                    }
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + spUrl);

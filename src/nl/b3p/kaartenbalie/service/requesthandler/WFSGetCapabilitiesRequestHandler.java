@@ -112,6 +112,11 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         } else {
             spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
         }
+        
+        boolean hasServiceProviderCode = false;
+        if(data.getServiceProviderCode() != null && !data.getServiceProviderCode().equals("")){
+            hasServiceProviderCode = true;
+        }
 
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
@@ -125,7 +130,11 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             if (layers == null) {
                 String layerName = sp.getLayerName();
                 HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
+                if(!hasServiceProviderCode){
+                    layer.put("spAbbr", spAbbr);
+                }else{
+                    layer.put("spAbbr", ""); 
+                }
                 layer.put("layer", layerName);
                 spLayers.add(layer);
                 continue;
@@ -134,7 +143,11 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             while (it2.hasNext()) {
                 String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
+                if(!hasServiceProviderCode){
+                    layer.put("spAbbr", spAbbr);
+                }else{
+                    layer.put("spAbbr", ""); 
+                }
                 layer.put("layer", layerName);
                 spLayers.add(layer);
             }
@@ -236,7 +249,11 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                    if(hasServiceProviderCode){
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), "");
+                    }else{
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                    }
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("Failed to connect with " + lurl + " Using body: " + body);

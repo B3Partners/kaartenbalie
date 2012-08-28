@@ -67,6 +67,12 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
         String url = "";
         String prefix = "";
         List layers = ogcrequest.getLayers();
+        
+        String serviceProviderCode = data.getServiceProviderCode();
+        boolean hasServiceProviderCode = false;
+        if(serviceProviderCode != null && !serviceProviderCode.equals("")){
+            hasServiceProviderCode = true;
+        }
 
         Object identity = null;
         try {
@@ -79,7 +85,12 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             } else if (spList.length > 1 || spList == null) {
                 throw new UnsupportedOperationException("Transaction request for more then one serviceprovider is not suported yet!");
             }
-            prefix = spList[0];
+            
+            if(spList != null && spList.length > 0){
+                prefix = spList[0];
+            }else if(hasServiceProviderCode){
+                prefix = serviceProviderCode;
+            }
 
             List tempList = new ArrayList();
             Iterator it = layers.iterator();
@@ -89,9 +100,16 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 if (temp.length > 1) {
                     layer = temp[1];
                 }
-                String[] layerSplit = layer.split("_");
-                if (layerSplit[0].equals(prefix)) {
-                    tempList.add(layer);
+                
+                if(serviceProviderCode != null && !serviceProviderCode.equals("")){
+                    if(serviceProviderCode.equals(prefix)){
+                        tempList.add(layer);
+                    }
+                }else{
+                    String[] layerSplit = layer.split("_");
+                    if (layerSplit[0].equals(prefix)) {
+                        tempList.add(layer);
+                    }
                 }
             }
 
@@ -122,7 +140,11 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 if (tlayers == null) {
                     String layerName = sp.getLayerName();
                     HashMap layer = new HashMap();
-                    layer.put("spAbbr", prefix);
+                    if(!hasServiceProviderCode){
+                        layer.put("spAbbr", prefix);
+                    }else{
+                        layer.put("spAbbr", ""); 
+                    }
                     layer.put("layer", layerName);
                     spLayers.add(layer);
                     continue;
@@ -131,7 +153,11 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 while (it2.hasNext()) {
                     String layerName = (String) it2.next();
                     HashMap layer = new HashMap();
-                    layer.put("spAbbr", prefix);
+                    if(!hasServiceProviderCode){
+                        layer.put("spAbbr", prefix);
+                    }else{
+                        layer.put("spAbbr", ""); 
+                    }
                     layer.put("layer", layerName);
                     spLayers.add(layer);
                 }
@@ -145,8 +171,10 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 Object o = tor.next();
                 if (o instanceof nl.b3p.xml.wfs.v110.Delete) {
                     nl.b3p.xml.wfs.v110.Delete delete = (nl.b3p.xml.wfs.v110.Delete) o;
-                    String[] typeName = delete.getTypeName().split("_");
-                    delete.setTypeName("app:" + typeName[1]);
+                    if(!hasServiceProviderCode){
+                        String[] typeName = delete.getTypeName().split("_");
+                        delete.setTypeName("app:" + typeName[1]);
+                    }
                     String oldId = delete.getFilter().getGmlObjectId().getId().toString();
                     String[] idSplit = oldId.split(prefix + "_");
                     String newId = "";
@@ -157,8 +185,10 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                     newElementList.add(delete);
                 } else if (o instanceof nl.b3p.xml.wfs.v110.Update) {
                     nl.b3p.xml.wfs.v110.Update update = (nl.b3p.xml.wfs.v110.Update) o;
-                    String[] typeName = update.getTypeName().split("_");
-                    update.setTypeName("app:" + typeName[1]);
+                    if(!hasServiceProviderCode){
+                        String[] typeName = update.getTypeName().split("_");
+                        update.setTypeName("app:" + typeName[1]);
+                    }
                     String oldId = update.getFilter().getGmlObjectId().getId().toString();
                     String[] idSplit = oldId.split(prefix + "_");
                     String newId = "";

@@ -133,8 +133,9 @@ public class CallWMSServlet extends GeneralServlet {
                 String serviceProviderCode = getServiceProviderCode(request);
                 data.setServiceProviderCode(serviceProviderCode);
                 
-                if (ogcrequest != null)
+                if (ogcrequest != null) {
                     ogcrequest.checkRequestURL();
+                }
 
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
