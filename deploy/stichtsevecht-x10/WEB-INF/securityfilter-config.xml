@@ -3,8 +3,10 @@
 <!DOCTYPE securityfilter-config PUBLIC
     "-//SecurityFilter.org//DTD Security Filter Configuration 2.0//EN"
     "http://www.securityfilter.org/dtd/securityfilter-config_2_0.dtd">
-
+	
 <securityfilter-config>
+
+    <!-- Define the Login Configuration for this Application -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -17,8 +19,9 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
+		
     </security-constraint>
-
+    
     <!-- gebruiker rol uitgecomment zodat een ingelogde gebruiker
     via gisviewer niet het profiel kan wijzigen via kaartenbalie url -->
     <security-constraint>
@@ -35,7 +38,8 @@
             <!-- <role-name>gebruiker</role-name> -->
         </auth-constraint>
     </security-constraint>
-	
+
+    <!-- dit aanzetten indien geen demo -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -48,7 +52,7 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
-    </security-constraint> 
+    </security-constraint>
 
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
@@ -59,10 +63,11 @@
           <form-logout-page>/logout.do</form-logout-page>
         </form-login-config>
         <cookie-auth-token-config>
-            <set-cookies>false</set-cookies>
-            <accept-cookie>true</accept-cookie>
             <!-- LET OP: De secret-key en extra-hash-string moeten voor elke installatie ANDERS zijn! -->
             <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->
+            <set-cookies>false</set-cookies>
+            <accept-cookie>true</accept-cookie>
+            <!-- deze waardes zijn voor (HOU DEZE INFORMATIE UP-TO-DATE!): www.kaartenbalie.nl 81BF677C3015E66FE5F2A71DDA21160B Extra hash: s6AWd5MYe39B5NP3UaLl4 -->
             <secret-key>374459846BC88579BCEA9FA376460AFB</secret-key>
             <extra-hash-string>Hlm5AncNOEDNbfNl</extra-hash-string>
             <cookie-expire>28800</cookie-expire>

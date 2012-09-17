@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>c:\maps\upload</param-value>
+        <param-value>/srv/maps/stichtsevecht/uploads</param-value>
     </context-param>
     <context-param>
         <description>
@@ -47,11 +47,13 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>enabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value>
+            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value>
+            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>cache</param-name>
@@ -63,7 +65,7 @@
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>C:\upload</param-value>
+            <param-value>/srv/maps/stichtsevecht/uploads</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -108,32 +110,6 @@
         <servlet-name>CallWMSServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallWMSServlet</servlet-class>
     </servlet>
-    <!-- BEGIN Select CSS Servlet -->
-    <servlet>
-        <servlet-name>SelectCSS</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.servlet.SelectCSS</servlet-class>
-        <init-param>
-            <param-name>csspath_default</param-name>
-            <param-value>styles/b3p.css</param-value>
-        </init-param>
-        <init-param>
-            <param-name>server1</param-name>
-            <param-value>mnp.kaartenbalie.nl</param-value>
-        </init-param>
-        <init-param>
-            <param-name>csspath1</param-name>
-            <param-value>styles/mnp.css</param-value>
-        </init-param>
-        <init-param>
-            <param-name>server2</param-name>
-            <param-value>www.kaartenbalie.nl</param-value>
-        </init-param>
-        <init-param>
-            <param-name>csspath2</param-name>
-            <param-value>styles/b3p.css</param-value>
-        </init-param>
-        <load-on-startup>3</load-on-startup>
-    </servlet>
     <servlet>
         <servlet-name>MiltonServlet</servlet-name>
         <servlet-class>com.bradmcevoy.http.MiltonServlet</servlet-class>
@@ -142,17 +118,12 @@
             <param-value>nl.b3p.kaartenbalie.core.webdav.MetadataResourceFactory</param-value>
         </init-param>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>SelectCSS</servlet-name>
-        <url-pattern>/styles/selectcss</url-pattern>
-    </servlet-mapping>
-
     <servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
         <init-param>
             <param-name>debug</param-name>
-            <param-value>true</param-value>
+            <param-value>false</param-value>
         </init-param>
     </servlet>
     <servlet>
@@ -163,8 +134,6 @@
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
-    
-    <!-- EINDE Select CSS Servlet -->
     <servlet-mapping>
         <servlet-name>action</servlet-name>
         <url-pattern>*.do</url-pattern>
