@@ -387,9 +387,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </html:submit>
                             </c:otherwise>
                         </c:choose>
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                        <html:submit property="cancel" accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
                             <fmt:message key="button.cancel"/>
-                        </html:cancel>
+                        </html:submit>
                     </div>
                 </div>
             </c:when>

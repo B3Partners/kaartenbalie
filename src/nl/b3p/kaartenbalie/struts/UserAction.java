@@ -106,6 +106,15 @@ public class UserAction extends KaartenbalieCrudAction {
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
 
     @Override
+    public ActionForward cancel(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        createLists(dynaForm, request);
+
+        prepareMethod(dynaForm, request, LIST, LIST);
+        addDefaultMessage(mapping, request, ACKNOWLEDGE_MESSAGES);
+        return mapping.findForward(SUCCESS);
+    }
+    
+    @Override
     public ActionForward edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = getUser(dynaForm, request, false);
         if (user == null) {
