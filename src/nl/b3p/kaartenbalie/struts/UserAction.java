@@ -105,7 +105,6 @@ public class UserAction extends KaartenbalieCrudAction {
      */
     // <editor-fold defaultstate="" desc="edit(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
 
-    @Override
     public ActionForward cancel(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) throws Exception {
         createLists(dynaForm, request);
 
