@@ -1,1 +1,0 @@
-alter table SERVICE_PROVIDER add column ignore_resource boolean;
