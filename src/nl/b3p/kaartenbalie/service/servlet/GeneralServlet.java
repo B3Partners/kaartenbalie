@@ -63,17 +63,33 @@ abstract public class GeneralServlet extends HttpServlet {
     abstract protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
     
     public static StringBuffer createBaseUrl(HttpServletRequest request) {
+        return createBaseUrl(request, false);
+    }
+    
+    public static StringBuffer createBaseUrl(HttpServletRequest request, boolean useInternal) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
-        String contextPath = KBConfiguration.KB_SERVICES_CONTEXT_PATH;
+        String contextPath = null;
+        if (useInternal) {
+            contextPath = KBConfiguration.KB_SERVICES_INTERNAL_CONTEXT_PATH;
+        } else {
+            contextPath = KBConfiguration.KB_SERVICES_CONTEXT_PATH;
+        }
         if (contextPath == null || contextPath.length() == 0) {
             contextPath = request.getContextPath();
         }
 
         StringBuffer theUrl = new StringBuffer();
-        if (KBConfiguration.KB_SERVICES_SERVER_URI != null && KBConfiguration.KB_SERVICES_SERVER_URI.length() > 5) {
-            theUrl.append(KBConfiguration.KB_SERVICES_SERVER_URI);
+        String serverURI = null;
+        if (useInternal) {
+            serverURI = KBConfiguration.KB_SERVICES_INTERNAL_SERVER_URI;
+        } else {
+            serverURI = KBConfiguration.KB_SERVICES_SERVER_URI;
+        }
+
+        if (serverURI != null && serverURI.length() > 5) {
+            theUrl.append(serverURI);
         } else {
             theUrl.append(scheme);
             theUrl.append("://");

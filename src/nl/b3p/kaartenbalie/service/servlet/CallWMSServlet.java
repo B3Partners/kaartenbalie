@@ -89,7 +89,7 @@ public class CallWMSServlet extends GeneralServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
 
-        StringBuffer baseUrl = createBaseUrl(request);
+        StringBuffer baseUrl = createBaseUrl(request, true);
         if (CAPABILITIES_DTD == null) {
             CAPABILITIES_DTD = baseUrl.toString() + "/dtd/capabilities_1_1_1.dtd";
         }
