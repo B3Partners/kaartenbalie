@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>c:\srv\maps\uploads</param-value>
+        <param-value>/opt/kaartenbalie/uploads</param-value>
     </context-param>
     <context-param>
         <description>
@@ -59,11 +59,11 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>c:\srv\maps\</param-value>
+            <param-value>/opt/kaartenbalie/maps/</param-value>
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>c:\srv\maps\uploads</param-value>
+            <param-value>/opt/kaartenbalie/uploads</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
