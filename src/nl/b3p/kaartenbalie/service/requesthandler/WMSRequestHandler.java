@@ -26,7 +26,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
+import javax.imageio.spi.ImageReaderSpi;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
@@ -66,8 +69,12 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
+import org.geotools.data.ows.HTTPResponse;
 import org.geotools.data.ows.LayerDescription;
+import org.geotools.data.ows.SimpleHttpClient.SimpleHTTPResponse;
 import org.geotools.data.wms.response.DescribeLayerResponse;
+import org.geotools.ows.ServiceException;
+import org.geotools.resources.image.ImageUtilities;
 import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -521,6 +528,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 //B3PLayering...
                 long time = System.currentTimeMillis() - startTime;
                 try {
+                    /* Test for avoiding scrambled png images on some platforms */
+                    ImageUtilities.allowNativeCodec("png", ImageReaderSpi.class, false);
+                    
                     BufferedImage[] bi = new BufferedImage[]{ConfigLayer.handleRequest(url, dw.getLayeringParameterMap())};
                     KBImageTool.writeImage(bi, "image/png", dw);
                     wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
@@ -587,8 +597,13 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         dw.write(instream);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                                               
-                    } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
-                        DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, instream);
+                    } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {   
+                        /* Old Geotools 2.5 way to get reponse */
+                        //DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, instream);
+                        
+                        /* New Geotools 8 way to get reponse */
+                        DescribeLayerResponse wmsResponse = createGeotools8DescribeLayerResponse(url);
+                        
                         DescribeLayerData data = new DescribeLayerData(wmsRequest.getServiceProviderAbbreviation(), wmsResponse);
                         List<DescribeLayerData> dataList = new ArrayList<DescribeLayerData>();
                         dataList.add(data);
@@ -644,6 +659,28 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         } finally {
             rr.addServiceProviderRequest(wmsRequest);
         }
+    }
+    
+    private DescribeLayerResponse createGeotools8DescribeLayerResponse(String wmsUrl) throws Exception {        
+        DescribeLayerResponse response = null;
+        
+        try {
+            URL tempUrl = new URL(wmsUrl);
+            HttpURLConnection conn = (HttpURLConnection) tempUrl.openConnection();            
+            HTTPResponse httpResponse = (HTTPResponse) new SimpleHTTPResponse(conn);
+            
+            response = new DescribeLayerResponse(httpResponse);
+        } catch (IOException iox) {
+            log.error("Error getting describe layer response.", iox);
+            
+            throw new Exception("Error getting describe layer response.");
+        } catch (ServiceException svx) {
+            log.error("Error getting describe layer response.", svx);
+            
+            throw new Exception("Service error getting describe layer response.");
+        }
+        
+        return response;        
     }
 
     private Document createKBDescribeLayerResponse(DataWrapper dw,
