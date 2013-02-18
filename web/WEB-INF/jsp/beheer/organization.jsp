@@ -36,20 +36,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="action"/>
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
- 
+
     <div class="containerdiv" style="float: left; clear: none;">
-        
+
         <H1><fmt:message key="beheer.organization.title" /></H1>
 
         <c:choose>
             <c:when test="${!empty organizationlist}">
                 <div style="height: 325px;">
 
-                <c:set var="hoogte" value="${(fn:length(organizationlist) * 28) + 28}" />
-                <c:if test="${hoogte > 400}">
-                    <c:set var="hoogte" value="400" />
-                </c:if>
-                
+                    <c:set var="hoogte" value="${(fn:length(organizationlist) * 28) + 28}" />
+                    <c:if test="${hoogte > 400}">
+                        <c:set var="hoogte" value="400" />
+                    </c:if>
+
                     <table id="server_table" class="tablesorter">
                         <thead>
                             <tr>
@@ -91,22 +91,22 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 </div>
 
                 <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
-                    <strong><fmt:message key="beheer.organization.infolabel.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
-                    <strong><fmt:message key="beheer.organization.table.adres" />:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
-                    <strong><fmt:message key="beheer.organizationPostalcode" />:</strong> <c:out value="${nOrganization.postalcode}"/><br />
-                    <strong><fmt:message key="beheer.organization.table.plaats" />:</strong> <c:out value="${nOrganization.province}"/><br />
-                    <strong><fmt:message key="beheer.organizationCountry" />:</strong> <c:out value="${nOrganization.country}"/><br />
-                    <strong><fmt:message key="beheer.organization.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
-                </div>
+                    <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
+                        <strong><fmt:message key="beheer.organization.infolabel.naam" />:</strong> <c:out value="${nOrganization.name}"/><br />
+                        <strong><fmt:message key="beheer.organization.table.adres" />:</strong> <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/><br />
+                        <strong><fmt:message key="beheer.organizationPostalcode" />:</strong> <c:out value="${nOrganization.postalcode}"/><br />
+                        <strong><fmt:message key="beheer.organization.table.plaats" />:</strong> <c:out value="${nOrganization.province}"/><br />
+                        <strong><fmt:message key="beheer.organizationCountry" />:</strong> <c:out value="${nOrganization.country}"/><br />
+                        <strong><fmt:message key="beheer.organization.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
+                    </div>
                 </c:forEach>
                 <script type="text/javascript">
                     tablepager(
-                        'server_table',
-                        '930',
-                        '14',
-                        false
-                    );
+                    'server_table',
+                    '930',
+                    '14',
+                    false
+                );
                 </script>
             </c:when>
             <c:otherwise>
@@ -123,6 +123,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <tr>
                             <td><B><fmt:message key="beheer.name"/>:</B></td>
                             <td><html:text property="name" size="50" /></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
+                            <td><html:text property="bbox" size="50" /></td>
+                        </tr>
+                        <tr>
+                            <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
+                            <td><html:text property="code" size="25" /></td>
                         </tr>
                         <tr>
                             <td><B><fmt:message key="beheer.organizationStreet"/>:</B></td>
@@ -167,15 +175,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <tr>
                             <td><B><fmt:message key="beheer.organizationFaxnumber"/>:</B></td>
                             <td><html:text property="fax" size="25" /></td>
-                        </tr>
-                        <tr>
-                            <td><B><fmt:message key="beheer.organizationBbox"/>:</B></td>
-                            <td><html:text property="bbox" size="50" /></td>
-                        </tr>
-                        <tr>
-                            <td><B><fmt:message key="beheer.organizationCode"/>:</B></td>
-                            <td><html:text property="code" size="25" /></td>
-                        </tr>
+                        </tr>                        
                         <tr>
                             <td><B><fmt:message key="beheer.allowAccountingLayers"/>:</B></td>
                             <td><html:checkbox property="allow" /></td>
