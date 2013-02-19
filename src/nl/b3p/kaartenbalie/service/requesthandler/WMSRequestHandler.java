@@ -642,7 +642,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     log.error("Fatal protocol violation: " + e.getMessage());
                     throw new HttpException("Fatal protocol violation: " + e.getMessage());
                 } catch (IOException e) {
-                    log.error("Fatal transport error: " + e.getMessage());
+                    //log.error("Fatal transport error: " + e.getMessage());
                     throw new IOException("Fatal transport error: " + e.getMessage());
                 } catch (Exception e) {
                     throw e;
