@@ -22,9 +22,6 @@
 package nl.b3p.kaartenbalie.struts;
 
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -34,17 +31,13 @@ import nl.b3p.commons.struts.CrudAction;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.LayerTreeSupport;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
-import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
-import nl.b3p.wms.capabilities.ServiceProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class KaartenbalieCrudAction extends CrudAction {
@@ -69,22 +62,32 @@ public class KaartenbalieCrudAction extends CrudAction {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) method.">
+    @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Object identity = null;
+        
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = getEntityManager();
-
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
+            
             ActionForward forward = null;
             String msg = null;
+            
+            EntityManager em = getEntityManager();
+            EntityTransaction tx = em.getTransaction();
+            
             try {
+                tx.begin();
+                
                 forward = super.execute(mapping, form, request, response);
+                
                 tx.commit();
+                
                 return forward;
             } catch (Exception e) {
-                tx.rollback();
+                if (tx.isActive()) {
+                    tx.rollback();
+                }
+                    
                 log.error("Exception occured, rollback", e);
 
                 if (e instanceof org.hibernate.JDBCException) {
@@ -104,27 +107,34 @@ public class KaartenbalieCrudAction extends CrudAction {
                 } else {
                     msg = e.toString();
                 }
+                
                 addAlternateMessage(mapping, request, null, msg);
             }
 
-
-            tx.begin();
-
             try {
+                tx.begin();
+                
                 prepareMethod((DynaValidatorForm) form, request, LIST, EDIT);
+                
                 tx.commit();
             } catch (Exception e) {
-                tx.rollback();
+                if (tx.isActive()) {
+                    tx.rollback();
+                }
+                
                 log.error("Exception occured in second session, rollback", e);
+                
                 addAlternateMessage(mapping, request, null, e.toString());
             }
         } catch (Throwable e) {
             log.error("Exception occured while getting EntityManager: ", e);
             addAlternateMessage(mapping, request, null, e.toString());
+            
         } finally {
             log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
+        
         return getAlternateForward(mapping, request);
     }
 

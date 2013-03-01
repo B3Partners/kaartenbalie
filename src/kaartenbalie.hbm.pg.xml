@@ -86,7 +86,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         </id>
         <many-to-one column="service_provider" name="serviceProvider" not-null="true"/>
         <many-to-one class="nl.b3p.wms.capabilities.Layer" name="parent"/>
-        <set cascade="all-delete-orphan" inverse="true" name="layers" order-by="title">
+        <set cascade="save-update, delete-orphan" inverse="true" name="layers" order-by="title">
             <key column="parent"/>
             <one-to-many class="nl.b3p.wms.capabilities.Layer"/>
         </set>
