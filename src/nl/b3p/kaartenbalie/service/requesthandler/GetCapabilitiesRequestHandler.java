@@ -121,6 +121,13 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             s.setUrlServiceProvideCode(true);
         }
         HashMap conversionValues = new HashMap();
+        
+        if ("0".equalsIgnoreCase(dw.getOgcrequest().getParameter("KB_METADATA_URL"))) {
+            conversionValues.put("KB_METADATA_URL", false);
+        } else {
+            conversionValues.put("KB_METADATA_URL", true);
+        }
+        
         conversionValues.put("url", url);
         s.convertValues2KB(conversionValues);
 
