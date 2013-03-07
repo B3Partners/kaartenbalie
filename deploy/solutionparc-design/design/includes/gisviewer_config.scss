@@ -1,0 +1,773 @@
+#content_style .config_tab {
+    display: none;
+    width: 880px;
+    padding: 10px;
+    margin-bottom: 15px;
+    min-height: 150px;
+}
+
+#content_style #config_tab_header_container {
+    width: 800px;
+}
+
+.configbody .infobalk_description {
+    width: 400px;
+}
+
+.configbody .infobalk_actions {
+    width: 530px;
+}
+
+#content_style .config_tab_header {
+    float: left;
+    margin-right: 5px;
+    border-bottom: 0px none;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.optionalConfigItems{
+    display: none;
+}
+
+.tbodyshow {
+    display: block; display: table-row-group;
+}
+
+.tbodyhide {
+    display: none;
+}
+
+.configSelect{
+    width: 500px;
+}
+
+.configBronSelect {
+    width: 750px;
+}
+
+.configGegevensbronSelect {
+    width: 500px;
+}
+
+.knoppen {
+    float: left;
+}
+
+.knoppenbalk {
+    width: 900px;
+    float: left;
+    clear: both;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.berichtenbalk {
+    width: 900px;
+    float: left;
+    clear: both;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.messages {
+    clear: both;
+    float: left;
+    font-size: $basefont-size;
+    font-style: normal;
+    font-family: $basefont-family;
+    padding: 4px;
+    margin: 0px;
+}
+
+.maintable {
+    padding: 0;
+    clear: both;
+    width: 900px;
+}
+
+.helptekstDiv {
+    position: absolute;
+    margin-left: 40px;
+    margin-top: 4px;
+    display: none;
+    padding: 5px;
+    z-index: 200;
+}
+
+#iframeBehindHelp {
+    position: absolute;
+    width: 1px;
+    height: 0px;
+    top: 0px;
+    left: 0px;
+    border: none;
+    display: none;
+    z-index: 100;
+}
+
+.topbar {
+    float: left;
+    clear: both;
+    vertical-align: middle;
+    width: 901px;
+}
+
+.scroll {
+    width: 900px;
+    height: 153px;
+    overflow: auto;
+    font-size: 11px;
+    clear: both;
+}
+
+.bar_regel {
+    clear: both;
+    padding-left: 3px;
+    height: 17px;
+}
+
+.regel_odd {
+    clear: both;
+    height: 17px;
+    padding-left: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    width: 880px;
+}
+
+.regel_even {
+    clear: both;
+    height: 17px;
+    padding-left: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    width: 880px;
+}
+
+.regel_over {
+    clear: both;
+    height: 17px;
+    padding-left: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    width: 880px;
+}
+
+.regel_selected {
+    clear: both;
+    height: 17px;
+    padding-left: 3px;
+    overflow: hidden;
+    width: 880px;
+}
+
+.bar_item {
+    float: left;
+    overflow: hidden;
+    text-align: left;
+    padding-left: 3px;
+    padding-right: 3px;
+    white-space: nowrap;
+    text-align: left;
+    height: 17px;
+}
+
+.c_item {
+    height: 17px;
+    float: left;
+    overflow: hidden;
+    text-align: left;
+    padding-left: 3px;
+    padding-right: 3px;
+    white-space: nowrap;
+    text-align: left;
+}
+
+/*Voor zoeker*/
+.zoekConfiguratieVeldenContainer{
+    float: left;
+    border: 1px solid;
+    width: 300px;
+    overflow: auto;
+    height: 100px;
+    vertical-align: top;
+    background-color: #fff;
+}
+.zoekConfiguratieAttribuutNaam{
+    width: 300px;
+    cursor: pointer;
+}
+
+/*Wizard*/
+.wizardQuestionBlock{
+    background-color: $basecolor1-softest;
+    width: 915px;
+    padding: 10px;
+    /*height: 400px;*/
+    overflow: auto;
+    clear: left;
+    margin-left: 10px;
+}
+.wizardButtonBar{
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#dialogPopUp{
+    width: 300px;
+    height: 250px;
+    display: none;
+}
+
+#dialogPopUp iframe{
+    width: 370px;
+    height: 310px;
+    border: 0px none;
+}
+
+.tipsContainer{
+    float: left;
+    padding-top: 10px;
+}
+
+.addZoekerVeld {
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+#treedivContainer {
+    float: left;
+    width: 240px;
+    border: 1px solid $basecolor1;
+    border-right: 0px none;
+    padding: 10px;
+    padding-right: 0px;
+    margin-left: 20px;
+    max-height: 400px;
+    overflow: auto;
+    background-color: #F0F0F6;
+}
+
+
+.folderIcon {
+    vertical-align: bottom;
+    margin-top: 3px;
+}
+
+a.clusterEditLinkActive, a.gbEditLinkActive {
+    text-decoration: underline;
+}
+
+/* Configkeeper styles */
+.tablabels {
+    float: left;
+    width: 155px;
+    margin-left: 15px;
+}
+
+.tablabels .tablabel {
+    float: right;
+    clear: both;
+    border: 1px solid $basecolor1;
+    border-right: 0px none;
+    width: 140px;
+    padding: 10px;
+    padding-right: 0px;
+    background-color: $label-bgcolor;
+    color: $basecolor1;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.tablabels .tablabel.sublabel {
+    width: 120px;
+    color: $basecolor1;
+    background-color: $sublabel-bgcolor;
+}
+
+.tablabels .tablabel.active {
+    width: 145px;
+    color: White;
+    background-color: $label-active-bgcolor;
+}
+
+.tablabels .tablabel.sublabel.active {
+    width: 125px;
+    color: $basecolor1;
+    background-color: $sublabel-active-bgcolor;
+}
+
+.tabcontents {
+    float: left;
+    width: 765px;
+}
+
+.tabcontents.treetabcontents {
+    width: 670px;
+}
+
+.tabcontents.fullwidthtab {
+    width: 930px;
+    margin-left: 10px;
+}
+
+.tabcontents .tabcontent {
+    border: 1px solid $basecolor1;
+    padding: 10px;
+    padding-top: 15px;
+    float: left;
+    width: 745px;
+}
+
+.tabcontents.treetabcontents .tabcontent {
+    width: 650px;
+}
+
+.tabcontents.fullwidthtab .tabcontent {
+    width: 910px;
+}
+
+.configbasic, .configadvanced {
+    float: left;
+}
+
+.configadvanced {
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px dashed $basecolor1;
+}
+
+.configrow {
+    width: 725px;
+    float: left;
+    clear: left;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 3px;
+}
+
+.configrow.configrowfull label {
+    width: 140px;
+}
+
+.configrow.configrowfull input, .configrow.configrowfull select {
+    max-width: 550px;
+}
+
+.tabcontents.fullwidthtab .tabcontent .configrow {
+    width: 890px;
+}
+
+.tabcontents.fullwidthtab input, .tabcontents.fullwidthtab select {
+    max-width: 600px;
+}
+
+.configrow.odd {
+    background-color: #F0F0F6;
+}
+
+.configrow label {
+    width: 240px;
+    display: block;
+    float: left;
+}
+
+.configrow input, .configrow select {
+    float: left;
+}
+
+.configrow .helpLink {
+    float: right;
+}
+
+.configrow.configrowtree {
+    width: 630px;
+}
+
+#gegevensbron .configrow.configrowtree label {
+    width: 140px;
+}
+
+.configrow.configrowtree input, .configrow.configrowtree select {
+    max-width: 450px;
+}
+
+.kaartlaag_select {
+    float: left;
+    overflow: hidden;
+    width: 350px;
+    margin-right: 12px;
+    height: 20px;
+}
+
+.kaartlaag_select input, .kaartlaag_select label {
+    float: left;
+    display: block;
+}
+
+.kaartlaag_select label {
+    margin-left: 3px;
+    margin-top: 2px;
+    overflow: hidden;
+    width: 320px;
+}
+
+.tabfilterrow {
+    background-color: #D3D3D3;
+    padding: 5px;
+    margin-bottom: 5px;
+    margin-top: -3px;
+}
+
+.tabfilterrowleft {
+    float: left;
+    text-align: left;
+    width: 40%;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+a#showAllLayers {
+    color: Black;
+    font-size: 8pt;
+    text-decoration: underline;
+}
+
+.tabfilterrowright {
+    float: right;
+    text-align: right;
+    width: 40%;
+    margin-right: 5px;
+    margin-top: 3px;
+}
+
+.knop {
+    background-color: #f5f5f5;
+    border: 1px solid $button-border-color;
+    margin-left: 5px;
+    padding: 5px;
+    line-height:17px;
+    cursor: pointer;
+    font-weight: bold;
+    
+    border-radius: 3px;
+    -mox-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+
+.knop:hover {
+    border: 1px solid $button-hover-border-color;
+    color: $button-border-color;
+}
+
+.newButton {
+    background-image: url(/gisviewerconfig/images/icons/add.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+.newButton:hover {
+    border: 1px solid #C6D880;
+    color: #529214;
+}
+
+.removeButton {
+    background-image: url(/gisviewerconfig/images/icons/delete.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+.removeButton:hover {
+    border:1px solid #fbc2c4;
+    color: #d12f19;;
+}
+
+.saveButton {
+    background-image: url(/gisviewerconfig/images/icons/disk.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+.copyButton {
+    background-image: url(/gisviewerconfig/images/icons/copy.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+.refreshButton {
+    background-image: url(/gisviewerconfig/images/icons/arrow_refresh.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+.backButton {
+    background-image: url(/gisviewerconfig/images/icons/back.png);
+    background-position: 5px 50%;
+    background-repeat: no-repeat;
+    padding-left: 25px;
+}
+
+/* Kaartselectie css */
+.kaartselectieBody {
+    margin-top: 10px;
+}
+
+.kaartselectieBody .help {
+    position: absolute;
+    width: 340px;
+    border: 1px solid $basefont-color;
+    padding: 5px;
+    margin-top: -2px;
+    left: 125px;
+    background-color: #DDE9F2;
+    display: none;
+    z-index: 1100;
+}
+
+.kaartselectieBody .submitbutton {
+    font-weight: bold;
+    color: #61676B;
+    background-color: #DDE9F2;
+    padding: 4px;
+    padding-top: 5px;
+    padding-bottom: 2px;
+    padding-left: 20px;
+    background-image: url(../images/icons/save.png);
+    background-repeat: no-repeat;
+    background-position: 4px 4px;
+    cursor: pointer;
+}
+
+.kaartselectieBody .submitbutton.deletebutton {
+    background-image: url(../images/icons/remove.png);
+}
+
+.kaartselectieBody .submitbutton:hover {
+    border: 1px solid $basefont-color;
+    color: $basefont-color;
+}
+
+.kaartselectieBody .submitbutton.deletebutton:hover {
+    border: 1px solid #F84838;
+    color: #F84838;
+}
+
+.kaartselectieBody input, .kaartselectieBody textarea {
+    font-size: 9pt;
+    border: 1px solid #61676B;
+    padding: 5px;
+}
+
+.kaartselectieBody input[type=checkbox] {
+    border: 0px none;
+    margin: 0px;
+}
+
+.kaartselectie {
+    /* background-color: #eee; */
+    width: 748px;
+}
+
+.treeview_image {
+    position: absolute;
+    left: 300px;
+    margin-top: -14px;
+    z-index: 1050;
+}
+
+.treeview_image_on {
+    position: absolute;
+    left: 450px;
+    margin-top: -14px;
+    z-index: 1050;
+}
+
+.kaartlaagselectieContainer {
+    position: absolute;
+    left: 580px;
+    margin-top: -14px;
+}
+
+.kaartlaagselectieContainer img {
+    position: absolute;
+    z-index: 1050;
+}
+
+.kaartlaagselectieSldContainer {
+    position: absolute;
+    width: 340px;
+    margin-left: -330px;
+    margin-top: -6px;
+    border: 1px solid $basefont-color;
+    padding: 5px;
+    background-color: #DDE9F2;
+    display: none;
+    z-index: 10000;
+}
+
+.kaartlaagselectieSldContainer img {
+    position: static;
+}
+
+.kaartlaagselectieSldContainer textarea {
+    width: 328px;
+    height: 80px;
+}
+
+.kaartlaagselectieSldContainer select {
+    width: 100%;
+}
+
+.kaartlaagselectieSldContainer label {
+    display: block;
+    color: $basefont-color;
+    font-size: 12px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.kaartselectie .checkboxDummy {
+    margin-top: -14px;
+    left: 300px;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: 1050;
+}
+
+.kaartselectie img {
+    cursor: pointer;
+}
+
+.kaartselectie .treeview_row {
+    height: 20px;
+}
+
+.kaartselectie .treeview_odd_row {
+    background-color: #DDE9F2;
+}
+
+.kaartselectieKoppen {
+    margin-top: 10px;
+    margin-bottom: 3px;
+    border-bottom: 1px solid $basefont-color;
+    padding-bottom: 1px;
+    width: 748px;
+}
+
+.kaartselectieKoppen h3 {
+    font-size: 14px;
+    margin: 0px;
+    color: $basefont-color;
+}
+
+.kaartselectieKoppen h3 img {
+    vertical-align: middle;
+    margin-bottom: 2px;
+}
+
+.kaartselectieKoppen h4 {
+    float: left;
+    font-size: 1.1em;
+    font-weight: normal;
+    color: $basefont-color;
+    margin: 0px;
+    margin-top: -1.3em;
+    margin-left: 430px;
+}
+
+.kaartselectieKoppen h4.col2 {
+    margin-left: 520px;
+}
+
+.kaartselectieKoppen h4.col3 {
+    margin-left: 700px;
+}
+
+#kaartselectieAddServiceLink {
+    display: block;
+    font-weight: normal;
+    background-image: url(../images/icons/add.png);
+    background-repeat: no-repeat;
+    background-position: 2px 0px;
+    color: $basefont-color;
+    font-size: 13px;
+    padding-left: 24px;
+    padding-top: 0px;
+    padding-bottom: 2px;
+    text-decoration: underline;
+    margin-top: 7px;
+    margin-left: 4px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+#kaartselectieAddService {
+    background-color: #DDE9F2;
+    padding: 14px;
+    padding-top: 8px;
+    width: 720px;
+    font-size: 12px;
+    display: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#kaartselectieAddService h4 {
+    font-weight: normal;
+    font-size: 13px;
+    color: $basefont-color;
+    padding-left: 28px;
+    padding-top: 1px;
+    background-image: url(../images/icons/add.png);
+    background-repeat: no-repeat;
+    background-position: 6px 0px;
+    margin: 0px;
+    margin-left: -14px;
+
+}
+
+#kaartselectieAddService label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#kaartselectieAddService input {
+    width: 560px;
+}
+
+.kaartselectieBody .rightButton, #kaartselectieAddService .rightButton {
+    float: right;
+    margin-right: 10px;
+    margin-top: -30px;
+}
+
+#kaartselectieAddService .rightButton {
+    margin-right: 0px;
+    width: auto;
+}
+
+.kaartselectieBody #error, .kaartselectieBody #acknowledge {
+    width: 706px;
+    padding: 12px;
+    padding-left: 30px;
+    background-position: 10px 11px;
+    margin-left: 0px;
+}
+
+.rolnaamHeader {
+    margin-left: 15px;
+    font-size: 1.1em;
+    display: block;
+    clear: both;
+}

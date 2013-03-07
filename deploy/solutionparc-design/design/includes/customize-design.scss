@@ -1,0 +1,83 @@
+/* Compass settings */
+$legacy-support-for-ie8: true;
+/* Font settings */
+$basefont-color: #515151;
+$basefont-family: "Open Sans", arial, sans-serif;
+$basefont-family-content: arial, sans-serif;
+$basefont-size: 13px;
+$basefont-weight: 300;
+$basefont-line-height: 18px;
+$h1-font-weight: normal;
+$h1-font-size: 30px;
+$h1-font-color: $basefont-color;
+/* Size settings */
+$header-height: 135px;
+$viewer-header-height: 50px;
+$content-width: 970px;
+$viewer-header-width: 100%;
+$footer-height: 0px;
+$menu-float: right;
+$menu-margin-top: 0px;
+$menulink-height: 22px;
+$menulink-padding: 9px 12px 0px 12px;
+/* Images */
+$background-image: url(../images/solutionparc-design/background.png);
+$header-background-image: none;
+$header-image: url(../images/solutionparc-design/logo.png);
+$viewer-header-background-image: none; //url(../images/solutionparc-design/viewer_header_bg.png);
+$viewer-header-image-repeat: no-repeat;
+$viewer-header-image-position: left center;
+$viewer-header-image: url(../images/solutionparc-design/logo_viewer.png);
+$header-image-small: url(../images/solutionparc-design/logo_small.png);
+$header-image-tiny: url(../images/solutionparc-design/logo_tiny.png);
+$wrapper-image: url(../images/solutionparc-design/backgroundlogo.png);
+$infobalk-image: none;
+$tabvak-image: url(../images/solutionparc-design/tabvak_bg.png);
+$footer-background-image: none;
+$footer-image: none;
+/* Image settings */
+$background-image-repeat: repeat-x;
+$header-image-position: left 18px;
+$wrapper-image-position: center 11px;
+$wrapper-image-repeat: no-repeat;
+// Solution parc colors
+$solparc-orange: #F9811E;
+$solparc-yellow: #E4D335;
+$solparc-green: #96CA2D;
+$solparc-blue: #00BDFF;
+/* Colors */
+$background-color: #e9e9e9;
+$basecolor1: $basefont-color; // Blue B3P color
+$basecolor1-soft: #b4b4b4; // Softblue B3P color
+$basecolor1-softest: #dfdfdf; // Softest blue
+$basecolor1-dark: #353f46; // Darker blue B3P colod
+$basecolor2: #FFFFFF; // Softyellow B3P color
+$basecolor2-soft: $solparc-green; // Softyellow B3P color
+$infobalk-background: #515151;
+$input-border-color: $basefont-color;
+$loginbutton-border-color: $basefont-color;
+$button-border-color: $solparc-orange;
+$button-hover-border-color: shade($solparc-orange, 20);
+/* Config tabs */
+$label-bgcolor: tint($solparc-orange, 80);
+$label-active-bgcolor: $solparc-orange;
+$sublabel-bgcolor: tint($solparc-blue, 80);
+$sublabel-active-bgcolor: $solparc-blue;
+/* Menu colors */
+$menu-border-color: none;
+$menu-text-color: #FFFFFF;
+$menu-background-color: #7e7e7e;
+$activemenu-border-color: none;
+$activemenu-text-color: #FFFFFF;
+$activemenu-background-color: #515151;
+/* Panelcontrols */
+$panelcontrol-icon-leftright: url(../images/icons/panel_leftright_white.png);
+$panelcontrol-icon-bottom: url(../images/icons/panel_updown_white.png);
+/* Acknowledge messages */
+$message_acknowledge_border: #357EBF;
+$message_acknowledge_background: #E0E1FF;
+$message_acknowledge_icon: url(/gisviewer/images/icons/information.png);
+/* Error messages */
+$message_error_border: #FF0000;
+$message_error_background: #FFF5F5;
+$message_error_icon: url(/gisviewer/images/icons/error.gif);
