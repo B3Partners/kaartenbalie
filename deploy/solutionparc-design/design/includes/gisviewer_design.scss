@@ -3,10 +3,17 @@ body {
     background-image: $background-image;
     background-repeat: $background-image-repeat;
     color: $basefont-color;
-    font-family: $basefont-family;
+    font-family: $basefont-family-content;
     font-size: $basefont-size;
     font-weight: $basefont-weight;
     line-height: $basefont-line-height;
+    .content_body {
+        font-family: $basefont-family;
+    }
+    &.cleantemplate {
+        background-color: #FFFFFF;
+        background-image: none;
+    }
 }
 
 /* Common styles */
@@ -19,12 +26,12 @@ th {
 div, td, th, span, input, textarea, select, option, button {
     font-size: 8pt;
     color: $basefont-color;
-    font-family: $basefont-family;
+    font-family: $basefont-family-content;
     font-size: $basefont-size;
     font-weight: $basefont-weight;
     line-height: $basefont-line-height;
-    .configbody & {
-        font-family: $basefont-family-content;
+    .content_body & {
+        font-family: $basefont-family;
     }
 }
 
@@ -35,13 +42,28 @@ h1{
 }
 
 a {
-    color: $basecolor1;
+    color: $link-color;
     font-weight: bold;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 a:hover{
-    text-decoration: underline;
+    text-decoration: none;
+}
+
+strong, b {
+    font-weight: bold;
+}
+
+input[readonly] {
+    background-color: #DDDDDD;
+}
+
+label {
+    float: left;    
+    width: 300px;
+    text-align: right;
+    padding-right: 20px;
 }
 
 #header {
@@ -88,7 +110,7 @@ a.activemenulink {
 }
 
 .infobalk .infobalk_description {
-    color: $basecolor2;
+    color: $infobalk-color;
     font-size: 14px;
     font-weight: bold;
 }
@@ -96,7 +118,7 @@ a.activemenulink {
 .infobalk .infobalk_actions {
     font-size: 8pt;
     font-weight: bold;
-    color: $basecolor1;
+    color: $infobalk-actions-color;
 }
 
 .infobalk a {
@@ -104,9 +126,7 @@ a.activemenulink {
     font-weight: bold;
 }
 
-.border_balk {
-    background-color: #f8811e;
-}
+
 
 #footer {
     background-image: $footer-background-image;
@@ -124,391 +144,38 @@ a.activemenulink {
     margin-top: 18px;
 }
 
-/* Design voor de content pagina's. Om dit design toe te passen moet er een div tag met ID content_style rond de content worden geplaatst. */
-#content_style, #content_style h1, #content_style h2, #content_style div, #content_style td, #content_style th, #content_style a, #content_style li {
-    color: $basecolor1;
-}
-
-#content_style hr {
-    color: $basecolor1;
-    background-color: $basecolor1;
-    border: 0px none;
-    height: 1px;
-    width: 100%;
-}
-
-#content_style {
-    padding: 8px;
-}
-
-#content_style .kolomtabel td {
-    padding: 15px;
-    width: 430px;
-    overflow: visible;
-}
-
-#content_style div.inleiding {
-    background-color: $basecolor2;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
-    font-weight: bold;
-    width: 440px;
-    margin-left: -15px;
-}
-
-.loadingMessage{
-    background-color: $basecolor2;
-    padding: 15px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    font-weight: bold;
-    width: 100%;
-    margin-left: -15px;
-}
-
-#content_style h1 {
-    @include heading(18px);
-}
-
-#content_style h2 {
-    @include heading(14px);
-}
-
-#content_style div.inleiding h2 {
-    margin-top: 0px;
-}
-
-#content_style img {
-    border: 1px solid $basecolor1;
-    padding: 4px;
-}
-
-#content_style a {
-    text-decoration: underline;
-    font-weight: bold;
-}
-
-#content_style a:hover {
-    color: #FFD207;
-}
-
-#content_style .presentation_table {
-    border: 1px solid $basecolor1;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-#content_style .presentation_table td {
-    border: 1px solid $basecolor1;
-    padding: 5px;
-    background-color: #E7EEF4;
-    width: auto;
-}
-
-#content_style .presentation_table th {
-    background-color: $basecolor1;
-    color: White;
-    font-weight: bold;
-    padding: 5px;
-}
-
-#content_style td ul {
-    margin: 0px;
-    padding-left: 18px;
-}
-
 .messages {
     color: #000000;
-}
-
-.topRow {
-    background-image: url(../images/patroon_kaartenbalie.gif);
-    background-repeat: repeat;
-}
-
-.topRow.topRowHeader {
-    font-weight: bold;
-}
-
-.topRow.topHeader {
-    border-bottom: 1px solid #EAEEF2;
-    background-repeat: repeat-x;
-}
-
-.openclosediv {
-    background-color: white;
-    border: 1px solid black;
-}
-
-.toprowbuttons {
-    color: #000000;
-}
-
-.row {
-    color: Black;
-    font-weight: normal;
-    background-color: White;
-}
-
-.row:hover {
-    background-color: $basecolor2;
-}
-
-.admin_data_alternate_tr {
-    background-color: $basecolor1-softest;
-}
-.admin_data_selected_tr {
-    background-color: $basecolor2;
-}
-
-#aanvullende_info_table {
-    border: 0px none White;
-}
-
-.aanvullende_info_th {
-    @include tablecell(left);
-}
-
-.aanvullende_info_td {
-    @include tablecell(center);
-}
-
-.aanvullende_info_alternateTr {
-    background-color: #E7EEF4;
 }
 
 .scroll {
     border: solid 1px #1C6CA7;
 }
 
-.admindatabody {
-    background-color: White;
-}
-
 .orderLayerBox {
     border: 1px solid #606060;
     background-color: #fff;
-    color: $basecolor1-dark;
-}
-
-#tab_container .orderLayerBox .orderLayerSpanClass {
-    color: #000000;
-    font-weight: bold;
+    color: $basecolor1;
 }
 
 .orderLayerClass {
     background-color: White;
-    color: $basecolor1-dark;
+    color: $basecolor1;
 }
 
 .orderLayerClassSelected {
-    color: $basecolor1-dark;
+    color: $basecolor1;
     background-color: #bbbbbb;
 }
 
 .orderLayerClass span, .orderLayerClassSelected span {
-    color: $basecolor1-dark;
-}
-
-#kopTekst {
-    background-color: #E5352C;
-    color: White;
-    font-weight: bold;
-}
-
-.treeLegendClass {
-    border: 1px solid Black;
-    background-color: white;
-    color: Black;
-}
-
-#searchConfigurationsContainer, #vergunningConfigurationsContainer {
-    border-bottom: 1px solid White;
+    color: $basecolor1;
 }
 
 #popupWindow {
-    border: 3px solid $basecolor1-soft;
-    background-color: $basecolor1-soft;
+    border: 3px solid $popup-background-color;
+    background-color: $popup-background-color;
 }
-
-#popupWindow_Handle {
-    background-color: $basecolor1;
-    color: White;
-}
-
-#popupWindow_Close {
-    color: White;
-}
-
-#popupWindow_Title {
-    font-weight: bold;
-    color: White;
-}
-
-body.pdfExportClass {
-    background-color: White;
-}
-
-.createMapPDFBody{
-    margin: 10px;
-    overflow: visible;
-}
-
-.createmappdftd {
-    border: 0px solid #000;
-}
-
-/* Panel controls */
-#rightControl {
-    a {
-        height: 20px;
-        width: 20px;
-        display: block;
-    }
-    &.right_open {
-        a {
-            background-image: $panelcontrol-icon-leftright;
-            background-position: 0px 20px;
-        }
-        a:hover {
-            background-image: $panelcontrol-icon-leftright;
-            background-position: 20px 20px;
-        }
-    }
-    &.right_closed {
-        a {
-            background-image: $panelcontrol-icon-leftright;
-            background-position: 0px 0px;
-        }
-        a:hover {
-            background-image: $panelcontrol-icon-leftright;
-            background-position: 20px 0px;
-        }
-    }
-}
-
-.left_closed {
-    background-image: $panelcontrol-icon-leftright;
-    background-position: 0px 20px;
-}
-
-.left_closed:hover {
-    background-image: $panelcontrol-icon-leftright;
-    background-position: 20px 20px;
-}
-
-.left_open {
-    background-image: $panelcontrol-icon-leftright;
-    background-position: 0px 0px;
-}
-
-.left_open:hover {
-    background-image: $panelcontrol-icon-leftright;
-    background-position: 20px 0px;
-}
-
-.bottom_closed {
-    background-image: $panelcontrol-icon-bottom;
-    background-position: 20px 0px;
-}
-
-.bottom_closed:hover {
-    background-image: $panelcontrol-icon-bottom;
-    background-position: 20px 20px;
-}
-
-.bottom_open {
-    background-image: $panelcontrol-icon-bottom;
-    background-position: 0px 0px;
-}
-
-.bottom_open:hover {
-    background-image: $panelcontrol-icon-bottom;
-    background-position: 0px 20px;
-}
-
-#loadingDiv {
-    background-color: #fff;
-    background-repeat: no-repeat;
-    width: 300px;
-    height: 60px;
-    border: 1px solid #000;
-    text-align: center;
-    padding-top: 25px;
-    color: #000;
-}
-
-.admindataSmallCell a {
-    color: $basecolor1;
-}
-
-/*CMS content blok in tab*/
-.content_block_tab{
-    float: left;
-    width: 100%;
-}
-/* nieuwe divs voor gebruik op Home pagina Gisviewer */
-.content_block {
-    float: left;
-    width: 400px;
-    margin-left: 15px;
-    min-height: 180px;
-}
-
-.content_block a {
-    padding-top: 5px;
-    color: $basecolor1;
-    text-decoration: underline;
-}
-
-.content_title {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: $basecolor1;
-    margin-top: 15px;
-    margin-bottom: 0;
-    padding-bottom: 10px;
-}
-
-.content_block_tab .content_title {
-    color: #ffffff;
-}
-
-.inleiding_body {
-    background-color: $basecolor2;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    color: $basecolor1;
-    font-weight: bold;
-    height: 220px;
-    
-    @include border-radius(8px);
-    @include box-shadow(#666 0px 2px 3px);
-    @include background-image(linear-gradient($basecolor2, $basecolor2-soft));
-
-}
-
-.helppagina_cms_blok {
-    height: 220px;
-}
-
-.content_block_tab .inleiding_body {
-    color: #ffffff;
-    @include box-shadow(none);
-    @include border-radius(none);
-    @include background-image(none);
-}
-
-.example_image {
-    float: left;
-    padding-top: 8px;
-    padding-right: 8px;
-    padding-bottom: 8px;
- }
 
 .content_body td {
     padding-right: 10px;
@@ -516,7 +183,7 @@ body.pdfExportClass {
 
 .content_body a {
     padding-top: 5px;
-    color: $basecolor1;
+    color: $link-color;
     text-decoration: underline;
 }
 
@@ -536,19 +203,6 @@ body.pdfExportClass {
     width: 200px;
 }
 
-.inlogbutton {
-    display: block;
-    margin-top: 10px;
-    padding: 8px;
-    border: solid 1px $loginbutton-border-color;
-}
-
-.hr_line {
-    margin-top: 20px;
-    text-align: left;
-    width: 200px;
-}
-
 .uitloggen {
     clear: both;
     width: 450px;
@@ -556,145 +210,8 @@ body.pdfExportClass {
 }
 
 .uitloggen a {
-    color: $basecolor1;
+    color: $link-color;
     text-decoration: underline;
-}
-
-a.highlightlink {
-    color: blue;
-    font-size: 1.5em;
-    text-decoration: none;
-}
-
-a.highlightlink:hover{
-    text-decoration: underline;
-}
-
-.admindata2_header {
-    display: block;
-    padding: 5px;
-    background-color: $basecolor1-softest;
-    width: 500px;
-    font-size: 1.1em;
-}
-
-.admindata3_header {
-    display: block;
-    padding: 5px;
-    background-color: $basecolor1-softest;
-    width: 300px;
-    font-size: 1.1em;
-}
-
-.gebied_item {
-    color: #fff;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-}
-
-.noflamingoerror {
-    color: Red;
-}
-
-.cursorpointer {
-    cursor: pointer;
-    cursor: hand;
-}
-
-.imagenoborder {
-    border: 0px none;
-}
-
-.downloadBody {
-    margin-top: 10px;
-    margin-right: 10px;
-}
-
-.downloadBody .submitbutton {
-    color: #61676B;
-    background-color: #DDE9F2;
-    font-weight: bold;
-
-    padding: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 22px;
-
-    background-image: url(../images/icons/download_icon.png);
-    background-repeat: no-repeat;
-    background-position: 5px 5px;
-
-    border: 1px solid #000;
-}
-
-.downloadBody input[type=text] {
-    border: 1px solid #000;
-    width: 300px;
-}
-
-.downloadBody select {
-    border: 1px solid #000;
-    width: 60px;
-}
-
-/* Edit below to position image checkboxes and Laag tonen */
-.treeview_image {
-    position: absolute;
-    left: 463px;
-    margin-top: -14px;
-    z-index: 1050;
-}
-
-.treeview_image_on {
-    position: absolute;
-    left: 570px;
-    margin-top: -14px;
-    z-index: 1050;
-}
-
-.treeview_image_toggle_children {
-    position: absolute;
-    left: 463px;
-    margin-top: -14px;
-    z-index: 1050;
-}
-
-.bag_td{
-    color: white;
-}
-
-#appUrl{
-    font-size: 1.4em;
-    background-color: #EEEEEE;
-    border: 1px solid black;
-    padding: 3px;
-}
-
-#appUrl a{
-    color: #0000ff;
-}
-
-#appUrl a:hover {
-    text-decoration: none;
-}
-
-.meldingencontainer .messages .acknowledge_tab
-{
-    @include message(#828282, #E5E5E5, $message_acknowledge_icon);
-    width: 215px;
-}
-
-.input_wmsserviceurl {
-    border: 1px solid #61676B;
-    width: 725px;
-    height: 22px;
-}
-
-#searchInputFieldsContainer select {
-    width: 270px;
-    overflow: auto;
-    padding: 2px;
-    border: 1px solid #808080;
 }
 
 @import "fonts";
@@ -715,15 +232,6 @@ a.highlightlink:hover{
 
 #topmenu {
     margin-right: -25px;
-}
-
-.viewerbodyelement {
-    #header_content {
-        background-position: 10px 18px;
-    }
-    #topmenu {
-        margin-right: 10px;
-    }
 }
 
 .menulink, .activemenulink, a.menulink:hover, a.activemenulink:hover {
@@ -756,85 +264,6 @@ h1 {
     }
 }
 
-.solutionparc_homeblocks, .solutionparc_vervolgblocks {
-    margin-bottom: 40px;
-    .blockwrapper {
-        float: left;
-        width: 33%;
-        padding: 5px 0px 5px 0px;
-        margin-top: 20px;
-        display: block;
-        text-align: center;
-        a {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-    }
-    .home_tegel, .vervolg_tegel {
-        border: 5px solid White;
-        @include border-radius(20px);
-        @include box-shadow(0 0 4px 2px #E8E8E8);
-        background-position: center center;
-        background-repeat: no-repeat;
-        width: 290px;
-        height: 220px;
-        margin-left: auto;
-        margin-right: auto;
-        float: none;
-    }
-    .home_tegel {
-        @include hide-text();
-    }
-    #maatschappelijkevoorzieningen {
-        background-color: #F9811E;
-        background-image: url(../images/solutionparc-design/tegels/maatschappelijk.png);
-    }
-    #actuelezaken {
-        background-color: #E4d335;
-        background-image: url(../images/solutionparc-design/tegels/actuelezaken.png);
-    }
-    #wijkgerichtwerken {
-        background-color: #9151E5;
-        background-image: url(../images/solutionparc-design/tegels/wijkgericht.png);
-    }
-    #beheeropenbareruimte {
-        background-color: #FF5050;
-        background-image: url(../images/solutionparc-design/tegels/openbareruimte.png);
-    }
-    #natuurmilieucultuurhistorie {
-        background-color: #96CA2D;
-        background-image: url(../images/solutionparc-design/tegels/natuur.png);
-    }
-    #gemeenteopdekaart {
-        background-color: #00BDFF;
-        background-image: url(../images/solutionparc-design/tegels/gemeente.png);
-    }
-    #logintegel {
-        background-color: #515151;
-        background-image: url(../images/solutionparc-design/tegels/inloggen.png);
-        height: 53px;
-    }
-    #lokatietegel {
-        background-color: #515151;
-        background-image: url(../images/solutionparc-design/tegels/kiesuwlocatie.png);
-        height: 53px;
-    }
-    @include clearfix();
-}
-
-.solutionparc_vervolgblocks {
-    .blockwrapper {
-        text-align: left;
-    }
-    .vervolg_tegel {
-        background-color: #515151;
-        .innerwrapper {
-            margin: 15px;
-        }
-    }
-}
-
 input::-moz-focus-inner {
     border: 0px;
     padding: 0px;
@@ -844,46 +273,7 @@ input, label, a.again {
     font-family: "Open Sans";
     font-weight: bold;
     font-size: 12px;
-    .configbody & {
-        font-family: $basefont-family-content;
-        font-size: $basefont-size;
-        font-weight: $basefont-weight;
-    }
-}
-
-.solutionparc_switch {
-    margin-top: 30px;
-    margin-bottom: 0px;
-    text-align: right;
-    padding-right: 25px;
-    .switch_left, .switch_right {
-        display: block;
-        padding: 20px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        float: right;
-        @include background(linear-gradient(white, #E8E8E8));
-        &:hover {
-            text-decoration: none;
-        }
-        img {
-            vertical-align: middle;
-        }
-        &.active {
-            @include background(linear-gradient(#D3D3D3, white));
-            @include box-shadow(inset 0 0 10px #BBBBBB);
-        }
-    }
-    .switch_left {
-        @include border-left-radius(8px);
-        border: 1px solid #515151;
-        border-right: 0px none;
-    }
-    .switch_right {
-        @include border-right-radius(8px);
-        border: 1px solid #515151;
-    }
-    @include clearfix();
+    
 }
 
 #transdiv
@@ -898,7 +288,6 @@ input, label, a.again {
     z-index:99;
 }
 
-
 #transdiv #container {
     position: absolute;  
     left: 50%;  
@@ -912,5 +301,23 @@ input, label, a.again {
 
 #transdiv #container #header {
     height:20px;
-    
+}
+
+.tabcollection div#sheets {
+    clear: left;
+}
+
+.tabcollection div#sheets .sheet {
+    overflow: auto;
+    padding: 10px;
+    border: 1px Solid $menu-background-color;
+}
+
+td.deleted {
+    color: #AAAAAA;
+}
+
+td.active {
+    color: Green;
+    background-color: rgb(120,120,255);
 }
