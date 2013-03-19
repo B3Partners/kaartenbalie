@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
+import java.net.ProxySelector;
 import java.net.URL;
 import java.util.*;
 import javax.imageio.spi.ImageReaderSpi;
@@ -65,6 +66,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.xml.serialize.OutputFormat;
@@ -107,7 +109,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     organizationLayers.addAll(org.getLayers());
                 }
             }
-            
+
         }
         return organizationLayers;
     }
@@ -172,46 +174,46 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer topLayer = layer.getTopLayer();
                 ServiceProvider sp = layer.getServiceProvider();
                 if (!serviceproviders.contains(sp) && sp.getAllowed()) {
-                    if(ServiceProviderCode != null && ServiceProviderCode.equals(sp.getAbbr())){
-                        serviceproviders.add(sp);                    
+                    if (ServiceProviderCode != null && ServiceProviderCode.equals(sp.getAbbr())) {
+                        serviceproviders.add(sp);
 
                         if (!topLayers.contains(topLayer)) {
                             topLayers.add(topLayer);
                         }
-                    }else if(ServiceProviderCode == null || ServiceProviderCode.equals("")){
-                        serviceproviders.add(sp);                    
+                    } else if (ServiceProviderCode == null || ServiceProviderCode.equals("")) {
+                        serviceproviders.add(sp);
 
                         if (!topLayers.contains(topLayer)) {
                             topLayers.add(topLayer);
                         }
-                    } 
-                }              
+                    }
+                }
             }
             Iterator spIt = serviceproviders.iterator();
-            while(spIt.hasNext()){
+            while (spIt.hasNext()) {
                 ServiceProvider sp = (ServiceProvider) spIt.next();
-                if (sp.getTileSets()!=null){
-                    Iterator<TileSet> tileSetIt= sp.getTileSets().iterator();
-                    while(tileSetIt.hasNext()){
-                        TileSet ts=tileSetIt.next();
-                        if (ts.getLayers()!=null){
+                if (sp.getTileSets() != null) {
+                    Iterator<TileSet> tileSetIt = sp.getTileSets().iterator();
+                    while (tileSetIt.hasNext()) {
+                        TileSet ts = tileSetIt.next();
+                        if (ts.getLayers() != null) {
                             Iterator<Layer> layerIt = ts.getLayers().iterator();
-                            boolean hasRight=false;
-                            while(layerIt.hasNext()){
+                            boolean hasRight = false;
+                            while (layerIt.hasNext()) {
                                 Layer l = layerIt.next();
-                                if (!organizationLayers.contains(l)){
-                                    hasRight=false;
+                                if (!organizationLayers.contains(l)) {
+                                    hasRight = false;
                                     break;
-                                }else{
-                                    hasRight=true;
+                                } else {
+                                    hasRight = true;
                                 }
                             }
-                            if (hasRight){
-                                if (tileSets==null){
-                                    tileSets=new HashSet<TileSet>();
+                            if (hasRight) {
+                                if (tileSets == null) {
+                                    tileSets = new HashSet<TileSet>();
                                 }
                                 tileSets.add(ts);
-                            }                            
+                            }
                         }
                     }
                 }
@@ -339,7 +341,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             }
         }
         //if tileSets then add!
-        if (tileSets!=null){
+        if (tileSets != null) {
             validServiceProvider.setTileSets(tileSets);
         }
         return validServiceProvider;
@@ -362,19 +364,23 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return srsbb;
     }
 
-    /** Gets the data from a specific set of URL's and converts the information to the format usefull to the
-     * REQUEST_TYPE. Once the information is collected and converted the method calls for a write in the
-     * DataWrapper, which will sent the data to the client requested for this information.
+    /**
+     * Gets the data from a specific set of URL's and converts the information
+     * to the format usefull to the REQUEST_TYPE. Once the information is
+     * collected and converted the method calls for a write in the DataWrapper,
+     * which will sent the data to the client requested for this information.
      *
      * @param dw DataWrapper object containing the clients request information
-     * @param urls StringBuffer with the urls where kaartenbalie should connect to to recieve the requested data.
-     * @param overlay A boolean setting the overlay to true or false. If false is chosen the images are placed under eachother.
+     * @param urls StringBuffer with the urls where kaartenbalie should connect
+     * to to recieve the requested data.
+     * @param overlay A boolean setting the overlay to true or false. If false
+     * is chosen the images are placed under eachother.
      *
      * @return byte[]
      *
      * @throws Exception
      */
-    protected void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {        
+    protected void getOnlineData(DataWrapper dw, ArrayList urlWrapper, boolean overlay, String REQUEST_TYPE) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         BufferedImage[] bi = null;
 
@@ -383,7 +389,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         ArrayList swaplist = new ArrayList(size);
         for (int i = size - 1; i >= 0; i--) {
             swaplist.add(urlWrapper.get(i));
-            log.debug("Outgoing url: "+((ServiceProviderRequest)urlWrapper.get(i)).getProviderRequestURI());
+            log.debug("Outgoing url: " + ((ServiceProviderRequest) urlWrapper.get(i)).getProviderRequestURI());
         }
         urlWrapper = swaplist;
 
@@ -463,25 +469,25 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                 //TODO: implement and refactor so there is less code duplication with getFeatureInfo
             	/*
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setValidating(false);
-                dbf.setNamespaceAware(true);
-                dbf.setIgnoringElementContentWhitespace(true);
+                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                 dbf.setValidating(false);
+                 dbf.setNamespaceAware(true);
+                 dbf.setIgnoringElementContentWhitespace(true);
 
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document destination = builder.newDocument();
+                 DocumentBuilder builder = dbf.newDocumentBuilder();
+                 Document destination = builder.newDocument();
                 
-                //root element is different
-                Element rootElement = destination.createElement("WMS_DescribeLayerResponse");
-                destination.appendChild(rootElement);
-                //set version attribute
-                Document source = null;
-                for (int i = 0; i < urlWrapper.size(); i++) {
-                ServiceProviderRequest dlRequest = (ServiceProviderRequest) urlWrapper.get(i);
-                String url = dlRequest.getProviderRequestURI();
-                source = builder.parse(url);
-                copyElements(source,destination);
-                }*/
+                 //root element is different
+                 Element rootElement = destination.createElement("WMS_DescribeLayerResponse");
+                 destination.appendChild(rootElement);
+                 //set version attribute
+                 Document source = null;
+                 for (int i = 0; i < urlWrapper.size(); i++) {
+                 ServiceProviderRequest dlRequest = (ServiceProviderRequest) urlWrapper.get(i);
+                 String url = dlRequest.getProviderRequestURI();
+                 source = builder.parse(url);
+                 copyElements(source,destination);
+                 }*/
 
                 throw new Exception(REQUEST_TYPE + " request with more then one service url is not supported yet!");
             }
@@ -502,26 +508,31 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
     }
 
-    /** Private method getOnlineData which handels the throughput of information when it is only
-     *  about one URL. This is a slightly different method, because no checks have to be done or
-     *  information has to be stored. Everything can be directly send through the open connection.
+    /**
+     * Private method getOnlineData which handels the throughput of information
+     * when it is only about one URL. This is a slightly different method,
+     * because no checks have to be done or information has to be stored.
+     * Everything can be directly send through the open connection.
      *
-     * @param dw DataWrapper object which handles sending the information over the request.
-     * @param url String object which has the specific url where the information should come from.
+     * @param dw DataWrapper object which handles sending the information over
+     * the request.
+     * @param url String object which has the specific url where the information
+     * should come from.
      *
      * @throws Exception
      */
-    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {        
+    private void getOnlineData(DataWrapper dw, ServiceProviderRequest wmsRequest, String REQUEST_TYPE) throws Exception {
         /*
          * Because only one url is defined, the images don't have to be loaded into a
          * BufferedImage. The data received from the url can be directly transported to the client.
          */
         String url = wmsRequest.getProviderRequestURI();
+
         DataMonitoring rr = dw.getRequestReporting();
         wmsRequest.setBytesSent(new Long(url.getBytes().length));
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         try {
             if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetMap)
                     && url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
@@ -530,7 +541,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 try {
                     /* Test for avoiding scrambled png images on some platforms */
                     ImageUtilities.allowNativeCodec("png", ImageReaderSpi.class, false);
-                    
+
                     BufferedImage[] bi = new BufferedImage[]{ConfigLayer.handleRequest(url, dw.getLayeringParameterMap())};
                     KBImageTool.writeImage(bi, "image/png", dw);
                     wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
@@ -544,41 +555,49 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 // TODO: Wel goed doen
                 url = url.replaceAll(" ", "%20");
                 url = url.replaceAll("\\\\+", "/");
-                
+
                 B3PCredentials credentials = wmsRequest.getCredentials();
                 DefaultHttpClient client = CredentialsHttpParser.HttpClientCredentials(credentials, url, CredentialsHttpParser.PORT, new Integer(60000));
+
                 HttpParams params = new BasicHttpParams();
                 client.getParams().setParameter("http.socket.timeout", new Integer(10000));
                 client.getParams().setParameter("http.connection.stalecheck", false);
+
+                /* Use standard JRE proxy selector to obtain proxy information */
+                ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
+                        client.getConnectionManager().getSchemeRegistry(),
+                        ProxySelector.getDefault());
                 
+                client.setRoutePlanner(routePlanner);
+
                 HttpGet httpget = new HttpGet(url);
-                
+
                 String rhValue = "";
                 InputStream instream = null;
                 try {
                     HttpResponse response = client.execute(httpget);
-                    
+
                     int statusCode = response.getStatusLine().getStatusCode();
-                    
+
                     long time = System.currentTimeMillis() - startTime;
-                    
+
                     dw.setHeader("X-Kaartenbalie-ImageServerResponseTime", String.valueOf(time));
-                    
+
                     wmsRequest.setResponseStatus(new Integer(statusCode));
                     wmsRequest.setRequestResponseTime(new Long(time));
-                    
+
                     if (statusCode != HttpStatus.SC_OK) {
-                        log.debug(statusCode + " URL: " + url);                        
+                        log.debug(statusCode + " URL: " + url);
                         log.debug("Error connecting to server. Status code: " + statusCode);
-                        
+
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
-                    }                    
-                    
-                    HttpEntity entity = response.getEntity();                    
+                    }
+
+                    HttpEntity entity = response.getEntity();
                     if (entity != null) {
                         instream = entity.getContent();
                     }
-                    
+
                     Header h1 = response.getFirstHeader("Content-Type");
                     if (h1 != null && !h1.equals("")) {
                         rhValue = h1.getValue();
@@ -596,14 +615,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_GetFeatureInfo)) {
                         dw.write(instream);
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
-                                              
-                    } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {   
+
+                    } else if (REQUEST_TYPE.equalsIgnoreCase(OGCConstants.WMS_REQUEST_DescribeLayer)) {
                         /* Old Geotools 2.5 way to get reponse */
                         //DescribeLayerResponse wmsResponse = new DescribeLayerResponse(rhValue, instream);
-                        
+
                         /* New Geotools 8 way to get reponse */
                         DescribeLayerResponse wmsResponse = createGeotools8DescribeLayerResponse(url);
-                        
+
                         DescribeLayerData data = new DescribeLayerData(wmsRequest.getServiceProviderAbbreviation(), wmsResponse);
                         List<DescribeLayerData> dataList = new ArrayList<DescribeLayerData>();
                         dataList.add(data);
@@ -614,12 +633,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         XMLSerializer serializer = new XMLSerializer(baos, format);
                         serializer.serialize(newResponse);
                         dw.write(baos);
-                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));                        
-                    } else {                
+                        wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
+                    } else {
                         Header cacheControl = (Header) response.getFirstHeader("Cache-Control");
                         Header expires = (Header) response.getFirstHeader("Expires");
                         Header pragma = (Header) response.getFirstHeader("Pragma");
-                        
+
                         if (cacheControl != null) {
                             dw.setHeader(cacheControl.getName(), cacheControl.getValue());
                         }
@@ -629,12 +648,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         if (pragma != null) {
                             dw.setHeader(pragma.getName(), pragma.getValue());
                         }
-                        
+
                         dw.setHeader("Keep-Alive", "timeout=15, max=100");
                         dw.setHeader("Connection", "Keep-Alive");
-                        
+
                         dw.write(instream);
-                        
+
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                     }
 
@@ -649,7 +668,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 } finally {
                     if (instream != null) {
                         instream.close();
-                    }                    
+                    }
                 }
             }
         } catch (Exception e) {
@@ -660,27 +679,27 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             rr.addServiceProviderRequest(wmsRequest);
         }
     }
-    
-    private DescribeLayerResponse createGeotools8DescribeLayerResponse(String wmsUrl) throws Exception {        
+
+    private DescribeLayerResponse createGeotools8DescribeLayerResponse(String wmsUrl) throws Exception {
         DescribeLayerResponse response = null;
-        
+
         try {
             URL tempUrl = new URL(wmsUrl);
-            HttpURLConnection conn = (HttpURLConnection) tempUrl.openConnection();            
+            HttpURLConnection conn = (HttpURLConnection) tempUrl.openConnection();
             HTTPResponse httpResponse = (HTTPResponse) new SimpleHTTPResponse(conn);
-            
+
             response = new DescribeLayerResponse(httpResponse);
         } catch (IOException iox) {
             log.error("Error getting describe layer response.", iox);
-            
+
             throw new Exception("Error getting describe layer response.");
         } catch (ServiceException svx) {
             log.error("Error getting describe layer response.", svx);
-            
+
             throw new Exception("Service error getting describe layer response.");
         }
-        
-        return response;        
+
+        return response;
     }
 
     private Document createKBDescribeLayerResponse(DataWrapper dw,
@@ -719,10 +738,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         for (DescribeLayerData resp : describeLayerData) {
             for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
                 Element layerDescriptionElement = dom.createElement("LayerDescription");
-                if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
+                if (dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")) {
                     layerDescriptionElement.setAttribute("name", descr.getName());
-                }else{
-                    layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(),descr.getName()));
+                } else {
+                    layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(), descr.getName()));
                 }
                 descr.getOwsURL();
 
@@ -734,7 +753,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     layerDescriptionElement.setAttribute("owsURL", personalUrl);
 
                     Element queryElement = dom.createElement("Query");
-                    queryElement.setAttribute("typeName", completeLayerName(wfsPrefix, descr.getName()) ); //this needs to be fixed
+                    queryElement.setAttribute("typeName", completeLayerName(wfsPrefix, descr.getName())); //this needs to be fixed
                     layerDescriptionElement.appendChild(queryElement);
                 }
                 rootElement.appendChild(layerDescriptionElement);
@@ -793,13 +812,14 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 + "l.name = :layerName and "
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
-        
+
         return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
     }
 
     /**
      *
-     * @param byteStream InputStream object in which the serviceexception is stored.
+     * @param byteStream InputStream object in which the serviceexception is
+     * stored.
      *
      * @ return String with the given exception
      *
@@ -822,7 +842,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     }
 
     /**
-     * Below is the Handler defined which reads the Exception from a ServiceException recieved when an error occurs.
+     * Below is the Handler defined which reads the Exception from a
+     * ServiceException recieved when an error occurs.
      */
     private static class ServiceExceptionHandler extends ElementHandler {
 
@@ -863,10 +884,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
     }
 
-    /** Method which copies information from one XML document to another document.
-     * It adds information to an document and with this method it's possible to create
-     * one document from several other documents as used to create an GetFeatureInfo
-     * document.
+    /**
+     * Method which copies information from one XML document to another
+     * document. It adds information to an document and with this method it's
+     * possible to create one document from several other documents as used to
+     * create an GetFeatureInfo document.
      *
      * @param source Document object
      * @param destination Document object
@@ -899,7 +921,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
         for (int i = 0; i < size_source; i++) {
             Node node_source = nodelist_source.item(i);
-            
+
             if (node_source instanceof Element) {
                 Element element_source = (Element) node_source;
                 String tagName = element_source.getTagName();
@@ -907,7 +929,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 if (!tagName.equalsIgnoreCase("ServiceException")) {
                     Node importedNode = destination.importNode(element_source, true);
                     Node newNode = destination.renameNode(importedNode, importedNode.getNamespaceURI(), spAbbr + "_" + tagName);
-                    
+
                     Element root_destination = destination.getDocumentElement();
                     root_destination.appendChild(newNode);
                 }
