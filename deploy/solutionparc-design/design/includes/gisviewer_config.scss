@@ -189,10 +189,6 @@ td.table-sorted-desc {
     padding: 0px;
 }
 
-.vakSpeciaal {
-    background-color: $basecolor3;
-}
-
 .headerRijTitel td, .headerRijTitel th, .serverRijTitel td, .serverRijTitel th {
     font-style: inherit;
     background: $basecolor3;
@@ -210,17 +206,6 @@ td.table-sorted-desc {
 }
 
 .serverRij td {
-    font-style: inherit;
-    text-align: left;
-}
-
-.transactieRijTitel div {
-    font-style: inherit;
-    background: $basecolor3;
-    text-align: left;
-}
-
-.transactieRij div {
     font-style: inherit;
     text-align: left;
 }
