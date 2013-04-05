@@ -85,20 +85,19 @@ html, body {
     margin-left: 5px;
     margin-top: 5px;
     margin-bottom: 8px;
-    width: 940px;
-    padding-left: 10px;
+    width: 100%;
 }
 
 .infobalk .infobalk_description {
     text-align: left;
-    width: 150px;
+    width: 135px;
+    padding-left: 15px;
     float: left;
 }
 
 .infobalk .infobalk_actions {
     text-align: right;
-    width: 780px;
-    float: left;
+    padding-right: 15px;
     margin-top: 1px;
 }
 
@@ -111,93 +110,8 @@ html, body {
     height: 20%;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#tabContainer 
-
-#tabContainer 
-
-#tabContainer 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*************Balloon css:***************/
-
-
-/*Balloon Arrows*/
-
-
-
-
-
-
-
-
-
-/*Balloon Content*/
-
-
-
 /*Slider*/
 .slider{
     margin-left: 10px;
     margin-right: 10px;
 }
-
-
-
-/* OpenLayers */

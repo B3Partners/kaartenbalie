@@ -236,13 +236,13 @@ td.table-sorted-desc {
             padding: 2px 10px;
             @include border-top-radius(6px);
             margin-right: 3px;
-            background-color: $menu-background-color;
-            color: $menu-text-color;
+            background-color: $tab-background-color;
+            color: $tab-text-color;
             text-decoration: none;
         }
-        &:hover a {
-            color: $solparc-blue;
-            background-color: $activemenu-background-color;
+        &:hover a, &.active a {
+            color: $tab-hovertext-color;
+            background-color: $tab-hoverbackground-color;
         }
     }
 }
@@ -256,4 +256,88 @@ td.table-sorted-desc {
 }
 .layerLabel{
     background-image: url(../images/treeview/kaart.gif);
+}
+
+.steps {
+    clear: both;
+    height: 30px;
+    margin-top: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.stepactive {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background: #fff;
+    background-image: url(../images/siteImages/arrow.gif);
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+    border-right: 2px solid #fff;
+}
+
+.step {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding: 5px;
+    color: #006633;
+    font-size: 15px;
+    font-weight: bold;
+    background: #e4edec;
+    border-right: 2px solid #fff;
+}
+
+.step a {
+    color: #006633;
+    font-size: 15px;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+.stepdone {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    /* background: #00624B; */
+    background: #ccc;
+    color: #FFF;
+    font-weight: bold;
+    font-size: 15px;
+    border-right: 2px solid #fff;
+}
+
+.stepempty {
+    float: left;
+    width: 120px;
+    height: 20px;
+    text-align: center;
+    padding: 5px;
+    color: #006633;
+    font-size: 15px;
+    font-weight: bold;
+    background: #e4edec;
+    border-right: 2px solid #fff;
+}
+
+#democontentheader {
+    @extend h1;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 22px !important;
+}
+
+#demoheader3{
+    @extend h1;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }

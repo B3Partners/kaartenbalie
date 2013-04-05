@@ -26,14 +26,17 @@
         @include transition-timing-function(ease-in-out);
     }
     &:hover a {
-        color: $solparc-blue;
+        color: $menu-hovertext-color;
+        &.activemenulink {
+            color: $activemenu-text-color;
+        }
     }
     &:hover li a {
-        color: $menu-text-color;
+        color: $submenu-text-color;
     }
     &.submenu a {
         padding-left: 25px;
-        background-image: url(../images/solutionparc-design/menuarrow.png);
+        background-image: $submenu-arrow-img;
         background-repeat: no-repeat;
         background-position: 8px 50%;
     }
@@ -46,12 +49,16 @@
 /* Sub Menu */
 
 .menu ul {
+    z-index: 999;
     position: absolute;
-    top: 32px;
+    top: $submenu-top;
     left: 0;
     opacity: 0;
-    background-color: $menu-background-color;
-    @include border-radius(5px);
+    border: $submenu-border;
+    background-color: $submenu-background-color;
+    @if $submenu-rounderborder {
+        @include border-radius(5px);
+    }
     @include transition-property(opacity);
     @include transition-duration(.25s);
     @include transition-timing-function(ease);
@@ -81,11 +88,11 @@
     padding: 8px;
     margin: 0;
     border: none;
-    color: $menu-text-color;
+    color: $submenu-text-color;
     text-decoration: none;
-    border-bottom: 1px solid $menu-text-color;
+    border-bottom: 1px solid $submenu-text-color;
     &:hover {
-        color: $solparc-blue;
+        color: $menu-hovertext-color;
     }
 }
 
