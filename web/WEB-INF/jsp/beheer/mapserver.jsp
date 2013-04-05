@@ -25,7 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 <html:form action="/mapserver" focus="mapFile" enctype="multipart/form-data">
 
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <H1><fmt:message key="beheer.mapserver.title" /></H1>
 
         <p>
@@ -34,71 +34,64 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         
         <c:choose>
             <c:when test="${!empty mapfiles}">
-                <c:set var="hoogte" value="${(fn:length(mapfiles) * 28) + 28}" />
-                <c:if test="${hoogte > 400}">
-                    <c:set var="hoogte" value="400" />
-                </c:if>
-                <div class="scroll" style="height: ${hoogte}px; width: 840px;">
-                    <table id="server_table" class="tablesorter">
-                        <thead>
-                            <tr>
-                                <th style="width: 14%;"><fmt:message key="beheer.mapserver.table.titel" /></th>
-                                <th style="width: 64%;"><fmt:message key="beheer.mapserver.table.url" /></th>
-                                <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wms" /></th>
-                                <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wfs" /></th>
-                                <th style="width: 10%;" class="{sorter: false} no-filter">&nbsp;</th>
+                <table id="server_table" class="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 14%;"><fmt:message key="beheer.mapserver.table.titel" /></th>
+                            <th style="width: 64%;"><fmt:message key="beheer.mapserver.table.url" /></th>
+                            <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wms" /></th>
+                            <th style="width: 6%;"><fmt:message key="beheer.mapserver.table.wfs" /></th>
+                            <th style="width: 10%;" class="{sorter: false} no-filter">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
+                            <c:set var="id_selected" value='' />
+                            <c:if test="${nMapfile['id'] == mainid}"><c:set var="id_selected" value=' class="row_selected"' /></c:if>
+                            <tr data-link=""${id_selected} onmouseover="showLabel('${nMapfile["id"]}');" onmouseout="hideLabel('${nMapfile["id"]}');">
+                                <td>
+                                    <c:out value='${nMapfile["wms_title"]}'/>
+                                </td>
+                                <td>
+                                    <c:out value='${nMapfile["wms_onlineresource"]}'/>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test='${empty nMapfile["kb_wms"]}'>
+                                            <html:link page='/server.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
+                                                <fmt:message key="beheer.mapserver.table.addmapfile" />
+                                            </html:link>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <html:link page='/server.do?edit=t&id=${nMapfile["kb_wms"]}'>
+                                                <fmt:message key="beheer.mapserver.table.editmapfile" />
+                                            </html:link>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test='${empty nMapfile["kb_wfs"]}'>
+                                            <html:link page='/wfsserver.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
+                                                <fmt:message key="beheer.mapserver.table.addmapfile" />
+                                            </html:link>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <html:link page='/wfsserver.do?edit=t&id=${nMapfile["kb_wfs"]}'>
+                                                <fmt:message key="beheer.mapserver.table.editmapfile" />
+                                            </html:link>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <html:link page='/mapserver.do?archive=t&file=${nMapfile["fileName"]}'>
+                                        <fmt:message key="beheer.mapserver.archive.label" />
+                                    </html:link>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
-                                <c:set var="id_selected" value='' />
-                                <c:if test="${nMapfile['id'] == mainid}"><c:set var="id_selected" value='selected' /></c:if>
-                                <tr onmouseover="showLabel('${nMapfile["id"]}');" onmouseout="hideLabel('${nMapfile["id"]}');">
-                                    <td>
-                                        <c:out value='${nMapfile["wms_title"]}'/>
-                                        <input type="hidden" name="selected" value="${id_selected}" />
-                                    </td>
-                                    <td>
-                                        <c:out value='${nMapfile["wms_onlineresource"]}'/>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test='${empty nMapfile["kb_wms"]}'>
-                                                <html:link page='/server.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
-                                                    <fmt:message key="beheer.mapserver.table.addmapfile" />
-                                                </html:link>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <html:link page='/server.do?edit=t&id=${nMapfile["kb_wms"]}'>
-                                                    <fmt:message key="beheer.mapserver.table.editmapfile" />
-                                                </html:link>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test='${empty nMapfile["kb_wfs"]}'>
-                                                <html:link page='/wfsserver.do?add=t&url=${nMapfile["encoded_url"]}&givenName=${nMapfile["encoded_title"]}'>
-                                                    <fmt:message key="beheer.mapserver.table.addmapfile" />
-                                                </html:link>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <html:link page='/wfsserver.do?edit=t&id=${nMapfile["kb_wfs"]}'>
-                                                    <fmt:message key="beheer.mapserver.table.editmapfile" />
-                                                </html:link>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <html:link page='/mapserver.do?archive=t&file=${nMapfile["fileName"]}'>
-                                            <fmt:message key="beheer.mapserver.archive.label" />
-                                        </html:link>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                        </c:forEach>
+                    </tbody>
+                </table>
                 <c:forEach var="nMapfile" varStatus="status" items="${mapfiles}">
                 <div id="infoLabel${nMapfile["id"]}" class="infoLabelClass">
                     <strong><fmt:message key="beheer.mapserver.infolabel.id" />:</strong> <c:out value='${nMapfile["id"]}'/><br />
@@ -107,21 +100,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <strong><fmt:message key="beheer.mapserver.table.url" />:</strong> <c:out value='${nMapfile["wms_onlineresource"]}'/><br />
                 </div>
                 </c:forEach>
-                <script type="text/javascript">
-                    tablepager(
-                        'server_table',
-                        '930',
-                        '14',
-                        false
-                    );
-                </script>
             </c:when>
             <c:otherwise>
                 <fmt:message key="beheer.mapserver.geenbeschikbaar" />
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 400px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         <div class="serverDetailsClass">
             <table>
                 <tr>
@@ -147,7 +132,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     </div>
 
 
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         &nbsp;
     </div>
 </html:form>

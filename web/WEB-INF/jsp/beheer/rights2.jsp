@@ -33,50 +33,39 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="type" />
 
     <H1><fmt:message key="beheer.rights2.title" /></H1>
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
-                <div style="height:325px;">
-                    <table id="rights2_table" class="tablesorter">
-                        <thead>
+                <table id="rights2_table" class="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;"><fmt:message key="beheer.rights2.table.type" /></th>
+                            <th style="width: 50%;"><fmt:message key="beheer.rights2.table.naam" /></th>
+                            <th style="width: 20%;"><fmt:message key="beheer.rights2.table.afkorting" /></th>
+                            <th style="width: 20%;"><fmt:message key="beheer.rights2.table.datumupdate" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                             <tr>
-                                <th style="width: 10%;"><fmt:message key="beheer.rights2.table.type" /></th>
-                                <th style="width: 50%;"><fmt:message key="beheer.rights2.table.naam" /></th>
-                                <th style="width: 20%;"><fmt:message key="beheer.rights2.table.afkorting" /></th>
-                                <th style="width: 20%;"><fmt:message key="beheer.rights2.table.datumupdate" /></th>
+                                <td>
+                                    <c:out value="${nServiceProvider.type}"/>
+                                </td>
+                                <td>
+                                    <a href="#" onclick="changeService('${nServiceProvider.id}', '${nServiceProvider.type}');">
+                                        <c:out value="${nServiceProvider.givenName}"/>
+                                    </a>
+                                </td>
+                                <td>
+                                    <c:out value="${nServiceProvider.abbr}"/>
+                                </td>
+                                <td>
+                                    <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                                <tr>
-                                    <td>
-                                        <c:out value="${nServiceProvider.type}"/>
-                                    </td>
-                                    <td>
-                                        <a href="#" onclick="changeService('${nServiceProvider.id}', '${nServiceProvider.type}');">
-                                            <c:out value="${nServiceProvider.givenName}"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <c:out value="${nServiceProvider.abbr}"/>
-                                    </td>
-                                    <td>
-                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-
-                <script type="text/javascript">
-                    tablepager(
-                    'rights2_table',
-                    '930',
-                    '14',
-                    false
-                );
-                </script>
+                        </c:forEach>
+                    </tbody>
+                </table>
             </c:when>
             <c:otherwise>
                 <fmt:message key="beheer.rights2.geenbeschikbaar" />

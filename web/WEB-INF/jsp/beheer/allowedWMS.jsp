@@ -24,42 +24,31 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 <html:javascript formName="serverForm" staticJavascript="false"/>
 
-<div class="containerdiv" style="float: left; clear: none;">
+<div class="containerdiv">
     <H1><fmt:message key="beheer.allowedWMS.title" /></H1>
 
     <c:choose>
         <c:when test="${!empty currentServiceslist}">
-            <div style="height: 325px;">
-                <table id="server_table" class="tablesorter">
-                    <thead>
-                        <tr>
-                            <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
-                            <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
+            <table id="server_table" class="dataTable">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
+                        <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="nServiceProvider" varStatus="status" items="${currentServiceslist}">
+                        <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
+                            <td>
+                                <c:out value="${nServiceProvider.givenName}"/>
+                            </td>
+                            <td>
+                                <c:out value="${nServiceProvider.abbr}"/>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="nServiceProvider" varStatus="status" items="${currentServiceslist}">
-                            <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
-                                <td>
-                                    <c:out value="${nServiceProvider.givenName}"/>
-                                </td>
-                                <td>
-                                    <c:out value="${nServiceProvider.abbr}"/>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
-            </div>
-
-            <script type="text/javascript">
-                tablepager(
-                'server_table',
-                '930',
-                '14',
-                false
-            );
-            </script>
+                    </c:forEach>
+                </tbody>
+            </table>
         </c:when>
         <c:otherwise>
             <fmt:message key="beheer.allowedWMS.noneAdded" />

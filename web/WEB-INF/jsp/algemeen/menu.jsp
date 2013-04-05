@@ -21,18 +21,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<div id="nav">
-    <center><B>Menu Algemeen</B></center><br>
-    <p>
-        <div id="nav-menu">
-            <a href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a>
-            <a href="<html:rewrite page='/viewer.do' module='' />"><fmt:message key="algemeen.viewer"/></a>
-            <c:if test="${true}">
-                <a href="<html:rewrite page='/demo.do' module='' />"><fmt:message key="algemeen.demo"/></a>
-            </c:if>
-            <a href="<html:rewrite page='/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a>
-            <a href="<html:rewrite page='/beheer/user.do' module='' />"><fmt:message key="algemeen.proxy"/></a>
-            <a href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="algemeen.beheer"/></a>
-        </div>
-    </p>
+<div id="topmenu">
+    <ul class="menu">
+        <li><a href="<html:rewrite page='/index.do' module='' />" class="menulink"><fmt:message key="algemeen.home"/></a></li>
+        <li><a href="<html:rewrite page='/viewer.do' module='' />" class="menulink"><fmt:message key="algemeen.viewer"/></a></li>
+        <c:if test="${true}">
+            <li><a href="<html:rewrite page='/demo.do' module='' />" class="menulink"><fmt:message key="algemeen.demo"/></a></li>
+        </c:if>
+        <li><a href="<html:rewrite page='/metadata.do' module='' />" class="menulink"><fmt:message key="beheer.metadata"/></a></li>
+        <li><a href="<html:rewrite page='/beheer/user.do' module='' />" class="menulink"><fmt:message key="algemeen.proxy"/></a></li>
+        <li><a href="<html:rewrite page='/beheer/reporting.do' module='' />" class="menulink"><fmt:message key="algemeen.beheer"/></a></li>
+    </ul>
 </div>

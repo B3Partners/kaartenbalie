@@ -150,63 +150,60 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="id" />
     <html:hidden property="registeredIP" styleId="registeredIP"/>
 
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <H1><fmt:message key="beheer.user.title"/></H1>
 
         <c:choose>
             <c:when test="${!empty userlist}">
-                <div style="height: 325px;">
-                    <table id="server_table" class="tablesorter">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
-                                <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
-                                <th style="width: 30%;"><fmt:message key="beheer.user.table.rollen"/></th>
-                                <th class="{sorter:'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="nUser" varStatus="status" items="${userlist}">
-                                <c:url var="link" value="/beheer/user.do?edit=submit&id=${nUser.id}" />
-                                <c:set var="id_selected" value='' />
-                                <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
-                                <tr onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
-                                    <td>
-                                        <html:link page="/user.do?edit=submit&id=${nUser.id}">
-                                            <c:out value="${nUser.username}"/>
-                                        </html:link>
-                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
-                                    </td>
-                                    <td>
-                                        <c:if test="${!empty nUser.firstName}">
-                                            <c:out value="${nUser.firstName}"/>
+                <table id="server_table" class="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
+                            <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
+                            <th style="width: 30%;"><fmt:message key="beheer.user.table.rollen"/></th>
+                            <th class="{sorter:'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="nUser" varStatus="status" items="${userlist}">
+                            <c:url var="link" value="/beheer/user.do?edit=submit&id=${nUser.id}" />
+                            <c:set var="id_selected" value='' />
+                            <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value=' class="row_selected"' /></c:if>
+                            <tr data-link="${link}"${id_selected} onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
+                                <td>
+                                    <html:link page="/user.do?edit=submit&id=${nUser.id}">
+                                        <c:out value="${nUser.username}"/>
+                                    </html:link>
+                                </td>
+                                <td>
+                                    <c:if test="${!empty nUser.firstName}">
+                                        <c:out value="${nUser.firstName}"/>
+                                    </c:if>
+
+                                    <c:out value="${nUser.surname}"/>
+                                </td>
+                                <td>
+                                    <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
+                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                    </c:forEach>
+                                </td>
+                                <td>
+                                    <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
+
+                                    <c:forEach var="invalidId" varStatus="status" items="${invalidUserIds}">
+                                        <c:if test="${nUser.id == invalidId}">
+                                            <img src="<html:rewrite page='/images/siteImages/invalid.png' module='' />"
+                                             title="Gebruiker ongeldig en mag niet inloggen."
+                                             alt="Gebruiker ongeldig en mag niet inloggen."
+                                             width="16"
+                                             height="16"/>
                                         </c:if>
-
-                                        <c:out value="${nUser.surname}"/>
-                                    </td>
-                                    <td>
-                                        <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                            <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
-                                        </c:forEach>
-                                    </td>
-                                    <td>
-                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
-
-                                        <c:forEach var="invalidId" varStatus="status" items="${invalidUserIds}">
-                                            <c:if test="${nUser.id == invalidId}">
-                                                <img src="<html:rewrite page='/images/siteImages/invalid.png' module='' />"
-                                                 title="Gebruiker ongeldig en mag niet inloggen."
-                                                 alt="Gebruiker ongeldig en mag niet inloggen."
-                                                 width="16"
-                                                 height="16"/>
-                                            </c:if>
-                                        </c:forEach>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                                    </c:forEach>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
 
                 <c:forEach var="nUser" varStatus="status" items="${userlist}">
                     <div id="infoLabel${nUser.id}" class="infoLabelClass">
@@ -220,15 +217,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         </c:forEach>
                     </div>
                 </c:forEach>
-
-                <script type="text/javascript">
-                    tablepager(
-                        'server_table',
-                        '930',
-                        '18',
-                        false
-                    );
-                </script>
             </c:when>
             <c:otherwise>
                 <fmt:message key="beheer.user.geenwmsservices"/>
@@ -236,7 +224,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         </c:choose>
     </div>
 
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 440px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass"> 
@@ -369,7 +357,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <div class="knoppen">
                         <c:choose>
                             <c:when test="${save || delete}">
-                                <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                                <html:submit property="confirm" accesskey="o" styleClass="knop">
                                     <fmt:message key="button.ok"/>
                                 </html:submit>
                             </c:when>
@@ -387,7 +375,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </html:submit>
                             </c:otherwise>
                         </c:choose>
-                        <html:submit property="cancel" accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                        <html:submit property="cancel" accesskey="c" styleClass="knop" onclick="bCancel=true">
                             <fmt:message key="button.cancel"/>
                         </html:submit>
                     </div>

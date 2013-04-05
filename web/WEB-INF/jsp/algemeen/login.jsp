@@ -21,18 +21,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<div class="onderbalk" style="color: #FFF0C4;"><fmt:message key="algemeen.login.title" /></div>
-<form id="loginForm" action="j_security_check" method="POST">
-    <div style="height: 430px">
-        <div style="width: 430px; padding: 10px; border: 1px solid #dddddd;">
-            <table>
-                <tr><td><fmt:message key="algemeen.login.gebruikersnaam" />:</td><td><input type="text" name="j_username" size="36"></td></tr>
-                <tr><td><fmt:message key="algemeen.login.wachtwoord" />:</td><td><input type="password" name="j_password" size="36"></td></tr>
-                <tr><td><input type="Submit" value="<fmt:message key="algemeen.login.login" />"></td></tr>
-            </table>
-        </div>
-    </div>    
-</form>
+
+<div class="infobalk">
+    <div class="infobalk_description"><fmt:message key="algemeen.login.title"/></div>
+    <div class="infobalk_actions"></div>
+</div>
+<div class="content_body">
+    <h1>Inloggen</h1>
+    <form id="loginForm" action="j_security_check" method="POST">
+        <div style="height: 430px">
+            <div style="width: 430px; padding: 10px; border: 1px solid #dddddd;">
+                <table>
+                    <tr><td><fmt:message key="algemeen.login.gebruikersnaam" />:</td><td><input type="text" name="j_username" size="36"></td></tr>
+                    <tr><td><fmt:message key="algemeen.login.wachtwoord" />:</td><td><input type="password" name="j_password" size="36"></td></tr>
+                    <tr><td><input type="Submit" value="<fmt:message key="algemeen.login.login" />"></td></tr>
+                </table>
+            </div>
+        </div>    
+    </form>
+</div>
 
 <script language="JavaScript">
     <!--

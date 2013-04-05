@@ -43,7 +43,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="organizationTelephone" />
     <html:hidden property="roleSelected" value="-1"/>
     
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <H1><fmt:message key="viewer.profile.title" /></H1>
         <P>
             <fmt:message key="viewer.profile.body" />
@@ -69,7 +69,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </tr>
         </table>
     </div>   
-    <div id="groupDetails" class="containerdiv" style="clear: left; padding-top: 15px; height: 200px;">
+    <div id="groupDetails" class="containerdiv" style="clear: left; padding-top: 15px;">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass">
@@ -107,7 +107,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         &nbsp;
     </div>
 </html:form>

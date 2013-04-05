@@ -23,7 +23,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
-<div class="containerDiv" style=";">
+<div class="containerDiv">
     <h1><fmt:message key="beheer.wfspricing.title"/></h1>
     
     <b><fmt:message key="beheer.wfspricing.wmslagen"/>:</b>

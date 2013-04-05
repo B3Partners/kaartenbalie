@@ -37,63 +37,60 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
 
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <H1><fmt:message key="beheer.server.title" /></H1>
         
         <c:choose>
             <c:when test="${!empty serviceproviderlist}">
-                <div style="height: 325px;">
-                    <table id="server_table" class="tablesorter">
-                        <thead>
-                            <tr>
-                                <th style="width: 10%;">Teststatus</th>
-                                <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
-                                <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
-                                <th style="width: 15%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
-                                <c:url var="link" value="/beheer/server.do?edit=submit&id=${nServiceProvider.id}" />
-                                <c:set var="id_selected" value='' />
-                                <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
-                                <tr onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
-                                    <!-- status weergeven TODO: met link naar verzoek -->
-                                    <c:if test="${nServiceProvider.status == 'GOED'}">
-                                    <td>
-                                        <span style="color: green;">
-                                            <c:out value="${nServiceProvider.status}"/>
-                                        </span>
-                                    </td>    
-                                    </c:if>
-                                    <c:if test="${nServiceProvider.status == 'FOUT'}">
-                                    <td>
-                                        <span style="color: red;">
-                                            <c:out value="${nServiceProvider.status}"/>
-                                        </span>
-                                    </td>    
-                                    </c:if>
-                                    <c:if test="${empty nServiceProvider.status}">
-                                    <td>&nbsp;</td>
-                                    </c:if>
+                <table id="server_table" class="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">Teststatus</th>
+                            <th style="width: 45%;"><fmt:message key="beheer.server.table.naam" /></th>
+                            <th style="width: 30%;"><fmt:message key="beheer.server.table.afkorting" /></th>
+                            <th style="width: 15%;"><fmt:message key="beheer.server.table.datumupdate" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
+                            <c:url var="link" value="/beheer/server.do?edit=submit&id=${nServiceProvider.id}" />
+                            <c:set var="id_selected" value='' />
+                            <c:if test="${nServiceProvider.id == mainid}"><c:set var="id_selected" value=' class="row_selected"' /></c:if>
+                            <tr data-link="${link}"${id_selected} onmouseover="showLabel(${nServiceProvider.id})" onmouseout="hideLabel(${nServiceProvider.id});">
+                                <!-- status weergeven TODO: met link naar verzoek -->
+                                <c:if test="${nServiceProvider.status == 'GOED'}">
+                                <td>
+                                    <span style="color: green;">
+                                        <c:out value="${nServiceProvider.status}"/>
+                                    </span>
+                                </td>    
+                                </c:if>
+                                <c:if test="${nServiceProvider.status == 'FOUT'}">
+                                <td>
+                                    <span style="color: red;">
+                                        <c:out value="${nServiceProvider.status}"/>
+                                    </span>
+                                </td>    
+                                </c:if>
+                                <c:if test="${empty nServiceProvider.status}">
+                                <td>&nbsp;</td>
+                                </c:if>
 
-                                    <td>
-                                        <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
-                                            <c:out value="${nServiceProvider.givenName}"/>
-                                        </html:link>
-                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
-                                    </td>
-                                    <td>
-                                        <c:out value="${nServiceProvider.abbr}"/>
-                                    </td>
-                                    <td>
-                                        <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                                <td>
+                                    <html:link page="/server.do?edit=submit&id=${nServiceProvider.id}">
+                                        <c:out value="${nServiceProvider.givenName}"/>
+                                    </html:link>
+                                </td>
+                                <td>
+                                    <c:out value="${nServiceProvider.abbr}"/>
+                                </td>
+                                <td>
+                                    <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
                 
                 <c:forEach var="nServiceProvider" varStatus="status" items="${serviceproviderlist}">
                 <div id="infoLabel${nServiceProvider.id}" class="infoLabelClass">
@@ -103,15 +100,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <strong><fmt:message key="beheer.server.table.datumupdate" />:</strong> <fmt:formatDate pattern="dd-MM-yyyy" value="${nServiceProvider.updatedDate}"/>
                 </div>
                 </c:forEach>
-
-                <script type="text/javascript">
-                    tablepager(
-                        'server_table',
-                        '930',
-                        '14',
-                        false
-                    );
-                </script>
             </c:when>
             <c:otherwise>
                 <fmt:message key="beheer.server.geenbeschikbaar" />
@@ -187,7 +175,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <br/><br/>
                         <c:choose>
                             <c:when test="${save || delete}">
-                                <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                                <html:submit property="confirm" accesskey="o" styleClass="knop">
                                     <fmt:message key="button.ok"/>
                                 </html:submit>
                             </c:when>
@@ -205,7 +193,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </html:submit>
                             </c:otherwise>
                         </c:choose>
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                             <fmt:message key="button.cancel"/>
                         </html:cancel>
                     </div>

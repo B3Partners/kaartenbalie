@@ -24,24 +24,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 
-<html:html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="nl"> <![endif]-->
+<!--[if IE 7]> <html class="lt-ie9 lt-ie8" lang="nl"> <![endif]-->
+<!--[if IE 8]> <html class="lt-ie9" lang="nl"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="nl"> <!--<![endif]-->
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title><fmt:message key="kaartenbalie.title" /></title>
-        <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
-        <link href="<html:rewrite page='/styles/b3p.css' module='' />" type="text/css" rel="stylesheet" />
-        <!--[if IE 6]>
-        <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
-        <![endif]-->
-        <!--[if IE 7]>
-        <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
-        <![endif]-->
+        <link href="<html:rewrite page='/styles/gisviewer_base.css' module='' />" rel="stylesheet" type="text/css">
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
         <SCRIPT LANGUAGE="JavaScript" SRC="../js/tabcontainer.js"></SCRIPT>
     </head>
-    <body style="background-color:#FFFFFF;">
+    <body class="cleantemplate">
         <tiles:insert definition="common.actionMessages"/>
         <tiles:insert name='content'/>
     </body>
-</html:html>
+</html>

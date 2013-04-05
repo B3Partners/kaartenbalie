@@ -1,0 +1,203 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    border: 0px none;
+}
+
+#wrapper {
+    height: auto;
+    min-height: 100%;
+    width: 100%;
+    min-width: $content-width;
+}
+
+#header {
+    height: $header-height;
+    width: 100%;
+}
+
+#header_content {
+    width: $content-width;
+    @include center-textleft;
+}
+
+#topmenu {
+    float: $menu-float;
+    margin-top: $menu-margin-top;
+}
+
+#content_normal {
+    min-height: 500px;
+    width: 100%;
+    display: block;
+    padding-bottom: $footer-height;
+}
+
+#content {
+    width: $content-width - (2 * $content-padding);
+    padding: $content-padding;
+    @include center-textleft;
+    @include clearfix;
+}
+
+#footer {
+    clear: both;
+    margin-top: -$footer-height;
+    height: $footer-height;
+    width: 100%;
+}
+
+#footer_content {
+    width: $content-width;
+    @include center-textleft;
+}
+
+#footer_tekst_links {
+    float: left;
+}
+
+#footer_tekst_rechts {
+    float: right;
+    margin-right: 125px;
+}
+
+.footer_tekst a.gpl_link{
+    color: #7891A5;
+    font-size: 11px;
+    margin-top: 18px;
+    text-decoration: underline;
+}
+
+#acknowledge {
+    @include message($message_acknowledge_border, $message_acknowledge_background, $message_acknowledge_icon);
+}
+
+#error {
+    @include message($message_error_border, $message_error_background, $message_error_icon);
+}
+
+.infobalk {
+    height: 20px;
+    padding-top: 3px;
+    margin: 0px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 8px;
+    width: 940px;
+    padding-left: 10px;
+}
+
+.infobalk .infobalk_description {
+    text-align: left;
+    width: 150px;
+    float: left;
+}
+
+.infobalk .infobalk_actions {
+    text-align: right;
+    width: 780px;
+    float: left;
+    margin-top: 1px;
+}
+
+#popupWindow {
+    position: absolute;
+    z-index: 110;
+    left: 5%;
+    bottom: 20px;
+    width: 90%;
+    height: 20%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#tabContainer 
+
+#tabContainer 
+
+#tabContainer 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*************Balloon css:***************/
+
+
+/*Balloon Arrows*/
+
+
+
+
+
+
+
+
+
+/*Balloon Content*/
+
+
+
+/*Slider*/
+.slider{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+
+
+/* OpenLayers */

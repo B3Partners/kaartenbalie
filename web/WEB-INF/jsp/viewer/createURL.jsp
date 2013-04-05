@@ -161,7 +161,7 @@ function doCustomSubmit(){
     <html:hidden property="registeredIP" styleId="registeredIP"/>
     <input type="hidden" id="hiddenSaveField"/>
     
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
         <H1><fmt:message key="viewer.createUrl.title" /></H1>
         <P>
             <fmt:message key="viewer.createUrl.body" />
@@ -291,7 +291,7 @@ function doCustomSubmit(){
             </c:otherwise>
         </c:choose>
     </div>
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         &nbsp;
     </div>
     

@@ -1,0 +1,64 @@
+@import "fonts";
+
+#content {
+    @include border-radius(8px);
+    @include box-shadow(0 0 4px 2px #e5e5e5);
+    width: 960px;
+    border-bottom: 0px none;
+    .lt-ie9 & {
+        border: 1px solid #e5e5e5;
+    }
+}
+
+#footer {
+    #footer_content {
+        border-top: 1px solid #c5c5c5;
+    }
+    .footer_tekst {
+        color: #858585;
+    }
+    #footer_tekst_rechts {
+        text-align: right;
+        margin-right: 0px;
+    }
+}
+
+#topmenu {
+    margin-right: -25px;
+}
+
+.menulink, .activemenulink, a.menulink:hover, a.activemenulink:hover {
+    @include border-bottom-radius(6px);
+    margin-left: 0px;
+    font-weight: 400;
+    font-family: 'Open Sans';
+    font-size: 14px;
+    text-decoration: none;
+    border-right: 1px solid $basefont-color;
+}
+
+a.activemenulink {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+h1 {
+    font-family: 'aniversregular';
+    font-size: 30px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    img {
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+}
+
+input::-moz-focus-inner {
+    border: 0px;
+    padding: 0px;
+}
+input, label, a.again {
+    font-family: "Open Sans";
+    font-weight: bold;
+    font-size: 12px;
+}

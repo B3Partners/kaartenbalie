@@ -67,6 +67,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:submit property="save" accesskey="s" styleClass="knop">
         <fmt:message key="button.save"/>
     </html:submit>
-    <html:cancel/>
+    <html:cancel styleClass="knop" />
 </html:form>
 

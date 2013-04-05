@@ -21,40 +21,41 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<H1><fmt:message key="algemeen.index.title" /></H1>
-<table>
-    <tr><td valign="top">
-            <div id="inleiding" style="float: left;">
-                <p>
-                    <fmt:message key="algemeen.index.inleiding.deel1" />
-                </p>
-                <p>
-                    <fmt:message key="algemeen.index.inleiding.deel2" />
-                </p>
-                <p>
-                    <fmt:message key="algemeen.index.inleiding.deel3" />
-                </p>
-            </div>
-            
-        </td><td valign="top">
-            &nbsp;&nbsp;
-        </td><td valign="top">
-            <dl>
-                <dt><b><fmt:message key="algemeen.index.beheer.title" /></b></dt>
-                <dd><fmt:message key="algemeen.index.beheer.body" /></dd>
-                <dt><b><fmt:message key="algemeen.index.extra.title" /></b></dt>
-                <dd><fmt:message key="algemeen.index.extra.body" /></dd>
-                <dt><b><fmt:message key="algemeen.index.persoonlijk.title" /></b></dt>
-                <dd><fmt:message key="algemeen.index.persoonlijk.body" /></dd>
-                <dt><b><fmt:message key="algemeen.index.metadataeditor.title" /></b></dt>
-                <dd><fmt:message key="algemeen.index.metadataeditor.body" /></dd>
-                <dt><b><fmt:message key="algemeen.index.viewer.title" /></b></dt>
-                <dd><fmt:message key="algemeen.index.viewer.body" /></dd>
-            </dl>
-            
-    </td></tr>
-</table>
+<div class="content_body">
+    <h1><fmt:message key="algemeen.index.title" /></h1>
+    <table>
+        <tr><td valign="top">
+                <div id="inleiding" style="float: left;">
+                    <p>
+                        <fmt:message key="algemeen.index.inleiding.deel1" />
+                    </p>
+                    <p>
+                        <fmt:message key="algemeen.index.inleiding.deel2" />
+                    </p>
+                    <p>
+                        <fmt:message key="algemeen.index.inleiding.deel3" />
+                    </p>
+                </div>
 
+            </td><td valign="top">
+                &nbsp;&nbsp;
+            </td><td valign="top">
+                <dl>
+                    <dt><b><fmt:message key="algemeen.index.beheer.title" /></b></dt>
+                    <dd><fmt:message key="algemeen.index.beheer.body" /></dd>
+                    <dt><b><fmt:message key="algemeen.index.extra.title" /></b></dt>
+                    <dd><fmt:message key="algemeen.index.extra.body" /></dd>
+                    <dt><b><fmt:message key="algemeen.index.persoonlijk.title" /></b></dt>
+                    <dd><fmt:message key="algemeen.index.persoonlijk.body" /></dd>
+                    <dt><b><fmt:message key="algemeen.index.metadataeditor.title" /></b></dt>
+                    <dd><fmt:message key="algemeen.index.metadataeditor.body" /></dd>
+                    <dt><b><fmt:message key="algemeen.index.viewer.title" /></b></dt>
+                    <dd><fmt:message key="algemeen.index.viewer.body" /></dd>
+                </dl>
+
+        </td></tr>
+    </table>
+</div>
 <div>
     <c:if test="${pageContext.request.remoteUser != null}">
         <fmt:message key="algemeen.index.ingelogdals" />: <c:out value="${pageContext.request.remoteUser}"/> | <html:link page="/logout.do" module=""><fmt:message key="algemeen.index.uitloggen" /></html:link>

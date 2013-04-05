@@ -26,8 +26,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <c:set var="action" value="${form.map.action}"/>
 <c:set var="id" value="${form.map.id}"/>
 
-<script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
 <script type="text/javascript" src="<html:rewrite page='/js/beheerJS.js' module='' />"></script>
 
 <script type="text/javascript">
@@ -57,7 +55,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <li id="new"  onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.editpricing.tab.nieuw" /></a></li>
                 </ul>
             </div>
-            <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
             <div id="sheets">
                 <div id="pricing" class="sheet">  
                     <label><fmt:message key="beheer.editpricing.serviceprovider" /> :</label> ${spName} <br/>

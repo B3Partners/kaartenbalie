@@ -37,58 +37,50 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <html:hidden property="alt_action"/>
     <html:hidden property="id" />
 
-    <div class="containerdiv" style="float: left; clear: none;">
+    <div class="containerdiv">
 
         <H1><fmt:message key="beheer.organization.title" /></H1>
 
         <c:choose>
             <c:when test="${!empty organizationlist}">
-                <div style="height: 325px;">
-
-                    <c:set var="hoogte" value="${(fn:length(organizationlist) * 28) + 28}" />
-                    <c:if test="${hoogte > 400}">
-                        <c:set var="hoogte" value="400" />
-                    </c:if>
-
-                    <table id="server_table" class="tablesorter">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%;"><fmt:message key="beheer.organization.table.naam" /></th>
-                                <th style="width: 25%;"><fmt:message key="beheer.organization.table.adres" /></th>
-                                <th style="width: 10%;"><fmt:message key="beheer.organization.table.plaats" /></th>
-                                <th style="width: 15%;"><fmt:message key="beheer.organization.table.telefoon" /></th>
-                                <th style="width: 30%;"><fmt:message key="beheer.organization.table.bbox" /></th>
+                <table id="server_table" class="dataTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;"><fmt:message key="beheer.organization.table.naam" /></th>
+                            <th style="width: 25%;"><fmt:message key="beheer.organization.table.adres" /></th>
+                            <th style="width: 10%;"><fmt:message key="beheer.organization.table.plaats" /></th>
+                            <th style="width: 15%;"><fmt:message key="beheer.organization.table.telefoon" /></th>
+                            <th style="width: 30%;"><fmt:message key="beheer.organization.table.bbox" /></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
+                            <c:url var="link" value="/beheer/organization.do?edit=submit&id=${nOrganization.id}" />
+                            <c:set var="id_selected" value='' />
+                            <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value=' class="row_selected"' /></c:if>
+                            <tr data-link="${link}"${id_selected} onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});">
+                                <td>
+                                    <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
+                                        <c:out value="${nOrganization.name}"/>
+                                    </html:link>
+                                    <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
+                                </td>
+                                <td>
+                                    <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${nOrganization.province}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${nOrganization.telephone}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${nOrganization.bbox}"/>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
-                                <c:url var="link" value="/beheer/organization.do?edit=submit&id=${nOrganization.id}" />
-                                <c:set var="id_selected" value='' />
-                                <c:if test="${nOrganization.id == mainid}"><c:set var="id_selected" value='selected' /></c:if>
-                                <tr onmouseover="showLabel(${nOrganization.id})" onmouseout="hideLabel(${nOrganization.id});"${id_selected}>
-                                    <td>
-                                        <html:link page="/organization.do?edit=submit&id=${nOrganization.id}">
-                                            <c:out value="${nOrganization.name}"/>
-                                        </html:link>
-                                        <input type="hidden" name="link" value="${link}" /><input type="hidden" name="selected" value="${id_selected}" />
-                                    </td>
-                                    <td>
-                                        <c:out value="${nOrganization.street}"/>&nbsp;<c:out value="${nOrganization.number}"/><c:out value="${nOrganization.addition}"/>
-                                    </td>
-                                    <td>
-                                        <c:out value="${nOrganization.province}"/>
-                                    </td>
-                                    <td>
-                                        <c:out value="${nOrganization.telephone}"/>
-                                    </td>
-                                    <td>
-                                        <c:out value="${nOrganization.bbox}"/>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
+                        </c:forEach>
+                    </tbody>
+                </table>
 
                 <c:forEach var="nOrganization" varStatus="status" items="${organizationlist}">
                     <div id="infoLabel${nOrganization.id}" class="infoLabelClass">
@@ -100,14 +92,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <strong><fmt:message key="beheer.organization.table.telefoon" />:</strong> <c:out value="${nOrganization.telephone}"/>
                     </div>
                 </c:forEach>
-                <script type="text/javascript">
-                    tablepager(
-                    'server_table',
-                    '930',
-                    '14',
-                    false
-                );
-                </script>
             </c:when>
             <c:otherwise>
                 <fmt:message key="beheer.organization.geenbeschikbaar" />
@@ -115,7 +99,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         </c:choose>
     </div>
 
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 500px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         <c:choose>
             <c:when test="${action != 'list'}">
                 <div class="serverDetailsClass">
@@ -185,7 +169,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <div class="knoppen">
                         <c:choose>
                             <c:when test="${save || delete}">
-                                <html:submit property="confirm" accesskey="o" styleClass="knop" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                                <html:submit property="confirm" accesskey="o" styleClass="knop">
                                     <fmt:message key="button.ok"/>
                                 </html:submit>
                             </c:when>
@@ -203,7 +187,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </html:submit>
                             </c:otherwise>
                         </c:choose>
-                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true" onmouseover="this.className='knopover';" onmouseout="this.className='knop';">
+                        <html:cancel accesskey="c" styleClass="knop" onclick="bCancel=true">
                             <fmt:message key="button.cancel"/>
                         </html:cancel>
                     </div>
@@ -220,7 +204,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         </c:choose>
     </div>
 
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         &nbsp;
     </div>
 

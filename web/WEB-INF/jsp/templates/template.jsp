@@ -24,34 +24,23 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 
-<html:html>
+<!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7" lang="nl"> <![endif]-->
+<!--[if IE 7]> <html class="lt-ie9 lt-ie8" lang="nl"> <![endif]-->
+<!--[if IE 8]> <html class="lt-ie9" lang="nl"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="nl"> <!--<![endif]-->
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <META HTTP-EQUIV="Expires" CONTENT="-1" />
         <META HTTP-EQUIV="Cache-Control" CONTENT="max-age=0, no-store" />
         
         <title><tiles:insert name='title'/> - <fmt:message key="kaartenbalie.title" /></title>
-        <link href="<html:rewrite page='/styles/main.css' module='' />" rel="stylesheet" type="text/css">
-        <link href="<html:rewrite page='/styles/b3p.css' module='' />" type="text/css" rel="stylesheet" />
-        <link href="<html:rewrite page='/styles/tablesorter-style.css' module='' />" type="text/css" rel="stylesheet" />
-		<link rel="stylesheet" type="text/css" href="<html:rewrite page='/styles/superfish.css' module='' />"/>
-        <!--[if IE 6]>
-        <link href="<html:rewrite page='/styles/main-ie6.css' module='' />" rel="stylesheet" type="text/css">
-        <![endif]-->
-        <!--[if IE 7]>
-        <link href="<html:rewrite page='/styles/main-ie7.css' module='' />" rel="stylesheet" type="text/css">
-        <![endif]-->
-		<!--[if IE 8]>
-        <link href="<html:rewrite page='/styles/main-ie8.css' module='' />" rel="stylesheet" type="text/css">
-        <![endif]-->
+        <link href="<html:rewrite page='/styles/gisviewer_base.css' module='' />" rel="stylesheet" type="text/css">
         <script language="JavaScript" type="text/JavaScript" src="<html:rewrite page='/js/validation.jsp' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/tabcontainer.js' module=''/>"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/table.js' module=''/>"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/jquery-1.3.2.min.js' module=''/>"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/tablesort.js' module=''/>"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/hoverIntent.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/jquery-1.5.1.min.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/jquery.dataTables.min.js' module=''/>"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/commonfunctions.js' module=''/>"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/jquery.bgiframe.min.js' module=''/>"></script>
-		<script type="text/javascript" src="<html:rewrite page='/js/superfish.js' module=''/>"></script>
         <script language="JavaScript" type="text/JavaScript">
             function hidePopup()
             {
@@ -93,58 +82,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     </head>
     <body>
         <div id="transdiv" onclick="hidePopup();">
-            
             <div id="container">
                 <iframe name="popupframe" id="popupframe" src="about:blank" frameborder="0" style="width:100%;height:100%"></iframe>
             </div>
-        </div>        
-        <div id="bodycontent">
-            <!-- <div id="banner">
-                BEGIN header
-                <%-- tiles:insert name='top'/ --%>
-                END header
-            </div> -->
-            <div id="balk">
-                <div id="banner">
-                    <!-- BEGIN header -->
-                    <tiles:insert name='top'/>
-                    <!-- END header -->
-                </div>
-                <div id="menudiv">
-                    <!-- BEGIN menu -->
-                    <tiles:insert name='menu'/>
-                    <!-- END menu -->
-                </div>
-            </div>
-            
-            <div id="content">
-                <div id="content_c">
-                    <!-- BEGIN content -->		
+        </div>
+        <div id="wrapper">
+            <div id="header"><div id="header_content"><tiles:insert attribute="menu" /></div></div>
+            <div id="content_normal">
+                <div id="content">
                     <tiles:insert definition="common.actionMessages"/>
                     <tiles:insert name='content'/>
-                    <!-- END content -->
                 </div>
             </div>
-            
-            <div id="footer">
-                <!--[if IE 7]>
-                    <div id="footerholder">
-                <![endif]-->
-                
-                
-                <div id="initiatief">
-                        <div id="footer_tekst_rechts" class="footer_tekst">B3P GIS Suite 4.0</div>
-                </div>
-                <div id="copyright">
-                    <div id="footer_tekst_links" class="footer_tekst">This program is distributed under the terms of the <a class="gpl_link" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a></div>
-                </div>
-                
-                <!--[if IE 7]>
-                    </div>
-                <![endif]-->
+        </div>
+        <div id="footer">
+            <div id="footer_content">
+                <div id="footer_tekst_links" class="footer_tekst">This program is distributed under the terms of the <a class="gpl_link" href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a></div>
+                <div id="footer_tekst_rechts" class="footer_tekst">B3P GIS Suite 4.0</div>
             </div>
         </div>
         <tiles:insert definition="common.googleAnalytics"/>        
     </body>
-</html:html>
+</html>
 

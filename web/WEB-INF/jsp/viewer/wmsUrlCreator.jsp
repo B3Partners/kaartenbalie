@@ -42,7 +42,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     
     <c:choose>
         <c:when test="${not empty persUrl}">
-            <div class="containerdiv" style="float: left; clear: none; margin-bottom: 15px;">
+            <div class="containerdiv" style="margin-bottom: 15px;">
                 <H1><fmt:message key="viewer.wmsurlCreator.title" /></H1>
                 <fmt:message key="viewer.wmsurlCreator.body" />
             </div>    
@@ -214,7 +214,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             
         </c:when>
         <c:otherwise>
-            <div class="containerdiv" style="float: left; clear: none;">
+            <div class="containerdiv">
                 <H1><fmt:message key="viewer.wmsurlCreator.title" /></H1>
                 <P>
                     <fmt:message key="viewer.wmsurlCreator.body2" />
@@ -222,7 +222,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </div>
         </c:otherwise>
     </c:choose> 
-    <div id="groupDetails" style="clear: left; padding-top: 15px; height: 10px;" class="containerdiv">
+    <div id="groupDetails" style="clear: left; padding-top: 15px;" class="containerdiv">
         &nbsp;
     </div>
 </html:form>

@@ -22,9 +22,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 <html:javascript formName="reportingForm" staticJavascript="false"/>
 
-<script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
-
 <div id="calDiv" style="position:absolute; visibility:hidden; background-color:white;"></div>
 <script language="JavaScript" type="text/javascript" src="<html:rewrite page='/js/calendar/CalendarPopup.js' module='' />"></script>
 <link rel="stylesheet" type="text/css" media="all" href="<html:rewrite page='/styles/calendar/calendar-style.css' module='' />" title="calendar-style" />
@@ -112,10 +109,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             <c:when test="${fn:length(reports) > 0}">
                 <html:submit property="refresh" styleClass="submit" onclick="bCancel=true">Vernieuw</html:submit>
                 <html:submit property="delete" styleClass="submit" styleId="removeChecked" onclick="bCancel=true">Verwijder geselecteerd</html:submit>
-                <table id="reportTable" style="padding:0px; margin:0px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
+                <table id="reportTable" style="padding:0px; margin:0px; margin-top: 15px; border-collapse: collapse; margin-left: 10px;" class="table-stripeclass:table_alternate_tr">
                     <thead>
                         <tr class="serverRijTitel">
-                            <th align="center" style="width: 30px; height:14px;"><input type="checkbox" onclick="checkAll(1,this);"/></th>
+                            <th style="width: 30px; height:14px; text-align: center;"><input type="checkbox" onclick="checkAll(1,this);"/></th>
                             <th style="width: 170px;"><fmt:message key="beheer.reporting.table.tijdstip" /></th>
                             <th style="width: 170px;"><fmt:message key="beheer.reporting.table.naam" /></th>
                             <th style="width: 120px;"><fmt:message key="beheer.reporting.table.begindatum" /></th>
@@ -126,7 +123,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <tbody>
                         <c:forEach var="report" items="${reports}">
                             <tr>
-                                <td align="center">
+                                <td style="text-align: center;">
                                     <html:checkbox property="deleteReport" value="${report.id}"/>
                                 </td>
                                 <td>

@@ -21,8 +21,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
 
-<script type="text/javascript" src="<html:rewrite page="/js/niftycube.js" module="" />"></script>
-<link rel="stylesheet" type="text/css" href="<html:rewrite page="/styles/niftyCorners.css" module="" />">
 <c:set var="form" value="${accountingForm.map}"/>
 
 <H1><fmt:message key="beheer.accounting.title" /></H1>
@@ -52,13 +50,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 </html:form>
 <div class="tabcollection" id="accountCollection" style="margin-bottom: 15px; margin-top: 15px;">
     <div id="tabs">
-        <ul id="tabul" style="width: 650px;">
-            <li id="Withdrawals" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.laatsteafboekingen" /></a></li>            
-            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.laatstebijboekingen" /></a></li>
-            <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#" style="width: 200px;"><fmt:message key="beheer.accounting.accountdetails" /></a></li>
+        <ul id="tabul">
+            <li id="Withdrawals" onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.accounting.laatsteafboekingen" /></a></li>            
+            <li id="Deposits" onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.accounting.laatstebijboekingen" /></a></li>
+            <li id="AccountDetails" onclick="displayTabBySource(this);"><a href="#"><fmt:message key="beheer.accounting.accountdetails" /></a></li>
         </ul>
     </div>
-    <script type="text/javascript">Nifty("ul#tabul a","medium transparent top");</script>
     <div id="sheets" style="height:500px;">
         <div id="AccountDetails" class="sheet">
             <fmt:message key="beheer.accounting.creditoverzicht" />:

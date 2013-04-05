@@ -20,24 +20,32 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 --%>
 <%@include file="/WEB-INF/jsp/taglibs.jsp" %>
-<fmt:message key="algemeen.invalidLogin.loginfault" />
-<form action="j_security_check" method='post' >
-    <div class="item">
-        <fmt:message key="algemeen.username"/>:
-    </div>
-    <div class="value">
-        <input type="text" name="j_username">
-    </div>
-    <div class="item">
-        <fmt:message key="algemeen.password"/>:
-    </div>
-    <div class="value">
-        <input type="password" name="j_password">
-    </div>
-    <html:submit property="login" styleClass="knop">
-        <fmt:message key="button.login"/>
-    </html:submit>
-</form>
+
+<div class="infobalk">
+    <div class="infobalk_description"><fmt:message key="algemeen.login.title"/></div>
+    <div class="infobalk_actions"></div>
+</div>
+<div class="content_body">
+    <h1>Inloggen</h1>
+    <fmt:message key="algemeen.invalidLogin.loginfault" />
+    <form action="j_security_check" method='post' >
+        <div class="item">
+            <fmt:message key="algemeen.username"/>:
+        </div>
+        <div class="value">
+            <input type="text" name="j_username">
+        </div>
+        <div class="item">
+            <fmt:message key="algemeen.password"/>:
+        </div>
+        <div class="value">
+            <input type="password" name="j_password">
+        </div>
+        <html:submit property="login" styleClass="knop">
+            <fmt:message key="button.login"/>
+        </html:submit>
+    </form>
+</div>
 <script type="text/javascript" language="JavaScript">
     <!--
     var focusControl = document.forms[0].elements["j_username"];
