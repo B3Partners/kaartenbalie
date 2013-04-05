@@ -90,6 +90,12 @@ $submenu-text-color: #FFFFFF; // Tekstkleur submenu
 $submenu-border: 0px none; // Border rondom submenu
 $submenu-rounderborder: true; // Boolean for rounder borders on submenu
 $submenu-arrow-img: url(../images/solutionparc-design/menuarrow.png);
+/* Kaartenbalie tabs */
+$tab-background-color: $menu-background-color; // Tabs op bijv. accounting page
+$tab-text-color: $menu-text-color; // Tabs op bijv. accounting page
+$tab-hoverbackground-color: $activemenu-background-color; // Tabs op bijv. accounting page
+$tab-hovertext-color: $solparc-blue; // Tabs op bijv. accounting page
+$tab-border-color: $menu-background-color; // Border van tabcontent op bijv. accounting page
 /* Panelcontrols */
 $panelcontrol-icon-leftright: url(../images/icons/panel_leftright_white.png); // Plaatje voor open/dichtklappen van panelen bij de viewer
 $panelcontrol-icon-bottom: url(../images/icons/panel_updown_white.png); // Plaatje voor open/dichtklappen van panelen bij de viewer
