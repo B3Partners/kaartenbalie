@@ -72,6 +72,18 @@ function itemClick(item) {
     treeview_toggleItemChildren(DOMItemId);
 }
 
+getIEVersionNumber = function() {
+    var ua = navigator.userAgent;
+    var MSIEOffset = ua.indexOf("MSIE ");
+    if (MSIEOffset == -1) {
+        return -1;
+    } else {
+        return parseFloat(ua.substring(MSIEOffset + 5, ua.indexOf(";", MSIEOffset)));
+    }
+}
+
+var ieVersion = getIEVersionNumber();
+
 function createLabel(container, item) {
     var div = document.createElement("div");
     var label = document.createElement("label");
