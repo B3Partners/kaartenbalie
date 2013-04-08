@@ -154,6 +154,21 @@ public class WMSParser extends WmsWfsParser {
         }
 
         Set layerSet = newServiceProvider.getAllLayers();
+        
+        /* Komt eigenlijk alleen maar voor als er dubbele layer names in de
+         * mapfile zitten of als map name hetzelfde is als een layer name. Eerst
+         * kreeg je dan hier een NPE.
+         */
+        if (layerSet == null) {
+            String error_duplicate = "Controleer het mapserver bestand en kijk of"
+                    + " er geen dubbele LAYER NAMES in voorkomen. De MAP NAME mag"
+                    + " ook niet hetzelfde zijn als een LAYER NAME.";
+            
+            log.error(error_duplicate);
+            
+            throw new Exception(error_duplicate);
+        }
+        
         Iterator dwIter = layerSet.iterator();
 
         while (dwIter.hasNext()) {
