@@ -102,7 +102,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <div id="footer_tekst_rechts" class="footer_tekst">B3P GIS Suite 4.0</div>
             </div>
         </div>
-        <tiles:insert definition="common.googleAnalytics"/>        
+        <tiles:insert definition="common.googleAnalytics"/>
+        <!--[if lte IE 7]>
+        <script type="text/javascript">
+            $("#header_content").find(".menu").children('li').each(function() {
+                $(this).width($(this).find("a").outerWidth());
+            });
+            $("#header_content").find(".menu").css('visibility', 'visible');
+        </script>
+        <![endif]-->
     </body>
 </html>
 
