@@ -29,6 +29,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <!--[if IE 8]> <html class="lt-ie9" lang="nl"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="nl"> <!--<![endif]-->
     <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title><fmt:message key="kaartenbalie.title" /></title>
         <link href="<html:rewrite page='/styles/gisviewer_base.css' module='' />" rel="stylesheet" type="text/css">

@@ -29,6 +29,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 <!--[if IE 8]> <html class="lt-ie9" lang="nl"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="nl"> <!--<![endif]-->
     <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <META HTTP-EQUIV="Expires" CONTENT="-1" />
         <META HTTP-EQUIV="Cache-Control" CONTENT="max-age=0, no-store" />
