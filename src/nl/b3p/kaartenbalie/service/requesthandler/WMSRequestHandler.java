@@ -96,7 +96,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     protected Set getValidLayers(User user, EntityManager em, boolean isAdmin) throws Exception {
 
         Set organizationLayers = new HashSet();
-
         if (isAdmin) {
             List layerlist = em.createQuery("from Layer").getResultList();
             organizationLayers.addAll(layerlist);
@@ -109,8 +108,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     organizationLayers.addAll(org.getLayers());
                 }
             }
-
         }
+
         return organizationLayers;
     }
 
@@ -245,6 +244,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                 while (tlId.hasNext()) {
                     Layer layer = (Layer) tlId.next();
+
                     Layer layerCloned = (Layer) layer.clone();
                     Set authSubLayers = layerCloned.getAuthSubLayersClone(orgLayerIds);
                     // niet toevoegen indien deze layer en alle sublayers niet toegankelijk
@@ -567,7 +567,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
                         client.getConnectionManager().getSchemeRegistry(),
                         ProxySelector.getDefault());
-                
+
                 client.setRoutePlanner(routePlanner);
 
                 HttpGet httpget = new HttpGet(url);
