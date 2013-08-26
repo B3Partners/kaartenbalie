@@ -35,14 +35,17 @@ public class LogoutAction extends Action {
 
     private static final Log log = LogFactory.getLog(LogoutAction.class);
 
+    @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response)
             throws Exception {
 
         HttpSession session = request.getSession();
-        String sesId = session.getId();
-        session.invalidate();
-        log.info("Logged out from session: " + sesId);
+        String sessionId = session.getId();      
+        
+        session.invalidate();        
+        log.debug("Logged out from session: " + sessionId);
+        
         return mapping.findForward("success");
     }
 }
