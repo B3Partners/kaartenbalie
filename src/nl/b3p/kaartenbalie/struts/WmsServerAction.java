@@ -169,6 +169,7 @@ public class WmsServerAction extends ServerAction {
          */
         String username = dynaForm.getString("username");
         String password = dynaForm.getString("password");
+        
         if ((!username.equals("") && password.equals("")) || (username.equals("") && !password.equals(""))) {
             prepareMethod(dynaForm, request, EDIT, LIST);
             addAlternateMessage(mapping, request, MALFORMED_CREDENTIALS_ERRORKEY);

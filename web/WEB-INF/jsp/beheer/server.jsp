@@ -158,21 +158,31 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <td><B><fmt:message key="beheer.password"/>:</B></td>
                             <td><html:text property="password" size="35" /></td>
                         </tr>
+                        
+                        <tr>
+                            <td><b><fmt:message key="service.rechten.groups.label"/></b></td>
+                            <td><html:checkbox styleId="updateRights" property="updateRights" onclick="displayGroupDiv();" /></td>
+                        </tr>
                     </table>
                         
                     <div class="knoppen">
-
+                        
+                        <div id="updateRightsDiv" style="display: none;">
                         <p>
-                            <fmt:message key="service.rechten.groups"/>
+                            <fmt:message key="service.rechten.groups.uitleg"/>
                         </p>
+                        
                         <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
                             <div style="float: left; width: 185px; margin-right: 5px; overflow: hidden;" class="orgDiv">
                                 <html:multibox value="${nOrg.id}" property="orgSelected" styleId="group${nOrg.id}" />
                                 <label for="group${nOrg.id}" style="float: none; padding-right: 0px; text-align: left;"><c:out value="${nOrg.name}" /></label>
                             </div>
                         </c:forEach>
+                        </div>
+                        
                         <div style="clear: both;"></div>
                         <br/><br/>
+                        
                         <c:choose>
                             <c:when test="${save || delete}">
                                 <html:submit property="confirm" accesskey="o" styleClass="knop">

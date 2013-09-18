@@ -64,14 +64,14 @@ public class WMSParser extends WmsWfsParser {
     // <editor-fold defaultstate="" desc="save(ActionMapping mapping, DynaValidatorForm dynaForm, HttpServletRequest request, HttpServletResponse response) method.">
     public String saveProvider(HttpServletRequest request, DynaValidatorForm dynaForm) throws Exception {
         EntityManager em = getEntityManager();
-        
+
         String url = FormUtils.nullIfEmpty(dynaForm.getString("url"));
         Boolean ignoreResource = (Boolean) dynaForm.get("ignoreResource");
 
         /* Get url from form and check ogc parameters */
         OGCRequest ogcu;
         try {
-            ogcu = checkWmsUrl(url.trim());            
+            ogcu = checkWmsUrl(url.trim());
         } catch (Exception e) {
             exception = e;
             return ERROR_INVALID_URL;
@@ -130,7 +130,7 @@ public class WMSParser extends WmsWfsParser {
          checked the box to use own url instead of the one from the service */
         if (ignoreResource != null && ignoreResource) {
             newServiceProvider.setUrl(ogcu.getUrlWithNonOGCparams());
-        }        
+        }
 
         /* Save username and password */
         if (username != null) {
@@ -154,7 +154,7 @@ public class WMSParser extends WmsWfsParser {
         }
 
         Set layerSet = newServiceProvider.getAllLayers();
-        
+
         /* Komt eigenlijk alleen maar voor als er dubbele layer names in de
          * mapfile zitten of als map name hetzelfde is als een layer name. Eerst
          * kreeg je dan hier een NPE.
@@ -163,12 +163,12 @@ public class WMSParser extends WmsWfsParser {
             String error_duplicate = "Controleer het mapserver bestand en kijk of"
                     + " er geen dubbele LAYER NAMES in voorkomen. De MAP NAME mag"
                     + " ook niet hetzelfde zijn als een LAYER NAME.";
-            
+
             log.error(error_duplicate);
-            
+
             throw new Exception(error_duplicate);
         }
-        
+
         Iterator dwIter = layerSet.iterator();
 
         while (dwIter.hasNext()) {
@@ -268,9 +268,12 @@ public class WMSParser extends WmsWfsParser {
         /*
          * geef rechten op alle layers voor aangevinkte groepen
          */
-        String[] orgSelected = dynaForm.getStrings("orgSelected");
+        Boolean updateRights = (Boolean) dynaForm.get("updateRights");
 
-        GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider, em);
+        if (updateRights != null && updateRights) {
+            String[] orgSelected = dynaForm.getStrings("orgSelected");
+            GroupParser.addRightsForAllLayers(orgSelected, newServiceProvider, em);
+        }
 
         if (uploadError != null && !uploadError.equals(OK)) {
             return uploadError;

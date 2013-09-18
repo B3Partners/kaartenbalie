@@ -25,18 +25,20 @@
 var timeout = null;
 function showLabel(objId) {
     var lbl = document.getElementById('infoLabel' + objId);
-    if(lbl) {
+    if (lbl) {
         lbl.style.left = xMousePos + 'px';
         lbl.style.top = yMousePos + 'px';
-        timeout = setTimeout("makeLabelVisible('" + objId  +"')", 200);
+        timeout = setTimeout("makeLabelVisible('" + objId + "')", 200);
     }
 }
 function makeLabelVisible(objId) {
-    if(document.getElementById('infoLabel' + objId)) document.getElementById('infoLabel' + objId).style.display = 'block';
+    if (document.getElementById('infoLabel' + objId))
+        document.getElementById('infoLabel' + objId).style.display = 'block';
 }
 function hideLabel(objId) {
     window.clearTimeout(timeout)
-    if(document.getElementById('infoLabel' + objId)) document.getElementById('infoLabel' + objId).style.display = 'none';
+    if (document.getElementById('infoLabel' + objId))
+        document.getElementById('infoLabel' + objId).style.display = 'none';
 }
 
 xMousePos = 0;
@@ -48,14 +50,14 @@ if (document.layers) {
     document.onmousemove = captureMousePosition;
 } else if (document.getElementById) {
     document.onmousemove = captureMousePosition;
-}        
+}
 function captureMousePosition(e) {
     if (document.layers) {
         xMousePos = e.pageX;
         yMousePos = e.pageY;
     } else if (document.all) {
-        xMousePos = window.event.x+document.body.scrollLeft;
-        yMousePos = window.event.y+document.body.scrollTop;
+        xMousePos = window.event.x + document.body.scrollLeft;
+        yMousePos = window.event.y + document.body.scrollTop;
     } else if (document.getElementById) {
         xMousePos = e.pageX;
         yMousePos = e.pageY;
@@ -68,16 +70,16 @@ function captureMousePosition(e) {
 
 function sortTable(obj) {
     var childs = document.getElementById('topRij').childNodes;
-    for(i = 0; i < childs.length; i++) {
-        if(childs[i].tagName == 'TD' && childs[i] != obj) {
+    for (i = 0; i < childs.length; i++) {
+        if (childs[i].tagName == 'TD' && childs[i] != obj) {
             childs[i].className = "serverRijTitel table-sortable";
         }
     }
-    if(obj.className == "serverRijTitel table-sortable")
+    if (obj.className == "serverRijTitel table-sortable")
         obj.className = "serverRijTitel table-sorted-desc";
-    else if(obj.className == "serverRijTitel table-sorted-asc")
+    else if (obj.className == "serverRijTitel table-sorted-asc")
         obj.className = "serverRijTitel table-sorted-desc";
-    else if(obj.className == "serverRijTitel table-sorted-desc")
+    else if (obj.className == "serverRijTitel table-sorted-desc")
         obj.className = "serverRijTitel table-sorted-asc";
 }
 
@@ -86,14 +88,14 @@ function sortTable(obj) {
 // Used for sorting
 var linkExtract = function(node) {
     var found = false;
-    for(x in node.childNodes) {
+    for (x in node.childNodes) {
         var tmpNode = node.childNodes[x];
-        if(tmpNode.tagName && tmpNode.tagName.toLowerCase() == 'div') {
-            if(tmpNode.hasChildNodes())
+        if (tmpNode.tagName && tmpNode.tagName.toLowerCase() == 'div') {
+            if (tmpNode.hasChildNodes())
             {
-                for(y in tmpNode.childNodes) {
+                for (y in tmpNode.childNodes) {
                     var tmpNode2 = tmpNode.childNodes[y];
-                    if(tmpNode2.tagName && tmpNode2.tagName.toLowerCase() == 'a') {
+                    if (tmpNode2.tagName && tmpNode2.tagName.toLowerCase() == 'a') {
                         return tmpNode2.innerHTML;
                     }
                 }
@@ -101,4 +103,12 @@ var linkExtract = function(node) {
         }
     }
     return node.innerHTML;
+}
+
+function displayGroupDiv() {
+    if ($('#updateRights').is(":checked")) {
+        $('#updateRightsDiv').show();
+    } else {
+        $('#updateRightsDiv').hide();
+    }
 }

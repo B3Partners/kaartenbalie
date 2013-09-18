@@ -90,6 +90,7 @@
             
             <form-property name="uploadFile" type="org.apache.struts.upload.FormFile"/>
             <form-property name="overwrite" type="java.lang.Boolean"/>
+            <form-property name="updateRights" type="java.lang.Boolean"/>
         </form-bean>
 
         <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
