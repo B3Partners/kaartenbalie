@@ -46,7 +46,7 @@
         </web-resource-collection>
         <auth-constraint>
             <role-name>beheerder</role-name>
-            <!-- <role-name>gebruiker</role-name> -->
+            <role-name>gebruiker</role-name>
         </auth-constraint>
     </security-constraint>
 
