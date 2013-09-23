@@ -50,7 +50,7 @@
         </auth-constraint>
     </security-constraint>
 
-    <!-- dit uitzetten indien geen demo -->
+    <!-- dit aanzetten indien geen demo 
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -63,9 +63,9 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
-    </security-constraint>
+    </security-constraint>-->
     
-    <!-- en deze aanzetten indien  demo 
+    <!-- en deze aanzetten indien demo -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
