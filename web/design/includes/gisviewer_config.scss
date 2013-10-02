@@ -341,3 +341,8 @@ td.table-sorted-desc {
     margin-top: 5px;
     margin-bottom: 10px;
 }
+#tree {
+    input[type=checkbox] {
+        float: right;
+    }
+}

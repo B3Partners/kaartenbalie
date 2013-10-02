@@ -161,7 +161,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         
                         <tr>
                             <td><b><fmt:message key="service.rechten.groups.label"/></b></td>
-                            <td><html:checkbox styleId="updateRights" property="updateRights" onclick="displayGroupDiv();" /></td>
+                            <td><html:checkbox styleId="updateRights" property="updateRights" /></td>
                         </tr>
                     </table>
                         
@@ -207,6 +207,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <fmt:message key="button.cancel"/>
                         </html:cancel>
                     </div>
+                    <script type="text/javascript">
+                        $(document).ready(function() {
+                            $('#updateRights').click(function() {
+                                $('#updateRightsDiv').toggle($(this).is(':checked'));
+                            });
+                            $('#updateRightsDiv').toggle($('#updateRights').is(':checked'));
+                        });
+                    </script>
                 </div>
             </c:when>
             <c:otherwise>

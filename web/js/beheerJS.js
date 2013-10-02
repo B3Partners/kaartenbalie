@@ -104,11 +104,3 @@ var linkExtract = function(node) {
     }
     return node.innerHTML;
 }
-
-function displayGroupDiv() {
-    if ($('#updateRights').is(":checked")) {
-        $('#updateRightsDiv').show();
-    } else {
-        $('#updateRightsDiv').hide();
-    }
-}

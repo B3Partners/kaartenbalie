@@ -81,50 +81,16 @@ function createLabel(container, item) {
         currentParent = container.id;
     }
 
-    function getIEVersionNumber() {
-        var ua = navigator.userAgent;
-        var MSIEOffset = ua.indexOf("MSIE ");
-        if (MSIEOffset == -1) {
-            return -1;
-        } else {
-            return parseFloat(ua.substring(MSIEOffset + 5, ua.indexOf(";", MSIEOffset)));
-        }
-    }
-    var vink, ieVersion = getIEVersionNumber();
     if (item.id && item.type == "layer") {
-        /* Voor IE7 */
-        if (ieVersion <= 7 && ieVersion != -1) {
-            var vinkStr = '<input type="checkbox" id="' + item.id + '"';
-
-            if (item.visible == "true") {
-                vinkStr += ' checked="checked"';
-            }
-
-            vinkStr += ' name="selectedLayers"';
-            vinkStr += '>';
-
-            vink = document.createElement(vinkStr);
-
-            vink.value = item.id;
-            vink.className = "layerVink " + currentParent;
-            vink.layerType = item.type;
-        } else {
-
-            vink = document.createElement("input");
-
-            if (item.visible == "true") {
-                vink.checked = true;
-            }
-
-            vink.type = "checkbox";
-            vink.value=item.id;
-            vink.name="selectedLayers";
-            vink.id=item.id;
-            vink.layerType=item.type;
-            vink.className="layerVink " + currentParent;
-        }
-
-        label.appendChild(vink);
+        var vink = $('<input />').attr({
+            'type': 'checkbox',
+            'value': item.id,
+            'id': item.id,
+            'layerType': item.type,
+            'class': "layerVink " + currentParent,
+            'checked': (item.visible == "true")
+        });
+        $(label).append(vink);
     }
 
     div.onclick = function() {
