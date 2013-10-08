@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -53,7 +54,10 @@ import nl.b3p.commons.struts.ExtendedMethodProperties;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.LayerTreeSupport;
+import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.LayerDomainResource;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,10 +69,6 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -186,11 +186,56 @@ public class MetadataAction extends KaartenbalieCrudAction {
             }
 
             layer.setMetadata(metadata);
-
+            
+            // create url to metadata in kaartenbalie
+            //http://localhost:8084/kaartenbalie/services/?SERVICE=METADATA&LAYER=plimverkee_wegdistricten_v
+            StringBuffer baseUrl = CallWMSServlet.createBaseUrl(request);
+            baseUrl.append("/services/?");
+            StringBuffer serviceParams = new StringBuffer();
+            serviceParams.append(OGCConstants.SERVICE);
+            serviceParams.append("=");
+            serviceParams.append(OGCConstants.NONOGC_SERVICE_METADATA);
+            serviceParams.append("&");
+            serviceParams.append(OGCConstants.METADATA_LAYER);
+            serviceParams.append("=");
+            serviceParams.append(layerUniqueName);
+            
+            // check if LayerDomainResource with above url is already present
+            Set ldrs = layer.getDomainResource();
+            LayerDomainResource ldr = null;
+            LayerDomainResource kbLdr = null;
+            if (ldrs != null && ldrs.size() != 0) {
+                Iterator it = ldrs.iterator();
+                while (it.hasNext()) {
+                    ldr = (LayerDomainResource) it.next();
+                    if (ldr.getDomain() == null ||
+                            !"MetadataURL".equalsIgnoreCase(ldr.getDomain())) {
+                        continue;
+                    }
+                    if (ldr.getUrl().contains(serviceParams)) {
+                        kbLdr = ldr;
+                        break;
+                    }
+                }
+            }
+            // add ldr for kb metadata if not present
+            if (kbLdr==null) {
+                ldr = new LayerDomainResource();
+                ldr.setDomain(LayerDomainResource.METADATA_DOMAIN);
+                
+                Set formats = new TreeSet();
+                formats.add("text/xml");
+                ldr.setFormats(formats);
+                
+                ldr.setLayer(layer);
+                ldr.setUrl(baseUrl.append(serviceParams).toString());
+                layer.addDomainResource(ldr);
+            }
+            
             em.merge(layer);
             // flush used because database sometimes doesn't update (merge) quickly enough
             em.flush();
-
+  
             populateMetadataEditorForm(layer, dynaForm, request);
         }
         return getDefaultForward(mapping, request);
