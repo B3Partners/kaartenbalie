@@ -75,8 +75,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-nl.js' module='' />"></script>
         <!-- mde -->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorBasic.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorXslt.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/commonOptions.js' module='' />"></script>
 
         <script type="text/javascript">
