@@ -106,7 +106,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             function putMetadataInDiv() {
                 var xpath = $("#saveStrict").is(":checked") ? "/metadata/gmd:MD_Metadata" : "/metadata";
                 var savedMD = $("#metadataEditor").mde("save", {
-                    xpath: xpath
+                    xpath: xpath,
+                    reloadAfterSave: false // this option gives problems with Google Chrome
                 });
                 $("#metadata").val(Sarissa.escape(savedMD));
             };

@@ -23,12 +23,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 <script type="text/javascript" src="<html:rewrite page='/js/simple_treeview.js' module='' />"></script>
 
-<div class="containerdiv" style="height: 500px;">
+<div class="containerdiv">
     <h1><fmt:message key="beheer.metadata.title" /></h1>
     <div class="mdContainerDiv">
         <div id="tree" class="containerdivFloat"></div>
-        
-        <iframe frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="450"></iframe>
+        <iframe frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="450" style="margin-top: 20px;"></iframe>
     </div>	
 </div>
 
