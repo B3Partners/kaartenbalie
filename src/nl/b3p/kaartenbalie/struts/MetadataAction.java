@@ -204,7 +204,7 @@ public class MetadataAction extends KaartenbalieCrudAction {
             Set ldrs = layer.getDomainResource();
             LayerDomainResource ldr = null;
             LayerDomainResource kbLdr = null;
-            if (ldrs != null && ldrs.size() != 0) {
+            if (ldrs != null && !ldrs.isEmpty()) {
                 Iterator it = ldrs.iterator();
                 while (it.hasNext()) {
                     ldr = (LayerDomainResource) it.next();
