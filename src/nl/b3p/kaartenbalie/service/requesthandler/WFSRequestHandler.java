@@ -225,8 +225,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             String abbr = layerAndCode[0];
             String name = layerAndCode[1];
 
-            if (serviceName != null && !abbr.equalsIgnoreCase(serviceName)) {
-                continue;
+            if (serviceName != null && !serviceName.isEmpty()) {
+                abbr = serviceName;
+                name = layer;
             }
 
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
