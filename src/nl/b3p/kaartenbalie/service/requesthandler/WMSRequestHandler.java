@@ -105,7 +105,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Iterator it = orgs.iterator();
                 while (it.hasNext()) {
                     Organization org = (Organization) it.next();
-                    organizationLayers.addAll(org.getLayers());
+                    Set layerSet = org.getLayers();
+                    Iterator it2 = layerSet.iterator();
+                    while (it2.hasNext()) {
+                        Layer l = (Layer)it2.next();
+                        ServiceProvider sp = l.getServiceProvider();
+                        if (sp==null || (sp != null && sp.getAllowed()))  {
+                            organizationLayers.add(l);
+                        }
+                    }
                 }
             }
         }
@@ -172,7 +180,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 orgLayerIds.add(layer.getId());
                 Layer topLayer = layer.getTopLayer();
                 ServiceProvider sp = layer.getServiceProvider();
-                if (!serviceproviders.contains(sp) && sp.getAllowed()) {
+                if (!serviceproviders.contains(sp)) {
                     if (ServiceProviderCode != null && ServiceProviderCode.equals(sp.getAbbr())) {
                         serviceproviders.add(sp);
 
