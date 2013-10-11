@@ -4,6 +4,7 @@ import general.KaartenbalieTestCase;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import nl.b3p.ogc.utils.OGCCommunication;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -301,7 +302,7 @@ public class LayerPriceCompositionTest extends KaartenbalieTestCase {
          instance.setLayerName(layerName);
          
          String result  = instance.toString();         
-         if( !result.contains("LayerCalculation for '" + serverProviderPrefix + "_" + layerName + "'") ||
+         if( !result.contains("LayerCalculation for '" + OGCCommunication.attachSp(serverProviderPrefix, layerName) + "'") ||
                  !result.contains("on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'") ||
                  !result.contains("The freeState of this layer is '" + layerIsFree + "'") ||
                  !result.contains("The used method is " + method) ||

@@ -2,6 +2,7 @@ package nl.b3p.kaartenbalie.core.webdav;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +35,7 @@ public class MetadataResourceFactory implements ResourceFactory {
     }
 
     public static String createName(Layer l) {
-        return l.getSpAbbr() + "_" + l.getName() + ".xml";
+     
+        return OGCCommunication.attachSp(l.getSpAbbr(), l.getName()) + ".xml";
     }
 }

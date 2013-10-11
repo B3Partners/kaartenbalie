@@ -56,6 +56,7 @@ import nl.b3p.kaartenbalie.service.persistence.WFSProviderDAO;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.*;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
@@ -749,7 +750,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 if (dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")) {
                     layerDescriptionElement.setAttribute("name", descr.getName());
                 } else {
-                    layerDescriptionElement.setAttribute("name", completeLayerName(resp.getWmsPrefix(), descr.getName()));
+                    layerDescriptionElement.setAttribute("name", OGCCommunication.attachSp(resp.getWmsPrefix(), descr.getName()));
                 }
                 descr.getOwsURL();
 
@@ -761,7 +762,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     layerDescriptionElement.setAttribute("owsURL", personalUrl);
 
                     Element queryElement = dom.createElement("Query");
-                    queryElement.setAttribute("typeName", completeLayerName(wfsPrefix, descr.getName())); //this needs to be fixed
+                    queryElement.setAttribute("typeName", OGCCommunication.attachSp(wfsPrefix, descr.getName())); //this needs to be fixed
                     layerDescriptionElement.appendChild(queryElement);
                 }
                 rootElement.appendChild(layerDescriptionElement);
@@ -936,7 +937,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                 if (!tagName.equalsIgnoreCase("ServiceException")) {
                     Node importedNode = destination.importNode(element_source, true);
-                    Node newNode = destination.renameNode(importedNode, importedNode.getNamespaceURI(), spAbbr + "_" + tagName);
+                    Node newNode = destination.renameNode(importedNode, importedNode.getNamespaceURI(), OGCCommunication.attachSp(spAbbr, tagName));
 
                     Element root_destination = destination.getDocumentElement();
                     root_destination.appendChild(newNode);

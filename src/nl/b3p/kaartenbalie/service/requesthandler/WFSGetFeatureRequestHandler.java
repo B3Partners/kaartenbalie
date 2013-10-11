@@ -41,6 +41,7 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -211,7 +212,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             HttpMethod  method = null;
             if (spOgcReq.getHttpMethod().equalsIgnoreCase("POST")) {
 
-                String filter = spOgcReq.getGetFeatureFilter(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
+                String filter = spOgcReq.getGetFeatureFilter(OGCCommunication.attachSp(sp.getSpAbbr(),sp.getLayerName()));
                 if (filter != null) {
                     String version = spOgcReq.getFinalVersion();
                     if (version!=null && version.equals(OGCConstants.WFS_VERSION_100)) {
@@ -224,7 +225,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     }
                     spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
                 }
-                String propertyNames = spOgcReq.getGetFeaturePropertyNameList(completeLayerName(sp.getSpAbbr(),sp.getLayerName()));
+                String propertyNames = spOgcReq.getGetFeaturePropertyNameList(OGCCommunication.attachSp(sp.getSpAbbr(),sp.getLayerName()));
                 if (propertyNames != null) {
                     spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
                 }

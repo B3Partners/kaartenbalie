@@ -16,6 +16,7 @@ import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.Layer;
 
 /**
@@ -110,15 +111,9 @@ public class MetadataFileResource extends MetadataResource implements GetableRes
             log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
-            int pos = uniqueName.indexOf("_");
-            if (pos == -1 || uniqueName.length() <= pos + 1) {
-                throw new Exception("Unique layer name not valid: " + uniqueName);
-            }
-            String spAbbr = uniqueName.substring(0, pos);
-            String layerName = uniqueName.substring(pos + 1);
-            if (spAbbr.length() == 0 || layerName.length() == 0) {
-                throw new Exception("Unique layer name not valid: " + spAbbr + ", " + layerName);
-            }
+            String[] ln = OGCCommunication.toCodeAndName(uniqueName);
+            String spAbbr = ln[0];
+            String layerName = ln[1];
 
             String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
             List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();

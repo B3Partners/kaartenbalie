@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import nl.b3p.kaartenbalie.core.server.User;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
@@ -62,7 +63,7 @@ public class MetadataRequestHandler extends WMSRequestHandler {
         
         // check on ServiceProvideCode in url
         if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
-            mdLayer = dw.getServiceProviderCode()+"_"+mdLayer;
+            mdLayer = OGCCommunication.attachSp(dw.getServiceProviderCode(), mdLayer);
         }
         
         // TODO checken op rechten

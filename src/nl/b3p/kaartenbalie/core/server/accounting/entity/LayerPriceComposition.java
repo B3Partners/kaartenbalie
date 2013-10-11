@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.core.server.accounting.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import nl.b3p.ogc.utils.OGCCommunication;
 
 /**
  *
@@ -192,7 +193,7 @@ public class LayerPriceComposition {
      */
 
     public String toString() {
-        return "LayerCalculation for '" + serverProviderPrefix + "_" + layerName + "'. \n" +
+        return "LayerCalculation for '" + OGCCommunication.attachSp(serverProviderPrefix, layerName)  + "'. \n" +
                 "This calculation took place on " + calculationDate + " for planType '" + planType + "' and units '" + units + "'. \n" +
                 "The total cost of this calculation was " + layerPrice + " credits. \n" +
                 "The freeState of this layer is '" + layerIsFree + "'. \n" +

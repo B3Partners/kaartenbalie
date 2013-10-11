@@ -9,6 +9,7 @@ import javax.persistence.Query;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCCommunication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +102,7 @@ public class WFSProviderDAO extends BaseDAO {
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
     protected SpLayerSummary getValidLayerObjects(String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
-        String[] layerCodeAndName = toCodeAndName(layer);
+        String[] layerCodeAndName = OGCCommunication.toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
 
@@ -137,30 +138,4 @@ public class WFSProviderDAO extends BaseDAO {
 
         return (SpLayerSummary) result.get(0);
     }
-    
-    
-    //TODO: this looks like a generic utility method
-    /**
-     * methode splitst lange layer naam volgens abbr_layer in een service provider
-     * deel (layerCode genoemd) en een echte layer naam (layerName)
-     * <p>
-     * @param completeLayerName lange layer naam
-     * @return straing array met 2 strings: abbr en layer
-     * @throws java.lang.Exception fout in format lange layer naam
-     */
-    protected String[] toCodeAndName(String completeLayerName) throws Exception {
-        // Check of layers[i] juiste format heeft
-        int pos = completeLayerName.indexOf("_");
-        if (pos == -1 || completeLayerName.length() <= pos + 1) {
-            log.error("layer not valid: " + completeLayerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
-        }
-        String layerCode = completeLayerName.substring(0, pos);
-        String layerName = completeLayerName.substring(pos + 1);
-        if (layerCode.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION+ ": "+completeLayerName);
-        }
-        return new String[]{layerCode, layerName};
-    }    
 }

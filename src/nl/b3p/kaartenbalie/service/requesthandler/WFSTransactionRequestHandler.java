@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,6 +38,7 @@ import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -63,7 +65,6 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
         OGCRequest ogcrequest = data.getOgcrequest();
         Integer[] orgIds = user.getOrganizationIds();
 
-        String request = ogcrequest.getParameter(OGCConstants.REQUEST);
         String url = "";
         String prefix = "";
         List layers = ogcrequest.getLayers();
@@ -86,30 +87,26 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 throw new UnsupportedOperationException("Transaction request for more then one serviceprovider is not suported yet!");
             }
             
-            if(spList != null && spList.length > 0){
+            if(spList.length > 0){
                 prefix = spList[0];
-            }else if(hasServiceProviderCode){
-                prefix = serviceProviderCode;
-            }
+             }
 
             List tempList = new ArrayList();
             Iterator it = layers.iterator();
             while (it.hasNext()) {
                 String layer = it.next().toString();
-                String[] temp = layer.split("}");
-                if (temp.length > 1) {
-                    layer = temp[1];
-                }
                 
-                if(serviceProviderCode != null && !serviceProviderCode.equals("")){
-                    if(serviceProviderCode.equals(prefix)){
-                        tempList.add(layer);
-                    }
-                }else{
-                    String[] layerSplit = layer.split("_");
-                    if (layerSplit[0].equals(prefix)) {
-                        tempList.add(layer);
-                    }
+                Map m = OGCCommunication.splitLayerWithoutNsFix(layer);
+                String spAbbr = (String) m.get("spAbbr");
+                String layerName = (String) m.get("layerName");
+                String spLayerName = (String) m.get("spLayerName");
+
+                if (hasServiceProviderCode) {
+                    // geen sp prefix bij sp code in url
+                    tempList.add(spLayerName);
+                } else if (spAbbr.equals(prefix)) {
+                    // alleen toevoegen indien van de zelfde sp
+                    tempList.add(layerName);
                 }
             }
 
@@ -171,10 +168,17 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 Object o = tor.next();
                 if (o instanceof nl.b3p.xml.wfs.v110.Delete) {
                     nl.b3p.xml.wfs.v110.Delete delete = (nl.b3p.xml.wfs.v110.Delete) o;
-                    if(!hasServiceProviderCode){
-                        String[] typeName = delete.getTypeName().split("_");
-                        delete.setTypeName("app:" + typeName[1]);
+                    
+                    Map m = OGCCommunication.splitLayerWithoutNsFix(delete.getTypeName());
+                    String layerName = (String) m.get("layerName");
+                    String spLayerName = (String) m.get("spLayerName");
+                    if (hasServiceProviderCode) {
+                        // geen sp prefix bij sp code in url
+                        delete.setTypeName("app:" + spLayerName);
+                    } else {
+                        delete.setTypeName("app:" + layerName);
                     }
+                    
                     String oldId = delete.getFilter().getGmlObjectId().getId().toString();
                     String[] idSplit = oldId.split(prefix + "_");
                     String newId = "";
@@ -182,13 +186,21 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                         newId += idSplit[i];
                     }
                     delete.getFilter().getGmlObjectId().setId(newId);
+                    
                     newElementList.add(delete);
                 } else if (o instanceof nl.b3p.xml.wfs.v110.Update) {
                     nl.b3p.xml.wfs.v110.Update update = (nl.b3p.xml.wfs.v110.Update) o;
-                    if(!hasServiceProviderCode){
-                        String[] typeName = update.getTypeName().split("_");
-                        update.setTypeName("app:" + typeName[1]);
+                    
+                    Map m = OGCCommunication.splitLayerWithoutNsFix(update.getTypeName());
+                    String layerName = (String) m.get("layerName");
+                    String spLayerName = (String) m.get("spLayerName");
+                    if (hasServiceProviderCode) {
+                        // geen sp prefix bij sp code in url
+                        update.setTypeName("app:" + spLayerName);
+                    } else {
+                        update.setTypeName("app:" + layerName);
                     }
+
                     String oldId = update.getFilter().getGmlObjectId().getId().toString();
                     String[] idSplit = oldId.split(prefix + "_");
                     String newId = "";
@@ -196,6 +208,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                         newId += idSplit[i];
                     }
                     update.getFilter().getGmlObjectId().setId(newId);
+                    
                     newElementList.add(update);
                 } else if (o instanceof nl.b3p.xml.wfs.v110.Insert) {
                     nl.b3p.xml.wfs.v110.Insert insert = (nl.b3p.xml.wfs.v110.Insert) o;
@@ -256,7 +269,11 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(is);
 
-                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                if(hasServiceProviderCode){
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), "");
+                }else{
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                }
                 String responseBody = ogcresponse.getResponseBody(spLayers);
                 if (responseBody != null && !responseBody.equals("")) {
                     byte[] buffer = responseBody.getBytes();

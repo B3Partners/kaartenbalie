@@ -43,11 +43,16 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.ogc.utils.*;
+import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.KBCrypter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import nl.b3p.ogc.utils.OGCCommunication;
+import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.ogc.utils.OgcWfsClient;
 
 abstract public class GeneralServlet extends HttpServlet {
     protected static Log log = null;
@@ -446,8 +451,8 @@ abstract public class GeneralServlet extends HttpServlet {
                 if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
                     String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
                     for (int i = 0; i < layersArray.length; i++) {
-                        if (layersArray[i].indexOf("_") > -1 && layersArray[i].indexOf("_") < layersArray[i].length() - 1) {
-                            String newLayer = layersArray[i].substring(layersArray[i].indexOf("_") + 1);
+                        String newLayer = OGCCommunication.getLayerName(layersArray[i]);
+                        if (newLayer!=null) {
                             sld_body = sld_body.replaceAll("(?i)name>" + layersArray[i] + "<", "Name>" + newLayer + "<");
                         }
                     }

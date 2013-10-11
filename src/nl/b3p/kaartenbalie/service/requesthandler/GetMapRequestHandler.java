@@ -32,6 +32,7 @@ import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
@@ -253,7 +254,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                         Iterator it = layersList.iterator();
                                         while (it.hasNext()) {
                                             String l = (String) it.next();
-                                            String completeName = completeLayerName(spInfo.getSpAbbr(), l);
+                                            String completeName = OGCCommunication.attachSp(spInfo.getSpAbbr(), l);
                                             //TODO: Moet het toegevoegd worden als Style= of als sld                                            
                                             if (completeName.equals(layersArray[j])) {
                                                 String style = styles.get(j);                                                

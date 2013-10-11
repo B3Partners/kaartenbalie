@@ -19,6 +19,7 @@ import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
@@ -75,7 +76,7 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
             while(it.hasNext()){
                 SldNamedLayer nl= it.next();
                 try{
-                    String[] codeAndName=OGCRequestHandler.toCodeAndName(nl.getName());
+                    String[] codeAndName=OGCCommunication.toCodeAndName(nl.getName());
                     if (codeAndName[0].equals(sp.getAbbr())){
                         nl.setName(codeAndName[1]);
                         returnedNamedLayers.add(nl);

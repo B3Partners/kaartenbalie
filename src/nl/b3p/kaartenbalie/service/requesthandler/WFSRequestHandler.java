@@ -36,6 +36,7 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
@@ -221,7 +222,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
 
-            String[] layerAndCode = toCodeAndName(layer);
+            String[] layerAndCode = OGCCommunication.toCodeAndName(layer);
             String abbr = layerAndCode[0];
             String name = layerAndCode[1];
 

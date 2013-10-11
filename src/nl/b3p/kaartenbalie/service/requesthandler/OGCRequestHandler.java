@@ -33,6 +33,7 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
 import org.apache.commons.logging.Log;
@@ -94,7 +95,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {        
-        String[] layerCodeAndName = toCodeAndName(layer);
+        String[] layerCodeAndName = OGCCommunication.toCodeAndName(layer);
         String layerCode = layerCodeAndName[0];
         String layerName = layerCodeAndName[1];
 
@@ -195,7 +196,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
             if (layerInfo == null ) {
                 continue;
             }
-            
+            //TODO cvl
             if ( serviceName != null && !layerInfo.getSpAbbr().equalsIgnoreCase(serviceName) ) {
                 continue;
             }
@@ -357,40 +358,6 @@ public abstract class OGCRequestHandler implements RequestHandler {
         data.getLayeringParameterMap().put(BalanceLayer.creditBalance, new Double(am.getBalance()));
     }
 
-    /**
-     * methode splitst lange layer naam volgens abbr_layer in een service provider
-     * deel (layerCode genoemd) en een echte layer naam (layerName)
-     * <p>
-     * @param completeLayerName lange layer naam
-     * @return straing array met 2 strings: abbr en layer
-     * @throws java.lang.Exception fout in format lange layer naam
-     */
-    public static String[] toCodeAndName(String completeLayerName) throws Exception {
-        // TODO: dit gaat eigenlijk niet goed omdat net als bij wfs
-        // de namespace er weer voor gezet moet worden.
-        // Check of layers[i] juiste format heeft
-        int pos = completeLayerName.indexOf("_");
-        if (pos == -1 || completeLayerName.length() <= pos + 1) {
-            log.error("layer not valid: " + completeLayerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + completeLayerName);
-        }
-        String layerCode = completeLayerName.substring(0, pos);
-        String layerName = completeLayerName.substring(pos + 1);
-        if (layerCode.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + completeLayerName);
-        }
-        return new String[]{layerCode, layerName};
-    }
-
-    protected String completeLayerName(String layerCode, String layerName) throws Exception {
-        if (layerCode == null || layerName == null) {
-            log.error("layer name or code not valid: " + layerCode + ", " + layerName);
-            throw new Exception(KBConfiguration.REQUEST_LAYERNAME_EXCEPTION + ": " + layerCode + ", " + layerName);
-        }
-        return layerCode + "_" + layerName;
-    }
-
     protected Layer getLayerByUniqueName(String uniqueName) throws Exception {
         Object identity = null;
         try {
@@ -398,7 +365,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
             log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
 
-            String[] layerCodeAndName = toCodeAndName(uniqueName);
+            String[] layerCodeAndName = OGCCommunication.toCodeAndName(uniqueName);
             String spAbbr = layerCodeAndName[0];
             String layerName = layerCodeAndName[1];
 
@@ -465,7 +432,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
 
         spInfo.addLayer(layerInfo.getLayerName());
-        spInfo.addStyles(layerInfo.getLayerName(),layerInfo.getStyles(layerInfo.getLayerName()));
+        spInfo.addStyles(layerInfo.getLayerName(), layerInfo.getStyles(layerInfo.getLayerName()));
     }
 
     /**
@@ -489,9 +456,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
             if(serviceProviderCode != null && !serviceProviderCode.equals("")){
                 layerCode = serviceProviderCode;
                 layerName = layers[i];
-                layers[i] = layerCode+"_"+layerName;
+                layers[i] = OGCCommunication.attachSp(layerCode, layerName);
             }else{
-                String[] layerCodeAndName = toCodeAndName(layers[i]);
+                String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
                 layerCode = layerCodeAndName[0];
                 layerName = layerCodeAndName[1];
             }

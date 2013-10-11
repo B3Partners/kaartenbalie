@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import nl.b3p.ogc.wfs.v110.WfsServiceProvider;
 import nl.b3p.wms.capabilities.Layer;
@@ -229,17 +230,9 @@ public class LayerTreeSupport {
     public static Layer getLayerByUniqueName(EntityManager em, String uniqueName) throws Exception {
 
         // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-        }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
+        String[] ln = OGCCommunication.toCodeAndName(uniqueName);
+        String spAbbr = ln[0];
+        String layerName = ln[1];
 
         String query = "from Layer where name = :layerName and serviceProvider.abbr = :spAbbr";
         List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
@@ -265,17 +258,9 @@ public class LayerTreeSupport {
     public static WfsLayer getWfsLayerByUniqueName(EntityManager em, String uniqueName) throws Exception {
 
         // Check of selectedLayers[i] juiste format heeft
-        int pos = uniqueName.indexOf("_");
-        if (pos == -1 || uniqueName.length() <= pos + 1) {
-            log.error("layer not valid: " + uniqueName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + uniqueName);
-        }
-        String spAbbr = uniqueName.substring(0, pos);
-        String layerName = uniqueName.substring(pos + 1);
-        if (spAbbr.length() == 0 || layerName.length() == 0) {
-            log.error("layer name or code not valid: " + spAbbr + ", " + layerName);
-            throw new Exception("Unieke kaartnaam niet geldig: " + spAbbr + ", " + layerName);
-        }
+        String[] ln = OGCCommunication.toCodeAndName(uniqueName);
+        String spAbbr = ln[0];
+        String layerName = ln[1];
 
         String query = "from WfsLayer where name = :layerName and wfsServiceProvider.abbr = :spAbbr";
         List ll = em.createQuery(query).setParameter("layerName", layerName).setParameter("spAbbr", spAbbr).getResultList();
