@@ -390,7 +390,7 @@ public class CallWMSServletTest extends KaartenbalieTestCase {
      */
     private OGCRequest getOGCRequest() {
         OGCRequest ogRequest = new OGCRequest();
-        ogRequest.setHttpHost(this.requestStumb.getServerName());
+        ogRequest.fixHttpHost(this.requestStumb.getServerName());
 
         return ogRequest;
     }

@@ -38,6 +38,7 @@ import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -69,10 +70,11 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
         String prefix = "";
         List layers = ogcrequest.getLayers();
         
-        String serviceProviderCode = data.getServiceProviderCode();
-        boolean hasServiceProviderCode = false;
-        if(serviceProviderCode != null && !serviceProviderCode.equals("")){
-            hasServiceProviderCode = true;
+        //als sp in url dan splitten met splitName = false
+        boolean splitName = true;
+        String spName = ogcrequest.getServiceProviderName();
+        if (spName != null) {
+            splitName = false;
         }
 
         Object identity = null;
@@ -95,17 +97,12 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
             Iterator it = layers.iterator();
             while (it.hasNext()) {
                 String layer = it.next().toString();
-                
-                Map m = OGCCommunication.splitLayerWithoutNsFix(layer);
+                Map m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, spName, null);
                 String spAbbr = (String) m.get("spAbbr");
                 String layerName = (String) m.get("layerName");
-                String spLayerName = (String) m.get("spLayerName");
 
-                if (hasServiceProviderCode) {
-                    // geen sp prefix bij sp code in url
-                    tempList.add(spLayerName);
-                } else if (spAbbr.equals(prefix)) {
-                    // alleen toevoegen indien van de zelfde sp
+                if (spAbbr.equals(prefix) || spAbbr.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
+                    // alleen toevoegen indien van de zelfde sp of b3p layering
                     tempList.add(layerName);
                 }
             }
@@ -137,11 +134,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 if (tlayers == null) {
                     String layerName = sp.getLayerName();
                     HashMap layer = new HashMap();
-                    if(!hasServiceProviderCode){
-                        layer.put("spAbbr", prefix);
-                    }else{
-                        layer.put("spAbbr", ""); 
-                    }
+                    layer.put("spAbbr", prefix);
                     layer.put("layer", layerName);
                     spLayers.add(layer);
                     continue;
@@ -150,11 +143,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 while (it2.hasNext()) {
                     String layerName = (String) it2.next();
                     HashMap layer = new HashMap();
-                    if(!hasServiceProviderCode){
-                        layer.put("spAbbr", prefix);
-                    }else{
-                        layer.put("spAbbr", ""); 
-                    }
+                    layer.put("spAbbr", prefix);
                     layer.put("layer", layerName);
                     spLayers.add(layer);
                 }
@@ -169,45 +158,21 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 if (o instanceof nl.b3p.xml.wfs.v110.Delete) {
                     nl.b3p.xml.wfs.v110.Delete delete = (nl.b3p.xml.wfs.v110.Delete) o;
                     
-                    Map m = OGCCommunication.splitLayerWithoutNsFix(delete.getTypeName());
-                    String layerName = (String) m.get("layerName");
-                    String spLayerName = (String) m.get("spLayerName");
-                    if (hasServiceProviderCode) {
-                        // geen sp prefix bij sp code in url
-                        delete.setTypeName("app:" + spLayerName);
-                    } else {
-                        delete.setTypeName("app:" + layerName);
-                    }
-                    
+                    Map m = OGCCommunication.splitLayerWithoutNsFix(delete.getTypeName(), splitName, null, "app");
+                    delete.setTypeName(OGCCommunication.buildFullLayerName(m));
+                     
                     String oldId = delete.getFilter().getGmlObjectId().getId().toString();
-                    String[] idSplit = oldId.split(prefix + "_");
-                    String newId = "";
-                    for (int i = 0; i < idSplit.length; i++) {
-                        newId += idSplit[i];
-                    }
-                    delete.getFilter().getGmlObjectId().setId(newId);
+                    delete.getFilter().getGmlObjectId().setId(OGCCommunication.replaceIds(oldId, prefix, null));
                     
                     newElementList.add(delete);
                 } else if (o instanceof nl.b3p.xml.wfs.v110.Update) {
                     nl.b3p.xml.wfs.v110.Update update = (nl.b3p.xml.wfs.v110.Update) o;
                     
-                    Map m = OGCCommunication.splitLayerWithoutNsFix(update.getTypeName());
-                    String layerName = (String) m.get("layerName");
-                    String spLayerName = (String) m.get("spLayerName");
-                    if (hasServiceProviderCode) {
-                        // geen sp prefix bij sp code in url
-                        update.setTypeName("app:" + spLayerName);
-                    } else {
-                        update.setTypeName("app:" + layerName);
-                    }
-
+                    Map m = OGCCommunication.splitLayerWithoutNsFix(update.getTypeName(), splitName, null, "app");
+                    update.setTypeName(OGCCommunication.buildFullLayerName(m));
+                    
                     String oldId = update.getFilter().getGmlObjectId().getId().toString();
-                    String[] idSplit = oldId.split(prefix + "_");
-                    String newId = "";
-                    for (int i = 0; i < idSplit.length; i++) {
-                        newId += idSplit[i];
-                    }
-                    update.getFilter().getGmlObjectId().setId(newId);
+                    update.getFilter().getGmlObjectId().setId(OGCCommunication.replaceIds(oldId, prefix, null));
                     
                     newElementList.add(update);
                 } else if (o instanceof nl.b3p.xml.wfs.v110.Insert) {
@@ -215,16 +180,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                     StringWriter sw = new StringWriter();
                     Marshaller m = new Marshaller(sw);
                     m.marshal(insert);
-                    String insertString = sw.toString();
-                    String[] insertSplit = insertString.split(prefix + "_");
-                    String makeInsert = "";
-                    for (int i = 0; i < insertSplit.length; i++) {
-                        if (i < (insertSplit.length - 1)) {
-                            makeInsert += insertSplit[i] + "app:";
-                        } else {
-                            makeInsert += insertSplit[i];
-                        }
-                    }
+                    String makeInsert = OGCCommunication.replaceIds(sw.toString(), prefix, "app");
                     nl.b3p.xml.wfs.v110.Insert newInsert = (nl.b3p.xml.wfs.v110.Insert) Unmarshaller.unmarshal(nl.b3p.xml.wfs.v110.Insert.class, new StringReader(makeInsert));
                     newElementList.add(newInsert);
                 }
@@ -269,11 +225,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 DocumentBuilder builder = dbf.newDocumentBuilder();
                 Document doc = builder.parse(is);
 
-                if(hasServiceProviderCode){
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), "");
-                }else{
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-                }
+                ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
                 String responseBody = ogcresponse.getResponseBody(spLayers);
                 if (responseBody != null && !responseBody.equals("")) {
                     byte[] buffer = responseBody.getBytes();

@@ -72,7 +72,12 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
         Integer[] orgIds = user.getOrganizationIds();
         
-        String serviceProviderCode = data.getServiceProviderCode();
+        //als sp in url dan splitten met splitName = false
+        boolean splitName = true;
+        String spName = ogcrequest.getServiceProviderName();
+        if (spName != null) {
+            splitName = false;
+        }
 
         String layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
         String[] allLayers = layers.split(",");
@@ -83,25 +88,14 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             if (layerMapList == null) {
                 layerMapList = new ArrayList();
             }
-            Map layerMap = new HashMap();
-            if(serviceProviderCode != null && !serviceProviderCode.equals("")){
-                layerMap = ogcrequest.splitLayerInParts(allLayers[i], false);
-                layerMap.put("spAbbr", serviceProviderCode);
-            }else{
-                layerMap = ogcrequest.splitLayerInParts(allLayers[i]);
-            }
             
+            Map layerMap = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
             layerMapList.add(layerMap);
-
-            spLayerNames[i] = (String) layerMap.get("spLayerName");
-
+            spLayerNames[i] = ogcrequest.buildLayerNameWithoutNs(layerMap);
             if (layerParam.length() != 0) {
                 layerParam += ",";
             }
-            if (layerMap.get("prefix") != null) {
-                layerParam += ((String) layerMap.get("prefix")) + ":";
-            }
-            layerParam += (String) layerMap.get("layerName");
+            layerParam += ogcrequest.buildLayerNameWithoutSp(layerMap);
         }
 
          /*
@@ -121,10 +115,9 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             }
         }
 
-        String serviceName  = data.getOgcrequest().getServiceName();
         List spInfo = null;
         if (isAdmin) {
-            spInfo = getLayerSummaries(spLayerNames,serviceName);
+            spInfo = getLayerSummaries(spLayerNames, spName);
         } else {
             spInfo = getSeviceProviderURLS(spLayerNames, orgIds, false, data);
         }
@@ -170,7 +163,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
                 data, spurl, spId, new Long(body.getBytes().length));
 
         String host = spurl;
-        ogcrequest.setHttpHost(host);
+        ogcrequest.setHttpHost(ogcrequest.fixHttpHost(host));
         //probeer eerst met Http getMethod op te halen.
         String reqUrl = ogcrequest.getUrl();
         method = new GetMethod(reqUrl);
@@ -248,8 +241,8 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             String textContent = n.getTextContent();
-            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent);
-            String responseLayerName = (String) responseLayerMap.get("spLayerName");
+            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent, false, null, null);
+            String responseLayerName = (String) responseLayerMap.get("layerName");
             if (responseLayerName == null) {
                 // impossible
                 continue;

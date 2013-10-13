@@ -121,9 +121,10 @@ public class CallScriptingServlet extends GeneralServlet {
                 }
 
                 String iUrl = ogcrequest.getUrl();
+                String pcode = ogcrequest.getPersonalCode();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request);
+                User user = checkLogin(request, pcode);
 
                 if (ogcrequest != null) {
                     ogcrequest.checkRequestURL();
@@ -286,7 +287,7 @@ public class CallScriptingServlet extends GeneralServlet {
      * @throws AccessDeniedException if the user can not be authenticated
      */
     @Override
-    protected User checkLogin(HttpServletRequest request, EntityManager em) throws AccessDeniedException {
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) throws AccessDeniedException {
         User user = (User) request.getUserPrincipal();
 
         if (user != null) {

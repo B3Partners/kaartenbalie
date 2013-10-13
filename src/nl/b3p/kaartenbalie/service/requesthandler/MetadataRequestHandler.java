@@ -62,8 +62,8 @@ public class MetadataRequestHandler extends WMSRequestHandler {
         this.user = user;
         
         // check on ServiceProvideCode in url
-        if(dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")){
-            mdLayer = OGCCommunication.attachSp(dw.getServiceProviderCode(), mdLayer);
+        if(dw.getOgcrequest().getServiceProviderName() != null && !dw.getOgcrequest().getServiceProviderName().equals("")){
+            mdLayer = OGCCommunication.attachSp(dw.getOgcrequest().getServiceProviderName(), mdLayer);
         }
         
         // TODO checken op rechten

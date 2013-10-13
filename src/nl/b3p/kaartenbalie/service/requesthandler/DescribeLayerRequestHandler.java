@@ -67,7 +67,7 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
     	dw.setHeader("Content-Disposition", "inline; filename=\"DescribeLayer.xml\";");
     	
     	this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest(), dw.getServiceProviderCode());
+        this.url = user.getPersonalURL(dw.getRequest(), dw.getOgcrequest().getServiceProviderName());
         Integer[] orgIds = user.getOrganizationIds(); //for authorization
         OGCRequest ogcRequest = dw.getOgcrequest();
         

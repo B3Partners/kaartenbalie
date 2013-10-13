@@ -99,24 +99,20 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                 }
             }
         }
+        
+        String spName = data.getOgcrequest().getServiceProviderName();
 
         // TODO: hieronder wordt iets dubbel gedaan
         // rol wordt 2x gebruikt om te testen
         // een organisatiebeheerder krijgt alleen de kaarten van zijn eigen organisatie
         String[] layerNames = getOrganisationLayers(em, orgIds, version, isAdmin);
 
-        String serviceName  = data.getOgcrequest().getServiceName();
         if (isAdmin) {
-            spInfo = getLayerSummaries(layerNames,serviceName);
+            spInfo = getLayerSummaries(layerNames, spName);
         } else {
             spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
         }
         
-        boolean hasServiceProviderCode = false;
-        if(data.getServiceProviderCode() != null && !data.getServiceProviderCode().equals("")){
-            hasServiceProviderCode = true;
-        }
-
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
@@ -129,11 +125,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             if (layers == null) {
                 String layerName = sp.getLayerName();
                 HashMap layer = new HashMap();
-                if(!hasServiceProviderCode){
-                    layer.put("spAbbr", spAbbr);
-                }else{
-                    layer.put("spAbbr", ""); 
-                }
+                layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
                 spLayers.add(layer);
                 continue;
@@ -142,11 +134,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             while (it2.hasNext()) {
                 String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
-                if(!hasServiceProviderCode){
-                    layer.put("spAbbr", spAbbr);
-                }else{
-                    layer.put("spAbbr", ""); 
-                }
+                layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
                 spLayers.add(layer);
             }
@@ -187,8 +175,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             
             servers.add(sp.getSpAbbr());
             lurl = sp.getSpUrl();
+            
             prefix = sp.getSpAbbr();
-
+ 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, lurl, sp.getServiceproviderId(), new Long(body.getBytes().length));
 
@@ -248,11 +237,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    if(hasServiceProviderCode){
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), "");
-                    }else{
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
-                    }
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("Failed to connect with " + lurl + " Using body: " + body);

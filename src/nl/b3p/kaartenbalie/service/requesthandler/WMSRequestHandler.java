@@ -726,7 +726,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
 
-        String personalUrl = this.user.getPersonalURL(dw.getRequest(), dw.getServiceProviderCode());
+        String personalUrl = this.user.getPersonalURL(dw.getRequest(), dw.getOgcrequest().getServiceProviderName());
 
         Integer[] orgIds = this.user.getOrganizationIds();
 
@@ -747,7 +747,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         for (DescribeLayerData resp : describeLayerData) {
             for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
                 Element layerDescriptionElement = dom.createElement("LayerDescription");
-                if (dw.getServiceProviderCode() != null && !dw.getServiceProviderCode().equals("")) {
+                if (dw.getOgcrequest().getServiceProviderName() != null && !dw.getOgcrequest().getServiceProviderName().equals("")) {
                     layerDescriptionElement.setAttribute("name", descr.getName());
                 } else {
                     layerDescriptionElement.setAttribute("name", OGCCommunication.attachSp(resp.getWmsPrefix(), descr.getName()));

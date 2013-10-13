@@ -77,7 +77,7 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         }
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
         proxyWrapper.setProviderRequestURI(purl.toString());
-        proxyWrapper.setServiceName(dw.getOgcrequest().getServiceName());
+        proxyWrapper.setServiceName(dw.getOgcrequest().getServiceProviderName());
 
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);

@@ -179,25 +179,13 @@ public abstract class OGCRequestHandler implements RequestHandler {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         Map config = dw.getLayeringParameterMap();
-        String serviceName  = dw.getOgcrequest().getServiceName();
-        
-        String serviceProvideCode = dw.getServiceProviderCode();
-
-        if(dw.getService().equalsIgnoreCase("WFS") && dw.getOperation().equals("GetCapabilities")){
-            configB3pLayering(layers, config, "");
-        }else{
-            configB3pLayering(layers, config, serviceProvideCode);
-        }
+        configB3pLayering(layers, config);
 
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
         for (int i = 0; i < layers.length; i++) {
             SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
             if (layerInfo == null ) {
-                continue;
-            }
-            //TODO cvl
-            if ( serviceName != null && !layerInfo.getSpAbbr().equalsIgnoreCase(serviceName) ) {
                 continue;
             }
 
@@ -449,19 +437,11 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @param config map met configuratie info
      * @throws java.lang.Exception fout bij configureren
      */
-    protected void configB3pLayering(String[] layers, Map config, String serviceProviderCode) throws Exception {
+    protected void configB3pLayering(String[] layers, Map config) throws Exception {
         for (int i = 0; i < layers.length; i++) {
-            String layerCode = "";
-            String layerName = "";
-            if(serviceProviderCode != null && !serviceProviderCode.equals("")){
-                layerCode = serviceProviderCode;
-                layerName = layers[i];
-                layers[i] = OGCCommunication.attachSp(layerCode, layerName);
-            }else{
-                String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
-                layerCode = layerCodeAndName[0];
-                layerName = layerCodeAndName[1];
-            }
+            String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
+            String layerCode = layerCodeAndName[0];
+            String layerName = layerCodeAndName[1];
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 ConfigLayer cl = ConfigLayer.forName(layerName);
                 if (cl == null) {

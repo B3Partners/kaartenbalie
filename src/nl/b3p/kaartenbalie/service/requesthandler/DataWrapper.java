@@ -53,7 +53,6 @@ public class DataWrapper {
     private DataMonitoring requestReporting;
     private Map layeringParameterMap;
     private OGCRequest ogcrequest;
-    private String serviceProviderCode;
 
     public DataWrapper(HttpServletRequest request, HttpServletResponse response) throws IOException {
         this.request = request;
@@ -224,13 +223,5 @@ public class DataWrapper {
 
     public HttpServletRequest getRequest() {
         return request;
-    }
-
-    public String getServiceProviderCode() {
-        return serviceProviderCode;
-    }
-
-    public void setServiceProviderCode(String serviceProviderCode) {
-        this.serviceProviderCode = serviceProviderCode;
     }
 }

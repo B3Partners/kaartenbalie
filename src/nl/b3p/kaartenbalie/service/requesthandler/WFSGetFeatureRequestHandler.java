@@ -95,22 +95,16 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException(request + " request with less then one maplayer is not supported!");
         }
         
-        String serviceProviderCode = data.getServiceProviderCode();
-        boolean hasServiceProviderCode = false;
-        if(serviceProviderCode != null && !serviceProviderCode.equals("")){
-            hasServiceProviderCode = true;
+        //als sp in url dan splitten met splitName = false
+        boolean splitName = true;
+        String spName = ogcrequest.getServiceProviderName();
+        if (spName != null) {
+            splitName = false;
         }
-        
+                
         List requestLayers = new ArrayList();
         for (int i = 0; i < allLayers.length; i++) {
-            Map splitLayer;
-            
-            if(hasServiceProviderCode){
-                splitLayer = ogcrequest.splitLayerInParts(allLayers[i], false); 
-                splitLayer.put("spAbbr", serviceProviderCode);
-            }else{
-                splitLayer = ogcrequest.splitLayerInParts(allLayers[i], true);
-            }
+            Map splitLayer = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
             requestLayers.add(splitLayer);
         }
 
@@ -139,11 +133,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             if (tlayers == null) {
                 String layerName = sp.getLayerName();
                 HashMap layer = new HashMap();
-                if(!hasServiceProviderCode){
-                    layer.put("spAbbr", spAbbr);
-                }else{
-                    layer.put("spAbbr", ""); 
-                }
+                 layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
                 spLayers.add(layer);
                 continue;
@@ -152,11 +142,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             while (it2.hasNext()) {
                 String layerName = (String) it2.next();
                 HashMap layer = new HashMap();
-                if(!hasServiceProviderCode){
-                    layer.put("spAbbr", spAbbr);
-                }else{
-                    layer.put("spAbbr", ""); 
-                }
+                layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
                 spLayers.add(layer);
             }
@@ -185,17 +171,11 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             String layerParam = "";
             for (int i = 0; i < requestLayers.size(); i++) {
                 Map rl = (Map) requestLayers.get(i);
-                if (prefix.equals(rl.get("spAbbr"))) {
-                    if (layerParam.length() != 0) {
-                        layerParam += ",";
-                    }
-                    String nsPrefix = (String) rl.get("prefix");
-                    if (nsPrefix != null) {
-                        layerParam += nsPrefix + ":";
-                    }
-                    layerParam += (String) rl.get("layerName");
+                if (layerParam.length() != 0) {
+                    layerParam += ",";
                 }
-             }
+                layerParam += ogcrequest.buildLayerNameWithoutSp(rl);
+            }
 
             OGCRequest spOgcReq = (OGCRequest)ogcrequest.clone();
             spOgcReq.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
@@ -245,16 +225,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null, null));
             } else { // get
 
-                StringBuffer getHost = new StringBuffer(spUrl);
-                if (getHost.indexOf("?") != getHost.length() - 1 && getHost.indexOf("&") != getHost.length() - 1) {
-                    if (getHost.indexOf("?") >= 0) {
-                        getHost.append("&");
-                    } else {
-                        getHost.append("?");
-                    }
-                }
-
-                String getUrl = spOgcReq.getUrl(getHost.toString());
+                String getUrl = spOgcReq.getUrl(spOgcReq.fixHttpHost(spUrl));
                 
                 if (getUrl.contains(OGCConstants.WFS_PARAM_FILTER)) {
                     String version = spOgcReq.getFinalVersion();
@@ -313,11 +284,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    if(hasServiceProviderCode){
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, "");
-                    }else{
                         ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, prefix);
-                    }
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + spUrl);

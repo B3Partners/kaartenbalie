@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
@@ -222,14 +223,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
 
-            String[] layerAndCode = OGCCommunication.toCodeAndName(layer);
-            String abbr = layerAndCode[0];
-            String name = layerAndCode[1];
-
-            if (serviceName != null && !serviceName.isEmpty()) {
-                abbr = serviceName;
-                name = layer;
-            }
+            boolean splitName = (serviceName==null || serviceName.isEmpty())?true:false;
+            Map m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, serviceName, null);
+            String abbr = (String)m.get("spAbbr");
+            String name = (String)m.get("layerName");
 
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
 
@@ -250,27 +247,5 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             spList.add(new SpLayerSummary(l, "true"));
         }
         return spList;
-    }
-
-    static protected String cleanPrefixInBody(String body, String prefix, String nsUrl, String ns) {
-        String old = "";
-        if (nsUrl != null) {
-            old += nsUrl;
-        }
-        if (prefix != null) {
-            old += prefix;
-        }
-        if (old.length() == 0) {
-            return body;
-        }
-        String nsnew = "";
-        if (ns != null) {
-            nsnew += ns;
-        }
-        StringBuffer bBody = new StringBuffer(body);
-        for (int start = bBody.indexOf(old); start >= 0;) {
-            bBody.replace(start, start + old.length(), nsnew);
-        }
-        return bBody.toString();
     }
 }
