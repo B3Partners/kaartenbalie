@@ -108,48 +108,7 @@ abstract public class GeneralServlet extends HttpServlet {
         
         return theUrl;
     }    
-    
-    protected String extractCode(HttpServletRequest request) {
-        String code = request.getPathInfo();
-        if(code == null){
-            return null;
-        }else{
-            int pos = code.lastIndexOf("/");
-            if (pos < 0) {
-                return code;
-            }
-            code = code.substring(pos + 1);
-            pos = code.indexOf("/");
-            if (pos < 0) {
-                return code;
-            }
-            code = code.substring(0, pos);
-            return code;
-        }
-    }
-    
-    protected String getServiceProviderCode(HttpServletRequest request){
-        String code = request.getPathInfo();
-        String serviceProviderCode = null;
-        if(code == null){
-            return null;
-        }else{
-            String usercode = extractCode(request);
 
-            String[] codes = code.split("/");
-            if(codes.length <= 1){
-                return null;
-            }else{
-                for(int i = 0; i < codes.length; i++){
-                    if(!codes[i].equals(usercode)){
-                        serviceProviderCode = codes[i];
-                    }
-                }
-            }
-        }
-        return serviceProviderCode;
-    }
-    
     /** Checks if an user is allowed to make any requests.
      * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
      *
@@ -162,22 +121,21 @@ abstract public class GeneralServlet extends HttpServlet {
      * @throws AccessDeniedException
      * @throws Exception
      */
-    protected User checkLogin(HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
+    protected User checkLogin(HttpServletRequest request, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         
-        return checkLogin(request,em);
+        return checkLogin(request, em, pcode);
     }
     
-    protected User checkLogin(HttpServletRequest request, EntityManager em ) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {      
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {      
         User user = null;
-        String code = extractCode(request);
 
         // checken of user gewoon ingelogd is
         if (user == null) {
             user = (User) request.getUserPrincipal();
             if (user != null) {
                 String userCode = user.getPersonalURL();
-                if (code != null && userCode != null && !code.equals(userCode)) {
+                if (pcode != null && userCode != null && !pcode.equals(userCode)) {
                     // verkeerde user
                     user = null;
                 }
@@ -200,7 +158,7 @@ abstract public class GeneralServlet extends HttpServlet {
                 
                 user = (User) em.createQuery(
                         "from User u where "
-                        + "u.personalURL = :personalURL").setParameter("personalURL", code).getSingleResult();
+                        + "u.personalURL = :personalURL").setParameter("personalURL", pcode).getSingleResult();
                                 
                 long end = System.currentTimeMillis();
                 long durUser = end - start;
@@ -250,7 +208,7 @@ abstract public class GeneralServlet extends HttpServlet {
                             validip = true;
 
                             log.debug("Request within ip range for remote ip " + remoteAddressDesc +
-                                    " for user " + user.getUsername() + " with code " + code);
+                                    " for user " + user.getUsername() + " with code " + pcode);
 
                             break;
                         }
@@ -273,7 +231,7 @@ abstract public class GeneralServlet extends HttpServlet {
                     validip = true;
 
                     log.debug("Local request from ip: " + localAddress + " for user " +
-                            user.getUsername() + " with code " + code);
+                            user.getUsername() + " with code " + pcode);
                 }
 
                 if (!validip) {

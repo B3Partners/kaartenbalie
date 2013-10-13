@@ -10,11 +10,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,13 +35,17 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
     @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        String url=request.getRequestURL().toString();
+        String personalCode = OGCRequest.findPersonalCode(url);
+
         if (log.isDebugEnabled()){
-            String url=request.getRequestURL().toString();
             if (request.getQueryString()!=null){
                 url+=request.getQueryString();
             }
             log.debug("Incoming request: "+url);
         }
+        
         Object identity = null;
         EntityManager em = null;
         EntityTransaction tx = null;
@@ -53,7 +57,7 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
             tx = em.getTransaction();
             tx.begin();           
             //check login.            
-            User user = checkLogin(request,em);
+            User user = checkLogin(request, em, personalCode);
             
             //maak van de parameter een Integer array.            
             processRequest(request,response,out);

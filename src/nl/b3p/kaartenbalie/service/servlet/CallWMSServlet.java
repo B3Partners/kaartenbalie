@@ -119,6 +119,11 @@ public class CallWMSServlet extends GeneralServlet {
 
             try {
                 OGCRequest ogcrequest = calcOGCRequest(request);
+                
+                String personalCode = null;
+                if (ogcrequest != null)
+                    personalCode = ogcrequest.getPersonalCode();
+                
                 data.setOgcrequest(ogcrequest);
 
                 String serviceParam = ogcrequest.getParameter(OGCConstants.SERVICE);
@@ -129,13 +134,11 @@ public class CallWMSServlet extends GeneralServlet {
                 String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request);
+                User user = checkLogin(request, personalCode);
                 String serviceProviderCode = getServiceProviderCode(request);
                 data.setServiceProviderCode(serviceProviderCode);
                 
-                if (ogcrequest != null) {
-                    ogcrequest.checkRequestURL();
-                }
+                ogcrequest.checkRequestURL();
 
                 rr.setUserAndOrganization(user, user.getMainOrganization());
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
@@ -143,6 +146,7 @@ public class CallWMSServlet extends GeneralServlet {
                 parseRequestAndData(data, user);
 
             } catch (ProviderException pex) {
+            	
                 log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
                 rr.setClientRequestException(pex);
                 handleRequestException(pex, data);
