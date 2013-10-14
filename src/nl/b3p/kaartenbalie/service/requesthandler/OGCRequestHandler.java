@@ -168,7 +168,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @return lijst van serviceproviders met daarin bij behorende layers
      * @throws java.lang.Exception fout bij ophalen layer informatie
      */
-    protected List getSeviceProviderURLS(String[] layers, Integer[] orgIds, boolean checkForQueryable, DataWrapper dw) throws Exception {
+    protected List getServiceProviderURLS(String[] layers, Integer[] orgIds, boolean checkForQueryable, DataWrapper dw) throws Exception {
 
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
@@ -440,6 +440,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
     protected void configB3pLayering(String[] layers, Map config) throws Exception {
         for (int i = 0; i < layers.length; i++) {
             String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
+            if (layerCodeAndName==null) {
+                continue;
+            }
             String layerCode = layerCodeAndName[0];
             String layerName = layerCodeAndName[1];
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {

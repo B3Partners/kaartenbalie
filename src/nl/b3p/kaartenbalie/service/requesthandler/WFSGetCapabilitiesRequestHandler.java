@@ -76,7 +76,6 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
 
         String lurl = null;
         List spInfo = null;
-        String prefix = null;
 
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
@@ -110,40 +109,14 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
         if (isAdmin) {
             spInfo = getLayerSummaries(layerNames, spName);
         } else {
-            spInfo = getSeviceProviderURLS(layerNames, orgIds, false, data);
+            spInfo = getServiceProviderURLS(layerNames, orgIds, false, data);
         }
         
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
-        Iterator iter = spInfo.iterator();
-        List spLayers = new ArrayList();
-        while (iter.hasNext()) {
-            SpLayerSummary sp = (SpLayerSummary) iter.next();
-            String spAbbr = sp.getSpAbbr();
-            List layers = sp.getLayers();
-            if (layers == null) {
-                String layerName = sp.getLayerName();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
-                layer.put("layer", layerName);
-                spLayers.add(layer);
-                continue;
-            }
-            Iterator it2 = layers.iterator();
-            while (it2.hasNext()) {
-                String layerName = (String) it2.next();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
-                layer.put("layer", layerName);
-                spLayers.add(layer);
-            }
-        }
-        if (spLayers == null || spLayers.isEmpty()) {
-            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-        }
-
-        HttpMethod method = null;
+        
+         HttpMethod method = null;
             
         OutputStream os = data.getOutputStream();
         String body = data.getOgcrequest().getXMLBody();
@@ -162,22 +135,49 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
 
         Iterator it = spInfo.iterator();
         List servers = new ArrayList();
+        List spLayers = new ArrayList();
         while (it.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) it.next();
             if (servers.contains(sp.getSpAbbr())) {
                 continue;
             }
+            
+            String spAbbr = sp.getSpAbbr();
+            if (spName != null) {
+                if (spName.equalsIgnoreCase(spAbbr)) {
+                    spAbbr = null;
+                } else {
+                    // sp in url, andere sp dan weglaten
+                    continue;
+                }
+            }
+            List layers = sp.getLayers();
+            if (layers == null) {
+                String layerName = sp.getLayerName();
+                HashMap layer = new HashMap();
+                layer.put("spAbbr", spAbbr);
+                layer.put("layer", layerName);
+                spLayers.add(layer);
+                continue;
+            }
+            Iterator it2 = layers.iterator();
+            while (it2.hasNext()) {
+                String layerName = (String) it2.next();
+                HashMap layer = new HashMap();
+                layer.put("spAbbr", spAbbr);
+                layer.put("layer", layerName);
+                spLayers.add(layer);
+            }
+            
             B3PCredentials credentials = new B3PCredentials();
             credentials.setUserName(sp.getUsername());
             credentials.setPassword(sp.getPassword());
             
-        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
+            HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
             
             servers.add(sp.getSpAbbr());
             lurl = sp.getSpUrl();
             
-            prefix = sp.getSpAbbr();
- 
             ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, lurl, sp.getServiceproviderId(), new Long(body.getBytes().length));
 
@@ -237,7 +237,7 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), prefix);
+                    ogcresponse.rebuildResponse(doc.getDocumentElement(), data.getOgcrequest(), spAbbr);
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("Failed to connect with " + lurl + " Using body: " + body);
@@ -254,6 +254,9 @@ public class WFSGetCapabilitiesRequestHandler extends WFSRequestHandler {
             } finally {
                 rr.addServiceProviderRequest(wfsRequest);
             }
+        }
+        if (spLayers == null || spLayers.isEmpty()) {
+            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         String responseBody = ogcresponse.getResponseBody(spLayers);
         if (responseBody != null && !responseBody.equals("")) {

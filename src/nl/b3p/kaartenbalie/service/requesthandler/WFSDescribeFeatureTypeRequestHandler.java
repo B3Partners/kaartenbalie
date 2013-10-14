@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import java.util.List;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
@@ -90,12 +90,18 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
             }
             
             Map layerMap = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
-            layerMapList.add(layerMap);
+            // voor opzoeken in kaartenbalie, rechten en zo, met sp
             spLayerNames[i] = ogcrequest.buildLayerNameWithoutNs(layerMap);
+            // voor url naar backend, zonder sp
             if (layerParam.length() != 0) {
                 layerParam += ",";
             }
             layerParam += ogcrequest.buildLayerNameWithoutSp(layerMap);
+            // voor vervangen in response, alleen sp als sp niet in url zit
+            if (spName!=null) {
+                layerMap.remove("spAbbr");
+            }
+            layerMapList.add(layerMap);
         }
 
          /*
@@ -119,7 +125,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
         if (isAdmin) {
             spInfo = getLayerSummaries(spLayerNames, spName);
         } else {
-            spInfo = getSeviceProviderURLS(spLayerNames, orgIds, false, data);
+            spInfo = getServiceProviderURLS(spLayerNames, orgIds, false, data);
         }
         if (spInfo == null || spInfo.isEmpty()) {
             throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
@@ -255,12 +261,7 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
                 //same namespace as in request.
                 String requestLayerName = (String) requestLayerMap.get("layerName");
                 if (requestLayerName != null && requestLayerName.equals(responseLayerName)) {
-                    String fullLayerName = "";
-                    if (responseLayerMap.get("prefix") != null) {
-                        // use response prefix to make sure xml stays valid
-                        fullLayerName += ((String) responseLayerMap.get("prefix")) + ":";
-                    }
-                    fullLayerName += (String) requestLayerMap.get("spLayerName");
+                    String fullLayerName = OGCCommunication.buildFullLayerName(requestLayerMap);
                     n.setTextContent(fullLayerName);
                 }
             }

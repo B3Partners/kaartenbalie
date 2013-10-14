@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.gis.B3PCredentials;
@@ -112,7 +111,7 @@ public class WFSTransactionRequestHandler extends WFSRequestHandler {
                 layerList[i] = tempList.get(i).toString();
             }
 
-            List spUrls = getSeviceProviderURLS(layerList, orgIds, false, data);
+            List spUrls = getServiceProviderURLS(layerList, orgIds, false, data);
             if (spUrls == null || spUrls.isEmpty()) {
                 throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
             }

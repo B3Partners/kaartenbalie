@@ -97,7 +97,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
 
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgIds, false, dw);
+        List spUrls = getServiceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgIds, false, dw);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);

@@ -86,7 +86,7 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
         // -- check if there are service provider urls to collect data from
         // -- getSeviceProviderURLS returns list with SpLayerSummary objects
         // --
-        List spInfo = getSeviceProviderURLS(layersParam.split(","), orgIds, false, dw);
+        List spInfo = getServiceProviderURLS(layersParam.split(","), orgIds, false, dw);
         if (spInfo == null || spInfo.isEmpty()) {
         	//Error message from KBConfiguration in b3p-commons-gis?
         	log.error(requestParam + ": no urls qualify for request.");

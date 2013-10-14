@@ -75,7 +75,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
 
-        List spUrls = getSeviceProviderURLS(layers, orgIds, false, dw);
+        List spUrls = getServiceProviderURLS(layers, orgIds, false, dw);
         if (spUrls == null || spUrls.size() != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);

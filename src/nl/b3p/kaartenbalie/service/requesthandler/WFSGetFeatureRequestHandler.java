@@ -108,13 +108,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             requestLayers.add(splitLayer);
         }
 
+        // voor opzoeken in kaartenbalie, rechten en zo, met sp
         String[] layerNames = new String[requestLayers.size()];
         for (int i = 0; i < requestLayers.size(); i++) {
             Map rl = (Map)requestLayers.get(i);
-            layerNames[i] = (String)rl.get("spLayerName");
+            layerNames[i] = OGCCommunication.buildLayerNameWithoutNs(rl);
         }
 
-        List spUrls = getSeviceProviderURLS(layerNames, orgIds, false, data);
+        List spUrls = getServiceProviderURLS(layerNames, orgIds, false, data);
         if (spUrls == null || spUrls.isEmpty()) {
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
@@ -124,16 +125,38 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new Exception("No Serviceprovider available! User might not have rights to any Serviceprovider!");
         }
 
-        Iterator iter = spUrls.iterator();
+ 
+        OGCResponse ogcresponse = new OGCResponse();
+
+        DataMonitoring rr = data.getRequestReporting();
+        long startprocestime = System.currentTimeMillis();
+
+        HttpClient client;
+        B3PCredentials credentials;
+        OutputStream os = data.getOutputStream();
+
+        String spUrl = null;
+        String spAbbr = null;
+        Iterator spIt = spUrls.iterator();
+        // voor vervangen in response, alleen sp indien niet in url
         List spLayers = new ArrayList();
-        while (iter.hasNext()) {
-            SpLayerSummary sp = (SpLayerSummary) iter.next();
-            String spAbbr = sp.getSpAbbr();
+        while (spIt.hasNext()) {
+            SpLayerSummary sp = (SpLayerSummary) spIt.next();
+            spUrl = sp.getSpUrl();
+            spAbbr = sp.getSpAbbr();
+            if (spName != null) {
+                if (spName.equalsIgnoreCase(spAbbr)) {
+                    spAbbr = null;
+                } else {
+                    // sp in url, andere sp dan weglaten
+                    continue;
+                }
+            }
             List tlayers = sp.getLayers();
             if (tlayers == null) {
                 String layerName = sp.getLayerName();
                 HashMap layer = new HashMap();
-                 layer.put("spAbbr", spAbbr);
+                layer.put("spAbbr", spAbbr);
                 layer.put("layer", layerName);
                 spLayers.add(layer);
                 continue;
@@ -146,28 +169,8 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 layer.put("layer", layerName);
                 spLayers.add(layer);
             }
-        }
-        if (spLayers == null || spLayers.size() == 0) {
-            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-        }
-
-        OGCResponse ogcresponse = new OGCResponse();
-
-        DataMonitoring rr = data.getRequestReporting();
-        long startprocestime = System.currentTimeMillis();
-
-        HttpClient client;
-        B3PCredentials credentials;
-        OutputStream os = data.getOutputStream();
-
-        String spUrl = null;
-        String prefix = null;
-        Iterator spIt = spUrls.iterator();
-        while (spIt.hasNext()) {
-            SpLayerSummary sp = (SpLayerSummary) spIt.next();
-            spUrl = sp.getSpUrl();
-            prefix = sp.getSpAbbr();
-
+            
+            // voor url naar backend, zonder sp
             String layerParam = "";
             for (int i = 0; i < requestLayers.size(); i++) {
                 Map rl = (Map) requestLayers.get(i);
@@ -211,7 +214,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 }
 
                 String body = spOgcReq.getXMLBody();
-                log.debug("WFS POST to serviceprovider: '" + prefix + "' with url: '" + spUrl + "' and body:");
+                log.debug("WFS POST to serviceprovider: '" + spAbbr + "' with url: '" + spUrl + "' and body:");
                 log.debug(body);
                 // TODO body cleanen
                 if (KBConfiguration.SAVE_MESSAGES) {
@@ -239,7 +242,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     }
                 }
 
-                log.debug("WFS GET to serviceprovider: '" + prefix + "' with url: '" + getUrl.toString() + "'");
+                log.debug("WFS GET to serviceprovider: '" + spAbbr + "' with url: '" + getUrl.toString() + "'");
                 
                 if (KBConfiguration.SAVE_MESSAGES) {
                     wfsRequest.setMessageSent(getUrl.toString());
@@ -284,7 +287,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                         wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                     }
 
-                        ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, prefix);
+                        ogcresponse.rebuildResponse(doc.getDocumentElement(), spOgcReq, spAbbr);
                 } else {
                     wfsRequest.setResponseStatus(status);
                     wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + spUrl);
@@ -301,6 +304,9 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             } finally {
                 rr.addServiceProviderRequest(wfsRequest);
             }
+        }
+        if (spLayers == null || spLayers.isEmpty()) {
+            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
         }
         doAccounting(user.getMainOrganizationId(), data, user);
         String responseBody = null;

@@ -88,7 +88,7 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Integer[] orgIds = this.user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 
-        List spUrls = getSeviceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgIds, true, dw);
+        List spUrls = getServiceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgIds, true, dw);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.FEATUREINFO_QUERYABLE_EXCEPTION);
