@@ -153,7 +153,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return serviceproviders;
     }
 
-    public ServiceProvider getServiceProvider(boolean isAdmin, String ServiceProviderCode) throws Exception {
+    public ServiceProvider getServiceProvider(boolean isAdmin, String spAbbrUrl) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         User dbUser = null;
@@ -182,13 +182,13 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer topLayer = layer.getTopLayer();
                 ServiceProvider sp = layer.getServiceProvider();
                 if (!serviceproviders.contains(sp)) {
-                    if (ServiceProviderCode != null && ServiceProviderCode.equals(sp.getAbbr())) {
+                    if (spAbbrUrl != null && spAbbrUrl.equals(sp.getAbbr())) {
                         serviceproviders.add(sp);
 
                         if (!topLayers.contains(topLayer)) {
                             topLayers.add(topLayer);
                         }
-                    } else if (ServiceProviderCode == null || ServiceProviderCode.equals("")) {
+                    } else if (spAbbrUrl == null || spAbbrUrl.equals("")) {
                         serviceproviders.add(sp);
 
                         if (!topLayers.contains(topLayer)) {
@@ -312,7 +312,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         ServiceProviderValidator spv = new ServiceProviderValidator(serviceproviders);
         ServiceProvider validServiceProvider = spv.getValidServiceProvider();
         validServiceProvider.setTopLayer(kaartenbalieTopLayer);
-
+        if(spAbbrUrl != null && !spAbbrUrl.equals("")){
+            validServiceProvider.setUrlServiceProvideCode(spAbbrUrl);
+        }
+ 
         /*
          * B3Partners Configuration Layers..
          */
@@ -353,6 +356,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         if (tileSets != null) {
             validServiceProvider.setTileSets(tileSets);
         }
+        
         return validServiceProvider;
     }
 
@@ -725,8 +729,10 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Document dom = di.createDocument(null, "WMS_DescribeLayerResponse", dt);
         Element rootElement = dom.getDocumentElement();
         rootElement.setAttribute("version", "1.1.1"); //describeLayer version in kbconfig?
+        
+        String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
 
-        String personalUrl = this.user.getPersonalURL(dw.getRequest(), dw.getOgcrequest().getServiceProviderName());
+        String personalUrl = this.user.getPersonalURL(dw.getRequest(), spAbbrUrl);
 
         Integer[] orgIds = this.user.getOrganizationIds();
 
@@ -747,7 +753,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         for (DescribeLayerData resp : describeLayerData) {
             for (LayerDescription descr : resp.getDescribeLayerResponse().getLayerDescs()) {
                 Element layerDescriptionElement = dom.createElement("LayerDescription");
-                if (dw.getOgcrequest().getServiceProviderName() != null && !dw.getOgcrequest().getServiceProviderName().equals("")) {
+                if (spAbbrUrl != null && !spAbbrUrl.equals("")) {
                     layerDescriptionElement.setAttribute("name", descr.getName());
                 } else {
                     layerDescriptionElement.setAttribute("name", OGCCommunication.attachSp(resp.getWmsPrefix(), descr.getName()));
@@ -762,7 +768,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     layerDescriptionElement.setAttribute("owsURL", personalUrl);
 
                     Element queryElement = dom.createElement("Query");
-                    queryElement.setAttribute("typeName", OGCCommunication.attachSp(wfsPrefix, descr.getName())); //this needs to be fixed
+                    queryElement.setAttribute("typeName", OGCCommunication.attachSp(wfsPrefix, descr.getName())); 
                     layerDescriptionElement.appendChild(queryElement);
                 }
                 rootElement.appendChild(layerDescriptionElement);

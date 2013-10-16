@@ -77,9 +77,10 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         dw.setHeader("Content-Disposition", "inline; filename=\"GetCapabilities.xml\";");
         dw.setContentType(OGCConstants.WMS_PARAM_WMS_XML);
 
+        String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
         ByteArrayOutputStream output = null;
         this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest(),dw.getOgcrequest().getServiceProviderName());
+        this.url = user.getPersonalURL(dw.getRequest(),spAbbrUrl);
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }
@@ -109,16 +110,13 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
             forceFetch(dw, isAdmin);
         }
 
-        ServiceProvider s = getServiceProvider(isAdmin, dw.getOgcrequest().getServiceProviderName());
+        ServiceProvider s = getServiceProvider(isAdmin, spAbbrUrl);
 
         if (user != null) {
             s.setOrganizationCode(user.getOrganisationCodes());
             s.setExpireDate(user.getTimeout());
             s.setUserName(user.getName());
             s.setPersonalCode(user.getPersonalURL());
-        }
-        if(dw.getOgcrequest().getServiceProviderName() != null && !dw.getOgcrequest().getServiceProviderName().equals("")){
-            s.setUrlServiceProvideCode(true);
         }
         HashMap conversionValues = new HashMap();
         conversionValues.put("url", url);
