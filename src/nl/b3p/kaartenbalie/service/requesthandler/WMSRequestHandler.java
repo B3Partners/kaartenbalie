@@ -99,6 +99,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         Set organizationLayers = new HashSet();
         if (isAdmin) {
             List layerlist = em.createQuery("from Layer").getResultList();
+            Iterator it2 = layerlist.iterator();
+            while (it2.hasNext()) {
+                Layer l = (Layer) it2.next();
+                ServiceProvider sp = l.getServiceProvider();
+            }
             organizationLayers.addAll(layerlist);
         } else {
             Set orgs = user.getAllOrganizations();
@@ -180,6 +185,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer layer = (Layer) it.next();
                 orgLayerIds.add(layer.getId());
                 Layer topLayer = layer.getTopLayer();
+                //TODO de sp is altijd null!!
                 ServiceProvider sp = layer.getServiceProvider();
                 if (!serviceproviders.contains(sp)) {
                     if (spAbbrUrl != null && spAbbrUrl.equals(sp.getAbbr())) {
