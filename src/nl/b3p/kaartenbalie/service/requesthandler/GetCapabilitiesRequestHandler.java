@@ -164,7 +164,8 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     private void forceFetch(DataWrapper dw, boolean isAdmin) throws Exception {
         DataMonitoring rr = dw.getRequestReporting();
 
-        Set serviceProviders = this.getServiceProviders(isAdmin);
+        String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
+        Set serviceProviders = this.getServiceProviders(isAdmin, spAbbrUrl);
         for (Object serviceProvider : serviceProviders) {
             ServiceProvider sp = (ServiceProvider) serviceProvider;
             long startprocestime = System.currentTimeMillis();

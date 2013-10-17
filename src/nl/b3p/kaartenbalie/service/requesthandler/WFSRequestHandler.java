@@ -77,7 +77,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception {
         String query = "select distinct new "
                 + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true',sp) "
                 + "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol "
@@ -88,7 +88,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
 
-        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
+        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering, spAbbrUrl);
     }
 
     protected String[] getOrganisationLayers(EntityManager em, Integer[] orgIds, String version, boolean isAdmin) throws Exception {

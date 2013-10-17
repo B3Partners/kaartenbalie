@@ -78,7 +78,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception;
+    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception;
 
     /**
      * methode die alleen een query nodig heeft om bestaan en rechten van layer
@@ -94,10 +94,11 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {        
-        String[] layerCodeAndName = OGCCommunication.toCodeAndName(layer);
-        String layerCode = layerCodeAndName[0];
-        String layerName = layerCodeAndName[1];
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception {        
+        boolean splitName = (spAbbrUrl == null || spAbbrUrl.isEmpty()) ? true : false;
+        Map m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, spAbbrUrl, null);
+        String layerCode = (String) m.get("spAbbr");
+        String layerName = (String) m.get("layerName");
 
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
@@ -181,10 +182,12 @@ public abstract class OGCRequestHandler implements RequestHandler {
         Map config = dw.getLayeringParameterMap();
         configB3pLayering(layers, config);
 
+        String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
+        
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
         for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering, spAbbrUrl);
             if (layerInfo == null ) {
                 continue;
             }
@@ -199,7 +202,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         //als laatste b3pLayering meenemen
         b3pLayering = true;
         for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering);
+            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering, spAbbrUrl);
             if (layerInfo == null) {
                 continue;
             }

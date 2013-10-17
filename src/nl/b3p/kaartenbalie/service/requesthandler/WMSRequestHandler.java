@@ -94,40 +94,39 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     public WMSRequestHandler() {
     }
 
-    protected Set getValidLayers(User user, EntityManager em, boolean isAdmin) throws Exception {
+    protected Set getValidLayers(User user, EntityManager em, boolean isAdmin, String spAbbrUrl) throws Exception {
 
         Set organizationLayers = new HashSet();
+        List layerlist = null;
         if (isAdmin) {
-            List layerlist = em.createQuery("from Layer").getResultList();
-            Iterator it2 = layerlist.iterator();
-            while (it2.hasNext()) {
-                Layer l = (Layer) it2.next();
-                ServiceProvider sp = l.getServiceProvider();
+            if (spAbbrUrl == null) {
+                 layerlist = em.createQuery("from Layer l").getResultList();
+            } else {
+                layerlist = em.createQuery("from Layer l where l.serviceProvider.abbr = :spAbbr").setParameter("spAbbr", spAbbrUrl).getResultList();
             }
-            organizationLayers.addAll(layerlist);
         } else {
             Set orgs = user.getAllOrganizations();
-            if (orgs != null) {
-                Iterator it = orgs.iterator();
-                while (it.hasNext()) {
-                    Organization org = (Organization) it.next();
-                    Set layerSet = org.getLayers();
-                    Iterator it2 = layerSet.iterator();
-                    while (it2.hasNext()) {
-                        Layer l = (Layer)it2.next();
-                        ServiceProvider sp = l.getServiceProvider();
-                        if (sp==null || (sp != null && sp.getAllowed()))  {
-                            organizationLayers.add(l);
-                        }
-                    }
-                }
+
+            if (spAbbrUrl == null) {
+                layerlist = em.createQuery("from Layer l where "
+                        + "l in (select ol from Organization o join o.layers ol where o in (:orgs)) ")
+                        .setParameter("orgs", orgs)
+                        .getResultList();
+            } else {
+                layerlist = em.createQuery("from Layer l where l.serviceProvider.abbr = :spAbbr and "
+                        + "l in (select ol from Organization o join o.layers ol where o in (:orgs)) ")
+                        .setParameter("spAbbr", spAbbrUrl)
+                        .setParameter("orgs", orgs)
+                        .getResultList();
             }
+
         }
 
+        organizationLayers.addAll(layerlist);
         return organizationLayers;
     }
 
-    public Set getServiceProviders(boolean isAdmin) throws Exception {
+    public Set getServiceProviders(boolean isAdmin, String spAbbrUrl) throws Exception {
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
         User dbUser = null;
@@ -138,7 +137,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             log.error("No serviceprovider for user found.");
             throw new Exception("No serviceprovider for user found.");
         }
-        Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
+        Set organizationLayers = getValidLayers(dbUser, em, isAdmin, spAbbrUrl);
 
         Set serviceproviders = null;
         if (organizationLayers != null && !organizationLayers.isEmpty()) {
@@ -169,7 +168,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             log.error("User not found in database.");
             throw new Exception("User not found in database.");
         }
-        Set organizationLayers = getValidLayers(dbUser, em, isAdmin);
+        Set organizationLayers = getValidLayers(dbUser, em, isAdmin, spAbbrUrl);
         Set serviceproviders = null;
         Layer kaartenbalieTopLayer = null;
         Set<TileSet> tileSets = null;
@@ -185,21 +184,12 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 Layer layer = (Layer) it.next();
                 orgLayerIds.add(layer.getId());
                 Layer topLayer = layer.getTopLayer();
-                //TODO de sp is altijd null!!
                 ServiceProvider sp = layer.getServiceProvider();
+                sp.setUrlServiceProvideCode(spAbbrUrl);
                 if (!serviceproviders.contains(sp)) {
-                    if (spAbbrUrl != null && spAbbrUrl.equals(sp.getAbbr())) {
-                        serviceproviders.add(sp);
-
-                        if (!topLayers.contains(topLayer)) {
-                            topLayers.add(topLayer);
-                        }
-                    } else if (spAbbrUrl == null || spAbbrUrl.equals("")) {
-                        serviceproviders.add(sp);
-
-                        if (!topLayers.contains(topLayer)) {
-                            topLayers.add(topLayer);
-                        }
+                    serviceproviders.add(sp);
+                    if (!topLayers.contains(topLayer)) {
+                        topLayers.add(topLayer);
                     }
                 }
             }
@@ -823,7 +813,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception {
         String query = "select distinct new "
                 + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable,sp) "
                 + "from Layer l, Organization o, ServiceProvider sp join o.layers ol "
@@ -834,7 +824,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
 
-        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering);
+        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering, spAbbrUrl);
     }
 
     /**
