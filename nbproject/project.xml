@@ -51,10 +51,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${reference.b3p-commons-gis.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${reference.milton-b3p.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -94,6 +90,10 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.TestStreet.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${reference.b3p-commons-gis.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>

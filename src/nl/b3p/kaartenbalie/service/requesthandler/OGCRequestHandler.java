@@ -98,7 +98,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         boolean splitName = (spAbbrUrl == null || spAbbrUrl.isEmpty()) ? true : false;
         Map m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, spAbbrUrl, null);
         String layerCode = (String) m.get("spAbbr");
-        String layerName = (String) m.get("layerName");
+        String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
 
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
@@ -442,12 +442,15 @@ public abstract class OGCRequestHandler implements RequestHandler {
      */
     protected void configB3pLayering(String[] layers, Map config) throws Exception {
         for (int i = 0; i < layers.length; i++) {
+            Map m = OGCCommunication.splitLayerWithoutNsFix(layers[i], true, null, null);
+            String layerCode = (String) m.get("spAbbr");
+            String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
+
             String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
-            if (layerCodeAndName==null) {
+            if (layerCode==null || layerName==null) {
                 continue;
             }
-            String layerCode = layerCodeAndName[0];
-            String layerName = layerCodeAndName[1];
+            
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 ConfigLayer cl = ConfigLayer.forName(layerName);
                 if (cl == null) {
