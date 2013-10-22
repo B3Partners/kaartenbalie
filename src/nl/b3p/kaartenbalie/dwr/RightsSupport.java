@@ -111,7 +111,11 @@ public class RightsSupport {
                 ServiceProvider layerSp = l.getServiceProvider();
                 if (sp != null && layerSp != null && !layerSp.getAbbr().equals(sp.getAbbr())) {
                     wmsLayers.add(l);
-                    String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
+                    String label = l.getName();
+                    if (label==null) {
+                        label = l.getTitle() + "(*)";
+                    }
+                    String lname = label + " (wms, " + l.getServiceProvider().getAbbr() + ")";
                     layers.add(lname);
                 }
             }
@@ -122,7 +126,11 @@ public class RightsSupport {
                 WfsServiceProvider layerSp = l.getWfsServiceProvider();
                 if (!layerSp.getAbbr().equals(sp.getAbbr())) {
                     wfsLayers.add(l);
-                    String lname = l.getName() + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
+                    String label = l.getName();
+                    if (label==null) {
+                        label = l.getTitle() + "(*)";
+                    }
+                    String lname = label + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
                     layers.add(lname);
                 }
             }
@@ -138,13 +146,21 @@ public class RightsSupport {
                 WfsLayer wfsl = LayerTreeSupport.getWfsLayerByUniqueName(em, layerName);
                 if (wfsl != null) {
                     wfsLayers.add(wfsl);
-                    String lname = wfsl.getName() + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
+                    String label = wfsl.getName();
+                    if (label==null) {
+                        label = wfsl.getTitle() + "(*)";
+                    }
+                    String lname = label + " (wfs, " + wfsl.getWfsServiceProvider().getAbbr() + ")";
                     layers.add(lname);
                 }
                 Layer wmsl = LayerTreeSupport.getLayerByUniqueName(em, layerName);
                 if (wmsl != null) {
                     wmsLayers.add(wmsl);
-                    String lname = wmsl.getName() + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
+                    String label = wmsl.getName();
+                    if (label==null) {
+                        label = wmsl.getTitle() + "(*)";
+                    }
+                    String lname = label + " (wms, " + wmsl.getServiceProvider().getAbbr() + ")";
                     layers.add(lname);
                 }
             }
@@ -173,14 +189,22 @@ public class RightsSupport {
         Set<Layer> orgWmsLayerSet = org.getLayers();
         if (orgWmsLayerSet != null) {
             for (Layer l : orgWmsLayerSet) {
-                String lname = l.getName() + " (wms, " + l.getServiceProvider().getAbbr() + ")";
+                String label = l.getName();
+                if (label==null) {
+                    label = l.getTitle() + "(*)";
+                }
+                String lname = label + " (wms, " + l.getServiceProvider().getAbbr() + ")";
                 layers.add(lname);
             }
         }
         Set<WfsLayer> orgWfsLayerSet = org.getWfsLayers();
         if (orgWfsLayerSet != null) {
             for (WfsLayer l : orgWfsLayerSet) {
-                String lname = l.getName() + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
+                String label = l.getName();
+                if (label==null) {
+                    label = l.getTitle() + "(*)";
+                }
+                String lname = label + " (wfs, " + l.getWfsServiceProvider().getAbbr() + ")";
                 layers.add(lname);
             }
         }

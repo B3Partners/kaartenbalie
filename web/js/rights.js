@@ -39,10 +39,8 @@ function changeOrganization() {
 function submitRightsForm() {
     var params = collectFormParams();
     JRightsSupport.submitRightsForm(params, handleValidLayers);
-
     alert("De rechten zijn succesvol opgeslagen.");
-
-    return false;
+    return false; 
 }
 
 function handleValidLayers(validlayers) {
@@ -83,6 +81,7 @@ function createLabel(container, item) {
 
     if (item.id && item.type == "layer") {
         var vink = $('<input />').attr({
+            'name': 'selectedLayers',
             'type': 'checkbox',
             'value': item.id,
             'id': item.id,
