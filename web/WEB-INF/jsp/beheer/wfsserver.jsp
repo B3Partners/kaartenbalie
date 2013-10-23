@@ -158,7 +158,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                     <div class="knoppen">
 
                         <p>
-                            <fmt:message key="service.rechten.groups"/>
+                            <fmt:message key="service.rechten.groups.label" />
                         </p>
                         <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
                             <div style="float: left; width: 185px; margin-right: 5px; overflow: hidden;" class="orgDiv">
