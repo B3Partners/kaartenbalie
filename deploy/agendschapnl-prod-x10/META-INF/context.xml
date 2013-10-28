@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/kaartenbalie" antiJARLocking="true">
+
+<!-- Resource Oracle b3p-demoserver
+<Resource
+    auth="Container"
+    driverClassName="oracle.jdbc.driver.OracleDriver"
+    logAbandoned="true"
+    maxActive="100"
+    maxIdle="30"
+    maxWait="10000"
+    name="jdbc/kaartenbalie"
+    username="kaartenbalie"
+    password="kaartenbalie"
+    removeAbandoned="true"
+    removeAbandonedTimeout="60"
+    type="javax.sql.DataSource"
+    url="jdbc:oracle:thin:@b3p-demoserver:1521:ORCL"
+    minEvictableIdleTimeMillis="10000"
+    timeBetweenEvictionRunsMillis="60000"
+/> -->
+
+<!-- Resource Postgres localhost -->
+<Resource
+    auth="Container"
+    driverClassName="org.postgresql.Driver"
+    logAbandoned="true"
+    maxActive="100"
+    maxIdle="30"
+    maxWait="10000"
+    name="jdbc/kaartenbalie"
+    username="agentschapnl"
+    password="***REMOVED***"
+    removeAbandoned="true"
+    removeAbandonedTimeout="60"
+    type="javax.sql.DataSource"
+    url="jdbc:postgresql://x10.b3p.nl:5432/agentschapnl_prod_kaartenbalie"
+    validationQuery="select 1"
+    minEvictableIdleTimeMillis="10000"
+    timeBetweenEvictionRunsMillis="60000"
+/>
+
+</Context>
