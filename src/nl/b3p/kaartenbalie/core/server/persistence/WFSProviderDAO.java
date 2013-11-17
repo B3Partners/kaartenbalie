@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary;
+import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCCommunication;
 

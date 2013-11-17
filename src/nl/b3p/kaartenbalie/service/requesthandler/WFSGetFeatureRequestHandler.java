@@ -21,39 +21,19 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
-import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.HttpVersion;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.input.CountingInputStream;
-import org.w3c.dom.Document;
+import nl.b3p.ogc.utils.SpLayerSummary;
+import nl.b3p.ogc.utils.WFSGetFeatureResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -68,8 +48,82 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     /** Creates a new instance of WFSRequestHandler */
     public WFSGetFeatureRequestHandler() {
     }
+   
+    private String repairIntersects(String version, String filter) {
+        if (filter !=null && version != null && version.equals(OGCConstants.WFS_VERSION_100)) {
+            // check of geotools onterecht intersects (met s) heeft gebruikt bij wfs 1.0.0
+            // later oplossen in geotools
+            // nu wat testen en hier fixen
+            if (filter.contains("<Intersects>") && filter.contains("</Intersects>")) {
+                return filter.replace("<Intersects>", "<Intersect>").replace("</Intersects>", "</Intersect>");
+            }
+        }
+        return filter;
+    }
+
+    public String prepareRequest4Sp(OGCRequest ogcrequest, SpLayerSummary sp) {
+        
+        if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
+            String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.attachSp(sp.getSpAbbr(), sp.getLayerName()));
+            filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
+            if (filter != null) {
+                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+            }
+            String propertyNames = ogcrequest.getGetFeaturePropertyNameList(OGCCommunication.attachSp(sp.getSpAbbr(), sp.getLayerName()));
+            if (propertyNames != null) {
+                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+            }
+
+        } else { // get
+            String filter = ogcrequest.getParameter(OGCConstants.WFS_PARAM_FILTER);
+            filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+        }
+
+        String layerParam = "";
+        List<LayerSummary> lsl = sp.getLayers();
+        for (LayerSummary ls : lsl) {
+            if (!layerParam.isEmpty()) {
+                layerParam += ",";
+            }
+            layerParam += OGCCommunication.buildLayerNameWithoutSp(ls);
+        }
+
+        ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
+        return null;
+    }
+    
+    public List<LayerSummary> prepareRequestLayers(OGCRequest ogcrequest) throws Exception {
+        List<String> allLayers = null;
+        if (ogcrequest.getHttpMethod().equals("POST")) {
+            Set layers = ogcrequest.getGetFeatureFilterMap().keySet();
+            allLayers.addAll(layers);
+        } else {
+            String typeName = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
+            allLayers = Arrays.asList(typeName.split(","));
+        }
+
+        String spInUrl = ogcrequest.getServiceProviderName();
+        
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(allLayers,
+                ogcrequest.getServiceProviderName(), (spInUrl==null));
+        
+        if (!checkNumberOfSps(lsl, 1)) {
+            log.error("More then 1 service provider addressed. Not supported (yet)");
+            throw new UnsupportedOperationException("More then 1 service provider addressed. Not supported (yet)");
+        }
+        return lsl;
+    }
+
+    public OGCResponse getNewOGCResponse() {
+        return new WFSGetFeatureResponse();
+    }
 
     public void getRequest(DataWrapper data, User user) throws IOException, Exception {
+        writeResponse(data, user);
+    }
+/*     
+    public void getRequestOld(DataWrapper data, User user) throws IOException, Exception {
         OGCRequest ogcrequest = data.getOgcrequest();
         Integer[] orgIds = user.getOrganizationIds();
 
@@ -104,14 +158,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                 
         List requestLayers = new ArrayList();
         for (int i = 0; i < allLayers.length; i++) {
-            Map splitLayer = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
+            LayerSummary splitLayer = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
             requestLayers.add(splitLayer);
         }
 
         // voor opzoeken in kaartenbalie, rechten en zo, met sp
         String[] layerNames = new String[requestLayers.size()];
         for (int i = 0; i < requestLayers.size(); i++) {
-            Map rl = (Map)requestLayers.get(i);
+            LayerSummary rl = (LayerSummary)requestLayers.get(i);
             layerNames[i] = OGCCommunication.buildLayerNameWithoutNs(rl);
         }
 
@@ -126,7 +180,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         }
 
  
-        OGCResponse ogcresponse = new OGCResponse();
+        OGCResponse ogcresponse = null;
 
         DataMonitoring rr = data.getRequestReporting();
         long startprocestime = System.currentTimeMillis();
@@ -139,7 +193,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         String spAbbr = null;
         Iterator spIt = spUrls.iterator();
         // voor vervangen in response, alleen sp indien niet in url
-        List spLayers = new ArrayList();
+        List<LayerSummary> spLayers = new ArrayList();
         while (spIt.hasNext()) {
             SpLayerSummary sp = (SpLayerSummary) spIt.next();
             spUrl = sp.getSpUrl();
@@ -155,25 +209,25 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             List tlayers = sp.getLayers();
             if (tlayers == null) {
                 String layerName = sp.getLayerName();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
-                layer.put("layer", layerName);
+                     LayerSummary layer = new LayerSummary();
+                    layer.setSpAbbr(spAbbr);
+                    layer.setLayerName(layerName);
                 spLayers.add(layer);
                 continue;
             }
             Iterator it2 = tlayers.iterator();
             while (it2.hasNext()) {
                 String layerName = (String) it2.next();
-                HashMap layer = new HashMap();
-                layer.put("spAbbr", spAbbr);
-                layer.put("layer", layerName);
-                spLayers.add(layer);
+                     LayerSummary layer = new LayerSummary();
+                    layer.setSpAbbr(spAbbr);
+                    layer.setLayerName(layerName);
+               spLayers.add(layer);
             }
             
             // voor url naar backend, zonder sp
             String layerParam = "";
             for (int i = 0; i < requestLayers.size(); i++) {
-                Map rl = (Map) requestLayers.get(i);
+                LayerSummary rl = (LayerSummary) requestLayers.get(i);
                 if (layerParam.length() != 0) {
                     layerParam += ",";
                 }
@@ -278,6 +332,14 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
                     DocumentBuilder builder = dbf.newDocumentBuilder();
                     Document doc = builder.parse(isx);
 
+                    if (OGCResponse.isErrorResponse(doc.getDocumentElement())) {
+                        ogcresponse = new WFSExceptionResponse();
+                    } else {
+                        ogcresponse = new WFSGetFeatureResponse();
+                    }
+                     if (ogcresponse == null) {
+                        throw new UnsupportedOperationException("Unknown response!");
+                    }
                     ogcresponse.findNameSpace(doc);
 
                     if (KBConfiguration.SAVE_MESSAGES) {
@@ -320,4 +382,5 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             throw new UnsupportedOperationException("XMLbody empty!");
         }
     }
+    */
 }

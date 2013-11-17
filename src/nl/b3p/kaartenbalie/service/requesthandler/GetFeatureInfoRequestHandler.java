@@ -21,14 +21,17 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -88,7 +91,11 @@ public class GetFeatureInfoRequestHandler extends WMSRequestHandler {
         Integer[] orgIds = this.user.getOrganizationIds();
         OGCRequest ogc = dw.getOgcrequest();
 
-        List spUrls = getServiceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(","), orgIds, true, dw);
+        String spInUrl = ogc.getServiceProviderName();
+        String[] la = ogc.getParameter(OGCConstants.WMS_PARAM_QUERY_LAYERS).split(",");
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
+        
+        List spUrls = getServiceProviderURLS(lsl, orgIds, true, dw, false);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.FEATUREINFO_QUERYABLE_EXCEPTION);

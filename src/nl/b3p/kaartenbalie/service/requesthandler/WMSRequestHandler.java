@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,6 +56,7 @@ import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.kaartenbalie.service.persistence.WFSProviderDAO;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.*;
@@ -813,7 +815,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         return lc.calculateLayerComplete(spAbbr, layerName, new Date(), projection, scale, new BigDecimal("1"), planType, service, operation);
     }
 
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception {
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String query = "select distinct new "
                 + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable,sp) "
                 + "from Layer l, Organization o, ServiceProvider sp join o.layers ol "
@@ -824,7 +826,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
 
-        return getValidLayerObjects(em, query, layer, orgIds, b3pLayering, spAbbrUrl);
+        return getValidLayerObjects(em, query, m, orgIds, b3pLayering);
     }
 
     /**

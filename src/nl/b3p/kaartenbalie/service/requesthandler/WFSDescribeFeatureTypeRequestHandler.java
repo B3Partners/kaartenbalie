@@ -22,42 +22,24 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import java.util.List;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPathExpressionException;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
-import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
-import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
-import nl.b3p.wms.capabilities.Roles;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import nl.b3p.ogc.utils.SpLayerSummary;
+import nl.b3p.ogc.utils.WFSDescribeFeatureTypeResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
- * @author Jytte
+ * @author Chris
  */
 public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
 
@@ -66,205 +48,49 @@ public class WFSDescribeFeatureTypeRequestHandler extends WFSRequestHandler {
     /** Creates a new instance of WFSRequestHandler */
     public WFSDescribeFeatureTypeRequestHandler() {
     }
-
-    public void getRequest(DataWrapper data, User user) throws IOException, Exception {
-
-        OGCRequest ogcrequest = (OGCRequest) data.getOgcrequest().clone();
-        Integer[] orgIds = user.getOrganizationIds();
-        
-        //als sp in url dan splitten met splitName = false
-        boolean splitName = true;
-        String spName = ogcrequest.getServiceProviderName();
-        if (spName != null) {
-            splitName = false;
-        }
-
-        String layers = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
-        String[] allLayers = layers.split(",");
-        String[] spLayerNames = new String[allLayers.length];
-        ArrayList layerMapList = null;
+    
+    public String prepareRequest4Sp(OGCRequest ogcrequest, SpLayerSummary sp) {
+        List<LayerSummary> lsl = sp.getLayers();
         String layerParam = "";
-        for (int i = 0; i < allLayers.length; i++) {
-            if (layerMapList == null) {
-                layerMapList = new ArrayList();
-            }
-            
-            Map layerMap = ogcrequest.splitLayerInParts(allLayers[i], splitName, spName, null);
-            // voor opzoeken in kaartenbalie, rechten en zo, met sp
-            spLayerNames[i] = ogcrequest.buildLayerNameWithoutNs(layerMap);
-            // voor url naar backend, zonder sp
-            if (layerParam.length() != 0) {
+        for (LayerSummary ls : lsl) {
+            if (!layerParam.isEmpty()) {
                 layerParam += ",";
             }
-            layerParam += ogcrequest.buildLayerNameWithoutSp(layerMap);
-            // voor vervangen in response, alleen sp als sp niet in url zit
-            if (spName!=null) {
-                layerMap.remove("spAbbr");
-            }
-            layerMapList.add(layerMap);
+            layerParam += OGCCommunication.buildLayerNameWithoutSp(ls);
         }
-
-         /*
-         * Only used if specific param is given (used for configuration)
-         */
-        boolean isAdmin = false;
-        if ("true".equalsIgnoreCase(data.getOgcrequest().getParameter("_VIEWER_CONFIG"))) {
-            Set userRoles = user.getRoles();
-            Iterator rolIt = userRoles.iterator();
-            while (rolIt.hasNext()) {
-                Roles role = (Roles) rolIt.next();
-                if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
-                    /* de gebruiker is een beheerder */
-                    isAdmin = true;
-                    break;
-                }
-            }
-        }
-
-        List spInfo = null;
-        if (isAdmin) {
-            spInfo = getLayerSummaries(spLayerNames, spName);
-        } else {
-            spInfo = getServiceProviderURLS(spLayerNames, orgIds, false, data);
-        }
-        if (spInfo == null || spInfo.isEmpty()) {
-            throw new UnsupportedOperationException("No Serviceprovider available! User might not have rights to any Serviceprovider!");
-        }
-
-        Integer spId = null;
-        String spurl = null;
-        Iterator spIt = spInfo.iterator();
-        SpLayerSummary sp = new SpLayerSummary();
-        while (spIt.hasNext()) {
-            sp = (SpLayerSummary) spIt.next();
-            Integer tSpId = sp.getServiceproviderId();
-            if (spId != null && tSpId != null && tSpId.compareTo(spId) != 0) {
-                log.error("More then 1 service provider addressed. Not supported (yet)");
-                throw new UnsupportedOperationException("More then 1 service provider addressed. Not supported (yet)");
-            }
-            spId = tSpId;
-            spurl = sp.getSpUrl();
-        }
-        if (spurl == null || spurl.length() == 0 || spId == null) {
-            throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-        }
-
         ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
-
-        HttpMethod method = null;
-
-        B3PCredentials credentials = new B3PCredentials();
-        credentials.setUserName(sp.getUsername());
-        credentials.setPassword(sp.getPassword());
-        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
         
-        OutputStream os = data.getOutputStream();
-        String body = ogcrequest.getXMLBody();
-        // TODO body cleanen
-
-        DataMonitoring rr = data.getRequestReporting();
-        long startprocestime = System.currentTimeMillis();
-
-        ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
-                data, spurl, spId, new Long(body.getBytes().length));
-
-        String host = spurl;
-        ogcrequest.setHttpHost(ogcrequest.fixHttpHost(host));
-        //probeer eerst met Http getMethod op te halen.
-        String reqUrl = ogcrequest.getUrl();
-        method = new GetMethod(reqUrl);
-        int status = client.executeMethod(method);
-        if (status != HttpStatus.SC_OK) {
-            method = new PostMethod(host);
-            //work around voor ESRI post request. Content type mag geen text/xml zijn.
-            //((PostMethod)method).setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-            ((PostMethod) method).setRequestEntity(new StringRequestEntity(body, null, null));
-            status = client.executeMethod(method);
+        return null;
+    }
+    
+    public List<LayerSummary> prepareRequestLayers(OGCRequest ogcrequest) throws Exception {
+        List<String> allLayers = null;
+        if (ogcrequest.getHttpMethod().equals("POST")) {
+            Set layers = ogcrequest.getGetFeatureFilterMap().keySet();
+            allLayers.addAll(layers);
+        } else {
+            String typeName = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
+            allLayers = Arrays.asList(typeName.split(","));
         }
-        try {
-            if (status == HttpStatus.SC_OK) {
-                wfsRequest.setResponseStatus(new Integer(200));
-                wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
 
-                data.setContentType("text/xml");
-                InputStream is = method.getResponseBodyAsStream();
-
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setNamespaceAware(true);
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(is);
-
-                OGCResponse ogcresponse = new OGCResponse();
-                ogcresponse.findNameSpace(doc);
-                // update layer names in response
-                replaceStringInElementName(ogcresponse, doc, layerMapList);
-
-                String output = ogcresponse.serializeNode(doc);
-                os.write(output.getBytes());
-
-            } else {
-                wfsRequest.setResponseStatus(status);
-                wfsRequest.setExceptionMessage("Failed to connect with " + spurl + " Using body: " + body);
-                wfsRequest.setExceptionClass(UnsupportedOperationException.class);
-                log.error("Failed to connect with " + spurl + " Using body: " + body);
-                throw new UnsupportedOperationException("Failed to connect with " + spurl + " Using body: " + body);
-            }
-        } catch (Exception e) {
-            wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
-            wfsRequest.setExceptionClass(e.getClass());
-            throw e;
-        } finally {
-            rr.addServiceProviderRequest(wfsRequest);
+        String spInUrl = ogcrequest.getServiceProviderName();
+        
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(allLayers,
+                ogcrequest.getServiceProviderName(), (spInUrl==null));
+        
+        if (!checkNumberOfSps(lsl, 1)) {
+            log.error("More then 1 service provider addressed. Not supported (yet)");
+            throw new UnsupportedOperationException("More then 1 service provider addressed. Not supported (yet)");
         }
+        return lsl;
+    }
+    
+    public OGCResponse getNewOGCResponse() {
+        return new WFSDescribeFeatureTypeResponse();
     }
 
-    /**
-     * Replaces a string value in a XSD document for the name attribute of an
-     * element tag.
-     *
-     * @param oldVal old name
-     * @param newVal new name
-     * @throws XPathExpressionException
-     */
-    private void replaceStringInElementName(OGCResponse ogcresponse, Node currentNode, List layerMapList) throws Exception {
-        if (layerMapList == null || layerMapList.size() == 0) {
-            return;
-        }
-        String prefix = ogcresponse.getNameSpacePrefix("http://www.w3.org/2001/XMLSchema");
-        StringBuilder sb = new StringBuilder();
-        sb.append("/");
-        if (prefix != null && prefix.length() > 0) {
-            sb.append(prefix);
-            sb.append(":");
-        }
-        sb.append("schema/");
-        if (prefix != null && prefix.length() > 0) {
-            sb.append(prefix);
-            sb.append(":");
-        }
-        sb.append("element/@name");
-        NodeList nodes = ogcresponse.getNodeListFromXPath(currentNode, sb.toString());
-        for (int i = 0; i < nodes.getLength(); i++) {
-            Node n = nodes.item(i);
-            String textContent = n.getTextContent();
-            Map responseLayerMap = ogcresponse.splitLayerInParts(textContent, false, null, null);
-            String responseLayerName = (String) responseLayerMap.get("layerName");
-            if (responseLayerName == null) {
-                // impossible
-                continue;
-            }
-            Iterator it = layerMapList.iterator();
-            while (it.hasNext()) {
-                Map requestLayerMap = (Map) it.next();
-                //only check on pure layer name without namespace
-                //hack necessary because response does not (always) return
-                //same namespace as in request.
-                String requestLayerName = (String) requestLayerMap.get("layerName");
-                if (requestLayerName != null && requestLayerName.equals(responseLayerName)) {
-                    String fullLayerName = OGCCommunication.buildFullLayerName(requestLayerMap);
-                    n.setTextContent(fullLayerName);
-                }
-            }
-        }
+   public void getRequest(DataWrapper data, User user) throws IOException, Exception {
+        writeResponse(data, user);
     }
+
 }

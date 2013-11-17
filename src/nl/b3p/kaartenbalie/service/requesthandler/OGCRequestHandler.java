@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.util.*;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -33,9 +34,11 @@ import nl.b3p.kaartenbalie.core.server.b3pLayering.BalanceLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.wms.capabilities.Layer;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -78,7 +81,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception;
+    protected abstract SpLayerSummary getValidLayerObjects(EntityManager em, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception;
 
     /**
      * methode die alleen een query nodig heeft om bestaan en rechten van layer
@@ -86,19 +89,18 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * <P>
      * @param em EntityManager
      * @param query query waarmee rechten en bestaan gecheckt kan worden
-     * @param layer layer naam met sp abbrr (abbr_layer)
-     * @param orgId organisatie id
+     * @param m
+     * @param orgIds
      * @param b3pLayering bepaalt of service layers toegevoegd worden, true = alleen service layers,
      * false = alleen echte layers.
+     * @param spAbbrUrl
      * @return object array met resultaat voor gezochte layer
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, String layer, Integer[] orgIds, boolean b3pLayering, String spAbbrUrl) throws Exception {        
-        boolean splitName = (spAbbrUrl == null || spAbbrUrl.isEmpty()) ? true : false;
-        Map m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, spAbbrUrl, null);
-        String layerCode = (String) m.get("spAbbr");
-        String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {        
+        String layerCode = m.getSpAbbr();
+        String layerName = m.getLayerName();
 
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
@@ -133,16 +135,36 @@ public abstract class OGCRequestHandler implements RequestHandler {
         log.debug(dur + "ms: END query getValidLayerObjects");
 
         if (result == null || result.isEmpty()) {
-            log.error("layer not valid or no rights, name: " + layer);
-            throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + layer);
+            log.error("layer not valid or no rights, name: " + OGCCommunication.buildFullLayerName(m));
+            throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
         } else if (result.size() > 1) {
-            log.error("layers with duplicate names, name: " + layer);
-            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + layer);
+            log.error("layers with duplicate names, name: " + OGCCommunication.buildFullLayerName(m));
+            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
         }
 
         return (SpLayerSummary) result.get(0);
     }
-
+    
+    public boolean isConfigInUrlAndAdmin(DataWrapper data, User user){
+         /*
+         * Only used if specific param is given (used for configuration)
+         */
+        boolean isAdmin = false;
+        if ("true".equalsIgnoreCase(data.getOgcrequest().getParameter("_VIEWER_CONFIG"))) {
+            Set userRoles = user.getRoles();
+            Iterator rolIt = userRoles.iterator();
+            while (rolIt.hasNext()) {
+                Roles role = (Roles) rolIt.next();
+                if (role.getRole().equalsIgnoreCase(Roles.ADMIN)) {
+                    /* de gebruiker is een beheerder */
+                    isAdmin = true;
+                    break;
+                }
+            }
+        }
+        return isAdmin;
+    }
+    
     /**
      * methode is complexer dan op het eerste gezicht nodig lijkt. per service provider
      * worden de layers opgezocht. echter de volgorde van de layers moet bewaard blijven.
@@ -169,25 +191,25 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @return lijst van serviceproviders met daarin bij behorende layers
      * @throws java.lang.Exception fout bij ophalen layer informatie
      */
-    protected List getServiceProviderURLS(String[] layers, Integer[] orgIds, boolean checkForQueryable, DataWrapper dw) throws Exception {
+    protected List getServiceProviderURLS(List<LayerSummary> lsl, Integer[] orgIds, boolean checkForQueryable, DataWrapper dw, boolean maintainOrder) throws Exception {
 
         // Per kaartlaag wordt uitgezocht tot welke sp hij hoort,
         // er voldoende rechten zijn voor de kaart en of aan
         // de queryable voorwaarde is voldaan
-        List eventualSPList = new ArrayList();
+        List<SpLayerSummary> eventualSPList = new ArrayList();
 
         log.debug("Getting entity manager ......");
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
 
         Map config = dw.getLayeringParameterMap();
-        configB3pLayering(layers, config);
+        configB3pLayering(lsl, config);
 
         String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
         
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
-        for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering, spAbbrUrl);
+        for (LayerSummary m : lsl) {
+            SpLayerSummary layerInfo = getValidLayerObjects(em, m, orgIds, b3pLayering);
             if (layerInfo == null ) {
                 continue;
             }
@@ -195,21 +217,23 @@ public abstract class OGCRequestHandler implements RequestHandler {
             // layer toevoegen aan sp indien queryable voorwaarde ok
             if (!checkForQueryable
                     || (checkForQueryable && layerInfo.getQueryable() != null && layerInfo.getQueryable().equals("1"))) {
-                addToServerProviderList(eventualSPList, layerInfo);
+                addToServerProviderList(eventualSPList, layerInfo, maintainOrder);
             }
         }
 
         //als laatste b3pLayering meenemen
         b3pLayering = true;
-        for (int i = 0; i < layers.length; i++) {
-            SpLayerSummary layerInfo = getValidLayerObjects(em, layers[i], orgIds, b3pLayering, spAbbrUrl);
+        for (LayerSummary m : lsl) {
+            SpLayerSummary layerInfo = getValidLayerObjects(em, m, orgIds, b3pLayering);
             if (layerInfo == null) {
                 continue;
             }
-            if (AllowTransactionsLayer.NAME.equalsIgnoreCase(layerInfo.getLayerName())) {
-                config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, Boolean.TRUE);
+            for (LayerSummary ls : layerInfo.getLayers()) {
+                if (AllowTransactionsLayer.NAME.equalsIgnoreCase(ls.getLayerName())) {
+                    config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, Boolean.TRUE);
+                }
             }
-            addToServerProviderList(eventualSPList, layerInfo);
+            addToServerProviderList(eventualSPList, layerInfo, maintainOrder);
         }
         return eventualSPList;
     }
@@ -325,7 +349,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                         KBConfiguration.SERVICEPROVIDER_BASE_HTTP,
                         KBConfiguration.SERVICEPROVIDER_BASE_ABBR,
                         null,null);
-                addToServerProviderList(cleanedSpList, layerInfo);
+                addToServerProviderList(cleanedSpList, layerInfo, true);
             }
         }
 
@@ -401,29 +425,38 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * keren worden aangeroepen.
      * <p>
      * @param eventualSPList lijst met service providers in juiste volgore
-     * @param serviceproviderId sp id van nieuwe layer
-     * @param layerId id van nieuwe layer
-     * @param layerName name van nieuwe layer
-     * @param spUrl url van sp van nieuwe layer
-     * @param spAbbr abbr van sp van nieuwe layer
-     */
-    protected void addToServerProviderList(List eventualSPList, SpLayerSummary layerInfo) {
-        SpLayerSummary spInfo = null;
-        int size = eventualSPList.size();
-        if (size > 0) {
-            SpLayerSummary lastSpInfo = (SpLayerSummary) eventualSPList.get(size - 1);
-            Integer spId = lastSpInfo.getServiceproviderId();
+     * @param layerInfo
+     * @param maintainOrder
+      */
+    protected void addToServerProviderList(List<SpLayerSummary> eventualSPList, SpLayerSummary layerInfo, boolean maintainOrder) {
+        SpLayerSummary correctSpInfo = null;
+        SpLayerSummary matchingSpInfo = null;
+        SpLayerSummary lastSpInfo = null;
+        int loopnum = 0;
+        for (SpLayerSummary sls : eventualSPList) {
+            Integer spId = sls.getServiceproviderId();
             if (spId != null && spId.intValue() == layerInfo.getServiceproviderId().intValue()) {
-                spInfo = lastSpInfo;
+                matchingSpInfo = sls;
+            }
+            loopnum++;
+            if (loopnum == eventualSPList.size()) {
+                lastSpInfo = sls;
             }
         }
-        if (spInfo == null) {
-            spInfo = layerInfo;
-            eventualSPList.add(spInfo);
+        if (!maintainOrder && matchingSpInfo != null) {
+            // voeg layers toe aan overeenkomende sp
+            correctSpInfo = matchingSpInfo;
+        } else if (lastSpInfo!=null && lastSpInfo.equals(matchingSpInfo)) {
+            // laatste sp is geschikt om toe te voegen
+            correctSpInfo = lastSpInfo;
         }
-
-        spInfo.addLayer(layerInfo.getLayerName());
-        spInfo.addStyles(layerInfo.getLayerName(), layerInfo.getStyles(layerInfo.getLayerName()));
+        if (correctSpInfo == null) {
+            correctSpInfo = layerInfo;
+            eventualSPList.add(correctSpInfo);
+        } else {
+            correctSpInfo.addLayers(layerInfo.getLayers());
+            //spInfo.addStyles(layerInfo.getLayerName(), layerInfo.getStyles(layerInfo.getLayerName()));
+        }
     }
 
     /**
@@ -440,13 +473,11 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @param config map met configuratie info
      * @throws java.lang.Exception fout bij configureren
      */
-    protected void configB3pLayering(String[] layers, Map config) throws Exception {
-        for (int i = 0; i < layers.length; i++) {
-            Map m = OGCCommunication.splitLayerWithoutNsFix(layers[i], true, null, null);
-            String layerCode = (String) m.get("spAbbr");
+    protected void configB3pLayering(List<LayerSummary> lsl, Map config) throws Exception {
+        for (LayerSummary m : lsl) {
+            String layerCode = m.getSpAbbr();
             String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
 
-            String[] layerCodeAndName = OGCCommunication.toCodeAndName(layers[i]);
             if (layerCode==null || layerName==null) {
                 continue;
             }

@@ -21,6 +21,7 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -32,6 +33,7 @@ import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
@@ -97,7 +99,10 @@ public class GetMapRequestHandler extends WMSRequestHandler {
 
         String givenSRS = ogc.getParameter(OGCConstants.WMS_PARAM_SRS);
 
-        List spUrls = getServiceProviderURLS(ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(","), orgIds, false, dw);
+        String spInUrl = ogc.getServiceProviderName();
+        String[] la = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
+        List spUrls = getServiceProviderURLS(lsl, orgIds, false, dw, true);
         if (spUrls == null || spUrls.isEmpty()) {
             log.error("No urls qualify for request.");
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
@@ -138,17 +143,22 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 gmrWrapper.setServiceProviderId(serviceProviderId);
 
                 boolean srsFound = false;
-                Set<String> sqlQuery = getSRS(spInfo.getLayerId(), em);
-                if (sqlQuery != null) {
-                    Iterator sqlIterator = sqlQuery.iterator();
-                    while (sqlIterator.hasNext()) {
-                        String srs = (String) sqlIterator.next();
-                        if (srs != null && srs.equals(givenSRS)) {
-                            srsFound = true;
+                List<LayerSummary> llsl = spInfo.getLayers();
+                for (LayerSummary ls : llsl) {
+                    srsFound = false;
+                    Set<String> sqlQuery = getSRS(ls.getLayerId(), em);
+                    if (sqlQuery != null) {
+                        Iterator sqlIterator = sqlQuery.iterator();
+                        while (sqlIterator.hasNext()) {
+                            String srs = (String) sqlIterator.next();
+                            if (srs != null && srs.equals(givenSRS)) {
+                                srsFound = true;
+                            }
                         }
+                    } 
+                    if (!srsFound) {
+                        break;
                     }
-                } else {
-                    log.error("No srs found");
                 }
                 if (!srsFound) {
                     log.error("No suitable srs found.");

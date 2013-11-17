@@ -21,14 +21,17 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import nl.b3p.gis.B3PCredentials;
 
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 
@@ -76,17 +79,17 @@ public class DescribeLayerRequestHandler extends WMSRequestHandler {
                 
         Long timeFromStart = new Long(dw.getRequestReporting().getMSSinceStart());
         
-        // --
-        // -- get params from ogcrequest
-        // --
         String requestParam = ogcRequest.getParameter(OGCConstants.REQUEST);
-        String layersParam = ogcRequest.getParameter(OGCConstants.WMS_PARAM_LAYERS);
         
         // --
         // -- check if there are service provider urls to collect data from
         // -- getSeviceProviderURLS returns list with SpLayerSummary objects
         // --
-        List spInfo = getServiceProviderURLS(layersParam.split(","), orgIds, false, dw);
+        String spInUrl = ogcRequest.getServiceProviderName();
+        String[] la = ogcRequest.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
+        
+        List spInfo = getServiceProviderURLS(lsl, orgIds, false, dw, false);
         if (spInfo == null || spInfo.isEmpty()) {
         	//Error message from KBConfiguration in b3p-commons-gis?
         	log.error(requestParam + ": no urls qualify for request.");

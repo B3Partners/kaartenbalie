@@ -21,13 +21,16 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
+import nl.b3p.ogc.utils.SpLayerSummary;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import org.apache.commons.logging.Log;
@@ -69,13 +72,16 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             }
         }
 
-        String[] layers = ogc.getParameter(OGCConstants.WMS_PARAM_LAYER).split(",");
-        if (layers.length != 1) {
+        String spInUrl = ogc.getServiceProviderName();
+        String[] la = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
+
+        if (lsl==null || lsl.size() != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
         }
 
-        List spUrls = getServiceProviderURLS(layers, orgIds, false, dw);
+        List spUrls = getServiceProviderURLS(lsl, orgIds, false, dw, false);
         if (spUrls == null || spUrls.size() != 1) {
             log.error("Only one layer for legend graphic.");
             throw new Exception(KBConfiguration.LEGENDGRAPHIC_EXCEPTION);
