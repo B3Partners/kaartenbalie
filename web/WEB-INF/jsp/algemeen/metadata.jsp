@@ -43,6 +43,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         <c:set var="link">
             <html:rewrite page="/editmetadata.do?edit=t"/>
         </c:set>
-        <iframe src="${link}" frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="450"></iframe>
+        <iframe src="${link}" frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="1500"></iframe>
     </div>	
 </div>

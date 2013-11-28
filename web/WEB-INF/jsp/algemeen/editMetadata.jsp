@@ -73,22 +73,28 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
         <!-- organisations database. should be filled by customer data. -->
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-nl.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-inspire-nl.js' module='' />"></script>
         <!-- mde -->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorBasic.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorXslt.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/commonOptions.js' module='' />"></script>
 
         <script type="text/javascript">
             $(document).ready(function() {
                 $("#metadataEditor").mde({
-                    xml: $("#md-placeholder").text(),
-                    fcMode: true,
-                    logMode: true,
-                    richTextMode: true,
-                    organisations: organisations,
-                    change: function(changed) {
-                    }
-                });
+                     xml: $("#md-placeholder").val(),
+                     dcMode: false,
+                     fcMode: false,
+                     serviceMode: false,
+                     datasetMode: true,
+                     iso19115oneTab: false,
+                     commentMode: false,
+                     viewMode: false, //TODO true werkt nog niet
+                     logMode: true,
+                     organisations: organisations,
+                     change: function(changed) {
+                     }                        
+                 });
 
                 $("#sendButton").click(function(event) {
                     var xpath = $("#saveStrict").is(":checked") ? "/metadata/gmd:MD_Metadata" : "/metadata";
@@ -141,7 +147,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             <h4><fmt:message key="algemeen.editMetadata.title" /></h4>
             <table>
                 <tr>
-                    <td><b title="Metadata verzenden strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2. De attributen (FeatureCatalog) worden weggelaten.">Strict</b></td>
+                    <td><b title="Metadata verzenden strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.3.1. De attributen (FeatureCatalog) worden weggelaten.">Strict</b></td>
                     <td><input type="checkbox" id="saveStrict" checked="checked" title="Metadata verzenden strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2. De attributen (FeatureCatalog) worden weggelaten."/></td>
                 </tr>
                 <tr>

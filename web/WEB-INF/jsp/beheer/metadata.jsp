@@ -27,7 +27,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <h1><fmt:message key="beheer.metadata.title" /></h1>
     <div class="mdContainerDiv">
         <div id="tree" class="containerdivFloat"></div>
-        <iframe frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="450" style="margin-top: 20px;"></iframe>
+        <iframe frameborder="0" id="metadataIframe" name="metadataIframe" class="mdIframe" width="630" height="1500" style="margin-top: 20px;"></iframe>
     </div>	
 </div>
 

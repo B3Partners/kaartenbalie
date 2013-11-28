@@ -73,20 +73,26 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
         <!-- organisations database. should be filled by customer data. -->
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/organisations.js' module='' />"></script>
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-nl.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/picklists/gemet-inspire-nl.js' module='' />"></script>
         <!-- mde -->
-        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditor.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorBasic.js' module='' />"></script>
+        <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/metadataEditorXslt.js' module='' />"></script>
         <script type="text/javascript" src="<html:rewrite page='/js/metadataEditor/includes/commonOptions.js' module='' />"></script>
 
         <script type="text/javascript">
             $(document).ready(function() {
                 $("#metadataEditor").mde({
-                    xml: $("#md-placeholder").text(),
-                    fcMode: true,
-                    logMode: true,
-                    richTextMode: true,
-                    organisations: organisations,
-                    change: function(changed) {
+                     xml: $("#md-placeholder").text(),
+                     dcMode: false,
+                     fcMode: false,
+                     serviceMode: false,
+                     datasetMode: true,
+                     iso19115oneTab: false,
+                     commentMode: false,
+                     viewMode: false, //TODO true werkt nog niet
+                     logMode: true,
+                     organisations: organisations,
+                     change: function(changed) {
                         $("#saveButton").attr("disabled", !changed);
                     }
                 });
@@ -155,7 +161,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             <h4><fmt:message key="beheer.metadataeditor.downloaden" /></h4>
             <div id="saveStrictBlock" style="margin-bottom: 10px">
                 <input type="checkbox" id="saveStrict" checked="checked" />
-                <label for="saveStrict">Download strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.2</label>
+                <label for="saveStrict">Download strict volgens het Nederlandse metadata profiel op ISO 19115 voor geografie 1.3.1</label>
             </div>
             <html:button property="downloadButton" value="Downloaden" disabled="false" styleId="downloadButton"/>
         </html:form>
