@@ -76,7 +76,7 @@ public class WFSProviderDAO extends BaseDAO {
     
     public SpLayerSummary getAuthorizedFeatureTypeSummary(String layer, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String query = "select distinct new " +
-                "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, 'true') " +
+                "nl.b3p.ogc.utils.SpLayerSummary(l, 'true') " +
                 "from WfsLayer l, Organization o, WfsServiceProvider sp join o.wfsLayers ol " +
                 "where l = ol and " +
                 "l.wfsServiceProvider = sp and " +

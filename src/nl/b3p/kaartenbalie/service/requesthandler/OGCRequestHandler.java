@@ -263,12 +263,12 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @return opgeschoonde lijst van layers die getoond mogen worden.
      * @throws java.lang.Exception fout bij bepaling prijs
      */
-    protected List prepareAccounting(Integer orgId, DataWrapper dw, List foundSpList) throws Exception {
+    protected List<SpLayerSummary> prepareAccounting(Integer orgId, DataWrapper dw, List<SpLayerSummary> foundSpList) throws Exception {
 
         if (foundSpList == null) {
             return null;
         }
-        List cleanedSpList = new ArrayList();
+        List<SpLayerSummary> cleanedSpList = new ArrayList();
 
         AccountManager am = AccountManager.getAccountManager(orgId);
         Transaction tlu = am.beginTLU();
@@ -293,16 +293,15 @@ public abstract class OGCRequestHandler implements RequestHandler {
 
             while (it.hasNext()) {
                 SpLayerSummary spInfo = (SpLayerSummary) it.next();
-                String spAbbr = spInfo.getSpAbbr();
-                List layers = spInfo.getLayers();
+                List<LayerSummary> layers = spInfo.getLayers();
                 if (layers == null) {
                     continue;
                 }
-                List checkedLayers = new ArrayList();
+                List<LayerSummary> checkedLayers = new ArrayList();
                 Iterator it2 = layers.iterator();
                 while (it2.hasNext()) {
-                    String layerName = (String) it2.next();
-                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, spAbbr, layerName);
+                    LayerSummary ls = (LayerSummary)it2.next();
+                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, ls.getSpAbbr(), ls.getLayerName());
                     boolean bIsFree = true;
                     if (lpc != null) {
                         tlu.registerUsage(lpc);
@@ -311,7 +310,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                     }
                     // Only add layer when free or when transactions allowed
                     if (bIsFree || bAllowTransactions) {
-                        checkedLayers.add(layerName);
+                        checkedLayers.add(ls);
                     }
                 }
                 if (checkedLayers.size() > 0) {
@@ -320,9 +319,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 }
             }
         } finally {
-            if (lc != null) {
-                lc.closeEntityManager();
-            }
+             lc.closeEntityManager();
         }
 
         /* 

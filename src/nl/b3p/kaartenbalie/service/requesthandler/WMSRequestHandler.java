@@ -817,7 +817,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
     protected SpLayerSummary getValidLayerObjects(EntityManager em, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String query = "select distinct new "
-                + "nl.b3p.kaartenbalie.service.requesthandler.SpLayerSummary(l, l.queryable,sp) "
+                + "nl.b3p.ogc.utils.SpLayerSummary(l, l.queryable,sp) "
                 + "from Layer l, Organization o, ServiceProvider sp join o.layers ol "
                 + "where l = ol and "
                 + "l.serviceProvider = sp and "
