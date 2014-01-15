@@ -36,6 +36,6 @@ public class MetadataResourceFactory implements ResourceFactory {
 
     public static String createName(Layer l) {
      
-        return OGCCommunication.attachSp(l.getSpAbbr(), l.getName()) + ".xml";
+        return l.getUniqueName() + ".xml";
     }
 }

@@ -170,7 +170,7 @@ public abstract class ConfigLayer extends Layer {
         Graphics2D g2d = (Graphics2D) bufImage.getGraphics();
         Boolean showName = (Boolean) parameterMap.get("showname");
         if (showName != null && showName.booleanValue() == true) {
-            drawTitledMessageBox(g2d, "KaartenBalie", "Message for Layer '" + super.getName() + "'", 20, 20, 300, 30);
+            drawTitledMessageBox(g2d, "KaartenBalie", "Message for Layer '" + super.getUniqueName() + "'", 20, 20, 300, 30);
         }
     }
 

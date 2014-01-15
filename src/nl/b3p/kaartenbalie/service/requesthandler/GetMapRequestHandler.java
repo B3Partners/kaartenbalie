@@ -197,7 +197,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         List<Integer> sldStyleIds= new ArrayList<Integer>();
         String layersString = spInfo.getLayersAsString();
         String kbProxySldUrl=serviceUrl.replace("/services/", "/ProxySLD/");
-        List layersList = spInfo.getLayers();
+        List<LayerSummary> layersList = spInfo.getLayers();
         returnValue.append(spInfo.getSpUrl());
         if (returnValue.indexOf("?") != returnValue.length() - 1 && returnValue.indexOf("&") != returnValue.length() - 1) {
             if (returnValue.indexOf("?") >= 0) {
@@ -263,14 +263,14 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                                     for (int j = 0; j < layersArray.length; j++) {
                                         Iterator it = layersList.iterator();
                                         while (it.hasNext()) {
-                                            String l = (String) it.next();
-                                            String completeName = OGCCommunication.attachSp(spInfo.getSpAbbr(), l);
+                                            LayerSummary ls = (LayerSummary) it.next();
+                                            String completeName = OGCCommunication.buildFullLayerName(ls);
                                             //TODO: Moet het toegevoegd worden als Style= of als sld                                            
                                             if (completeName.equals(layersArray[j])) {
                                                 String style = styles.get(j);                                                
                                                 //als er een style is gekozen met een SLDpart 
                                                 //niet de style meenemen maar een sld bouwen
-                                                Style s=spInfo.getStyle(l,style);
+                                                Style s=spInfo.getStyle(OGCCommunication.buildLayerNameWithoutSp(ls),style);
                                                 if (s!=null && s.getSldPart()!=null){
                                                     providerStyles.add("");
                                                     sldStyleIds.add(s.getId());                                                    

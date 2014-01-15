@@ -207,8 +207,8 @@ public class ExtLayerCalculator extends LayerCalculator {
             while (iterChilds.hasNext()) {
                 Layer childLayer = (Layer) iterChilds.next();
                 try {
-                    String spAbbr = childLayer.getName();
-                    String layerName = childLayer.getSpAbbr();
+                    String spAbbr = childLayer.getSpAbbr();
+                    String layerName = childLayer.getName();
                     BigDecimal thisLayerPrice = calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
                     layerPrice =
                             addToLayerPrice(layerPrice, thisLayerPrice);
@@ -261,8 +261,8 @@ public class ExtLayerCalculator extends LayerCalculator {
         Layer parentLayer = layer.getParent();
         if (parentLayer != null) {
             try {
-                String spAbbr = parentLayer.getName();
-                String layerName = parentLayer.getSpAbbr();
+                String spAbbr = parentLayer.getSpAbbr();
+                String layerName = parentLayer.getName();
                 layerPrice = calculateLayer(spAbbr, layerName, validationDate, projection, scale, units, planType, service, operation);
                 log.debug("Pricing gevonden voor layer: " + parentLayer.getName());
             } catch (Exception ex) {
