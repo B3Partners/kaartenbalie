@@ -100,7 +100,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      */
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {        
         String layerCode = m.getSpAbbr();
-        String layerName = m.getLayerName();
+        String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
 
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
@@ -229,7 +229,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 continue;
             }
             for (LayerSummary ls : layerInfo.getLayers()) {
-                if (AllowTransactionsLayer.NAME.equalsIgnoreCase(ls.getLayerName())) {
+                if (AllowTransactionsLayer.NAME.equalsIgnoreCase(OGCCommunication.buildLayerNameWithoutSp(ls))) {
                     config.put(AllowTransactionsLayer.foundAllowTransactionsLayer, Boolean.TRUE);
                 }
             }
@@ -301,7 +301,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 Iterator it2 = layers.iterator();
                 while (it2.hasNext()) {
                     LayerSummary ls = (LayerSummary)it2.next();
-                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, ls.getSpAbbr(), ls.getLayerName());
+                    LayerPriceComposition lpc = calculateLayerPriceComposition(dw, lc, ls.getSpAbbr(), OGCCommunication.buildLayerNameWithoutSp(ls));
                     boolean bIsFree = true;
                     if (lpc != null) {
                         tlu.registerUsage(lpc);

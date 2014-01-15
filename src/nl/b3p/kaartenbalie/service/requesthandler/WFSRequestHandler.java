@@ -470,7 +470,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             boolean splitName = (serviceName==null || serviceName.isEmpty())?true:false;
             LayerSummary m = OGCCommunication.splitLayerWithoutNsFix(layer, splitName, serviceName, null);
             String abbr = m.getSpAbbr();
-            String name = m.getLayerName();
+            String name = OGCCommunication.buildLayerNameWithoutSp(m);
 
             List matchingLayers = em.createQuery("from WfsLayer l where l.name = :name and l.wfsServiceProvider.abbr = :abbr").setParameter("name", name).setParameter("abbr", abbr).getResultList();
 

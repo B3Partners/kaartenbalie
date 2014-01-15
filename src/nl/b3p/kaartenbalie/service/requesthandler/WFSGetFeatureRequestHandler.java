@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
@@ -64,14 +66,23 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     public String prepareRequest4Sp(OGCRequest ogcrequest, SpLayerSummary sp) {
         
         if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
-            String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.attachSp(sp.getSpAbbr(), sp.getLayerName()));
-            filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
-            if (filter != null) {
-                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+            LayerSummary l = null;
+            try {
+                l = OGCCommunication.splitLayerWithoutNsFix(sp.getLayerName(), false, sp.getSpAbbr(), null);
+            } catch (Exception ex) {
+                // ignore
             }
-            String propertyNames = ogcrequest.getGetFeaturePropertyNameList(OGCCommunication.attachSp(sp.getSpAbbr(), sp.getLayerName()));
-            if (propertyNames != null) {
-                ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+        
+            if (l != null) {
+                String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.buildFullLayerName(l));
+                filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
+                if (filter != null) {
+                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
+                }
+                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(OGCCommunication.buildFullLayerName(l));
+                if (propertyNames != null) {
+                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+                }
             }
 
         } else { // get
