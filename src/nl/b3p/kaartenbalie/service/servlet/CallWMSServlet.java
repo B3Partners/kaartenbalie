@@ -153,7 +153,7 @@ public class CallWMSServlet extends GeneralServlet {
                 rr.setClientRequestException(adex);
                 handleRequestException(adex, data);
             } catch (Exception ex) {
-                log.debug("Error while handling request: ", ex);
+                log.error("Error while handling request: ", ex);
                 
                 rr.setClientRequestException(ex);
                 handleRequestException(ex, data);

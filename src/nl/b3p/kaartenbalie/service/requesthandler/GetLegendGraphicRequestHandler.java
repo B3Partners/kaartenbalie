@@ -73,7 +73,7 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
         }
 
         String spInUrl = ogc.getServiceProviderName();
-        String[] la = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS).split(",");
+        String[] la = ogc.getParameter(OGCConstants.WMS_PARAM_LAYER).split(",");
         List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
 
         if (lsl==null || lsl.size() != 1) {
