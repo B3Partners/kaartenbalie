@@ -13,7 +13,7 @@
 	removeAbandoned="true"
 	removeAbandonedTimeout="60"
 	type="javax.sql.DataSource"
-	url="jdbc:oracle:thin:@geoontw.oradb.gouda.lok:1521:geo"
+	url="jdbc:oracle:thin:@geotest.oradb.gouda.lok:1521:geo"
 	minEvictableIdleTimeMillis="10000"
 	timeBetweenEvictionRunsMillis="60000"
 />
