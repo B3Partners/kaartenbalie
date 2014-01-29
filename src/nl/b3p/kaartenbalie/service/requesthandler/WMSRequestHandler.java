@@ -551,7 +551,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 long time = System.currentTimeMillis() - startTime;
                 try {
                     /* Test for avoiding scrambled png images on some platforms */
-                    ImageUtilities.allowNativeCodec("png", ImageReaderSpi.class, false);
+                    //ImageUtilities.allowNativeCodec("png", ImageReaderSpi.class, false);
 
                     BufferedImage[] bi = new BufferedImage[]{ConfigLayer.handleRequest(url, dw.getLayeringParameterMap())};
                     KBImageTool.writeImage(bi, "image/png", dw);
