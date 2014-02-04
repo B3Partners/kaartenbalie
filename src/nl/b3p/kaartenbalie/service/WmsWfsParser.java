@@ -178,6 +178,7 @@ abstract public class WmsWfsParser extends ServerAction {
         List<String> allowed = new ArrayList<String>();
         allowed.addAll(Arrays.asList(allowed_files));
         
+        String sep = File.separator;
         
         int fileSize = (int) thisFile.getFileSize();
         if (fileSize > (1024 * 1024)) {
@@ -189,7 +190,7 @@ abstract public class WmsWfsParser extends ServerAction {
         if (fileName == null || !allowed.contains(extention.toLowerCase())) {
             return UPLOADFILE_FORMAT_ERRORKEY;
         }
-        String uploaddir = MyEMFDatabase.getUpload()+"\\"+abbreviation;
+        String uploaddir = MyEMFDatabase.getUpload()+sep+abbreviation;
         File dir = new File(uploaddir);
         if (!dir.isDirectory()) {
             dir.mkdirs();

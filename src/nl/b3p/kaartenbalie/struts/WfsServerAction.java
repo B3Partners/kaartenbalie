@@ -409,7 +409,9 @@ public class WfsServerAction extends ServerAction {
         dynaForm.set("abbr", serviceProvider.getAbbr());
         
         // Haal geuploaden files van deze service op
-        String uploaddir = MyEMFDatabase.getUpload()+"\\"+serviceProvider.getAbbr();
+        String sep = File.separator;
+        
+        String uploaddir = MyEMFDatabase.getUpload()+sep+serviceProvider.getAbbr();
         List uploadFiles = new ArrayList();
         List<String> fileNames = new ArrayList<String>();
         File dir = new File(uploaddir);
@@ -421,7 +423,7 @@ public class WfsServerAction extends ServerAction {
             if(uploadFiles != null && !uploadFiles.isEmpty()){
                 for(Iterator it = uploadFiles.iterator(); it.hasNext();){
                     String file = it.next().toString();
-                    int i = file.lastIndexOf("\\");
+                    int i = file.lastIndexOf(sep);
                     fileNames.add(file.substring(i+1));
                 }
                 request.setAttribute("fileNames", fileNames);
