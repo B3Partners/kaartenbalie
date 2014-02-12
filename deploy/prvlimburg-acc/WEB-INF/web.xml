@@ -125,6 +125,11 @@
             <param-name>debug</param-name>
             <param-value>false</param-value>
         </init-param>
+		<!-- Needed for DWR when updating rights -->
+		<init-param> 
+          <param-name>crossDomainSessionSecurity</param-name> 
+          <param-value>false</param-value> 
+        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
