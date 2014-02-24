@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>c:\maps\upload</param-value>
+        <param-value>/srv/maps/solparc/</param-value>
     </context-param>
     <context-param>
         <description>
@@ -59,11 +59,11 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>/srv/maps/demo/</param-value>
+            <param-value>/srv/maps/solparc/</param-value>
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>C:\upload</param-value>
+            <param-value>/srv/upload/solparc</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
