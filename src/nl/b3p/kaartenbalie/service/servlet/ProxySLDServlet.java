@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.b3p.kaartenbalie.service.servlet;
 
 import java.io.IOException;
@@ -14,8 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import nl.b3p.kaartenbalie.service.URLCache;
-import nl.b3p.kaartenbalie.service.requesthandler.OGCRequestHandler;
-import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
@@ -102,10 +96,14 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
         /**/
         String xml = "";
         xml=sldFact.createSLD(returnedNamedLayers);
-        response.setContentType(mimeType);            
+        response.setContentType(mimeType);    
+        
+        log.debug("Returned sld: \n"+xml);
+        
         out.write(xml);           
                 
     }
+    
     public static void addSLDToCache(String sldUrl){
         cache.cacheUrl(sldUrl, false);
     }

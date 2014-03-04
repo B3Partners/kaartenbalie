@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>c:\maps\upload</param-value>
+        <param-value>/mnt/data/maps/upload</param-value>
     </context-param>
     <context-param>
         <description>
@@ -41,6 +41,7 @@
         <filter-name>Security Filter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+    
     <!-- Init ManagedPersistence to get a hibernate EntityManagerFactory -->
     <servlet>
         <servlet-name>managedpersistence</servlet-name>
@@ -61,11 +62,11 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>C:\maps</param-value>
+            <param-value>/mnt/data/maps</param-value>
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>C:\upload</param-value>
+            <param-value>/mnt/data/maps/upload</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -125,10 +126,15 @@
             <param-name>debug</param-name>
             <param-value>false</param-value>
         </init-param>
+        <init-param> 
+          <param-name>crossDomainSessionSecurity</param-name> 
+          <param-value>false</param-value> 
+        </init-param> 
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
@@ -150,10 +156,12 @@
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/ProxySLD/*</url-pattern>
+        <url-pattern>/services/ProxySLD/*</url-pattern>
     </servlet-mapping>
+    
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>

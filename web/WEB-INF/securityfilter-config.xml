@@ -11,7 +11,15 @@
         Purpose of the document follows.
 -->
 <securityfilter-config>
-
+    
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>ProxySLD Everyone</web-resource-name>
+            <url-pattern>/services/ProxySLD*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+    </security-constraint>
+    
     <!-- Define the Login Configuration for this Application -->
     <security-constraint>
         <web-resource-collection>
@@ -25,12 +33,7 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
-        <!--
-        <user-data-constraint>
-        <description>SSL not required</description>
-        <transport-guarantee>NONE</transport-guarantee>
-        </user-data-constraint>
-        -->
+        
     </security-constraint>
     
     <!-- gebruiker rol uitgecomment zodat een ingelogde gebruiker
@@ -50,7 +53,7 @@
         </auth-constraint>
     </security-constraint>
 
-    <!-- dit aanzetten indien geen demo 
+    <!-- dit aanzetten indien geen demo -->
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>
@@ -63,35 +66,17 @@
         <auth-constraint>
             <role-name>beheerder</role-name>
         </auth-constraint>
-    </security-constraint>-->
-    
-    <!-- en deze aanzetten indien demo -->
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>
-                kaartenbalie Collection 2
-            </web-resource-name>
-            <url-pattern>/demo/createPersonalURL.do</url-pattern>
-            <url-pattern>/demo/voegurltoe.do</url-pattern>
-            <http-method>POST</http-method>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>beheerder</role-name>
-            <role-name>gebruiker</role-name>
-            <role-name>demogebruiker</role-name>
-        </auth-constraint>
-    </security-constraint>
-    -->
+    </security-constraint>   
 
     <login-config>
         <auth-method>FORM_COOKIE_TOKEN</auth-method>
         <form-login-config>
-          <form-login-page>/login.do</form-login-page>
-          <form-error-page>/loginError.do</form-error-page>
-          <form-default-page>/index.do</form-default-page>
-          <form-logout-page>/logout.do</form-logout-page>
+            <form-login-page>/login.do</form-login-page>
+            <form-error-page>/loginError.do</form-error-page>
+            <form-default-page>/index.do</form-default-page>
+            <form-logout-page>/logout.do</form-logout-page>
         </form-login-config>
+        
         <cookie-auth-token-config>
             <!-- LET OP: De secret-key en extra-hash-string moeten voor elke installatie ANDERS zijn! -->
             <!-- pak de eerste 32 hex karakters van: https://www.grc.com/passwords.htm -->

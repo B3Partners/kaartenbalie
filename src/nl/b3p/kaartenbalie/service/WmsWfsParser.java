@@ -34,7 +34,10 @@ import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.struts.ServerAction;
+import nl.b3p.ogc.sld.SldLayerFeatureConstraints;
 import nl.b3p.ogc.sld.SldNamedLayer;
+import nl.b3p.ogc.sld.SldNamedStyle;
+import nl.b3p.ogc.sld.SldNode;
 import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldUserStyle;
 import nl.b3p.wms.capabilities.Layer;
@@ -115,21 +118,31 @@ abstract public class WmsWfsParser extends ServerAction {
 
         Set<Style> styles = new HashSet<Style>();
         SldReader sldReader = new SldReader();
+        
         //get only the named layers for this layer
         List<SldNamedLayer> namedLayers=sldReader.getNamedLayers(allNamedLayers, layer.getName());
         
         for (SldNamedLayer namedLayer : namedLayers) {
-            List<SldUserStyle> userStyles = namedLayer.getUserStyles();//sldReader.getUserStyles(namedLayer);
-
-            for (SldUserStyle userStyle : userStyles) {
+            List<SldNode> stylesAndConstraints = namedLayer.getStyles();
+            
+            for (SldNode sldStyle : stylesAndConstraints) {
                 Style style = new Style();
                 style.setLayer(layer);
-                style.setName(userStyle.getName());
-                style.setTitle(userStyle.getName());
-                style.setSldPart(userStyle.getSldPart());
+                style.setName(sldStyle.getName());
+                style.setTitle(sldStyle.getName());
+                style.setSldPart(sldStyle.getSldPart());
+                
+                if (sldStyle instanceof SldNamedStyle){
+                    SldLayerFeatureConstraints constraints=((SldNamedStyle)sldStyle).getFeatureConstraints();
+                    if(constraints!=null){
+                        style.setSldConstraints(constraints.getSldPart());
+                    }                    
+                }
+                
                 styles.add(style);
-            }            
+            }
         }
+        
         return styles;
     }
     

@@ -196,7 +196,7 @@ public class GetMapRequestHandler extends WMSRequestHandler {
         List<String> newSldParams= new ArrayList<String>();
         List<Integer> sldStyleIds= new ArrayList<Integer>();
         String layersString = spInfo.getLayersAsString();
-        String kbProxySldUrl=serviceUrl.replace("/services/", "/ProxySLD/");
+        String kbProxySldUrl=serviceUrl.replace("/services/", "/services/ProxySLD/");
         List<LayerSummary> layersList = spInfo.getLayers();
         returnValue.append(spInfo.getSpUrl());
         if (returnValue.indexOf("?") != returnValue.length() - 1 && returnValue.indexOf("&") != returnValue.length() - 1) {

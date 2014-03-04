@@ -53,9 +53,10 @@ import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OgcWfsClient;
+import org.apache.commons.logging.LogFactory;
 
 abstract public class GeneralServlet extends HttpServlet {
-    protected static Log log = null;
+    protected static Log log = LogFactory.getLog(GeneralServlet.class);
     
     /** Processes the incoming request and calls the various methods to create the right output stream.
      *

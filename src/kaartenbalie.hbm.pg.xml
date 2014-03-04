@@ -282,6 +282,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="255" name="title" not-null="true"/>
         <property name="abstracts" type="text"/>
         <property name="sldPart" type="text"/>
+        <property name="sldConstraints" type="text"/>
     </class>
     <class name="nl.b3p.wms.capabilities.StyleDomainResource">
         <id name="id">
