@@ -104,6 +104,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
 
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
+        if (layerCode == null){
+            return null;
+        }
         if (b3pLayering) {
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 SpLayerSummary layerInfo = new SpLayerSummary(new Integer(-1),
