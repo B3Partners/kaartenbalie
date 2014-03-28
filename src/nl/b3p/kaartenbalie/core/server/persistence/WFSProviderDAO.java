@@ -1,4 +1,4 @@
-package nl.b3p.kaartenbalie.service.persistence;
+package nl.b3p.kaartenbalie.core.server.persistence;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCCommunication;

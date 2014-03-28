@@ -1,4 +1,4 @@
-package nl.b3p.kaartenbalie.service.persistence;
+package nl.b3p.kaartenbalie.core.server.persistence;
 
 import javax.persistence.EntityManager;
 
