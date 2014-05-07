@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -77,11 +80,19 @@ public class CallAPIServlet extends GeneralServlet {
             }
 
             if (workspace != null && in != null) {
-                String fileName = "/mnt/data/tmp/" + workspace + ".sld";
+                String folder = getServletContext().getRealPath("") + "/sld/";
+                
+                Path path = Paths.get(folder);                
+                if (!Files.exists(path)) {
+                    Files.createDirectory(path);
+                }
+                
+                String fileName = folder + workspace + ".sld";
+                
                 FileOutputStream out = new FileOutputStream(new File(fileName), false);
                 IOUtils.copy(in, out);
 
-                response.setStatus(response.SC_OK);
+                response.getWriter().write(fileName);
             } else {
                 writeErrorMessage(response, "Resource conflict.");
                 response.sendError(response.SC_CONFLICT, "Resource conflict.");
