@@ -31,7 +31,10 @@ import org.apache.commons.logging.LogFactory;
  * @author Boy de Wit, B3Partners
  */
 public class CallAPIServlet extends GeneralServlet {
-
+    
+    public static final String SLD_FOLDER = "/sld/";
+    public static final String SLD_EXTENSION = ".xml";
+    
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -80,19 +83,22 @@ public class CallAPIServlet extends GeneralServlet {
             }
 
             if (workspace != null && in != null) {
-                String folder = getServletContext().getRealPath("") + "/sld/";
-                
+                /* Create folder on application server */
+                String folder = getServletContext().getRealPath("") + SLD_FOLDER;                
                 Path path = Paths.get(folder);                
                 if (!Files.exists(path)) {
                     Files.createDirectory(path);
                 }
                 
-                String fileName = folder + workspace + ".sld";
+                String fileName = workspace + SLD_EXTENSION;                
+                FileOutputStream out = new FileOutputStream(new File(folder + fileName), false);
+                IOUtils.copy(in, out);                
                 
-                FileOutputStream out = new FileOutputStream(new File(fileName), false);
-                IOUtils.copy(in, out);
-
-                response.getWriter().write(fileName);
+                /* return sld url */
+                String base = createBaseUrl(request, false).toString();
+                String url = base + SLD_FOLDER + fileName;
+                
+                response.getWriter().write(url);
             } else {
                 writeErrorMessage(response, "Resource conflict.");
                 response.sendError(response.SC_CONFLICT, "Resource conflict.");
