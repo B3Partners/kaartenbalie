@@ -159,6 +159,18 @@
         <servlet-name>ProxySLDServlet</servlet-name>
         <url-pattern>/ProxySLD/*</url-pattern>
     </servlet-mapping>
+
+	<servlet>
+        <description>Servlet for incoming RESTful API calls</description>
+        <servlet-name>restapi</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallAPIServlet</servlet-class>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>restapi</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>
