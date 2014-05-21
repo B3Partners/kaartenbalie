@@ -136,7 +136,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             if (serviceProviderId != null && serviceProviderId.intValue() == -1) {
                 //Say hello to B3P Layering!!                
                 StringBuffer url = createOnlineUrl(spInfo, ogc,dw.getRequest().getRequestURL().toString());
-                gmrWrapper.setProviderRequestURI(url.toString());
+                String serviceRequestURI = url.toString();
+                if(serviceRequestURI.contains("QUERY_LAYERS=&")){
+                    serviceRequestURI = serviceRequestURI.replace("QUERY_LAYERS=&", "");
+                }
+                gmrWrapper.setProviderRequestURI(serviceRequestURI);
                 gmrWrapper.setCredentials(credentials);
                 urlWrapper.add(gmrWrapper);
             } else {
@@ -168,7 +172,11 @@ public class GetMapRequestHandler extends WMSRequestHandler {
                 //String sldUrl=dw.getRequest().getRequestURL().
                 
                 StringBuffer url = createOnlineUrl(spInfo, ogc,dw.getRequest().getRequestURL().toString());
-                gmrWrapper.setProviderRequestURI(url.toString());
+                String serviceRequestURI = url.toString();
+                if(serviceRequestURI.contains("QUERY_LAYERS=&")){
+                     serviceRequestURI = serviceRequestURI.replace("QUERY_LAYERS=&", "");
+                }
+                gmrWrapper.setProviderRequestURI(serviceRequestURI);
                 
                 gmrWrapper.setCredentials(credentials);
                 urlWrapper.add(gmrWrapper);
