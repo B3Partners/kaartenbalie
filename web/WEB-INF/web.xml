@@ -173,6 +173,28 @@
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
     
+    <!-- ldap params -->
+    <context-param>
+        <param-name>ldapUseLdap</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapDefaultGroup</param-name>
+        <param-value>ldap</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapHost</param-name>
+        <param-value>localhost</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapPort</param-name>
+        <param-value>9999</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapUserSuffix</param-name>
+        <param-value>@gouda.lok</param-value>
+    </context-param>
+    
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>

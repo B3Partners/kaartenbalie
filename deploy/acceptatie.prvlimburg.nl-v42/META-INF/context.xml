@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-<!-- acceptatie.prvlimburg.nl -->
 <Resource
 	auth="Container"
 	driverClassName="oracle.jdbc.driver.OracleDriver"
@@ -14,7 +13,7 @@
 	removeAbandoned="true"
 	removeAbandonedTimeout="60"
 	type="javax.sql.DataSource"
-	url="jdbc:oracle:thin:@lin033:1521:tgis"
+	url="jdbc:oracle:thin:@lin022:1521:tgis"
 	minEvictableIdleTimeMillis="10000"
 	timeBetweenEvictionRunsMillis="60000"
 />

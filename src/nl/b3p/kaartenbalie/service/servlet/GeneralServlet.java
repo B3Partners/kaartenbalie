@@ -21,16 +21,23 @@
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,26 +46,38 @@ import javax.xml.bind.ValidationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OgcWfsClient;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import nl.b3p.wms.capabilities.Roles;
 
 abstract public class GeneralServlet extends HttpServlet {
+
     protected static Log log = LogFactory.getLog(GeneralServlet.class);
-    
-    /** Processes the incoming request and calls the various methods to create the right output stream.
+
+    private static Boolean ldapUseLdap;
+    private static String ldapDefaultGroup;
+    private static String ldapHost;
+    private static Integer ldapPort;
+    private static String ldapUserSuffix;
+
+    /**
+     * Processes the incoming request and calls the various methods to create
+     * the right output stream.
      *
      * @param request servlet request
      * @param response servlet response
@@ -67,16 +86,16 @@ abstract public class GeneralServlet extends HttpServlet {
      * @throws IOException
      */
     abstract protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException;
-    
+
     public static StringBuffer createBaseUrl(HttpServletRequest request) {
         return createBaseUrl(request, false);
     }
-    
+
     public static StringBuffer createBaseUrl(HttpServletRequest request, boolean useInternal) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
-        String contextPath = null;
+        String contextPath;
         if (useInternal) {
             contextPath = KBConfiguration.KB_SERVICES_INTERNAL_CONTEXT_PATH;
         } else {
@@ -87,7 +106,7 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         StringBuffer theUrl = new StringBuffer();
-        String serverURI = null;
+        String serverURI;
         if (useInternal) {
             serverURI = KBConfiguration.KB_SERVICES_INTERNAL_SERVER_URI;
         } else {
@@ -106,14 +125,17 @@ abstract public class GeneralServlet extends HttpServlet {
             }
         }
         theUrl.append(contextPath);
-        
-        return theUrl;
-    }    
 
-    /** Checks if an user is allowed to make any requests.
-     * Therefore there is checked if a user is logged in or if a user is using a private unique IP address.
+        return theUrl;
+    }
+
+    /**
+     * Checks if an user is allowed to make any requests. Therefore there is
+     * checked if a user is logged in or if a user is using a private unique IP
+     * address.
      *
      * @param request servlet request
+     * @param pcode personal code
      *
      * @return user object
      *
@@ -124,11 +146,11 @@ abstract public class GeneralServlet extends HttpServlet {
      */
     protected User checkLogin(HttpServletRequest request, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        
+
         return checkLogin(request, em, pcode);
     }
-    
-    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {      
+
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
         User user = null;
 
         // checken of user gewoon ingelogd is
@@ -146,26 +168,25 @@ abstract public class GeneralServlet extends HttpServlet {
             }
         }
 
-
         if (user == null) {
 
             // probeer eerst personal url, checken op token in url
             try {
                 //log.debug("Check code for login: " + code);
-                
+
                 log.debug("BEGIN query checkLogin");
-        
+
                 long start = System.currentTimeMillis();
-                
+
                 user = (User) em.createQuery(
                         "from User u where "
                         + "u.personalURL = :personalURL").setParameter("personalURL", pcode).getSingleResult();
-                                
+
                 long end = System.currentTimeMillis();
                 long durUser = end - start;
-        
+
                 log.debug(durUser + "ms: END query checkLogin");
-        
+
                 em.flush();
 
             } catch (NonUniqueResultException nue) {
@@ -175,7 +196,7 @@ abstract public class GeneralServlet extends HttpServlet {
                 log.debug("Personal url not found, trying next method.");
                 user = null;
             }
- 
+
             if (user != null) {
                 java.util.Date date = user.getTimeout();
                 if (date.getTime() <= (new java.util.Date().getTime())) {
@@ -187,14 +208,14 @@ abstract public class GeneralServlet extends HttpServlet {
             if (user != null) {
                 String remoteaddress = request.getRemoteAddr();
                 String forwardedFor = request.getHeader("X-Forwarded-For");
-                if(forwardedFor != null) {
+                if (forwardedFor != null) {
                     remoteaddress = forwardedFor;
                 }
-                String remoteAddressDesc = remoteaddress + 
-                        (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr() + ")");
-                
+                String remoteAddressDesc = remoteaddress
+                        + (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr() + ")");
+
                 boolean validip = false;
-                
+
                 /* remoteaddress controleren tegen ip adressen van user.
                  * Ip ranges mogen ook via een asterisk */
                 Set ipaddresses = user.getIps();
@@ -203,13 +224,13 @@ abstract public class GeneralServlet extends HttpServlet {
                     String ipaddress = (String) it.next();
 
                     log.debug("Checking ip: " + ipaddress + " against: " + remoteAddressDesc);
-                            
+
                     if (ipaddress.indexOf("*") != -1) {
-                        if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress) ) {
+                        if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress)) {
                             validip = true;
 
-                            log.debug("Request within ip range for remote ip " + remoteAddressDesc +
-                                    " for user " + user.getUsername() + " with code " + pcode);
+                            log.debug("Request within ip range for remote ip " + remoteAddressDesc
+                                    + " for user " + user.getUsername() + " with code " + pcode);
 
                             break;
                         }
@@ -225,14 +246,14 @@ abstract public class GeneralServlet extends HttpServlet {
 
                 /* lokale verzoeken mogen ook */
                 String localAddress = request.getLocalAddr();
-                
+
                 log.debug("Checking local: " + localAddress + " against: " + remoteAddressDesc);
-                
+
                 if (remoteaddress.equalsIgnoreCase(localAddress)) {
                     validip = true;
 
-                    log.debug("Local request from ip: " + localAddress + " for user " +
-                            user.getUsername() + " with code " + pcode);
+                    log.debug("Local request from ip: " + localAddress + " for user "
+                            + user.getUsername() + " with code " + pcode);
                 }
 
                 if (!validip) {
@@ -300,12 +321,130 @@ abstract public class GeneralServlet extends HttpServlet {
             }
         }
 
+        /* Try LDAP auth, ldapUseLdap is param in web.xml */
+        String authorizationHeader = request.getHeader("Authorization");
+        if (user == null && ldapUseLdap != null && ldapUseLdap 
+                && authorizationHeader != null) {
+            
+            String decoded = decodeBasicAuthorizationString(authorizationHeader);
+            String username = parseUsername(decoded);
+            String password = parsePassword(decoded);
+
+            boolean inLdap = userInLdap(username, password);
+
+            try {
+                user = (User) em.createQuery(
+                        "from User u where "
+                        + "lower(u.username) = lower(:username) ")
+                        .setParameter("username", username)
+                        .getSingleResult();
+
+                em.flush();
+            } catch (NonUniqueResultException nue) {
+                log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
+                user = null;
+            } catch (NoResultException nre) {
+                user = null;
+                log.debug("No results using encrypted password, trying next method");
+            }
+
+            /* case 1: wel in ldap, niet in db, return nieuw gebruiker */
+            if (inLdap && user == null) {
+                user = new User();
+                user.setUsername(username);
+                user.setPassword("");
+                        
+                Roles role = new Roles();
+                role.setRole(Roles.USER);
+                user.addRole(role);
+
+                Set ips = new HashSet(1);
+                ips.add("0.0.0.0");
+                user.setIps(ips);
+                
+                Organization org = getLDAPOrg(em, ldapDefaultGroup);
+                String personalUrl = User.createCode(user, new Date(), request);
+                
+                user.setMainOrganization(org);
+                user.setPersonalURL(personalUrl);
+                
+                Calendar now_plus_10_yr = Calendar.getInstance();  
+                now_plus_10_yr.add( Calendar.YEAR, 10 );
+                user.setTimeout(now_plus_10_yr.getTime());
+
+                em.persist(user);
+                em.flush();
+            }
+
+            /* case 2: wel in ldap, wel in db, return user */
+            if (inLdap && user != null) {
+                Calendar now_plus_10_yr = Calendar.getInstance();  
+                now_plus_10_yr.add( Calendar.YEAR, 10 );
+                user.setTimeout(now_plus_10_yr.getTime());
+
+                em.persist(user);
+                em.flush();
+                
+                return user;
+            }
+            
+            /* case 3: niet in ldap, wel in db, uitroepteken zetten */
+            if (!inLdap && user != null) {
+                Calendar now_min_1yr = Calendar.getInstance();  
+                now_min_1yr.add( Calendar.YEAR, -1 );
+                user.setTimeout(now_min_1yr.getTime());
+                
+                em.persist(user);
+                em.flush();
+                
+                user = null;
+            }
+            
+            /* case 4: niet in ldap, niet in db, niets doen */
+        }
+
         // hebben we nu een user?
         if (user == null) {
             throw new AccessDeniedException("Authorisation required for this service! No credentials found in Personal url, Authentication header or Cookie, Giving up! ");
         }
 
         return user;
+    }
+
+    private Organization getLDAPOrg(EntityManager em, String orgName) {
+        Organization org = null;
+
+        try {
+            org = (Organization) em.createQuery(
+                    "from Organization o where "
+                    + "lower(o.name) = lower(:orgName) ")
+                    .setParameter("orgName", orgName)
+                    .getSingleResult();
+
+            em.flush();
+        } catch (NonUniqueResultException nue) {
+            log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
+            org = null;
+        } catch (NoResultException nre) {
+            org = null;
+            log.debug("No results using encrypted password, trying next method");
+        }
+
+        return org;
+    }
+
+    private boolean userInLdap(String username, String password) {
+        String userDN = username + ldapUserSuffix;
+
+        try {
+            LDAPConnection conn = new LDAPConnection(ldapHost, ldapPort, userDN, password);
+
+            return true;
+        } catch (LDAPException ex) {
+            log.debug("Fout verbinden ldap: ", ex);
+        }
+
+        return false;
     }
 
     /* This function should only be called when ip contains an asterisk. This
@@ -325,7 +464,7 @@ abstract public class GeneralServlet extends HttpServlet {
 
         /* kijken of het niet asteriks gedeelte overeenkomt met
          hetzelfde gedeelte uit remote address */
-        for (int i=0; i < arrIp.length; i++) {
+        for (int i = 0; i < arrIp.length; i++) {
             if (!arrIp[i].equalsIgnoreCase("*")) {
                 if (!arrIp[i].equalsIgnoreCase(arrRemote[i])) {
                     return false;
@@ -335,12 +474,13 @@ abstract public class GeneralServlet extends HttpServlet {
 
         return true;
     }
-    
-    /** Parses any incoming request and redirects this request to the right handler.
+
+    /**
+     * Parses any incoming request and redirects this request to the right
+     * handler.
      *
-     * @param parameters map with the given parameters
-     *
-     * @return byte array with the requested data
+     * @param data map with the given parameters
+     * @param user database user
      *
      * @throws IllegalArgumentException
      * @throws UnsupportedOperationException
@@ -348,28 +488,31 @@ abstract public class GeneralServlet extends HttpServlet {
      */
     abstract public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception;
 
-    
-    /** Handles the HTTP <code>GET</code> method.
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {        
+            throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /** Handles the HTTP <code>POST</code> method.
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
      * @param request servlet request
      * @param response servlet response
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {        
+            throws ServletException, IOException {
         processRequest(request, response);
     }
-    
-        /**
+
+    /**
      *
      * @param request
      * @return
@@ -377,11 +520,11 @@ abstract public class GeneralServlet extends HttpServlet {
      * @throws javax.xml.parsers.ParserConfigurationException
      * @throws org.xml.sax.SAXException
      * @throws java.io.IOException
-     * @throws ValidationException 
+     * @throws ValidationException
      * @throws java.lang.Exception
      */
     protected OGCRequest calcOGCRequest(HttpServletRequest request) throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException, ValidationException, Exception {
-        OGCRequest ogcrequest = null;
+        OGCRequest ogcrequest;
 
         StringBuffer baseUrl = createBaseUrl(request);
         String iUrl = completeUrl(baseUrl, request).toString();
@@ -409,10 +552,10 @@ abstract public class GeneralServlet extends HttpServlet {
                 String sld_body = ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
                 if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
                     String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
-                    for (int i = 0; i < layersArray.length; i++) {
-                        String newLayer = OGCCommunication.getLayerName(layersArray[i]);
-                        if (newLayer!=null) {
-                            sld_body = sld_body.replaceAll("(?i)name>" + layersArray[i] + "<", "Name>" + newLayer + "<");
+                    for (String layersArray1 : layersArray) {
+                        String newLayer = OGCCommunication.getLayerName(layersArray1);
+                        if (newLayer != null) {
+                            sld_body = sld_body.replaceAll("(?i)name>" + layersArray1 + "<", "Name>" + newLayer + "<");
                         }
                     }
                 }
@@ -433,7 +576,7 @@ abstract public class GeneralServlet extends HttpServlet {
         ogcrequest.setHttpMethod(request.getMethod());
         return ogcrequest;
     }
-    
+
     protected StringBuffer requestUrl(StringBuffer baseUrl, HttpServletRequest request) {
         String servletPath = request.getServletPath();
         String pathInfo = request.getPathInfo();
@@ -446,7 +589,7 @@ abstract public class GeneralServlet extends HttpServlet {
         }
         return baseUrl;
     }
-    
+
     protected StringBuffer completeUrl(StringBuffer baseUrl, HttpServletRequest request) {
         baseUrl = requestUrl(baseUrl, request);
         String queryString = request.getQueryString();
@@ -457,9 +600,10 @@ abstract public class GeneralServlet extends HttpServlet {
         }
         return baseUrl;
     }
-    
+
     /**
      * Parse the username out of the BASIC authorization header string.
+     *
      * @param decoded
      * @return username parsed out of decoded string
      */
@@ -478,6 +622,7 @@ abstract public class GeneralServlet extends HttpServlet {
 
     /**
      * Parse the password out of the decoded BASIC authorization header string.
+     *
      * @param decoded
      * @return password parsed out of decoded string
      */
@@ -509,8 +654,37 @@ abstract public class GeneralServlet extends HttpServlet {
             return new String(Base64.decodeBase64(authorization.getBytes()));
         }
     }
-    
-    /** Returns a short description of the servlet.
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+
+        log = LogFactory.getLog(this.getClass());
+        log.debug("Initializing GeneralServlet");
+
+        ServletContext context = config.getServletContext();
+
+        if (context.getInitParameter("ldapUseLdap") != null) {
+            ldapUseLdap = new Boolean(context.getInitParameter("ldapUseLdap"));
+        }
+        if (context.getInitParameter("ldapDefaultGroup") != null) {
+            ldapDefaultGroup = context.getInitParameter("ldapDefaultGroup");
+        }
+        if (context.getInitParameter("ldapHost") != null) {
+            ldapHost = context.getInitParameter("ldapHost");
+        }
+        if (context.getInitParameter("ldapPort") != null) {
+            ldapPort = new Integer(context.getInitParameter("ldapPort"));
+        }
+        if (context.getInitParameter("ldapUserSuffix") != null) {
+            ldapUserSuffix = context.getInitParameter("ldapUserSuffix");
+        }
+    }
+
+    /**
+     * Returns a short description of the
+     *
+     * @return String servlet info.
      */
     @Override
     abstract public String getServletInfo();

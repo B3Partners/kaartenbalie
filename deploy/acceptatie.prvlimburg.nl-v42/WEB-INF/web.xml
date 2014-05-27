@@ -48,12 +48,10 @@
         <init-param>
             <param-name>reporting</param-name>
             <param-value>disabled</param-value>
-            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
             <param-value>disabled</param-value>
-            <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>cache</param-name>
@@ -65,7 +63,7 @@
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>C:\upload</param-value>
+            <param-value>/opt/data/kaartenbalie-acc/maps/uploads</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -125,11 +123,10 @@
             <param-name>debug</param-name>
             <param-value>false</param-value>
         </init-param>
-		<!-- Needed for DWR when updating rights -->
 		<init-param> 
-          <param-name>crossDomainSessionSecurity</param-name> 
-          <param-value>false</param-value> 
-        </init-param>
+          	<param-name>crossDomainSessionSecurity</param-name> 
+          	<param-value>false</param-value> 
+        </init-param> 
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
@@ -165,7 +162,7 @@
 
     <session-config>
         <session-timeout>
-            480
+            30
         </session-timeout>
     </session-config>
     <welcome-file-list>
