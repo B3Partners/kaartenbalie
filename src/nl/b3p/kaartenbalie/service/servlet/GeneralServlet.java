@@ -27,12 +27,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -63,7 +67,6 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import nl.b3p.wms.capabilities.Roles;
 
 abstract public class GeneralServlet extends HttpServlet {
 
@@ -321,11 +324,14 @@ abstract public class GeneralServlet extends HttpServlet {
             }
         }
 
+        /* TODO this only works on blocks with no personal code attached
+        otherwise the ip of other user is checked */
+        
         /* Try LDAP auth, ldapUseLdap is param in web.xml */
         String authorizationHeader = request.getHeader("Authorization");
-        if (user == null && ldapUseLdap != null && ldapUseLdap 
+        if (user == null && ldapUseLdap != null && ldapUseLdap
                 && authorizationHeader != null) {
-            
+
             String decoded = decodeBasicAuthorizationString(authorizationHeader);
             String username = parseUsername(decoded);
             String password = parsePassword(decoded);
@@ -352,55 +358,69 @@ abstract public class GeneralServlet extends HttpServlet {
             if (inLdap && user == null) {
                 user = new User();
                 user.setUsername(username);
-                user.setPassword("");
-                        
-                Roles role = new Roles();
-                role.setRole(Roles.USER);
-                user.addRole(role);
+                user.setPassword("xxldapxx123");
+
+                Integer[] rolesSelected = new Integer[1];
+                rolesSelected[0] = 2; // gebruikerrol
+                
+                if (rolesSelected != null && rolesSelected.length > 0) {
+                    if (rolesSelected[0] != -1) {
+                        List newRoles = em.createQuery("from Roles where id in (:ids)")
+                                .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
+
+                        user.getRoles().retainAll(newRoles);
+                        user.getRoles().addAll(newRoles);
+                    }
+                }
 
                 Set ips = new HashSet(1);
                 ips.add("0.0.0.0");
                 user.setIps(ips);
-                
-                Organization org = getLDAPOrg(em, ldapDefaultGroup);
+
                 String personalUrl = User.createCode(user, new Date(), request);
-                
-                user.setMainOrganization(org);
                 user.setPersonalURL(personalUrl);
-                
-                Calendar now_plus_10_yr = Calendar.getInstance();  
-                now_plus_10_yr.add( Calendar.YEAR, 10 );
-                user.setTimeout(now_plus_10_yr.getTime());
+
+                if (ldapDefaultGroup != null && !ldapDefaultGroup.isEmpty()) {
+                    Organization org = getLDAPOrg(em, ldapDefaultGroup);
+                    user.setMainOrganization(org);
+                }
+
+                Date userTimeOut = getDefaultTimeOut(36);
+                user.setTimeout(userTimeOut);
 
                 em.persist(user);
                 em.flush();
+                
+                log.debug("LDAP CASE 1;");
+                return user;
             }
 
             /* case 2: wel in ldap, wel in db, return user */
             if (inLdap && user != null) {
-                Calendar now_plus_10_yr = Calendar.getInstance();  
-                now_plus_10_yr.add( Calendar.YEAR, 10 );
-                user.setTimeout(now_plus_10_yr.getTime());
+                Date userTimeOut = getDefaultTimeOut(36);
+                user.setTimeout(userTimeOut);
 
                 em.persist(user);
                 em.flush();
                 
+                log.debug("LDAP CASE 2;");
                 return user;
             }
-            
+
             /* case 3: niet in ldap, wel in db, uitroepteken zetten */
             if (!inLdap && user != null) {
-                Calendar now_min_1yr = Calendar.getInstance();  
-                now_min_1yr.add( Calendar.YEAR, -1 );
-                user.setTimeout(now_min_1yr.getTime());
-                
+                Date userTimeOut = getDefaultTimeOut(-12);
+                user.setTimeout(userTimeOut);
+
                 em.persist(user);
                 em.flush();
-                
+
                 user = null;
+                log.debug("LDAP CASE 3;");
             }
-            
+
             /* case 4: niet in ldap, niet in db, niets doen */
+            log.debug("LDAP CASE 4;");
         }
 
         // hebben we nu een user?
@@ -409,6 +429,16 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         return user;
+    }
+    
+    private Date getDefaultTimeOut(
+            int months) {
+        
+        Calendar gc = new GregorianCalendar();
+        gc.setTimeZone(TimeZone.getTimeZone("GMT"));        
+        gc.add(Calendar.MONTH, months);
+
+        return gc.getTime();
     }
 
     private Organization getLDAPOrg(EntityManager em, String orgName) {
