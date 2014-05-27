@@ -21,22 +21,16 @@
  */
 package nl.b3p.kaartenbalie.service.servlet;
 
-import com.unboundid.ldap.sdk.LDAPConnection;
-import com.unboundid.ldap.sdk.LDAPException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
@@ -55,18 +49,19 @@ import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
+import nl.b3p.kaartenbalie.util.LDAPUtil;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OgcWfsClient;
+import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
 
 abstract public class GeneralServlet extends HttpServlet {
 
@@ -325,53 +320,34 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         /* TODO this only works on blocks with no personal code attached
-        otherwise the ip of other user is checked */
-        
+         otherwise the ip of other user is checked */
         /* Try LDAP auth, ldapUseLdap is param in web.xml */
         String authorizationHeader = request.getHeader("Authorization");
         if (user == null && ldapUseLdap != null && ldapUseLdap
                 && authorizationHeader != null) {
+            
+            LDAPUtil ldapUtil = new LDAPUtil();
 
             String decoded = decodeBasicAuthorizationString(authorizationHeader);
             String username = parseUsername(decoded);
             String password = parsePassword(decoded);
 
-            boolean inLdap = userInLdap(username, password);
+            // check if user is in ldap
+            boolean inLdap = ldapUtil.userInLdap(ldapHost, ldapPort, username,
+                    password, ldapUserSuffix);
 
-            try {
-                user = (User) em.createQuery(
-                        "from User u where "
-                        + "lower(u.username) = lower(:username) ")
-                        .setParameter("username", username)
-                        .getSingleResult();
-
-                em.flush();
-            } catch (NonUniqueResultException nue) {
-                log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
-                user = null;
-            } catch (NoResultException nre) {
-                user = null;
-                log.debug("No results using encrypted password, trying next method");
-            }
+            // check if username already in kaartenbalie database
+            user = ldapUtil.getLdapUserFromDb(em, username);
 
             /* case 1: wel in ldap, niet in db, return nieuw gebruiker */
             if (inLdap && user == null) {
                 user = new User();
                 user.setUsername(username);
-                user.setPassword("xxldapxx123");
-
-                Integer[] rolesSelected = new Integer[1];
-                rolesSelected[0] = 2; // gebruikerrol
+                user.setPassword("!XldapY159");
                 
-                if (rolesSelected != null && rolesSelected.length > 0) {
-                    if (rolesSelected[0] != -1) {
-                        List newRoles = em.createQuery("from Roles where id in (:ids)")
-                                .setParameter("ids", Arrays.asList(rolesSelected)).getResultList();
-
-                        user.getRoles().retainAll(newRoles);
-                        user.getRoles().addAll(newRoles);
-                    }
-                }
+                List<Roles> gebruikerRol = ldapUtil.getGebruikerRol(em);
+                user.getRoles().retainAll(gebruikerRol);
+                user.getRoles().addAll(gebruikerRol);
 
                 Set ips = new HashSet(1);
                 ips.add("0.0.0.0");
@@ -381,35 +357,35 @@ abstract public class GeneralServlet extends HttpServlet {
                 user.setPersonalURL(personalUrl);
 
                 if (ldapDefaultGroup != null && !ldapDefaultGroup.isEmpty()) {
-                    Organization org = getLDAPOrg(em, ldapDefaultGroup);
+                    Organization org = ldapUtil.getLDAPOrg(em, ldapDefaultGroup);
                     user.setMainOrganization(org);
                 }
 
-                Date userTimeOut = getDefaultTimeOut(36);
+                Date userTimeOut = ldapUtil.getDefaultTimeOut(36);
                 user.setTimeout(userTimeOut);
 
                 em.persist(user);
                 em.flush();
-                
+
                 log.debug("LDAP CASE 1;");
                 return user;
             }
 
             /* case 2: wel in ldap, wel in db, return user */
             if (inLdap && user != null) {
-                Date userTimeOut = getDefaultTimeOut(36);
+                Date userTimeOut = ldapUtil.getDefaultTimeOut(36);
                 user.setTimeout(userTimeOut);
 
                 em.persist(user);
                 em.flush();
-                
+
                 log.debug("LDAP CASE 2;");
                 return user;
             }
 
             /* case 3: niet in ldap, wel in db, uitroepteken zetten */
             if (!inLdap && user != null) {
-                Date userTimeOut = getDefaultTimeOut(-12);
+                Date userTimeOut = ldapUtil.getDefaultTimeOut(-12);
                 user.setTimeout(userTimeOut);
 
                 em.persist(user);
@@ -429,52 +405,6 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         return user;
-    }
-    
-    private Date getDefaultTimeOut(
-            int months) {
-        
-        Calendar gc = new GregorianCalendar();
-        gc.setTimeZone(TimeZone.getTimeZone("GMT"));        
-        gc.add(Calendar.MONTH, months);
-
-        return gc.getTime();
-    }
-
-    private Organization getLDAPOrg(EntityManager em, String orgName) {
-        Organization org = null;
-
-        try {
-            org = (Organization) em.createQuery(
-                    "from Organization o where "
-                    + "lower(o.name) = lower(:orgName) ")
-                    .setParameter("orgName", orgName)
-                    .getSingleResult();
-
-            em.flush();
-        } catch (NonUniqueResultException nue) {
-            log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
-            org = null;
-        } catch (NoResultException nre) {
-            org = null;
-            log.debug("No results using encrypted password, trying next method");
-        }
-
-        return org;
-    }
-
-    private boolean userInLdap(String username, String password) {
-        String userDN = username + ldapUserSuffix;
-
-        try {
-            LDAPConnection conn = new LDAPConnection(ldapHost, ldapPort, userDN, password);
-
-            return true;
-        } catch (LDAPException ex) {
-            log.debug("Fout verbinden ldap: ", ex);
-        }
-
-        return false;
     }
 
     /* This function should only be called when ip contains an asterisk. This

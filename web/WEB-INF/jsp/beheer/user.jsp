@@ -160,8 +160,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                         <tr>
                             <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
                             <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
-                            <th style="width: 30%;"><fmt:message key="beheer.user.table.rollen"/></th>
-                            <th class="{sorter:'dutchdates'}" style="width: 20%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                            <th style="width: 20%;"><fmt:message key="beheer.userOrganization"/></th>
+                            <th style="width: 15%;"><fmt:message key="beheer.user.table.rollen"/></th>
+                            <th class="{sorter:'dutchdates'}" style="width: 15%;"><fmt:message key="beheer.user.table.timeout"/></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -181,6 +182,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                     </c:if>
 
                                     <c:out value="${nUser.surname}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${nUser.mainOrganization.name}"/>
                                 </td>
                                 <td>
                                     <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
