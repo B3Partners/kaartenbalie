@@ -18,6 +18,7 @@
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
       <property name="hibernate.show.sql" value="false"/>
+      <property name="hibernate.format.sql" value="false"/>
     </properties>
   </persistence-unit>
 </persistence>

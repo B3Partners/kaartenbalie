@@ -2,7 +2,7 @@
  * B3P Kaartenbalie is a OGC WMS/WFS proxy that adds functionality
  * for authentication/authorization, pricing and usage reporting.
  *
- * Copyright 2006, 2007, 2008 B3Partners BV
+ * Copyright 2006-2014 B3Partners BV
  * 
  * This file is part of B3P Kaartenbalie.
  * 
@@ -31,8 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
@@ -45,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class User implements Principal {
 
-    private static final Log log = LogFactory.getLog(User.class);
+    private static final Log log = LogFactory.getLog(User.class);    
 
     private Integer id;
     private String firstName;
@@ -60,6 +58,11 @@ public class User implements Principal {
     private Set organizations = new HashSet();
     private Set roles = new HashSet();
     private Set ips = new HashSet();
+    private String lastLoginStatus;
+    
+    public static final String LOGIN_STATE_INVALID_IP = "Ongeldig IP";
+    public static final String LOGIN_STATE_EXPIRED = "Account verlopen";
+    public static final String LOGIN_STATE_WRONG_PASSW = "Verkeerd wachtwoord";
  
     public Integer getId() {
         return id;
@@ -316,6 +319,15 @@ public class User implements Principal {
         }
         ips.add(ip);
     }
+
+    public String getLastLoginStatus() {
+        return lastLoginStatus;
+    }
+
+    public void setLastLoginStatus(String lastLoginStatus) {
+        this.lastLoginStatus = lastLoginStatus;
+    }
+    
     Object o = null;
 
     @Override

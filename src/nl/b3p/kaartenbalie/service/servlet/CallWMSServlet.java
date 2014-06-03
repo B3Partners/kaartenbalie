@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
@@ -137,9 +138,17 @@ public class CallWMSServlet extends GeneralServlet {
                 User user = checkLogin(request, personalCode);
                 
                 ogcrequest.checkRequestURL();
-
-                rr.setUserAndOrganization(user, user.getMainOrganization());
-                data.setHeader("X-Kaartenbalie-User", user.getUsername());
+                
+                Organization mainOrg = null;
+                String userName = null;
+                
+                if (user != null) {
+                    mainOrg = user.getMainOrganization();
+                    userName = user.getUsername();
+                }
+                
+                rr.setUserAndOrganization(user, mainOrg);
+                data.setHeader("X-Kaartenbalie-User", userName);
                 
                 parseRequestAndData(data, user);
 
@@ -374,7 +383,13 @@ public class CallWMSServlet extends GeneralServlet {
 
         data.setOperation(request);
         data.setService(service);
-        requestHandler.getRequest(data, user);
+        
+        try {
+            requestHandler.getRequest(data, user);   
+        } catch (Exception ex) {
+            log.error("Geen persoonlijke url gevonden bij deze gebruiker.");
+        }
+        
     }
 
     /** Returns a short description of the servlet.

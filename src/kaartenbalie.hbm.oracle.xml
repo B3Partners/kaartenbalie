@@ -363,6 +363,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="4000" name="personalURL"/>
         <property name="timeout"/>
         <property length="4000" name="defaultGetMap"/>
+        <property length="255" name="lastLoginStatus" column="last_login_status" />
     </class>
     <class name="nl.b3p.ogc.wfs.v110.WfsLayer">
         <id name="id">

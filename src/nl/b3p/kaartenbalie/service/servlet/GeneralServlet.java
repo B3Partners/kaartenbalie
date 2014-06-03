@@ -156,53 +156,39 @@ abstract public class GeneralServlet extends HttpServlet {
             user = (User) request.getUserPrincipal();
             if (user != null) {
                 String userCode = user.getPersonalURL();
+
+                // verkeerde user
                 if (pcode != null && userCode != null && !pcode.equals(userCode)) {
-                    // verkeerde user
                     user = null;
                 }
             }
+
             if (user != null) {
-                log.info("Cookie accepted for login, username: " + user.getName());
+                log.debug("Gebruiker " + user.getName() + " al ingelogd via cookie.");
             }
         }
 
+        // probeer eerst personal url, checken op token in url
         if (user == null) {
-
-            // probeer eerst personal url, checken op token in url
             try {
-                //log.debug("Check code for login: " + code);
-
-                log.debug("BEGIN query checkLogin");
-
-                long start = System.currentTimeMillis();
-
                 user = (User) em.createQuery(
-                        "from User u where "
-                        + "u.personalURL = :personalURL").setParameter("personalURL", pcode).getSingleResult();
-
-                long end = System.currentTimeMillis();
-                long durUser = end - start;
-
-                log.debug(durUser + "ms: END query checkLogin");
+                        "from User u where u.personalURL = :personalURL")
+                        .setParameter("personalURL", pcode)
+                        .getSingleResult();
 
                 em.flush();
-
             } catch (NonUniqueResultException nue) {
-                log.error("More than one person found for this url (to be fixed in database), trying next method.");
+                log.debug("Meerdere gebruikers gevonden bij persoonlijke code: " + pcode);
                 user = null;
             } catch (NoResultException nre) {
-                log.debug("Personal url not found, trying next method.");
+                log.debug("Persoonlijke code niet gevonden.");
                 user = null;
             }
 
-            if (user != null) {
-                java.util.Date date = user.getTimeout();
-                if (date.getTime() <= (new java.util.Date().getTime())) {
-                    log.debug("Personal URL key has expired, trying next method.");
-                    user = null;
-                }
-            }
-
+            /* ip adressen van user die bij pcode hoort worden gechecked
+             dit hoeven dus niet perse de ip adressen te zijn van de user
+             waarmee nu wordt ingelogd, bijvoorbeeld via ldap of andere username
+             dan die aan gebruikerscode is gekoppeld */
             if (user != null) {
                 String remoteaddress = request.getRemoteAddr();
                 String forwardedFor = request.getHeader("X-Forwarded-For");
@@ -221,14 +207,11 @@ abstract public class GeneralServlet extends HttpServlet {
                 while (it.hasNext()) {
                     String ipaddress = (String) it.next();
 
-                    log.debug("Checking ip: " + ipaddress + " against: " + remoteAddressDesc);
+                    log.debug("Controleren ip: " + ipaddress + " tegen: " + remoteAddressDesc);
 
                     if (ipaddress.indexOf("*") != -1) {
                         if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress)) {
                             validip = true;
-
-                            log.debug("Request within ip range for remote ip " + remoteAddressDesc
-                                    + " for user " + user.getUsername() + " with code " + pcode);
 
                             break;
                         }
@@ -245,22 +228,27 @@ abstract public class GeneralServlet extends HttpServlet {
                 /* lokale verzoeken mogen ook */
                 String localAddress = request.getLocalAddr();
 
-                log.debug("Checking local: " + localAddress + " against: " + remoteAddressDesc);
+                log.debug("Controleren lokaal ip: " + localAddress + " tegen: " + remoteAddressDesc);
 
                 if (remoteaddress.equalsIgnoreCase(localAddress)) {
                     validip = true;
-
-                    log.debug("Local request from ip: " + localAddress + " for user "
-                            + user.getUsername() + " with code " + pcode);
                 }
 
                 if (!validip) {
-                    log.debug("Personal URL not usuable for this IP address, trying next method");
+                    log.debug("Ongeldig ip adres bij gebruiker "
+                            + user.getName() + " met persoonlijke code: "
+                            + pcode);
+
+                    user.setLastLoginStatus(User.LOGIN_STATE_INVALID_IP);
+                    em.persist(user);
+                    em.flush();
+
                     user = null;
                 }
             }
+
             if (user != null) {
-                log.debug("Personal URL accepted for login, username: " + user.getName());
+                log.debug("Persoonlijke code geaccepteerd bij gebruiker: " + user.getName());
             }
         }
 
@@ -277,20 +265,24 @@ abstract public class GeneralServlet extends HttpServlet {
                 try {
                     encpw = KBCrypter.encryptText(password);
                 } catch (Exception ex) {
-                    log.error("error encrypting password: ", ex);
+                    log.error("Fout tijdens encrypten wachtwoord: ", ex);
                 }
                 try {
                     user = (User) em.createQuery(
                             "from User u where "
                             + "lower(u.username) = lower(:username) "
-                            + "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                            + "and u.password = :password")
+                            .setParameter("username", username)
+                            .setParameter("password", encpw)
+                            .getSingleResult();
+
                     em.flush();
                 } catch (NonUniqueResultException nue) {
-                    log.error("More than one person found for these credentials (to be fixed in database), trying next method.");
+                    log.error("Meerdere gebruikers gevonden via encrypted wachtwoord.");
                     user = null;
                 } catch (NoResultException nre) {
+                    log.debug("Geen gebruiker gevonden via encrypted wachtwoord.");
                     user = null;
-                    log.debug("No results using encrypted password, trying next method");
                 }
 
                 // extra check voor oude non-encrypted passwords
@@ -299,33 +291,65 @@ abstract public class GeneralServlet extends HttpServlet {
                         user = (User) em.createQuery(
                                 "from User u where "
                                 + "lower(u.username) = lower(:username) "
-                                + "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
+                                + "and lower(u.password) = lower(:password)")
+                                .setParameter("username", username)
+                                .setParameter("password", password)
+                                .getSingleResult();
 
                         // Volgende keer dus wel encrypted
                         user.setPassword(encpw);
                         em.merge(user);
                         em.flush();
+
                         log.debug("Cleartext password now encrypted!");
                     } catch (NonUniqueResultException nue) {
-                        log.error("More than one person found for these (cleartext) credentials (to be fixed in database), trying next method.");
+                        log.error("Meerdere gebruikers gevonden via plain wachtwoord.");
                         user = null;
                     } catch (NoResultException nre) {
-                        log.debug("No results using cleartext password, trying next method.");
+                        log.debug("Geen gebruiker gevonden via plain wachtwoord.");
+                        user = null;
+                    }
+                }
+
+                // check if password mismatch
+                if (user == null) {
+                    user = (User) em.createQuery(
+                            "from User u where "
+                            + "lower(u.username) = lower(:username) ")
+                            .setParameter("username", username)
+                            .getSingleResult();
+
+                    if (user != null && !user.getPassword().equals(encpw)) {
+                        log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
+
+                        user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW);
+
+                        em.merge(user);
+                        em.flush();
+
+                        user = null;
                     }
                 }
             }
+
             if (user != null) {
-                log.info("Basic authentication accepted for login, username: " + user.getName());
+                log.info("Basic authentication gelukt voor gebruiker: " + user.getName());
             }
         }
 
-        /* TODO this only works on blocks with no personal code attached
-         otherwise the ip of other user is checked */
+        if (user != null) {
+            boolean exp = checkUserTimeExpired(em, user);
+
+            if (exp) {
+                return null;
+            }
+        }
+
         /* Try LDAP auth, ldapUseLdap is param in web.xml */
         String authorizationHeader = request.getHeader("Authorization");
         if (user == null && ldapUseLdap != null && ldapUseLdap
                 && authorizationHeader != null) {
-            
+
             LDAPUtil ldapUtil = new LDAPUtil();
 
             String decoded = decodeBasicAuthorizationString(authorizationHeader);
@@ -337,14 +361,14 @@ abstract public class GeneralServlet extends HttpServlet {
                     password, ldapUserSuffix);
 
             // check if username already in kaartenbalie database
-            user = ldapUtil.getLdapUserFromDb(em, username);
+            user = ldapUtil.getUserByName(em, username);
 
             /* case 1: wel in ldap, niet in db, return nieuw gebruiker */
             if (inLdap && user == null) {
                 user = new User();
                 user.setUsername(username);
                 user.setPassword("!XldapY159");
-                
+
                 List<Roles> gebruikerRol = ldapUtil.getGebruikerRol(em);
                 user.getRoles().retainAll(gebruikerRol);
                 user.getRoles().addAll(gebruikerRol);
@@ -364,47 +388,73 @@ abstract public class GeneralServlet extends HttpServlet {
                 Date userTimeOut = ldapUtil.getDefaultTimeOut(36);
                 user.setTimeout(userTimeOut);
 
+                user.setLastLoginStatus(null);
+
                 em.persist(user);
                 em.flush();
 
-                log.debug("LDAP CASE 1;");
+                log.debug("Gebruiker in Ldap maar nog niet in db.");
                 return user;
             }
 
             /* case 2: wel in ldap, wel in db, return user */
             if (inLdap && user != null) {
-                Date userTimeOut = ldapUtil.getDefaultTimeOut(36);
-                user.setTimeout(userTimeOut);
+                log.debug("Gebruiker in Ldap en al in db.");
+
+                user.setLastLoginStatus(null);
 
                 em.persist(user);
                 em.flush();
 
-                log.debug("LDAP CASE 2;");
                 return user;
             }
 
             /* case 3: niet in ldap, wel in db, uitroepteken zetten */
             if (!inLdap && user != null) {
-                Date userTimeOut = ldapUtil.getDefaultTimeOut(-12);
-                user.setTimeout(userTimeOut);
+                user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW);
 
                 em.persist(user);
                 em.flush();
 
-                user = null;
-                log.debug("LDAP CASE 3;");
+                log.debug("Gebruiker niet in Ldap maar wel in db.");
+
+                return null;
             }
 
             /* case 4: niet in ldap, niet in db, niets doen */
-            log.debug("LDAP CASE 4;");
+            log.debug("Gebruiker niet in Ldap en niet in db.");
         }
 
-        // hebben we nu een user?
+        /* Nog steeds geen user? Anders inlogstatus op OK zetten */
         if (user == null) {
-            throw new AccessDeniedException("Authorisation required for this service! No credentials found in Personal url, Authentication header or Cookie, Giving up! ");
+            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, basic authentication, cookie of ldap.");
         }
+
+        user.setLastLoginStatus(null);
+
+        em.persist(user);
+        em.flush();
 
         return user;
+    }
+
+    private boolean checkUserTimeExpired(EntityManager em, User user) {
+        if (user != null) {
+            java.util.Date date = user.getTimeout();
+
+            if (date.getTime() <= (new java.util.Date().getTime())) {
+                log.debug("Gebruiker " + user.getUsername() + " is verlopen.");
+
+                user.setLastLoginStatus(User.LOGIN_STATE_EXPIRED);
+
+                em.persist(user);
+                em.flush();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /* This function should only be called when ip contains an asterisk. This

@@ -61,10 +61,12 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
     // </editor-fold>
 
     /**
-     * Processes the parameters and creates a DocumentBuilder from the given parameters.
-     * This DocumentBuilder will be used to create a XML based String which can be returned to the client.
+     * Processes the parameters and creates a DocumentBuilder from the given
+     * parameters. This DocumentBuilder will be used to create a XML based
+     * String which can be returned to the client.
      *
-     * @param dw DataWrapper which contains all information that has to be sent to the client
+     * @param dw DataWrapper which contains all information that has to be sent
+     * to the client
      * @param user User the user which invoked the request
      *
      * @return byte[]
@@ -79,14 +81,17 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
 
         String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
         ByteArrayOutputStream output = null;
-        this.user = user;
-        this.url = user.getPersonalURL(dw.getRequest(),spAbbrUrl);
+
+        if (user != null) {
+            this.user = user;
+            this.url = user.getPersonalURL(dw.getRequest(), spAbbrUrl);
+        }
+
         if (url == null) {
             throw new Exception("No personal url for user found.");
         }
 
-
-         /*
+        /*
          * Only used if specific param is given (used for configuration)
          */
         boolean isAdmin = false;
@@ -134,7 +139,6 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
         // [
         // <!ELEMENT VendorSpecificCapabilities EMPTY>
         // ]>  <!-- end of DOCTYPE declaration -->
-
         DocumentType dt = di.createDocumentType("WMT_MS_Capabilities", null, CallWMSServlet.CAPABILITIES_DTD);
         Document dom = di.createDocument(null, "WMT_MS_Capabilities", dt);
         Element rootElement = dom.getDocumentElement();

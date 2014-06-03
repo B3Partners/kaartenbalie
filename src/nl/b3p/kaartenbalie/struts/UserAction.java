@@ -673,6 +673,7 @@ public class UserAction extends KaartenbalieCrudAction {
     protected void setPersonalUrlandTimeout(User user, DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception {
 
         Date oldDate = user.getTimeout();
+        
         Date newDate = FormUtils.FormStringToDate(dynaForm.getString("timeout"), request.getLocale());
         if (newDate == null) {
             newDate = getDefaultTimeOut(120);
@@ -686,6 +687,9 @@ public class UserAction extends KaartenbalieCrudAction {
                 && oldDate != null) {
             urlNeedsRefresh = false;
             // check of timeout veranderd is
+            
+            /* bedoeld om expire date te kunnen verlengen niet om periode
+            te kunnen inkorten */
             if (oldDate.before(newDate)) {
                 urlNeedsRefresh = true;
             } else {
@@ -694,13 +698,16 @@ public class UserAction extends KaartenbalieCrudAction {
                 }
             }
         }
+        
         if (!urlNeedsRefresh) {
             return;
         }
 
         user.setPersonalURL(User.createCode(user, newDate, request));
         user.setTimeout(newDate);
-
+        
+        // Indien deze status nog op verlopen stond
+        user.setLastLoginStatus(null);
 
     }
 
