@@ -66,7 +66,7 @@ public class LDAPUtil {
         return org;
     }
 
-    public User getLdapUserFromDb(EntityManager em, String username) {
+    public User getUserByName(EntityManager em, String username) {
         User user = null;
         try {
             user = (User) em.createQuery("from User u where "

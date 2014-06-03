@@ -41,102 +41,102 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 </script>
 
 <script type="text/javascript">
-    var count=0;
-    var maxcount=0;
-    var iplist="${form.map.registeredIP}";
-    function addRow(evalue) 
-    {        
+    var count = 0;
+    var maxcount = 0;
+    var iplist = "${form.map.registeredIP}";
+    function addRow(evalue)
+    {
         if (!document.getElementsByTagName) {
             return;
         }
-        
+
         var tbl = document.getElementById('iptable');
-        var elements = document.getElementsByName('regip');        
-        if (elements.length>0){
-            for(i = 0; i < elements.length; i++) {
+        var elements = document.getElementsByName('regip');
+        if (elements.length > 0) {
+            for (i = 0; i < elements.length; i++) {
                 if (elements[i].value.length <= 0) {
                     alert('Veld is leeg');
                     return;
                 }
             }
         }
-        var tBodiesObj = document.getElementById('iptable').tBodies[0];    
+        var tBodiesObj = document.getElementById('iptable').tBodies[0];
         row = document.createElement("TR");
         cell1 = document.createElement("TD");
         count++;
         var newTextField = document.createElement('input');
         newTextField.type = "text";
-        newTextField.id = "regip"+count;
+        newTextField.id = "regip" + count;
         newTextField.name = "regip";
-        
-        
+
+
         var newButton = document.createElement('img');
-        newButton.src="<html:rewrite page='/images/icons/table_delete.gif' module='' />";
-        newButton.onclick= new Function("removeRow(this); return false;")
+        newButton.src = "<html:rewrite page='/images/icons/table_delete.gif' module='' />";
+        newButton.onclick = new Function("removeRow(this); return false;")
         newButton.style.cursor = 'pointer';
         newButton.alt = 'Remove';
         newButton.style.width = '20px';
-        
+
         cell1.appendChild(newTextField);
         cell1.innerHTML += ' &nbsp; ';
         cell1.appendChild(newButton);
         cell1.vAlign = 'middle';
         row.appendChild(cell1);
-        tBodiesObj.appendChild(row);  
+        tBodiesObj.appendChild(row);
         //als object is aangemaakt het eventueel meegegeven ipadres invullen
-        if (evalue && evalue.length>0){            
-            document.getElementById("regip"+count).value=evalue;
+        if (evalue && evalue.length > 0) {
+            document.getElementById("regip" + count).value = evalue;
         }
-        
-        updateDiv(); 
+
+        updateDiv();
     }
-    
+
     function removeRow(buttonClicked) {
         var parent = buttonClicked;
         while (parent.tagName != 'TR') {
             parent = parent.parentNode;
         }
-        
+
         var tbl = parent.parentNode;
-        
+
         var lastRow = tbl.rows.length;
-        if (lastRow > 1) { 
-            tbl.removeChild( parent );
+        if (lastRow > 1) {
+            tbl.removeChild(parent);
             count--;
         } else {
             alert('<fmt:message key="beheer.user.ipalert"/>');
         }
-    
+
         updateDiv();
     }
 
     function updateDiv() {
         var objDiv = document.getElementById("ipDiv");
-        if(count > 4)
+        if (count > 4)
             objDiv.style.height = '130px';
         else
             objDiv.style.height = count * 32 + 'px';
         objDiv.scrollTop = objDiv.scrollHeight;
-    
-        if (count>maxcount)
-            maxcount=count;
+
+        if (count > maxcount)
+            maxcount = count;
     }
 
-    function collectIps(){
-        var ipadresses="";
-        for(i = 0; i <= maxcount; i++){
-            var element=document.getElementById("regip"+i);            
-            if(element && element.value.length>0){
-                var val=element.value;
-                val=val.replace(",",".");
-                if (ipadresses.length>0){
-                    ipadresses+=",";
+    function collectIps() {
+        var ipadresses = "";
+        for (i = 0; i <= maxcount; i++) {
+            var element = document.getElementById("regip" + i);
+            if (element && element.value.length > 0) {
+                var val = element.value;
+                val = val.replace(",", ".");
+                if (ipadresses.length > 0) {
+                    ipadresses += ",";
                 }
-                ipadresses+=val;
+                ipadresses += val;
             }
         }
-        if (ipadresses.length>0){
-            document.getElementById("registeredIP").value=ipadresses;
+        if (ipadresses.length > 0) {
+            document.getElementById("registeredIP").value = ipadresses;
         }
     }
 
@@ -158,11 +158,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <table id="server_table" class="dataTable">
                     <thead>
                         <tr>
-                            <th style="width: 25%;"><fmt:message key="beheer.userUsername"/></th>
+                            <th style="width: 20%;"><fmt:message key="beheer.userUsername"/></th>
                             <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
-                            <th style="width: 20%;"><fmt:message key="beheer.userOrganization"/></th>
-                            <th style="width: 15%;"><fmt:message key="beheer.user.table.rollen"/></th>
-                            <th class="{sorter:'dutchdates'}" style="width: 15%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                            <th style="width: 15%;"><fmt:message key="beheer.userOrganization"/></th>
+                            <th style="width: 15%;"></th>
+                            <th class="{sorter:'dutchdates'}" style="width: 10%;"><fmt:message key="beheer.user.table.timeout"/></th>
+                            <th style="width: 15%;"><fmt:message key="beheer.user.table.status"/></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,7 +171,14 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                             <c:url var="link" value="/beheer/user.do?edit=submit&id=${nUser.id}" />
                             <c:set var="id_selected" value='' />
                             <c:if test="${nUser.id == mainid}"><c:set var="id_selected" value=' class="row_selected"' /></c:if>
-                            <tr data-link="${link}"${id_selected} onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
+
+                            <c:if test="${empty nUser.lastLoginStatus}">
+                                <tr data-link="${link}"${id_selected} onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
+                                </c:if>
+                                <c:if test="${!empty nUser.lastLoginStatus}">
+                                <tr style="background-color: #ffd1d1;" data-link="${link}"${id_selected} onmouseover="showLabel(${nUser.id})" onmouseout="hideLabel(${nUser.id});">
+                                </c:if>
+
                                 <td>
                                     <html:link page="/user.do?edit=submit&id=${nUser.id}">
                                         <c:out value="${nUser.username}"/>
@@ -193,16 +201,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </td>
                                 <td>
                                     <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
+                                </td>
 
-                                    <c:forEach var="invalidId" varStatus="status" items="${invalidUserIds}">
-                                        <c:if test="${nUser.id == invalidId}">
-                                            <img src="<html:rewrite page='/images/siteImages/invalid.png' module='' />"
-                                             title="Gebruiker ongeldig en mag niet inloggen."
-                                             alt="Gebruiker ongeldig en mag niet inloggen."
-                                             width="16"
-                                             height="16"/>
-                                        </c:if>
-                                    </c:forEach>
+                                <td>
+                                    <c:out value="${nUser.lastLoginStatus}"/>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -270,9 +272,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                                  style="cursor: pointer; border: 1px solid red;" 
                                                  title="Date selector"
                                                  alt="Date selector"
-                                                 onmouseover="this.style.background='red';" 
-                                                 onmouseout="this.style.background=''"
-                                                 onClick="cal.select(document.getElementById('cal_date'),'cal-button','yyyy-MM-dd', document.getElementById('cal_date').value); return false;"
+                                                 onmouseover="this.style.background = 'red';" 
+                                                 onmouseout="this.style.background = ''"
+                                                 onClick="cal.select(document.getElementById('cal_date'), 'cal-button', 'yyyy-MM-dd', document.getElementById('cal_date').value);
+                                                         return false;"
                                                  name="cal-button"
                                                  />
                                         </td>
@@ -281,7 +284,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                         <td valign="top"><B>
                                                 <fmt:message key="viewer.persoonlijkeurl.registeredip"/>:
                                             </B>
-                                            <input type="button" onClick='addRow(); return false' value="Voeg toe"/>
+                                            <input type="button" onClick='addRow();
+                                                    return false' value="Voeg toe"/>
                                         </td>
                                         <td valign="top">
                                             <div id='ipDiv' class='ipDiv' style="margin: 0px; padding: 0px; margin-left: -3px; float: left;">
@@ -313,32 +317,32 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                         <td colspan="2"><B><fmt:message key="beheer.userOtherOrganizations"/>:</B></td>
                                     </tr>
                                     <tr><td colspan="2">
-                                <div class="orgsHolder">
-                                            <table cellpadding="0px;">
-                                                <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
-                                                    <c:if test="${nOrg.id !=form.map.mainOrganization}">
-                                                        <tr>
-                                                            <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
-                                                            <td><c:out value="${nOrg.name}" /></td>
-                                                        </tr>
-                                                    </c:if>
-                                                </c:forEach>
-                                            </table>
-                                </div>
+                                            <div class="orgsHolder">
+                                                <table cellpadding="0px;">
+                                                    <c:forEach var="nOrg" varStatus="status" items="${organizationlist}">
+                                                        <c:if test="${nOrg.id !=form.map.mainOrganization}">
+                                                            <tr>
+                                                                <td><html:multibox value="${nOrg.id}" property="orgSelected" /></td>
+                                                                <td><c:out value="${nOrg.name}" /></td>
+                                                            </tr>
+                                                        </c:if>
+                                                    </c:forEach>
+                                                </table>
+                                            </div>
                                         </td></tr>
                                     <tr><td colspan="2">&nbsp;</td></tr>
                                     <tr><td colspan="2"><B><fmt:message key="beheer.userRole"/>:</B></td></tr>
                                     <tr><td colspan="2">
-                                <div class="orgsHolder">
-                                            <table cellpadding="0px;">
-                                                <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
-                                                    <tr>
-                                                        <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
-                                                        <td><c:out value="${nRole.role}" /></td>
-                                                    </tr>
-                                                </c:forEach>
-                                            </table>
-                                </div>
+                                            <div class="orgsHolder">
+                                                <table cellpadding="0px;">
+                                                    <c:forEach var="nRole" varStatus="status" items="${userrolelist}">
+                                                        <tr>
+                                                            <td><html:multibox value="${nRole.id}" property="roleSelected" /></td>
+                                                            <td><c:out value="${nRole.role}" /></td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                </table>
+                                            </div>
                                         </td></tr>
                                 </table>
                             </td>
@@ -398,11 +402,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 </html:form>
 <script type="text/javascript">
     <c:if test="${action != 'list'}">
-        if (iplist!=null && iplist.length>0){
-            var tokens=iplist.split(",");
-            for (var b=0;b < tokens.length; b++){
-                addRow(tokens[b]);
-            }
+    if (iplist != null && iplist.length > 0) {
+        var tokens = iplist.split(",");
+        for (var b = 0; b < tokens.length; b++) {
+            addRow(tokens[b]);
         }
+    }
     </c:if>
 </script>
