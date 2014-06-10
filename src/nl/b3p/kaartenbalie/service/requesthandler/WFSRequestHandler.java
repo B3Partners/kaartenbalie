@@ -246,6 +246,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                         }
 
                         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                        dbf.setNamespaceAware(true);
                         DocumentBuilder builder = dbf.newDocumentBuilder();
                         Document doc = builder.parse(isx);
 

@@ -92,8 +92,9 @@ public class GroupParser extends KaartenbalieCrudAction {
         try {
             List<Organization> groups = this.getGroups();
 
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder docBuilder = dbf.newDocumentBuilder();
 
             // root elements
             Document doc = docBuilder.newDocument();

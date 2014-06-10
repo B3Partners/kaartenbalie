@@ -244,6 +244,7 @@ public class CallWMSServlet extends GeneralServlet {
         ByteArrayOutputStream output = null;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
+        dbf.setNamespaceAware(true);
         DocumentBuilder db = null;
         try {
             db = dbf.newDocumentBuilder();

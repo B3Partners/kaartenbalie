@@ -132,6 +132,7 @@ public class GetCapabilitiesRequestHandler extends WMSRequestHandler {
          */
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setValidating(false);
+        dbf.setNamespaceAware(true);
         DocumentBuilder db = dbf.newDocumentBuilder();
         DOMImplementation di = db.getDOMImplementation();
 
