@@ -14,6 +14,7 @@ import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.ogc.utils.OGCCommunication;
+import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
@@ -67,19 +68,43 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
             List<SldNamedLayer> namedLayers=sldReader.getNamedLayersBySld(sld,"UTF-8");
 
             Iterator<SldNamedLayer> it =namedLayers.iterator();
-            while(it.hasNext()){
+            while (it.hasNext()){
                 SldNamedLayer nl= it.next();
+                
                 try{
-                    String[] codeAndName=OGCCommunication.toCodeAndName(nl.getName());
-                    if (codeAndName[0].equals(sp.getAbbr())){
+                    String[] codeAndName = OGCCommunication
+                            .toCodeAndName(nl.getName());                    
+                    
+                    if (codeAndName[0] != null &&
+                            codeAndName[0].equals(sp.getAbbr())) {
+                        
                         nl.setName(codeAndName[1]);
                         returnedNamedLayers.add(nl);
+                        
+                    /* 
+                        *Als er geen afkorting in namedlayer zit is
+                        * codeAndName[0] null. Kijken of name overeenkomt 
+                        * met een layer uit service ?
+                    */
+                    } else if (codeAndName[0] == null && codeAndName[1] != null) {
+                        
+                        Iterator<Layer> it2 = sp.getAllLayers().iterator();
+                        while (it2.hasNext()){
+                            Layer l = it2.next();
+                            
+                            if (l.getName().equals(codeAndName[1])) {
+                                nl.setName(codeAndName[1]);
+                                returnedNamedLayers.add(nl);
+                            }
+                        }                        
                     }
-                }catch(Exception e){
+                    
+                } catch(Exception e){
                     log.error("Fout bij maken SLD",e);
                 }
             }
         }
+        
         /**/
         if (styleString!=null && styleString.length()>0){
             String[] styleStringTokens=styleString.split(",");
@@ -93,6 +118,7 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
             
             returnedNamedLayers.addAll(sldFact.createNamedLayersWithKBStyles(styles));
         }
+        
         /**/
         String xml = "";
         xml=sldFact.createSLD(returnedNamedLayers);
@@ -100,8 +126,7 @@ public class ProxySLDServlet extends AbstractSimpleKbService {
         
         log.debug("Returned sld: \n"+xml);
         
-        out.write(xml);           
-                
+        out.write(xml);
     }
     
     public static void addSLDToCache(String sldUrl){
