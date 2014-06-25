@@ -313,11 +313,16 @@ abstract public class GeneralServlet extends HttpServlet {
 
                 // check if password mismatch
                 if (user == null) {
-                    user = (User) em.createQuery(
-                            "from User u where "
-                            + "lower(u.username) = lower(:username) ")
-                            .setParameter("username", username)
-                            .getSingleResult();
+                    try {
+                        user = (User) em.createQuery(
+                                "from User u where "
+                                + "lower(u.username) = lower(:username) ")
+                                .setParameter("username", username)
+                                .getSingleResult();
+                    } catch (NoResultException nre) {
+                        log.debug("Gebruiker " + username + " niet gevonden in db.");
+                        user = null;
+                    }
 
                     if (user != null && !user.getPassword().equals(encpw)) {
                         log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
@@ -359,7 +364,7 @@ abstract public class GeneralServlet extends HttpServlet {
             // check if user is in ldap
             boolean inLdap = ldapUtil.userInLdap(ldapHost, ldapPort, username,
                     password, ldapUserSuffix);
-
+            
             // check if username already in kaartenbalie database
             user = ldapUtil.getUserByName(em, username);
 
@@ -393,13 +398,13 @@ abstract public class GeneralServlet extends HttpServlet {
                 em.persist(user);
                 em.flush();
 
-                log.debug("Gebruiker in Ldap maar nog niet in db.");
+                log.debug("Gebruiker " + username +" in Ldap maar nog niet in db.");
                 return user;
             }
 
             /* case 2: wel in ldap, wel in db, return user */
             if (inLdap && user != null) {
-                log.debug("Gebruiker in Ldap en al in db.");
+                log.debug("Gebruiker " +username +" in Ldap en al in db.");
 
                 user.setLastLoginStatus(null);
 
@@ -416,20 +421,21 @@ abstract public class GeneralServlet extends HttpServlet {
                 em.persist(user);
                 em.flush();
 
-                log.debug("Gebruiker niet in Ldap maar wel in db.");
+                log.debug("Gebruiker " + username +" niet in Ldap maar wel in db.");
 
                 return null;
             }
 
             /* case 4: niet in ldap, niet in db, niets doen */
-            log.debug("Gebruiker niet in Ldap en niet in db.");
+            log.debug("Gebruiker "+ username +" niet in Ldap en niet in db.");
         }
 
         /* Nog steeds geen user? Anders inlogstatus op OK zetten */
         if (user == null) {
             throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, basic authentication, cookie of ldap.");
         }
-
+        
+        /* user niet null loginstatus leegmaken */
         user.setLastLoginStatus(null);
 
         em.persist(user);
