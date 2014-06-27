@@ -191,25 +191,6 @@ abstract public class GeneralServlet extends HttpServlet {
                 log.debug("Persoonlijke code gevonden bij gebruiker: " + user.getName());
             }
         }
-        
-        /* Controleer ip addresses */
-        if (user != null) {
-            boolean isValidIp = checkValidIpAddress(request, user);
-
-            if (!isValidIp) {
-                String remoteAddress = request.getRemoteAddr();
-                
-                log.debug("Ip adres " + remoteAddress +" ongeldig"
-                        + " voor gebruiker " + user.getName());
-
-                user.setLastLoginStatus(User.LOGIN_STATE_INVALID_IP);
-                
-                em.persist(user);
-                em.flush();
-
-                user = null;
-            }
-        }
 
         /* Zoek gebruiker via Preemptive authentication */
         if (user == null) {            
@@ -297,11 +278,35 @@ abstract public class GeneralServlet extends HttpServlet {
             }
         }
         
+        /* Controleer ip adressen */
+        if (user != null) {
+            boolean isValidIp = checkValidIpAddress(request, user);
+
+            if (!isValidIp) {
+                String remoteAddress = request.getRemoteAddr();
+                
+                log.debug("Ip adres " + remoteAddress +" ongeldig"
+                        + " voor gebruiker " + user.getName());
+
+                user.setLastLoginStatus(User.LOGIN_STATE_INVALID_IP);
+                
+                em.persist(user);
+                em.flush();
+
+                return null;
+            }
+        }
+        
         /* Controleer time out */
         if (user != null) {
             boolean expired = checkUserTimeExpired(em, user);
 
-            if (expired) {
+            if (expired) {                
+                user.setLastLoginStatus(User.LOGIN_STATE_EXPIRED);
+
+                em.persist(user);
+                em.flush();
+                
                 log.debug("Account van " + user.getUsername() + " is verlopen.");
                 
                 return null;
@@ -469,11 +474,6 @@ abstract public class GeneralServlet extends HttpServlet {
             java.util.Date date = user.getTimeout();
 
             if (date.getTime() <= (new java.util.Date().getTime())) {
-                user.setLastLoginStatus(User.LOGIN_STATE_EXPIRED);
-
-                em.persist(user);
-                em.flush();
-
                 return true;
             }
         }
