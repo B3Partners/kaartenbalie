@@ -152,8 +152,7 @@ public class CallWMSServlet extends GeneralServlet {
                 
                 parseRequestAndData(data, user);
 
-            } catch (ProviderException pex) {
-            	
+            } catch (ProviderException pex) {            	
                 log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
                 rr.setClientRequestException(pex);
                 handleRequestException(pex, data);
@@ -161,9 +160,12 @@ public class CallWMSServlet extends GeneralServlet {
                 log.error("Error while logging in: " + adex.getLocalizedMessage());
                 rr.setClientRequestException(adex);
                 handleRequestException(adex, data);
+            } catch (UnsupportedOperationException uoex) {
+                log.error("Error while handling request params: " + uoex.getLocalizedMessage());              
+                rr.setClientRequestException(uoex);
+                handleRequestException(uoex, data);
             } catch (Exception ex) {
-                log.error("Error while handling request: ", ex);
-                
+                log.error("Error while handling request: ", ex);                
                 rr.setClientRequestException(ex);
                 handleRequestException(ex, data);
             } finally {

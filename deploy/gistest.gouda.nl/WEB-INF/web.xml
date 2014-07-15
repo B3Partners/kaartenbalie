@@ -155,9 +155,10 @@
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
+    
+	<servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/ProxySLD/*</url-pattern>
+        <url-pattern>/services/ProxySLD/*</url-pattern>
     </servlet-mapping>
 
 	<servlet>
