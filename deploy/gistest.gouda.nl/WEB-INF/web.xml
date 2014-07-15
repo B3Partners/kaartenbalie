@@ -165,6 +165,14 @@
         <description>Servlet for incoming RESTful API calls</description>
         <servlet-name>restapi</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallAPIServlet</servlet-class>
+		<init-param> 
+            <param-name>sldFolder</param-name> 
+            <param-value>/srv/sld</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name>sldExtension</param-name> 
+            <param-value>xml</param-value>
+        </init-param>
         <load-on-startup>4</load-on-startup>
     </servlet>
     <servlet-mapping>
