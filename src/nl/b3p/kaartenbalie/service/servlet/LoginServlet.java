@@ -46,7 +46,11 @@ public class LoginServlet extends GeneralServlet {
 
             tx.begin();
             
+            log.debug("Pre check login!");
+            
             user = checkLogin(request, null);
+            
+            log.debug("Na check login!");
 
             tx.commit();
         } catch (AccessDeniedException ex) {
@@ -69,6 +73,8 @@ public class LoginServlet extends GeneralServlet {
         if (user == null) {
             return false;
         }
+        
+        log.debug("Username: " + user.getName() + ", password: " + user.getPassword());
 
         return true;
     }

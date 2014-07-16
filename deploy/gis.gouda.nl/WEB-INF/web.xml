@@ -155,15 +155,45 @@
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
+    
+	<servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/ProxySLD/*</url-pattern>
+        <url-pattern>/services/ProxySLD/*</url-pattern>
+    </servlet-mapping>
+
+	<servlet>
+        <description>Servlet for incoming RESTful API calls</description>
+        <servlet-name>restapi</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallAPIServlet</servlet-class>
+		<init-param> 
+            <param-name>sldFolder</param-name> 
+            <param-value>/srv/sld</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name>sldExtension</param-name> 
+            <param-value>xml</param-value>
+        </init-param>
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>restapi</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+	<servlet>
+        <servlet-name>loginservlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.LoginServlet</servlet-class>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>loginservlet</servlet-name>
+        <url-pattern>/login/*</url-pattern>
     </servlet-mapping>
 
 	<!-- ldap params -->
     <context-param>
         <param-name>ldapUseLdap</param-name>
-        <param-value>false</param-value>
+        <param-value>true</param-value>
     </context-param>
     <context-param>
         <param-name>ldapDefaultGroup</param-name>
