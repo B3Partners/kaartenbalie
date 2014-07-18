@@ -129,6 +129,15 @@
         </init-param> 
     </servlet>
     <servlet>
+	<servlet-name>loginservlet</servlet-name>
+	<servlet-class>nl.b3p.kaartenbalie.service.servlet.LoginServlet</servlet-class>
+	<load-on-startup>5</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+	<servlet-name>loginservlet</servlet-name>
+	<url-pattern>/login/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
     </servlet>
