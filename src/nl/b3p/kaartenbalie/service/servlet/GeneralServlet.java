@@ -287,11 +287,8 @@ abstract public class GeneralServlet extends HttpServlet {
                 
                 log.debug("Ip adres " + remoteAddress +" ongeldig"
                         + " voor gebruiker " + user.getName());
-
-                user.setLastLoginStatus(User.LOGIN_STATE_INVALID_IP);
                 
-                em.persist(user);
-                em.flush();
+                setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
 
                 return null;
             }
@@ -302,10 +299,7 @@ abstract public class GeneralServlet extends HttpServlet {
             boolean expired = checkUserTimeExpired(em, user);
 
             if (expired) {                
-                user.setLastLoginStatus(User.LOGIN_STATE_EXPIRED);
-
-                em.persist(user);
-                em.flush();
+                setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
                 
                 log.debug("Account van " + user.getUsername() + " is verlopen.");
                 
@@ -369,8 +363,6 @@ abstract public class GeneralServlet extends HttpServlet {
             /* case 2: wel in ldap, wel in db, return user */
             if (inLdap && user != null) {
                 user.setLastLoginStatus(null);
-
-                em.persist(user);
                 em.flush();
                 
                 log.debug("Gebruiker " + username + " in Ldap en al in db.");
@@ -381,8 +373,6 @@ abstract public class GeneralServlet extends HttpServlet {
             /* case 3: niet in ldap, wel in db, uitroepteken zetten */
             if (!inLdap && user != null) {
                 user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW);
-
-                em.persist(user);
                 em.flush();
 
                 log.debug("Gebruiker " + username + " niet in Ldap maar wel in db.");
@@ -399,17 +389,29 @@ abstract public class GeneralServlet extends HttpServlet {
             throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, basic authentication, cookie of ldap.");
         }
 
-        /* Er is een user. loginstatus leegmaken */
-        user.setLastLoginStatus(null);
+        /* Er is een user. loginstatus aanpassen */        
+        setDetachedUserLastLoginStatus(user, null, em);
 
-        em.persist(user);
-        em.flush();
-        
         if (user != null) {
             log.debug("Gebruiker " + user.getName() + " mag inloggen.");
         }
 
         return user;
+    }
+    
+    private void setDetachedUserLastLoginStatus(User user, String status,
+            EntityManager em) {
+        
+        user.setLastLoginStatus(status);
+        
+        if (em.contains(user)) {
+            em.flush();
+        } else {
+            em.createQuery("update User set lastLoginStatus = :status where id = :id")
+                .setParameter("status", status)
+                .setParameter("id", user.getId())
+                .executeUpdate();
+        }
     }
 
     private boolean checkValidIpAddress(HttpServletRequest request, User user) {

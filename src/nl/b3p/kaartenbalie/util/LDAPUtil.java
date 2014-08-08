@@ -57,8 +57,7 @@ public class LDAPUtil {
                     + "lower(o.name) = lower(:orgName) ")
                     .setParameter("orgName", orgName)
                     .getSingleResult();
-
-            em.flush();
+            
         } catch (Exception ex) {
             log.debug("Fout tijdens ophalen ldap org: ", ex);
         }
@@ -73,8 +72,6 @@ public class LDAPUtil {
                     + "lower(u.username) = lower(:username) ")
                     .setParameter("username", username)
                     .getSingleResult();
-
-            em.flush();
 
         } catch (Exception ex) {
             log.debug("Fout tijdens ophalen ldap user uit db: ", ex);
