@@ -177,8 +177,6 @@ abstract public class GeneralServlet extends HttpServlet {
                         "from User u where u.personalURL = :personalURL")
                         .setParameter("personalURL", pcode)
                         .getSingleResult();
-
-                em.flush();
             } catch (NonUniqueResultException nue) {
                 log.debug("Meerdere gebruikers gevonden bij persoonlijke code: " + pcode);
                 user = null;
@@ -214,8 +212,6 @@ abstract public class GeneralServlet extends HttpServlet {
                             .setParameter("username", username)
                             .setParameter("password", encpw)
                             .getSingleResult();
-
-                    em.flush();
                 } catch (NonUniqueResultException nue) {
                     log.error("Meerdere gebruikers gevonden via encrypted wachtwoord.");
                     user = null;

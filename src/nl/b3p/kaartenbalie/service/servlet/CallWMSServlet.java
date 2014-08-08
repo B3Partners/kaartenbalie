@@ -161,7 +161,10 @@ public class CallWMSServlet extends GeneralServlet {
                 rr.setClientRequestException(adex);
                 handleRequestException(adex, data);
             } catch (UnsupportedOperationException uoex) {
-                log.error("Error while handling request params: " + uoex.getLocalizedMessage());              
+                log.error(String.format("Error while handling request params for URI %s, query string %s: %s",
+                        request.getRequestURI(),
+                        request.getQueryString(),
+                        uoex.getLocalizedMessage()));              
                 rr.setClientRequestException(uoex);
                 handleRequestException(uoex, data);
             } catch (Exception ex) {
