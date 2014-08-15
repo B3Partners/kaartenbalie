@@ -114,7 +114,7 @@
     );
 
     create table layer_metadata (
-        id int4 not null,
+        id  serial not null,
         layer int4 not null,
         metadata text,
         primary key (id)
@@ -328,6 +328,7 @@
         title varchar(255) not null,
         abstracts text,
         sld_part text,
+        sld_constraints text,
         primary key (id)
     );
 
@@ -636,5 +637,3 @@
         add constraint FKBB3050D69B6DCE00 
         foreign key (wfs_service_provider) 
         references wfs_service_provider;
-
-    create sequence layer_metadata_id_seq;
