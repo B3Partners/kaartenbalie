@@ -149,17 +149,17 @@ abstract public class GeneralServlet extends HttpServlet {
     }
 
     protected User checkLogin(HttpServletRequest request, EntityManager em,
-            String pcode) throws NoSuchAlgorithmException, 
+            String pcode) throws NoSuchAlgorithmException,
             UnsupportedEncodingException, AccessDeniedException, Exception {
-        
+
         User user = null;
 
         /* Gebruiker al ingelogd en persoonlijke code hetzelfde ? */
         if (user == null) {
             user = (User) request.getUserPrincipal();
-            
-            if (user != null) {                
-                String userCode = user.getPersonalURL();                
+
+            if (user != null) {
+                String userCode = user.getPersonalURL();
                 if (pcode != null && userCode != null && !pcode.equals(userCode)) {
                     user = null;
                 }
@@ -191,7 +191,7 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         /* Zoek gebruiker via Preemptive authentication */
-        if (user == null) {            
+        if (user == null) {
             String authorizationHeader = request.getHeader("Authorization");
             if (authorizationHeader != null) {
                 String decoded = decodeBasicAuthorizationString(authorizationHeader);
@@ -262,7 +262,7 @@ abstract public class GeneralServlet extends HttpServlet {
 
                         em.merge(user);
                         em.flush();
-                        
+
                         log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
                         user = null;
                     }
@@ -273,32 +273,32 @@ abstract public class GeneralServlet extends HttpServlet {
                 log.debug("Basic authentication gelukt voor gebruiker: " + user.getName());
             }
         }
-        
+
         /* Controleer ip adressen */
         if (user != null) {
             boolean isValidIp = checkValidIpAddress(request, user);
 
             if (!isValidIp) {
                 String remoteAddress = request.getRemoteAddr();
-                
-                log.debug("Ip adres " + remoteAddress +" ongeldig"
+
+                log.debug("Ip adres " + remoteAddress + " ongeldig"
                         + " voor gebruiker " + user.getName());
-                
+
                 setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
 
                 return null;
             }
         }
-        
+
         /* Controleer time out */
         if (user != null) {
             boolean expired = checkUserTimeExpired(em, user);
 
-            if (expired) {                
+            if (expired) {
                 setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
-                
+
                 log.debug("Account van " + user.getUsername() + " is verlopen.");
-                
+
                 return null;
             }
         }
@@ -352,7 +352,7 @@ abstract public class GeneralServlet extends HttpServlet {
                 em.flush();
 
                 log.debug("Gebruiker " + username + " in Ldap maar nog niet in db.");
-                
+
                 return user;
             }
 
@@ -360,7 +360,7 @@ abstract public class GeneralServlet extends HttpServlet {
             if (inLdap && user != null) {
                 user.setLastLoginStatus(null);
                 em.flush();
-                
+
                 log.debug("Gebruiker " + username + " in Ldap en al in db.");
 
                 return user;
@@ -385,7 +385,7 @@ abstract public class GeneralServlet extends HttpServlet {
             throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, basic authentication, cookie of ldap.");
         }
 
-        /* Er is een user. loginstatus aanpassen */        
+        /* Er is een user. loginstatus aanpassen */
         setDetachedUserLastLoginStatus(user, null, em);
 
         if (user != null) {
@@ -394,20 +394,16 @@ abstract public class GeneralServlet extends HttpServlet {
 
         return user;
     }
-    
+
     private void setDetachedUserLastLoginStatus(User user, String status,
             EntityManager em) {
-        
+
         user.setLastLoginStatus(status);
-        
-        if (em.contains(user)) {
-            em.flush();
-        } else {
-            em.createQuery("update User set lastLoginStatus = :status where id = :id")
+
+        em.createQuery("update User set lastLoginStatus = :status where id = :id")
                 .setParameter("status", status)
                 .setParameter("id", user.getId())
                 .executeUpdate();
-        }
     }
 
     private boolean checkValidIpAddress(HttpServletRequest request, User user) {
@@ -417,7 +413,7 @@ abstract public class GeneralServlet extends HttpServlet {
          waarmee nu wordt ingelogd, bijvoorbeeld via ldap of andere username
          dan die aan gebruikerscode is gekoppeld */
         boolean validip = false;
-        
+
         if (user != null) {
             String remoteaddress = request.getRemoteAddr();
             String forwardedFor = request.getHeader("X-Forwarded-For");
