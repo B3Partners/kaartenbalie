@@ -36,14 +36,15 @@ public abstract class AbstractSimpleKbService extends CallWMSServlet{
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String url=request.getRequestURL().toString();
+        String url = request.getRequestURI();
         String personalCode = OGCRequest.findPersonalCode(url);
 
-        if (log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {            
+            log.debug("Incoming url: "+ url);
+            
             if (request.getQueryString()!=null){
-                url+=request.getQueryString();
-            }
-            log.debug("Incoming request: "+url);
+                log.debug("Query string: " + request.getQueryString());
+            }            
         }
         
         Object identity = null;

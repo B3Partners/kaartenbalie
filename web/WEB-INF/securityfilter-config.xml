@@ -11,15 +11,6 @@
         Purpose of the document follows.
 -->
 <securityfilter-config>
-    
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>ProxySLD Everyone</web-resource-name>
-            <url-pattern>/services/ProxySLD*</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-    </security-constraint>
-    
     <!-- Define the Login Configuration for this Application -->
     <security-constraint>
         <web-resource-collection>

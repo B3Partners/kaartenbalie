@@ -158,7 +158,7 @@
     
 	<servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/services/ProxySLD/*</url-pattern>
+        <url-pattern>/proxysld/*</url-pattern>
     </servlet-mapping>
 
 	<servlet>
