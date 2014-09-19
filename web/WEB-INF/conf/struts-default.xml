@@ -7,34 +7,6 @@
 
 <struts-config>
     <form-beans>
-        <form-bean name="metadataForm" type="org.apache.struts.validator.DynaValidatorForm">
-            <!-- hidden -->
-            <form-property name="id" type="java.lang.String"/>
-            <form-property name="action" type="java.lang.String"/>
-            <form-property name="alt_action" type="java.lang.String"/>
-            <!-- user form fields-->
-            <form-property name="strictMode" type="java.lang.String" initial="false"/>
-            <form-property name="viewMode" type="java.lang.String" initial="false"/>
-            <form-property name="selectedLayers" type="java.lang.String[]"/>
-            <form-property name="name" type="java.lang.String"/>            
-            <form-property name="metadata" type="java.lang.String"/>
-            <form-property name="mailhost" type="java.lang.String" initial="kmail.b3partners.nl"/>
-            <form-property name="xsl" type="java.lang.String"/>
-            <form-property name="to" type="java.lang.String"/>
-            <form-property name="from" type="java.lang.String"/>
-            <form-property name="subject" type="java.lang.String"/>
-            <form-property name="cc" type="java.lang.String"/>
-            <form-property name="bcc" type="java.lang.String"/>
-            <form-property name="body" type="java.lang.String"/>
-            <form-property name="fullname" type="java.lang.String"/>
-            <form-property name="company" type="java.lang.String"/>
-            <form-property name="address" type="java.lang.String"/>
-            <form-property name="zipcode" type="java.lang.String"/>
-            <form-property name="city" type="java.lang.String"/>
-            <form-property name="country" type="java.lang.String"/>
-            <form-property name="phone" type="java.lang.String"/>
-            <form-property name="fax" type="java.lang.String"/>
-        </form-bean>
         
     </form-beans>
     
@@ -58,16 +30,7 @@
         
         <action path="/viewer" forward="/viewer/index.do"/>
         <action path="/beheer" forward="/beheer/index.do"/>
-        <action path="/demo" forward="/demo/index.do"/>
         
-        <action path="/metadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
-            <forward name="success" path="base.algemeen.metadata"/>
-            <forward name="failure" path="base.algemeen.metadata"/>
-        </action>
-        <action path="/editmetadata" name="metadataForm" type="nl.b3p.kaartenbalie.struts.MetadataAction" scope="request" validate="false">
-            <forward name="success" path="base.algemeen.editmetadata"/>
-            <forward name="failure" path="base.algemeen.editmetadata"/>
-        </action>
     </action-mappings>
     
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

@@ -47,7 +47,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
     private static final Log log = LogFactory.getLog(OGCRequestHandler.class);
     protected User user;
     protected String url;
-    protected static long maxResponseTime = 10000;
+    protected int maxResponseTime = -1;
 
     public OGCRequestHandler() {
     }
@@ -491,5 +491,22 @@ public abstract class OGCRequestHandler implements RequestHandler {
                 cl.processConfig(config);
             }
         }
+    }
+
+    /**
+     * @return the maxResponseTime
+     */
+    public int getMaxResponseTime() {
+        if (maxResponseTime <= 0) {
+            maxResponseTime = 9999;
+        }
+        return maxResponseTime;
+    }
+
+    /**
+     * @param maxResponseTime the maxResponseTime to set
+     */
+    public void setMaxResponseTime(int maxResponseTime) {
+        this.maxResponseTime = maxResponseTime;
     }
 }

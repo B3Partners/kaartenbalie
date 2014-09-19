@@ -87,10 +87,6 @@
             <param-value>/WEB-INF/conf/struts-beheer.xml</param-value>
         </init-param>
         <init-param>
-            <param-name>config/demo</param-name>
-            <param-value>/WEB-INF/conf/struts-demo.xml</param-value>
-        </init-param>
-        <init-param>
             <param-name>debug</param-name>
             <param-value>2</param-value>
         </init-param>

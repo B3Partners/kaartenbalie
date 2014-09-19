@@ -25,7 +25,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <ul class="menu">
         <li><a class="menulink" href="<html:rewrite page='/index.do' module='' />"><fmt:message key="algemeen.home"/></a></li>
         <li><a class="menulink" href="<html:rewrite page='/beheer/reporting.do' module='' />"><fmt:message key="beheer.reporting"/></a></li>
-        <li><a class="menulink" href="<html:rewrite page='/beheer/metadata.do' module='' />"><fmt:message key="beheer.metadata"/></a></li>
         <li><a class="menulink" href="<html:rewrite page='/beheer/pricing.do' module='' />"><fmt:message key="beheer.pricing"/></a></li>
         <li><a class="menulink" href="<html:rewrite page='/beheer/accounting.do' module='' />"><fmt:message key="beheer.accounting"/></a></li>
     </ul>

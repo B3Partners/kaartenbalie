@@ -31,7 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.ProxySelector;
 import java.net.URL;
 import java.util.*;
-import javax.imageio.spi.ImageReaderSpi;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
@@ -79,7 +78,6 @@ import org.geotools.data.ows.LayerDescription;
 import org.geotools.data.ows.SimpleHttpClient.SimpleHTTPResponse;
 import org.geotools.data.wms.response.DescribeLayerResponse;
 import org.geotools.ows.ServiceException;
-import org.geotools.resources.image.ImageUtilities;
 import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -94,6 +92,24 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     private Switcher s;
 
     public WMSRequestHandler() {
+    }
+    
+    public boolean mayDirectWrite() {
+        return false;
+    }
+
+    /**
+     * @return the maxResponseTime
+     */
+    public int getMaxResponseTime() {
+        if (maxResponseTime <= 0) {
+            try {
+                maxResponseTime = new Integer(KBConfiguration.WMS_RESPONSE_TIME_LIMIT);
+            } catch (NumberFormatException nfe) {
+                maxResponseTime = 11111;
+            }
+        }
+        return maxResponseTime;
     }
 
     protected Set getValidLayers(User user, EntityManager em, boolean isAdmin, String spAbbrUrl) throws Exception {

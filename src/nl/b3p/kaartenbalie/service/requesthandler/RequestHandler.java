@@ -27,4 +27,6 @@ import nl.b3p.kaartenbalie.core.server.User;
 public interface RequestHandler {
 
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception;
+    
+    public boolean mayDirectWrite();
 }

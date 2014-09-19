@@ -25,10 +25,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     <ul class="menu">
         <li><a href="<html:rewrite page='/index.do' module='' />" class="menulink"><fmt:message key="algemeen.home"/></a></li>
         <li><a href="<html:rewrite page='/viewer.do' module='' />" class="menulink"><fmt:message key="algemeen.viewer"/></a></li>
-        <c:if test="${true}">
-            <li><a href="<html:rewrite page='/demo.do' module='' />" class="menulink"><fmt:message key="algemeen.demo"/></a></li>
-        </c:if>
-        <li><a href="<html:rewrite page='/metadata.do' module='' />" class="menulink"><fmt:message key="beheer.metadata"/></a></li>
         <li><a href="<html:rewrite page='/beheer/user.do' module='' />" class="menulink"><fmt:message key="algemeen.proxy"/></a></li>
         <li><a href="<html:rewrite page='/beheer/reporting.do' module='' />" class="menulink"><fmt:message key="algemeen.beheer"/></a></li>
     </ul>

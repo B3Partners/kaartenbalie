@@ -73,7 +73,11 @@ public class MapFileScanner implements ServletContextListener {
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
-        fm.stop();
-        fsManager.closeFileSystem(listendir.getFileSystem());
+        if (fm!=null) {
+            fm.stop();
+        }
+        if (fsManager!=null && listendir!=null) {
+            fsManager.closeFileSystem(listendir.getFileSystem());
+        }
     }
 }

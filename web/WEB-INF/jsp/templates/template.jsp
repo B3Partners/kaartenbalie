@@ -103,16 +103,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
             </div>
         </div>
         <tiles:insert definition="common.googleAnalytics"/>
-        <!--[if lte IE 7]>
-        <script type="text/javascript">
-            $("#header_content").find(".menu").children('li').each(function() {
-                $(this).width($(this).find("a").outerWidth());
-            });
-            $("#header_content").find(".menu").css('visibility', 'visible');
-            $("#header").css({"position": "relative", "z-index": 300});
-            $("#content_normal").css({"z-index": 200});
-        </script>
-        <![endif]-->
     </body>
 </html>
 

@@ -23,6 +23,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -34,6 +35,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
 import nl.b3p.gis.B3PCredentials;
 import nl.b3p.gis.CredentialsParser;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -43,14 +47,14 @@ import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import static nl.b3p.kaartenbalie.service.requesthandler.OGCRequestHandler.maxResponseTime;
+import nl.b3p.kaartenbalie.service.ProviderException;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.LayerSummary;
-import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
+import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -58,6 +62,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,6 +80,24 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
      * Creates a new instance of WFSRequestHandler
      */
     public WFSRequestHandler() {
+    }
+    
+    public boolean mayDirectWrite() {
+        return false;
+    }
+    
+    /**
+     * @return the maxResponseTime
+     */
+    public int getMaxResponseTime() {
+        if (maxResponseTime <= 0) {
+            try {
+                maxResponseTime = new Integer(KBConfiguration.WFS_RESPONSE_TIME_LIMIT);
+            } catch (NumberFormatException nfe) {
+                maxResponseTime = 33333;
+            }
+        }
+        return maxResponseTime;
     }
 
     public HttpMethod determineMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
@@ -151,6 +174,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     public abstract OGCResponse getNewOGCResponse();
     
+    public byte[] prepareDirectWrite(InputStream isx) throws IOException {
+        return null;
+    }
+    
     public void writeResponse(DataWrapper data, User user) throws Exception  {
         OGCResponse ogcresponse = getNewOGCResponse();
         OGCRequest ogcrequest = data.getOgcrequest(); 
@@ -194,6 +221,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
             DataMonitoring rr = data.getRequestReporting();
             long startprocestime = System.currentTimeMillis();
+            String xmlEncoding = "UTF-8";
 
             for (SpLayerSummary sp : spLayerSummaries) {
                 if (spInUrl!=null && !spInUrl.equals(sp.getSpAbbr())) {
@@ -218,7 +246,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 B3PCredentials credentials = new B3PCredentials();
                 credentials.setUserName(sp.getUsername());
                 credentials.setPassword(sp.getPassword());
-                HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, lurl, CredentialsParser.PORT, (int) maxResponseTime);
+                HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, lurl, CredentialsParser.PORT, (int) getMaxResponseTime());
                 
                 int status = client.executeMethod(method);
                 wfsRequest.setResponseStatus(status);
@@ -232,12 +260,21 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                         
                         InputStream isx = null;
                         byte[] bytes = null;
+                        int rsl = 0;
+                        try {
+                            rsl = new Integer(KBConfiguration.RESPONSE_SIZE_LIMIT);
+                        } catch (NumberFormatException nfe) {
+                            log.debug("KBConfiguration.RESPONSE_SIZE_LIMIT not properly configured: " + nfe.getLocalizedMessage());
+                        }
                         if (KBConfiguration.SAVE_MESSAGES) {
                             int len = 1;
                             byte[] buffer = new byte[2024];
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
                             while ((len = is.read(buffer, 0, buffer.length)) > 0) {
                                 bos.write(buffer, 0, len);
+                                if (buffer.length>rsl && rsl>0) {
+                                    throw new ProviderException("Response size exceeds maximum set in configuration:" + buffer.length + ", max is: " + rsl);
+                                }
                             }
                             bytes = bos.toByteArray();
                             isx = new ByteArrayInputStream(bytes);
@@ -245,34 +282,67 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             isx = new CountingInputStream(is);
                         }
 
-                        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                        dbf.setNamespaceAware(true);
-                        DocumentBuilder builder = dbf.newDocumentBuilder();
-                        Document doc = builder.parse(isx);
+                        if (KBConfiguration.SAVE_MESSAGES
+                                || spInUrl == null
+                                || !mayDirectWrite()) {
+                            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                            dbf.setNamespaceAware(true);
+                            DocumentBuilder builder = dbf.newDocumentBuilder();
+                            Document doc = builder.parse(isx);
+                            // indien meerdere sp met verschillende encodings
+                            // dan wint de laatste!
+                            xmlEncoding = doc.getXmlEncoding();
 
-                        if (KBConfiguration.SAVE_MESSAGES) {
-                            wfsRequest.setMessageReceived(new String(bytes));
+                            int len = 0;
+                            if (KBConfiguration.SAVE_MESSAGES) {
+                                wfsRequest.setMessageReceived(new String(bytes));
+                            } else {
+                                len = new Integer(((CountingInputStream) isx).getCount());
+                                wfsRequest.setBytesReceived(new Long(len));
+                            }
+                            if (len>rsl && rsl>0) {
+                                 throw new ProviderException("Response size exceeds maximum set in configuration:" + len + ", max is: " + rsl);
+                            }
+
+                            String prefix = sp.getSpAbbr();
+                            if (spInUrl != null && !spInUrl.isEmpty()) {
+                                // sp in url dus geen prefix toevoegen
+                                prefix = null;
+                            }
+
+                            if (OGCResponse.isWfsV100ErrorResponse(doc.getDocumentElement())) {
+                                // wfs 1.0.0 error
+                                ogcresponse.rebuildWfsV100ErrorResponse(doc, sprequest, prefix);
+                            } else if (OGCResponse.isOwsV100ErrorResponse(doc.getDocumentElement())) {
+                                // wfs 1.1.0 error
+                                ogcresponse.rebuildOwsV100ErrorResponse(doc, sprequest, prefix);
+                            } else {
+                                // normale repsonse
+                                ogcresponse.rebuildResponse(doc, sprequest, prefix);
+                            }
                         } else {
+                            /**
+                             * Deze methode kan alleen aangeroepen worden als
+                             * aan de volgende voorwaarden is voldaan:
+                             * <li> slechts één sp nodig voor aanroep
+                             * <li> spabbr zit in de url en niet als prefix in
+                             * de layer name
+                             * <li> KBConfiguration.SAVE_MESSAGES is false 
+                             * Als aan voorwaarden is voldaan dat wordt direct
+                             * doorgestreamd indien er geen fout is opgetreden.
+                             * <li> de aanroep methode mayDirectWrite is true.
+                             */
+                            // direct write possible
+                            byte[] h = prepareDirectWrite(isx);
+                            if (h!=null) {
+                                os.write(h);
+                            }
+                            // write rest    
+                            IOUtils.copy(isx, os);
                             wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
+                            ogcresponse.setAlreadyDirectWritten(true);
+                            break;
                         }
-                        
-                        String prefix = sp.getSpAbbr();
-                        if (spInUrl!=null && !spInUrl.isEmpty()) {
-                            // sp in url dus geen prefix toevoegen
-                            prefix = null;
-                        }
-
-                        if (OGCResponse.isWfsV100ErrorResponse(doc.getDocumentElement())) {
-                            // wfs 1.0.0 error
-                            ogcresponse.rebuildWfsV100ErrorResponse(doc, sprequest, prefix);
-                        } else if (OGCResponse.isOwsV100ErrorResponse(doc.getDocumentElement())) {
-                            // wfs 1.1.0 error
-                            ogcresponse.rebuildOwsV100ErrorResponse(doc, sprequest, prefix);
-                        } else {
-                            // normale repsonse
-                            ogcresponse.rebuildResponse(doc, sprequest, prefix);
-                        }
-
                     } else {
                         log.error("Failed to connect with " + method.getURI() + 
                                 " Using body: " + sprequest.getXMLBody());
@@ -289,28 +359,25 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                     rr.addServiceProviderRequest(wfsRequest);
                 }
             }
-            if (spLayerSummaries.isEmpty()) {
-                throw new UnsupportedOperationException("No Serviceprovider for this service available!");
-            }
-            if (ogcresponse == null) {
-                throw new UnsupportedOperationException("Unknown response!");
-            }
             
-            String responseBody = ogcresponse.getResponseBody(spLayerSummaries, ogcrequest);
-            doAccounting(user.getMainOrganizationId(), data, user);
-            if (responseBody != null && !responseBody.equals("")) {
-                byte[] buffer = responseBody.getBytes();
-                os.write(buffer);
-            } else {
-                throw new UnsupportedOperationException("XMLbody empty!");
+            // only write when not already direct written
+            if (!ogcresponse.isAlreadyDirectWritten()) {
+                String responseBody = ogcresponse.getResponseBody(spLayerSummaries, ogcrequest, xmlEncoding);
+                if (responseBody != null && !responseBody.equals("")) {
+                    byte[] buffer = responseBody.getBytes(xmlEncoding);
+                    os.write(buffer);
+                } else {
+                    throw new UnsupportedOperationException("XMLbody empty!");
+                }
             }
+            doAccounting(user.getMainOrganizationId(), data, user);
             
         } finally {
             log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
-    
+
     protected LayerPriceComposition calculateLayerPriceComposition(DataWrapper dw, ExtLayerCalculator lc, String spAbbr, String layerName) throws Exception {
         String operation = dw.getOperation();
         if (operation == null) {
@@ -496,95 +563,5 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         
         return eventualSPList;
     }
-    
-/*
-    public OGCResponse fillResponse(DataWrapper data, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception  {
-         
-        OGCResponse ogcresponse = null;
-        
-        OGCRequest ogcrequest = data.getOgcrequest();
-        HttpMethod method = determineMethod(ogcrequest, sp, wfsRequest);
-        B3PCredentials credentials = new B3PCredentials();
-        credentials.setUserName(sp.getUsername());
-        credentials.setPassword(sp.getPassword());
-        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, url, CredentialsParser.PORT, (int) maxResponseTime);
-
-        String body = ogcrequest.getXMLBody();
-        if (method instanceof PostMethod) {
-            //work around voor ESRI post Messages
-            //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-            ((PostMethod)method).setRequestEntity(new StringRequestEntity(body, null, null));
-        }
-        
-        int status = client.executeMethod(method);
-         
-        try {
-            // dit staat bij GetCapabilities, is dit nodig?
-//            if (status != HttpStatus.SC_OK) {
-//                if (method instanceof GetMethod) {
-//                    method = createPostMethod(ogcrequest, sp, wfsRequest);
-//                    status = client.executeMethod(method);
-//                }
-//            }
-            if (status == HttpStatus.SC_OK) {
-                wfsRequest.setResponseStatus(new Integer(200));
-
-                data.setContentType("text/xml");
-                InputStream is = method.getResponseBodyAsStream();
-                InputStream isx = null;
-                byte[] bytes = null;
-                if (KBConfiguration.SAVE_MESSAGES) {
-                    int len = 1;
-                    byte[] buffer = new byte[2024];
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    while ((len = is.read(buffer, 0, buffer.length)) > 0) {
-                        bos.write(buffer, 0, len);
-                    }
-                    bytes = bos.toByteArray();
-                    isx = new ByteArrayInputStream(bytes);
-                } else {
-                    isx = new CountingInputStream(is);
-                }
-
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setNamespaceAware(true);
-                DocumentBuilder builder = dbf.newDocumentBuilder();
-                Document doc = builder.parse(isx);
-
-                
-                if (OGCResponse.isWfsV100ErrorResponse(doc.getDocumentElement())) {
-                    ogcresponse = new WFSExceptionResponse();
-                } else {
-                    ogcresponse = new WFSGetFeatureResponse();
-                }
-                if (ogcresponse == null) {
-                    throw new UnsupportedOperationException("Unknown response!");
-                }
-                ogcresponse.findNameSpace(doc);
-
-                if (KBConfiguration.SAVE_MESSAGES) {
-                    wfsRequest.setMessageReceived(new String(bytes));
-                    wfsRequest.setBytesReceived(new Long(bytes.length));
-                } else {
-                    wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
-                }
-
-                ogcresponse.rebuildResponse(doc, ogcrequest, sp.getSpAbbr());
-            } else {
-                wfsRequest.setResponseStatus(status);
-                wfsRequest.setExceptionMessage("" + status + ": Failed to connect with " + sp.getSpUrl());
-                wfsRequest.setExceptionClass(UnsupportedOperationException.class);
-
-                log.error("Failed to connect with " + sp.getSpUrl());
-                throw new UnsupportedOperationException("Failed to connect with " + sp.getSpUrl());
-            }
-        } catch (Exception e) {
-            wfsRequest.setExceptionMessage("Failed to send bytes to client: " + e.getMessage());
-            wfsRequest.setExceptionClass(e.getClass());
-
-            throw e;
-        }         
-        return ogcresponse;
-    }
-*/    
+  
 }

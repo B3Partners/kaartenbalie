@@ -64,16 +64,5 @@
             </field>            
         </form>
         
-        <form name="metadataForm">
-            <field property="to" depends="required, email"> <!-- required -->
-                <arg0 key="message.to"/>
-            </field>
-            <field property="fullname" depends="required"> <!-- required -->
-                <arg0 key="message.fullname"/>
-            </field>
-            <field property="company" depends="required"> <!-- required -->
-                <arg0 key="message.company"/>
-            </field>
-        </form>
     </formset>
 </form-validation>
