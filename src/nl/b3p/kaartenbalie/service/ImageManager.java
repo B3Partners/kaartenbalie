@@ -24,7 +24,7 @@ package nl.b3p.kaartenbalie.service;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
-import nl.b3p.gis.B3PCredentials;
+import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;

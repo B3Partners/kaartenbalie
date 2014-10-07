@@ -29,23 +29,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import nl.b3p.commons.xml.IgnoreEntityResolver;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
+import nl.b3p.commons.services.B3PCredentials;
+import nl.b3p.commons.services.HttpClientConfigured;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ConfigLayer;
 import nl.b3p.kaartenbalie.core.server.b3pLayering.ExceptionLayer;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.ogc.utils.OGCConstants;
-import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.ogc.utils.KBConfiguration;
+import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.wms.capabilities.ElementHandler;
 import nl.b3p.wms.capabilities.Switcher;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.HttpVersion;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -57,7 +56,7 @@ import org.xml.sax.XMLReader;
 public class ImageCollector extends Thread {
 
     private static final Log log = LogFactory.getLog(ImageCollector.class);
-    private static final int maxResponseTime = 30000;
+    private static final int maxResponseTime = new Integer(KBConfiguration.WMS_RESPONSE_TIME_LIMIT);
     public static final int NEW = 0;
     public static final int ACTIVE = 1;
     public static final int COMPLETED = 2;
@@ -110,32 +109,33 @@ public class ImageCollector extends Thread {
                 handleRequestException(ex);
             }
         } else {
-            HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, CredentialsParser.HOST, CredentialsParser.PORT, (int) maxResponseTime);
-            
-            GetMethod method = new GetMethod(getUrl());
-            
             try {
-                int statusCode = client.executeMethod(method);
+                HttpClientConfigured hcc = new HttpClientConfigured(credentials);
+                HttpGet httpget = new HttpGet(getUrl());
+                HttpResponse response = hcc.execute(httpget);
+                HttpEntity entity = response.getEntity();
+                
+                int statusCode = response.getStatusLine().getStatusCode();
                 getWmsRequest().setBytesSent(new Long(url.getBytes().length));
-                getWmsRequest().setResponseStatus(new Integer(statusCode));
-                if (statusCode != HttpStatus.SC_OK) {
+                getWmsRequest().setResponseStatus(statusCode);
+                
+                if (statusCode != 200 || entity == null) {
                     throw new Exception("Error connecting to server. HTTP status code: " + statusCode);
                 }
 
-                String mime = method.getResponseHeader("Content-Type").getValue();
+                String mime = entity.getContentType().getValue();
                 if (mime.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
-                    InputStream is = method.getResponseBodyAsStream();
+                    InputStream is = entity.getContent();
                     throw new Exception(getServiceException(is));
                 }
 
-                setBufferedImage(KBImageTool.readImage(method, mime, getWmsRequest()));
+                InputStream instream = entity.getContent();
+                setBufferedImage(KBImageTool.readImage(instream, mime, getWmsRequest()));
                 setMessage("");
                 setStatus(COMPLETED);
-
+                    
             } catch (Exception ex) {
                 handleRequestException(ex);
-            } finally {
-                method.releaseConnection();
             }
         }
 

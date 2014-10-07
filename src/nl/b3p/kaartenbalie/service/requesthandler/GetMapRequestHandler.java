@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 import javax.persistence.EntityManager;
-import nl.b3p.gis.B3PCredentials;
+import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;

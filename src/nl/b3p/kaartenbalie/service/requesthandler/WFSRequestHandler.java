@@ -35,11 +35,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
+import nl.b3p.commons.services.B3PCredentials;
+import nl.b3p.commons.services.HttpClientConfigured;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPriceComposition;
@@ -56,16 +53,16 @@ import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OGCResponse;
 import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.ogc.wfs.v110.WfsLayer;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 
 /**
@@ -100,19 +97,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         return maxResponseTime;
     }
 
-    public HttpMethod determineMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
-        HttpMethod method = null;
-        if (spOgcReq.getHttpMethod().equalsIgnoreCase("POST")) {
-            method = createPostMethod(spOgcReq, sp, wfsRequest);
-        } else { // get
-            method = createGetMethod(spOgcReq, sp, wfsRequest);
-        }
-        return method;
-    }
-    
-    public HttpMethod createPostMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
-        HttpMethod method = null;
- 
+    public HttpPost createPostMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
         String oldBody = spOgcReq.getXMLBody();
         String body = "";
         // staat bij transactie handler, waarom?
@@ -135,15 +120,14 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         wfsRequest.setBytesSent(new Long(body.getBytes().length));
 
-        method = new PostMethod(sp.getSpUrl());
+        HttpPost method = new HttpPost(sp.getSpUrl());
         //work around voor ESRI post Messages
         //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
-        ((PostMethod) method).setRequestEntity(new StringRequestEntity(body, null, null));
+        method.setEntity(new StringEntity(body));
         return method;
     }
 
-    public HttpMethod createGetMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
-        HttpMethod method = null;
+    public HttpGet createGetMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
 
         String getUrl = spOgcReq.getUrl(spOgcReq.fixHttpHost(sp.getSpUrl()));
 
@@ -154,8 +138,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         wfsRequest.setBytesSent(new Long(getUrl.length()));
         
-        method = new GetMethod(getUrl.toString());
-        return method;
+        return new HttpGet(getUrl.toString());
     }
 
     protected boolean checkNumberOfSps(List<LayerSummary> lsl, int n) {
@@ -241,22 +224,30 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, lurl, sp.getServiceproviderId(), 0l);
                 
-                HttpMethod method = determineMethod(sprequest, sp, wfsRequest);
-                
                 B3PCredentials credentials = new B3PCredentials();
                 credentials.setUserName(sp.getUsername());
                 credentials.setPassword(sp.getPassword());
-                HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials, lurl, CredentialsParser.PORT, (int) getMaxResponseTime());
-                
-                int status = client.executeMethod(method);
-                wfsRequest.setResponseStatus(status);
-                
+                credentials.setUrl(lurl);
+                HttpClientConfigured hcc = new HttpClientConfigured(credentials);
+
+                HttpUriRequest method = null;
+                if (sprequest.getHttpMethod().equalsIgnoreCase("POST")) {
+                    method = createPostMethod(sprequest, sp, wfsRequest);
+                } else { // get
+                    method = createGetMethod(sprequest, sp, wfsRequest);
+                }
+
                 try {
-                    if (status == HttpStatus.SC_OK) {
+                    HttpResponse response = hcc.execute(method);
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    wfsRequest.setResponseStatus(statusCode);
+                    HttpEntity entity = response.getEntity();
+
+                    if (statusCode == 200 || entity==null) {
                         wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
                         
                         data.setContentType("text/xml");
-                        InputStream is = method.getResponseBodyAsStream();
+                        InputStream is = entity.getContent();
                         
                         InputStream isx = null;
                         byte[] bytes = null;
@@ -291,7 +282,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             Document doc = builder.parse(isx);
                             // indien meerdere sp met verschillende encodings
                             // dan wint de laatste!
-                            xmlEncoding = doc.getXmlEncoding();
+                            String docEncoding = doc.getXmlEncoding();
+                            if (docEncoding!=null) {
+                                xmlEncoding = docEncoding;
+                            }
 
                             int len = 0;
                             if (KBConfiguration.SAVE_MESSAGES) {

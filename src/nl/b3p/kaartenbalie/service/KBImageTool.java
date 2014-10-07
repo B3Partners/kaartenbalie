@@ -39,7 +39,6 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.core.server.monitoring.Operation;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,7 +53,7 @@ public class KBImageTool {
 
     /** Reads an image from an http input stream.
      *
-     * @param method Apache HttpClient GetMethod object
+     * @param is Inputstream
      * @param mime String representing the mime type of the image.
      *
      * @return BufferedImage
@@ -62,13 +61,22 @@ public class KBImageTool {
      * @throws Exception
      */
     // <editor-fold defaultstate="" desc="readImage(GetMethod method, String mime) method.">
-    public static BufferedImage readImage(GetMethod method, String mime, ServiceProviderRequest wmsRequest) throws Exception {
+    public static BufferedImage readImage(InputStream is, String mime, ServiceProviderRequest wmsRequest) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int bytesRead = 0;
+        byte[] buffer= new byte[2048];
+        while (bytesRead!=-1){
+            bytesRead = is.read(buffer, 0, buffer.length);
+            if (bytesRead>0)
+                baos.write(buffer, 0, bytesRead);
+        }
+        
         if (mime.indexOf(";")!=-1){
             mime=mime.substring(0,mime.indexOf(";"));
         }
         String mimeType = getMimeType(mime);
         if (mimeType == null) {
-            String message =  method.getResponseBodyAsString();
+            String message =  baos.toString();
             message = message.replaceAll("(\\r|\\n)", "");
             log.error("Response from server not understood (mime = " + mime + "): " + message);
             throw new Exception("Response from server not understood (mime = " + mime + "): " +message);
@@ -79,16 +87,8 @@ public class KBImageTool {
             log.error("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
             throw new Exception("no reader available for imageformat: " + mimeType.substring(mimeType.lastIndexOf("/") + 1));
         }
-        //TODO Make smarter.. Possibly faster... But keep reporting!
-        InputStream is = method.getResponseBodyAsStream();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int bytesRead = 0;
-        byte[] buffer= new byte[2048];
-        while (bytesRead!=-1){
-            bytesRead = is.read(buffer, 0, buffer.length);
-            if (bytesRead>0)
-                baos.write(buffer, 0, bytesRead);
-        }
+         
+       //TODO Make smarter.. Possibly faster... But keep reporting!
         wmsRequest.setBytesReceived(new Long(baos.size()));
         ImageInputStream stream = ImageIO.createImageInputStream(new ByteArrayInputStream(baos.toByteArray()));
         ir.setInput(stream, true);

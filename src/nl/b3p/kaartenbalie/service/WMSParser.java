@@ -27,7 +27,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.gis.B3PCredentials;
+import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;

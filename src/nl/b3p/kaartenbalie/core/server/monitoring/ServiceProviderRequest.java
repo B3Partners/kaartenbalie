@@ -22,7 +22,7 @@
 package nl.b3p.kaartenbalie.core.server.monitoring;
 
 import javax.persistence.EntityManager;
-import nl.b3p.gis.B3PCredentials;
+import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.wms.capabilities.ServiceProvider;
 
 /**

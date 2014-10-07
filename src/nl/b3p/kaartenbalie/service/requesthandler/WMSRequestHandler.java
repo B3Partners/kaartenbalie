@@ -21,14 +21,12 @@
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import nl.b3p.ogc.utils.SpLayerSummary;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
-import java.net.ProxySelector;
 import java.net.URL;
 import java.util.*;
 import javax.persistence.EntityManager;
@@ -36,8 +34,8 @@ import javax.persistence.NoResultException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.b3p.commons.xml.IgnoreEntityResolver;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsHttpParser;
+import nl.b3p.commons.services.B3PCredentials;
+import nl.b3p.commons.services.HttpClientConfigured;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.accounting.ExtLayerCalculator;
@@ -56,21 +54,16 @@ import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.LayerSummary;
-import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCCommunication;
+import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.wms.capabilities.*;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.geotools.data.ows.HTTPResponse;
@@ -584,25 +577,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 url = url.replaceAll("\\\\+", "/");
 
                 B3PCredentials credentials = wmsRequest.getCredentials();
-                DefaultHttpClient client = CredentialsHttpParser.HttpClientCredentials(credentials, url, CredentialsHttpParser.PORT, new Integer(60000));
-
-                HttpParams params = new BasicHttpParams();
-                client.getParams().setParameter("http.socket.timeout", new Integer(10000));
-                client.getParams().setParameter("http.connection.stalecheck", false);
-
-                /* Use standard JRE proxy selector to obtain proxy information */
-                ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
-                        client.getConnectionManager().getSchemeRegistry(),
-                        ProxySelector.getDefault());
-
-                client.setRoutePlanner(routePlanner);
+                credentials.setUrl(url);
+                HttpClientConfigured hcc = new HttpClientConfigured(credentials);
 
                 HttpGet httpget = new HttpGet(url);
 
                 String rhValue = "";
                 InputStream instream = null;
                 try {
-                    HttpResponse response = client.execute(httpget);
+                    HttpResponse response = hcc.execute(httpget);
 
                     int statusCode = response.getStatusLine().getStatusCode();
 
@@ -613,17 +596,15 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     wmsRequest.setResponseStatus(new Integer(statusCode));
                     wmsRequest.setRequestResponseTime(new Long(time));
 
-                    if (statusCode != HttpStatus.SC_OK) {
+                    HttpEntity entity = response.getEntity();
+                    if (statusCode != 200 || entity==null) {
                         log.debug(statusCode + " URL: " + url);
                         log.debug("Error connecting to server. Status code: " + statusCode);
 
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
                     }
 
-                    HttpEntity entity = response.getEntity();
-                    if (entity != null) {
-                        instream = entity.getContent();
-                    }
+                    instream = entity.getContent();
 
                     Header h1 = response.getFirstHeader("Content-Type");
                     if (h1 != null && !h1.equals("")) {
@@ -684,14 +665,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                         wmsRequest.setBytesReceived(new Long(dw.getContentLength()));
                     }
 
-                } catch (HttpException e) {
-                    log.error("Fatal protocol violation: " + e.getMessage());
-                    throw new HttpException("Fatal protocol violation: " + e.getMessage());
-                } catch (IOException e) {
-                    //log.error("Fatal transport error: " + e.getMessage());
-                    throw new IOException("Fatal transport error: " + e.getMessage());
-                } catch (Exception e) {
-                    throw e;
                 } finally {
                     if (instream != null) {
                         instream.close();

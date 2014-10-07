@@ -30,8 +30,8 @@ import java.util.*;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.commons.services.FormUtils;
-import nl.b3p.gis.B3PCredentials;
-import nl.b3p.gis.CredentialsParser;
+import nl.b3p.commons.services.B3PCredentials;
+import nl.b3p.commons.services.HttpClientConfigured;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.struts.ServerAction;
 import nl.b3p.ogc.sld.SldLayerFeatureConstraints;
@@ -39,16 +39,16 @@ import nl.b3p.ogc.sld.SldNamedLayer;
 import nl.b3p.ogc.sld.SldNamedStyle;
 import nl.b3p.ogc.sld.SldNode;
 import nl.b3p.ogc.sld.SldReader;
-import nl.b3p.ogc.sld.SldUserStyle;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.LayerDomainResource;
 import nl.b3p.wms.capabilities.Style;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.apache.struts.upload.FormFile;
 import org.apache.struts.validator.DynaValidatorForm;
 
@@ -58,7 +58,6 @@ import org.apache.struts.validator.DynaValidatorForm;
  */
 abstract public class WmsWfsParser extends ServerAction {
     protected static final Log log = LogFactory.getLog(WMSParser.class);
-    protected static long maxResponseTime = 10000;
     public static final String OK = "OK";
     public static final String SAVE_ERRORKEY = "Error_saving";
     public static final String ERROR_DELETE_OLD_PROVIDER = "Error_deleting_old_provider";
@@ -316,43 +315,39 @@ abstract public class WmsWfsParser extends ServerAction {
      * Collects the meta data
      * 
      * @param url               The server URL
-     * @param username          The username, null for none
-     * @param password          The password, null for none
+     * @param credentials
      * @return                  The meta data
-     * @throws HttpException    
      * @throws IOException
      * @throws Exception 
      */
-    protected String collectMetadata(String url,B3PCredentials credentials) throws HttpException, IOException, Exception {
+    protected String collectMetadata(String url, B3PCredentials credentials) throws IOException, Exception {
 
-        HttpClient client = CredentialsParser.CommonsHttpClientCredentials(credentials);
-        GetMethod method = new GetMethod(url);
-        client.getHttpConnectionManager().getParams().setConnectionTimeout((int) maxResponseTime);
-        String metadata = "";
+        HttpClientConfigured hcc = new HttpClientConfigured(credentials);
+        HttpGet request = new HttpGet(url);
 
+        HttpResponse response = null;
         try {
-            int statusCode = client.executeMethod(method);
-            if (statusCode != HttpStatus.SC_OK) {
+            response = hcc.execute(request);
+            HttpEntity entity = response.getEntity();
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != 200) {
                 log.error("Error connecting to server. Status code: " + statusCode);
                 throw new Exception("Error connecting to server. Status code: " + statusCode);
             }
 
-            metadata = method.getResponseBodyAsString();
-
-        } catch (HttpException e) {
-            log.error("Fatal protocol violation: " + e.getMessage());
-            throw new HttpException("Fatal protocol violation: " + e.getMessage());
-        } catch (IOException e) {
-            log.error("Fatal transport error: " + e.getMessage());
-            throw new IOException("Fatal transport error: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("General error: " + e.getMessage());
-            throw e;
-        } finally {
-            method.releaseConnection();
+            String metadata = EntityUtils.toString(entity);
+            return metadata;
+         } finally {
+            if (response instanceof CloseableHttpResponse) {
+                try {
+                    ((CloseableHttpResponse)response).close();
+                } catch (IOException ex) {
+                    log.debug("Error closing: ", ex);
+                }
+            }
         }
 
-        return metadata;
     }
     
     protected Integer getInt(DynaValidatorForm dynaForm,String field) {
