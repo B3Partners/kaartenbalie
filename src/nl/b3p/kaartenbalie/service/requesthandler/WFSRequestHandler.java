@@ -239,16 +239,25 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
                 try {
                     HttpResponse response = hcc.execute(method);
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    wfsRequest.setResponseStatus(statusCode);
-                    HttpEntity entity = response.getEntity();
+                    
+                    try {
 
-                    if (statusCode == 200 || entity==null) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        wfsRequest.setResponseStatus(statusCode);
+                        HttpEntity entity = response.getEntity();
+
+                        if (statusCode != 200) {
+                            log.error("Failed to connect with " + method.getURI()
+                                    + " Using body: " + sprequest.getXMLBody());
+                            throw new UnsupportedOperationException("Failed to connect with "
+                                    + method.getURI() + " Using body: " + sprequest.getXMLBody());
+                        }
+
                         wfsRequest.setRequestResponseTime(System.currentTimeMillis() - startprocestime);
-                        
+
                         data.setContentType("text/xml");
                         InputStream is = entity.getContent();
-                        
+
                         InputStream isx = null;
                         byte[] bytes = null;
                         int rsl = 0;
@@ -263,7 +272,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
                             while ((len = is.read(buffer, 0, buffer.length)) > 0) {
                                 bos.write(buffer, 0, len);
-                                if (buffer.length>rsl && rsl>0) {
+                                if (buffer.length > rsl && rsl > 0) {
                                     throw new ProviderException("Response size exceeds maximum set in configuration:" + buffer.length + ", max is: " + rsl);
                                 }
                             }
@@ -283,7 +292,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             // indien meerdere sp met verschillende encodings
                             // dan wint de laatste!
                             String docEncoding = doc.getXmlEncoding();
-                            if (docEncoding!=null) {
+                            if (docEncoding != null) {
                                 xmlEncoding = docEncoding;
                             }
 
@@ -294,8 +303,8 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                                 len = new Integer(((CountingInputStream) isx).getCount());
                                 wfsRequest.setBytesReceived(new Long(len));
                             }
-                            if (len>rsl && rsl>0) {
-                                 throw new ProviderException("Response size exceeds maximum set in configuration:" + len + ", max is: " + rsl);
+                            if (len > rsl && rsl > 0) {
+                                throw new ProviderException("Response size exceeds maximum set in configuration:" + len + ", max is: " + rsl);
                             }
 
                             String prefix = sp.getSpAbbr();
@@ -321,14 +330,14 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                              * <li> slechts één sp nodig voor aanroep
                              * <li> spabbr zit in de url en niet als prefix in
                              * de layer name
-                             * <li> KBConfiguration.SAVE_MESSAGES is false 
-                             * Als aan voorwaarden is voldaan dat wordt direct
+                             * <li> KBConfiguration.SAVE_MESSAGES is false Als
+                             * aan voorwaarden is voldaan dat wordt direct
                              * doorgestreamd indien er geen fout is opgetreden.
                              * <li> de aanroep methode mayDirectWrite is true.
                              */
                             // direct write possible
                             byte[] h = prepareDirectWrite(isx);
-                            if (h!=null) {
+                            if (h != null) {
                                 os.write(h);
                             }
                             // write rest    
@@ -337,11 +346,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             ogcresponse.setAlreadyDirectWritten(true);
                             break;
                         }
-                    } else {
-                        log.error("Failed to connect with " + method.getURI() + 
-                                " Using body: " + sprequest.getXMLBody());
-                        throw new UnsupportedOperationException("Failed to connect with " + 
-                                method.getURI() + " Using body: " + sprequest.getXMLBody());
+                    } finally {
+                        hcc.close(response);
+                        hcc.close();
                     }
 
                 } catch (Exception e) {

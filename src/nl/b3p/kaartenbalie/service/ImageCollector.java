@@ -113,24 +113,32 @@ public class ImageCollector extends Thread {
                 HttpClientConfigured hcc = new HttpClientConfigured(credentials);
                 HttpGet httpget = new HttpGet(getUrl());
                 HttpResponse response = hcc.execute(httpget);
-                HttpEntity entity = response.getEntity();
                 
-                int statusCode = response.getStatusLine().getStatusCode();
-                getWmsRequest().setBytesSent(new Long(url.getBytes().length));
-                getWmsRequest().setResponseStatus(statusCode);
-                
-                if (statusCode != 200 || entity == null) {
-                    throw new Exception("Error connecting to server. HTTP status code: " + statusCode);
+                try {
+                    HttpEntity entity = response.getEntity();
+
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    getWmsRequest().setBytesSent(new Long(url.getBytes().length));
+                    getWmsRequest().setResponseStatus(statusCode);
+
+                    if (statusCode != 200 || entity == null) {
+                        throw new Exception("Error connecting to server. HTTP status code: " + statusCode);
+                    }
+
+                    String mime = entity.getContentType().getValue();
+                    if (mime.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
+                        InputStream is = entity.getContent();
+                        throw new Exception(getServiceException(is));
+                    }
+
+                    InputStream instream = entity.getContent();
+                    setBufferedImage(KBImageTool.readImage(instream, mime, getWmsRequest()));
+                    
+                } finally {
+                    hcc.close(response);
+                    hcc.close();
                 }
 
-                String mime = entity.getContentType().getValue();
-                if (mime.equalsIgnoreCase(OGCConstants.WMS_PARAM_EXCEPTION_XML)) {
-                    InputStream is = entity.getContent();
-                    throw new Exception(getServiceException(is));
-                }
-
-                InputStream instream = entity.getContent();
-                setBufferedImage(KBImageTool.readImage(instream, mime, getWmsRequest()));
                 setMessage("");
                 setStatus(COMPLETED);
                     

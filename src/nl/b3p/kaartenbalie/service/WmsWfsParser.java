@@ -338,14 +338,10 @@ abstract public class WmsWfsParser extends ServerAction {
 
             String metadata = EntityUtils.toString(entity);
             return metadata;
-         } finally {
-            if (response instanceof CloseableHttpResponse) {
-                try {
-                    ((CloseableHttpResponse)response).close();
-                } catch (IOException ex) {
-                    log.debug("Error closing: ", ex);
-                }
-            }
+            
+        } finally {
+            hcc.close(response);
+            hcc.close();
         }
 
     }

@@ -584,8 +584,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                 String rhValue = "";
                 InputStream instream = null;
+                HttpResponse response = hcc.execute(httpget);
+
                 try {
-                    HttpResponse response = hcc.execute(httpget);
 
                     int statusCode = response.getStatusLine().getStatusCode();
 
@@ -669,6 +670,8 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                     if (instream != null) {
                         instream.close();
                     }
+                    hcc.close(response);
+                    hcc.close();
                 }
             }
         } catch (Exception e) {
