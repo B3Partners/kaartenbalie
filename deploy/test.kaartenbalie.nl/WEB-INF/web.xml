@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>/srv/maps/solparc/</param-value>
+        <param-value>/opt/configs/test.kaartenbalie.nl/kaartenbalie/maps/upload</param-value>
     </context-param>
     <context-param>
         <description>
@@ -59,11 +59,11 @@
         </init-param>
         <init-param>
             <param-name>mapfiles</param-name>
-            <param-value>/srv/maps/solparc/</param-value>
+            <param-value>/opt/configs/test.kaartenbalie.nl/kaartenbalie/maps</param-value>
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>/srv/upload/solparc</param-value>
+            <param-value>/opt/configs/test.kaartenbalie.nl/kaartenbalie/maps/upload</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -118,11 +118,6 @@
         <init-param>
             <param-name>debug</param-name>
             <param-value>false</param-value>
-        </init-param>
-		<!-- Needed for DWR when updating rights -->
-		<init-param> 
-          <param-name>crossDomainSessionSecurity</param-name> 
-          <param-value>false</param-value> 
         </init-param>
     </servlet>
     <servlet>
