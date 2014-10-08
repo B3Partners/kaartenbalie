@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -78,11 +78,11 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
      */
     public WFSRequestHandler() {
     }
-    
+
     public boolean mayDirectWrite() {
         return false;
     }
-    
+
     /**
      * @return the maxResponseTime
      */
@@ -113,7 +113,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
         log.debug("WFS POST to serviceprovider: '" + sp.getSpAbbr() + "' with url: '" + sp.getSpUrl() + "' and body:");
         log.debug(body);
-        
+
         // TODO body cleanen
         if (KBConfiguration.SAVE_MESSAGES) {
             wfsRequest.setMessageSent(body);
@@ -137,7 +137,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             wfsRequest.setMessageSent(getUrl.toString());
         }
         wfsRequest.setBytesSent(new Long(getUrl.length()));
-        
+
         return new HttpGet(getUrl.toString());
     }
 
@@ -150,31 +150,31 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         return spl.size()==n;
     }
-    
+
     public abstract String prepareRequest4Sp(OGCRequest ogcrequest, SpLayerSummary sp) throws Exception;
-    
+
     public abstract List<LayerSummary> prepareRequestLayers(OGCRequest ogcrequest) throws Exception;
 
     public abstract OGCResponse getNewOGCResponse();
-    
+
     public byte[] prepareDirectWrite(InputStream isx) throws IOException {
         return null;
     }
-    
+
     public void writeResponse(DataWrapper data, User user) throws Exception  {
         OGCResponse ogcresponse = getNewOGCResponse();
-        OGCRequest ogcrequest = data.getOgcrequest(); 
-        
+        OGCRequest ogcrequest = data.getOgcrequest();
+
         String version = ogcrequest.getFinalVersion();
         String spInUrl = ogcrequest.getServiceProviderName();
-        
+
         Integer[] orgIds = user.getOrganizationIds();
         OutputStream os = data.getOutputStream();
-        
+
         Object identity = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            
+
             boolean forAdmin = isConfigInUrlAndAdmin(data, user);
             // zet layers uit request in een list
             List<LayerSummary> layerSummaryList = prepareRequestLayers(ogcrequest);
@@ -212,9 +212,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                     continue;
                 }
                 sp.setSpInUrl(spInUrl);
-                
-                // zet de juiste layers voor deze sp 
-                OGCRequest sprequest = (OGCRequest) ogcrequest.clone(); 
+
+                // zet de juiste layers voor deze sp
+                OGCRequest sprequest = (OGCRequest) ogcrequest.clone();
                 prepareRequest4Sp(sprequest, sp);
 
                 String lurl = sp.getSpUrl();
@@ -223,7 +223,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 }
                 ServiceProviderRequest wfsRequest = this.createServiceProviderRequest(
                     data, lurl, sp.getServiceproviderId(), 0l);
-                
+
                 B3PCredentials credentials = new B3PCredentials();
                 credentials.setUserName(sp.getUsername());
                 credentials.setPassword(sp.getPassword());
@@ -239,7 +239,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
                 try {
                     HttpResponse response = hcc.execute(method);
-                    
+
                     try {
 
                         int statusCode = response.getStatusLine().getStatusCode();
@@ -327,7 +327,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             /**
                              * Deze methode kan alleen aangeroepen worden als
                              * aan de volgende voorwaarden is voldaan:
-                             * <li> slechts één sp nodig voor aanroep
+                             * <li> slechts Ã©Ã©n sp nodig voor aanroep
                              * <li> spabbr zit in de url en niet als prefix in
                              * de layer name
                              * <li> KBConfiguration.SAVE_MESSAGES is false Als
@@ -340,7 +340,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                             if (h != null) {
                                 os.write(h);
                             }
-                            // write rest    
+                            // write rest
                             IOUtils.copy(isx, os);
                             wfsRequest.setBytesReceived(new Long(((CountingInputStream) isx).getCount()));
                             ogcresponse.setAlreadyDirectWritten(true);
@@ -360,7 +360,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                     rr.addServiceProviderRequest(wfsRequest);
                 }
             }
-            
+
             // only write when not already direct written
             if (!ogcresponse.isAlreadyDirectWritten()) {
                 String responseBody = ogcresponse.getResponseBody(spLayerSummaries, ogcrequest, xmlEncoding);
@@ -372,7 +372,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 }
             }
             doAccounting(user.getMainOrganizationId(), data, user);
-            
+
         } finally {
             log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
@@ -531,7 +531,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     private List<SpLayerSummary> getLayerSummaries(String[] layers, String serviceName) throws Exception {
         EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-        
+
         List<SpLayerSummary> eventualSPList = new ArrayList();
         for (int i = 0; i < layers.length; i++) {
             String layer = layers[i];
@@ -558,11 +558,11 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
             WfsLayer l = (WfsLayer) matchingLayers.get(0);
             SpLayerSummary layerInfo = new SpLayerSummary(l, "true");
-            
+
             addToServerProviderList(eventualSPList, layerInfo, false);
         }
-        
+
         return eventualSPList;
     }
-  
+
 }

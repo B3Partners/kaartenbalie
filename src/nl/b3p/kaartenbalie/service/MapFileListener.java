@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -52,7 +52,7 @@ public class MapFileListener implements FileListener {
 
     public void fileCreated(FileChangeEvent event) throws Exception {
         /*
-         * haal wms_online_resource op creeër afkorting haal naam op --> roep
+         * haal wms_online_resource op creeÃ«r afkorting haal naam op --> roep
          * wmsaction aan met waardes
          */
 
@@ -60,12 +60,12 @@ public class MapFileListener implements FileListener {
         if(mapPath.getName().indexOf(".map")!= -1 ){
             MapParser mapParser = new MapParser(mapPath);
             mapParser.parse();
-            
+
             Map<String, String> metadata = mapParser.getWebMetadata();
             String url = metadata.get("wms_onlineresource");
             String mapfilename = mapPath.getName().substring(0, mapPath.getName().indexOf("."));
             mapfilename = mapfilename.replaceAll(" ", "_");
-            
+
             saveServiceProvider(url, mapfilename);
         }
         event.getFile().close();
@@ -82,14 +82,14 @@ public class MapFileListener implements FileListener {
 
             try {
                 String getCap = "&service=WMS&request=GetCapabilities&version=1.1.1";
-                
+
                 Long number = getUniqueAbbr(name,em);
                 String abbr = name + number ;
-                
+
                 ServiceProvider saveServiceProvider = WmsServerAction.saveServiceProvider(wmsUrl + getCap, null, name, abbr, em);
                 Organization org = (Organization) em.createQuery("FROM Organization WHERE name = :name").setParameter("name", organization).getSingleResult();
                 WmsServerAction.addAllLayersToGroup(org, saveServiceProvider, em);
-                
+
                 tx.commit();
             } catch (Exception ex) {
                 tx.rollback();
@@ -102,7 +102,7 @@ public class MapFileListener implements FileListener {
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
-    
+
     private Long getUniqueAbbr(String name, EntityManager em){
         Query q = em.createQuery("SELECT COUNT(*) FROM ServiceProvider WHERE givenName like :name").setParameter("name",'%'+ name + '%');
         Long number = (Long)q.getSingleResult();
