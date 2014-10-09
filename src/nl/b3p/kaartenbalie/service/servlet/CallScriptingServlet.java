@@ -144,9 +144,10 @@ public class CallScriptingServlet extends GeneralServlet {
                 }
 
             } catch (AccessDeniedException adex) {
-                log.error("Error while logging in: " + adex.getLocalizedMessage());
+                log.error("Access denied: " + adex.getLocalizedMessage());
                 rr.setClientRequestException(adex);
-                response.sendError(401, "Unknown credentials");
+                response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied to Kaartenbalie");
             } catch (Exception ex) {
                 log.error("Error while handling request: ", ex);
                 rr.setClientRequestException(ex);
@@ -155,9 +156,6 @@ public class CallScriptingServlet extends GeneralServlet {
                 rr.endClientRequest(serviceName, data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
             }
             tx.commit();
-        } catch (AccessDeniedException adex) {
-            log.error("Error while logging in: " + adex.getLocalizedMessage());
-            response.sendError(403, adex.getLocalizedMessage());
         } catch (Exception ex) {
             log.error("Error creating EntityManager: ", ex);
             try {

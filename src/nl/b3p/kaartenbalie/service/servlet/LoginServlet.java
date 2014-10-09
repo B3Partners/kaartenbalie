@@ -27,14 +27,6 @@ public class LoginServlet extends GeneralServlet {
     @Override
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        boolean canLogin = canLogin(request);
-
-        if (!canLogin) {
-            response.sendError(response.SC_FORBIDDEN, "Ongeldige inlog!");
-        }
-    }
-
-    private boolean canLogin(HttpServletRequest request) {
         Object identity = null;
         EntityTransaction tx = null;
         User user = null;
@@ -46,11 +38,8 @@ public class LoginServlet extends GeneralServlet {
 
             tx.begin();
             
-            log.debug("Pre check login!");
-            
             user = checkLogin(request, null);
-            
-            log.debug("Na check login!");
+            log.debug("Username: " + user.getName() + ", password: " + user.getPassword());
 
             tx.commit();
         } catch (AccessDeniedException ex) {
@@ -58,25 +47,18 @@ public class LoginServlet extends GeneralServlet {
             if (tx != null && tx.isActive()) {
                 tx.commit();
             }
+            
+            response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied for Kaartenbalie");
 
-            return false;
         } catch (Exception ex) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             
-            return false;
         } finally {
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
-        
-        if (user == null) {
-            return false;
-        }
-        
-        log.debug("Username: " + user.getName() + ", password: " + user.getPassword());
-
-        return true;
     }
 
     @Override

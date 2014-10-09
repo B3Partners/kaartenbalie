@@ -148,14 +148,15 @@ public class CallWMSServlet extends GeneralServlet {
                 
                 parseRequestAndData(data, user);
 
+            } catch (AccessDeniedException adex) {
+                log.error("Access denied: " + adex.getLocalizedMessage());
+                rr.setClientRequestException(adex);
+                response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied to Kaartenbalie");
             } catch (ProviderException pex) {            	
                 log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
                 rr.setClientRequestException(pex);
                 handleRequestException(pex, data);
-            } catch (AccessDeniedException adex) {
-                log.error("Error while logging in: " + adex.getLocalizedMessage());
-                rr.setClientRequestException(adex);
-                handleRequestException(adex, data);
             } catch (UnsupportedOperationException uoex) {
                 log.error(String.format("Error while handling request params for URI %s, query string %s: %s",
                         request.getRequestURI(),

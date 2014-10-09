@@ -382,15 +382,12 @@ abstract public class GeneralServlet extends HttpServlet {
 
         /* Nog steeds geen user ? */
         if (user == null) {
-            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, basic authentication, cookie of ldap.");
+            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, preemptive header, cookie of ldap. Try Basic Authentication challenge");
         }
 
         /* Er is een user. loginstatus aanpassen */
         setDetachedUserLastLoginStatus(user, null, em);
-
-        if (user != null) {
-            log.debug("Gebruiker " + user.getName() + " mag inloggen.");
-        }
+        log.debug("Gebruiker " + user.getName() + " mag inloggen.");
 
         return user;
     }
