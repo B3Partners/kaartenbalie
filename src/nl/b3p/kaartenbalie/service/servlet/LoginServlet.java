@@ -39,7 +39,7 @@ public class LoginServlet extends GeneralServlet {
             tx.begin();
             
             user = checkLogin(request, null);
-            log.debug("Username: " + user.getName() + ", password: " + user.getPassword());
+            log.debug("Username: " + user.getName());
 
             tx.commit();
         } catch (AccessDeniedException ex) {
