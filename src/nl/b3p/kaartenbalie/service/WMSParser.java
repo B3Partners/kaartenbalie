@@ -150,7 +150,7 @@ public class WMSParser extends WmsWfsParser {
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
         List<SldNamedLayer> namedLayers = null;
         if (sldUrl != null && !sldUrl.equals("")) {
-            namedLayers = sldReader.getNamedLayersByUrl(sldUrl, credentials);
+            namedLayers = sldReader.getNamedLayersByUrl(sldUrl.trim(), credentials);
         }
 
         Set layerSet = newServiceProvider.getAllLayers();
@@ -461,10 +461,7 @@ public class WMSParser extends WmsWfsParser {
         serviceProvider.setPassword(FormUtils.nullIfEmpty(dynaForm.getString("password")));
 
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
-
-        if (sldUrl != null && !sldUrl.equals("")) {
-            serviceProvider.setSldUrl(sldUrl);
-        }
+        serviceProvider.setSldUrl(sldUrl);
 
         /*
          * set ignoreResource

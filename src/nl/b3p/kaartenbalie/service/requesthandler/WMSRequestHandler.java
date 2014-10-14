@@ -577,7 +577,9 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 url = url.replaceAll("\\\\+", "/");
 
                 B3PCredentials credentials = wmsRequest.getCredentials();
-                credentials.setUrl(url);
+                if (credentials!=null) {
+                    credentials.setUrl(url);
+                }
                 HttpClientConfigured hcc = new HttpClientConfigured(credentials);
 
                 HttpGet httpget = new HttpGet(url);
