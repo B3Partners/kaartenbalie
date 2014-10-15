@@ -99,6 +99,7 @@ public class ImageCollector extends Thread {
         Date operationEnd = null;
 
         String url = getWmsRequest().getProviderRequestURI();
+        log.debug("Outgoing URL: " + url);
 
         if (url.startsWith(KBConfiguration.SERVICEPROVIDER_BASE_HTTP)) {
             try {
@@ -111,7 +112,7 @@ public class ImageCollector extends Thread {
         } else {
             try {
                 HttpClientConfigured hcc = new HttpClientConfigured(credentials);
-                HttpGet httpget = new HttpGet(getUrl());
+                HttpGet httpget = new HttpGet(url);
                 HttpResponse response = hcc.execute(httpget);
                 
                 try {

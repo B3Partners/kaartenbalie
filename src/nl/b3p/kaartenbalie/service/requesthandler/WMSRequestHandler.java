@@ -575,6 +575,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
                 // TODO: Wel goed doen
                 url = url.replaceAll(" ", "%20");
                 url = url.replaceAll("\\\\+", "/");
+                log.debug("Outgoing URL: " + url);
 
                 B3PCredentials credentials = wmsRequest.getCredentials();
                 if (credentials!=null) {
@@ -601,7 +602,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
 
                     HttpEntity entity = response.getEntity();
                     if (statusCode != 200 || entity==null) {
-                        log.debug(statusCode + " URL: " + url);
                         log.debug("Error connecting to server. Status code: " + statusCode);
 
                         throw new Exception("Error connecting to server. Status code: " + statusCode);
