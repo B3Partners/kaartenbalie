@@ -11,7 +11,7 @@
     name="jdbc/kaartenbalie" 
     username="solutionparc" 
     password="***REMOVED***" 
-    url="jdbc:postgresql://localhost:5432/solutionparc_kaartenbalie" 
+    url="jdbc:postgresql://localhost:5432/solparc_kaartenbalie" 
     removeAbandoned="true" 
     removeAbandonedTimeout="60" 
     timeBetweenEvictionRunsMillis="60000" 
