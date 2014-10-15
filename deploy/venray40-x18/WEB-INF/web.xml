@@ -144,7 +144,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/ProxySLD/*</url-pattern>
+        <url-pattern>/proxysld/*</url-pattern>
     </servlet-mapping>
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
