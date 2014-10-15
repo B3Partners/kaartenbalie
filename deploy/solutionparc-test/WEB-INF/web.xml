@@ -15,7 +15,7 @@
             Configure in which directory the mapfilescanner must listen.
         </description>
         <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>/srv/maps/solutionparc</param-value>
+        <param-value>/opt/configs/solparc.kaartenbalie.nl/upload</param-value>
     </context-param>
     <context-param>
         <description>
@@ -47,13 +47,11 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>disabled</param-value>
-            <!-- enabled/disabled -->
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value>
-            <!-- enabled/disabled -->
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>cache</param-name>
@@ -65,7 +63,7 @@
         </init-param>
         <init-param>
             <param-name>upload</param-name>
-            <param-value>/opt/config/solutionparc</param-value>
+            <param-value>/opt/configs/solparc.kaartenbalie.nl/upload</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -122,14 +120,15 @@
             <param-value>false</param-value>
         </init-param>
 		<!-- Needed for DWR when updating rights -->
-		<init-param> 
-          <param-name>crossDomainSessionSecurity</param-name> 
-          <param-value>false</param-value> 
-        </init-param>
+        <init-param> 
+            <param-name>crossDomainSessionSecurity</param-name> 
+            <param-value>false</param-value> 
+        </init-param> 
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
@@ -153,8 +152,64 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
-        <url-pattern>/ProxySLD/*</url-pattern>
+        <url-pattern>/proxysld/*</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <description>Servlet for incoming RESTful API calls</description>
+        <servlet-name>restapi</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallAPIServlet</servlet-class>
+        
+        <init-param> 
+            <param-name>sldFolder</param-name> 
+            <param-value>/opt/configs/solparc.kaartenbalie.nl/upload/sld</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name>sldExtension</param-name> 
+            <param-value>xml</param-value>
+        </init-param> 
+        
+        <load-on-startup>4</load-on-startup>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>restapi</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>loginservlet</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.LoginServlet</servlet-class>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>loginservlet</servlet-name>
+        <url-pattern>/login/*</url-pattern>
+    </servlet-mapping>
+    
+    <!-- ldap params -->
+    <context-param>
+        <param-name>ldapUseLdap</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapDefaultGroup</param-name>
+        <param-value>ldap</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapHost</param-name>
+        <param-value>localhost</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapPort</param-name>
+        <param-value>9999</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldapUserSuffix</param-name>
+        <param-value>@b3p.lok</param-value>
+    </context-param>
+    
+    
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>
