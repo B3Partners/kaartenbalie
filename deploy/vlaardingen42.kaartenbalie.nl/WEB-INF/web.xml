@@ -47,12 +47,12 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>disabled</param-value>
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
             <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value>
+            <param-value>disabled</param-value> <!-- enabled/disabled -->
             <!-- enabled/disabled -->
         </init-param>
         <init-param>
@@ -89,10 +89,6 @@
             <param-value>/WEB-INF/conf/struts-beheer.xml</param-value>
         </init-param>
         <init-param>
-            <param-name>config/demo</param-name>
-            <param-value>/WEB-INF/conf/struts-demo.xml</param-value>
-        </init-param>
-        <init-param>
             <param-name>debug</param-name>
             <param-value>2</param-value>
         </init-param>
@@ -126,10 +122,10 @@
             <param-value>false</param-value>
         </init-param>
 		<!-- Needed for DWR when updating rights -->
-		<init-param> 
-          <param-name>crossDomainSessionSecurity</param-name> 
-          <param-value>false</param-value> 
-        </init-param>
+        <init-param>
+	            <param-name>crossDomainSessionSecurity</param-name>
+	            <param-value>false</param-value>
+        </init-param> 
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
@@ -155,8 +151,7 @@
         <servlet-name>MiltonServlet</servlet-name>
         <url-pattern>/webdav/*</url-pattern>
     </servlet-mapping>
-    
-	<servlet-mapping>
+    <servlet-mapping>
         <servlet-name>ProxySLDServlet</servlet-name>
         <url-pattern>/proxysld/*</url-pattern>
     </servlet-mapping>
@@ -218,7 +213,7 @@
 
     <session-config>
         <session-timeout>
-            30
+            480
         </session-timeout>
     </session-config>
     <welcome-file-list>
