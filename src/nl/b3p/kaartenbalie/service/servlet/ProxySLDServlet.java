@@ -9,15 +9,11 @@ import javax.persistence.EntityTransaction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.xpath.XPathExpressionException;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.URLCache;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
-import nl.b3p.ogc.sld.SldNamedLayer;
-import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.ogc.sld.SldWriter;
-import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
 import nl.b3p.wms.capabilities.Style;
@@ -43,7 +39,6 @@ public class ProxySLDServlet extends GeneralServlet {
 
         Object identity = null;
         EntityTransaction tx = null;
-
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
@@ -57,87 +52,28 @@ public class ProxySLDServlet extends GeneralServlet {
 
             log.debug("Incoming sld url: " + oriSldUrl);
 
-            List<SldNamedLayer> returnedNamedLayers = new ArrayList<SldNamedLayer>();
-            SldWriter sldFact = new SldWriter();
-
+            String sld = null;
             if ((oriSldUrl != null && oriSldUrl.length() > 0)
                     || (oriSldBody != null && oriSldBody.length() > 0)) {
-
-                String sld = null;
                 if (oriSldUrl != null && oriSldUrl.length() > 0) {
-
                     try {
                         sld = cache.getFromCache(oriSldUrl);
                     } catch (InterruptedException ex) {
                         log.error("Fout ophalen sld uit cache: ", ex);
                     }
-
                 } else {
                     sld = oriSldBody;
                 }
-
-                if (sld == null) {
-                    response.getWriter().write("Error while getting SLD. Check the log for details");
-                    return;
-                }
-
-                Integer servProvId = null;
-                try {
-                    servProvId = new Integer(request.getParameter(PARAM_SERVICEPROVIDER_ID));
-                } catch (NumberFormatException e) {
-                    log.debug("Fout parsen serviceprovider id.");
-                }
-
-                ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
-                //TODO: moet beter. Char set bepalen niet meegeven.
-                SldReader sldReader = new SldReader();
-
-                List<SldNamedLayer> namedLayers = new ArrayList();
-                try {
-                    namedLayers = sldReader.getNamedLayersBySld(sld, "UTF-8");
-                } catch (Exception ex) {
-                    log.error("Fout ophalen named layers: ", ex);
-                }
-
-                Iterator<SldNamedLayer> it = namedLayers.iterator();
-                while (it.hasNext()) {
-                    SldNamedLayer nl = it.next();
-
-                    try {
-                        String[] codeAndName = OGCCommunication
-                                .toCodeAndName(nl.getName());
-
-                        if (codeAndName[0] != null
-                                && codeAndName[0].equals(sp.getAbbr())) {
-
-                            nl.setName(codeAndName[1]);
-                            returnedNamedLayers.add(nl);
-
-                            /* 
-                             *Als er geen afkorting in namedlayer zit is
-                             * codeAndName[0] null. Kijken of name overeenkomt 
-                             * met een layer uit service ?
-                             */
-                        } else if (codeAndName[0] == null && codeAndName[1] != null) {
-
-                            Iterator<Layer> it2 = sp.getAllLayers().iterator();
-                            while (it2.hasNext()) {
-                                Layer l = it2.next();
-
-                                if (l.getName().equals(codeAndName[1])) {
-                                    nl.setName(codeAndName[1]);
-                                    returnedNamedLayers.add(nl);
-                                }
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        log.error("Fout bij maken SLD", e);
-                    }
-                }
+            }
+            
+            if (sld == null) {
+                response.getWriter().write("Error while getting SLD. Check the log for details");
+                return;
             }
 
-            /**/
+            SldWriter sldFact = new SldWriter();
+            sldFact.parseString(sld, null);
+                    
             if (styleString != null && styleString.length() > 0) {
                 String[] styleStringTokens = styleString.split(",");
                 Integer[] styleIds = new Integer[styleStringTokens.length];
@@ -149,20 +85,37 @@ public class ProxySLDServlet extends GeneralServlet {
                         .getResultList();
 
                 try {
-                    returnedNamedLayers.addAll(sldFact.createNamedLayersWithKBStyles(styles));
-                } catch (XPathExpressionException ex) {
-                    log.error("Fout in xpath: ", ex);
+                    sldFact.addNamedLayers(sldFact.createNamedLayersWithKBStyles(styles));
                 } catch (Exception ex) {
                     log.error("Fout: ", ex);
                 }
             }
 
-            /**/
-            String xml = sldFact.createSLD(returnedNamedLayers);
+            // Gebruik alleen het deel uit de SLD dat betrekking heeft op
+            // deze service provider, zoek daarom abbr en layer names op
+            // als sp is null dan alles meenemen
+            String spAbbr = null;
+            List<String> spLayerNames = new ArrayList<String>();
+            Integer servProvId = null;
+            try {
+                servProvId = new Integer(request.getParameter(PARAM_SERVICEPROVIDER_ID));
+                ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
+                if (sp != null) {
+                    spAbbr = sp.getAbbr();
+                    Iterator<Layer> it2 = sp.getAllLayers().iterator();
+                    while (it2.hasNext()) {
+                        Layer l = it2.next();
+                        spLayerNames.add(l.getName());
+                    }
+                }
+            } catch (NumberFormatException e) {
+                log.debug("Fout parsen serviceprovider id.");
+            }
+            sldFact.replaceAndFilterOnNames(spAbbr, spLayerNames);
+            
+            String xml = sldFact.createSLD();
             response.setContentType(mimeType);
-
             log.debug("Returned sld: \n" + xml);
-
             response.getWriter().write(xml);
 
             tx.commit();

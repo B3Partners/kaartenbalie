@@ -25,9 +25,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -52,10 +54,12 @@ import nl.b3p.kaartenbalie.service.KBImageTool;
 import nl.b3p.kaartenbalie.service.LayerValidator;
 import nl.b3p.kaartenbalie.service.ServiceProviderValidator;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
+import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.wms.capabilities.*;
 import org.apache.commons.logging.Log;
@@ -683,6 +687,180 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         } finally {
             rr.addServiceProviderRequest(wmsRequest);
         }
+    }
+    
+    protected StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc, String serviceUrl) throws UnsupportedEncodingException {
+
+        /* TODO:
+         * Check if the layer styles contain an Sld part. If so add &sld to this
+         * url that refers to the kaartenbalie sld servlet. The servlet will combine
+         * the parts to form the needed sld.
+        */
+
+        StringBuffer returnValue = new StringBuffer();
+        List<String> newSldParams= new ArrayList<String>();
+        List<Integer> sldStyleIds= new ArrayList<Integer>();
+        String layersString = spInfo.getLayersAsString();
+        
+        String kbProxySldUrl = serviceUrl.replace("/services/", "/proxysld/");
+        log.debug("Kb proxy url: " + kbProxySldUrl);
+        
+        List<LayerSummary> layersList = spInfo.getLayers();
+        returnValue.append(spInfo.getSpUrl());
+        if (returnValue.indexOf("?") != returnValue.length() - 1 && returnValue.indexOf("&") != returnValue.length() - 1) {
+            if (returnValue.indexOf("?") >= 0) {
+                returnValue.append("&");
+            } else {
+                returnValue.append("?");
+            }
+        }
+        String[] params = ogc.getParametersArray();
+        for (int i = 0; i < params.length; i++) {
+            //In SLD_BODY zitten = tekens. Dus niet splitten
+            String[] keyValuePair = new String[2];
+            int indexOfIs=params[i].indexOf("=");
+            if (indexOfIs==-1)
+                continue;
+            keyValuePair[0]=params[i].substring(0,indexOfIs);
+            if (indexOfIs+1<params[i].length())
+                keyValuePair[1]=params[i].substring(indexOfIs+1);
+            else
+                keyValuePair[1]="";
+            
+            if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+                returnValue.append(OGCConstants.WMS_PARAM_LAYERS);
+                returnValue.append("=");
+                returnValue.append(layersString);
+            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_STYLES)) {
+                returnValue.append(OGCConstants.WMS_PARAM_STYLES);
+                returnValue.append("=");
+                //maak alleen de styles goed als er geen sld= of sld_body= parameter aanwezig is.
+                
+                try {
+                    if (layersList != null && layersList.size() > 0) {
+                        String stylesParameter = ogc.getParameter(OGCConstants.WMS_PARAM_STYLES);
+                        if (stylesParameter != null && stylesParameter.length() > 0) {
+                            //splitten werkt niet. Een lege string (tussen 2 komma's) wordt dan niet gezien als waarde
+                            //String[] stylesArray = stylesParameter.split(",");                            
+                            String tempStyles = ""+stylesParameter;
+                            List<String> styles= new ArrayList<String>();
+                            while (tempStyles!=null){
+                                if (tempStyles.length()==0){
+                                    styles.add("");
+                                    tempStyles=null;
+                                    break;
+                                }
+                                int kommaIndex= tempStyles.indexOf(",");
+                                if(kommaIndex<0){
+                                    kommaIndex=tempStyles.length();
+                                    styles.add(tempStyles.substring(0));
+                                    tempStyles=null;
+                                    break;
+                                }else{
+                                    styles.add(tempStyles.substring(0,kommaIndex));                                
+                                    tempStyles=tempStyles.substring(kommaIndex+1,tempStyles.length());                                
+                                }
+                            }
+                            
+                            String layersParameter = ogc.getParameter(OGCConstants.WMS_PARAM_LAYERS);
+                            if (layersParameter != null && layersParameter.length() > 0) {
+                                String[] layersArray = layersParameter.split(",");
+                                if (styles.size() == layersArray.length) {
+                                    //StringBuffer stylesString = new StringBuffer();
+                                    List<String> providerStyles= new ArrayList<String>();
+                                    for (int j = 0; j < layersArray.length; j++) {
+                                        Iterator it = layersList.iterator();
+                                        while (it.hasNext()) {
+                                            LayerSummary ls = (LayerSummary) it.next();
+                                            String completeName = OGCCommunication.buildFullLayerName(ls);
+                                            //TODO: Moet het toegevoegd worden als Style= of als sld                                            
+                                            if (completeName.equals(layersArray[j])) {
+                                                String style = styles.get(j);                                                
+                                                //als er een style is gekozen met een SLDpart 
+                                                //niet de style meenemen maar een sld bouwen
+                                                Style s=spInfo.getStyle(OGCCommunication.buildLayerNameWithoutSp(ls),style);
+                                                if (s!=null && s.getSldPart()!=null){
+                                                    providerStyles.add("");
+                                                    sldStyleIds.add(s.getId());                                                    
+                                                }else{
+                                                    providerStyles.add(style);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    String stylesString="";
+                                    for (int p=0; p < providerStyles.size(); p++){
+                                        if (p!=0)
+                                            stylesString+=",";
+                                        stylesString+=providerStyles.get(p);
+                                    }
+                                    returnValue.append(stylesString);
+                                    if (sldStyleIds.size()>0){                                        
+                                        String styleIdParam="";
+                                        for (Integer sldStyleId:sldStyleIds){
+                                            if (styleIdParam.length()>0)
+                                                styleIdParam+=",";
+                                            styleIdParam+=sldStyleId;
+                                        }
+                                        StringBuffer sldUrl= new StringBuffer();                                                                                
+                                        sldUrl.append(ProxySLDServlet.PARAM_STYLES);
+                                        sldUrl.append("=");
+                                        sldUrl.append(styleIdParam);
+                                        newSldParams.add(sldUrl.toString());                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // so no styles param
+                    log.debug(e);
+                }
+            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD) ||
+                    keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD_BODY)) {
+                //als SLD= dan url alvast cachen.
+                if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD))
+                    ProxySLDServlet.addSLDToCache(keyValuePair[1]);
+                //SLD of SLD Body
+                StringBuffer sldParam= new StringBuffer();
+                if(keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_SLD)){
+                    sldParam.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_URL);
+                }else{
+                    sldParam.append(ProxySLDServlet.PARAM_ORIGINAL_SLD_BODY);
+                }
+                sldParam.append("=");
+                sldParam.append(URLEncoder.encode(keyValuePair[1], "utf-8"));
+                newSldParams.add(sldParam.toString());
+                //service provider ID
+                StringBuffer serviceProviderIds= new StringBuffer();
+                serviceProviderIds.append(ProxySLDServlet.PARAM_SERVICEPROVIDER_ID);
+                serviceProviderIds.append("=");
+                serviceProviderIds.append(spInfo.getServiceproviderId());
+                newSldParams.add(serviceProviderIds.toString());
+                
+            }else {
+                returnValue.append(params[i]);
+            }
+            returnValue.append("&");
+        }
+        if (newSldParams.size()>0){
+            
+            //make a new SLD url to the proxySldServlet.
+            StringBuffer sldUrl= new StringBuffer();
+            sldUrl.append(kbProxySldUrl);
+            sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
+            for (String param : newSldParams){
+                sldUrl.append(param);
+                sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
+            }            
+            //altijd een sld=. Ook sld_body zodat we kunnen opsplitsen                
+            returnValue.append(OGCConstants.WMS_PARAM_SLD);
+            returnValue.append("=");
+            returnValue.append(URLEncoder.encode(sldUrl.toString(), "utf-8")); 
+            returnValue.append("&");
+        }
+        return returnValue;
     }
 
     private DescribeLayerResponse createGeotools8DescribeLayerResponse(String wmsUrl) throws Exception {

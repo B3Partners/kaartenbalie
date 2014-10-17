@@ -34,19 +34,12 @@ import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.commons.services.HttpClientConfigured;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.struts.ServerAction;
-import nl.b3p.ogc.sld.SldLayerFeatureConstraints;
-import nl.b3p.ogc.sld.SldNamedLayer;
-import nl.b3p.ogc.sld.SldNamedStyle;
-import nl.b3p.ogc.sld.SldNode;
-import nl.b3p.ogc.sld.SldReader;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.LayerDomainResource;
-import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.apache.struts.upload.FormFile;
@@ -111,40 +104,7 @@ abstract public class WmsWfsParser extends ServerAction {
      * @throws Exception
      */
     abstract public String delete(DynaValidatorForm dynaForm, HttpServletRequest request) throws Exception;
-       
-    protected Set<Style> getSldStylesSet(List<SldNamedLayer> allNamedLayers,Layer layer)
-            throws Exception {
-
-        Set<Style> styles = new HashSet<Style>();
-        SldReader sldReader = new SldReader();
-        
-        //get only the named layers for this layer
-        List<SldNamedLayer> namedLayers=sldReader.getNamedLayers(allNamedLayers, layer.getName());
-        
-        for (SldNamedLayer namedLayer : namedLayers) {
-            List<SldNode> stylesAndConstraints = namedLayer.getStyles();
-            
-            for (SldNode sldStyle : stylesAndConstraints) {
-                Style style = new Style();
-                style.setLayer(layer);
-                style.setName(sldStyle.getName());
-                style.setTitle(sldStyle.getName());
-                style.setSldPart(sldStyle.getSldPart());
-                
-                if (sldStyle instanceof SldNamedStyle){
-                    SldLayerFeatureConstraints constraints=((SldNamedStyle)sldStyle).getFeatureConstraints();
-                    if(constraints!=null){
-                        style.setSldConstraints(constraints.getSldPart());
-                    }                    
-                }
-                
-                styles.add(style);
-            }
-        }
-        
-        return styles;
-    }
-    
+           
     /* Tries to find a specified layer given for a certain ServiceProvider.
      *
      * @param layers the set with layers which the method has to surch through
@@ -175,10 +135,6 @@ abstract public class WmsWfsParser extends ServerAction {
             }
         }
         return null;
-    }
-    
-    protected String getUniqueStyleName(Set<Style> styles, String name) throws Exception {        
-        return getUniqueStyleName(styles,name,null);
     }
     
     /*
@@ -243,31 +199,7 @@ abstract public class WmsWfsParser extends ServerAction {
         
         return OK;
     }
-    
-    protected String getUniqueStyleName(Set<Style> styles, String name, Integer tries) throws Exception {    
-        if (tries!=null && tries==10)
-            throw new Exception("Can't create unique name for style");
-                
-        String newName=name;
-        if (tries!=null)
-            newName+=tries;
         
-        Iterator<Style> it = styles.iterator();
-        boolean unique=true;
-        while (it.hasNext()&& unique){
-            Style s= it.next();
-            if (s.getName().equals(newName))
-                unique=false;
-        }
-        if (!unique){
-            if (tries==null)
-                tries= new Integer("0");
-            tries++;            
-            return getUniqueStyleName(styles, name, tries);
-        }
-        return newName;
-    }
-    
     protected void setMetadataFromLayerSource(Layer layer, Layer oldLayer,B3PCredentials credentials) {
         String mdUrl = null;
         Set ldrs = layer.getDomainResource();

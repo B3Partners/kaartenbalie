@@ -31,14 +31,12 @@ import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.accounting.LayerCalculator;
 import nl.b3p.kaartenbalie.core.server.accounting.entity.LayerPricing;
-import nl.b3p.ogc.sld.SldNamedLayer;
-import nl.b3p.ogc.sld.SldReader;
+import nl.b3p.ogc.sld.SldWriter;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.ServiceProvider;
-import nl.b3p.wms.capabilities.Style;
 import nl.b3p.wms.capabilities.WMSCapabilitiesReader;
 import org.apache.struts.upload.FormFile;
 import org.apache.struts.util.MessageResources;
@@ -146,11 +144,10 @@ public class WMSParser extends WmsWfsParser {
         /*
          * NamedLayers uit Sld ophalen
          */
-        SldReader sldReader = new SldReader();
+        SldWriter sldWriter = new SldWriter();
         String sldUrl = FormUtils.nullIfEmpty(dynaForm.getString("sldUrl"));
-        List<SldNamedLayer> namedLayers = null;
-        if (sldUrl != null && !sldUrl.equals("")) {
-            namedLayers = sldReader.getNamedLayersByUrl(sldUrl.trim(), credentials);
+        if (sldUrl != null) {
+            sldWriter.parseByUrl(sldUrl.trim(), credentials);
         }
 
         Set layerSet = newServiceProvider.getAllLayers();
@@ -176,27 +173,9 @@ public class WMSParser extends WmsWfsParser {
 
             /*
              * Kijken of voor deze layer UserStyles in bijbehorende NamedLayer
-             * voorkomen. Zo ja, deze als Style opslaan in database
+             * voorkomen. Zo ja, toevoegen als Style aan layer in database
              */
-            if (namedLayers != null && namedLayers.size() > 0) {
-                Set<Style> styles = getSldStylesSet(namedLayers, layer);
-                Iterator<Style> styleIt = styles.iterator();
-                while (styleIt.hasNext()) {
-                    Style style = styleIt.next();
-                    //een style moet een name hebben om aan te roepen
-                    if (style.getName() == null
-                            || style.getName().length() == 0) {
-                        style.setName(layer.getName() + "_SLD");
-                    }
-
-                    if (layer.getStyles() == null) {
-                        layer.setStyles(new HashSet<Style>());
-                    }
-                    String newStyleName = getUniqueStyleName(layer.getStyles(), style.getName());
-                    style.setName(newStyleName);
-                    layer.getStyles().add(style);
-                }
-            }
+            sldWriter.addSldStylesSet(layer);
 
             // Find old layer to be able to reuse metadata additions
             Set topLayerSet = new HashSet();

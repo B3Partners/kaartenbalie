@@ -105,35 +105,17 @@ public class GetLegendGraphicRequestHandler extends WMSRequestHandler {
             credentials.setUserName(spInfo.getUsername());
             credentials.setPassword(spInfo.getPassword());
             lgrWrapper.setCredentials(credentials);
-            
             lgrWrapper.setServiceProviderId(serviceProviderId);
-            StringBuffer url = new StringBuffer();
-            url.append(spInfo.getSpUrl());
-            if (url.indexOf("?")!=url.length()-1 && url.indexOf("&")!= url.length()-1){
-                if (url.indexOf("?")>=0){
-                    url.append("&");
-                }else{
-                    url.append("?");
-                }
-            }
-            String[] params = ogc.getParametersArray();
-            for (int i = 0; i < params.length; i++) {
-                String[] keyValuePair = params[i].split("=");
-                if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYER)) {
-                    url.append(OGCConstants.WMS_PARAM_LAYER);
-                    url.append("=");
-                    url.append(spInfo.getLayersAsString());
-                    url.append("&");
-                } else {
-                    url.append(params[i]);
-                    url.append("&");
-                }
-            }
-            lgrWrapper.setProviderRequestURI(url.toString());
+            
+            StringBuffer url = createOnlineUrl(spInfo, ogc,dw.getRequest().getRequestURL().toString());
+            String serviceRequestURI = url.toString();
+            lgrWrapper.setProviderRequestURI(serviceRequestURI);            
             urlWrapper.add(lgrWrapper);
             getOnlineData(dw, urlWrapper, false, OGCConstants.WMS_REQUEST_GetLegendGraphic);
         }
 
     }
     // </editor-fold>
+    
+
 }

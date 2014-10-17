@@ -62,6 +62,8 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         String encodedUrl = URLEncoder.encode(decodedUrl);
         StringBuilder purl = new StringBuilder(KBCrypter.decryptText(encodedUrl));
 
+        //TODO CvL in purl kan style=default zitten, terwijl dit niet klopt
+        //ofwel hier sld zetten ofwel style overrulen 
         String sld = ogcrequest.getParameter(OGCConstants.WMS_PARAM_SLD);
         if (sld != null && sld.length() > 0) {
             if (purl.indexOf("?") != purl.length() - 1 && purl.indexOf("&") != purl.length() - 1) {

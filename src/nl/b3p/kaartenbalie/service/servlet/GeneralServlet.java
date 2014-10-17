@@ -50,6 +50,7 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.kaartenbalie.util.LDAPUtil;
+import nl.b3p.ogc.sld.SldNode;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.OGCCommunication;
@@ -566,25 +567,14 @@ abstract public class GeneralServlet extends HttpServlet {
                 String paramName = (String) params.nextElement();
                 String paramValue = request.getParameter(paramName);
                 //Parameters zijn niet UTF8.
-                if (paramName.equalsIgnoreCase("onload") || paramName.equalsIgnoreCase("ondata") || paramName.equalsIgnoreCase("loadmovie") || paramName.equalsIgnoreCase("oldloadmovie")) {
+                if (paramName.equalsIgnoreCase("onload") 
+                        || paramName.equalsIgnoreCase("ondata") 
+                        || paramName.equalsIgnoreCase("loadmovie") 
+                        || paramName.equalsIgnoreCase("oldloadmovie")) {
                     //do nothing
                 } else {
                     ogcrequest.addOrReplaceParameter(paramName, paramValue);
                 }
-            }
-            if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY) != null) {
-                //<Name>demo_gemeenten_2006</Name>
-                String sld_body = ogcrequest.getParameter(OGCRequest.WMS_PARAM_SLD_BODY);
-                if (ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS) != null) {
-                    String[] layersArray = ogcrequest.getParameter(OGCRequest.WMS_PARAM_LAYERS).split(",");
-                    for (String layersArray1 : layersArray) {
-                        String newLayer = OGCCommunication.getLayerName(layersArray1);
-                        if (newLayer != null) {
-                            sld_body = sld_body.replaceAll("(?i)name>" + layersArray1 + "<", "Name>" + newLayer + "<");
-                        }
-                    }
-                }
-                ogcrequest.addOrReplaceParameter(OGCRequest.WMS_PARAM_SLD_BODY, URLEncoder.encode(sld_body, "UTF-8"));
             }
             log.debug("Incoming POST converted to GET URL: " + ogcrequest.getUrlWithNonOGCparams());
         } else {
