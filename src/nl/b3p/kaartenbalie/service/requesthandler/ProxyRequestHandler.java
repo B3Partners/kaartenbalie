@@ -24,12 +24,20 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
+import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
+import nl.b3p.ogc.utils.LayerSummary;
+import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
+import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -47,43 +55,89 @@ public class ProxyRequestHandler extends WMSRequestHandler {
      * @param dw DataWrapper which contains all information that has to be sent to the client
      * @param user User the user which invoked the request
      *
-     * @return byte[]
-     *
      * @throws Exception
      * @throws IOException
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
         OGCRequest ogcrequest = dw.getOgcrequest();
+        String spInUrl = ogcrequest.getServiceProviderName();
+        
         String decodedUrl = ogcrequest.getParameter(OGCConstants.PROXY_URL);
         if (decodedUrl == null || decodedUrl.length() == 0) {
             log.error(KBConfiguration.KB_PROXY_EXECPTION);
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
         }
         String encodedUrl = URLEncoder.encode(decodedUrl);
-        StringBuilder purl = new StringBuilder(KBCrypter.decryptText(encodedUrl));
+        String purl = KBCrypter.decryptText(encodedUrl);
 
-        //TODO CvL in purl kan style=default zitten, terwijl dit niet klopt
-        //ofwel hier sld zetten ofwel style overrulen 
+        OGCRequest proxyrequest = new OGCRequest(purl);
         String sld = ogcrequest.getParameter(OGCConstants.WMS_PARAM_SLD);
-        if (sld != null && sld.length() > 0) {
-            if (purl.indexOf("?") != purl.length() - 1 && purl.indexOf("&") != purl.length() - 1) {
-                if (purl.indexOf("?") >= 0) {
-                    purl.append("&");
-                } else {
-                    purl.append("?");
+        if (sld != null) {
+            proxyrequest.addOrReplaceParameter(OGCConstants.WMS_PARAM_SLD, sld);
+        }
+        String style = ogcrequest.getParameter(OGCConstants.WMS_PARAM_STYLES);
+        if (style != null) {
+            //style naam omzetten naar SldProxy url zodat sld meegenomen wordt
+            String spLayerName = ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYER);
+            LayerSummary m = OGCCommunication
+                    .splitLayerWithoutNsFix(spLayerName, (spInUrl==null), spInUrl, null);
+            String spAbbr = m.getSpAbbr();
+            String layerName = m.getLayerName();
+            List<Style> stylesList = findStyles(spAbbr, layerName);
+            Integer styleId = null;
+            for (Style s : stylesList) {
+                if (style.equalsIgnoreCase(s.getName())) {
+                    styleId = s.getId();
+                    break;
                 }
             }
-            purl.append(OGCConstants.WMS_PARAM_SLD);
-            purl.append("=");
-            purl.append(sld);
+            // maak sld proxy url
+            if (styleId!=null) {
+                String serviceUrl = dw.getRequest().getRequestURL().toString();
+                //make a new SLD url to the proxySldServlet.
+                StringBuilder sldUrl= new StringBuilder();
+                sldUrl.append(serviceUrl.replace("/services/", "/proxysld/"));
+                sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
+                sldUrl.append(ProxySLDServlet.PARAM_STYLES);
+                sldUrl.append("=");
+                sldUrl.append(styleId);
+                //hier wordt evt bestaande sld param overschreven! 
+                proxyrequest.addOrReplaceParameter(OGCConstants.WMS_PARAM_SLD, 
+                        sldUrl.toString());
+            }
         }
+        
+        String proxyUrl = proxyrequest.getUrl();
+        
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
-        proxyWrapper.setProviderRequestURI(purl.toString());
+        proxyWrapper.setProviderRequestURI(proxyUrl);
         proxyWrapper.setServiceName(dw.getOgcrequest().getServiceProviderName());
-
+        
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);
         getOnlineData(dw, urlWrapper, false, KBConfiguration.KB_PROXY);
 
+    }
+    
+    private List findStyles(String spAbbr, String layerName) throws Exception {
+        Object identity = null;
+        EntityManager em = null;
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            log.debug("Getting entity manager ......");
+            em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+
+            return em.createQuery("select s from Style s join s.layer l "
+                    + "where s.sld_part is not null and "
+                    + "l.serviceProvider.abbr = :spAbbr and "
+                    + "l.name = :layerName ")
+                    .setParameter("spAbbr", spAbbr)
+                    .setParameter("layerName", layerName)
+                    .getResultList();
+            
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+        }
     }
 }

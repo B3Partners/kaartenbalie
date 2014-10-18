@@ -691,12 +691,6 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
     
     protected StringBuffer createOnlineUrl(SpLayerSummary spInfo, OGCRequest ogc, String serviceUrl) throws UnsupportedEncodingException {
 
-        /* TODO:
-         * Check if the layer styles contain an Sld part. If so add &sld to this
-         * url that refers to the kaartenbalie sld servlet. The servlet will combine
-         * the parts to form the needed sld.
-        */
-
         StringBuffer returnValue = new StringBuffer();
         List<String> newSldParams= new ArrayList<String>();
         List<Integer> sldStyleIds= new ArrayList<Integer>();
@@ -862,7 +856,7 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
         }
         return returnValue;
     }
-
+    
     private DescribeLayerResponse createGeotools8DescribeLayerResponse(String wmsUrl) throws Exception {
         DescribeLayerResponse response = null;
 

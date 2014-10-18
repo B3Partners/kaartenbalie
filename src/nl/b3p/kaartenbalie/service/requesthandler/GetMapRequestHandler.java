@@ -23,23 +23,18 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import nl.b3p.ogc.utils.SpLayerSummary;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 import javax.persistence.EntityManager;
 import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.LayerSummary;
-import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.SrsBoundingBox;
-import nl.b3p.wms.capabilities.Style;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
