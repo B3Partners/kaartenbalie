@@ -71,42 +71,6 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         String purl = KBCrypter.decryptText(encodedUrl);
 
         OGCRequest proxyrequest = new OGCRequest(purl);
-        String sld = ogcrequest.getParameter(OGCConstants.WMS_PARAM_SLD);
-        if (sld != null) {
-            proxyrequest.addOrReplaceParameter(OGCConstants.WMS_PARAM_SLD, sld);
-        }
-        String style = ogcrequest.getParameter(OGCConstants.WMS_PARAM_STYLES);
-        if (style != null) {
-            //style naam omzetten naar SldProxy url zodat sld meegenomen wordt
-            String spLayerName = ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYER);
-            LayerSummary m = OGCCommunication
-                    .splitLayerWithoutNsFix(spLayerName, (spInUrl==null), spInUrl, null);
-            String spAbbr = m.getSpAbbr();
-            String layerName = m.getLayerName();
-            List<Style> stylesList = findStyles(spAbbr, layerName);
-            Integer styleId = null;
-            for (Style s : stylesList) {
-                if (style.equalsIgnoreCase(s.getName())) {
-                    styleId = s.getId();
-                    break;
-                }
-            }
-            // maak sld proxy url
-            if (styleId!=null) {
-                String serviceUrl = dw.getRequest().getRequestURL().toString();
-                //make a new SLD url to the proxySldServlet.
-                StringBuilder sldUrl= new StringBuilder();
-                sldUrl.append(serviceUrl.replace("/services/", "/proxysld/"));
-                sldUrl.append(sldUrl.indexOf("?") > 0 ? "&" : "?");
-                sldUrl.append(ProxySLDServlet.PARAM_STYLES);
-                sldUrl.append("=");
-                sldUrl.append(styleId);
-                //hier wordt evt bestaande sld param overschreven! 
-                proxyrequest.addOrReplaceParameter(OGCConstants.WMS_PARAM_SLD, 
-                        sldUrl.toString());
-            }
-        }
-        
         String proxyUrl = proxyrequest.getUrl();
         
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
@@ -117,27 +81,5 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         urlWrapper.add(proxyWrapper);
         getOnlineData(dw, urlWrapper, false, KBConfiguration.KB_PROXY);
 
-    }
-    
-    private List findStyles(String spAbbr, String layerName) throws Exception {
-        Object identity = null;
-        EntityManager em = null;
-        try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            log.debug("Getting entity manager ......");
-            em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-
-            return em.createQuery("select s from Style s join s.layer l "
-                    + "where s.sld_part is not null and "
-                    + "l.serviceProvider.abbr = :spAbbr and "
-                    + "l.name = :layerName ")
-                    .setParameter("spAbbr", spAbbr)
-                    .setParameter("layerName", layerName)
-                    .getResultList();
-            
-        } finally {
-            log.debug("Closing entity manager .....");
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
-        }
     }
 }

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @author Roy
+ * @author Chris van Lith
  */
 public class ProxySLDServlet extends GeneralServlet {
 
@@ -38,89 +37,70 @@ public class ProxySLDServlet extends GeneralServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         Object identity = null;
-        EntityTransaction tx = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
-            tx = em.getTransaction();
 
-            tx.begin();
-
-            String oriSldUrl = request.getParameter(PARAM_ORIGINAL_SLD_URL);
             String oriSldBody = request.getParameter(PARAM_ORIGINAL_SLD_BODY);
-            String styleString = request.getParameter(PARAM_STYLES);
-
+            log.debug("Incoming sld body: " + oriSldBody);
+            String oriSldUrl = request.getParameter(PARAM_ORIGINAL_SLD_URL);
             log.debug("Incoming sld url: " + oriSldUrl);
-
-            String sld = null;
-            if ((oriSldUrl != null && oriSldUrl.length() > 0)
-                    || (oriSldBody != null && oriSldBody.length() > 0)) {
-                if (oriSldUrl != null && oriSldUrl.length() > 0) {
-                    try {
-                        sld = cache.getFromCache(oriSldUrl);
-                    } catch (InterruptedException ex) {
-                        log.error("Fout ophalen sld uit cache: ", ex);
-                    }
-                } else {
-                    sld = oriSldBody;
-                }
-            }
-            
-            if (sld == null) {
-                response.getWriter().write("Error while getting SLD. Check the log for details");
-                return;
-            }
+            String styleString = request.getParameter(PARAM_STYLES);
+            log.debug("Incoming sld style id's: " + styleString);
+            String spId = request.getParameter(PARAM_SERVICEPROVIDER_ID);
+            log.debug("Incoming sld sp id: " + styleString);
 
             SldWriter sldFact = new SldWriter();
-            sldFact.parseString(sld, null);
-                    
-            if (styleString != null && styleString.length() > 0) {
-                String[] styleStringTokens = styleString.split(",");
-                Integer[] styleIds = new Integer[styleStringTokens.length];
-                for (int i = 0; i < styleStringTokens.length; i++) {
-                    styleIds[i] = new Integer(styleStringTokens[i]);
-                }
+            
+            if (oriSldBody != null && oriSldBody.length() > 0) {
+                sldFact.parseString(oriSldBody, null);
+                
+            } else if (oriSldUrl != null && oriSldUrl.length() > 0) {
+                String sld = cache.getFromCache(oriSldUrl);
+                sldFact.parseString(sld, null);
+                
+            } else if (styleString != null && styleString.length() > 0) {
                 //haal de styles op.
                 List<Style> styles = em.createQuery("from Style where id in (" + styleString + ")")
                         .getResultList();
-
-                try {
-                    sldFact.addNamedLayers(sldFact.createNamedLayersWithKBStyles(styles));
-                } catch (Exception ex) {
-                    log.error("Fout: ", ex);
-                }
+                sldFact.addNamedLayers(sldFact.createNamedLayersWithKBStyles(styles));
             }
-
+            
             // Gebruik alleen het deel uit de SLD dat betrekking heeft op
             // deze service provider, zoek daarom abbr en layer names op
             // als sp is null dan alles meenemen
-            String spAbbr = null;
-            List<String> spLayerNames = new ArrayList<String>();
-            Integer servProvId = null;
-            try {
-                servProvId = new Integer(request.getParameter(PARAM_SERVICEPROVIDER_ID));
-                ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
-                if (sp != null) {
-                    spAbbr = sp.getAbbr();
-                    Iterator<Layer> it2 = sp.getAllLayers().iterator();
-                    while (it2.hasNext()) {
-                        Layer l = it2.next();
-                        spLayerNames.add(l.getName());
+            if (spId != null && spId.length() > 0) {
+                String spAbbr = null;
+                List<String> spLayerNames = new ArrayList<String>();
+                Integer servProvId = null;
+                try {
+                    servProvId = new Integer(spId);
+                    ServiceProvider sp = em.find(ServiceProvider.class, servProvId);
+                    if (sp != null) {
+                        spAbbr = sp.getAbbr();
+                        Iterator<Layer> it2 = sp.getAllLayers().iterator();
+                        while (it2.hasNext()) {
+                            Layer l = it2.next();
+                            spLayerNames.add(l.getName());
+                        }
                     }
+                } catch (NumberFormatException e) {
+                    log.debug("Fout parsen serviceprovider id.");
                 }
-            } catch (NumberFormatException e) {
-                log.debug("Fout parsen serviceprovider id.");
+                sldFact.replaceAndFilterOnNames(spAbbr, spLayerNames);
             }
-            sldFact.replaceAndFilterOnNames(spAbbr, spLayerNames);
             
             String xml = sldFact.createSLD();
             response.setContentType(mimeType);
             log.debug("Returned sld: \n" + xml);
             response.getWriter().write(xml);
 
-            tx.commit();
         } catch (Exception ex) {
-            log.error("Fout ophalen em: ", ex);
+            response.getWriter().write("Error while getting SLD. Check the log for details");
+        } finally {
+            log.debug("Closing entity manager .....");
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }
 
