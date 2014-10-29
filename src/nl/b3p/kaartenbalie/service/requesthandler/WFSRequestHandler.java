@@ -320,7 +320,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                                 // wfs 1.1.0 error
                                 ogcresponse.rebuildOwsV100ErrorResponse(doc, sprequest, prefix);
                             } else {
-                                // normale repsonse
+                                // normale response
                                 ogcresponse.rebuildResponse(doc, sprequest, prefix);
                             }
                         } else {
