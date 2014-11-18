@@ -150,10 +150,6 @@
             <param-name>fetchMethod</param-name>
             <param-value>FILE</param-value>
         </init-param>
-        <init-param>
-            <param-name>servletPath</param-name>
-            <param-value>/files</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
