@@ -12,13 +12,6 @@
     </context-param>
     <context-param>
         <description>
-            Configure in which directory the mapfilescanner must listen.
-        </description>
-        <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>/srv/maps/vlaardingen/uploads/</param-value>
-    </context-param>
-    <context-param>
-        <description>
             Organization for adding services
         </description>
         <param-name>MapFileScanner.organization</param-name>
@@ -47,12 +40,12 @@
         <servlet-class>nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase</servlet-class>
         <init-param>
             <param-name>reporting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value>
             <!-- enabled/disabled -->
         </init-param>
         <init-param>
             <param-name>accounting</param-name>
-            <param-value>disabled</param-value> <!-- enabled/disabled -->
+            <param-value>disabled</param-value>
             <!-- enabled/disabled -->
         </init-param>
         <init-param>
@@ -121,15 +114,32 @@
             <param-name>debug</param-name>
             <param-value>false</param-value>
         </init-param>
-		<!-- Needed for DWR when updating rights -->
         <init-param>
-	            <param-name>crossDomainSessionSecurity</param-name>
-	            <param-value>false</param-value>
-        </init-param> 
+            <param-name>crossDomainSessionSecurity</param-name>
+            <param-value>false</param-value>
+        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ProxySLDServlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet>
+        <description>
+            fetches document in background to hide actual location of 
+            document and allows posting documents
+        </description>
+        <servlet-name>FileManager</servlet-name>
+        <servlet-class>nl.b3p.kaartenbalie.service.servlet.UpDownloadServlet</servlet-class>
+        <!-- locationPrefix is set by MyEMFDatabase - upload -->
+        <init-param>
+            <param-name>directoryKeepDepth</param-name>
+            <param-value>2</param-value>
+        </init-param>
+        <init-param>
+            <param-name>fetchMethod</param-name>
+            <param-value>FILE</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
@@ -155,27 +165,11 @@
         <servlet-name>ProxySLDServlet</servlet-name>
         <url-pattern>/proxysld/*</url-pattern>
     </servlet-mapping>
-
-	<servlet>
-        <description>Servlet for incoming RESTful API calls</description>
-        <servlet-name>restapi</servlet-name>
-        <servlet-class>nl.b3p.kaartenbalie.service.servlet.CallAPIServlet</servlet-class>
-		<init-param> 
-            <param-name>sldFolder</param-name> 
-            <param-value>/srv/maps/vlaardingen/sld</param-value> 
-        </init-param> 
-        <init-param> 
-            <param-name>sldExtension</param-name> 
-            <param-value>xml</param-value>
-        </init-param>
-        <load-on-startup>4</load-on-startup>
-    </servlet>
     <servlet-mapping>
-        <servlet-name>restapi</servlet-name>
-        <url-pattern>/api/*</url-pattern>
+        <servlet-name>FileManager</servlet-name>
+        <url-pattern>/files/*</url-pattern>
     </servlet-mapping>
-
-	<servlet>
+    <servlet>
         <servlet-name>loginservlet</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.LoginServlet</servlet-class>
         <load-on-startup>5</load-on-startup>
@@ -184,8 +178,7 @@
         <servlet-name>loginservlet</servlet-name>
         <url-pattern>/login/*</url-pattern>
     </servlet-mapping>
-
-	<!-- ldap params -->
+    <!-- ldap params -->
     <context-param>
         <param-name>ldapUseLdap</param-name>
         <param-value>false</param-value>
@@ -206,14 +199,12 @@
         <param-name>ldapUserSuffix</param-name>
         <param-value>@vlaardingen.nl</param-value>
     </context-param>
-
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>
-
     <session-config>
         <session-timeout>
-            480
+            30
         </session-timeout>
     </session-config>
     <welcome-file-list>
