@@ -144,7 +144,7 @@
         </init-param>
         <init-param>
             <param-name>directoryKeepDepth</param-name>
-            <param-value>1</param-value>
+            <param-value>2</param-value>
         </init-param>
         <init-param>
             <param-name>fetchMethod</param-name>
@@ -152,7 +152,7 @@
         </init-param>
         <init-param>
             <param-name>servletPath</param-name>
-            <param-value>/files/</param-value>
+            <param-value>/files</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
