@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -281,11 +282,13 @@ public class CallScriptingServlet extends GeneralServlet {
      *
      * @param request The incoming request
      * @param em The entityManager
+     * @param pcode
      * @return The user Principal
      * @throws AccessDeniedException if the user can not be authenticated
      */
     @Override
-    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) throws AccessDeniedException {
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) 
+            throws AccessDeniedException {
         User user = (User) request.getUserPrincipal();
 
         if (user != null) {

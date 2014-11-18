@@ -525,7 +525,7 @@ public class UserTest extends KaartenbalieTestCase {
         HttpServletRequest request = new HttpServletRequestStub();
 
         try {
-            User.createCode(user, newDate, request);
+            User.createCode();
         } catch (Exception e) {
             fail("Exception : " + e.getLocalizedMessage());
         }

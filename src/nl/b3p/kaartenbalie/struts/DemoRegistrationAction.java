@@ -58,7 +58,7 @@ public class DemoRegistrationAction extends UserAction {
             user = new User();
             Calendar gc = new GregorianCalendar();
             gc.add(Calendar.MONTH, 1);
-            user.setPersonalURL(User.createCode(user, gc.getTime(), request));
+            user.setPersonalURL(User.createCode());
             user.setTimeout(gc.getTime());
         }
         populateUserForm(user, dynaForm, request);

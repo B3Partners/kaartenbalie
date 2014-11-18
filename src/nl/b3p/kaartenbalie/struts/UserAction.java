@@ -703,7 +703,7 @@ public class UserAction extends KaartenbalieCrudAction {
             return;
         }
 
-        user.setPersonalURL(User.createCode(user, newDate, request));
+        user.setPersonalURL(User.createCode());
         user.setTimeout(newDate);
         
         // Indien deze status nog op verlopen stond

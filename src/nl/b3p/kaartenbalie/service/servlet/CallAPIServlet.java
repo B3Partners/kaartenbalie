@@ -30,9 +30,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
+ * @Deprecated unsafe use FileManagerServlet
  * @author Boy de Wit, B3Partners
  */
+@Deprecated 
 public class CallAPIServlet extends GeneralServlet {
 
     public static String SLD_FOLDER;

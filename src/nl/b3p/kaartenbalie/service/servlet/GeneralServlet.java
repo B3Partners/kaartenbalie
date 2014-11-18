@@ -23,7 +23,6 @@ package nl.b3p.kaartenbalie.service.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -32,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.servlet.ServletConfig;
@@ -50,10 +50,8 @@ import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import nl.b3p.kaartenbalie.service.AccessDeniedException;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.kaartenbalie.util.LDAPUtil;
-import nl.b3p.ogc.sld.SldNode;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
-import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
 import nl.b3p.ogc.utils.OgcWfsClient;
@@ -138,41 +136,119 @@ abstract public class GeneralServlet extends HttpServlet {
      *
      * @return user object
      *
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
      * @throws AccessDeniedException
-     * @throws Exception
      */
-    protected User checkLogin(HttpServletRequest request, String pcode) throws NoSuchAlgorithmException, UnsupportedEncodingException, AccessDeniedException, Exception {
-        EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+    protected User checkLogin(HttpServletRequest request, String pcode) 
+            throws AccessDeniedException  {
 
-        return checkLogin(request, em, pcode);
+        return checkLogin4All(request, pcode);
+    }
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) 
+            throws AccessDeniedException {
+        return checkLogin4All(request, em, pcode);
     }
 
-    protected User checkLogin(HttpServletRequest request, EntityManager em,
-            String pcode) throws NoSuchAlgorithmException,
-            UnsupportedEncodingException, AccessDeniedException, Exception {
-
+    public static User checkLogin4All(HttpServletRequest request, String pcode)
+            throws AccessDeniedException {
         User user = null;
+        Object identity = null;
+        EntityTransaction tx = null;
 
-        /* Gebruiker al ingelogd en persoonlijke code hetzelfde ? */
-        if (user == null) {
-            user = (User) request.getUserPrincipal();
+        try {
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            tx = em.getTransaction();
 
-            if (user != null) {
-                String userCode = user.getPersonalURL();
-                if (pcode != null && userCode != null && !pcode.equals(userCode)) {
-                    user = null;
-                }
+            tx.begin();
+
+            user = checkLogin4All(request, em, pcode);
+
+            tx.commit();
+        } catch (AccessDeniedException ade) {
+            throw ade;
+            
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
             }
 
-            if (user != null) {
-                log.debug("Gebruiker " + user.getName() + " al ingelogd via cookie.");
+            return null;
+        } finally {
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+        }
+
+        return user;
+    }
+
+    public static User checkLogin4All(HttpServletRequest request, EntityManager em,
+            String pcode) throws AccessDeniedException  {
+        User user = checkLoginAlreadyLoggedIn(request, em, pcode);
+        
+        if (user == null) {
+            user = checkLoginPersonalCode(request, em, pcode);
+        }
+        if (user == null) {
+            user = checkLoginPreemptiveAuthentication(request, em);
+        }
+        if (user == null) {
+            user = checkLoginLDAP(request, em);
+        }
+
+        /* Nog steeds geen user ? */
+        if (user == null) {
+            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, preemptive header, cookie of ldap. Try Basic Authentication challenge");
+        }
+
+        /* Controleer ip adressen */
+        boolean isValidIp = checkValidIpAddress(request, user);
+        if (!isValidIp) {
+            String remoteAddress = request.getRemoteAddr();
+            log.debug("Ip adres " + remoteAddress + " ongeldig"
+                    + " voor gebruiker " + user.getName());
+            setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
+            return null;
+        }
+        /* Controleer time out */
+        boolean expired = checkUserTimeExpired(em, user);
+        if (expired) {
+            setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
+            log.debug("Account van " + user.getUsername() + " is verlopen.");
+            return null;
+        }
+
+        /* Er is een user. loginstatus aanpassen */
+        setDetachedUserLastLoginStatus(user, null, em);
+        log.debug("Gebruiker " + user.getName() + " mag inloggen.");
+
+        return user;        
+    }
+
+    protected static User checkLoginAlreadyLoggedIn(HttpServletRequest request, EntityManager em,
+            String pcode) {
+
+        /* Gebruiker al ingelogd en persoonlijke code hetzelfde ? */
+        User user = (User) request.getUserPrincipal();
+
+        if (user != null) {
+            String userCode = user.getPersonalURL();
+            if (pcode != null && userCode != null && !pcode.equals(userCode)) {
+                user = null;
             }
         }
 
+        if (user != null) {
+            log.debug("Gebruiker " + user.getName() + " al ingelogd via cookie.");
+        }
+
+        return user;
+    }
+
+    protected static User checkLoginPersonalCode(HttpServletRequest request, EntityManager em,
+            String pcode) {
+
         /* Zoek gebruiker via persoonlijke code */
-        if (user == null) {
+        User user = null;
+        if (pcode != null) {
             try {
                 user = (User) em.createQuery(
                         "from User u where u.personalURL = :personalURL")
@@ -190,123 +266,101 @@ abstract public class GeneralServlet extends HttpServlet {
                 log.debug("Persoonlijke code gevonden bij gebruiker: " + user.getName());
             }
         }
+        return user;
+    }
+
+    protected static User checkLoginPreemptiveAuthentication(HttpServletRequest request, EntityManager em) {
 
         /* Zoek gebruiker via Preemptive authentication */
-        if (user == null) {
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader != null) {
-                String decoded = decodeBasicAuthorizationString(authorizationHeader);
-                String username = parseUsername(decoded);
-                String password = parsePassword(decoded);
+        User user = null;
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null) {
+            String decoded = decodeBasicAuthorizationString(authorizationHeader);
+            String username = parseUsername(decoded);
+            String password = parsePassword(decoded);
 
-                String encpw = null;
-                try {
-                    encpw = KBCrypter.encryptText(password);
-                } catch (Exception ex) {
-                    log.error("Fout tijdens encrypten wachtwoord: ", ex);
-                }
+            String encpw = null;
+            try {
+                encpw = KBCrypter.encryptText(password);
+            } catch (Exception ex) {
+                log.error("Fout tijdens encrypten wachtwoord: ", ex);
+            }
+            try {
+                user = (User) em.createQuery(
+                        "from User u where "
+                        + "lower(u.username) = lower(:username) "
+                        + "and u.password = :password")
+                        .setParameter("username", username)
+                        .setParameter("password", encpw)
+                        .getSingleResult();
+            } catch (NonUniqueResultException nue) {
+                log.error("Meerdere gebruikers gevonden via encrypted wachtwoord.");
+                user = null;
+            } catch (NoResultException nre) {
+                log.debug("Geen gebruiker gevonden via encrypted wachtwoord.");
+                user = null;
+            }
+
+            // extra check voor oude non-encrypted passwords
+            if (user == null) {
                 try {
                     user = (User) em.createQuery(
                             "from User u where "
                             + "lower(u.username) = lower(:username) "
-                            + "and u.password = :password")
+                            + "and lower(u.password) = lower(:password)")
                             .setParameter("username", username)
-                            .setParameter("password", encpw)
+                            .setParameter("password", password)
                             .getSingleResult();
+
+                    // Volgende keer dus wel encrypted
+                    user.setPassword(encpw);
+                    em.merge(user);
+                    em.flush();
                 } catch (NonUniqueResultException nue) {
-                    log.error("Meerdere gebruikers gevonden via encrypted wachtwoord.");
+                    log.error("Meerdere gebruikers gevonden via plain wachtwoord.");
                     user = null;
                 } catch (NoResultException nre) {
-                    log.debug("Geen gebruiker gevonden via encrypted wachtwoord.");
+                    log.debug("Geen gebruiker gevonden via plain wachtwoord.");
+                    user = null;
+                }
+            }
+
+            /* Controleer ingevuld wachtwoord met db gebruiker wachtwoord */
+            if (user == null) {
+                try {
+                    user = (User) em.createQuery(
+                            "from User u where "
+                            + "lower(u.username) = lower(:username) ")
+                            .setParameter("username", username)
+                            .getSingleResult();
+                } catch (NoResultException nre) {
+                    log.debug("Gebruiker " + username + " niet gevonden in db.");
                     user = null;
                 }
 
-                // extra check voor oude non-encrypted passwords
-                if (user == null) {
-                    try {
-                        user = (User) em.createQuery(
-                                "from User u where "
-                                + "lower(u.username) = lower(:username) "
-                                + "and lower(u.password) = lower(:password)")
-                                .setParameter("username", username)
-                                .setParameter("password", password)
-                                .getSingleResult();
+                if (user != null && !user.getPassword().equals(encpw)) {
+                    user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW);
 
-                        // Volgende keer dus wel encrypted
-                        user.setPassword(encpw);
-                        em.merge(user);
-                        em.flush();
-                    } catch (NonUniqueResultException nue) {
-                        log.error("Meerdere gebruikers gevonden via plain wachtwoord.");
-                        user = null;
-                    } catch (NoResultException nre) {
-                        log.debug("Geen gebruiker gevonden via plain wachtwoord.");
-                        user = null;
-                    }
-                }
+                    em.merge(user);
+                    em.flush();
 
-                /* Controleer ingevuld wachtwoord met db gebruiker wachtwoord */
-                if (user == null) {
-                    try {
-                        user = (User) em.createQuery(
-                                "from User u where "
-                                + "lower(u.username) = lower(:username) ")
-                                .setParameter("username", username)
-                                .getSingleResult();
-                    } catch (NoResultException nre) {
-                        log.debug("Gebruiker " + username + " niet gevonden in db.");
-                        user = null;
-                    }
-
-                    if (user != null && !user.getPassword().equals(encpw)) {
-                        user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW);
-
-                        em.merge(user);
-                        em.flush();
-
-                        log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
-                        user = null;
-                    }
+                    log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
+                    user = null;
                 }
             }
-
-            if (user != null) {
-                log.debug("Basic authentication gelukt voor gebruiker: " + user.getName());
-            }
         }
 
-        /* Controleer ip adressen */
         if (user != null) {
-            boolean isValidIp = checkValidIpAddress(request, user);
-
-            if (!isValidIp) {
-                String remoteAddress = request.getRemoteAddr();
-
-                log.debug("Ip adres " + remoteAddress + " ongeldig"
-                        + " voor gebruiker " + user.getName());
-
-                setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
-
-                return null;
-            }
+            log.debug("Basic authentication gelukt voor gebruiker: " + user.getName());
         }
+        return user;
+    }
 
-        /* Controleer time out */
-        if (user != null) {
-            boolean expired = checkUserTimeExpired(em, user);
-
-            if (expired) {
-                setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
-
-                log.debug("Account van " + user.getUsername() + " is verlopen.");
-
-                return null;
-            }
-        }
-
+    protected static User checkLoginLDAP(HttpServletRequest request, EntityManager em) {
         /* Probeer LDAP bind, ldapUseLdap is param in web.xml */
+        User user = null;
         String authorizationHeader = request.getHeader("Authorization");
-        if (user == null && ldapUseLdap != null && ldapUseLdap
+        if (ldapUseLdap != null && ldapUseLdap
                 && authorizationHeader != null) {
 
             LDAPUtil ldapUtil = new LDAPUtil();
@@ -326,7 +380,7 @@ abstract public class GeneralServlet extends HttpServlet {
             if (inLdap && user == null) {
                 user = new User();
                 user.setUsername(username);
-                user.setPassword("!XldapY159");
+                user.setPassword(User.createCode());
 
                 List<Roles> gebruikerRol = ldapUtil.getGebruikerRol(em);
                 user.getRoles().retainAll(gebruikerRol);
@@ -336,7 +390,7 @@ abstract public class GeneralServlet extends HttpServlet {
                 ips.add("0.0.0.0");
                 user.setIps(ips);
 
-                String personalUrl = User.createCode(user, new Date(), request);
+                String personalUrl = User.createCode();
                 user.setPersonalURL(personalUrl);
 
                 if (ldapDefaultGroup != null && !ldapDefaultGroup.isEmpty()) {
@@ -380,20 +434,10 @@ abstract public class GeneralServlet extends HttpServlet {
             /* case 4: niet in ldap, niet in db, niets doen */
             log.debug("Gebruiker " + username + " niet in Ldap en niet in db.");
         }
-
-        /* Nog steeds geen user ? */
-        if (user == null) {
-            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, preemptive header, cookie of ldap. Try Basic Authentication challenge");
-        }
-
-        /* Er is een user. loginstatus aanpassen */
-        setDetachedUserLastLoginStatus(user, null, em);
-        log.debug("Gebruiker " + user.getName() + " mag inloggen.");
-
         return user;
     }
 
-    private void setDetachedUserLastLoginStatus(User user, String status,
+    private static void setDetachedUserLastLoginStatus(User user, String status,
             EntityManager em) {
 
         user.setLastLoginStatus(status);
@@ -404,7 +448,7 @@ abstract public class GeneralServlet extends HttpServlet {
                 .executeUpdate();
     }
 
-    private boolean checkValidIpAddress(HttpServletRequest request, User user) {
+    private static boolean checkValidIpAddress(HttpServletRequest request, User user) {
 
         /* ip adressen van user die bij pcode hoort worden gechecked
          dit hoeven dus niet perse de ip adressen te zijn van de user
@@ -461,7 +505,7 @@ abstract public class GeneralServlet extends HttpServlet {
         return validip;
     }
 
-    private boolean checkUserTimeExpired(EntityManager em, User user) {
+    private static boolean checkUserTimeExpired(EntityManager em, User user) {
         if (user != null) {
             java.util.Date date = user.getTimeout();
 
@@ -476,7 +520,7 @@ abstract public class GeneralServlet extends HttpServlet {
     /* This function should only be called when ip contains an asterisk. This
      is the case when someone has given an ip to a user with an asterisk
      eq. 10.0.0.*  */
-    protected boolean isRemoteAddressWithinIpRange(String ip, String remote) {
+    protected static boolean isRemoteAddressWithinIpRange(String ip, String remote) {
         if (ip == null || remote == null) {
             return false;
         }
@@ -622,7 +666,7 @@ abstract public class GeneralServlet extends HttpServlet {
      * @param decoded
      * @return username parsed out of decoded string
      */
-    protected String parseUsername(String decoded) {
+    protected static String parseUsername(String decoded) {
         if (decoded == null) {
             return null;
         } else {
@@ -641,7 +685,7 @@ abstract public class GeneralServlet extends HttpServlet {
      * @param decoded
      * @return password parsed out of decoded string
      */
-    protected String parsePassword(String decoded) {
+    protected static String parsePassword(String decoded) {
         if (decoded == null) {
             return null;
         } else {
@@ -660,7 +704,7 @@ abstract public class GeneralServlet extends HttpServlet {
      * @param authorization
      * @return decoded string
      */
-    protected String decodeBasicAuthorizationString(String authorization) {
+    protected static String decodeBasicAuthorizationString(String authorization) {
         if (authorization == null || !authorization.toLowerCase().startsWith("basic ")) {
             return null;
         } else {

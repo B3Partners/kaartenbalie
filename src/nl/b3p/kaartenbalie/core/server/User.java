@@ -31,8 +31,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
-import nl.b3p.commons.services.FormUtils;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.wms.capabilities.Roles;
@@ -361,20 +362,22 @@ public class User implements Principal {
         return true;
     }
 
-    public static String createCode(User user, Date newDate, HttpServletRequest request) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static String createCode() {
         Random rd = new Random();
-        StringBuffer toBeHashedString = new StringBuffer();
-        // TODO: username en wachtwoord zijn niet nodig, verwijderen uit hash?
-//        toBeHashedString.append(user.getUsername());
-//        toBeHashedString.append(user.getPassword());
-        toBeHashedString.append(FormUtils.DateToFormString(newDate, request.getLocale()));
+        StringBuilder toBeHashedString = new StringBuilder();
+        toBeHashedString.append((new Date()).toString());
         toBeHashedString.append(rd.nextLong());
 
-        MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
-        md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
-
-
-        byte[] md5hash = md.digest();
-        return new String(Hex.encodeHex(md5hash));
+        byte[] hash = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance(KBConfiguration.MD_ALGORITHM);
+            md.update(toBeHashedString.toString().getBytes(KBConfiguration.CHARSET));
+            hash = md.digest();
+        } catch (Exception ex) {
+            log.info("Can not create hash (ignoring): " + ex.getLocalizedMessage());
+            hash = toBeHashedString.toString().getBytes();
+        }
+ 
+        return new String(Hex.encodeHex(hash));
     }
 }
