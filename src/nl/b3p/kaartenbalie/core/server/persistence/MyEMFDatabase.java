@@ -22,7 +22,6 @@
 package nl.b3p.kaartenbalie.core.server.persistence;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +31,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import nl.b3p.kaartenbalie.core.server.accounting.AccountManager;
@@ -40,6 +40,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class MyEMFDatabase extends HttpServlet {
+    
+    //context params
+    public static final String MAPFILE_DIR = "global.mapfile.dir";
+    public static final String UPLOAD_DIR = "global.upload.dir";
+    public static final String DEFAULT_ORGANIZATION = "default.organization";
+    public static final String LDAP_USELDAP = "ldap.useldap";
+    public static final String LDAP_DEFAULTGROUP = "ldap.default.group";
+    public static final String LDAP_HOST = "ldap.host";
+    public static final String LDAP_PORT = "ldap.port";
+    public static final String LDAP_USERSUFFIX = "ldap.usersuffix";
+    
+    private static String mapfiles = null;
+    private static String upload = null;
+    private static String defaultOrganization = null;
+    private static Boolean ldapUseLdap = false;
+    private static String ldapDefaultGroup = null;
+    private static String ldapHost = null;
+    private static Integer ldapPort = null;
+    private static String ldapUserSuffix = null;
 
     private static final Log log = LogFactory.getLog(MyEMFDatabase.class);
     public static final String MAIN_EM = "mainEM";
@@ -52,8 +71,6 @@ public class MyEMFDatabase extends HttpServlet {
     private static String defaultKaartenbaliePU = "defaultKaartenbaliePU";
     private static String cachePath = null;
     private static Random rg = null;
-    private static String mapfiles = null;
-    private static String upload = null;
     private static String[] allowedUploadFiles = null;
 
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
@@ -122,55 +139,55 @@ public class MyEMFDatabase extends HttpServlet {
         }
 
         rg = new Random();
-
-        // Mapfiles path for Beheer->servers
-        File checkFile = null;
-
-        String value = config.getInitParameter("mapfiles");
-        if (value != null && value.length() > 0) {
-            mapfiles = value;
-        }
-        if (getMapfiles() == null) {
-            mapfiles = getServletContext().getRealPath("/mapfiles/");
-        }
-
-        try {
-            checkFile = new File(getMapfiles());
-            if (!checkFile.isDirectory()) {
-                log.debug("Creating folder for mapfiles: " + checkFile.getCanonicalPath());
-                checkFile.mkdirs();
-            }
-        } catch (IOException ex) {
-            throw new ServletException(ex);
-        }
-        
-        // upload path for Beheer->services
-        File checkUpload = null;
-
-        String valueUpload = config.getInitParameter("upload");
-        if (valueUpload != null && valueUpload.length() > 0) {
-            upload = valueUpload;
-        }
-        if (getUpload() == null) {
-            upload = getServletContext().getRealPath("/upload/");
-        }
-
-        try {
-            checkUpload = new File(getUpload());
-            if (!checkUpload.isDirectory()) {
-                log.debug("Creating folder for upload: " + checkFile.getCanonicalPath());
-                checkUpload.mkdirs();
-            }
-        } catch (IOException ex) {
-            throw new ServletException(ex);
-        }
         
         String allowedUpload = config.getInitParameter("allowed_upload_files");
         if(allowedUpload != null && allowedUpload.length() > 0){
             allowedUploadFiles = allowedUpload.split(",");
         }
-    }
+        
+        // load global context params
+        initGlobalContextParams(config);
 
+     }
+
+    public void initGlobalContextParams(ServletConfig config) {
+       ServletContext context = config.getServletContext();
+        
+        String value = context.getInitParameter(MyEMFDatabase.MAPFILE_DIR);
+        if (value != null && value.length() > 0) {
+            mapfiles = value;
+        }
+        value = context.getInitParameter(MyEMFDatabase.UPLOAD_DIR);
+        if (value != null && value.length() > 0) {
+            upload = value;
+        }
+        value = context.getInitParameter(MyEMFDatabase.DEFAULT_ORGANIZATION);
+        if (value != null && value.length() > 0) {
+            defaultOrganization = value;
+        }
+
+        value = context.getInitParameter(MyEMFDatabase.LDAP_USELDAP);
+        if (value != null && value.length() > 0) {
+            ldapUseLdap = new Boolean(value);
+        }
+        value = context.getInitParameter(MyEMFDatabase.LDAP_DEFAULTGROUP);
+        if (value != null && value.length() > 0) {
+            ldapDefaultGroup = value;
+        }
+        value = context.getInitParameter(MyEMFDatabase.LDAP_HOST);
+        if (value != null && value.length() > 0) {
+            ldapHost = value;
+        }
+        value = context.getInitParameter(MyEMFDatabase.LDAP_PORT);
+        if (value != null && value.length() > 0) {
+            ldapPort = new Integer(value);
+        }
+        value = context.getInitParameter(MyEMFDatabase.LDAP_USERSUFFIX);
+        if (value != null && value.length() > 0) {
+            ldapUserSuffix = value;
+        }
+    }
+    
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
         String tmpval = config.getInitParameter(parameter);
         if (tmpval == null || tmpval.trim().length() == 0) {
@@ -334,6 +351,10 @@ public class MyEMFDatabase extends HttpServlet {
         return thePath + prefix + val1 + val2 + extension;
     }
 
+    public static String[] getAllowedUploadFiles() {
+        return allowedUploadFiles;
+    }
+
     public static String getMapfiles() {
         return mapfiles;
     }
@@ -342,7 +363,45 @@ public class MyEMFDatabase extends HttpServlet {
         return upload;
     }
 
-    public static String[] getAllowedUploadFiles() {
-        return allowedUploadFiles;
+    /**
+     * @return the defaultOrganization
+     */
+    public static String getDefaultOrganization() {
+        return defaultOrganization;
+    }
+
+    /**
+     * @return the ldapUseLdap
+     */
+    public static Boolean getLdapUseLdap() {
+        return ldapUseLdap;
+    }
+
+    /**
+     * @return the ldapDefaultGroup
+     */
+    public static String getLdapDefaultGroup() {
+        return ldapDefaultGroup;
+    }
+
+    /**
+     * @return the ldapHost
+     */
+    public static String getLdapHost() {
+        return ldapHost;
+    }
+
+    /**
+     * @return the ldapPort
+     */
+    public static Integer getLdapPort() {
+        return ldapPort;
+    }
+
+    /**
+     * @return the ldapUserSuffix
+     */
+    public static String getLdapUserSuffix() {
+        return ldapUserSuffix;
     }
 }

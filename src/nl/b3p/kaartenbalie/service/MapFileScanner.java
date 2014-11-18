@@ -38,8 +38,6 @@ import org.apache.commons.vfs2.impl.DefaultFileMonitor;
  * @author Meine Toonen meinetoonen@b3partners.nl
  */
 public class MapFileScanner implements ServletContextListener {
-    private static final String PARAM_DIRECTORY = "MapFileScanner.scandirectory";
-    private static final String PARAM_ORGANIZATION = "MapFileScanner.organization";
 
     private Log log = LogFactory.getLog(this.getClass());;
     private static String scandirectory;
@@ -69,11 +67,8 @@ public class MapFileScanner implements ServletContextListener {
     }
     
     private void init(){
-        scandirectory = context.getInitParameter(PARAM_DIRECTORY);
-        if (scandirectory == null || scandirectory.isEmpty()) {
-            scandirectory =  MyEMFDatabase.getMapfiles();
-        }
-        organization = context.getInitParameter(PARAM_ORGANIZATION);
+        scandirectory = context.getInitParameter(MyEMFDatabase.MAPFILE_DIR);
+        organization = context.getInitParameter(MyEMFDatabase.DEFAULT_ORGANIZATION);
     }
 
     public void contextDestroyed(ServletContextEvent sce) {

@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context antiJARLocking="true" path="/kaartenbalie">
     
-<Resource
-    name="jdbc/kaartenbalie"
-    auth="Container" 
-    type="javax.sql.DataSource" 
-    factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
-    testWhileIdle="true"
-    testOnBorrow="true"
-    testOnReturn="false"
-    validationQuery="SELECT 1"
-    validationInterval="30000"
-    timeBetweenEvictionRunsMillis="30000"
-    maxActive="50" 
-    minIdle="10" 
-    maxWait="10000"
-    initialSize="10"
-    removeAbandonedTimeout="60"
-    removeAbandoned="true"
-    logAbandoned="true"
-    minEvictableIdleTimeMillis="30000" 
-    jmxEnabled="true"
-    username="postgres" 
-    password="***REMOVED***" 
-    driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5433/solparc_kaartenbalie"
-/>
-
+    <Resource
+        name="jdbc/kaartenbalie"
+        auth="Container" 
+        type="javax.sql.DataSource" 
+        factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+        testWhileIdle="true"
+        testOnBorrow="true"
+        testOnReturn="false"
+        validationQuery="SELECT 1"
+        validationInterval="30000"
+        timeBetweenEvictionRunsMillis="30000"
+        maxActive="50" 
+        minIdle="10" 
+        maxWait="10000"
+        initialSize="10"
+        removeAbandonedTimeout="60"
+        removeAbandoned="true"
+        logAbandoned="true"
+        minEvictableIdleTimeMillis="30000" 
+        jmxEnabled="true"
+        username="postgres" 
+        password="***REMOVED***" 
+        driverClassName="org.postgresql.Driver"
+        url="jdbc:postgresql://localhost:5433/solparc_kaartenbalie"
+    />
+    <Parameter name="global.mapfile.dir" value="/mnt/data/maps" override="false"/>
+    <Parameter name="global.upload.dir" value="/mnt/data/maps/upload" override="false"/>
+    <Parameter name="default.organization" value="bridge" override="false"/>
+    <Parameter name="ldap.useldap" value="false" override="false"/>
+    <Parameter name="ldap.default.group" value="ldap" override="false"/>
+    <Parameter name="ldap.host" value="localhost" override="false"/>
+    <Parameter name="ldap.port" value="9999" override="false"/>
+    <Parameter name="ldap.usersuffix" value="@b3p.lok" override="false"/>
 </Context>

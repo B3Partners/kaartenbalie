@@ -23,7 +23,6 @@ package nl.b3p.kaartenbalie.service.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -35,7 +34,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -65,12 +63,6 @@ import org.xml.sax.SAXException;
 abstract public class GeneralServlet extends HttpServlet {
 
     protected static Log log = LogFactory.getLog(GeneralServlet.class);
-
-    private static Boolean ldapUseLdap;
-    private static String ldapDefaultGroup;
-    private static String ldapHost;
-    private static Integer ldapPort;
-    private static String ldapUserSuffix;
 
     /**
      * Processes the incoming request and calls the various methods to create
@@ -360,7 +352,7 @@ abstract public class GeneralServlet extends HttpServlet {
         /* Probeer LDAP bind, ldapUseLdap is param in web.xml */
         User user = null;
         String authorizationHeader = request.getHeader("Authorization");
-        if (ldapUseLdap != null && ldapUseLdap
+        if (MyEMFDatabase.getLdapUseLdap() != null && MyEMFDatabase.getLdapUseLdap()
                 && authorizationHeader != null) {
 
             LDAPUtil ldapUtil = new LDAPUtil();
@@ -370,8 +362,12 @@ abstract public class GeneralServlet extends HttpServlet {
             String password = parsePassword(decoded);
 
             // check if user is in ldap
-            boolean inLdap = ldapUtil.userInLdap(ldapHost, ldapPort, username,
-                    password, ldapUserSuffix);
+            boolean inLdap = ldapUtil.userInLdap(
+                    MyEMFDatabase.getLdapHost(), 
+                    MyEMFDatabase.getLdapPort(), 
+                    username,
+                    password, 
+                    MyEMFDatabase.getLdapUserSuffix());
 
             // check if username already in kaartenbalie database
             user = ldapUtil.getUserByName(em, username);
@@ -393,8 +389,10 @@ abstract public class GeneralServlet extends HttpServlet {
                 String personalUrl = User.createCode();
                 user.setPersonalURL(personalUrl);
 
-                if (ldapDefaultGroup != null && !ldapDefaultGroup.isEmpty()) {
-                    Organization org = ldapUtil.getLDAPOrg(em, ldapDefaultGroup);
+                if (MyEMFDatabase.getLdapDefaultGroup() != null 
+                        && !MyEMFDatabase.getLdapDefaultGroup().isEmpty()) {
+                    Organization org = ldapUtil.getLDAPOrg(em, 
+                            MyEMFDatabase.getLdapDefaultGroup());
                     user.setMainOrganization(org);
                 }
 
@@ -721,23 +719,6 @@ abstract public class GeneralServlet extends HttpServlet {
         log = LogFactory.getLog(this.getClass());
         log.debug("Initializing GeneralServlet");
 
-        ServletContext context = config.getServletContext();
-
-        if (context.getInitParameter("ldapUseLdap") != null) {
-            ldapUseLdap = new Boolean(context.getInitParameter("ldapUseLdap"));
-        }
-        if (context.getInitParameter("ldapDefaultGroup") != null) {
-            ldapDefaultGroup = context.getInitParameter("ldapDefaultGroup");
-        }
-        if (context.getInitParameter("ldapHost") != null) {
-            ldapHost = context.getInitParameter("ldapHost");
-        }
-        if (context.getInitParameter("ldapPort") != null) {
-            ldapPort = new Integer(context.getInitParameter("ldapPort"));
-        }
-        if (context.getInitParameter("ldapUserSuffix") != null) {
-            ldapUserSuffix = context.getInitParameter("ldapUserSuffix");
-        }
     }
 
     /**

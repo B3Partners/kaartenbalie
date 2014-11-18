@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <!-- use override = false and set these parameters in context.xml -->
+    <!-- no need to change these parameters for deploy -->
+    <!-- shared path params -->
+    <context-param>
+        <param-name>global.mapfile.dir</param-name>
+        <param-value>/mnt/data/maps</param-value>
+    </context-param>
+    <context-param>
+        <param-name>global.upload.dir</param-name>
+        <param-value>/mnt/data/maps/upload</param-value>
+    </context-param>
+    <!-- mapscanner params -->
+    <context-param>
+        <description>
+            Organization for adding services
+        </description>
+        <param-name>default.organization</param-name>
+        <param-value>bridge</param-value>
+    </context-param>
+    <!-- ldap params -->
+    <context-param>
+        <param-name>ldap.useldap</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldap.default.group</param-name>
+        <param-value>ldap</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldap.host</param-name>
+        <param-value>localhost</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldap.port</param-name>
+        <param-value>9999</param-value>
+    </context-param>
+    <context-param>
+        <param-name>ldap.usersuffix</param-name>
+        <param-value>@b3p.lok</param-value>
+    </context-param>
     <!-- Localization context voor o.a. de <fmt:message> JSTL tag -->
     <context-param>
         <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
@@ -9,13 +49,6 @@
     <context-param>
         <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
         <param-value>nl</param-value>
-    </context-param>
-    <context-param>
-        <description>
-            Organization for adding services
-        </description>
-        <param-name>MapFileScanner.organization</param-name>
-        <param-value>bridge</param-value>
     </context-param>
     <filter>
         <filter-name>Security Filter</filter-name>
@@ -51,14 +84,6 @@
         <init-param>
             <param-name>cache</param-name>
             <param-value>/WEB-INF/xml</param-value>
-        </init-param>
-        <init-param>
-            <param-name>mapfiles</param-name>
-            <param-value>/mnt/data/maps</param-value>
-        </init-param>
-        <init-param>
-            <param-name>upload</param-name>
-            <param-value>/mnt/data/maps/upload</param-value>
         </init-param>
         <init-param>
             <param-name>allowed_upload_files</param-name>
@@ -131,7 +156,6 @@
         </description>
         <servlet-name>FileManager</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.UpDownloadServlet</servlet-class>
-        <!-- locationPrefix is set by MyEMFDatabase - upload -->
         <init-param>
             <param-name>directoryKeepDepth</param-name>
             <param-value>2</param-value>
@@ -178,27 +202,6 @@
         <servlet-name>loginservlet</servlet-name>
         <url-pattern>/login/*</url-pattern>
     </servlet-mapping>
-    <!-- ldap params -->
-    <context-param>
-        <param-name>ldapUseLdap</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ldapDefaultGroup</param-name>
-        <param-value>ldap</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ldapHost</param-name>
-        <param-value>localhost</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ldapPort</param-name>
-        <param-value>9999</param-value>
-    </context-param>
-    <context-param>
-        <param-name>ldapUserSuffix</param-name>
-        <param-value>@b3p.lok</param-value>
-    </context-param>
     <listener>
         <listener-class>nl.b3p.kaartenbalie.service.MapFileScanner</listener-class>
     </listener>
