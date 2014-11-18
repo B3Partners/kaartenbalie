@@ -12,13 +12,6 @@
     </context-param>
     <context-param>
         <description>
-            Configure in which directory the mapfilescanner must listen.
-        </description>
-        <param-name>MapFileScanner.scandirectory</param-name>
-        <param-value>/mnt/data/downloads</param-value>
-    </context-param>
-    <context-param>
-        <description>
             Organization for adding services
         </description>
         <param-name>MapFileScanner.organization</param-name>
@@ -138,10 +131,7 @@
         </description>
         <servlet-name>FileManager</servlet-name>
         <servlet-class>nl.b3p.kaartenbalie.service.servlet.UpDownloadServlet</servlet-class>
-        <init-param>
-            <param-name>locationPrefix</param-name>
-            <param-value>/mnt/data/downloads</param-value>
-        </init-param>
+        <!-- locationPrefix is set by MyEMFDatabase - upload -->
         <init-param>
             <param-name>directoryKeepDepth</param-name>
             <param-value>2</param-value>
