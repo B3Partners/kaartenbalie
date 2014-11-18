@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.FileObject;
@@ -69,6 +70,9 @@ public class MapFileScanner implements ServletContextListener {
     
     private void init(){
         scandirectory = context.getInitParameter(PARAM_DIRECTORY);
+        if (scandirectory == null || scandirectory.isEmpty()) {
+            scandirectory =  MyEMFDatabase.getMapfiles();
+        }
         organization = context.getInitParameter(PARAM_ORGANIZATION);
     }
 

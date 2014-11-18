@@ -125,7 +125,7 @@ public class CallScriptingServlet extends GeneralServlet {
                 String pcode = ogcrequest.getPersonalCode();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request, pcode);
+                User user = checkLogin(request, em, pcode);
 
                 if (ogcrequest != null) {
                     ogcrequest.checkRequestURL();

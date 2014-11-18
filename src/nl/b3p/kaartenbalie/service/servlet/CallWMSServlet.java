@@ -129,7 +129,7 @@ public class CallWMSServlet extends GeneralServlet {
                 String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request, personalCode);
+                User user = checkLogin(request, em, personalCode);
                 
                 ogcrequest.checkRequestURL();
                 
