@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <!-- use override = false and set these parameters in context.xml -->
-    <!-- no need to change these parameters for deploy -->
-    <!-- shared path params -->
+    <!-- set these parameters in context.xml and use override = false -->
+    <!-- no need to change these parameters here for deploy 
     <context-param>
+        <description>
+            hier worden de mapfiles geplaatst door o.a. bridge, deze mapfiles 
+            zijn binnen kaartenbalie tab zichtbaar en kunnen daar geladen worden, 
+            deze map is verder alleen toegankelijk via mapserver zelf.
+        </description>
         <param-name>global.mapfile.dir</param-name>
         <param-value>/mnt/data/maps</param-value>
     </context-param>
     <context-param>
+        <description>
+            hier worden sld's en andere hulpbestanden zoals icoon-plaatjes 
+            geplaatst, dit gaat via o.a. QGIS plugin. Deze map is via een 
+            Filemanager servlet toegankelijk vanaf buiten, deze map is normaal 
+            een submap van de hier boven genoemde map.
+        </description>
         <param-name>global.upload.dir</param-name>
         <param-value>/mnt/data/maps/upload</param-value>
     </context-param>
-    <!-- mapscanner params -->
     <context-param>
         <description>
             Organization for adding services
@@ -19,7 +28,6 @@
         <param-name>default.organization</param-name>
         <param-value>bridge</param-value>
     </context-param>
-    <!-- ldap params -->
     <context-param>
         <param-name>ldap.useldap</param-name>
         <param-value>false</param-value>
@@ -39,7 +47,7 @@
     <context-param>
         <param-name>ldap.usersuffix</param-name>
         <param-value>@b3p.lok</param-value>
-    </context-param>
+    </context-param> -->
     <!-- Localization context voor o.a. de <fmt:message> JSTL tag -->
     <context-param>
         <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
@@ -207,7 +215,7 @@
     </listener>
     <session-config>
         <session-timeout>
-            30
+            480
         </session-timeout>
     </session-config>
     <welcome-file-list>
