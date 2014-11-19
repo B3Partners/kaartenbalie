@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-  <Resource
-  	auth="Container"
-  	driverClassName="org.postgresql.Driver"
-  	logAbandoned="true"
-  	maxActive="100"
-  	maxIdle="30"
-  	maxWait="10000"
-  	name="jdbc/kaartenbalie"
-  	username="kaartenbalie"
-  	password="qs3209ig"
-  	removeAbandoned="true"
-  	removeAbandonedTimeout="60"
-  	type="javax.sql.DataSource"
-  	url="jdbc:postgresql://dbhost/kaartenbalie"
-  	validationQuery="select 1"
-	minEvictableIdleTimeMillis="10000"
-	timeBetweenEvictionRunsMillis="60000"
-  />
+	<Resource auth="Container" driverClassName="org.postgresql.Driver" logAbandoned="true" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/kaartenbalie" username="kaartenbalie" password="qs3209ig" removeAbandoned="true" removeAbandonedTimeout="60" type="javax.sql.DataSource" url="jdbc:postgresql://dbhost/kaartenbalie" validationQuery="select 1" minEvictableIdleTimeMillis="10000" timeBetweenEvictionRunsMillis="60000"/>
+	<!-- hier worden de mapfiles geplaatst door o.a. bridge, deze mapfiles 
+         zijn binnen kaartenbalie tab zichtbaar en kunnen daar geladen worden, 
+         deze map is verder alleen toegankelijk via mapserver zelf. -->
+	<Parameter name="global.mapfile.dir" value="/export/www/dro/mapserver/maps" override="false"/>
+	<!-- hier worden sld's en andere hulpbestanden zoals icoon-plaatjes 
+         geplaatst, dit gaat via o.a. QGIS plugin. Deze map is via een 
+         Filemanager servlet toegankelijk vanaf buiten, deze map is normaal 
+         een submap van de hier boven genoemde map. -->
+	<Parameter name="global.upload.dir" value="/export/www/dro/mapserver/maps/upload" override="false"/>
+	<!-- bij import van mapfiles via sanner worden rechten aan deze organisatie toegekend -->
+	<Parameter name="default.organization" value="bridge" override="false"/>
+	<!-- LDAP configuratie -->
+	<Parameter name="ldap.useldap" value="false" override="false"/>
+	<Parameter name="ldap.default.group" value="ldap" override="false"/>
+	<Parameter name="ldap.host" value="localhost" override="false"/>
+	<Parameter name="ldap.port" value="9999" override="false"/>
+	<Parameter name="ldap.usersuffix" value="@b3p.lok" override="false"/>
 </Context>
