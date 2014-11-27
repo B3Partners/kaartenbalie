@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-	<Resource auth="Container" driverClassName="oracle.jdbc.driver.OracleDriver" logAbandoned="true" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/kaartenbalie" username="KAARTENBALIE" password="JeXLmTPn8x" removeAbandoned="true" removeAbandonedTimeout="60" type="javax.sql.DataSource" url="jdbc:oracle:thin:@s-daor23:1521:Dwhgeot" minEvictableIdleTimeMillis="10000" timeBetweenEvictionRunsMillis="60000"/>
+<Resource
+	auth="Container"
+	driverClassName="oracle.jdbc.driver.OracleDriver"
+	logAbandoned="true"
+	maxActive="100"
+	maxIdle="30"
+	maxWait="10000"
+	name="jdbc/kaartenbalie"
+	username="KAARTENBALIE"
+	password="JeXLmTPn8x"
+	removeAbandoned="true"
+	removeAbandonedTimeout="60"
+	type="javax.sql.DataSource"
+	url="jdbc:oracle:thin:@s-daor23:1521:Dwhgeot"
+	minEvictableIdleTimeMillis="10000"
+	timeBetweenEvictionRunsMillis="60000"
+/>
 	<!-- hier worden de mapfiles geplaatst door o.a. bridge, deze mapfiles 
 
          zijn binnen kaartenbalie tab zichtbaar en kunnen daar geladen worden, 
@@ -21,6 +37,6 @@
 	<Parameter name="ldap.useldap" value="false" override="false"/>
 	<Parameter name="ldap.default.group" value="ldap" override="false"/>
 	<Parameter name="ldap.host" value="localhost" override="false"/>
-	<Parameter name="ldap.port" value="9999" override="false"/>
-	<Parameter name="ldap.usersuffix" value="@b3p.lok" override="false"/>
+	<Parameter name="ldap.port" value="389" override="false"/>
+	<Parameter name="ldap.usersuffix" value="@lelystad.nl" override="false"/>
 </Context>
