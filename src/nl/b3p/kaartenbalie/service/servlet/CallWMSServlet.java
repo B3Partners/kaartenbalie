@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -114,11 +114,11 @@ public class CallWMSServlet extends GeneralServlet {
 
             try {
                 OGCRequest ogcrequest = calcOGCRequest(request);
-                
+
                 String personalCode = null;
                 if (ogcrequest != null)
                     personalCode = ogcrequest.getPersonalCode();
-                
+
                 data.setOgcrequest(ogcrequest);
 
                 String serviceParam = ogcrequest.getParameter(OGCConstants.SERVICE);
@@ -129,21 +129,21 @@ public class CallWMSServlet extends GeneralServlet {
                 String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request, em, personalCode);
-                
+                User user = checkLogin(request, personalCode);
+
                 ogcrequest.checkRequestURL();
-                
+
                 Organization mainOrg = null;
                 String userName = null;
-                
+
                 if (user != null) {
                     mainOrg = user.getMainOrganization();
                     userName = user.getUsername();
                 }
-                
+
                 rr.setUserAndOrganization(user, mainOrg);
                 data.setHeader("X-Kaartenbalie-User", userName);
-                
+
                 parseRequestAndData(data, user);
 
             } catch (AccessDeniedException adex) {
@@ -151,7 +151,7 @@ public class CallWMSServlet extends GeneralServlet {
                 rr.setClientRequestException(adex);
                 response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied to Kaartenbalie");
-            } catch (ProviderException pex) {            	
+            } catch (ProviderException pex) {
                 log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
                 rr.setClientRequestException(pex);
                 handleRequestException(pex, data);
@@ -159,11 +159,11 @@ public class CallWMSServlet extends GeneralServlet {
                 log.error(String.format("Error while handling request params for URI %s, query string %s: %s",
                         request.getRequestURI(),
                         request.getQueryString(),
-                        uoex.getLocalizedMessage()));              
+                        uoex.getLocalizedMessage()));
                 rr.setClientRequestException(uoex);
                 handleRequestException(uoex, data);
             } catch (Exception ex) {
-                log.error("Error while handling request: ", ex);                
+                log.error("Error while handling request: ", ex);
                 rr.setClientRequestException(ex);
                 handleRequestException(ex, data);
             } finally {
@@ -332,7 +332,7 @@ public class CallWMSServlet extends GeneralServlet {
      * @throws UnsupportedOperationException
      * @throws IOException
      */
-    public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {        
+    public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
         String request = data.getOgcrequest().getParameter(OGCConstants.REQUEST);
         String service = data.getOgcrequest().getParameter(OGCConstants.SERVICE);
 
@@ -384,8 +384,8 @@ public class CallWMSServlet extends GeneralServlet {
 
         data.setOperation(request);
         data.setService(service);
-        requestHandler.getRequest(data, user);   
-        
+        requestHandler.getRequest(data, user);
+
     }
 
     /** Returns a short description of the servlet.
