@@ -62,6 +62,8 @@ public class MetadataFolderResource extends MetadataResource implements Collecti
                 Iterator it2 = ll.iterator();
                 while (it2.hasNext()) {
                     Layer l = (Layer) it2.next();
+                    // N+1 select voor LayerMetadata, indien niet te veel performance
+                    // kost geen probleem
                     if (l.getMetadata() != null) {
                         childs.put(MetadataResourceFactory.createName(l),
                                 new MetadataFileResource(l));

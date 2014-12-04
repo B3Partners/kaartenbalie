@@ -3,25 +3,24 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nl.b3p.kaartenbalie.service.requesthandler;
 
-import nl.b3p.ogc.utils.SpLayerSummary;
 import java.util.*;
 import javax.persistence.EntityManager;
 import nl.b3p.kaartenbalie.core.server.User;
@@ -37,6 +36,7 @@ import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.LayerSummary;
 import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
+import nl.b3p.ogc.utils.SpLayerSummary;
 import nl.b3p.wms.capabilities.Layer;
 import nl.b3p.wms.capabilities.Roles;
 import org.apache.commons.logging.Log;
@@ -98,7 +98,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
      * @see Object[] getValidLayerObjects(EntityManager em, String query, String layer, Integer orgId, boolean b3pLayering) throws Exception
      * @throws java.lang.Exception indien gezochte layer niet bestaat of er geen rechten op zijn
      */
-    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {        
+    protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String layerCode = m.getSpAbbr();
         String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
 
@@ -121,20 +121,20 @@ public abstract class OGCRequestHandler implements RequestHandler {
         } else if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
             return null;
         }
-        
+
         log.debug("BEGIN query getValidLayerObjects");
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         List result = em.createQuery(query).
                 setParameter("orgIds", Arrays.asList(orgIds)).
                 setParameter("layerName", layerName).
                 setParameter("layerCode", layerCode).
                 getResultList();
-        
+
         long endTime = System.currentTimeMillis();
         long dur = endTime - startTime;
-        
+
         log.debug(dur + "ms: END query getValidLayerObjects");
 
         if (result == null || result.isEmpty()) {
@@ -147,7 +147,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
 
         return (SpLayerSummary) result.get(0);
     }
-    
+
     public boolean isConfigInUrlAndAdmin(DataWrapper data, User user){
          /*
          * Only used if specific param is given (used for configuration)
@@ -167,7 +167,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
         return isAdmin;
     }
-    
+
     /**
      * methode is complexer dan op het eerste gezicht nodig lijkt. per service provider
      * worden de layers opgezocht. echter de volgorde van de layers moet bewaard blijven.
@@ -208,7 +208,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
         configB3pLayering(lsl, config);
 
         String spAbbrUrl = dw.getOgcrequest().getServiceProviderName();
-        
+
         //eerst geen b3pLayering meenemen
         boolean b3pLayering = false;
         for (LayerSummary m : lsl) {
@@ -325,8 +325,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
              lc.closeEntityManager();
         }
 
-        /* 
-         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false 
+        /*
+         * WFS doesn't use the AllowTransactionsLayer and the boolean will be always false
          * if a WFS layer has a price and never show it.
          */
         boolean bFoundAllowTransactionsLayer = true;
@@ -394,6 +394,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
             Iterator it = ll.iterator();
             while (it.hasNext()) {
                 Layer l = (Layer) it.next();
+                // XXX deze methode wordt alleen aangeroepen door MetadataRequestHandler.getRequest()
+                // die heeft deze property nodig
+                l.getMetadata();
                 String dbLayerName = l.getName();
                 String dbSpAbbr = l.getSpAbbr();
                 if (dbLayerName != null && dbSpAbbr != null) {
@@ -481,7 +484,7 @@ public abstract class OGCRequestHandler implements RequestHandler {
             if (layerCode==null || layerName==null) {
                 continue;
             }
-            
+
             if (layerCode.equals(KBConfiguration.SERVICEPROVIDER_BASE_ABBR)) {
                 ConfigLayer cl = ConfigLayer.forName(layerName);
                 if (cl == null) {

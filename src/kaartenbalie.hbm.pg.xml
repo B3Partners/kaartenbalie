@@ -127,7 +127,7 @@ along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
         <property length="50" name="scaleHintMin"/>
         <property length="50" name="scaleHintMax"/>
         <property column="metadata" name="oldMetadata" type="text"/>
-        <set cascade="all-delete-orphan" inverse="true" lazy="false" fetch="select" name="layerMetadata">
+        <set cascade="all-delete-orphan" inverse="true" lazy="true" fetch="select" name="layerMetadata">
             <key column="layer"/>
             <one-to-many class="nl.b3p.wms.capabilities.LayerMetadata"/>
         </set>
