@@ -3,22 +3,22 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * @author Rachelle Scheijen
  */
 package nl.b3p.kaartenbalie.service.servlet;
@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -53,7 +52,7 @@ import org.xml.sax.SAXException;
 
 public class CallScriptingServlet extends GeneralServlet {
     private HttpServletRequest httpRequest;
-    
+
 
     /**
      * Initializes the servlet. Turns the logging of the servlet on.
@@ -135,10 +134,10 @@ public class CallScriptingServlet extends GeneralServlet {
                 data.setHeader("X-Kaartenbalie-User", user.getUsername());
 
                 this.httpRequest    = request;
-                
+
                 if(ogcrequest.getParameter(OGCScriptingRequest.COMMAND).equalsIgnoreCase(OGCScriptingRequest.GET_GROUP_XML)){
                     GroupParser groupParser = new GroupParser();
-                    
+
                     groupParser.getGroupsAsXML(response, data.getOutputStream());
                 }else{
                     parseRequestAndData(data, user);
@@ -195,7 +194,7 @@ public class CallScriptingServlet extends GeneralServlet {
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
                 handler.setWFS();
             }
-            
+
             requestHandler  = handler;
         }
         else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_SERVICE) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.NAME) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) && ogcrequest.containsParameter(OGCScriptingRequest.URL)){
@@ -205,7 +204,7 @@ public class CallScriptingServlet extends GeneralServlet {
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
                 handler.setWFS();
             }
-            
+
             requestHandler  = handler;
         }
         else if( command.equalsIgnoreCase(OGCScriptingRequest.ADD_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) ){
@@ -215,7 +214,7 @@ public class CallScriptingServlet extends GeneralServlet {
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
                 handler.setWFS();
             }
-            
+
             requestHandler  = handler;
         }
         else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALLOWED_SERVICES) && ogcrequest.containsParameter(OGCScriptingRequest.SERVICE_TYPE) && ogcrequest.containsParameter(OGCScriptingRequest.ABBR) ){
@@ -226,7 +225,7 @@ public class CallScriptingServlet extends GeneralServlet {
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
                 handler.setWFS();
             }
-            
+
             requestHandler  = handler;
         }
         else if( command.equalsIgnoreCase(OGCScriptingRequest.DELETE_ALL_ALLOWED_SERVICES) ){
@@ -237,9 +236,9 @@ public class CallScriptingServlet extends GeneralServlet {
             } else if (ogcrequest.getParameter(OGCScriptingRequest.SERVICE_TYPE).equalsIgnoreCase("WFS") ) {
                 handler.setWFS();
             }
-            
+
             requestHandler  = handler;
-        } 
+        }
 
         if (requestHandler == null) {
             throw new UnsupportedOperationException("Request " + request + " is not suported!");
@@ -286,8 +285,7 @@ public class CallScriptingServlet extends GeneralServlet {
      * @return The user Principal
      * @throws AccessDeniedException if the user can not be authenticated
      */
-    @Override
-    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) 
+    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode)
             throws AccessDeniedException {
         User user = (User) request.getUserPrincipal();
 
