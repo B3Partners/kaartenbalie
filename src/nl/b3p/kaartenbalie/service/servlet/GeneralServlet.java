@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -130,14 +130,10 @@ abstract public class GeneralServlet extends HttpServlet {
      *
      * @throws AccessDeniedException
      */
-    protected User checkLogin(HttpServletRequest request, String pcode) 
+    protected User checkLogin(HttpServletRequest request, String pcode)
             throws AccessDeniedException  {
 
         return checkLogin4All(request, pcode);
-    }
-    protected User checkLogin(HttpServletRequest request, EntityManager em, String pcode) 
-            throws AccessDeniedException {
-        return checkLogin4All(request, em, pcode);
     }
 
     public static User checkLogin4All(HttpServletRequest request, String pcode)
@@ -147,8 +143,8 @@ abstract public class GeneralServlet extends HttpServlet {
         EntityTransaction tx = null;
 
         try {
-            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
+            identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
+            EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
             tx = em.getTransaction();
 
             tx.begin();
@@ -158,7 +154,7 @@ abstract public class GeneralServlet extends HttpServlet {
             tx.commit();
         } catch (AccessDeniedException ade) {
             throw ade;
-            
+
         } catch (Exception ex) {
             if (tx != null) {
                 tx.rollback();
@@ -166,7 +162,7 @@ abstract public class GeneralServlet extends HttpServlet {
 
             return null;
         } finally {
-            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
+            MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
 
         return user;
@@ -175,7 +171,8 @@ abstract public class GeneralServlet extends HttpServlet {
     public static User checkLogin4All(HttpServletRequest request, EntityManager em,
             String pcode) throws AccessDeniedException  {
         User user = checkLoginAlreadyLoggedIn(request, em, pcode);
-        
+        boolean wasAlreadyLoggedIn = user != null;
+
         if (user == null) {
             user = checkLoginPersonalCode(request, em, pcode);
         }
@@ -209,10 +206,12 @@ abstract public class GeneralServlet extends HttpServlet {
         }
 
         /* Er is een user. loginstatus aanpassen */
-        setDetachedUserLastLoginStatus(user, null, em);
+        if(!wasAlreadyLoggedIn) {
+            setDetachedUserLastLoginStatus(user, null, em);
+        }
         log.debug("Gebruiker " + user.getName() + " mag inloggen.");
 
-        return user;        
+        return user;
     }
 
     protected static User checkLoginAlreadyLoggedIn(HttpServletRequest request, EntityManager em,
@@ -363,10 +362,10 @@ abstract public class GeneralServlet extends HttpServlet {
 
             // check if user is in ldap
             boolean inLdap = ldapUtil.userInLdap(
-                    MyEMFDatabase.getLdapHost(), 
-                    MyEMFDatabase.getLdapPort(), 
+                    MyEMFDatabase.getLdapHost(),
+                    MyEMFDatabase.getLdapPort(),
                     username,
-                    password, 
+                    password,
                     MyEMFDatabase.getLdapUserSuffix());
 
             // check if username already in kaartenbalie database
@@ -389,9 +388,9 @@ abstract public class GeneralServlet extends HttpServlet {
                 String personalUrl = User.createCode();
                 user.setPersonalURL(personalUrl);
 
-                if (MyEMFDatabase.getLdapDefaultGroup() != null 
+                if (MyEMFDatabase.getLdapDefaultGroup() != null
                         && !MyEMFDatabase.getLdapDefaultGroup().isEmpty()) {
-                    Organization org = ldapUtil.getLDAPOrg(em, 
+                    Organization org = ldapUtil.getLDAPOrg(em,
                             MyEMFDatabase.getLdapDefaultGroup());
                     user.setMainOrganization(org);
                 }
@@ -609,9 +608,9 @@ abstract public class GeneralServlet extends HttpServlet {
                 String paramName = (String) params.nextElement();
                 String paramValue = request.getParameter(paramName);
                 //Parameters zijn niet UTF8.
-                if (paramName.equalsIgnoreCase("onload") 
-                        || paramName.equalsIgnoreCase("ondata") 
-                        || paramName.equalsIgnoreCase("loadmovie") 
+                if (paramName.equalsIgnoreCase("onload")
+                        || paramName.equalsIgnoreCase("ondata")
+                        || paramName.equalsIgnoreCase("loadmovie")
                         || paramName.equalsIgnoreCase("oldloadmovie")) {
                     //do nothing
                 } else {
