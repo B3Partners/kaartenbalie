@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context path="/kaartenbalie" antiJARLocking="true">
-	<Resource auth="Container" driverClassName="oracle.jdbc.driver.OracleDriver" logAbandoned="true" maxActive="100" maxIdle="30" maxWait="10000" name="jdbc/kaartenbalie" username="kaartenbalie" password="kaartenbalieprd" removeAbandoned="true" removeAbandonedTimeout="60" type="javax.sql.DataSource" url="jdbc:oracle:thin:@lin022:1521:pgis" minEvictableIdleTimeMillis="10000" timeBetweenEvictionRunsMillis="60000"/>
+	<Resource auth="Container" 
+        driverClassName="oracle.jdbc.driver.OracleDriver" 
+        logAbandoned="true" 
+        maxActive="100" 
+        maxIdle="30" 
+        maxWait="10000" 
+        name="jdbc/kaartenbalie" 
+        username="kaartenbalie" 
+        password="kaartenbalieprd" 
+        removeAbandoned="true" 
+        removeAbandonedTimeout="60" 
+        type="javax.sql.DataSource" 
+        url="jdbc:oracle:thin:@lin022:1521:pgis" 
+        minEvictableIdleTimeMillis="30000" 
+        timeBetweenEvictionRunsMillis="60000"
+        validationQuery="select 1 from dual"
+        testOnCreate="true"
+        testOnBorrow="true"
+	/>
+	
 	<!-- hier worden de mapfiles geplaatst door o.a. bridge, deze mapfiles 
 
          zijn binnen kaartenbalie tab zichtbaar en kunnen daar geladen worden, 
