@@ -24,7 +24,7 @@
         username="postgres" 
         password="***REMOVED***" 
         driverClassName="org.postgresql.Driver"
-        url="jdbc:postgresql://localhost:5433/solparc_kaartenbalie"
+        url="jdbc:postgresql://x12/solparc_kaartenbalie"
     />
     
     <!-- hier worden de mapfiles geplaatst door o.a. bridge, deze mapfiles 

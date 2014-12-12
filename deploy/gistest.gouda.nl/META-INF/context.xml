@@ -18,4 +18,5 @@
 	<Parameter name="ldap.host" value="gdaldap.gouda.lok" override="false"/>
 	<Parameter name="ldap.port" value="389" override="false"/>
 	<Parameter name="ldap.usersuffix" value="@gouda.lok" override="false"/>
+	<Parameter name="user.updateLastLoginStatus" value="true" override="false"/>
 </Context>
