@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -40,7 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class MyEMFDatabase extends HttpServlet {
-    
+
     //context params
     public static final String MAPFILE_DIR = "global.mapfile.dir";
     public static final String UPLOAD_DIR = "global.upload.dir";
@@ -50,7 +50,8 @@ public class MyEMFDatabase extends HttpServlet {
     public static final String LDAP_HOST = "ldap.host";
     public static final String LDAP_PORT = "ldap.port";
     public static final String LDAP_USERSUFFIX = "ldap.usersuffix";
-    
+    public static final String USER_UPDATELASTLOGINSTATUS = "user.updateLastLoginStatus";
+
     private static String mapfiles = null;
     private static String upload = null;
     private static String defaultOrganization = null;
@@ -75,7 +76,7 @@ public class MyEMFDatabase extends HttpServlet {
 
     public static void openEntityManagerFactory(String persistenceUnit) throws Exception {
         log.debug("ManagedPersistence.openEntityManagerFactory(" + persistenceUnit + ")");
-        
+
         if (emf != null) {
             log.warn("EntityManagerFactory already initialized: " + emf.toString());
             return;
@@ -139,12 +140,12 @@ public class MyEMFDatabase extends HttpServlet {
         }
 
         rg = new Random();
-        
+
         String allowedUpload = config.getInitParameter("allowed_upload_files");
         if(allowedUpload != null && allowedUpload.length() > 0){
             allowedUploadFiles = allowedUpload.split(",");
         }
-        
+
         // load global context params
         initGlobalContextParams(config);
 
@@ -152,7 +153,7 @@ public class MyEMFDatabase extends HttpServlet {
 
     public void initGlobalContextParams(ServletConfig config) {
        ServletContext context = config.getServletContext();
-        
+
         String value = context.getInitParameter(MyEMFDatabase.MAPFILE_DIR);
         if (value != null && value.length() > 0) {
             mapfiles = value;
@@ -187,7 +188,7 @@ public class MyEMFDatabase extends HttpServlet {
             ldapUserSuffix = value;
         }
     }
-    
+
     private static String getConfigValue(ServletConfig config, String parameter, String defaultValue) {
         String tmpval = config.getInitParameter(parameter);
         if (tmpval == null || tmpval.trim().length() == 0) {
@@ -201,7 +202,7 @@ public class MyEMFDatabase extends HttpServlet {
     private static final Owner fakeOwner = new Owner(false);
 
     /**
-     * Internal class , for handling the identity. Hidden for the 
+     * Internal class , for handling the identity. Hidden for the
      * developers
      */
     private static class Owner {
@@ -213,7 +214,7 @@ public class MyEMFDatabase extends HttpServlet {
     }
 
     /**
-     * get the hibernate session and set it on the thread local. Returns trueOwner if 
+     * get the hibernate session and set it on the thread local. Returns trueOwner if
      * it actually opens a session
      */
     public static Object createEntityManager(String emKey) throws Exception {
@@ -240,9 +241,9 @@ public class MyEMFDatabase extends HttpServlet {
     }
 
     /*
-     * The method for closing a session. The close  
+     * The method for closing a session. The close
      * will be executed only if the session is actually created
-     * by this owner.  
+     * by this owner.
      */
     public static void closeEntityManager(Object ownership, String emKey) {
         if (ownership != null && ((Owner) ownership).identity) {
@@ -358,7 +359,7 @@ public class MyEMFDatabase extends HttpServlet {
     public static String getMapfiles() {
         return mapfiles;
     }
-    
+
     public static String getUpload() {
         return upload;
     }

@@ -64,6 +64,8 @@ abstract public class GeneralServlet extends HttpServlet {
 
     protected static Log log = LogFactory.getLog(GeneralServlet.class);
 
+    private static boolean updateUserLastLoginStatus;
+
     /**
      * Processes the incoming request and calls the various methods to create
      * the right output stream.
@@ -437,12 +439,23 @@ abstract public class GeneralServlet extends HttpServlet {
     private static void setDetachedUserLastLoginStatus(User user, String status,
             EntityManager em) {
 
-        user.setLastLoginStatus(status);
+        if(!updateUserLastLoginStatus) {
+            return;
+        }
 
-        em.createQuery("update User set lastLoginStatus = :status where id = :id")
-                .setParameter("status", status)
-                .setParameter("id", user.getId())
-                .executeUpdate();
+        // Alleen indien user detached is updaten via aparte query
+
+        // Komt alleen voor indien ongeldig IP of time expired nadat al
+        // succesvol was ingelogd!
+        if(!em.contains(user)) {
+            em.createQuery("update User set lastLoginStatus = :status where id = :id")
+                    .setParameter("status", status)
+                    .setParameter("id", user.getId())
+                    .executeUpdate();
+        } else {
+            // User is persistent
+            user.setLastLoginStatus(status);
+        }
     }
 
     private static boolean checkValidIpAddress(HttpServletRequest request, User user) {
@@ -718,6 +731,7 @@ abstract public class GeneralServlet extends HttpServlet {
         log = LogFactory.getLog(this.getClass());
         log.debug("Initializing GeneralServlet");
 
+        updateUserLastLoginStatus = "true".equalsIgnoreCase(config.getInitParameter(MyEMFDatabase.USER_UPDATELASTLOGINSTATUS));
     }
 
     /**
