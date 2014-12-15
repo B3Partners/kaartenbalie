@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -143,9 +143,10 @@ public class DataWrapper {
     public void write(ByteArrayOutputStream baos) throws IOException {
 
         if (response.isCommitted()) {
-            log.error("response already committed, next message not written:");
-            if (baos != null) {
-                log.error(baos.toString());
+            String contentType = response.getContentType();
+            log.error(String.format("Response already committed, can't send %d bytes of content type %s", baos.size(), contentType));
+            if(log.isDebugEnabled() && (contentType == null || !contentType.startsWith("image/"))) {
+                log.error("Full content: " + baos.toString());
             }
             return;
         }
