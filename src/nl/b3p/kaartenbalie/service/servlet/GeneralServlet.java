@@ -119,26 +119,8 @@ abstract public class GeneralServlet extends HttpServlet {
         return theUrl;
     }
 
-    /**
-     * Checks if an user is allowed to make any requests. Therefore there is
-     * checked if a user is logged in or if a user is using a private unique IP
-     * address.
-     *
-     * @param request servlet request
-     * @param pcode personal code
-     *
-     * @return user object
-     *
-     * @throws AccessDeniedException
-     */
-    protected User checkLogin(HttpServletRequest request, String pcode)
-            throws AccessDeniedException  {
-
-        return checkLogin4All(request, pcode);
-    }
-
-    public static User checkLogin4All(HttpServletRequest request, String pcode)
-            throws AccessDeniedException {
+    public static User checkLogin(HttpServletRequest request, String pcode)
+            throws Exception {
         User user = null;
         Object identity = null;
         EntityTransaction tx = null;
@@ -147,30 +129,23 @@ abstract public class GeneralServlet extends HttpServlet {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.INIT_EM);
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.INIT_EM);
             tx = em.getTransaction();
-
             tx.begin();
 
-            user = checkLogin4All(request, em, pcode);
+            user = checkLogin(request, pcode, em);
 
             tx.commit();
-        } catch (AccessDeniedException ade) {
-            throw ade;
-
-        } catch (Exception ex) {
-            if (tx != null) {
+        } finally {
+            if(tx != null && tx.isActive()) {
                 tx.rollback();
             }
-
-            return null;
-        } finally {
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.INIT_EM);
         }
 
         return user;
     }
 
-    public static User checkLogin4All(HttpServletRequest request, EntityManager em,
-            String pcode) throws AccessDeniedException  {
+    public static User checkLogin(HttpServletRequest request, String pcode, EntityManager em)
+            throws AccessDeniedException  {
         User user = checkLoginAlreadyLoggedIn(request, em, pcode);
         boolean wasAlreadyLoggedIn = user != null;
 
@@ -503,11 +478,11 @@ abstract public class GeneralServlet extends HttpServlet {
     }
 
     private static boolean isUserTimeoutExpired(EntityManager em, User user) {
-        if(user.getTimeout().before(new Date())) {
+        if(user.getTimeout() != null && user.getTimeout().before(new Date())) {
+            log.info("Account van " + user.getUsername() + " is verlopen");
             return true;
         }
 
-        log.info("Account van " + user.getUsername() + " is verlopen");
         return false;
     }
 

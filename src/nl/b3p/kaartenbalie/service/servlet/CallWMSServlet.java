@@ -98,11 +98,10 @@ public class CallWMSServlet extends GeneralServlet {
         DataWrapper data = new DataWrapper(request, response);
 
         Object identity = null;
-        EntityManager em = null;
+        EntityManager em;
         EntityTransaction tx = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.MAIN_EM);
-            log.debug("Getting entity manager ......");
             em = MyEMFDatabase.getEntityManager(MyEMFDatabase.MAIN_EM);
             tx = em.getTransaction();
             tx.begin();
@@ -129,7 +128,7 @@ public class CallWMSServlet extends GeneralServlet {
                 String iUrl = ogcrequest.getUrl();
                 rr.startClientRequest(iUrl, iUrl.getBytes().length, startTime, request.getRemoteAddr(), request.getMethod());
 
-                User user = checkLogin(request, personalCode);
+                User user = checkLogin(request, personalCode, em);
 
                 ogcrequest.checkRequestURL();
 
@@ -147,7 +146,6 @@ public class CallWMSServlet extends GeneralServlet {
                 parseRequestAndData(data, user);
 
             } catch (AccessDeniedException adex) {
-                log.error("Access denied: " + adex.getLocalizedMessage());
                 rr.setClientRequestException(adex);
                 response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied to Kaartenbalie");
@@ -155,31 +153,27 @@ public class CallWMSServlet extends GeneralServlet {
                 log.error("Error while communicating with provider: " + pex.getLocalizedMessage());
                 rr.setClientRequestException(pex);
                 handleRequestException(pex, data);
-            } catch (UnsupportedOperationException uoex) {
-                log.error(String.format("Error while handling request params for URI %s, query string %s: %s",
+            } catch (Exception e) {
+                log.error(String.format("Error while handling request for URI %s, query string %s: %s: %s",
                         request.getRequestURI(),
                         request.getQueryString(),
-                        uoex.getLocalizedMessage()));
-                rr.setClientRequestException(uoex);
-                handleRequestException(uoex, data);
-            } catch (Exception ex) {
-                log.error("Error while handling request: ", ex);
-                rr.setClientRequestException(ex);
-                handleRequestException(ex, data);
+                        e.getClass().getName(),
+                        e.getMessage()), e);
+                rr.setClientRequestException(e);
+                handleRequestException(e, data);
             } finally {
                 rr.endClientRequest(serviceName, data.getOperation(), data.getContentLength(), System.currentTimeMillis() - startTime);
             }
-            tx.commit();
-        } catch (Exception ex) {
-            log.error("Error creating EntityManager: ", ex);
-            try {
-                tx.rollback();
-            } catch (Exception ex2) {
-                log.error("Error trying to rollback: ", ex2);
+            if(!tx.getRollbackOnly()) {
+                tx.commit();
             }
+        } catch (Exception ex) {
+            log.error("Error creating EntityManager", ex);
             handleRequestException(ex, data);
         } finally {
-            //log.debug("Closing entity manager .....");
+            if(tx != null && tx.isActive()) {
+                tx.rollback();
+            }
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
         }
     }

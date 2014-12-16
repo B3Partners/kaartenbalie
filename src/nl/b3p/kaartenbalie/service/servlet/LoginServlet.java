@@ -32,6 +32,8 @@ public class LoginServlet extends GeneralServlet {
         } catch (AccessDeniedException ex) {
             response.addHeader("WWW-Authenticate","Basic realm=\"Kaartenbalie login\"");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access denied for Kaartenbalie");
+        } catch(Exception e) {
+            throw new ServletException(e);
         }
      }
 
@@ -42,6 +44,6 @@ public class LoginServlet extends GeneralServlet {
 
     @Override
     public void parseRequestAndData(DataWrapper data, User user) throws IllegalArgumentException, UnsupportedOperationException, IOException, Exception {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
