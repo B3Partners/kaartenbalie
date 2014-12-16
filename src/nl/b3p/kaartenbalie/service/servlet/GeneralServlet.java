@@ -26,7 +26,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
@@ -193,17 +192,13 @@ abstract public class GeneralServlet extends HttpServlet {
         /* Controleer ip adressen */
         boolean isValidIp = checkValidIpAddress(request, user);
         if (!isValidIp) {
-            String remoteAddress = request.getRemoteAddr();
-            log.info("IP adres " + remoteAddress + " ongeldig"
-                    + " voor gebruiker " + user.getName());
             setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
             throw new AccessDeniedException("Toegang voor gebruiker \"" + user.getName() + "\" niet toegestaan van uw IP adres");
         }
         /* Controleer time out */
-        boolean expired = checkUserTimeExpired(em, user);
+        boolean expired = isUserTimeoutExpired(em, user);
         if (expired) {
             setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
-            log.debug("Account van " + user.getUsername() + " is verlopen.");
             throw new AccessDeniedException("Gebruikersaccount \"" + user.getName() + "\" is verlopen");
         }
 
@@ -464,66 +459,54 @@ abstract public class GeneralServlet extends HttpServlet {
          dit hoeven dus niet perse de ip adressen te zijn van de user
          waarmee nu wordt ingelogd, bijvoorbeeld via ldap of andere username
          dan die aan gebruikerscode is gekoppeld */
-        boolean validip = false;
 
-        if (user != null) {
-            String remoteaddress = request.getRemoteAddr();
-            String forwardedFor = request.getHeader("X-Forwarded-For");
-            if (forwardedFor != null) {
-                remoteaddress = forwardedFor;
-            }
-            String remoteAddressDesc = remoteaddress
-                    + (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr() + ")");
-
-            validip = false;
-
-            /* remoteaddress controleren tegen ip adressen van user.
-             * Ip ranges mogen ook via een asterisk */
-            Set ipaddresses = user.getIps();
-            Iterator it = ipaddresses.iterator();
-            while (it.hasNext()) {
-                String ipaddress = (String) it.next();
-
-                log.debug("Controleren ip: " + ipaddress + " tegen: " + remoteAddressDesc);
-
-                if (ipaddress.indexOf("*") != -1) {
-                    if (isRemoteAddressWithinIpRange(ipaddress, remoteaddress)) {
-                        validip = true;
-
-                        break;
-                    }
-                }
-
-                if (ipaddress.equalsIgnoreCase(remoteaddress)
-                        || ipaddress.equalsIgnoreCase("0.0.0.0")
-                        || ipaddress.equalsIgnoreCase("::")) {
-                    validip = true;
-                    break;
-                }
-            }
-
-            /* lokale verzoeken mogen ook */
-            String localAddress = request.getLocalAddr();
-
-            log.debug("Controleren lokaal ip: " + localAddress + " tegen: " + remoteAddressDesc);
-
-            if (remoteaddress.equalsIgnoreCase(localAddress)) {
-                validip = true;
-            }
+        String remoteAddress = request.getRemoteAddr();
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null) {
+            remoteAddress = forwardedFor;
         }
+        String remoteAddressDesc = remoteAddress
+                + (forwardedFor == null ? "" : " (proxy: " + request.getRemoteAddr() + ")");
 
-        return validip;
-    }
+        /* remoteaddress controleren tegen ip adressen van user.
+         * Ip ranges mogen ook via een asterisk */
+        for(String ipAddress: (Set<String>)user.getIps()) {
 
-    private static boolean checkUserTimeExpired(EntityManager em, User user) {
-        if (user != null) {
-            java.util.Date date = user.getTimeout();
+            log.debug("Controleren ip: " + ipAddress + " tegen: " + remoteAddressDesc);
 
-            if (date.getTime() <= (new java.util.Date().getTime())) {
+            if (ipAddress.contains("*")) {
+                if (isRemoteAddressWithinIpRange(ipAddress, remoteAddress)) {
+                    return true;
+                }
+            }
+
+            if (ipAddress.equalsIgnoreCase(remoteAddress)
+                    || ipAddress.equalsIgnoreCase("0.0.0.0")
+                    || ipAddress.equalsIgnoreCase("::")) {
                 return true;
             }
         }
 
+        /* lokale verzoeken mogen ook */
+        String localAddress = request.getLocalAddr();
+
+
+        if (remoteAddress.equalsIgnoreCase(localAddress)) {
+            log.debug("Toegang vanaf lokaal adres toegestaan: lokaal adres " + localAddress + ", remote adres: " + remoteAddressDesc);
+            return true;
+        }
+
+        log.info("IP adres " + remoteAddressDesc + " niet toegestaan voor gebruiker " + user.getName());
+
+        return false;
+    }
+
+    private static boolean isUserTimeoutExpired(EntityManager em, User user) {
+        if(user.getTimeout().before(new Date())) {
+            return true;
+        }
+
+        log.info("Account van " + user.getUsername() + " is verlopen");
         return false;
     }
 
