@@ -3,19 +3,19 @@
  * for authentication/authorization, pricing and usage reporting.
  *
  * Copyright 2006, 2007, 2008 B3Partners BV
- * 
+ *
  * This file is part of B3P Kaartenbalie.
- * 
+ *
  * B3P Kaartenbalie is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * B3P Kaartenbalie is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with B3P Kaartenbalie.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,6 +47,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      *
      * @return a principal object containing the user if he has been found as a registered user. Otherwise this object wil be empty (null).
      */
+    @Override
     public Principal authenticate(String username, String password) {
 
         String encpw = null;
@@ -56,11 +57,11 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             log.error("error encrypting password: ", ex);
         }
         Object identity = null;
+        EntityTransaction tx = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.REALM_EM);
-            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.REALM_EM);
-            EntityTransaction tx = em.getTransaction();
+            tx = em.getTransaction();
             tx.begin();
             try {
                 User user = (User) em.createQuery(
@@ -70,50 +71,44 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using encrypted password");
-            } finally {
-                if(tx.isActive() && !tx.getRollbackOnly()) {
-                    tx.commit();
-                }
             }
-
-            tx = em.getTransaction();
-            tx.begin();
             try {
                 User user = (User) em.createQuery(
                         "from User u where " +
                         "lower(u.username) = lower(:username) " +
                         "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
 
-                // Volgende keer dus wel encrypted
+                log.info("Encrypting cleartext password for user " + user.getName());
                 user.setPassword(encpw);
-                em.merge(user);
                 em.flush();
-                log.debug("Cleartext password encrypted!");
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using cleartext password");
-            } finally {
-                if(tx.isActive() && !tx.getRollbackOnly()) {
-                    tx.commit();
-                }
             }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
+            log.warn("Login failure for username " + username);
+        } catch(Exception e) {
+            log.error("Exception checking user credentails", e);
+            if(tx != null && tx.isActive()) {
+                tx.rollback();
+            }
         } finally {
-            log.debug("Closing entity manager .....");
+            if(tx != null && tx.isActive() && !tx.getRollbackOnly()) {
+                tx.commit();
+            }
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
         }
 
         return null;
     }
 
+    @Override
     public Principal getAuthenticatedPrincipal(String username, String password) {
         Object identity = null;
+        EntityTransaction tx = null;
         try {
             identity = MyEMFDatabase.createEntityManager(MyEMFDatabase.REALM_EM);
-            log.debug("Getting entity manager ......");
             EntityManager em = MyEMFDatabase.getEntityManager(MyEMFDatabase.REALM_EM);
-            EntityTransaction tx = em.getTransaction();
+            tx = em.getTransaction();
             tx.begin();
             try {
                 User user = (User) em.createQuery(
@@ -122,15 +117,16 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                 return user;
             } catch (NoResultException nre) {
                 return null;
-            } finally {
-                if(tx.isActive() && !tx.getRollbackOnly()) {
-                    tx.commit();
-                }
             }
-        } catch (Throwable e) {
-            log.warn("Error creating EntityManager: ", e);
+        } catch(Exception e) {
+            log.error("Exception getting authenticated user from database", e);
+            if(tx != null && tx.isActive()) {
+                tx.rollback();
+            }
         } finally {
-            log.debug("Closing entity manager .....");
+            if(tx != null && tx.isActive() && !tx.getRollbackOnly()) {
+                tx.commit();
+            }
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.REALM_EM);
         }
         return null;
@@ -143,6 +139,7 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
      *
      * @return a boolean which is true if the user is in the defined role otherwise false is returned.
      */
+    @Override
     public boolean isUserInRole(Principal principal, String role) {
         if (!(principal instanceof User)) {
             return false;
@@ -150,9 +147,5 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
         User user = (User) principal;
         //log.info("Check user principal has role");
         return user.checkRole(role);
-    }
-
-    public Principal getAuthenticatedPrincipal(String username) {
-        return null;
     }
 }
