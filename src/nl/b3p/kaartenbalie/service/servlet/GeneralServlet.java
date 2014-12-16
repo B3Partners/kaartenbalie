@@ -187,24 +187,24 @@ abstract public class GeneralServlet extends HttpServlet {
 
         /* Nog steeds geen user ? */
         if (user == null) {
-            throw new AccessDeniedException("Inlog vereist voor deze service. Geen geldige inlog gevonden in url, preemptive header, cookie of ldap. Try Basic Authentication challenge");
+            throw new AccessDeniedException("Ongeldige inloggegevens");
         }
 
         /* Controleer ip adressen */
         boolean isValidIp = checkValidIpAddress(request, user);
         if (!isValidIp) {
             String remoteAddress = request.getRemoteAddr();
-            log.debug("Ip adres " + remoteAddress + " ongeldig"
+            log.info("IP adres " + remoteAddress + " ongeldig"
                     + " voor gebruiker " + user.getName());
             setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
-            return null;
+            throw new AccessDeniedException("Toegang voor gebruiker \"" + user.getName() + "\" niet toegestaan van uw IP adres");
         }
         /* Controleer time out */
         boolean expired = checkUserTimeExpired(em, user);
         if (expired) {
             setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_EXPIRED, em);
             log.debug("Account van " + user.getUsername() + " is verlopen.");
-            return null;
+            throw new AccessDeniedException("Gebruikersaccount \"" + user.getName() + "\" is verlopen");
         }
 
         /* Er is een user. loginstatus aanpassen */
