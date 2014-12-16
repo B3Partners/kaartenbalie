@@ -204,9 +204,11 @@ abstract public class GeneralServlet extends HttpServlet {
 
         /* Er is een user. loginstatus aanpassen */
         if(!wasAlreadyLoggedIn) {
+            log.debug("Gebruiker " + user.getName() + " succesvol ingelogd");
             setDetachedUserLastLoginStatus(user, null, em);
+        } else {
+            log.debug("Gebruiker " + user.getName() + " was al ingelogd (sessie of cookie)");
         }
-        log.debug("Gebruiker " + user.getName() + " mag inloggen.");
 
         return user;
     }
@@ -489,7 +491,6 @@ abstract public class GeneralServlet extends HttpServlet {
 
         /* lokale verzoeken mogen ook */
         String localAddress = request.getLocalAddr();
-
 
         if (remoteAddress.equalsIgnoreCase(localAddress)) {
             log.debug("Toegang vanaf lokaal adres toegestaan: lokaal adres " + localAddress + ", remote adres: " + remoteAddressDesc);
