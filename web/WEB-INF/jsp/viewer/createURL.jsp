@@ -111,9 +111,9 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 function updateDiv() {
     var objDiv = document.getElementById("ipDiv");
-    if(count > 4)
+    /*if(count > 4)
         objDiv.style.height = '130px';
-    else
+    else*/
         objDiv.style.height = count * 32 + 'px';
     objDiv.scrollTop = objDiv.scrollHeight;
 }
