@@ -120,7 +120,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
         }
         wfsRequest.setBytesSent(new Long(body.getBytes().length));
 
-        HttpPost method = new HttpPost(sp.getSpUrl());
+        OGCRequest tmpReq = new OGCRequest(spOgcReq.fixHttpHost(sp.getSpUrl()));
+        tmpReq.removeAllWFSParameters();
+        String postUrl = spOgcReq.getUrl(tmpReq.getUrl());
+        HttpPost method = new HttpPost(postUrl);
         //work around voor ESRI post Messages
         //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
         method.setEntity(new StringEntity(body));
@@ -129,7 +132,9 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
     public HttpGet createGetMethod(OGCRequest spOgcReq, SpLayerSummary sp, ServiceProviderRequest wfsRequest) throws Exception {
 
-        String getUrl = spOgcReq.getUrl(spOgcReq.fixHttpHost(sp.getSpUrl()));
+        OGCRequest tmpReq = new OGCRequest(spOgcReq.fixHttpHost(sp.getSpUrl()));
+        tmpReq.removeAllWFSParameters();
+        String getUrl = spOgcReq.getUrl(tmpReq.getUrl());
 
         log.debug("WFS GET to serviceprovider: '" + sp.getSpAbbr() + "' with url: '" + getUrl.toString() + "'");
 
@@ -412,9 +417,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
     }
 
     protected String[] getOrganisationLayers(EntityManager em, Integer[] orgIds, String version, boolean isAdmin) throws Exception {
-        List layers = null;
+        List<SpLayerSummary> spLayers = null;
         if (!isAdmin) {
-            String query = "select distinct sp.abbr || '_' || l.name "
+            String query = "select distinct new "
+                    + "nl.b3p.ogc.utils.SpLayerSummary(l, 'true',sp) "
                     + "from Organization o "
                     + "join o.wfsLayers l "
                     + "join l.wfsServiceProvider sp "
@@ -436,9 +442,10 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             if (version != null && !version.equals(OGCConstants.WFS_VERSION_UNSPECIFIED)) {
                 q.setParameter("version", version);
             }
-            layers = q.getResultList();
+            spLayers = q.getResultList();
         } else {
-            String query = "select sp.abbr || '_' || l.name "
+            String query = "select distinct new "
+                    + "nl.b3p.ogc.utils.SpLayerSummary(l, 'true',sp) "
                     + "from WfsLayer l "
                     + "join l.wfsServiceProvider sp";
             if (version != null && !version.equals(OGCConstants.WFS_VERSION_UNSPECIFIED)) {
@@ -449,7 +456,13 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
             if (version != null && !version.equals(OGCConstants.WFS_VERSION_UNSPECIFIED)) {
                 q.setParameter("version", version);
             }
-            layers = q.getResultList();
+            spLayers = q.getResultList();
+        }
+        
+        List<String> layers = new ArrayList<String>();
+        for (SpLayerSummary spls : spLayers) {
+            String ln = OGCCommunication.attachSp(spls.getSpAbbr(), spls.getLayerName());
+            layers.add(ln);
         }
         return (String[]) layers.toArray(new String[]{});
     }

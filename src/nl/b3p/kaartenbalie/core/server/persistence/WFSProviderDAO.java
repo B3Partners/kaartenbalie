@@ -1,5 +1,6 @@
 package nl.b3p.kaartenbalie.core.server.persistence;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,13 +43,14 @@ public class WFSProviderDAO extends BaseDAO {
 	 * @throws Exception
 	 */
     public String[] getAuthorizedFeatureTypeNames(Integer[] orgIds, String version, boolean isAdmin) throws Exception {
-        List layers = null;
+        List<SpLayerSummary> spLayers = null;
         if(!isAdmin) {
-            String query = "select distinct sp.abbr || '_' || l.name " +
-                           "from Organization o " +
-                           "join o.wfsLayers l " +
-                           "join l.wfsServiceProvider sp " +
-                           "where o.id in (:orgIds)";
+            String query = "select distinct new "
+                    + "nl.b3p.ogc.utils.SpLayerSummary(l, 'true',sp) "
+                    + "from Organization o "
+                    + "join o.wfsLayers l "
+                    + "join l.wfsServiceProvider sp "
+                    + "where o.id in (:orgIds)";
             if (version!=null)
                 query+=" and sp.wfsVersion = :version";
 
@@ -56,18 +58,25 @@ public class WFSProviderDAO extends BaseDAO {
             q.setParameter("orgIds", Arrays.asList(orgIds));
             if (version!=null)
                 q.setParameter("version", version);
-            layers = q.getResultList();
+            spLayers = q.getResultList();
         } else {
-            String query = "select sp.abbr || '_' || l.name " +
-                           "from WfsLayer l " +
-                           "join l.wfsServiceProvider sp";
+            String query = "select distinct new "
+                    + "nl.b3p.ogc.utils.SpLayerSummary(l, 'true',sp) "
+                    + "from WfsLayer l "
+                    + "join l.wfsServiceProvider sp";
             if (version!=null)
                 query+=" where sp.wfsVersion = :version";
 
              Query q= em.createQuery(query);
              if (version!=null)
                 q.setParameter("version", version);
-             layers=q.getResultList();
+             spLayers=q.getResultList();
+        }
+        
+        List<String> layers = new ArrayList<String>();
+        for (SpLayerSummary spls : spLayers) {
+            String ln = OGCCommunication.attachSp(spls.getSpAbbr(), spls.getLayerName());
+            layers.add(ln);
         }
         return (String[])layers.toArray(new String[] {});
     }
