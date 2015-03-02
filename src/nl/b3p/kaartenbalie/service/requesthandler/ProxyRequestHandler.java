@@ -25,19 +25,17 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import java.util.Arrays;
+import java.util.Iterator;
+import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
-import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.kaartenbalie.service.servlet.ProxySLDServlet;
 import nl.b3p.ogc.utils.KBConfiguration;
 import nl.b3p.ogc.utils.KBCrypter;
 import nl.b3p.ogc.utils.LayerSummary;
-import nl.b3p.ogc.utils.OGCCommunication;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
-import nl.b3p.wms.capabilities.Style;
+import nl.b3p.ogc.utils.SpLayerSummary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,8 +57,34 @@ public class ProxyRequestHandler extends WMSRequestHandler {
      * @throws IOException
      */
     public void getRequest(DataWrapper dw, User user) throws IOException, Exception {
+        Integer[] orgIds = user.getOrganizationIds();
         OGCRequest ogcrequest = dw.getOgcrequest();
         String spInUrl = ogcrequest.getServiceProviderName();
+        
+        String[] la = ogcrequest.getParameter(OGCConstants.WMS_PARAM_LAYER).split(",");
+        List<LayerSummary> lsl = LayerSummary.createLayerSummaryList(Arrays.asList(la), spInUrl, (spInUrl==null)); 
+
+        if (lsl==null || lsl.size() != 1) {
+            log.error("Only one layer for proxy.");
+            throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
+        }
+
+        List spUrls = getServiceProviderURLS(lsl, orgIds, false, dw, false);
+        if (spUrls == null || spUrls.size() != 1) {
+            log.error("Only one layer for proxy.");
+            throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
+        }
+
+        SpLayerSummary spInfo = (SpLayerSummary) spUrls.get(0);
+        if (spInfo == null) {
+            log.error("No urls found!");
+            throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
+        }
+           
+        B3PCredentials credentials = new B3PCredentials();
+        credentials.setUserName(spInfo.getUsername());
+        credentials.setPassword(spInfo.getPassword());
+        
         
         String decodedUrl = ogcrequest.getParameter(OGCConstants.PROXY_URL);
         if (decodedUrl == null || decodedUrl.length() == 0) {
@@ -76,6 +100,7 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
         proxyWrapper.setProviderRequestURI(proxyUrl);
         proxyWrapper.setServiceName(dw.getOgcrequest().getServiceProviderName());
+        proxyWrapper.setCredentials(credentials);
         
         ArrayList urlWrapper = new ArrayList();
         urlWrapper.add(proxyWrapper);

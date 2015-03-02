@@ -103,10 +103,6 @@ public class GetMapRequestHandler extends WMSRequestHandler {
             throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
         }
         spUrls = prepareAccounting(user.getMainOrganizationId(), dw, spUrls);
-        if (spUrls == null || spUrls.isEmpty()) {
-            log.error("No urls qualify for request.");
-            throw new Exception(KBConfiguration.GETMAP_EXCEPTION);
-        }
 
         ArrayList urlWrapper = new ArrayList();
         Iterator it = spUrls.iterator();

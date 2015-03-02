@@ -141,8 +141,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
             log.error("layer not valid or no rights, name: " + OGCCommunication.buildFullLayerName(m));
             throw new Exception(KBConfiguration.REQUEST_NORIGHTS_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
         } else if (result.size() > 1) {
-            log.error("layers with duplicate names, name: " + OGCCommunication.buildFullLayerName(m));
-            throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
+            log.debug("layers with duplicate names, name: " + OGCCommunication.buildFullLayerName(m));
+            // ignore
+            // throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
         }
 
         return (SpLayerSummary) result.get(0);
