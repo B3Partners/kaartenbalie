@@ -457,6 +457,11 @@ public class WMSParser extends WmsWfsParser {
             ServiceProvider newServiceProvider) throws Exception {
 
         EntityManager em = getEntityManager();
+        
+        if(oldServiceProvider.getIgnoreResource() != null && oldServiceProvider.getIgnoreResource()){
+            newServiceProvider.setIgnoreResource(oldServiceProvider.getIgnoreResource());
+            newServiceProvider.setUrl(oldServiceProvider.getUrl());
+        }
 
         String username = oldServiceProvider.getUserName();
         String password = oldServiceProvider.getPassword();
@@ -536,7 +541,7 @@ public class WMSParser extends WmsWfsParser {
          * WMS GetCap Url opbouwen
          */
         OGCRequest ogcu = checkWmsUrl(url.trim());
-
+        
         WMSCapabilitiesReader wms = new WMSCapabilitiesReader();
         ServiceProvider sp = null;
 
