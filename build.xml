@@ -71,5 +71,5 @@
     
     <import file="database/hibernate-schemaexport.xml"/>
 
-	<import file="deploy/build.xml"/>
+	<import file="deploy/build.xml" optional="true"/>
 </project>
