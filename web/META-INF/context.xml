@@ -22,7 +22,7 @@
         minEvictableIdleTimeMillis="30000" 
         jmxEnabled="true"
         username="postgres" 
-        password="***REMOVED***" 
+        password="xxxxxxx" 
         driverClassName="org.postgresql.Driver"
         url="jdbc:postgresql://x12/solparc_kaartenbalie"
     />
