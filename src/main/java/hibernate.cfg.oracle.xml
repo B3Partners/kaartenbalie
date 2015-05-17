@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Oracle mapping files -->
+        <mapping resource="kaartenbalie.hbm.oracle.xml"/>
+        <mapping resource="monitoring.hbm.oracle.xml"/>
+        <mapping resource="reporting.hbm.oracle.xml"/>
+        <mapping resource="accounting.hbm.oracle.xml"/>
+    </session-factory>
+</hibernate-configuration>
+

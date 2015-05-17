@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+
+<struts-config>
+    <form-beans>
+        <form-bean name="uploadForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="mapFile" type="org.apache.struts.upload.FormFile"/>
+            <form-property name="overwrite" type="java.lang.Boolean"/>
+        </form-bean>
+        <form-bean name="userForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="firstname" type="java.lang.String"/>
+            <form-property name="surname" type="java.lang.String"/>
+            <form-property name="emailAddress" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="mainOrganization" type="java.lang.String"/>
+            <form-property name="orgSelected" type="java.lang.String[]"/>
+            <form-property name="password" type="java.lang.String"/>
+            <form-property name="repeatpassword" type="java.lang.String"/>
+            <form-property name="roleSelected" type="java.lang.Integer[]"/>
+            <form-property name="personalURL" type="java.lang.String"/>
+            <form-property name="registeredIP" type="java.lang.String"/>
+            <form-property name="currentAddress" type="java.lang.String"/>
+            <form-property name="timeout" type="java.lang.String"/>
+            <!-- organization form fields -->
+            <form-property name="organizationName" type="java.lang.String"/>
+            <form-property name="organizationTelephone" type="java.lang.String"/>
+        </form-bean>
+        
+        <form-bean name="serverForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="givenName" type="java.lang.String"/>
+            <form-property name="url" type="java.lang.String"/>
+            <form-property name="updatedDate" type="java.lang.String"/>
+            <form-property name="abbr" type="java.lang.String"/>
+            <form-property name="regexp" type="java.lang.String"/>
+            <form-property name="replacement" type="java.lang.String"/>
+            <form-property name="orgSelected" type="java.lang.String[]"/>
+            <form-property name="sldUrl" type="java.lang.String"/>
+            <form-property name="username" type="java.lang.String"/>
+            <form-property name="password" type="java.lang.String"/>
+            
+            <form-property name="ignoreResource" type="java.lang.Boolean"/>
+            <form-property name="providerId" type="java.lang.String"/>
+            
+            <form-property name="uploadFile" type="org.apache.struts.upload.FormFile"/>
+            <form-property name="overwrite" type="java.lang.Boolean"/>
+            <form-property name="updateRights" type="java.lang.Boolean"/>
+        </form-bean>
+
+        <form-bean name="organizationForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <form-property name="serverType" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="street" type="java.lang.String"/>
+            <form-property name="number" type="java.lang.String"/>
+            <form-property name="addition" type="java.lang.String"/>
+            <form-property name="postalcode" type="java.lang.String"/>
+            <form-property name="province" type="java.lang.String"/>
+            <form-property name="country" type="java.lang.String"/>
+            <form-property name="postbox" type="java.lang.String"/>
+            <form-property name="billingAddress" type="java.lang.String"/>
+            <form-property name="visitorsAddress" type="java.lang.String"/>
+            <form-property name="telephone" type="java.lang.String"/>
+            <form-property name="fax" type="java.lang.String"/>
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="bbox" type="java.lang.String"/>
+            <form-property name="code" type="java.lang.String"/>
+            <form-property name="allow" type="java.lang.String"/>
+        </form-bean>      
+        <form-bean name="rightsForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="selectedLayers" type="java.lang.String[]"/>
+            <form-property name="orgId" type="java.lang.String"/>
+            <form-property name="orgName" type="java.lang.String"/>
+            <form-property name="type" type="java.lang.String"/>
+        </form-bean>
+        <form-bean name="roleForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- user form fields-->
+            <form-property name="name" type="java.lang.String"/>
+        </form-bean>
+        <form-bean name="reportingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="endDate" type="java.lang.String"/>
+            <form-property name="startDate" type="java.lang.String"/>
+            <form-property name="deleteReport" type="java.lang.String[]"/>
+            <form-property name="organizationId" type="java.lang.Integer"/>
+            <form-property name="name" type="java.lang.String"/>
+            <form-property name="xsl" type="java.lang.String"/>
+        </form-bean>
+        <form-bean name="accountingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="selectedOrganization" type="java.lang.String"/>
+            <form-property name="firstResult" type="java.lang.String"/>
+            <form-property name="listMax" type="java.lang.String"/>
+        </form-bean>
+        <form-bean name="pricingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="pricingid" type="java.lang.String"/>
+            <form-property name="planType" type="java.lang.String"/>
+            <form-property name="validFrom" type="java.lang.String"/>
+            <form-property name="validUntil" type="java.lang.String"/>
+            <form-property name="unitPrice" type="java.lang.String"/>
+            <form-property name="service" type="java.lang.String"/>
+            <form-property name="operationWMS" type="java.lang.String"/>
+            <form-property name="operationWFS" type="java.lang.String"/>
+            <form-property name="minScale" type="java.lang.String"/>
+            <form-property name="maxScale" type="java.lang.String"/>
+            <form-property name="projection" type="java.lang.String"/>
+        </form-bean>
+
+        <form-bean name="testPricingForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="testFrom" type="java.lang.String"/>
+            <form-property name="testUntil" type="java.lang.String"/>
+            <form-property name="testProjection" type="java.lang.String"/>
+            <form-property name="testScale" type="java.lang.String"/>
+            <form-property name="testStepSize" type="java.lang.String"/>
+            <form-property name="testSteps" type="java.lang.String"/>
+        </form-bean>
+        
+        <form-bean name="depositForm" type="org.apache.struts.validator.DynaValidatorForm">
+            <!-- hidden -->
+            <form-property name="id" type="java.lang.String"/>
+            <form-property name="action" type="java.lang.String"/>
+            <form-property name="alt_action" type="java.lang.String"/>
+            <!-- generation form fields-->
+            <form-property name="paymentMethod" type="java.lang.String"/>
+            <form-property name="amount" type="java.lang.Integer"/>
+            <form-property name="fraction" type="java.lang.Integer"/>
+            <form-property name="description" type="java.lang.String"/>
+            <form-property name="orgId" type="java.lang.String"/>
+            <form-property name="orgName" type="java.lang.String"/>
+        </form-bean>
+        
+    </form-beans>
+    
+    <global-exceptions>
+        
+    </global-exceptions>
+    
+    <global-forwards>
+        <forward name="success"  path="/index.do"/>
+    </global-forwards>
+    
+    <action-mappings>
+        <action path="/index" forward="base.beheer.index"/>
+        
+        <action path="/user" name="userForm" type="nl.b3p.kaartenbalie.struts.UserAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.user"/>
+            <forward name="failure" path="base.beheer.user"/>
+        </action>
+        <action path="/mapserver" name="uploadForm" type="nl.b3p.kaartenbalie.struts.MapServerAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.mapserver"/>
+            <forward name="failure" path="base.beheer.mapserver"/>
+        </action>
+        <action path="/server" name="serverForm" type="nl.b3p.kaartenbalie.struts.WmsServerAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.server"/>
+            <forward name="failure" path="base.beheer.server"/>
+        </action>
+        <action path="/wfsserver" name="serverForm" type="nl.b3p.kaartenbalie.struts.WfsServerAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.wfsserver"/>
+            <forward name="failure" path="base.beheer.wfsserver"/>
+        </action>
+        <action path="/organization" name="organizationForm" type="nl.b3p.kaartenbalie.struts.OrganizationAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.organization"/>
+            <forward name="failure" path="base.beheer.organization"/>
+        </action>
+        <action path="/rights2" name="rightsForm" type="nl.b3p.kaartenbalie.struts.RightsAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.rights2"/>
+            <forward name="failure" path="base.beheer.rights2"/>
+        </action>
+        <action path="/role" name="roleForm" type="nl.b3p.kaartenbalie.struts.RoleAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.role"/>
+            <forward name="failure" path="base.beheer.role"/>
+        </action>
+        <action path="/accounting" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.accounting"/>
+            <forward name="failure" path="base.beheer.accounting"/>
+        </action>
+        <action path="/deposit" name="depositForm" type="nl.b3p.kaartenbalie.struts.DepositAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.deposit"/>
+            <forward name="failure" path="base.beheer.deposit"/>
+            <forward name="back" path="/accounting.do"/>
+        </action>
+        
+        <action path="/transaction" name="accountingForm" type="nl.b3p.kaartenbalie.struts.AccountingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.accounting.transaction"/>
+            <forward name="failure" path="base.beheer.accounting.transaction"/>
+            <forward name="back" path="/accounting.do"/>
+        </action>
+        
+        <action path="/reporting" name="reportingForm" type="nl.b3p.kaartenbalie.struts.ReportingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.reporting"/>
+            <forward name="failure" path="base.beheer.reporting"/>
+        </action>
+        <action path="/pricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.WmsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing"/>
+            <forward name="failure" path="base.beheer.pricing"/>
+        </action>
+        <action path="/wfspricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.WfsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.wfspricing"/>
+            <forward name="failure" path="base.beheer.wfspricing"/>
+        </action>
+        <action path="/editpricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.WmsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.editpricing"/>
+            <forward name="failure" path="base.beheer.editpricing"/>
+            <forward name="test" path="/pricingtest.do"/>
+        </action>
+        <action path="/wfseditpricing" name="pricingForm" type="nl.b3p.kaartenbalie.struts.WfsPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.wfseditpricing"/>
+            <forward name="failure" path="base.beheer.wfseditpricing"/>
+            <forward name="test" path="/wfspricingtest.do"/>
+        </action>
+        <action path="/pricingtest" name="testPricingForm" type="nl.b3p.kaartenbalie.struts.WmsTestPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing.testcalculation"/>
+            <forward name="failure" path="base.beheer.pricing.testcalculation"/>
+            <forward name="back" path="/editpricing.do"/>
+        </action>
+        <action path="/wfspricingtest" name="testPricingForm" type="nl.b3p.kaartenbalie.struts.WfsTestPricingAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.pricing.wfstestcalculation"/>
+            <forward name="failure" path="base.beheer.pricing.wfstestcalculation"/>
+            <forward name="back" path="/wfseditpricing.do"/>
+        </action>
+        
+        <action path="/allowedWMS" name="serverForm" type="nl.b3p.kaartenbalie.struts.AllowedWMSAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.allowedWMS"/>
+            <forward name="failure" path="base.beheer.allowedWMS"/>
+        </action>
+        <action path="/allowedWFS" name="serverForm" type="nl.b3p.kaartenbalie.struts.AllowedWFSAction" scope="request" validate="false">
+            <forward name="success" path="base.beheer.allowedWFS"/>
+            <forward name="failure" path="base.beheer.allowedWFS"/>
+        </action>
+    </action-mappings>
+    
+    <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
+    
+    <message-resources parameter="KaartenbalieResources"/>
+    
+    <!-- ========================= Tiles plugin ===============================-->
+    <plug-in className="org.apache.struts.tiles.TilesPlugin" >
+        <set-property property="definitions-config" value="/WEB-INF/conf/tiles-algemeen-defs.xml,/WEB-INF/conf/tiles-beheer-defs.xml" />
+        <set-property property="moduleAware" value="true" />
+    </plug-in>
+    
+    <!-- ========================= Validator plugin ================================= -->
+    <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property property="pathnames" value="/WEB-INF/validator-rules.xml,/WEB-INF/conf/validation-beheer.xml"/>
+        <set-property property="stopOnFirstError" value="false"/>
+    </plug-in>
+    
+</struts-config>
