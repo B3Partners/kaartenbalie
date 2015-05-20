@@ -32,9 +32,9 @@ import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.kaartenbalie.service.requesthandler.DataWrapper;
 import nl.b3p.ogc.utils.OGCConstants;
 import nl.b3p.ogc.utils.OGCRequest;
-import nl.b3p.servletAPI.ConfigStub;
-import nl.b3p.servletAPI.HttpServletRequestStub;
-import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletTestAPI.ConfigStub;
+import nl.b3p.servletTestAPI.HttpServletRequestStub;
+import nl.b3p.servletTestAPI.HttpServletResponseStub;
 import org.junit.Test;
 
 public class CallWMSServletTest extends KaartenbalieTestCase {

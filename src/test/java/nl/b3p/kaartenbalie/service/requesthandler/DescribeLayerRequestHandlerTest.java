@@ -1,8 +1,8 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import general.KaartenbalieTestCase;
-import nl.b3p.servletAPI.HttpServletRequestStub;
-import nl.b3p.servletAPI.HttpServletResponseStub;
+import nl.b3p.servletTestAPI.HttpServletRequestStub;
+import nl.b3p.servletTestAPI.HttpServletResponseStub;
 import java.util.Date;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import nl.b3p.kaartenbalie.service.servlet.CallWMSServlet;
-import nl.b3p.servletAPI.HttpServletRequestStub;
+import nl.b3p.servletTestAPI.HttpServletRequestStub;
 import nl.b3p.wms.capabilities.Roles;
 import org.junit.After;
 import org.junit.Before;

@@ -33,7 +33,6 @@ import nl.b3p.kaartenbalie.reporting.*;
 import nl.b3p.kaartenbalie.reporting.castor.*;
 import nl.b3p.kaartenbalie.service.*;
 import nl.b3p.kaartenbalie.service.requesthandler.*;
-import nl.b3p.kaartenbalie.service.servlet.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -47,10 +46,8 @@ import org.junit.runners.Suite;
     ClientRequestTest.class, DataMonitoringTest.class,
     CastorXmlTransformerTest.class, ReportTest.class,
     HourlyLoadDescriptorTest.class, HourlyLoadTest.class,
-    KBImageToolTest.class, LayerTreeSupportTest.class, LayerValidatorTest.class, MapParserTest.class, SecurityRealmTest.class, ServiceProviderValidatorTest.class,
     DOMValidatorTest.class, DataWrapperTest.class, DescribeLayerRequestHandlerTest.class, GetCapabilitiesRequestHandlerTest.class, GetFeatureInfoRequestHandlerTest.class, TextToImageTest.class,
-    CallWMSServletTest.class,ProxySLDServletTest.class, SelectCSSTest.class
-})
+ })
 public class AllTests {
     // Empty, since the annotations include all of the necessary configuration
 }

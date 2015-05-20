@@ -1,10 +1,10 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import general.KaartenbalieTestCase;
-import nl.b3p.servletAPI.InputStreamStub;
-import nl.b3p.servletAPI.HttpServletResponseStub;
-import nl.b3p.servletAPI.HttpServletRequestStub;
-import nl.b3p.servletAPI.ByteArrayOutputStreamStub;
+import nl.b3p.servletTestAPI.InputStreamStub;
+import nl.b3p.servletTestAPI.HttpServletResponseStub;
+import nl.b3p.servletTestAPI.HttpServletRequestStub;
+import nl.b3p.servletTestAPI.ByteArrayOutputStreamStub;
 import nl.b3p.testStreet.*;
 import java.io.IOException;
 import java.util.*;

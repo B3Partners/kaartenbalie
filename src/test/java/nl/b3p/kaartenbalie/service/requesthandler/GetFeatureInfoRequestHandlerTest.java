@@ -1,9 +1,9 @@
 package nl.b3p.kaartenbalie.service.requesthandler;
 
 import general.KaartenbalieTestCase;
-import nl.b3p.servletAPI.HttpServletRequestStub;
-import nl.b3p.servletAPI.HttpServletResponseStub;
-import nl.b3p.servletAPI.UserStub;
+import nl.b3p.servletTestAPI.HttpServletRequestStub;
+import nl.b3p.servletTestAPI.HttpServletResponseStub;
+import nl.b3p.servletTestAPI.UserStub;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.DataMonitoring;
 import nl.b3p.ogc.utils.OGCConstants;

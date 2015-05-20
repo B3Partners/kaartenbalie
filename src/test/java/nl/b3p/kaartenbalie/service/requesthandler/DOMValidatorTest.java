@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import nl.b3p.servletAPI.ByteArrayInputStreamStub;
-import nl.b3p.servletAPI.LocatorStub;
+import nl.b3p.servletTestAPI.ByteArrayInputStreamStub;
+import nl.b3p.servletTestAPI.LocatorStub;
 
 /**
  *

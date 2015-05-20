@@ -1,7 +1,7 @@
 package nl.b3p.kaartenbalie.service.servlet;
 
 import general.KaartenbalieTestCase;
-import nl.b3p.servletAPI.ConfigStub;
+import nl.b3p.servletTestAPI.ConfigStub;
 import javax.servlet.ServletException;
 import org.junit.After;
 import org.junit.Before;

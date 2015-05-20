@@ -28,7 +28,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import nl.b3p.kaartenbalie.core.server.Organization;
 import nl.b3p.kaartenbalie.core.server.persistence.MyEMFDatabase;
-import nl.b3p.servletAPI.ConfigStub;
+import nl.b3p.servletTestAPI.ConfigStub;
 import nl.b3p.testStreet.B3TestCase;
 
 public class KaartenbalieTestCase extends B3TestCase {

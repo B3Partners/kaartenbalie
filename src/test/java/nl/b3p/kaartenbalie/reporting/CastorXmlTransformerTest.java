@@ -4,7 +4,7 @@ import general.KaartenbalieTestCase;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import javax.xml.transform.stream.StreamSource;
-import nl.b3p.servletAPI.OutputStreamStub;
+import nl.b3p.servletTestAPI.OutputStreamStub;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
