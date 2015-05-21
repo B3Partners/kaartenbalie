@@ -4,7 +4,7 @@
 
     <groupId>nl.b3p</groupId>
     <artifactId>kaartenbalie</artifactId>
-    <version>4.2</version>
+    <version>4.2-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>kaartenbalie</name>
@@ -18,13 +18,13 @@
         <dependency>
             <groupId>nl.b3p</groupId>
             <artifactId>b3p-commons-gis</artifactId>
-            <version>4.2</version>
+            <version>4.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>nl.b3p</groupId>
             <artifactId>milton-b3p</artifactId>
-            <version>4.2</version>
+            <version>4.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -44,16 +44,22 @@
             <version>3.6.3.Final</version>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>3.6.3.Final</version>
+        </dependency>
         <dependency>
             <groupId>nl.b3p</groupId>
             <artifactId>commons-mail-b3p</artifactId>
-            <version>4.2</version>
+            <version>4.2-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.axis</groupId>
             <artifactId>axis</artifactId>
-            <version>1.4.1-SNAPSHOT</version>
+            <version>1.4</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -61,12 +67,12 @@
             <artifactId>fop</artifactId>
             <version>0.20.5</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-vfs2</artifactId>
-            <version>2.1-SNAPSHOT</version>
-            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -89,7 +95,7 @@
         <dependency>
             <groupId>nl.b3p</groupId>
             <artifactId>servletTestAPI</artifactId>
-            <version>4.2</version>
+            <version>4.2-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
@@ -105,7 +111,7 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <version>3.6.3.Final</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>apache-xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>2.9.0</version>
@@ -124,6 +130,17 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-vfs2</artifactId>
+            <version>2.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -136,6 +153,11 @@
             <id>repository.jboss.org-public</id>
             <name>JBoss.org Maven repository</name>
             <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>nl.b3p.gissuite</id>
+            <name>B3P GIS Suite Maven Repository</name>
+            <url>file://${project.basedir}/../repo</url>
         </repository>
     </repositories>
 
