@@ -59,6 +59,12 @@
             <groupId>fop</groupId>
             <artifactId>fop</artifactId>
             <version>0.20.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
