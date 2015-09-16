@@ -19,12 +19,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>b3p-commons-gis</artifactId>
-            <version>${project.version}</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-b3p</artifactId>
-            <version>${project.version}</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>commons-mail-b3p</artifactId>
-            <version>${project.version}</version>
+            <version>4.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.axis</groupId>
@@ -73,6 +73,13 @@
             <version>1.1.1</version>
         </dependency>
         <dependency>
+            <!-- nodig voor hibernate -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope> 
+        </dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-wms</artifactId>
             <version>${geotools.version}</version>
@@ -91,7 +98,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>servletTestAPI</artifactId>
-            <version>${project.version}</version>
+            <version>4.2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -129,6 +136,11 @@
 
     <repositories>
        <repository>
+            <id>repo.b3p.nl</id>
+            <name>B3P file Repository</name>
+            <url>http://repo.b3p.nl/nexus/content/repositories/releases/</url>
+        </repository>
+       <repository>
             <id>osgeo</id>
             <name>Open Source Geospatial Foundation Repository</name>
             <url>http://download.osgeo.org/webdav/geotools/</url>
@@ -144,6 +156,19 @@
             <url>file://${project.basedir}/../B3pGisSuiteMvnRepo</url>
         </repository>
     </repositories>
+    <scm>
+        <connection>scm:git:git@github.com:B3Partners/kaartenbalie.git</connection>
+        <developerConnection>scm:git:git@github.com:B3Partners/kaartenbalie.git</developerConnection>
+        <url>https://github.com/B3Partners/kaartenbalie</url>
+      <tag>kaartenbalie-4.2.1</tag>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>repo.b3p.nl</id>
+            <name>B3P file Repository</name>
+            <url>http://repo.b3p.nl/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
@@ -157,8 +182,16 @@
                     <compilerArguments>
                         <endorseddirs>${endorsed.dir}</endorseddirs>
                     </compilerArguments>
-                </configuration>
+                </configuration>               
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.18.1</version>
+                 <configuration>
+                    <skip>true</skip>
+                </configuration>               
+           </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -191,6 +224,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+           <plugin>                
+                <groupId>org.apache.maven.plugins</groupId>                
+                <artifactId>maven-release-plugin</artifactId>                
+                <version>2.5.2</version>                
+                <configuration>                    
+                    <pushChanges>true</pushChanges>                
+                </configuration>            
             </plugin>
         </plugins>
     </build>
