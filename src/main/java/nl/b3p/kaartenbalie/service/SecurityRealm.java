@@ -22,6 +22,7 @@
 package nl.b3p.kaartenbalie.service;
 
 import java.security.Principal;
+import java.util.Date;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
@@ -66,24 +67,16 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
             try {
                 User user = (User) em.createQuery(
                         "from User u where " +
-                        "lower(u.username) = lower(:username) " +
-                        "and u.password = :password").setParameter("username", username).setParameter("password", encpw).getSingleResult();
+                        "u.timeout > :nu " +
+                        "and lower(u.username) = lower(:username) " +
+                        "and u.password = :password")
+                        .setParameter("nu", new Date())
+                        .setParameter("username", username)
+                        .setParameter("password", encpw)
+                        .getSingleResult();
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using encrypted password");
-            }
-            try {
-                User user = (User) em.createQuery(
-                        "from User u where " +
-                        "lower(u.username) = lower(:username) " +
-                        "and lower(u.password) = lower(:password)").setParameter("username", username).setParameter("password", password).getSingleResult();
-
-                log.info("Encrypting cleartext password for user " + user.getName());
-                user.setPassword(encpw);
-                em.flush();
-                return user;
-            } catch (NoResultException nre) {
-                log.debug("No results using cleartext password");
             }
             log.warn("Login failure for username " + username);
         } catch(Exception e) {
