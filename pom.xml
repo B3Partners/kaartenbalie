@@ -131,7 +131,7 @@
         <repository>
             <id>repo.b3p.nl</id>
             <name>B3P file Repository</name>
-            <url>http://repo.b3p.nl/nexus/content/repositories/releases/</url>
+            <url>http://repo.b3p.nl/nexus/content/repositories/public/</url>
         </repository>
         <repository>
             <id>osgeo</id>
