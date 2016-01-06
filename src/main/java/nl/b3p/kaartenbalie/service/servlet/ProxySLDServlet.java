@@ -98,6 +98,7 @@ public class ProxySLDServlet extends GeneralServlet {
 
         } catch (Exception ex) {
             response.getWriter().write("Error while getting SLD. Check the log for details");
+            log.error("Cannot proxy SLD:",ex);
         } finally {
             log.debug("Closing entity manager .....");
             MyEMFDatabase.closeEntityManager(identity, MyEMFDatabase.MAIN_EM);
