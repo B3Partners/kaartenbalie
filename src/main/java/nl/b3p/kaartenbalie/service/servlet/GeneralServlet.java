@@ -144,16 +144,39 @@ abstract public class GeneralServlet extends HttpServlet {
         return user;
     }
 
+    /**
+     * check of user al ingelogd was
+     * check inlog via (preemptive) authentication header
+     * check of via personal code wordt ingelogd
+     * en zo ja check of een geldig IP adres wordt gebruikt
+     * check inlog via LDAP
+     * indien geen user dan AccessDeniedException, zodat inlog challenge wordt getoond
+     * indien wel user, dan:
+     * check of de inlog niet verlopen is
+     * @param request
+     * @param pcode
+     * @param em
+     * @return
+     * @throws AccessDeniedException 
+     */
     public static User checkLogin(HttpServletRequest request, String pcode, EntityManager em)
             throws AccessDeniedException  {
         User user = checkLoginAlreadyLoggedIn(request, em, pcode);
         boolean wasAlreadyLoggedIn = user != null;
 
         if (user == null) {
-            user = checkLoginPersonalCode(request, em, pcode);
+            user = checkLoginPreemptiveAuthentication(request, em);
         }
         if (user == null) {
-            user = checkLoginPreemptiveAuthentication(request, em);
+            user = checkLoginPersonalCode(request, em, pcode);
+            if (user != null) {
+                /* Controleer ip adressen bij gebruik van inlogcode */
+                boolean isValidIp = checkValidIpAddress(request, user);
+                if (!isValidIp) {
+                    setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
+                    throw new AccessDeniedException("Toegang voor gebruiker \"" + user.getName() + "\" niet toegestaan van uw IP adres");
+                }
+            }
         }
         if (user == null) {
             user = checkLoginLDAP(request, em);
@@ -164,12 +187,6 @@ abstract public class GeneralServlet extends HttpServlet {
             throw new AccessDeniedException("Ongeldige inloggegevens");
         }
 
-        /* Controleer ip adressen */
-        boolean isValidIp = checkValidIpAddress(request, user);
-        if (!isValidIp) {
-            setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
-            throw new AccessDeniedException("Toegang voor gebruiker \"" + user.getName() + "\" niet toegestaan van uw IP adres");
-        }
         /* Controleer time out */
         boolean expired = isUserTimeoutExpired(em, user);
         if (expired) {
@@ -264,30 +281,6 @@ abstract public class GeneralServlet extends HttpServlet {
             } catch (NoResultException nre) {
                 log.debug("Geen gebruiker gevonden via encrypted wachtwoord.");
                 user = null;
-            }
-
-            // extra check voor oude non-encrypted passwords
-            if (user == null) {
-                try {
-                    user = (User) em.createQuery(
-                            "from User u where "
-                            + "lower(u.username) = lower(:username) "
-                            + "and lower(u.password) = lower(:password)")
-                            .setParameter("username", username)
-                            .setParameter("password", password)
-                            .getSingleResult();
-
-                    // Volgende keer dus wel encrypted
-                    user.setPassword(encpw);
-                    em.merge(user);
-                    em.flush();
-                } catch (NonUniqueResultException nue) {
-                    log.error("Meerdere gebruikers gevonden via plain wachtwoord.");
-                    user = null;
-                } catch (NoResultException nre) {
-                    log.debug("Geen gebruiker gevonden via plain wachtwoord.");
-                    user = null;
-                }
             }
 
             /* Controleer ingevuld wachtwoord met db gebruiker wachtwoord */
