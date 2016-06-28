@@ -146,9 +146,9 @@ abstract public class GeneralServlet extends HttpServlet {
 
     /**
      * check of user al ingelogd was
-     * check inlog via (preemptive) authentication header
      * check of via personal code wordt ingelogd
      * en zo ja check of een geldig IP adres wordt gebruikt
+     * check inlog via (preemptive) authentication header
      * check inlog via LDAP
      * indien geen user dan AccessDeniedException, zodat inlog challenge wordt getoond
      * indien wel user, dan:
@@ -165,18 +165,18 @@ abstract public class GeneralServlet extends HttpServlet {
         boolean wasAlreadyLoggedIn = user != null;
 
         if (user == null) {
-            user = checkLoginPreemptiveAuthentication(request, em);
-        }
-        if (user == null) {
             user = checkLoginPersonalCode(request, em, pcode);
             if (user != null) {
                 /* Controleer ip adressen bij gebruik van inlogcode */
                 boolean isValidIp = checkValidIpAddress(request, user);
                 if (!isValidIp) {
                     setDetachedUserLastLoginStatus(user, User.LOGIN_STATE_INVALID_IP, em);
-                    throw new AccessDeniedException("Toegang voor gebruiker \"" + user.getName() + "\" niet toegestaan van uw IP adres");
+                    user = null;
                 }
             }
+        }
+        if (user == null) {
+            user = checkLoginPreemptiveAuthentication(request, em);
         }
         if (user == null) {
             user = checkLoginLDAP(request, em);
@@ -424,6 +424,9 @@ abstract public class GeneralServlet extends HttpServlet {
     }
 
     private static boolean checkValidIpAddress(HttpServletRequest request, User user) {
+        
+        if (true)
+        return false;
 
         /* ip adressen van user die bij pcode hoort worden gechecked
          dit hoeven dus niet perse de ip adressen te zijn van de user
