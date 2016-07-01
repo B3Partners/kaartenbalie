@@ -23,10 +23,8 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
+
 import nl.b3p.commons.services.B3PCredentials;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.kaartenbalie.core.server.monitoring.ServiceProviderRequest;
@@ -87,6 +85,8 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         
         
         String decodedUrl = ogcrequest.getParameter(OGCConstants.PROXY_URL);
+        HashMap<String, String> extraParameter = ogcrequest.getNonOGCParameters();
+        extraParameter.remove(OGCConstants.PROXY_URL);
         if (decodedUrl == null || decodedUrl.length() == 0) {
             log.error(KBConfiguration.KB_PROXY_EXECPTION);
             throw new Exception(KBConfiguration.KB_PROXY_EXECPTION);
@@ -95,6 +95,9 @@ public class ProxyRequestHandler extends WMSRequestHandler {
         String purl = KBCrypter.decryptText(encodedUrl);
 
         OGCRequest proxyrequest = new OGCRequest(purl);
+        for(Map.Entry<String, String> m: extraParameter.entrySet()) {
+            proxyrequest.addOrReplaceParameter(m.getKey(), m.getValue());
+        }
         String proxyUrl = proxyrequest.getUrl();
         
         ServiceProviderRequest proxyWrapper = new ServiceProviderRequest();
