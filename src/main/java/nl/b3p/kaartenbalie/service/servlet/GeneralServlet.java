@@ -424,9 +424,6 @@ abstract public class GeneralServlet extends HttpServlet {
     }
 
     private static boolean checkValidIpAddress(HttpServletRequest request, User user) {
-        
-        if (true)
-        return false;
 
         /* ip adressen van user die bij pcode hoort worden gechecked
          dit hoeven dus niet perse de ip adressen te zijn van de user
