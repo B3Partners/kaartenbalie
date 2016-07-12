@@ -199,12 +199,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                         <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
                                     </c:forEach>
                                 </td>
-                                <td>
+                                <td <jsp:useBean id="today" class="java.util.Date" />
+                                    <c:choose> <c:when test="${nUser.timeout.time le today.time}"> style="color:red" </c:when> <c:otherwise> style="color:black" </c:otherwise> </c:choose>>
                                     <fmt:formatDate pattern="dd-MM-yyyy" value="${nUser.timeout}" />
+
+
                                 </td>
 
                                 <td>
-                                    <c:out value="${nUser.lastLoginStatus}"/>
+                                    <c:out value="${nUser.lastLoginStatus}"/>                                   
                                 </td>
                             </tr>
                         </c:forEach>
