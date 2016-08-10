@@ -302,7 +302,7 @@ abstract public class GeneralServlet extends HttpServlet {
                     em.merge(user);
                     em.flush();
 
-                    log.debug("Wachtwoord voor gebruiker " + username + " verkeerd.");
+                    log.debug("Wachtwoord voor gebruiker " + username + " verkeerd...");
                     user = null;
                 }
             }
@@ -310,6 +310,7 @@ abstract public class GeneralServlet extends HttpServlet {
 
         if (user != null) {
             log.debug("Basic authentication gelukt voor gebruiker: " + user.getName());
+            user.setLastLoginStatus(null);
         }
         return user;
     }
