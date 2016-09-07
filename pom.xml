@@ -3,7 +3,7 @@
 
     <groupId>nl.b3p</groupId>
     <artifactId>kaartenbalie</artifactId>
-    <version>4.2.6-SNAPSHOT</version>
+    <version>4.2.6</version>
     <packaging>war</packaging>
 
     <name>kaartenbalie</name>
@@ -147,7 +147,7 @@
         <connection>scm:git:git@github.com:B3Partners/kaartenbalie.git</connection>
         <developerConnection>scm:git:git@github.com:B3Partners/kaartenbalie.git</developerConnection>
         <url>https://github.com/B3Partners/kaartenbalie</url>
-        <tag>kaartenbalie-${project.version}</tag>
+        <tag>kaartenbalie-4.2.6</tag>
     </scm>
     <distributionManagement>
         <repository>
