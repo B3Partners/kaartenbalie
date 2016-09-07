@@ -74,10 +74,24 @@ public class SecurityRealm implements SecurityRealmInterface, ExternalAuthentica
                         .setParameter("username", username)
                         .setParameter("password", encpw)
                         .getSingleResult();
+                // if we get a result, this means successful login
+                // set lastloginstatus to null to indicate success
+                user.setLastLoginStatus(null);
+                
                 return user;
             } catch (NoResultException nre) {
                 log.debug("No results using encrypted password");
             }
+            // if login not succesful, set userstate to LOGIN_STATE_WRONG_PASSW
+                    User wrong_password_user = (User) em.createQuery(
+                    "from User u where "
+                    + "u.timeout > :nu "
+                    + "and lower(u.username) = lower(:username) ")
+                    .setParameter("nu", new Date())
+                    .setParameter("username", username)
+                    .getSingleResult();
+                    wrong_password_user.setLastLoginStatus(User.LOGIN_STATE_WRONG_PASSW_OR_ACCOUNT_EXPIRED);
+                    em.flush();
             log.warn("Login failure for username " + username);
         } catch(Exception e) {
             log.error("Exception checking user credentails", e);

@@ -60,6 +60,7 @@ public class User implements Principal {
     public static final String LOGIN_STATE_INVALID_IP = "Ongeldig IP";
     public static final String LOGIN_STATE_EXPIRED = "Account verlopen";
     public static final String LOGIN_STATE_WRONG_PASSW = "Verkeerd wachtwoord";
+    public static final String LOGIN_STATE_WRONG_PASSW_OR_ACCOUNT_EXPIRED = "verkeerd wachtwoord of account verlopen";
  
     public Integer getId() {
         return id;
