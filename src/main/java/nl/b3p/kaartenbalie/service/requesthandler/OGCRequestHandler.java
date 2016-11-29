@@ -100,8 +100,8 @@ public abstract class OGCRequestHandler implements RequestHandler {
      */
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String layerCode = m.getSpAbbr();
-        String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
-
+        String layerName = m.getLayerName();
+        
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
         if (layerCode == null){

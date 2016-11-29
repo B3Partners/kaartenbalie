@@ -409,7 +409,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 + "where l = ol and "
                 + "l.wfsServiceProvider = sp and "
                 + "o.id in (:orgIds) and "
-                + "l.name = :layerName and "
+                + "substring(l.name,locate(':',l.name)+1) = :layerName and "
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
 
