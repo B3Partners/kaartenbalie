@@ -24,6 +24,7 @@ package nl.b3p.kaartenbalie.service.requesthandler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +108,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
             }
         
             if (l != null) {
-                String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.buildFullLayerName(l));
+                String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.buildLayerNameWithoutNs(l));
                 filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
                 if (filter != null) {
                     ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
@@ -141,6 +142,7 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
         List<String> allLayers = null;
         if (ogcrequest.getHttpMethod().equals("POST")) {
             Set layers = ogcrequest.getGetFeatureFilterMap().keySet();
+            allLayers = new ArrayList();
             allLayers.addAll(layers);
         } else {
             String typeName = ogcrequest.getParameter(OGCConstants.WFS_PARAM_TYPENAME);
