@@ -148,8 +148,10 @@ public abstract class OGCRequestHandler implements RequestHandler {
         }
 
         SpLayerSummary sps = (SpLayerSummary) result.get(0);
-        LayerSummary ls = sps.getLayers().get(0);
-        ls.setNsUrl(nsUrl);
+        if (sps!=null && sps.getLayers()!=null && !sps.getLayers().isEmpty()) {
+            LayerSummary ls = sps.getLayers().get(0);
+            ls.setNsUrl(nsUrl);
+        }
         return sps;
     }
 
