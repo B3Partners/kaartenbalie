@@ -220,6 +220,17 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
                 // zet de juiste layers voor deze sp
                 OGCRequest sprequest = (OGCRequest) ogcrequest.clone();
+                
+                if (sp.getLayers()!=null && !sp.getLayers().isEmpty()) {
+                    LayerSummary ls = (LayerSummary) sp.getLayers().get(0);
+                    String nsUrl = ls.getNsUrl();
+                    String prefix = ls.getPrefix();
+                    if (nsUrl!=null && !nsUrl.isEmpty() 
+                            && prefix!=null && !prefix.isEmpty()) {
+                        sprequest.addOrReplaceNameSpace(prefix, nsUrl);
+                    }
+                }
+                
                 prepareRequest4Sp(sprequest, sp);
 
                 String lurl = sp.getSpUrl();

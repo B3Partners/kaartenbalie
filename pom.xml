@@ -18,7 +18,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>b3p-commons-gis</artifactId>
-            <version>4.2.7</version>
+            <version>4.2.8</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
