@@ -122,7 +122,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
         OGCRequest tmpReq = new OGCRequest(spOgcReq.fixHttpHost(sp.getSpUrl()));
         tmpReq.removeAllWFSParameters();
-        String postUrl = spOgcReq.getUrl(tmpReq.getUrl());
+        String postUrl = tmpReq.getUrl(); //spOgcReq.getUrl(tmpReq.getUrl()); //niet nodig voor post
         HttpPost method = new HttpPost(postUrl);
         //work around voor ESRI post Messages
         //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
