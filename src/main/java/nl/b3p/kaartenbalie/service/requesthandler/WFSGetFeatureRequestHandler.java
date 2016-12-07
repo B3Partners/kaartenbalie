@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import nl.b3p.kaartenbalie.core.server.User;
 import nl.b3p.ogc.utils.LayerSummary;
@@ -100,41 +102,54 @@ public class WFSGetFeatureRequestHandler extends WFSRequestHandler {
     public String prepareRequest4Sp(OGCRequest ogcrequest, SpLayerSummary sp) {
         
         if (ogcrequest.getHttpMethod().equalsIgnoreCase("POST")) {
-            LayerSummary l = null;
-            try {
-                l = OGCCommunication.splitLayerWithoutNsFix(sp.getLayerName(), false, sp.getSpAbbr(), null);
-            } catch (Exception ex) {
-                // ignore
-            }
         
-            if (l != null) {
-                String filter = ogcrequest.getGetFeatureFilter(OGCCommunication.buildLayerNameWithoutNs(l));
-                filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
-                if (filter != null) {
-                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
-                }
-                String propertyNames = ogcrequest.getGetFeaturePropertyNameList(OGCCommunication.buildFullLayerName(l));
-                if (propertyNames != null) {
-                    ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_PROPERTYNAME, propertyNames);
+            Map<String, Object> m = ogcrequest.getGetFeatureFilterMap();
+            HashMap<String, Object> converted = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> e : m.entrySet()) {
+                try {
+                    LayerSummary ls = ogcrequest.splitLayerInParts(e.getKey());
+                    String key = OGCCommunication.buildLayerNameWithoutSp(ls);
+                    String filter = (String) e.getValue();
+                    filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
+                    converted.put(key, filter);
+                } catch (Exception ex) {
+                    log.error("Layer name cannot be interpreted, using original:", ex);
+                    converted.put(e.getKey(), e.getValue());
                 }
             }
+            ogcrequest.setGetFeatureFilterMap(converted);
+
+            Map<String, Object> m2 = ogcrequest.getGetFeaturePropertyNameListMap();
+            HashMap<String, Object> converted2 = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> e : m.entrySet()) {
+                try {
+                    LayerSummary ls = ogcrequest.splitLayerInParts(e.getKey());
+                    String key = OGCCommunication.buildLayerNameWithoutSp(ls);
+                    Object o = e.getValue();
+                    converted.put(key, o);
+                } catch (Exception ex) {
+                    log.error("Property name cannot be interpreted, using original:", ex);
+                    converted.put(e.getKey(), e.getValue());
+                }
+            }
+            ogcrequest.setGetFeaturePropertyNameListMap(converted2);
 
         } else { // get
             String filter = ogcrequest.getParameter(OGCConstants.WFS_PARAM_FILTER);
             filter = repairIntersects(ogcrequest.getFinalVersion(), filter);
             ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_FILTER, filter);
-        }
-
-        String layerParam = "";
-        List<LayerSummary> lsl = sp.getLayers();
-        for (LayerSummary ls : lsl) {
-            if (!layerParam.isEmpty()) {
-                layerParam += ",";
+            
+            String layerParam = "";
+            List<LayerSummary> lsl = sp.getLayers();
+            for (LayerSummary ls : lsl) {
+                if (!layerParam.isEmpty()) {
+                    layerParam += ",";
+                }
+                layerParam += OGCCommunication.buildLayerNameWithoutSp(ls);
             }
-            layerParam += OGCCommunication.buildLayerNameWithoutSp(ls);
-        }
 
-        ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
+            ogcrequest.addOrReplaceParameter(OGCConstants.WFS_PARAM_TYPENAME, layerParam);
+        }
         return null;
     }
     
