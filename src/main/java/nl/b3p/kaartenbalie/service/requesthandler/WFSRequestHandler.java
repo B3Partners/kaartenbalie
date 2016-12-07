@@ -122,7 +122,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
         OGCRequest tmpReq = new OGCRequest(spOgcReq.fixHttpHost(sp.getSpUrl()));
         tmpReq.removeAllWFSParameters();
-        String postUrl = spOgcReq.getUrl(tmpReq.getUrl());
+        String postUrl = tmpReq.getUrl(); //spOgcReq.getUrl(tmpReq.getUrl()); //niet nodig voor post
         HttpPost method = new HttpPost(postUrl);
         //work around voor ESRI post Messages
         //method.setRequestEntity(new StringRequestEntity(body, "text/xml", "UTF-8"));
@@ -220,6 +220,17 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
 
                 // zet de juiste layers voor deze sp
                 OGCRequest sprequest = (OGCRequest) ogcrequest.clone();
+                
+                if (sp.getLayers()!=null && !sp.getLayers().isEmpty()) {
+                    LayerSummary ls = (LayerSummary) sp.getLayers().get(0);
+                    String nsUrl = ls.getNsUrl();
+                    String prefix = ls.getPrefix();
+                    if (nsUrl!=null && !nsUrl.isEmpty() 
+                            && prefix!=null && !prefix.isEmpty()) {
+                        sprequest.addOrReplaceNameSpace(prefix, nsUrl);
+                    }
+                }
+                
                 prepareRequest4Sp(sprequest, sp);
 
                 String lurl = sp.getSpUrl();
@@ -409,7 +420,7 @@ public abstract class WFSRequestHandler extends OGCRequestHandler {
                 + "where l = ol and "
                 + "l.wfsServiceProvider = sp and "
                 + "o.id in (:orgIds) and "
-                + "l.name = :layerName and "
+                + "substring(l.name,locate(':',l.name)+1) = :layerName and "
                 + "sp.abbr = :layerCode and "
                 + "sp.allowed = true";
 

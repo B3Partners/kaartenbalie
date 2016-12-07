@@ -100,8 +100,9 @@ public abstract class OGCRequestHandler implements RequestHandler {
      */
     protected SpLayerSummary getValidLayerObjects(EntityManager em, String query, LayerSummary m, Integer[] orgIds, boolean b3pLayering) throws Exception {
         String layerCode = m.getSpAbbr();
-        String layerName = OGCCommunication.buildLayerNameWithoutSp(m);
-
+        String layerName = m.getLayerName();
+        String nsUrl = m.getNsUrl();
+        
         log.debug("Collect layer info for layer: " + layerName + " and service provider: " + layerCode);
 
         if (layerCode == null){
@@ -146,7 +147,12 @@ public abstract class OGCRequestHandler implements RequestHandler {
             // throw new Exception(KBConfiguration.REQUEST_DUPLICATE_EXCEPTION + ": " + OGCCommunication.buildFullLayerName(m));
         }
 
-        return (SpLayerSummary) result.get(0);
+        SpLayerSummary sps = (SpLayerSummary) result.get(0);
+        if (sps!=null && sps.getLayers()!=null && !sps.getLayers().isEmpty()) {
+            LayerSummary ls = sps.getLayers().get(0);
+            ls.setNsUrl(nsUrl);
+        }
+        return sps;
     }
 
     public boolean isConfigInUrlAndAdmin(DataWrapper data, User user){

@@ -18,7 +18,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>b3p-commons-gis</artifactId>
-            <version>4.2.5</version>
+            <version>4.2.10</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -147,7 +147,7 @@
         <connection>scm:git:git@github.com:B3Partners/kaartenbalie.git</connection>
         <developerConnection>scm:git:git@github.com:B3Partners/kaartenbalie.git</developerConnection>
         <url>https://github.com/B3Partners/kaartenbalie</url>
-        <tag>kaartenbalie-${project.version}</tag>
+        <tag>kaartenbalie-4.2.8</tag>
     </scm>
     <distributionManagement>
         <repository>
