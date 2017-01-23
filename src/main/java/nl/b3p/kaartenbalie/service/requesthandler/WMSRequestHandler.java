@@ -721,7 +721,11 @@ public abstract class WMSRequestHandler extends OGCRequestHandler {
             else
                 keyValuePair[1]="";
             
-            if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
+            if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYER)) {
+                returnValue.append(OGCConstants.WMS_PARAM_LAYER);
+                returnValue.append("=");
+                returnValue.append(layersString);
+            } else if (keyValuePair[0].equalsIgnoreCase(OGCConstants.WMS_PARAM_LAYERS)) {
                 returnValue.append(OGCConstants.WMS_PARAM_LAYERS);
                 returnValue.append("=");
                 returnValue.append(layersString);
