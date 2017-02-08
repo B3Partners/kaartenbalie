@@ -317,7 +317,8 @@ function B3PDataTable(table) {
                 return ((x < y) ? 1 : ((x > y) ?  -1 : 0)); 
             };
             var parseDutchDate = function(obj) {
-                var s = obj.text();
+
+                var s = obj.selector;
                 var hit = s.match(/(\d{2})-(\d{2})-(\d{4})/);
                 if (hit && hit.length === 4) return new Date(hit[3], hit[2], hit[1]);
                 return new Date(s); 
