@@ -158,7 +158,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                 <table id="server_table" class="dataTable">
                     <thead>
                         <tr>
-                            <th style="width: 20%;"><fmt:message key="beheer.userUsername"/></th>
+                            <th style="width: 20%;" class="{sorter:'html'}"><fmt:message key="beheer.userUsername"/></th>
                             <th style="width: 25%;"><fmt:message key="beheer.fullName"/></th>
                             <th style="width: 15%;"><fmt:message key="beheer.userOrganization"/></th>
                             <th style="width: 15%;"></th>
@@ -196,7 +196,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
                                 </td>
                                 <td>
                                     <c:forEach var="nRole" varStatus="status" items="${nUser.roles}">
-                                        <c:out value="${nRole.role}" /><c:if test="${!status.last}">,</c:if>
+                                        <c:out value="${nRole.role}" /> <c:if test="${!status.last}"><br></c:if>
                                     </c:forEach>
                                 </td>
                                 <td <jsp:useBean id="today" class="java.util.Date" />
