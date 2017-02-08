@@ -156,6 +156,9 @@ function B3PDataTable(table) {
         if(column.className.match(/sorter\:[ ]?[']?digit[']?/)) {
             sortType = "numeric";
         }
+        if(column.className.match(/sorter\:[ ]?[']?html[']?/)) {
+            sortType = "html";
+        }
         if(column.className.match(/sorter\:[ ]?[']?dutchdates[']?/)) {
             sortType = "dutchdates";
         }
