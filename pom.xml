@@ -147,7 +147,6 @@
         <connection>scm:git:git@github.com:B3Partners/kaartenbalie.git</connection>
         <developerConnection>scm:git:git@github.com:B3Partners/kaartenbalie.git</developerConnection>
         <url>https://github.com/B3Partners/kaartenbalie</url>
-        <tag>kaartenbalie-4.2.8</tag>
     </scm>
     <distributionManagement>
         <repository>
